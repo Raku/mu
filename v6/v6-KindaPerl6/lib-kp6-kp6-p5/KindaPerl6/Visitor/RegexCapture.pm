@@ -10,43 +10,16 @@
     use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
-
-    BEGIN {
-        $_ =
-          ::DISPATCH( $::Scalar, "new",
-            { modified => $_MODIFIED, name => "$_" } );
-    }
+    BEGIN { $_ = ::DISPATCH( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
     {
         do {
-            if (
-                ::DISPATCH(
-                    ::DISPATCH(
-                        ::DISPATCH(
-                            $GLOBAL::Code_VAR_defined, 'APPLY',
-                            $::KindaPerl6::Visitor::RegexCapture
-                        ),
-                        "true"
-                    ),
-                    "p5landish"
-                )
-              )
-            {
-            }
+            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::KindaPerl6::Visitor::RegexCapture ), "true" ), "p5landish" ) ) { }
             else {
                 {
                     do {
                         ::MODIFIED($::KindaPerl6::Visitor::RegexCapture);
-                        $::KindaPerl6::Visitor::RegexCapture = ::DISPATCH(
-                            ::DISPATCH(
-                                $::Class, 'new',
-                                ::DISPATCH(
-                                    $::Str, 'new',
-                                    'KindaPerl6::Visitor::RegexCapture'
-                                )
-                            ),
-                            'PROTOTYPE',
-                        );
-                      }
+                        $::KindaPerl6::Visitor::RegexCapture = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'KindaPerl6::Visitor::RegexCapture' ) ), 'PROTOTYPE', );
+                        }
                 }
             }
         };
@@ -58,43 +31,17 @@
                 $::Method,
                 'new',
                 sub {
-                    my $List__ =
-                      ::DISPATCH( $::Array, 'new',
-                        { modified => $_MODIFIED, name => '$List__' } );
+                    my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                     my $node;
-                    $node =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$node' } )
-                      unless defined $node;
-
-                    BEGIN {
-                        $node =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$node' } );
-                    }
+                    $node = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$node' } ) unless defined $node;
+                    BEGIN { $node = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$node' } ) }
                     my $node_name;
-                    $node_name =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$node_name' } )
-                      unless defined $node_name;
-
-                    BEGIN {
-                        $node_name =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$node_name' } );
-                    }
+                    $node_name = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$node_name' } ) unless defined $node_name;
+                    BEGIN { $node_name = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$node_name' } ) }
                     $self = shift;
                     my $CAPTURE;
-                    $CAPTURE =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$CAPTURE' } )
-                      unless defined $CAPTURE;
-
-                    BEGIN {
-                        $CAPTURE =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$CAPTURE' } );
-                    }
+                    $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
+                    BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
                     ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
                     do {
                         ::MODIFIED($List__);
@@ -106,42 +53,16 @@
                     };
                     do {
                         ::MODIFIED($node);
-                        $node =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 0 ) );
+                        $node = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                     };
                     do {
                         ::MODIFIED($node_name);
-                        $node_name =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 1 ) );
+                        $node_name = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     do {
-                        if (
-                            ::DISPATCH(
-                                ::DISPATCH(
-                                    ::DISPATCH(
-                                        $GLOBAL::Code_infix_58__60_eq_62_,
-                                        'APPLY',
-                                        $node_name,
-                                        ::DISPATCH( $::Str, 'new', 'Token' )
-                                    ),
-                                    "true"
-                                ),
-                                "p5landish"
-                            )
-                          )
-                        {
+                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $node_name, ::DISPATCH( $::Str, 'new', 'Token' ) ), "true" ), "p5landish" ) ) {
                             {
-                                ::DISPATCH(
-                                    ::DISPATCH( $node, 'regex', ),
-                                    'capture_count',
-                                    ::DISPATCH( $::Int, 'new', 0 ),
-                                    ::DISPATCH( $::Int, 'new', 0 ),
-                                    ::DISPATCH(
-                                        $::Hash, "new", { _hash => {} }
-                                    )
-                                );
+                                ::DISPATCH( ::DISPATCH( $node, 'regex', ), 'capture_count', ::DISPATCH( $::Int, 'new', 0 ), ::DISPATCH( $::Int, 'new', 0 ), ::DISPATCH( $::Hash, "new", { _hash => {} } ) );
                                 return ($node)
                             }
                         }
@@ -149,7 +70,7 @@
                     return ($::Undef);
                 }
             )
-          )
+            )
     };
     1
 }
@@ -165,41 +86,16 @@
     use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
-
-    BEGIN {
-        $_ =
-          ::DISPATCH( $::Scalar, "new",
-            { modified => $_MODIFIED, name => "$_" } );
-    }
+    BEGIN { $_ = ::DISPATCH( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
     {
         do {
-            if (
-                ::DISPATCH(
-                    ::DISPATCH(
-                        ::DISPATCH(
-                            $GLOBAL::Code_VAR_defined, 'APPLY',
-                            $::Rule::Quantifier
-                        ),
-                        "true"
-                    ),
-                    "p5landish"
-                )
-              )
-            {
-            }
+            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Rule::Quantifier ), "true" ), "p5landish" ) ) { }
             else {
                 {
                     do {
                         ::MODIFIED($::Rule::Quantifier);
-                        $::Rule::Quantifier = ::DISPATCH(
-                            ::DISPATCH(
-                                $::Class,
-                                'new',
-                                ::DISPATCH( $::Str, 'new', 'Rule::Quantifier' )
-                            ),
-                            'PROTOTYPE',
-                        );
-                      }
+                        $::Rule::Quantifier = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Rule::Quantifier' ) ), 'PROTOTYPE', );
+                        }
                 }
             }
         };
@@ -211,54 +107,20 @@
                 $::Method,
                 'new',
                 sub {
-                    my $List__ =
-                      ::DISPATCH( $::Array, 'new',
-                        { modified => $_MODIFIED, name => '$List__' } );
+                    my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                     my $count;
-                    $count =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$count' } )
-                      unless defined $count;
-
-                    BEGIN {
-                        $count =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$count' } );
-                    }
+                    $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) unless defined $count;
+                    BEGIN { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
                     my $quantified;
-                    $quantified =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$quantified' } )
-                      unless defined $quantified;
-
-                    BEGIN {
-                        $quantified =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$quantified' } );
-                    }
+                    $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) unless defined $quantified;
+                    BEGIN { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
                     my $seen;
-                    $seen =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$seen' } )
-                      unless defined $seen;
-
-                    BEGIN {
-                        $seen =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$seen' } );
-                    }
+                    $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) unless defined $seen;
+                    BEGIN { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
                     $self = shift;
                     my $CAPTURE;
-                    $CAPTURE =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$CAPTURE' } )
-                      unless defined $CAPTURE;
-
-                    BEGIN {
-                        $CAPTURE =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$CAPTURE' } );
-                    }
+                    $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
+                    BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
                     ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
                     do {
                         ::MODIFIED($List__);
@@ -270,29 +132,21 @@
                     };
                     do {
                         ::MODIFIED($count);
-                        $count =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 0 ) );
+                        $count = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                     };
                     do {
                         ::MODIFIED($quantified);
-                        $quantified =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 1 ) );
+                        $quantified = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     do {
                         ::MODIFIED($seen);
-                        $seen =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 2 ) );
+                        $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 ) );
                     };
-                    ::DISPATCH( ::DISPATCH( $self, "term" ),
-                        'capture_count', $count, ::DISPATCH( $::Int, 'new', 1 ),
-                        $seen );
+                    ::DISPATCH( ::DISPATCH( $self, "term" ), 'capture_count', $count, ::DISPATCH( $::Int, 'new', 1 ), $seen );
                     $count;
                 }
             )
-          )
+            )
     };
     1
 }
@@ -308,39 +162,16 @@
     use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
-
-    BEGIN {
-        $_ =
-          ::DISPATCH( $::Scalar, "new",
-            { modified => $_MODIFIED, name => "$_" } );
-    }
+    BEGIN { $_ = ::DISPATCH( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
     {
         do {
-            if (
-                ::DISPATCH(
-                    ::DISPATCH(
-                        ::DISPATCH(
-                            $GLOBAL::Code_VAR_defined, 'APPLY', $::Rule::Or
-                        ),
-                        "true"
-                    ),
-                    "p5landish"
-                )
-              )
-            {
-            }
+            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Rule::Or ), "true" ), "p5landish" ) ) { }
             else {
                 {
                     do {
                         ::MODIFIED($::Rule::Or);
-                        $::Rule::Or = ::DISPATCH(
-                            ::DISPATCH(
-                                $::Class, 'new',
-                                ::DISPATCH( $::Str, 'new', 'Rule::Or' )
-                            ),
-                            'PROTOTYPE',
-                        );
-                      }
+                        $::Rule::Or = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Rule::Or' ) ), 'PROTOTYPE', );
+                        }
                 }
             }
         };
@@ -353,64 +184,22 @@
                 'new',
                 sub {
                     my $max;
-                    $max =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$max' } )
-                      unless defined $max;
-
-                    BEGIN {
-                        $max =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$max' } );
-                    }
-                    my $List__ =
-                      ::DISPATCH( $::Array, 'new',
-                        { modified => $_MODIFIED, name => '$List__' } );
+                    $max = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$max' } ) unless defined $max;
+                    BEGIN { $max = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$max' } ) }
+                    my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                     my $count;
-                    $count =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$count' } )
-                      unless defined $count;
-
-                    BEGIN {
-                        $count =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$count' } );
-                    }
+                    $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) unless defined $count;
+                    BEGIN { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
                     my $quantified;
-                    $quantified =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$quantified' } )
-                      unless defined $quantified;
-
-                    BEGIN {
-                        $quantified =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$quantified' } );
-                    }
+                    $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) unless defined $quantified;
+                    BEGIN { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
                     my $seen;
-                    $seen =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$seen' } )
-                      unless defined $seen;
-
-                    BEGIN {
-                        $seen =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$seen' } );
-                    }
+                    $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) unless defined $seen;
+                    BEGIN { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
                     $self = shift;
                     my $CAPTURE;
-                    $CAPTURE =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$CAPTURE' } )
-                      unless defined $CAPTURE;
-
-                    BEGIN {
-                        $CAPTURE =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$CAPTURE' } );
-                    }
+                    $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
+                    BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
                     ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
                     do {
                         ::MODIFIED($List__);
@@ -422,21 +211,15 @@
                     };
                     do {
                         ::MODIFIED($count);
-                        $count =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 0 ) );
+                        $count = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                     };
                     do {
                         ::MODIFIED($quantified);
-                        $quantified =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 1 ) );
+                        $quantified = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     do {
                         ::MODIFIED($seen);
-                        $seen =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 2 ) );
+                        $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 ) );
                     };
                     do {
                         ::MODIFIED($max);
@@ -444,70 +227,34 @@
                     };
                     {
                         my $regex;
-                        $regex =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$regex' } )
-                          unless defined $regex;
-
-                        BEGIN {
-                            $regex =
-                              ::DISPATCH( $::Scalar, 'new',
-                                { modified => $_MODIFIED, name => '$regex' } );
-                        }
-                        for $regex (
-                            @{ ::DISPATCH( $self, "or" )->{_value}{_array} } )
-                        {
+                        $regex = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$regex' } ) unless defined $regex;
+                        BEGIN { $regex = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$regex' } ) }
+                        for $regex ( @{ ::DISPATCH( $self, "or" )->{_value}{_array} } ) {
                             {
                                 my $last;
-                                $last = ::DISPATCH( $::Scalar, 'new',
-                                    { modified => $_MODIFIED, name => '$last' }
-                                ) unless defined $last;
-
-                                BEGIN {
-                                    $last = ::DISPATCH(
-                                        $::Scalar,
-                                        'new',
-                                        {
-                                            modified => $_MODIFIED,
-                                            name     => '$last'
-                                        }
-                                    );
-                                }
+                                $last = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$last' } ) unless defined $last;
+                                BEGIN { $last = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$last' } ) }
                                 do {
                                     ::MODIFIED($last);
-                                    $last =
-                                      ::DISPATCH( $regex, 'capture_count',
-                                        $count, $quantified, $seen );
+                                    $last = ::DISPATCH( $regex, 'capture_count', $count, $quantified, $seen );
                                 };
                                 do {
-                                    if (
-                                        ::DISPATCH(
-                                            ::DISPATCH(
-                                                ::DISPATCH(
-                                                    $GLOBAL::Code_infix_58__60__62__62_,
-                                                    'APPLY', $last, $max
-                                                ),
-                                                "true"
-                                            ),
-                                            "p5landish"
-                                        )
-                                      )
-                                    {
+                                    if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60__62__62_, 'APPLY', $last, $max ), "true" ), "p5landish" ) ) {
                                         {
                                             do {
                                                 ::MODIFIED($max);
                                                 $max = $last;
-                                              }
+                                                }
                                         }
                                     }
-                                  }
+                                    }
                             }
                         }
                     };
                     $max;
                 }
             )
-          )
+            )
     };
     1
 }
@@ -523,40 +270,16 @@
     use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
-
-    BEGIN {
-        $_ =
-          ::DISPATCH( $::Scalar, "new",
-            { modified => $_MODIFIED, name => "$_" } );
-    }
+    BEGIN { $_ = ::DISPATCH( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
     {
         do {
-            if (
-                ::DISPATCH(
-                    ::DISPATCH(
-                        ::DISPATCH(
-                            $GLOBAL::Code_VAR_defined, 'APPLY',
-                            $::Rule::Concat
-                        ),
-                        "true"
-                    ),
-                    "p5landish"
-                )
-              )
-            {
-            }
+            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Rule::Concat ), "true" ), "p5landish" ) ) { }
             else {
                 {
                     do {
                         ::MODIFIED($::Rule::Concat);
-                        $::Rule::Concat = ::DISPATCH(
-                            ::DISPATCH(
-                                $::Class, 'new',
-                                ::DISPATCH( $::Str, 'new', 'Rule::Concat' )
-                            ),
-                            'PROTOTYPE',
-                        );
-                      }
+                        $::Rule::Concat = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Rule::Concat' ) ), 'PROTOTYPE', );
+                        }
                 }
             }
         };
@@ -568,54 +291,20 @@
                 $::Method,
                 'new',
                 sub {
-                    my $List__ =
-                      ::DISPATCH( $::Array, 'new',
-                        { modified => $_MODIFIED, name => '$List__' } );
+                    my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                     my $count;
-                    $count =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$count' } )
-                      unless defined $count;
-
-                    BEGIN {
-                        $count =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$count' } );
-                    }
+                    $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) unless defined $count;
+                    BEGIN { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
                     my $quantified;
-                    $quantified =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$quantified' } )
-                      unless defined $quantified;
-
-                    BEGIN {
-                        $quantified =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$quantified' } );
-                    }
+                    $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) unless defined $quantified;
+                    BEGIN { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
                     my $seen;
-                    $seen =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$seen' } )
-                      unless defined $seen;
-
-                    BEGIN {
-                        $seen =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$seen' } );
-                    }
+                    $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) unless defined $seen;
+                    BEGIN { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
                     $self = shift;
                     my $CAPTURE;
-                    $CAPTURE =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$CAPTURE' } )
-                      unless defined $CAPTURE;
-
-                    BEGIN {
-                        $CAPTURE =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$CAPTURE' } );
-                    }
+                    $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
+                    BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
                     ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
                     do {
                         ::MODIFIED($List__);
@@ -627,52 +316,33 @@
                     };
                     do {
                         ::MODIFIED($count);
-                        $count =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 0 ) );
+                        $count = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                     };
                     do {
                         ::MODIFIED($quantified);
-                        $quantified =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 1 ) );
+                        $quantified = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     do {
                         ::MODIFIED($seen);
-                        $seen =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 2 ) );
+                        $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 ) );
                     };
                     {
                         my $regex;
-                        $regex =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$regex' } )
-                          unless defined $regex;
-
-                        BEGIN {
-                            $regex =
-                              ::DISPATCH( $::Scalar, 'new',
-                                { modified => $_MODIFIED, name => '$regex' } );
-                        }
-                        for $regex (
-                            @{ ::DISPATCH( $self, "concat" )->{_value}{_array} }
-                          )
-                        {
+                        $regex = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$regex' } ) unless defined $regex;
+                        BEGIN { $regex = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$regex' } ) }
+                        for $regex ( @{ ::DISPATCH( $self, "concat" )->{_value}{_array} } ) {
                             {
                                 do {
                                     ::MODIFIED($count);
-                                    $count =
-                                      ::DISPATCH( $regex, 'capture_count',
-                                        $count, $quantified, $seen );
-                                  }
+                                    $count = ::DISPATCH( $regex, 'capture_count', $count, $quantified, $seen );
+                                    }
                             }
                         }
                     };
                     $count;
                 }
             )
-          )
+            )
     };
     1
 }
@@ -688,42 +358,16 @@
     use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
-
-    BEGIN {
-        $_ =
-          ::DISPATCH( $::Scalar, "new",
-            { modified => $_MODIFIED, name => "$_" } );
-    }
+    BEGIN { $_ = ::DISPATCH( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
     {
         do {
-            if (
-                ::DISPATCH(
-                    ::DISPATCH(
-                        ::DISPATCH(
-                            $GLOBAL::Code_VAR_defined, 'APPLY',
-                            $::Rule::SubruleNoCapture
-                        ),
-                        "true"
-                    ),
-                    "p5landish"
-                )
-              )
-            {
-            }
+            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Rule::SubruleNoCapture ), "true" ), "p5landish" ) ) { }
             else {
                 {
                     do {
                         ::MODIFIED($::Rule::SubruleNoCapture);
-                        $::Rule::SubruleNoCapture = ::DISPATCH(
-                            ::DISPATCH(
-                                $::Class, 'new',
-                                ::DISPATCH(
-                                    $::Str, 'new', 'Rule::SubruleNoCapture'
-                                )
-                            ),
-                            'PROTOTYPE',
-                        );
-                      }
+                        $::Rule::SubruleNoCapture = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Rule::SubruleNoCapture' ) ), 'PROTOTYPE', );
+                        }
                 }
             }
         };
@@ -735,54 +379,20 @@
                 $::Method,
                 'new',
                 sub {
-                    my $List__ =
-                      ::DISPATCH( $::Array, 'new',
-                        { modified => $_MODIFIED, name => '$List__' } );
+                    my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                     my $count;
-                    $count =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$count' } )
-                      unless defined $count;
-
-                    BEGIN {
-                        $count =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$count' } );
-                    }
+                    $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) unless defined $count;
+                    BEGIN { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
                     my $quantified;
-                    $quantified =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$quantified' } )
-                      unless defined $quantified;
-
-                    BEGIN {
-                        $quantified =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$quantified' } );
-                    }
+                    $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) unless defined $quantified;
+                    BEGIN { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
                     my $seen;
-                    $seen =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$seen' } )
-                      unless defined $seen;
-
-                    BEGIN {
-                        $seen =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$seen' } );
-                    }
+                    $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) unless defined $seen;
+                    BEGIN { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
                     $self = shift;
                     my $CAPTURE;
-                    $CAPTURE =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$CAPTURE' } )
-                      unless defined $CAPTURE;
-
-                    BEGIN {
-                        $CAPTURE =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$CAPTURE' } );
-                    }
+                    $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
+                    BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
                     ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
                     do {
                         ::MODIFIED($List__);
@@ -794,26 +404,20 @@
                     };
                     do {
                         ::MODIFIED($count);
-                        $count =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 0 ) );
+                        $count = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                     };
                     do {
                         ::MODIFIED($quantified);
-                        $quantified =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 1 ) );
+                        $quantified = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     do {
                         ::MODIFIED($seen);
-                        $seen =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 2 ) );
+                        $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 ) );
                     };
                     $count;
                 }
             )
-          )
+            )
     };
     1
 }
@@ -829,40 +433,16 @@
     use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
-
-    BEGIN {
-        $_ =
-          ::DISPATCH( $::Scalar, "new",
-            { modified => $_MODIFIED, name => "$_" } );
-    }
+    BEGIN { $_ = ::DISPATCH( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
     {
         do {
-            if (
-                ::DISPATCH(
-                    ::DISPATCH(
-                        ::DISPATCH(
-                            $GLOBAL::Code_VAR_defined, 'APPLY',
-                            $::Rule::Var
-                        ),
-                        "true"
-                    ),
-                    "p5landish"
-                )
-              )
-            {
-            }
+            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Rule::Var ), "true" ), "p5landish" ) ) { }
             else {
                 {
                     do {
                         ::MODIFIED($::Rule::Var);
-                        $::Rule::Var = ::DISPATCH(
-                            ::DISPATCH(
-                                $::Class, 'new',
-                                ::DISPATCH( $::Str, 'new', 'Rule::Var' )
-                            ),
-                            'PROTOTYPE',
-                        );
-                      }
+                        $::Rule::Var = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Rule::Var' ) ), 'PROTOTYPE', );
+                        }
                 }
             }
         };
@@ -874,54 +454,20 @@
                 $::Method,
                 'new',
                 sub {
-                    my $List__ =
-                      ::DISPATCH( $::Array, 'new',
-                        { modified => $_MODIFIED, name => '$List__' } );
+                    my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                     my $count;
-                    $count =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$count' } )
-                      unless defined $count;
-
-                    BEGIN {
-                        $count =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$count' } );
-                    }
+                    $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) unless defined $count;
+                    BEGIN { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
                     my $quantified;
-                    $quantified =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$quantified' } )
-                      unless defined $quantified;
-
-                    BEGIN {
-                        $quantified =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$quantified' } );
-                    }
+                    $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) unless defined $quantified;
+                    BEGIN { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
                     my $seen;
-                    $seen =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$seen' } )
-                      unless defined $seen;
-
-                    BEGIN {
-                        $seen =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$seen' } );
-                    }
+                    $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) unless defined $seen;
+                    BEGIN { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
                     $self = shift;
                     my $CAPTURE;
-                    $CAPTURE =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$CAPTURE' } )
-                      unless defined $CAPTURE;
-
-                    BEGIN {
-                        $CAPTURE =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$CAPTURE' } );
-                    }
+                    $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
+                    BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
                     ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
                     do {
                         ::MODIFIED($List__);
@@ -933,26 +479,20 @@
                     };
                     do {
                         ::MODIFIED($count);
-                        $count =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 0 ) );
+                        $count = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                     };
                     do {
                         ::MODIFIED($quantified);
-                        $quantified =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 1 ) );
+                        $quantified = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     do {
                         ::MODIFIED($seen);
-                        $seen =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 2 ) );
+                        $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 ) );
                     };
                     $count;
                 }
             )
-          )
+            )
     };
     1
 }
@@ -968,40 +508,16 @@
     use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
-
-    BEGIN {
-        $_ =
-          ::DISPATCH( $::Scalar, "new",
-            { modified => $_MODIFIED, name => "$_" } );
-    }
+    BEGIN { $_ = ::DISPATCH( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
     {
         do {
-            if (
-                ::DISPATCH(
-                    ::DISPATCH(
-                        ::DISPATCH(
-                            $GLOBAL::Code_VAR_defined, 'APPLY',
-                            $::Rule::Constant
-                        ),
-                        "true"
-                    ),
-                    "p5landish"
-                )
-              )
-            {
-            }
+            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Rule::Constant ), "true" ), "p5landish" ) ) { }
             else {
                 {
                     do {
                         ::MODIFIED($::Rule::Constant);
-                        $::Rule::Constant = ::DISPATCH(
-                            ::DISPATCH(
-                                $::Class, 'new',
-                                ::DISPATCH( $::Str, 'new', 'Rule::Constant' )
-                            ),
-                            'PROTOTYPE',
-                        );
-                      }
+                        $::Rule::Constant = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Rule::Constant' ) ), 'PROTOTYPE', );
+                        }
                 }
             }
         };
@@ -1013,54 +529,20 @@
                 $::Method,
                 'new',
                 sub {
-                    my $List__ =
-                      ::DISPATCH( $::Array, 'new',
-                        { modified => $_MODIFIED, name => '$List__' } );
+                    my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                     my $count;
-                    $count =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$count' } )
-                      unless defined $count;
-
-                    BEGIN {
-                        $count =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$count' } );
-                    }
+                    $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) unless defined $count;
+                    BEGIN { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
                     my $quantified;
-                    $quantified =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$quantified' } )
-                      unless defined $quantified;
-
-                    BEGIN {
-                        $quantified =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$quantified' } );
-                    }
+                    $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) unless defined $quantified;
+                    BEGIN { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
                     my $seen;
-                    $seen =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$seen' } )
-                      unless defined $seen;
-
-                    BEGIN {
-                        $seen =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$seen' } );
-                    }
+                    $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) unless defined $seen;
+                    BEGIN { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
                     $self = shift;
                     my $CAPTURE;
-                    $CAPTURE =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$CAPTURE' } )
-                      unless defined $CAPTURE;
-
-                    BEGIN {
-                        $CAPTURE =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$CAPTURE' } );
-                    }
+                    $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
+                    BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
                     ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
                     do {
                         ::MODIFIED($List__);
@@ -1072,26 +554,20 @@
                     };
                     do {
                         ::MODIFIED($count);
-                        $count =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 0 ) );
+                        $count = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                     };
                     do {
                         ::MODIFIED($quantified);
-                        $quantified =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 1 ) );
+                        $quantified = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     do {
                         ::MODIFIED($seen);
-                        $seen =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 2 ) );
+                        $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 ) );
                     };
                     $count;
                 }
             )
-          )
+            )
     };
     1
 }
@@ -1107,40 +583,16 @@
     use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
-
-    BEGIN {
-        $_ =
-          ::DISPATCH( $::Scalar, "new",
-            { modified => $_MODIFIED, name => "$_" } );
-    }
+    BEGIN { $_ = ::DISPATCH( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
     {
         do {
-            if (
-                ::DISPATCH(
-                    ::DISPATCH(
-                        ::DISPATCH(
-                            $GLOBAL::Code_VAR_defined, 'APPLY',
-                            $::Rule::Dot
-                        ),
-                        "true"
-                    ),
-                    "p5landish"
-                )
-              )
-            {
-            }
+            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Rule::Dot ), "true" ), "p5landish" ) ) { }
             else {
                 {
                     do {
                         ::MODIFIED($::Rule::Dot);
-                        $::Rule::Dot = ::DISPATCH(
-                            ::DISPATCH(
-                                $::Class, 'new',
-                                ::DISPATCH( $::Str, 'new', 'Rule::Dot' )
-                            ),
-                            'PROTOTYPE',
-                        );
-                      }
+                        $::Rule::Dot = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Rule::Dot' ) ), 'PROTOTYPE', );
+                        }
                 }
             }
         };
@@ -1152,54 +604,20 @@
                 $::Method,
                 'new',
                 sub {
-                    my $List__ =
-                      ::DISPATCH( $::Array, 'new',
-                        { modified => $_MODIFIED, name => '$List__' } );
+                    my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                     my $count;
-                    $count =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$count' } )
-                      unless defined $count;
-
-                    BEGIN {
-                        $count =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$count' } );
-                    }
+                    $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) unless defined $count;
+                    BEGIN { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
                     my $quantified;
-                    $quantified =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$quantified' } )
-                      unless defined $quantified;
-
-                    BEGIN {
-                        $quantified =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$quantified' } );
-                    }
+                    $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) unless defined $quantified;
+                    BEGIN { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
                     my $seen;
-                    $seen =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$seen' } )
-                      unless defined $seen;
-
-                    BEGIN {
-                        $seen =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$seen' } );
-                    }
+                    $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) unless defined $seen;
+                    BEGIN { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
                     $self = shift;
                     my $CAPTURE;
-                    $CAPTURE =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$CAPTURE' } )
-                      unless defined $CAPTURE;
-
-                    BEGIN {
-                        $CAPTURE =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$CAPTURE' } );
-                    }
+                    $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
+                    BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
                     ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
                     do {
                         ::MODIFIED($List__);
@@ -1211,26 +629,20 @@
                     };
                     do {
                         ::MODIFIED($count);
-                        $count =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 0 ) );
+                        $count = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                     };
                     do {
                         ::MODIFIED($quantified);
-                        $quantified =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 1 ) );
+                        $quantified = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     do {
                         ::MODIFIED($seen);
-                        $seen =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 2 ) );
+                        $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 ) );
                     };
                     $count;
                 }
             )
-          )
+            )
     };
     1
 }
@@ -1246,42 +658,16 @@
     use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
-
-    BEGIN {
-        $_ =
-          ::DISPATCH( $::Scalar, "new",
-            { modified => $_MODIFIED, name => "$_" } );
-    }
+    BEGIN { $_ = ::DISPATCH( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
     {
         do {
-            if (
-                ::DISPATCH(
-                    ::DISPATCH(
-                        ::DISPATCH(
-                            $GLOBAL::Code_VAR_defined, 'APPLY',
-                            $::Rule::SpecialChar
-                        ),
-                        "true"
-                    ),
-                    "p5landish"
-                )
-              )
-            {
-            }
+            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Rule::SpecialChar ), "true" ), "p5landish" ) ) { }
             else {
                 {
                     do {
                         ::MODIFIED($::Rule::SpecialChar);
-                        $::Rule::SpecialChar = ::DISPATCH(
-                            ::DISPATCH(
-                                $::Class, 'new',
-                                ::DISPATCH(
-                                    $::Str, 'new', 'Rule::SpecialChar'
-                                )
-                            ),
-                            'PROTOTYPE',
-                        );
-                      }
+                        $::Rule::SpecialChar = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Rule::SpecialChar' ) ), 'PROTOTYPE', );
+                        }
                 }
             }
         };
@@ -1293,54 +679,20 @@
                 $::Method,
                 'new',
                 sub {
-                    my $List__ =
-                      ::DISPATCH( $::Array, 'new',
-                        { modified => $_MODIFIED, name => '$List__' } );
+                    my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                     my $count;
-                    $count =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$count' } )
-                      unless defined $count;
-
-                    BEGIN {
-                        $count =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$count' } );
-                    }
+                    $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) unless defined $count;
+                    BEGIN { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
                     my $quantified;
-                    $quantified =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$quantified' } )
-                      unless defined $quantified;
-
-                    BEGIN {
-                        $quantified =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$quantified' } );
-                    }
+                    $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) unless defined $quantified;
+                    BEGIN { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
                     my $seen;
-                    $seen =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$seen' } )
-                      unless defined $seen;
-
-                    BEGIN {
-                        $seen =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$seen' } );
-                    }
+                    $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) unless defined $seen;
+                    BEGIN { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
                     $self = shift;
                     my $CAPTURE;
-                    $CAPTURE =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$CAPTURE' } )
-                      unless defined $CAPTURE;
-
-                    BEGIN {
-                        $CAPTURE =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$CAPTURE' } );
-                    }
+                    $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
+                    BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
                     ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
                     do {
                         ::MODIFIED($List__);
@@ -1352,26 +704,20 @@
                     };
                     do {
                         ::MODIFIED($count);
-                        $count =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 0 ) );
+                        $count = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                     };
                     do {
                         ::MODIFIED($quantified);
-                        $quantified =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 1 ) );
+                        $quantified = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     do {
                         ::MODIFIED($seen);
-                        $seen =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 2 ) );
+                        $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 ) );
                     };
                     $count;
                 }
             )
-          )
+            )
     };
     1
 }
@@ -1387,40 +733,16 @@
     use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
-
-    BEGIN {
-        $_ =
-          ::DISPATCH( $::Scalar, "new",
-            { modified => $_MODIFIED, name => "$_" } );
-    }
+    BEGIN { $_ = ::DISPATCH( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
     {
         do {
-            if (
-                ::DISPATCH(
-                    ::DISPATCH(
-                        ::DISPATCH(
-                            $GLOBAL::Code_VAR_defined, 'APPLY',
-                            $::Rule::Block
-                        ),
-                        "true"
-                    ),
-                    "p5landish"
-                )
-              )
-            {
-            }
+            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Rule::Block ), "true" ), "p5landish" ) ) { }
             else {
                 {
                     do {
                         ::MODIFIED($::Rule::Block);
-                        $::Rule::Block = ::DISPATCH(
-                            ::DISPATCH(
-                                $::Class, 'new',
-                                ::DISPATCH( $::Str, 'new', 'Rule::Block' )
-                            ),
-                            'PROTOTYPE',
-                        );
-                      }
+                        $::Rule::Block = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Rule::Block' ) ), 'PROTOTYPE', );
+                        }
                 }
             }
         };
@@ -1432,54 +754,20 @@
                 $::Method,
                 'new',
                 sub {
-                    my $List__ =
-                      ::DISPATCH( $::Array, 'new',
-                        { modified => $_MODIFIED, name => '$List__' } );
+                    my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                     my $count;
-                    $count =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$count' } )
-                      unless defined $count;
-
-                    BEGIN {
-                        $count =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$count' } );
-                    }
+                    $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) unless defined $count;
+                    BEGIN { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
                     my $quantified;
-                    $quantified =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$quantified' } )
-                      unless defined $quantified;
-
-                    BEGIN {
-                        $quantified =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$quantified' } );
-                    }
+                    $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) unless defined $quantified;
+                    BEGIN { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
                     my $seen;
-                    $seen =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$seen' } )
-                      unless defined $seen;
-
-                    BEGIN {
-                        $seen =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$seen' } );
-                    }
+                    $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) unless defined $seen;
+                    BEGIN { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
                     $self = shift;
                     my $CAPTURE;
-                    $CAPTURE =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$CAPTURE' } )
-                      unless defined $CAPTURE;
-
-                    BEGIN {
-                        $CAPTURE =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$CAPTURE' } );
-                    }
+                    $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
+                    BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
                     ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
                     do {
                         ::MODIFIED($List__);
@@ -1491,26 +779,20 @@
                     };
                     do {
                         ::MODIFIED($count);
-                        $count =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 0 ) );
+                        $count = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                     };
                     do {
                         ::MODIFIED($quantified);
-                        $quantified =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 1 ) );
+                        $quantified = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     do {
                         ::MODIFIED($seen);
-                        $seen =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 2 ) );
+                        $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 ) );
                     };
                     $count;
                 }
             )
-          )
+            )
     };
     1
 }
@@ -1526,42 +808,16 @@
     use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
-
-    BEGIN {
-        $_ =
-          ::DISPATCH( $::Scalar, "new",
-            { modified => $_MODIFIED, name => "$_" } );
-    }
+    BEGIN { $_ = ::DISPATCH( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
     {
         do {
-            if (
-                ::DISPATCH(
-                    ::DISPATCH(
-                        ::DISPATCH(
-                            $GLOBAL::Code_VAR_defined, 'APPLY',
-                            $::Rule::InterpolateVar
-                        ),
-                        "true"
-                    ),
-                    "p5landish"
-                )
-              )
-            {
-            }
+            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Rule::InterpolateVar ), "true" ), "p5landish" ) ) { }
             else {
                 {
                     do {
                         ::MODIFIED($::Rule::InterpolateVar);
-                        $::Rule::InterpolateVar = ::DISPATCH(
-                            ::DISPATCH(
-                                $::Class, 'new',
-                                ::DISPATCH(
-                                    $::Str, 'new', 'Rule::InterpolateVar'
-                                )
-                            ),
-                            'PROTOTYPE',
-                        );
-                      }
+                        $::Rule::InterpolateVar = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Rule::InterpolateVar' ) ), 'PROTOTYPE', );
+                        }
                 }
             }
         };
@@ -1573,54 +829,20 @@
                 $::Method,
                 'new',
                 sub {
-                    my $List__ =
-                      ::DISPATCH( $::Array, 'new',
-                        { modified => $_MODIFIED, name => '$List__' } );
+                    my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                     my $count;
-                    $count =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$count' } )
-                      unless defined $count;
-
-                    BEGIN {
-                        $count =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$count' } );
-                    }
+                    $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) unless defined $count;
+                    BEGIN { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
                     my $quantified;
-                    $quantified =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$quantified' } )
-                      unless defined $quantified;
-
-                    BEGIN {
-                        $quantified =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$quantified' } );
-                    }
+                    $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) unless defined $quantified;
+                    BEGIN { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
                     my $seen;
-                    $seen =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$seen' } )
-                      unless defined $seen;
-
-                    BEGIN {
-                        $seen =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$seen' } );
-                    }
+                    $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) unless defined $seen;
+                    BEGIN { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
                     $self = shift;
                     my $CAPTURE;
-                    $CAPTURE =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$CAPTURE' } )
-                      unless defined $CAPTURE;
-
-                    BEGIN {
-                        $CAPTURE =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$CAPTURE' } );
-                    }
+                    $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
+                    BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
                     ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
                     do {
                         ::MODIFIED($List__);
@@ -1632,26 +854,20 @@
                     };
                     do {
                         ::MODIFIED($count);
-                        $count =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 0 ) );
+                        $count = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                     };
                     do {
                         ::MODIFIED($quantified);
-                        $quantified =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 1 ) );
+                        $quantified = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     do {
                         ::MODIFIED($seen);
-                        $seen =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 2 ) );
+                        $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 ) );
                     };
                     $count;
                 }
             )
-          )
+            )
     };
     1
 }
@@ -1667,40 +883,16 @@
     use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
-
-    BEGIN {
-        $_ =
-          ::DISPATCH( $::Scalar, "new",
-            { modified => $_MODIFIED, name => "$_" } );
-    }
+    BEGIN { $_ = ::DISPATCH( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
     {
         do {
-            if (
-                ::DISPATCH(
-                    ::DISPATCH(
-                        ::DISPATCH(
-                            $GLOBAL::Code_VAR_defined, 'APPLY',
-                            $::Rule::Before
-                        ),
-                        "true"
-                    ),
-                    "p5landish"
-                )
-              )
-            {
-            }
+            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Rule::Before ), "true" ), "p5landish" ) ) { }
             else {
                 {
                     do {
                         ::MODIFIED($::Rule::Before);
-                        $::Rule::Before = ::DISPATCH(
-                            ::DISPATCH(
-                                $::Class, 'new',
-                                ::DISPATCH( $::Str, 'new', 'Rule::Before' )
-                            ),
-                            'PROTOTYPE',
-                        );
-                      }
+                        $::Rule::Before = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Rule::Before' ) ), 'PROTOTYPE', );
+                        }
                 }
             }
         };
@@ -1712,54 +904,20 @@
                 $::Method,
                 'new',
                 sub {
-                    my $List__ =
-                      ::DISPATCH( $::Array, 'new',
-                        { modified => $_MODIFIED, name => '$List__' } );
+                    my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                     my $count;
-                    $count =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$count' } )
-                      unless defined $count;
-
-                    BEGIN {
-                        $count =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$count' } );
-                    }
+                    $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) unless defined $count;
+                    BEGIN { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
                     my $quantified;
-                    $quantified =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$quantified' } )
-                      unless defined $quantified;
-
-                    BEGIN {
-                        $quantified =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$quantified' } );
-                    }
+                    $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) unless defined $quantified;
+                    BEGIN { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
                     my $seen;
-                    $seen =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$seen' } )
-                      unless defined $seen;
-
-                    BEGIN {
-                        $seen =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$seen' } );
-                    }
+                    $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) unless defined $seen;
+                    BEGIN { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
                     $self = shift;
                     my $CAPTURE;
-                    $CAPTURE =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$CAPTURE' } )
-                      unless defined $CAPTURE;
-
-                    BEGIN {
-                        $CAPTURE =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$CAPTURE' } );
-                    }
+                    $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
+                    BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
                     ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
                     do {
                         ::MODIFIED($List__);
@@ -1771,40 +929,18 @@
                     };
                     do {
                         ::MODIFIED($count);
-                        $count =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 0 ) );
+                        $count = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                     };
                     do {
                         ::MODIFIED($quantified);
-                        $quantified =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 1 ) );
+                        $quantified = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     do {
                         ::MODIFIED($seen);
-                        $seen =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 2 ) );
+                        $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 ) );
                     };
                     do {
-                        if (
-                            ::DISPATCH(
-                                ::DISPATCH(
-                                    ::DISPATCH(
-                                        $GLOBAL::Code_infix_58__60_ne_62_,
-                                        'APPLY',
-                                        ::DISPATCH(
-                                            $self, "assertion_modifier"
-                                        ),
-                                        ::DISPATCH( $::Str, 'new', '' )
-                                    ),
-                                    "true"
-                                ),
-                                "p5landish"
-                            )
-                          )
-                        {
+                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_ne_62_, 'APPLY', ::DISPATCH( $self, "assertion_modifier" ), ::DISPATCH( $::Str, 'new', '' ) ), "true" ), "p5landish" ) ) {
                             {
                                 return ($count)
                             }
@@ -1812,65 +948,22 @@
                     };
                     do {
                         ::MODIFIED( ::DISPATCH( $self, "capture_to_array" ) );
-                        ::DISPATCH( $self, "capture_to_array" ) = ::DISPATCH(
-                            $GLOBAL::Code_infix_58__60__124__124__62_,
-                            'APPLY',
-                            $quantified,
-                            ::DISPATCH(
-                                $GLOBAL::Code_infix_58__60__38__38__62_,
-                                'APPLY',
-                                ::DISPATCH(
-                                    $seen, 'LOOKUP',
-                                    ::DISPATCH( $::Str, 'new', 'before' )
-                                ),
-                                ::DISPATCH( $::Int, 'new', 1 )
-                            )
-                        );
+                        ::DISPATCH( $self, "capture_to_array" ) = ::DISPATCH( $GLOBAL::Code_infix_58__60__124__124__62_,
+                            'APPLY', $quantified, ::DISPATCH( $GLOBAL::Code_infix_58__60__38__38__62_, 'APPLY', ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'before' ) ), ::DISPATCH( $::Int, 'new', 1 ) ) );
                     };
                     do {
-                        if (
-                            ::DISPATCH(
-                                ::DISPATCH(
-                                    ::DISPATCH(
-                                        $seen, 'LOOKUP',
-                                        ::DISPATCH( $::Str, 'new', 'before' )
-                                    ),
-                                    "true"
-                                ),
-                                "p5landish"
-                            )
-                          )
-                        {
+                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'before' ) ), "true" ), "p5landish" ) ) {
                             {
-                                ::DISPATCH(
-                                    ::DISPATCH(
-                                        $seen, 'LOOKUP',
-                                        ::DISPATCH( $::Str, 'new', 'before' )
-                                    ),
-                                    'capture_to_array',
-                                    ::DISPATCH( $::Int, 'new', 1 )
-                                  )
+                                ::DISPATCH( ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'before' ) ), 'capture_to_array', ::DISPATCH( $::Int, 'new', 1 ) )
                             }
                         }
                     };
-                    ::DISPATCH_VAR(
-                        ::DISPATCH(
-                            $seen, 'LOOKUP',
-                            ::DISPATCH( $::Str, 'new', 'before' )
-                        ),
-                        'STORE', $self
-                    );
-                    ::DISPATCH(
-                        ::DISPATCH( $self, "rule" ),
-                        'capture_count',
-                        ::DISPATCH( $::Int, 'new', 0 ),
-                        ::DISPATCH( $::Int, 'new', 0 ),
-                        ::DISPATCH( $::Hash, "new", { _hash => {} } )
-                    );
+                    ::DISPATCH_VAR( ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'before' ) ), 'STORE', $self );
+                    ::DISPATCH( ::DISPATCH( $self, "rule" ), 'capture_count', ::DISPATCH( $::Int, 'new', 0 ), ::DISPATCH( $::Int, 'new', 0 ), ::DISPATCH( $::Hash, "new", { _hash => {} } ) );
                     $count;
                 }
             )
-          )
+            )
     };
     1
 }
@@ -1886,40 +979,16 @@
     use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
-
-    BEGIN {
-        $_ =
-          ::DISPATCH( $::Scalar, "new",
-            { modified => $_MODIFIED, name => "$_" } );
-    }
+    BEGIN { $_ = ::DISPATCH( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
     {
         do {
-            if (
-                ::DISPATCH(
-                    ::DISPATCH(
-                        ::DISPATCH(
-                            $GLOBAL::Code_VAR_defined, 'APPLY',
-                            $::Rule::After
-                        ),
-                        "true"
-                    ),
-                    "p5landish"
-                )
-              )
-            {
-            }
+            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Rule::After ), "true" ), "p5landish" ) ) { }
             else {
                 {
                     do {
                         ::MODIFIED($::Rule::After);
-                        $::Rule::After = ::DISPATCH(
-                            ::DISPATCH(
-                                $::Class, 'new',
-                                ::DISPATCH( $::Str, 'new', 'Rule::After' )
-                            ),
-                            'PROTOTYPE',
-                        );
-                      }
+                        $::Rule::After = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Rule::After' ) ), 'PROTOTYPE', );
+                        }
                 }
             }
         };
@@ -1931,54 +1000,20 @@
                 $::Method,
                 'new',
                 sub {
-                    my $List__ =
-                      ::DISPATCH( $::Array, 'new',
-                        { modified => $_MODIFIED, name => '$List__' } );
+                    my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                     my $count;
-                    $count =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$count' } )
-                      unless defined $count;
-
-                    BEGIN {
-                        $count =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$count' } );
-                    }
+                    $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) unless defined $count;
+                    BEGIN { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
                     my $quantified;
-                    $quantified =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$quantified' } )
-                      unless defined $quantified;
-
-                    BEGIN {
-                        $quantified =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$quantified' } );
-                    }
+                    $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) unless defined $quantified;
+                    BEGIN { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
                     my $seen;
-                    $seen =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$seen' } )
-                      unless defined $seen;
-
-                    BEGIN {
-                        $seen =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$seen' } );
-                    }
+                    $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) unless defined $seen;
+                    BEGIN { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
                     $self = shift;
                     my $CAPTURE;
-                    $CAPTURE =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$CAPTURE' } )
-                      unless defined $CAPTURE;
-
-                    BEGIN {
-                        $CAPTURE =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$CAPTURE' } );
-                    }
+                    $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
+                    BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
                     ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
                     do {
                         ::MODIFIED($List__);
@@ -1990,40 +1025,18 @@
                     };
                     do {
                         ::MODIFIED($count);
-                        $count =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 0 ) );
+                        $count = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                     };
                     do {
                         ::MODIFIED($quantified);
-                        $quantified =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 1 ) );
+                        $quantified = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     do {
                         ::MODIFIED($seen);
-                        $seen =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 2 ) );
+                        $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 ) );
                     };
                     do {
-                        if (
-                            ::DISPATCH(
-                                ::DISPATCH(
-                                    ::DISPATCH(
-                                        $GLOBAL::Code_infix_58__60_ne_62_,
-                                        'APPLY',
-                                        ::DISPATCH(
-                                            $self, "assertion_modifier"
-                                        ),
-                                        ::DISPATCH( $::Str, 'new', '' )
-                                    ),
-                                    "true"
-                                ),
-                                "p5landish"
-                            )
-                          )
-                        {
+                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_ne_62_, 'APPLY', ::DISPATCH( $self, "assertion_modifier" ), ::DISPATCH( $::Str, 'new', '' ) ), "true" ), "p5landish" ) ) {
                             {
                                 return ($count)
                             }
@@ -2031,65 +1044,22 @@
                     };
                     do {
                         ::MODIFIED( ::DISPATCH( $self, "capture_to_array" ) );
-                        ::DISPATCH( $self, "capture_to_array" ) = ::DISPATCH(
-                            $GLOBAL::Code_infix_58__60__124__124__62_,
-                            'APPLY',
-                            $quantified,
-                            ::DISPATCH(
-                                $GLOBAL::Code_infix_58__60__38__38__62_,
-                                'APPLY',
-                                ::DISPATCH(
-                                    $seen, 'LOOKUP',
-                                    ::DISPATCH( $::Str, 'new', 'after' )
-                                ),
-                                ::DISPATCH( $::Int, 'new', 1 )
-                            )
-                        );
+                        ::DISPATCH( $self, "capture_to_array" ) = ::DISPATCH( $GLOBAL::Code_infix_58__60__124__124__62_,
+                            'APPLY', $quantified, ::DISPATCH( $GLOBAL::Code_infix_58__60__38__38__62_, 'APPLY', ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'after' ) ), ::DISPATCH( $::Int, 'new', 1 ) ) );
                     };
                     do {
-                        if (
-                            ::DISPATCH(
-                                ::DISPATCH(
-                                    ::DISPATCH(
-                                        $seen, 'LOOKUP',
-                                        ::DISPATCH( $::Str, 'new', 'after' )
-                                    ),
-                                    "true"
-                                ),
-                                "p5landish"
-                            )
-                          )
-                        {
+                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'after' ) ), "true" ), "p5landish" ) ) {
                             {
-                                ::DISPATCH(
-                                    ::DISPATCH(
-                                        $seen, 'LOOKUP',
-                                        ::DISPATCH( $::Str, 'new', 'after' )
-                                    ),
-                                    'capture_to_array',
-                                    ::DISPATCH( $::Int, 'new', 1 )
-                                  )
+                                ::DISPATCH( ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'after' ) ), 'capture_to_array', ::DISPATCH( $::Int, 'new', 1 ) )
                             }
                         }
                     };
-                    ::DISPATCH_VAR(
-                        ::DISPATCH(
-                            $seen, 'LOOKUP',
-                            ::DISPATCH( $::Str, 'new', 'after' )
-                        ),
-                        'STORE', $self
-                    );
-                    ::DISPATCH(
-                        ::DISPATCH( $self, "rule" ),
-                        'capture_count',
-                        ::DISPATCH( $::Int, 'new', 0 ),
-                        ::DISPATCH( $::Int, 'new', 0 ),
-                        ::DISPATCH( $::Hash, "new", { _hash => {} } )
-                    );
+                    ::DISPATCH_VAR( ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'after' ) ), 'STORE', $self );
+                    ::DISPATCH( ::DISPATCH( $self, "rule" ), 'capture_count', ::DISPATCH( $::Int, 'new', 0 ), ::DISPATCH( $::Int, 'new', 0 ), ::DISPATCH( $::Hash, "new", { _hash => {} } ) );
                     $count;
                 }
             )
-          )
+            )
     };
     1
 }
@@ -2105,42 +1075,16 @@
     use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
-
-    BEGIN {
-        $_ =
-          ::DISPATCH( $::Scalar, "new",
-            { modified => $_MODIFIED, name => "$_" } );
-    }
+    BEGIN { $_ = ::DISPATCH( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
     {
         do {
-            if (
-                ::DISPATCH(
-                    ::DISPATCH(
-                        ::DISPATCH(
-                            $GLOBAL::Code_VAR_defined, 'APPLY',
-                            $::Rule::NegateCharClass
-                        ),
-                        "true"
-                    ),
-                    "p5landish"
-                )
-              )
-            {
-            }
+            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Rule::NegateCharClass ), "true" ), "p5landish" ) ) { }
             else {
                 {
                     do {
                         ::MODIFIED($::Rule::NegateCharClass);
-                        $::Rule::NegateCharClass = ::DISPATCH(
-                            ::DISPATCH(
-                                $::Class, 'new',
-                                ::DISPATCH(
-                                    $::Str, 'new', 'Rule::NegateCharClass'
-                                )
-                            ),
-                            'PROTOTYPE',
-                        );
-                      }
+                        $::Rule::NegateCharClass = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Rule::NegateCharClass' ) ), 'PROTOTYPE', );
+                        }
                 }
             }
         };
@@ -2152,54 +1096,20 @@
                 $::Method,
                 'new',
                 sub {
-                    my $List__ =
-                      ::DISPATCH( $::Array, 'new',
-                        { modified => $_MODIFIED, name => '$List__' } );
+                    my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                     my $count;
-                    $count =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$count' } )
-                      unless defined $count;
-
-                    BEGIN {
-                        $count =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$count' } );
-                    }
+                    $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) unless defined $count;
+                    BEGIN { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
                     my $quantified;
-                    $quantified =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$quantified' } )
-                      unless defined $quantified;
-
-                    BEGIN {
-                        $quantified =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$quantified' } );
-                    }
+                    $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) unless defined $quantified;
+                    BEGIN { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
                     my $seen;
-                    $seen =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$seen' } )
-                      unless defined $seen;
-
-                    BEGIN {
-                        $seen =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$seen' } );
-                    }
+                    $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) unless defined $seen;
+                    BEGIN { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
                     $self = shift;
                     my $CAPTURE;
-                    $CAPTURE =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$CAPTURE' } )
-                      unless defined $CAPTURE;
-
-                    BEGIN {
-                        $CAPTURE =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$CAPTURE' } );
-                    }
+                    $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
+                    BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
                     ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
                     do {
                         ::MODIFIED($List__);
@@ -2211,26 +1121,20 @@
                     };
                     do {
                         ::MODIFIED($count);
-                        $count =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 0 ) );
+                        $count = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                     };
                     do {
                         ::MODIFIED($quantified);
-                        $quantified =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 1 ) );
+                        $quantified = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     do {
                         ::MODIFIED($seen);
-                        $seen =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 2 ) );
+                        $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 ) );
                     };
                     $count;
                 }
             )
-          )
+            )
     };
     1
 }
@@ -2246,41 +1150,16 @@
     use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
-
-    BEGIN {
-        $_ =
-          ::DISPATCH( $::Scalar, "new",
-            { modified => $_MODIFIED, name => "$_" } );
-    }
+    BEGIN { $_ = ::DISPATCH( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
     {
         do {
-            if (
-                ::DISPATCH(
-                    ::DISPATCH(
-                        ::DISPATCH(
-                            $GLOBAL::Code_VAR_defined, 'APPLY',
-                            $::Rule::CharClass
-                        ),
-                        "true"
-                    ),
-                    "p5landish"
-                )
-              )
-            {
-            }
+            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Rule::CharClass ), "true" ), "p5landish" ) ) { }
             else {
                 {
                     do {
                         ::MODIFIED($::Rule::CharClass);
-                        $::Rule::CharClass = ::DISPATCH(
-                            ::DISPATCH(
-                                $::Class,
-                                'new',
-                                ::DISPATCH( $::Str, 'new', 'Rule::CharClass' )
-                            ),
-                            'PROTOTYPE',
-                        );
-                      }
+                        $::Rule::CharClass = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Rule::CharClass' ) ), 'PROTOTYPE', );
+                        }
                 }
             }
         };
@@ -2292,54 +1171,20 @@
                 $::Method,
                 'new',
                 sub {
-                    my $List__ =
-                      ::DISPATCH( $::Array, 'new',
-                        { modified => $_MODIFIED, name => '$List__' } );
+                    my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                     my $count;
-                    $count =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$count' } )
-                      unless defined $count;
-
-                    BEGIN {
-                        $count =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$count' } );
-                    }
+                    $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) unless defined $count;
+                    BEGIN { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
                     my $quantified;
-                    $quantified =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$quantified' } )
-                      unless defined $quantified;
-
-                    BEGIN {
-                        $quantified =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$quantified' } );
-                    }
+                    $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) unless defined $quantified;
+                    BEGIN { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
                     my $seen;
-                    $seen =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$seen' } )
-                      unless defined $seen;
-
-                    BEGIN {
-                        $seen =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$seen' } );
-                    }
+                    $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) unless defined $seen;
+                    BEGIN { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
                     $self = shift;
                     my $CAPTURE;
-                    $CAPTURE =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$CAPTURE' } )
-                      unless defined $CAPTURE;
-
-                    BEGIN {
-                        $CAPTURE =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$CAPTURE' } );
-                    }
+                    $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
+                    BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
                     ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
                     do {
                         ::MODIFIED($List__);
@@ -2351,26 +1196,20 @@
                     };
                     do {
                         ::MODIFIED($count);
-                        $count =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 0 ) );
+                        $count = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                     };
                     do {
                         ::MODIFIED($quantified);
-                        $quantified =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 1 ) );
+                        $quantified = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     do {
                         ::MODIFIED($seen);
-                        $seen =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 2 ) );
+                        $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 ) );
                     };
                     $count;
                 }
             )
-          )
+            )
     };
     1
 }
@@ -2386,40 +1225,16 @@
     use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
-
-    BEGIN {
-        $_ =
-          ::DISPATCH( $::Scalar, "new",
-            { modified => $_MODIFIED, name => "$_" } );
-    }
+    BEGIN { $_ = ::DISPATCH( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
     {
         do {
-            if (
-                ::DISPATCH(
-                    ::DISPATCH(
-                        ::DISPATCH(
-                            $GLOBAL::Code_VAR_defined, 'APPLY',
-                            $::Rule::Subrule
-                        ),
-                        "true"
-                    ),
-                    "p5landish"
-                )
-              )
-            {
-            }
+            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Rule::Subrule ), "true" ), "p5landish" ) ) { }
             else {
                 {
                     do {
                         ::MODIFIED($::Rule::Subrule);
-                        $::Rule::Subrule = ::DISPATCH(
-                            ::DISPATCH(
-                                $::Class, 'new',
-                                ::DISPATCH( $::Str, 'new', 'Rule::Subrule' )
-                            ),
-                            'PROTOTYPE',
-                        );
-                      }
+                        $::Rule::Subrule = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Rule::Subrule' ) ), 'PROTOTYPE', );
+                        }
                 }
             }
         };
@@ -2432,64 +1247,22 @@
                 'new',
                 sub {
                     my $meth;
-                    $meth =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$meth' } )
-                      unless defined $meth;
-
-                    BEGIN {
-                        $meth =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$meth' } );
-                    }
-                    my $List__ =
-                      ::DISPATCH( $::Array, 'new',
-                        { modified => $_MODIFIED, name => '$List__' } );
+                    $meth = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$meth' } ) unless defined $meth;
+                    BEGIN { $meth = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$meth' } ) }
+                    my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                     my $count;
-                    $count =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$count' } )
-                      unless defined $count;
-
-                    BEGIN {
-                        $count =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$count' } );
-                    }
+                    $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) unless defined $count;
+                    BEGIN { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
                     my $quantified;
-                    $quantified =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$quantified' } )
-                      unless defined $quantified;
-
-                    BEGIN {
-                        $quantified =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$quantified' } );
-                    }
+                    $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) unless defined $quantified;
+                    BEGIN { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
                     my $seen;
-                    $seen =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$seen' } )
-                      unless defined $seen;
-
-                    BEGIN {
-                        $seen =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$seen' } );
-                    }
+                    $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) unless defined $seen;
+                    BEGIN { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
                     $self = shift;
                     my $CAPTURE;
-                    $CAPTURE =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$CAPTURE' } )
-                      unless defined $CAPTURE;
-
-                    BEGIN {
-                        $CAPTURE =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$CAPTURE' } );
-                    }
+                    $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
+                    BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
                     ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
                     do {
                         ::MODIFIED($List__);
@@ -2501,118 +1274,50 @@
                     };
                     do {
                         ::MODIFIED($count);
-                        $count =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 0 ) );
+                        $count = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                     };
                     do {
                         ::MODIFIED($quantified);
-                        $quantified =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 1 ) );
+                        $quantified = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     do {
                         ::MODIFIED($seen);
-                        $seen =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 2 ) );
+                        $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 ) );
                     };
                     do {
                         ::MODIFIED($meth);
                         $meth = ::DISPATCH(
                             $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
                             'APPLY',
+                            ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $::Int, 'new', 1 ), ::DISPATCH( $GLOBAL::Code_index, 'APPLY', ::DISPATCH( $self, "metasyntax" ), ::DISPATCH( $::Str, 'new', '.' ) ) ),
+                            ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $self, "metasyntax" ), ::DISPATCH( $::Str, 'new', ' ... TODO ' ) ),
                             ::DISPATCH(
-                                $GLOBAL::Code_infix_58__60__43__62_,
-                                'APPLY',
-                                ::DISPATCH( $::Int, 'new', 1 ),
-                                ::DISPATCH(
-                                    $GLOBAL::Code_index,
-                                    'APPLY',
-                                    ::DISPATCH( $self, "metasyntax" ),
-                                    ::DISPATCH( $::Str, 'new', '.' )
-                                )
-                            ),
-                            ::DISPATCH(
-                                $GLOBAL::Code_infix_58__60__126__62_,
-                                'APPLY',
-                                ::DISPATCH( $self, "metasyntax" ),
-                                ::DISPATCH( $::Str, 'new', ' ... TODO ' )
-                            ),
-                            ::DISPATCH(
-                                $GLOBAL::Code_infix_58__60__126__62_,
-                                'APPLY',
-                                ::DISPATCH(
-                                    $::Str, 'new',
-                                    '\\\'$\\\'.$GLOBAL::_Class.\\\'::_regex_'
-                                ),
-                                ::DISPATCH(
-                                    $GLOBAL::Code_infix_58__60__126__62_,
-                                    'APPLY',
-                                    ::DISPATCH( $self, "metasyntax" ),
-                                    ::DISPATCH( $::Str, 'new', '\\\'' )
-                                )
+                                $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                ::DISPATCH( $::Str, 'new', '\\\'$\\\'.$GLOBAL::_Class.\\\'::_regex_' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $self, "metasyntax" ), ::DISPATCH( $::Str, 'new', '\\\'' ) )
                             )
                         );
                     };
                     do {
                         ::MODIFIED( ::DISPATCH( $self, "ident" ) );
-                        ::DISPATCH( $self,   "ident" ) =
-                          ::DISPATCH( $self, "metasyntax" );
+                        ::DISPATCH( $self, "ident" ) = ::DISPATCH( $self, "metasyntax" );
                     };
                     do {
                         ::MODIFIED( ::DISPATCH( $self, "capture_to_array" ) );
-                        ::DISPATCH( $self, "capture_to_array" ) = ::DISPATCH(
-                            $GLOBAL::Code_infix_58__60__124__124__62_,
-                            'APPLY',
-                            $quantified,
-                            ::DISPATCH(
-                                $GLOBAL::Code_infix_58__60__38__38__62_,
-                                'APPLY',
-                                ::DISPATCH(
-                                    $seen, 'LOOKUP',
-                                    ::DISPATCH( $self, "ident" )
-                                ),
-                                ::DISPATCH( $::Int, 'new', 1 )
-                            )
-                        );
+                        ::DISPATCH( $self, "capture_to_array" ) = ::DISPATCH( $GLOBAL::Code_infix_58__60__124__124__62_,
+                            'APPLY', $quantified, ::DISPATCH( $GLOBAL::Code_infix_58__60__38__38__62_, 'APPLY', ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $self, "ident" ) ), ::DISPATCH( $::Int, 'new', 1 ) ) );
                     };
                     do {
-                        if (
-                            ::DISPATCH(
-                                ::DISPATCH(
-                                    ::DISPATCH(
-                                        $seen, 'LOOKUP',
-                                        ::DISPATCH( $self, "ident" )
-                                    ),
-                                    "true"
-                                ),
-                                "p5landish"
-                            )
-                          )
-                        {
+                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $self, "ident" ) ), "true" ), "p5landish" ) ) {
                             {
-                                ::DISPATCH(
-                                    ::DISPATCH(
-                                        $seen, 'LOOKUP',
-                                        ::DISPATCH( $self, "ident" )
-                                    ),
-                                    'capture_to_array',
-                                    ::DISPATCH( $::Int, 'new', 1 )
-                                  )
+                                ::DISPATCH( ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $self, "ident" ) ), 'capture_to_array', ::DISPATCH( $::Int, 'new', 1 ) )
                             }
                         }
                     };
-                    ::DISPATCH_VAR(
-                        ::DISPATCH(
-                            $seen, 'LOOKUP', ::DISPATCH( $self, "ident" )
-                        ),
-                        'STORE', $self
-                    );
+                    ::DISPATCH_VAR( ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $self, "ident" ) ), 'STORE', $self );
                     $count;
                 }
             )
-          )
+            )
     };
     1
 }
@@ -2628,42 +1333,16 @@
     use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
-
-    BEGIN {
-        $_ =
-          ::DISPATCH( $::Scalar, "new",
-            { modified => $_MODIFIED, name => "$_" } );
-    }
+    BEGIN { $_ = ::DISPATCH( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
     {
         do {
-            if (
-                ::DISPATCH(
-                    ::DISPATCH(
-                        ::DISPATCH(
-                            $GLOBAL::Code_VAR_defined, 'APPLY',
-                            $::Rule::NamedCapture
-                        ),
-                        "true"
-                    ),
-                    "p5landish"
-                )
-              )
-            {
-            }
+            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Rule::NamedCapture ), "true" ), "p5landish" ) ) { }
             else {
                 {
                     do {
                         ::MODIFIED($::Rule::NamedCapture);
-                        $::Rule::NamedCapture = ::DISPATCH(
-                            ::DISPATCH(
-                                $::Class, 'new',
-                                ::DISPATCH(
-                                    $::Str, 'new', 'Rule::NamedCapture'
-                                )
-                            ),
-                            'PROTOTYPE',
-                        );
-                      }
+                        $::Rule::NamedCapture = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Rule::NamedCapture' ) ), 'PROTOTYPE', );
+                        }
                 }
             }
         };
@@ -2675,54 +1354,20 @@
                 $::Method,
                 'new',
                 sub {
-                    my $List__ =
-                      ::DISPATCH( $::Array, 'new',
-                        { modified => $_MODIFIED, name => '$List__' } );
+                    my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                     my $count;
-                    $count =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$count' } )
-                      unless defined $count;
-
-                    BEGIN {
-                        $count =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$count' } );
-                    }
+                    $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) unless defined $count;
+                    BEGIN { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
                     my $quantified;
-                    $quantified =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$quantified' } )
-                      unless defined $quantified;
-
-                    BEGIN {
-                        $quantified =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$quantified' } );
-                    }
+                    $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) unless defined $quantified;
+                    BEGIN { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
                     my $seen;
-                    $seen =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$seen' } )
-                      unless defined $seen;
-
-                    BEGIN {
-                        $seen =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$seen' } );
-                    }
+                    $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) unless defined $seen;
+                    BEGIN { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
                     $self = shift;
                     my $CAPTURE;
-                    $CAPTURE =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$CAPTURE' } )
-                      unless defined $CAPTURE;
-
-                    BEGIN {
-                        $CAPTURE =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$CAPTURE' } );
-                    }
+                    $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
+                    BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
                     ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
                     do {
                         ::MODIFIED($List__);
@@ -2734,82 +1379,34 @@
                     };
                     do {
                         ::MODIFIED($count);
-                        $count =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 0 ) );
+                        $count = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                     };
                     do {
                         ::MODIFIED($quantified);
-                        $quantified =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 1 ) );
+                        $quantified = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     do {
                         ::MODIFIED($seen);
-                        $seen =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 2 ) );
+                        $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 ) );
                     };
                     do {
                         ::MODIFIED( ::DISPATCH( $self, "capture_to_array" ) );
-                        ::DISPATCH( $self, "capture_to_array" ) = ::DISPATCH(
-                            $GLOBAL::Code_infix_58__60__124__124__62_,
-                            'APPLY',
-                            $quantified,
-                            ::DISPATCH(
-                                $GLOBAL::Code_infix_58__60__38__38__62_,
-                                'APPLY',
-                                ::DISPATCH(
-                                    $seen, 'LOOKUP',
-                                    ::DISPATCH( $self, "ident" )
-                                ),
-                                ::DISPATCH( $::Int, 'new', 1 )
-                            )
-                        );
+                        ::DISPATCH( $self, "capture_to_array" ) = ::DISPATCH( $GLOBAL::Code_infix_58__60__124__124__62_,
+                            'APPLY', $quantified, ::DISPATCH( $GLOBAL::Code_infix_58__60__38__38__62_, 'APPLY', ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $self, "ident" ) ), ::DISPATCH( $::Int, 'new', 1 ) ) );
                     };
-                    ::DISPATCH(
-                        ::DISPATCH( $self, "rule" ),
-                        'capture_count',
-                        ::DISPATCH( $::Int, 'new', 0 ),
-                        ::DISPATCH( $::Int, 'new', 0 ),
-                        ::DISPATCH( $::Hash, "new", { _hash => {} } )
-                    );
+                    ::DISPATCH( ::DISPATCH( $self, "rule" ), 'capture_count', ::DISPATCH( $::Int, 'new', 0 ), ::DISPATCH( $::Int, 'new', 0 ), ::DISPATCH( $::Hash, "new", { _hash => {} } ) );
                     do {
-                        if (
-                            ::DISPATCH(
-                                ::DISPATCH(
-                                    ::DISPATCH(
-                                        $seen, 'LOOKUP',
-                                        ::DISPATCH( $self, "ident" )
-                                    ),
-                                    "true"
-                                ),
-                                "p5landish"
-                            )
-                          )
-                        {
+                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $self, "ident" ) ), "true" ), "p5landish" ) ) {
                             {
-                                ::DISPATCH(
-                                    ::DISPATCH(
-                                        $seen, 'LOOKUP',
-                                        ::DISPATCH( $self, "ident" )
-                                    ),
-                                    'capture_to_array',
-                                    ::DISPATCH( $::Int, 'new', 1 )
-                                  )
+                                ::DISPATCH( ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $self, "ident" ) ), 'capture_to_array', ::DISPATCH( $::Int, 'new', 1 ) )
                             }
                         }
                     };
-                    ::DISPATCH_VAR(
-                        ::DISPATCH(
-                            $seen, 'LOOKUP', ::DISPATCH( $self, "ident" )
-                        ),
-                        'STORE', $self
-                    );
+                    ::DISPATCH_VAR( ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $self, "ident" ) ), 'STORE', $self );
                     $count;
                 }
             )
-          )
+            )
     };
     1
 }
@@ -2825,40 +1422,16 @@
     use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
-
-    BEGIN {
-        $_ =
-          ::DISPATCH( $::Scalar, "new",
-            { modified => $_MODIFIED, name => "$_" } );
-    }
+    BEGIN { $_ = ::DISPATCH( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
     {
         do {
-            if (
-                ::DISPATCH(
-                    ::DISPATCH(
-                        ::DISPATCH(
-                            $GLOBAL::Code_VAR_defined, 'APPLY',
-                            $::Rule::Capture
-                        ),
-                        "true"
-                    ),
-                    "p5landish"
-                )
-              )
-            {
-            }
+            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Rule::Capture ), "true" ), "p5landish" ) ) { }
             else {
                 {
                     do {
                         ::MODIFIED($::Rule::Capture);
-                        $::Rule::Capture = ::DISPATCH(
-                            ::DISPATCH(
-                                $::Class, 'new',
-                                ::DISPATCH( $::Str, 'new', 'Rule::Capture' )
-                            ),
-                            'PROTOTYPE',
-                        );
-                      }
+                        $::Rule::Capture = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Rule::Capture' ) ), 'PROTOTYPE', );
+                        }
                 }
             }
         };
@@ -2870,54 +1443,20 @@
                 $::Method,
                 'new',
                 sub {
-                    my $List__ =
-                      ::DISPATCH( $::Array, 'new',
-                        { modified => $_MODIFIED, name => '$List__' } );
+                    my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                     my $count;
-                    $count =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$count' } )
-                      unless defined $count;
-
-                    BEGIN {
-                        $count =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$count' } );
-                    }
+                    $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) unless defined $count;
+                    BEGIN { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
                     my $quantified;
-                    $quantified =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$quantified' } )
-                      unless defined $quantified;
-
-                    BEGIN {
-                        $quantified =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$quantified' } );
-                    }
+                    $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) unless defined $quantified;
+                    BEGIN { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
                     my $seen;
-                    $seen =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$seen' } )
-                      unless defined $seen;
-
-                    BEGIN {
-                        $seen =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$seen' } );
-                    }
+                    $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) unless defined $seen;
+                    BEGIN { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
                     $self = shift;
                     my $CAPTURE;
-                    $CAPTURE =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$CAPTURE' } )
-                      unless defined $CAPTURE;
-
-                    BEGIN {
-                        $CAPTURE =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$CAPTURE' } );
-                    }
+                    $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
+                    BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
                     ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
                     do {
                         ::MODIFIED($List__);
@@ -2929,21 +1468,15 @@
                     };
                     do {
                         ::MODIFIED($count);
-                        $count =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 0 ) );
+                        $count = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                     };
                     do {
                         ::MODIFIED($quantified);
-                        $quantified =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 1 ) );
+                        $quantified = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     do {
                         ::MODIFIED($seen);
-                        $seen =
-                          ::DISPATCH( $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 2 ) );
+                        $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 ) );
                     };
                     do {
                         ::MODIFIED( ::DISPATCH( $self, "position" ) );
@@ -2951,61 +1484,22 @@
                     };
                     do {
                         ::MODIFIED( ::DISPATCH( $self, "capture_to_array" ) );
-                        ::DISPATCH( $self, "capture_to_array" ) = ::DISPATCH(
-                            $GLOBAL::Code_infix_58__60__124__124__62_,
-                            'APPLY',
-                            $quantified,
-                            ::DISPATCH(
-                                $GLOBAL::Code_infix_58__60__38__38__62_,
-                                'APPLY',
-                                ::DISPATCH(
-                                    $seen, 'LOOKUP',
-                                    ::DISPATCH( $self, "ident" )
-                                ),
-                                ::DISPATCH( $::Int, 'new', 1 )
-                            )
-                        );
+                        ::DISPATCH( $self, "capture_to_array" ) = ::DISPATCH( $GLOBAL::Code_infix_58__60__124__124__62_,
+                            'APPLY', $quantified, ::DISPATCH( $GLOBAL::Code_infix_58__60__38__38__62_, 'APPLY', ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $self, "ident" ) ), ::DISPATCH( $::Int, 'new', 1 ) ) );
                     };
                     do {
-                        if (
-                            ::DISPATCH(
-                                ::DISPATCH(
-                                    ::DISPATCH(
-                                        $seen, 'LOOKUP',
-                                        ::DISPATCH( $self, "ident" )
-                                    ),
-                                    "true"
-                                ),
-                                "p5landish"
-                            )
-                          )
-                        {
+                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $self, "ident" ) ), "true" ), "p5landish" ) ) {
                             {
-                                ::DISPATCH(
-                                    ::DISPATCH(
-                                        $seen, 'LOOKUP',
-                                        ::DISPATCH( $self, "ident" )
-                                    ),
-                                    'capture_to_array',
-                                    ::DISPATCH( $::Int, 'new', 1 )
-                                  )
+                                ::DISPATCH( ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $self, "ident" ) ), 'capture_to_array', ::DISPATCH( $::Int, 'new', 1 ) )
                             }
                         }
                     };
-                    ::DISPATCH_VAR( ::DISPATCH( $seen, 'LOOKUP', $count ),
-                        'STORE', $self );
-                    ::DISPATCH(
-                        ::DISPATCH( $self, "rule" ),
-                        'capture_count',
-                        ::DISPATCH( $::Int, 'new', 0 ),
-                        ::DISPATCH( $::Int, 'new', 0 ),
-                        ::DISPATCH( $::Hash, "new", { _hash => {} } )
-                    );
-                    ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_,
-                        'APPLY', $count, ::DISPATCH( $::Int, 'new', 1 ) );
+                    ::DISPATCH_VAR( ::DISPATCH( $seen, 'LOOKUP', $count ), 'STORE', $self );
+                    ::DISPATCH( ::DISPATCH( $self, "rule" ), 'capture_count', ::DISPATCH( $::Int, 'new', 0 ), ::DISPATCH( $::Int, 'new', 0 ), ::DISPATCH( $::Hash, "new", { _hash => {} } ) );
+                    ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $count, ::DISPATCH( $::Int, 'new', 1 ) );
                 }
             )
-          )
+            )
     };
     1
 }

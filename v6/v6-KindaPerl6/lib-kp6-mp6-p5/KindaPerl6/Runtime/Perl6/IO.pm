@@ -10,50 +10,21 @@
     use KindaPerl6::Runtime::Perl5::Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
-
-    BEGIN {
-        $_ =
-          ::DISPATCH( $::Scalar, "new",
-            { modified => $_MODIFIED, name => "$_" } );
-    }
+    BEGIN { $_ = ::DISPATCH( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
     {
         do {
-            if (
-                ::DISPATCH(
-                    ::DISPATCH(
-                        ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::IO ),
-                        "true"
-                    ),
-                    "p5landish"
-                )
-              )
-            {
-            }
+            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::IO ), "true" ), "p5landish" ) ) { }
             else {
                 {
                     do {
                         ::MODIFIED($::IO);
-                        $::IO = ::DISPATCH(
-                            ::DISPATCH(
-                                $::Class, 'new',
-                                ::DISPATCH( $::Str, 'new', 'IO' )
-                            ),
-                            'PROTOTYPE',
-                        );
-                      }
+                        $::IO = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'IO' ) ), 'PROTOTYPE', );
+                        }
                 }
             }
         };
-        ::DISPATCH(
-            ::DISPATCH( $::IO, 'HOW', ),
-            'add_parent',
-            ::DISPATCH( $::Str, 'new', 'Value' )
-        );
-        ::DISPATCH(
-            ::DISPATCH( $::IO, 'HOW', ),
-            'add_attribute',
-            ::DISPATCH( $::Str, 'new', 'xxx' )
-        );
+        ::DISPATCH( ::DISPATCH( $::IO, 'HOW', ), 'add_parent',    ::DISPATCH( $::Str, 'new', 'Value' ) );
+        ::DISPATCH( ::DISPATCH( $::IO, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'xxx' ) );
         ::DISPATCH(
             ::DISPATCH( $::IO, 'HOW', ),
             'add_method',
@@ -62,32 +33,14 @@
                 $::Method,
                 'new',
                 sub {
-                    my $List__ =
-                      ::DISPATCH( $::Array, 'new',
-                        { modified => $_MODIFIED, name => '$List__' } );
+                    my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                     my $self;
-                    $self =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$self' } )
-                      unless defined $self;
-
-                    BEGIN {
-                        $self =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$self' } );
-                    }
+                    $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
+                    BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
                     $self = shift;
                     my $CAPTURE;
-                    $CAPTURE =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$CAPTURE' } )
-                      unless defined $CAPTURE;
-
-                    BEGIN {
-                        $CAPTURE =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$CAPTURE' } );
-                    }
+                    $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
+                    BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
                     ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
                     do {
                         ::MODIFIED($List__);
@@ -101,7 +54,7 @@
                     ::DISPATCH( $::Int, 'new', 42 );
                 }
             )
-          )
+            )
     };
     1
 }

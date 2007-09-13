@@ -10,59 +10,20 @@
     use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
-
-    BEGIN {
-        $_ =
-          ::DISPATCH( $::Scalar, "new",
-            { modified => $_MODIFIED, name => "$_" } );
-    }
+    BEGIN { $_ = ::DISPATCH( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
     {
-        our $Code_visit =
-          ::DISPATCH( $::Routine, 'new',
-            { modified => $_MODIFIED, name => '$Code_visit' } );
-        our $Code_visit_subnode =
-          ::DISPATCH( $::Routine, 'new',
-            { modified => $_MODIFIED, name => '$Code_visit_subnode' } );
+        our $Code_visit         = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_visit' } );
+        our $Code_visit_subnode = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_visit_subnode' } );
         do {
-            if (
-                ::DISPATCH(
-                    ::DISPATCH(
-                        ::DISPATCH(
-                            $GLOBAL::Code_VAR_defined, 'APPLY',
-                            $::KindaPerl6::Traverse
-                        ),
-                        "true"
-                    ),
-                    "p5landish"
-                )
-              )
-            {
-            }
+            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::KindaPerl6::Traverse ), "true" ), "p5landish" ) ) { }
             else {
                 {
-                    our $Code_visit =
-                      ::DISPATCH( $::Routine, 'new',
-                        { modified => $_MODIFIED, name => '$Code_visit' } );
-                    our $Code_visit_subnode = ::DISPATCH(
-                        $::Routine,
-                        'new',
-                        {
-                            modified => $_MODIFIED,
-                            name     => '$Code_visit_subnode'
-                        }
-                    );
+                    our $Code_visit         = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_visit' } );
+                    our $Code_visit_subnode = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_visit_subnode' } );
                     do {
                         ::MODIFIED($::KindaPerl6::Traverse);
-                        $::KindaPerl6::Traverse = ::DISPATCH(
-                            ::DISPATCH(
-                                $::Class, 'new',
-                                ::DISPATCH(
-                                    $::Str, 'new', 'KindaPerl6::Traverse'
-                                )
-                            ),
-                            'PROTOTYPE',
-                        );
-                      }
+                        $::KindaPerl6::Traverse = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'KindaPerl6::Traverse' ) ), 'PROTOTYPE', );
+                        }
                 }
             }
         };
@@ -70,104 +31,32 @@
             ::MODIFIED($Code_visit);
             $Code_visit = ::DISPATCH(
                 $::Code, 'new',
-                {
-                    code => sub {
+                {   code => sub {
                         my $result;
-                        $result =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$result' } )
-                          unless defined $result;
-
-                        BEGIN {
-                            $result =
-                              ::DISPATCH( $::Scalar, 'new',
-                                { modified => $_MODIFIED, name => '$result' } );
-                        }
+                        $result = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$result' } ) unless defined $result;
+                        BEGIN { $result = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$result' } ) }
                         my $data;
-                        $data =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$data' } )
-                          unless defined $data;
-
-                        BEGIN {
-                            $data =
-                              ::DISPATCH( $::Scalar, 'new',
-                                { modified => $_MODIFIED, name => '$data' } );
-                        }
+                        $data = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$data' } ) unless defined $data;
+                        BEGIN { $data = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$data' } ) }
                         my $item;
-                        $item =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$item' } )
-                          unless defined $item;
-
-                        BEGIN {
-                            $item =
-                              ::DISPATCH( $::Scalar, 'new',
-                                { modified => $_MODIFIED, name => '$item' } );
-                        }
-                        my $List__ =
-                          ::DISPATCH( $::Array, 'new',
-                            { modified => $_MODIFIED, name => '$List__' } );
+                        $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } ) unless defined $item;
+                        BEGIN { $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } ) }
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $visitor;
-                        $visitor =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$visitor' } )
-                          unless defined $visitor;
-
-                        BEGIN {
-                            $visitor = ::DISPATCH( $::Scalar, 'new',
-                                { modified => $_MODIFIED, name => '$visitor' }
-                            );
-                        }
+                        $visitor = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$visitor' } ) unless defined $visitor;
+                        BEGIN { $visitor = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$visitor' } ) }
                         my $node;
-                        $node =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$node' } )
-                          unless defined $node;
-
-                        BEGIN {
-                            $node =
-                              ::DISPATCH( $::Scalar, 'new',
-                                { modified => $_MODIFIED, name => '$node' } );
-                        }
+                        $node = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$node' } ) unless defined $node;
+                        BEGIN { $node = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$node' } ) }
                         my $node_name;
-                        $node_name =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$node_name' } )
-                          unless defined $node_name;
-
-                        BEGIN {
-                            $node_name = ::DISPATCH(
-                                $::Scalar,
-                                'new',
-                                {
-                                    modified => $_MODIFIED,
-                                    name     => '$node_name'
-                                }
-                            );
-                        }
+                        $node_name = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$node_name' } ) unless defined $node_name;
+                        BEGIN { $node_name = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$node_name' } ) }
                         my $path;
-                        $path =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$path' } )
-                          unless defined $path;
-
-                        BEGIN {
-                            $path =
-                              ::DISPATCH( $::Scalar, 'new',
-                                { modified => $_MODIFIED, name => '$path' } );
-                        }
+                        $path = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$path' } ) unless defined $path;
+                        BEGIN { $path = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$path' } ) }
                         my $CAPTURE;
-                        $CAPTURE =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$CAPTURE' } )
-                          unless defined $CAPTURE;
-
-                        BEGIN {
-                            $CAPTURE = ::DISPATCH( $::Scalar, 'new',
-                                { modified => $_MODIFIED, name => '$CAPTURE' }
-                            );
-                        }
+                        $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
+                        BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
                         ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
                         do {
                             ::MODIFIED($List__);
@@ -179,169 +68,51 @@
                         };
                         do {
                             ::MODIFIED($visitor);
-                            $visitor =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 0 ) );
+                            $visitor = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         do {
                             ::MODIFIED($node);
-                            $node =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 1 ) );
+                            $node = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) );
                         };
                         do {
                             ::MODIFIED($node_name);
-                            $node_name =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 2 ) );
+                            $node_name = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 ) );
                         };
                         do {
                             ::MODIFIED($path);
-                            $path =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 3 ) );
+                            $path = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 3 ) );
                         };
                         do {
-                            if (
-                                ::DISPATCH(
-                                    ::DISPATCH(
-                                        ::DISPATCH(
-                                            $GLOBAL::Code_prefix_58__60__33__62_,
-                                            'APPLY',
-                                            ::DISPATCH(
-                                                $GLOBAL::Code_defined, 'APPLY',
-                                                $path
-                                            )
-                                        ),
-                                        "true"
-                                    ),
-                                    "p5landish"
-                                )
-                              )
-                            {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', $path ) ), "true" ), "p5landish" ) ) {
                                 {
                                     do {
                                         ::MODIFIED($path);
-                                        $path =
-                                          ::DISPATCH( $::Array, "new",
-                                            { _array => [] } );
-                                      }
+                                        $path = ::DISPATCH( $::Array, "new", { _array => [] } );
+                                        }
                                 }
                             }
                         };
                         do {
-                            if (
-                                ::DISPATCH(
-                                    ::DISPATCH(
-                                        ::DISPATCH(
-                                            $node, 'isa',
-                                            ::DISPATCH(
-                                                $::Str, 'new', 'Array'
-                                            )
-                                        ),
-                                        "true"
-                                    ),
-                                    "p5landish"
-                                )
-                              )
-                            {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $node, 'isa', ::DISPATCH( $::Str, 'new', 'Array' ) ), "true" ), "p5landish" ) ) {
                                 {
                                     my $result;
-                                    $result = ::DISPATCH(
-                                        $::Scalar,
-                                        'new',
-                                        {
-                                            modified => $_MODIFIED,
-                                            name     => '$result'
-                                        }
-                                    ) unless defined $result;
-
-                                    BEGIN {
-                                        $result = ::DISPATCH(
-                                            $::Scalar,
-                                            'new',
-                                            {
-                                                modified => $_MODIFIED,
-                                                name     => '$result'
-                                            }
-                                        );
-                                    }
+                                    $result = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$result' } ) unless defined $result;
+                                    BEGIN { $result = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$result' } ) }
                                     my $subitem;
-                                    $subitem = ::DISPATCH(
-                                        $::Scalar,
-                                        'new',
-                                        {
-                                            modified => $_MODIFIED,
-                                            name     => '$subitem'
-                                        }
-                                    ) unless defined $subitem;
-
-                                    BEGIN {
-                                        $subitem = ::DISPATCH(
-                                            $::Scalar,
-                                            'new',
-                                            {
-                                                modified => $_MODIFIED,
-                                                name     => '$subitem'
-                                            }
-                                        );
-                                    }
+                                    $subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subitem' } ) unless defined $subitem;
+                                    BEGIN { $subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subitem' } ) }
                                     do {
                                         ::MODIFIED($result);
-                                        $result =
-                                          ::DISPATCH( $::Array, "new",
-                                            { _array => [] } );
+                                        $result = ::DISPATCH( $::Array, "new", { _array => [] } );
                                     };
                                     $subitem;
                                     {
                                         my $subitem;
-                                        $subitem = ::DISPATCH(
-                                            $::Scalar,
-                                            'new',
+                                        $subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subitem' } ) unless defined $subitem;
+                                        BEGIN { $subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subitem' } ) }
+                                        for $subitem ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $node ) )->{_value}{_array} } ) {
                                             {
-                                                modified => $_MODIFIED,
-                                                name     => '$subitem'
-                                            }
-                                        ) unless defined $subitem;
-
-                                        BEGIN {
-                                            $subitem = ::DISPATCH(
-                                                $::Scalar,
-                                                'new',
-                                                {
-                                                    modified => $_MODIFIED,
-                                                    name     => '$subitem'
-                                                }
-                                            );
-                                        }
-                                        for $subitem (
-                                            @{ ::DISPATCH(
-                                                    $GLOBAL::Code_prefix_58__60__64__62_,
-                                                    'APPLY',
-                                                    ::DISPATCH(
-                                                        $GLOBAL::Code_prefix_58__60__64__62_,
-                                                        'APPLY',
-                                                        $node
-                                                    )
-                                                  )->{_value}{_array}
-                                            }
-                                          )
-                                        {
-                                            {
-                                                ::DISPATCH(
-                                                    $GLOBAL::Code_push,
-                                                    'APPLY',
-                                                    ::DISPATCH(
-                                                        $GLOBAL::Code_prefix_58__60__64__62_,
-                                                        'APPLY',
-                                                        $result
-                                                    ),
-                                                    ::DISPATCH(
-                                                        $Code_visit_subnode,
-                                                        'APPLY',  $visitor,
-                                                        $subitem, $path
-                                                    )
-                                                  )
+                                                ::DISPATCH( $GLOBAL::Code_push, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $result ), ::DISPATCH( $Code_visit_subnode, 'APPLY', $visitor, $subitem, $path ) )
                                             }
                                         }
                                     };
@@ -350,124 +121,27 @@
                             }
                         };
                         do {
-                            if (
-                                ::DISPATCH(
-                                    ::DISPATCH(
-                                        ::DISPATCH(
-                                            $node,
-                                            'isa',
-                                            ::DISPATCH( $::Str, 'new', 'Hash' )
-                                        ),
-                                        "true"
-                                    ),
-                                    "p5landish"
-                                )
-                              )
-                            {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $node, 'isa', ::DISPATCH( $::Str, 'new', 'Hash' ) ), "true" ), "p5landish" ) ) {
                                 {
                                     my $result;
-                                    $result = ::DISPATCH(
-                                        $::Scalar,
-                                        'new',
-                                        {
-                                            modified => $_MODIFIED,
-                                            name     => '$result'
-                                        }
-                                    ) unless defined $result;
-
-                                    BEGIN {
-                                        $result = ::DISPATCH(
-                                            $::Scalar,
-                                            'new',
-                                            {
-                                                modified => $_MODIFIED,
-                                                name     => '$result'
-                                            }
-                                        );
-                                    }
+                                    $result = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$result' } ) unless defined $result;
+                                    BEGIN { $result = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$result' } ) }
                                     my $subitem;
-                                    $subitem = ::DISPATCH(
-                                        $::Scalar,
-                                        'new',
-                                        {
-                                            modified => $_MODIFIED,
-                                            name     => '$subitem'
-                                        }
-                                    ) unless defined $subitem;
-
-                                    BEGIN {
-                                        $subitem = ::DISPATCH(
-                                            $::Scalar,
-                                            'new',
-                                            {
-                                                modified => $_MODIFIED,
-                                                name     => '$subitem'
-                                            }
-                                        );
-                                    }
+                                    $subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subitem' } ) unless defined $subitem;
+                                    BEGIN { $subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subitem' } ) }
                                     do {
                                         ::MODIFIED($result);
-                                        $result =
-                                          ::DISPATCH( $::Hash, "new",
-                                            { _hash => {} } );
+                                        $result = ::DISPATCH( $::Hash, "new", { _hash => {} } );
                                     };
                                     $subitem;
                                     {
                                         my $subitem;
-                                        $subitem = ::DISPATCH(
-                                            $::Scalar,
-                                            'new',
-                                            {
-                                                modified => $_MODIFIED,
-                                                name     => '$subitem'
-                                            }
-                                        ) unless defined $subitem;
-
-                                        BEGIN {
-                                            $subitem = ::DISPATCH(
-                                                $::Scalar,
-                                                'new',
-                                                {
-                                                    modified => $_MODIFIED,
-                                                    name     => '$subitem'
-                                                }
-                                            );
-                                        }
-                                        for $subitem (
-                                            @{ ::DISPATCH(
-                                                    $GLOBAL::Code_prefix_58__60__64__62_,
-                                                    'APPLY',
-                                                    ::DISPATCH(
-                                                        $GLOBAL::Code_keys,
-                                                        'APPLY',
-                                                        ::DISPATCH(
-                                                            $GLOBAL::Code_prefix_58__60__37__62_,
-                                                            'APPLY',
-                                                            $node
-                                                        )
-                                                    )
-                                                  )->{_value}{_array}
-                                            }
-                                          )
+                                        $subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subitem' } ) unless defined $subitem;
+                                        BEGIN { $subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subitem' } ) }
+                                        for $subitem ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_keys, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__37__62_, 'APPLY', $node ) ) )->{_value}{_array} } )
                                         {
                                             {
-                                                ::DISPATCH_VAR(
-                                                    ::DISPATCH(
-                                                        $result, 'LOOKUP',
-                                                        $subitem
-                                                    ),
-                                                    'STORE',
-                                                    ::DISPATCH(
-                                                        $Code_visit_subnode,
-                                                        'APPLY', $visitor,
-                                                        ::DISPATCH(
-                                                            $node,
-                                                            'LOOKUP',
-                                                            $subitem
-                                                        ),
-                                                        $path
-                                                    )
-                                                  )
+                                                ::DISPATCH_VAR( ::DISPATCH( $result, 'LOOKUP', $subitem ), 'STORE', ::DISPATCH( $Code_visit_subnode, 'APPLY', $visitor, ::DISPATCH( $node, 'LOOKUP', $subitem ), $path ) )
                                             }
                                         }
                                     };
@@ -476,40 +150,14 @@
                             }
                         };
                         do {
-                            if (
-                                ::DISPATCH(
-                                    ::DISPATCH(
-                                        ::DISPATCH(
-                                            $node,
-                                            'isa',
-                                            ::DISPATCH( $::Str, 'new', 'Str' )
-                                        ),
-                                        "true"
-                                    ),
-                                    "p5landish"
-                                )
-                              )
-                            {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $node, 'isa', ::DISPATCH( $::Str, 'new', 'Str' ) ), "true" ), "p5landish" ) ) {
                                 {
                                     return ($node)
                                 }
                             }
                         };
                         do {
-                            if (
-                                ::DISPATCH(
-                                    ::DISPATCH(
-                                        ::DISPATCH(
-                                            $node,
-                                            'isa',
-                                            ::DISPATCH( $::Str, 'new', 'Pad' )
-                                        ),
-                                        "true"
-                                    ),
-                                    "p5landish"
-                                )
-                              )
-                            {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $node, 'isa', ::DISPATCH( $::Str, 'new', 'Pad' ) ), "true" ), "p5landish" ) ) {
                                 {
                                     return ($node)
                                 }
@@ -517,33 +165,14 @@
                         };
                         do {
                             ::MODIFIED($path);
-                            $path = ::DISPATCH(
-                                $::Array, "new",
-                                {
-                                    _array => [
-                                        $node,
-                                        ::DISPATCH(
-                                            $GLOBAL::Code_prefix_58__60__64__62_,
-                                            'APPLY',
-                                            $path
-                                        )
-                                    ]
-                                }
-                            );
+                            $path = ::DISPATCH( $::Array, "new", { _array => [ $node, ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $path ) ] } );
                         };
                         do {
                             ::MODIFIED($result);
-                            $result =
-                              ::DISPATCH( $visitor, 'visit', $node, $node_name,
-                                $path );
+                            $result = ::DISPATCH( $visitor, 'visit', $node, $node_name, $path );
                         };
                         do {
-                            if (
-                                ::DISPATCH(
-                                    ::DISPATCH( $result, "true" ), "p5landish"
-                                )
-                              )
-                            {
+                            if ( ::DISPATCH( ::DISPATCH( $result, "true" ), "p5landish" ) ) {
                                 {
                                     return ($result)
                                 }
@@ -551,8 +180,7 @@
                         };
                         do {
                             ::MODIFIED($result);
-                            $result =
-                              ::DISPATCH( $::Hash, "new", { _hash => {} } );
+                            $result = ::DISPATCH( $::Hash, "new", { _hash => {} } );
                         };
                         do {
                             ::MODIFIED($data);
@@ -561,113 +189,31 @@
                         $item;
                         {
                             my $item;
-                            $item =
-                              ::DISPATCH( $::Scalar, 'new',
-                                { modified => $_MODIFIED, name => '$item' } )
-                              unless defined $item;
-
-                            BEGIN {
-                                $item = ::DISPATCH( $::Scalar, 'new',
-                                    { modified => $_MODIFIED, name => '$item' }
-                                );
-                            }
-                            for $item (
-                                @{ ::DISPATCH(
-                                        $GLOBAL::Code_prefix_58__60__64__62_,
-                                        'APPLY',
-                                        ::DISPATCH(
-                                            $GLOBAL::Code_keys,
-                                            'APPLY',
-                                            ::DISPATCH(
-                                                $GLOBAL::Code_prefix_58__60__37__62_,
-                                                'APPLY',
-                                                $data
-                                            )
-                                        )
-                                      )->{_value}{_array}
-                                }
-                              )
-                            {
+                            $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } ) unless defined $item;
+                            BEGIN { $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } ) }
+                            for $item ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_keys, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__37__62_, 'APPLY', $data ) ) )->{_value}{_array} } ) {
                                 {
-                                    ::DISPATCH_VAR(
-                                        ::DISPATCH( $result, 'LOOKUP', $item ),
-                                        'STORE',
-                                        ::DISPATCH(
-                                            $Code_visit_subnode,
-                                            'APPLY', $visitor,
-                                            ::DISPATCH(
-                                                $data, 'LOOKUP', $item
-                                            ),
-                                            $path
-                                        )
-                                      )
+                                    ::DISPATCH_VAR( ::DISPATCH( $result, 'LOOKUP', $item ), 'STORE', ::DISPATCH( $Code_visit_subnode, 'APPLY', $visitor, ::DISPATCH( $data, 'LOOKUP', $item ), $path ) )
                                 }
                             }
                         };
-                        return (
-                            ::DISPATCH(
-                                $node, 'new',
-                                ::DISPATCH(
-                                    $GLOBAL::Code_prefix_58__60__37__62_,
-                                    'APPLY', $result
-                                )
-                            )
-                        );
+                        return ( ::DISPATCH( $node, 'new', ::DISPATCH( $GLOBAL::Code_prefix_58__60__37__62_, 'APPLY', $result ) ) );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {
-                            invocant => $::Undef,
+                        {   invocant => $::Undef,
                             array    => ::DISPATCH(
                                 $::Array, "new",
-                                {
-                                    _array => [
-                                        ::DISPATCH(
-                                            $::Signature::Item,
-                                            "new",
-                                            {
-                                                sigil     => '$',
-                                                twigil    => '',
-                                                name      => 'visitor',
-                                                namespace => [],
-                                            }
-                                        ),
-                                        ::DISPATCH(
-                                            $::Signature::Item,
-                                            "new",
-                                            {
-                                                sigil     => '$',
-                                                twigil    => '',
-                                                name      => 'node',
-                                                namespace => [],
-                                            }
-                                        ),
-                                        ::DISPATCH(
-                                            $::Signature::Item,
-                                            "new",
-                                            {
-                                                sigil     => '$',
-                                                twigil    => '',
-                                                name      => 'node_name',
-                                                namespace => [],
-                                            }
-                                        ),
-                                        ::DISPATCH(
-                                            $::Signature::Item,
-                                            "new",
-                                            {
-                                                sigil     => '$',
-                                                twigil    => '',
-                                                name      => 'path',
-                                                namespace => [],
-                                            }
-                                        ),
+                                {   _array => [
+                                        ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'visitor',   namespace => [], } ),
+                                        ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'node',      namespace => [], } ),
+                                        ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'node_name', namespace => [], } ),
+                                        ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'path',      namespace => [], } ),
                                     ]
                                 }
                             ),
-                            hash =>
-                              ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
                             return => $::Undef,
                         }
                     ),
@@ -678,55 +224,20 @@
             ::MODIFIED($Code_visit_subnode);
             $Code_visit_subnode = ::DISPATCH(
                 $::Code, 'new',
-                {
-                    code => sub {
-                        my $List__ =
-                          ::DISPATCH( $::Array, 'new',
-                            { modified => $_MODIFIED, name => '$List__' } );
+                {   code => sub {
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $visitor;
-                        $visitor =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$visitor' } )
-                          unless defined $visitor;
-
-                        BEGIN {
-                            $visitor = ::DISPATCH( $::Scalar, 'new',
-                                { modified => $_MODIFIED, name => '$visitor' }
-                            );
-                        }
+                        $visitor = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$visitor' } ) unless defined $visitor;
+                        BEGIN { $visitor = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$visitor' } ) }
                         my $subnode;
-                        $subnode =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$subnode' } )
-                          unless defined $subnode;
-
-                        BEGIN {
-                            $subnode = ::DISPATCH( $::Scalar, 'new',
-                                { modified => $_MODIFIED, name => '$subnode' }
-                            );
-                        }
+                        $subnode = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subnode' } ) unless defined $subnode;
+                        BEGIN { $subnode = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subnode' } ) }
                         my $path;
-                        $path =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$path' } )
-                          unless defined $path;
-
-                        BEGIN {
-                            $path =
-                              ::DISPATCH( $::Scalar, 'new',
-                                { modified => $_MODIFIED, name => '$path' } );
-                        }
+                        $path = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$path' } ) unless defined $path;
+                        BEGIN { $path = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$path' } ) }
                         my $CAPTURE;
-                        $CAPTURE =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$CAPTURE' } )
-                          unless defined $CAPTURE;
-
-                        BEGIN {
-                            $CAPTURE = ::DISPATCH( $::Scalar, 'new',
-                                { modified => $_MODIFIED, name => '$CAPTURE' }
-                            );
-                        }
+                        $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
+                        BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
                         ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
                         do {
                             ::MODIFIED($List__);
@@ -738,143 +249,67 @@
                         };
                         do {
                             ::MODIFIED($visitor);
-                            $visitor =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 0 ) );
+                            $visitor = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         do {
                             ::MODIFIED($subnode);
-                            $subnode =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 1 ) );
+                            $subnode = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) );
                         };
                         do {
                             ::MODIFIED($path);
-                            $path =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 2 ) );
+                            $path = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 ) );
                         };
                         do {
-                            if (
-                                ::DISPATCH(
+                            if (::DISPATCH(
                                     ::DISPATCH(
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__124__124__62_,
                                             'APPLY',
-                                            ::DISPATCH(
-                                                $subnode, 'isa',
-                                                ::DISPATCH(
-                                                    $::Str, 'new', 'Array'
-                                                )
-                                            ),
+                                            ::DISPATCH( $subnode, 'isa', ::DISPATCH( $::Str, 'new', 'Array' ) ),
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__124__124__62_,
                                                 'APPLY',
-                                                ::DISPATCH(
-                                                    $subnode, 'isa',
-                                                    ::DISPATCH(
-                                                        $::Str, 'new',
-                                                        'Hash'
-                                                    )
-                                                ),
-                                                ::DISPATCH(
-                                                    $GLOBAL::Code_infix_58__60__124__124__62_,
-                                                    'APPLY',
-                                                    ::DISPATCH(
-                                                        $subnode, 'isa',
-                                                        ::DISPATCH(
-                                                            $::Str, 'new',
-                                                            'Str'
-                                                        )
-                                                    ),
-                                                    ::DISPATCH(
-                                                        $subnode, 'isa',
-                                                        ::DISPATCH(
-                                                            $::Str, 'new',
-                                                            'Pad'
-                                                        )
-                                                    )
-                                                )
+                                                ::DISPATCH( $subnode, 'isa', ::DISPATCH( $::Str, 'new', 'Hash' ) ),
+                                                ::DISPATCH( $GLOBAL::Code_infix_58__60__124__124__62_, 'APPLY', ::DISPATCH( $subnode, 'isa', ::DISPATCH( $::Str, 'new', 'Str' ) ), ::DISPATCH( $subnode, 'isa', ::DISPATCH( $::Str, 'new', 'Pad' ) ) )
                                             )
                                         ),
                                         "true"
                                     ),
                                     "p5landish"
                                 )
-                              )
+                                )
                             {
                                 {
-                                    return (
-                                        ::DISPATCH(
-                                            $Code_visit, 'APPLY',
-                                            $visitor,    $subnode,
-                                            $::Undef,    $path
-                                        )
-                                      )
+                                    return ( ::DISPATCH( $Code_visit, 'APPLY', $visitor, $subnode, $::Undef, $path ) )
                                 }
                             }
                             else {
                                 {
-                                    return (
-                                        ::DISPATCH(
-                                            $subnode, 'emit',
-                                            $visitor, $path
-                                        )
-                                      )
+                                    return ( ::DISPATCH( $subnode, 'emit', $visitor, $path ) )
                                 }
                             }
-                          }
+                            }
                     },
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {
-                            invocant => $::Undef,
+                        {   invocant => $::Undef,
                             array    => ::DISPATCH(
                                 $::Array, "new",
-                                {
-                                    _array => [
-                                        ::DISPATCH(
-                                            $::Signature::Item,
-                                            "new",
-                                            {
-                                                sigil     => '$',
-                                                twigil    => '',
-                                                name      => 'visitor',
-                                                namespace => [],
-                                            }
-                                        ),
-                                        ::DISPATCH(
-                                            $::Signature::Item,
-                                            "new",
-                                            {
-                                                sigil     => '$',
-                                                twigil    => '',
-                                                name      => 'subnode',
-                                                namespace => [],
-                                            }
-                                        ),
-                                        ::DISPATCH(
-                                            $::Signature::Item,
-                                            "new",
-                                            {
-                                                sigil     => '$',
-                                                twigil    => '',
-                                                name      => 'path',
-                                                namespace => [],
-                                            }
-                                        ),
+                                {   _array => [
+                                        ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'visitor', namespace => [], } ),
+                                        ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'subnode', namespace => [], } ),
+                                        ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'path',    namespace => [], } ),
                                     ]
                                 }
                             ),
-                            hash =>
-                              ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
                             return => $::Undef,
                         }
                     ),
                 }
             );
-          }
+            }
     };
     1
 }

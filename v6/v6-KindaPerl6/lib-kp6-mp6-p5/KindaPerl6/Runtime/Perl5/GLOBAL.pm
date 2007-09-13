@@ -8,6 +8,7 @@ package GLOBAL;
     our @EXPORT = qw( 
         print 
         say
+        warn
         undef
         undefine
         defined
@@ -118,6 +119,7 @@ package GLOBAL;
     sub not      { ::DISPATCH( $::Bit, 'new', ! ( ::DISPATCH( $_[0], 'true' )->{_value} ) ) }  
     sub True     { ::DISPATCH( $::Bit, 'new',1 ) }  
     sub say      { GLOBAL::print( @_, ::DISPATCH( $::Str, 'new', "\n" ));return True;}
+    sub warn     { CORE::warn( join '', map { _str($_) } @_ )}
     sub sleep    { CORE::sleep(_int($_[0]));return True;}
     sub False    { ::DISPATCH( $::Bit, 'new',0 ) }  
     sub TODO     {confess("TODO");}

@@ -22623,8 +22623,7 @@
                                                                                                                                                                     do {
                                                                                                                                                                         {
                                                                                                                                                                             my $ret;
-                                                                                                                                                                            $ret
-                                                                                                                                                                                = ::DISPATCH( $::Scalar, 'new',
+                                                                                                                                                                            $ret = ::DISPATCH( $::Scalar, 'new',
                                                                                                                                                                                 { modified => $_MODIFIED, name => '$ret' } )
                                                                                                                                                                                 unless defined $ret;
 

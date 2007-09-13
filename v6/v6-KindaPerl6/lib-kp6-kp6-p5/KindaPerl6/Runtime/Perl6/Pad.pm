@@ -10,57 +10,22 @@
     use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
-
-    BEGIN {
-        $_ =
-          ::DISPATCH( $::Scalar, "new",
-            { modified => $_MODIFIED, name => "$_" } );
-    }
+    BEGIN { $_ = ::DISPATCH( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
     {
         do {
-            if (
-                ::DISPATCH(
-                    ::DISPATCH(
-                        ::DISPATCH(
-                            $GLOBAL::Code_VAR_defined, 'APPLY', $::Pad
-                        ),
-                        "true"
-                    ),
-                    "p5landish"
-                )
-              )
-            {
-            }
+            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Pad ), "true" ), "p5landish" ) ) { }
             else {
                 {
                     do {
                         ::MODIFIED($::Pad);
-                        $::Pad = ::DISPATCH(
-                            ::DISPATCH(
-                                $::Class, 'new',
-                                ::DISPATCH( $::Str, 'new', 'Pad' )
-                            ),
-                            'PROTOTYPE',
-                        );
-                      }
+                        $::Pad = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Pad' ) ), 'PROTOTYPE', );
+                        }
                 }
             }
         };
-        ::DISPATCH(
-            ::DISPATCH( $::Pad, 'HOW', ),
-            'add_attribute',
-            ::DISPATCH( $::Str, 'new', 'namespace' )
-        );
-        ::DISPATCH(
-            ::DISPATCH( $::Pad, 'HOW', ),
-            'add_attribute',
-            ::DISPATCH( $::Str, 'new', 'outer' )
-        );
-        ::DISPATCH(
-            ::DISPATCH( $::Pad, 'HOW', ),
-            'add_attribute',
-            ::DISPATCH( $::Str, 'new', 'lexicals' )
-          )
+        ::DISPATCH( ::DISPATCH( $::Pad, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'namespace' ) );
+        ::DISPATCH( ::DISPATCH( $::Pad, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'outer' ) );
+        ::DISPATCH( ::DISPATCH( $::Pad, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'lexicals' ) )
     };
     1
 }

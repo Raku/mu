@@ -10,52 +10,21 @@
     use KindaPerl6::Runtime::Perl5::Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
-
-    BEGIN {
-        $_ =
-          ::DISPATCH( $::Scalar, "new",
-            { modified => $_MODIFIED, name => "$_" } );
-    }
+    BEGIN { $_ = ::DISPATCH( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
     {
         do {
-            if (
-                ::DISPATCH(
-                    ::DISPATCH(
-                        ::DISPATCH(
-                            $GLOBAL::Code_VAR_defined, 'APPLY', $::Multi
-                        ),
-                        "true"
-                    ),
-                    "p5landish"
-                )
-              )
-            {
-            }
+            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Multi ), "true" ), "p5landish" ) ) { }
             else {
                 {
                     do {
                         ::MODIFIED($::Multi);
-                        $::Multi = ::DISPATCH(
-                            ::DISPATCH(
-                                $::Class, 'new',
-                                ::DISPATCH( $::Str, 'new', 'Multi' )
-                            ),
-                            'PROTOTYPE',
-                        );
-                      }
+                        $::Multi = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Multi' ) ), 'PROTOTYPE', );
+                        }
                 }
             }
         };
-        ::DISPATCH(
-            ::DISPATCH( $::Multi, 'HOW', ),
-            'add_parent',
-            ::DISPATCH( $::Str, 'new', 'Code' )
-        );
-        ::DISPATCH(
-            ::DISPATCH( $::Multi, 'HOW', ),
-            'add_attribute',
-            ::DISPATCH( $::Str, 'new', 'long_names' )
-        );
+        ::DISPATCH( ::DISPATCH( $::Multi, 'HOW', ), 'add_parent',    ::DISPATCH( $::Str, 'new', 'Code' ) );
+        ::DISPATCH( ::DISPATCH( $::Multi, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'long_names' ) );
         ::DISPATCH(
             ::DISPATCH( $::Multi, 'HOW', ),
             'add_method',
@@ -64,46 +33,18 @@
                 $::Method,
                 'new',
                 sub {
-                    my $List_candidates = ::DISPATCH( $::Array, 'new',
-                        { modified => $_MODIFIED, name => '$List_candidates' }
-                    );
+                    my $List_candidates = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List_candidates' } );
                     my $sub;
-                    $sub =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$sub' } )
-                      unless defined $sub;
-
-                    BEGIN {
-                        $sub =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$sub' } );
-                    }
-                    my $List__ =
-                      ::DISPATCH( $::Array, 'new',
-                        { modified => $_MODIFIED, name => '$List__' } );
+                    $sub = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$sub' } ) unless defined $sub;
+                    BEGIN { $sub = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$sub' } ) }
+                    my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                     my $self;
-                    $self =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$self' } )
-                      unless defined $self;
-
-                    BEGIN {
-                        $self =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$self' } );
-                    }
+                    $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
+                    BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
                     $self = shift;
                     my $CAPTURE;
-                    $CAPTURE =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$CAPTURE' } )
-                      unless defined $CAPTURE;
-
-                    BEGIN {
-                        $CAPTURE =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$CAPTURE' } );
-                    }
+                    $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
+                    BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
                     ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
                     do {
                         ::MODIFIED($List__);
@@ -116,130 +57,44 @@
                     $List_candidates;
                     $sub;
                     do {
-                        if (
-                            ::DISPATCH(
-                                ::DISPATCH(
-                                    ::DISPATCH(
-                                        ::DISPATCH(
-                                            $List__, 'INDEX',
-                                            ::DISPATCH( $::Int, 'new', 0 )
-                                        ),
-                                        'isa',
-                                        ::DISPATCH( $::Str, 'new', 'Capture' )
-                                    ),
-                                    "true"
-                                ),
-                                "p5landish"
-                            )
-                          )
-                        {
-                        }
+                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'isa', ::DISPATCH( $::Str, 'new', 'Capture' ) ), "true" ), "p5landish" ) ) { }
                         else {
                             {
-                                ::DISPATCH(
-                                    $GLOBAL::Code_die,
-                                    'APPLY',
-                                    ::DISPATCH(
-                                        $::Str,
-                                        'new',
-'the parameter to Multi.select must be a Capture'
-                                    )
-                                  )
+                                ::DISPATCH( $GLOBAL::Code_die, 'APPLY', ::DISPATCH( $::Str, 'new', 'the parameter to Multi.select must be a Capture' ) )
                             }
                         }
                     };
                     {
                         my $sub;
-                        $sub =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$sub' } )
-                          unless defined $sub;
-
-                        BEGIN {
-                            $sub =
-                              ::DISPATCH( $::Scalar, 'new',
-                                { modified => $_MODIFIED, name => '$sub' } );
-                        }
-                        for $sub (
-                            @{ ::DISPATCH(
-                                    $GLOBAL::Code_prefix_58__60__64__62_,
-                                    'APPLY',
-                                    ::DISPATCH(
-                                        $GLOBAL::Code_prefix_58__60__64__62_,
-                                        'APPLY',
-                                        ::DISPATCH( $self, 'long_names', )
-                                    )
-                                  )->{_value}{_array}
-                            }
-                          )
-                        {
+                        $sub = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$sub' } ) unless defined $sub;
+                        BEGIN { $sub = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$sub' } ) }
+                        for $sub ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $self, 'long_names', ) ) )->{_value}{_array} } ) {
                             {
                                 do {
-                                    if (
-                                        ::DISPATCH(
+                                    if (::DISPATCH(
                                             ::DISPATCH(
                                                 ::DISPATCH(
-                                                    $GLOBAL::Code_infix_58__60__61__61__62_,
-                                                    'APPLY',
-                                                    ::DISPATCH(
-                                                        ::DISPATCH(
-                                                            $sub, 'signature',
-                                                        ),
-                                                        'arity',
-                                                    ),
-                                                    ::DISPATCH(
-                                                        ::DISPATCH(
-                                                            $List__,
-                                                            'INDEX',
-                                                            ::DISPATCH(
-                                                                $::Int, 'new',
-                                                                0
-                                                            )
-                                                        ),
-                                                        'arity',
-                                                    )
+                                                    $GLOBAL::Code_infix_58__60__61__61__62_, 'APPLY',
+                                                    ::DISPATCH( ::DISPATCH( $sub, 'signature', ), 'arity', ), ::DISPATCH( ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'arity', )
                                                 ),
                                                 "true"
                                             ),
                                             "p5landish"
                                         )
-                                      )
+                                        )
                                     {
                                         {
-                                            ::DISPATCH( $List_candidates,
-                                                'push', $sub )
+                                            ::DISPATCH( $List_candidates, 'push', $sub )
                                         }
                                     }
-                                  }
+                                    }
                             }
                         }
                     };
                     do {
-                        if (
-                            ::DISPATCH(
-                                ::DISPATCH(
-                                    ::DISPATCH(
-                                        $GLOBAL::Code_infix_58__60__61__61__62_,
-                                        'APPLY',
-                                        ::DISPATCH(
-                                            $List_candidates, 'elems',
-                                        ),
-                                        ::DISPATCH( $::Int, 'new', 1 )
-                                    ),
-                                    "true"
-                                ),
-                                "p5landish"
-                            )
-                          )
-                        {
+                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60__61__61__62_, 'APPLY', ::DISPATCH( $List_candidates, 'elems', ), ::DISPATCH( $::Int, 'new', 1 ) ), "true" ), "p5landish" ) ) {
                             {
-                                return (
-                                    ::DISPATCH(
-                                        $List_candidates,
-                                        'INDEX',
-                                        ::DISPATCH( $::Int, 'new', 0 )
-                                    )
-                                  )
+                                return ( ::DISPATCH( $List_candidates, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ) )
                             }
                         }
                     };
@@ -247,18 +102,8 @@
                         $GLOBAL::Code_die,
                         'APPLY',
                         ::DISPATCH(
-                            $GLOBAL::Code_infix_58__60__126__62_,
-                            'APPLY',
-                            ::DISPATCH( $::Str, 'new', 'can' ),
-                            ::DISPATCH(
-                                $GLOBAL::Code_infix_58__60__126__62_,
-                                'APPLY',
-                                ::DISPATCH( $::Str, 'new', chr(39) ),
-                                ::DISPATCH(
-                                    $::Str, 'new',
-                                    't resolve Multi dispatch'
-                                )
-                            )
+                            $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                            ::DISPATCH( $::Str, 'new', 'can' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', chr(39) ), ::DISPATCH( $::Str, 'new', 't resolve Multi dispatch' ) )
                         )
                     );
                 }
@@ -272,32 +117,14 @@
                 $::Method,
                 'new',
                 sub {
-                    my $List__ =
-                      ::DISPATCH( $::Array, 'new',
-                        { modified => $_MODIFIED, name => '$List__' } );
+                    my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                     my $self;
-                    $self =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$self' } )
-                      unless defined $self;
-
-                    BEGIN {
-                        $self =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$self' } );
-                    }
+                    $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
+                    BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
                     $self = shift;
                     my $CAPTURE;
-                    $CAPTURE =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$CAPTURE' } )
-                      unless defined $CAPTURE;
-
-                    BEGIN {
-                        $CAPTURE =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$CAPTURE' } );
-                    }
+                    $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
+                    BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
                     ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
                     do {
                         ::MODIFIED($List__);
@@ -310,7 +137,7 @@
                     ::DISPATCH( $::Str, 'new', 'Multi.new( ... )' );
                 }
             )
-          )
+            )
     };
     1
 }
