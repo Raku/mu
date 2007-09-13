@@ -482,46 +482,43 @@
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY',
-                                            ::DISPATCH(
-                                                $::Str, 'new',
-                                                '( length($str) < '
-                                            ),
+                                            ::DISPATCH( $::Str, 'new', '  ' ),
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_,
-                                                'APPLY', $len,
+                                                'APPLY',
+                                                ::DISPATCH(
+                                                    $Main::Code_singlequote,
+                                                    'APPLY',
+                                                ),
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_,
-                                                    'APPLY',
-                                                    ::DISPATCH(
-                                                        $::Str,
-                                                        'new',
-                                                        ' ) ?? (0) !! ( '
-                                                    ),
+                                                    'APPLY', $str,
                                                     ::DISPATCH(
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
                                                         ::DISPATCH(
-                                                            $::Str,
-                                                            'new',
-                                                            '  ( do { '
+                                                            $Main::Code_singlequote,
+                                                            'APPLY',
                                                         ),
                                                         ::DISPATCH(
                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                             'APPLY',
                                                             ::DISPATCH(
-                                                                $Main::Code_singlequote,
-                                                                'APPLY',
+                                                                $::Str,
+                                                                'new',
+' eq substr( $str, $MATCH.to, '
                                                             ),
                                                             ::DISPATCH(
                                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                                 'APPLY',
-                                                                $str,
+                                                                $len,
                                                                 ::DISPATCH(
                                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                                     'APPLY',
                                                                     ::DISPATCH(
-                                                                        $Main::Code_singlequote,
-                                                                        'APPLY',
+                                                                        $::Str,
+                                                                        'new',
+                                                                        ') '
                                                                     ),
                                                                     ::DISPATCH(
                                                                         $GLOBAL::Code_infix_58__60__126__62_,
@@ -529,7 +526,7 @@
                                                                         ::DISPATCH(
                                                                             $::Str,
 'new',
-' eq substr( $str, $MATCH.to, '
+'  ?? (1 + ($MATCH.to = '
                                                                         ),
                                                                         ::DISPATCH(
                                                                             $GLOBAL::Code_infix_58__60__126__62_,
@@ -541,7 +538,7 @@
                                                                                 ::DISPATCH(
                                                                                     $::Str,
 'new',
-') } ) '
+' + $MATCH.to ))'
                                                                                   )
                                                                                 ,
                                                                                 ::DISPATCH(
@@ -550,38 +547,13 @@
                                                                                     ::DISPATCH(
                                                                                         $::Str,
 'new',
-'  ?? (1 + ($MATCH.to = '
+'  !! (0) '
                                                                                       )
                                                                                     ,
                                                                                     ::DISPATCH(
-                                                                                        $GLOBAL::Code_infix_58__60__126__62_,
-'APPLY',
-                                                                                        $len,
-                                                                                        ::DISPATCH(
-                                                                                            $GLOBAL::Code_infix_58__60__126__62_,
-'APPLY',
-                                                                                            ::DISPATCH(
-                                                                                                $::Str,
+                                                                                        $::Str,
 'new',
-' + $MATCH.to ))'
-                                                                                              )
-                                                                                            ,
-                                                                                            ::DISPATCH(
-                                                                                                $GLOBAL::Code_infix_58__60__126__62_,
-'APPLY',
-                                                                                                ::DISPATCH(
-                                                                                                    $::Str,
-'new',
-'  !! (0) '
-                                                                                                  )
-                                                                                                ,
-                                                                                                ::DISPATCH(
-                                                                                                    $::Str,
-'new',
-'))'
-                                                                                                )
-                                                                                            )
-                                                                                        )
+')'
                                                                                     )
                                                                                 )
                                                                             )
