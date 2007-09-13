@@ -18,9 +18,8 @@ class Array is Container {
     method grep(&test) {
         my @result;
         my $s;
-        my $v;
         for @(self) -> $v { 
-            if test($v) {
+            if test($v) { 
                 @result.push($v);
             };
         };

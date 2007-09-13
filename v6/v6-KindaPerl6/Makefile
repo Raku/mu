@@ -10,7 +10,7 @@ all: $(kp6_mp6_OBJ) $(kp6_kp6_OBJ) $(kp6_mp6_modules_OBJ) $(kp6_kp6_modules_OBJ)
 
 lib-kp6-mp6-p5/KindaPerl6/Runtime/Perl6/%.pm: lib/KindaPerl6/Runtime/Perl6/%.pm
 	@echo COMPILE $< $@
-	@perl kp6-mp6-perl5.pl < $< | perltidy > $@.temp ; \
+	@perl kp6-mp6-perl5.pl < $< | perltidy -pro=util/perltidyrc > $@.temp ; \
 		res=$$? ; \
 		if [ $$res = 0 -a -s $@.temp ] ; then \
 			mv $@.temp $@ ; \
@@ -20,7 +20,7 @@ lib-kp6-mp6-p5/KindaPerl6/Runtime/Perl6/%.pm: lib/KindaPerl6/Runtime/Perl6/%.pm
 		fi
 lib-modules-kp6-mp6-p5/%.pm: lib-modules/%.pm
 	@echo COMPILE $< $@
-	@perl kp6-mp6-perl5.pl < $< | perltidy > $@.temp ; \
+	@perl kp6-mp6-perl5.pl < $< | perltidy -pro=util/perltidyrc > $@.temp ; \
 		res=$$? ; \
 		if [ $$res = 0 -a -s $@.temp ] ; then \
 			mv $@.temp $@ ; \
@@ -31,7 +31,7 @@ lib-modules-kp6-mp6-p5/%.pm: lib-modules/%.pm
 
 lib-modules-kp6-kp6-p5/%.pm: lib-modules/%.pm
 	@echo COMPILE $< $@
-	@KP6_TARGET_RUNTIME='KindaPerl6::Runtime::Perl5::KP6Runtime' perl kp6-mp6-perl5.pl < $< | perltidy > $@.temp ; \
+	@KP6_TARGET_RUNTIME='KindaPerl6::Runtime::Perl5::KP6Runtime' perl kp6-mp6-perl5.pl < $< | perltidy -pro=util/perltidyrc > $@.temp ; \
 		res=$$? ; \
 		if [ $$res = 0 -a -s $@.temp ] ; then \
 			mv $@.temp $@ ; \
@@ -42,7 +42,7 @@ lib-modules-kp6-kp6-p5/%.pm: lib-modules/%.pm
 
 
 lib-kp6-kp6-p5/KindaPerl6/Runtime/Perl6/%.pm: lib/KindaPerl6/Runtime/Perl6/%.pm
-	KP6_TARGET_RUNTIME='KindaPerl6::Runtime::Perl5::KP6Runtime' perl kp6-mp6-perl5.pl < $< | perltidy > $@
+	KP6_TARGET_RUNTIME='KindaPerl6::Runtime::Perl5::KP6Runtime' perl kp6-mp6-perl5.pl < $< | perltidy -pro=util/perltidyrc > $@
 
 
 lib-kp6-mp6-p5/KindaPerl6/Runtime/Perl5/%.pm: lib/KindaPerl6/Runtime/Perl5/%.pm
@@ -55,10 +55,10 @@ lib-kp6-mp6-p5/%.pm: lib/%.pm
 	perl mp6.pl < $< > $@
 
 lib-kp6-kp6-p5/%.pm: lib/%.pm
-	KP6_TARGET_RUNTIME='KindaPerl6::Runtime::Perl5::KP6Runtime' perl kp6-mp6-perl5.pl < $< | perltidy > $@
+	KP6_TARGET_RUNTIME='KindaPerl6::Runtime::Perl5::KP6Runtime' perl kp6-mp6-perl5.pl < $< | perltidy -pro=util/perltidyrc > $@
 
 kp6-kp6.pl: kp6.p6
-	KP6_TARGET_RUNTIME='KindaPerl6::Runtime::Perl5::KP6Runtime' perl kp6-kp6-perl5.pl < $< | perltidy > temp.pl ; \
+	KP6_TARGET_RUNTIME='KindaPerl6::Runtime::Perl5::KP6Runtime' perl kp6-kp6-perl5.pl < $< | perltidy -pro=util/perltidyrc > temp.pl ; \
 		res=$$? ; \
 		if [ $$res = 0 -a -s temp.pl ] ; then \
 			cp temp.pl $@ ; \
