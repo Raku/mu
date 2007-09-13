@@ -9,15 +9,15 @@ class Hash is Container {
         return $s ~ ' }' 
     };
     method str {
-        ( ( self.pairs ).map(sub ($pair) { $pair.key ~ "\t" ~ $pair.value}) ).join( "\n" ); 
+        ( ( self.pairs ).map( -> $pair { $pair.key ~ "\t" ~ $pair.value}) ).join( "\n" ); 
     };
     method keys {
         my $pairs = self.pairs;
-        $pairs.map(sub ($pair) {$pair.key}); 
+        $pairs.map( -> $pair {$pair.key}); 
     };
     method values {
         my $pairs = self.pairs;
-        $pairs.map(sub ($pair) {$pair.value}); 
+        $pairs.map( -> $pair {$pair.value}); 
     };
     method true { self.elems != 0 };
     method int  { self.elems };
