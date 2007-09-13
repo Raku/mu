@@ -74,12 +74,18 @@ package GLOBAL;
     }
 
     sub _str {
-        return ::DISPATCH( $_[0], 'str' )->{_value} if ref($_[0]); 
-        $_[0];
+        my $v = $_[0];
+        $v = ::DISPATCH( $v, 'str' )   if ref($v); 
+        $v = ::DISPATCH( $v, 'FETCH' ) if ref($v);  # .str may return a Scalar
+        return $v->{_value}            if ref($v); 
+        $v;
     }
     sub _int {
-        return ::DISPATCH( $_[0], 'int' )->{_value} if ref($_[0]); 
-        $_[0];
+        my $v = $_[0];
+        $v = ::DISPATCH( $v, 'int' )   if ref($v); 
+        $v = ::DISPATCH( $v, 'FETCH' ) if ref($v);  # .int may return a Scalar
+        return $v->{_value}            if ref($v); 
+        $v;
     }
 
     sub print { 

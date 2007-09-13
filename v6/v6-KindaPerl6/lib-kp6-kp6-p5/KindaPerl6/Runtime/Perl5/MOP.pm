@@ -384,7 +384,7 @@ $meta_Value->add_method(
 # $meta_Value->add_method( 'IS_HASH',      ::DISPATCH( $::Method, 'new',  sub { 0 } ) );
 # $meta_Value->add_method( 'IS_CONTAINER', ::DISPATCH( $::Method, 'new',  sub { 0 } ) );
 # -- FETCH is implemented in Object
-# $meta_Value->add_method( 'FETCH',        ::DISPATCH( $::Method, 'new',  sub { $_[0] } ) );
+$meta_Value->add_method( 'FETCH',        ::DISPATCH( $::Method, 'new',  sub { $_[0] } ) );
 
 my $meta_Str = ::DISPATCH( $::Class, 'new', "Str");
 $::Str = $meta_Str->PROTOTYPE();
