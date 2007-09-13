@@ -2,21 +2,8 @@ use v6-alpha;
 
 module COMPILER {
 
-    use KindaPerl6::Visitor::Perl;
-    use KindaPerl6::Visitor::EmitPerl5;
-    use KindaPerl6::Visitor::EmitPerl6;
-    #use KindaPerl6::Visitor::Subset;
-    use KindaPerl6::Visitor::MetaClass;
-    use KindaPerl6::Visitor::Token;
-    use KindaPerl6::Visitor::Global;
-
-    $COMPILER::visitor_dump_ast    = KindaPerl6::Visitor::Perl.new();
-    $COMPILER::visitor_emit_perl5  = KindaPerl6::Visitor::EmitPerl5.new();
-    $COMPILER::visitor_emit_perl6  = KindaPerl6::Visitor::EmitPerl6.new();
-    #$COMPILER::visitor_subset      = KindaPerl6::Visitor::Subset->new();
-    $COMPILER::visitor_metamodel   = KindaPerl6::Visitor::MetaClass.new();
-    $COMPILER::visitor_token       = KindaPerl6::Visitor::Token.new();
-    $COMPILER::visitor_global      = KindaPerl6::Visitor::Global.new();
+    our @PAD;
+    our @CHECK;
 
     sub emit_perl6($node) {
         my $perl6 = $node.emit( $COMPILER::visitor_emit_perl6  );
@@ -28,7 +15,7 @@ module COMPILER {
         $pad.outer = undef;
         $pad.lexicals = [ ];
         $pad.namespace = 'Main';
-        unshift @COMPILER::PAD, $pad;
+        @COMPILER::PAD.unshift($pad);
         $List_COMPILER::PAD = @COMPILER::PAD;
     }
 
@@ -37,37 +24,24 @@ module COMPILER {
         $pad.outer = @COMPILER::PAD[0];
         $pad.lexicals = [ ];
         $pad.namespace = $namespace;
-        unshift @COMPILER::PAD, $pad;
+        @COMPILER::PAD.unshift($pad);
     }
 
     sub drop_pad {
-        shift @COMPILER::PAD;
+        @COMPILER::PAD.shift();
     }
 
+    sub put_pad($pad) {
+        @COMPILER::PAD.unshift($pad);
+    }
+
+    sub current_pad {
+        return @COMPILER::PAD[0];
+    }
+
+    # this should vanish in the future
     sub begin_block($ast) {
-        # this routine is called by begin-blocks at compile time, in order to execute the code
-        # Input: '::Lit::Code' AST node
-
-        $ast = $ast.emit($COMPILER::visitor_token);
-        $ast = $ast.emit($COMPILER::visitor_metamodel);
-        $COMPILER::visitor_global.pad( @COMPILER::PAD[0] );
-        $ast = $ast.emit($COMPILER::visitor_global);
-        shift $COMPILER::visitor_global.pad;
-
-        my $native = $ast.emit($COMPILER::visitor_emit_perl5);
-        add_pad();
-        my $pad = @COMPILER::PAD[0];
-        my $data = $pad.eval($native. ~ '; 1 ');
-        drop_pad();
-
-        if (!$data) {
-            die 'BEGIN did not return a true value ' ~ $ast.emit($COMPILER::visitor_dump_ast);
-        }
-
-        warn 'BEGIN side effects still not implemented!';
-
-        my $finalast = '# BEGIN SIDE EFFECTS NOT IMPLEMENTED' ~ Main::newline();
-        return $finalast;
+        Pad::begin_block($ast);
     }
 
     sub check_block($ast) {

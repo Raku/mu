@@ -6,7 +6,7 @@ use Data::Dumper;
 
 sub emit_perl6 {
     # param = AST
-    my $perl6 = $_[0]->emit( $visitor_emit_perl6  );
+    my $perl6 = $_[0]->emit( );# $visitor_emit_perl6  );
     return $perl6;
 }
 

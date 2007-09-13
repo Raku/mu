@@ -100,7 +100,7 @@ $COMPILER::source_md5 = md5_hex($source);
 my $pos = 0;
 
 COMPILER::env_init;
-while ( $pos < length( $source ) ) {
+while ($pos < length($source)) {
     #say( "Source code:", $source );
     my $p = KindaPerl6::Grammar->comp_unit($source, $pos);
     #say( Main::perl( $$p ) );
