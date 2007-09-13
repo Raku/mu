@@ -1,4 +1,4 @@
-grammar Grammar {
+grammar KindaPerl6::Grammar {
 token space :P5 {[[:space:]]}
 token word :P5 {[[:word:]}
 token digit :P5 {[[:digit:]}

@@ -5,6 +5,7 @@ module Main {
     use KindaPerl6::Ast;
     use KindaPerl6::Grammar::Regex;
     use KindaPerl6::Runtime::Perl6::Compiler;
+    use KindaPerl6::Runtime::Perl6::Grammar;
 
     my @visitors;
     @visitors.push('ExtractRuleBlock');
@@ -26,8 +27,10 @@ module Main {
     $COMPILER::source_md5 = 'temporary_value';
 
     my $pos = 0;
+    my $len = length $code;
 
-    #while ($pos < length($code)) {
+    while ($len > $pos) {
+
         my $ast = KindaPerl6::Grammar.comp_unit($code, $pos);
         if (!($ast.isa('CompUnit'))) {
             die 'Syntax Error!';
@@ -37,6 +40,7 @@ module Main {
         };
         print $ast;
         $pos = $pos + $/.to;
-    #}
+
+    }
 
 }

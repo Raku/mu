@@ -10,111 +10,42 @@
     use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
-
-    BEGIN {
-        $_ =
-          ::DISPATCH( $::Scalar, "new",
-            { modified => $_MODIFIED, name => "$_" } );
-    }
+    BEGIN { $_ = ::DISPATCH( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
     {
-        my $List_visitors =
-          ::DISPATCH( $::Array, 'new',
-            { modified => $_MODIFIED, name => '$List_visitors' } );
+        my $List_visitors = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List_visitors' } );
         my $code;
-        $code =
-          ::DISPATCH( $::Scalar, 'new',
-            { modified => $_MODIFIED, name => '$code' } )
-          unless defined $code;
-
-        BEGIN {
-            $code =
-              ::DISPATCH( $::Scalar, 'new',
-                { modified => $_MODIFIED, name => '$code' } );
-        }
+        $code = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$code' } ) unless defined $code;
+        BEGIN { $code = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$code' } ) }
         my $pos;
-        $pos =
-          ::DISPATCH( $::Scalar, 'new',
-            { modified => $_MODIFIED, name => '$pos' } )
-          unless defined $pos;
-
-        BEGIN {
-            $pos =
-              ::DISPATCH( $::Scalar, 'new',
-                { modified => $_MODIFIED, name => '$pos' } );
-        }
+        $pos = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos' } ) unless defined $pos;
+        BEGIN { $pos = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos' } ) }
+        my $len;
+        $len = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$len' } ) unless defined $len;
+        BEGIN { $len = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$len' } ) }
         my $ast;
-        $ast =
-          ::DISPATCH( $::Scalar, 'new',
-            { modified => $_MODIFIED, name => '$ast' } )
-          unless defined $ast;
-
-        BEGIN {
-            $ast =
-              ::DISPATCH( $::Scalar, 'new',
-                { modified => $_MODIFIED, name => '$ast' } );
-        }
+        $ast = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ast' } ) unless defined $ast;
+        BEGIN { $ast = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ast' } ) }
         do {
-            if (
-                ::DISPATCH(
-                    ::DISPATCH(
-                        ::DISPATCH(
-                            $GLOBAL::Code_VAR_defined, 'APPLY', $::Main
-                        ),
-                        "true"
-                    ),
-                    "p5landish"
-                )
-              )
-            {
-            }
+            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Main ), "true" ), "p5landish" ) ) { }
             else {
                 {
-                    my $List_visitors =
-                      ::DISPATCH( $::Array, 'new',
-                        { modified => $_MODIFIED, name => '$List_visitors' } );
+                    my $List_visitors = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List_visitors' } );
                     my $code;
-                    $code =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$code' } )
-                      unless defined $code;
-
-                    BEGIN {
-                        $code =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$code' } );
-                    }
+                    $code = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$code' } ) unless defined $code;
+                    BEGIN { $code = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$code' } ) }
                     my $pos;
-                    $pos =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$pos' } )
-                      unless defined $pos;
-
-                    BEGIN {
-                        $pos =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$pos' } );
-                    }
+                    $pos = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos' } ) unless defined $pos;
+                    BEGIN { $pos = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos' } ) }
+                    my $len;
+                    $len = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$len' } ) unless defined $len;
+                    BEGIN { $len = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$len' } ) }
                     my $ast;
-                    $ast =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$ast' } )
-                      unless defined $ast;
-
-                    BEGIN {
-                        $ast =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$ast' } );
-                    }
+                    $ast = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ast' } ) unless defined $ast;
+                    BEGIN { $ast = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ast' } ) }
                     do {
                         ::MODIFIED($::Main);
-                        $::Main = ::DISPATCH(
-                            ::DISPATCH(
-                                $::Class, 'new',
-                                ::DISPATCH( $::Str, 'new', 'Main' )
-                            ),
-                            'PROTOTYPE',
-                        );
-                      }
+                        $::Main = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Main' ) ), 'PROTOTYPE', );
+                        }
                 }
             }
         };
@@ -124,105 +55,53 @@
         use KindaPerl6::Ast;
         use KindaPerl6::Grammar::Regex;
         use KindaPerl6::Runtime::Perl6::Compiler;
+        use KindaPerl6::Runtime::Perl6::Grammar;
         $List_visitors;
-        ::DISPATCH( $List_visitors, 'push',
-            ::DISPATCH( $::Str, 'new', 'ExtractRuleBlock' ) );
-        ::DISPATCH( $List_visitors, 'push',
-            ::DISPATCH( $::Str, 'new', 'Token' ) );
-        ::DISPATCH( $List_visitors, 'push',
-            ::DISPATCH( $::Str, 'new', 'MetaClass' ) );
-        ::DISPATCH( $List_visitors, 'push',
-            ::DISPATCH( $::Str, 'new', 'Global' ) );
-        ::DISPATCH( $List_visitors, 'push',
-            ::DISPATCH( $::Str, 'new', 'EmitPerl5' ) );
+        ::DISPATCH( $List_visitors, 'push', ::DISPATCH( $::Str, 'new', 'ExtractRuleBlock' ) );
+        ::DISPATCH( $List_visitors, 'push', ::DISPATCH( $::Str, 'new', 'Token' ) );
+        ::DISPATCH( $List_visitors, 'push', ::DISPATCH( $::Str, 'new', 'MetaClass' ) );
+        ::DISPATCH( $List_visitors, 'push', ::DISPATCH( $::Str, 'new', 'Global' ) );
+        ::DISPATCH( $List_visitors, 'push', ::DISPATCH( $::Str, 'new', 'EmitPerl5' ) );
         {
             my $visitor;
-            $visitor =
-              ::DISPATCH( $::Scalar, 'new',
-                { modified => $_MODIFIED, name => '$visitor' } )
-              unless defined $visitor;
-
-            BEGIN {
-                $visitor =
-                  ::DISPATCH( $::Scalar, 'new',
-                    { modified => $_MODIFIED, name => '$visitor' } );
-            }
+            $visitor = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$visitor' } ) unless defined $visitor;
+            BEGIN { $visitor = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$visitor' } ) }
             for $visitor ( @{ $List_visitors->{_value}{_array} } ) {
                 {
-                    ::DISPATCH(
-                        $GLOBAL::Code_require,
-                        'APPLY',
-                        ::DISPATCH(
-                            $GLOBAL::Code_infix_58__60__126__62_,
-                            'APPLY',
-                            ::DISPATCH(
-                                $::Str, 'new', 'KindaPerl6::Visitor::'
-                            ),
-                            $visitor
-                        )
-                      )
+                    ::DISPATCH( $GLOBAL::Code_require, 'APPLY', ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', 'KindaPerl6::Visitor::' ), $visitor ) )
                 }
             }
         };
-        ::DISPATCH_VAR( $code, 'STORE',
-            ::DISPATCH( $GLOBAL::Code_slurp, 'APPLY', ) );
+        ::DISPATCH_VAR( $code, 'STORE', ::DISPATCH( $GLOBAL::Code_slurp, 'APPLY', ) );
         ::DISPATCH( $COMPILER::Code_env_init, 'APPLY', );
         ::DISPATCH_VAR(
             ::DISPATCH(
                 $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
                 'APPLY',
-                ::DISPATCH(
-                    $GLOBAL::Code_VAR_defined, 'APPLY',
-                    $COMPILER::source_md5
-                ),
+                ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $COMPILER::source_md5 ),
                 $COMPILER::source_md5,
                 do {
                     ::MODIFIED($COMPILER::source_md5);
                     $COMPILER::source_md5 = ::DISPATCH( $::Scalar, 'new', );
-                  }
+                    }
             ),
             'STORE',
             ::DISPATCH( $::Str, 'new', 'temporary_value' )
         );
-        ::DISPATCH_VAR( $pos, 'STORE', ::DISPATCH( $::Int, 'new', 0 ) );
-        ::DISPATCH_VAR( $ast, 'STORE',
-            ::DISPATCH( $::KindaPerl6::Grammar, 'comp_unit', $code, $pos ) );
+        ::DISPATCH_VAR( $pos, 'STORE', ::DISPATCH( $::Int,                 'new',       0 ) );
+        ::DISPATCH_VAR( $len, 'STORE', ::DISPATCH( $GLOBAL::Code_length,   'APPLY',     $code ) );
+        ::DISPATCH_VAR( $ast, 'STORE', ::DISPATCH( $::KindaPerl6::Grammar, 'comp_unit', $code, $pos ) );
         do {
-            if (
-                ::DISPATCH(
-                    ::DISPATCH(
-                        ::DISPATCH(
-                            $GLOBAL::Code_prefix_58__60__33__62_,
-                            'APPLY',
-                            ::DISPATCH(
-                                $ast, 'isa',
-                                ::DISPATCH( $::Str, 'new', 'CompUnit' )
-                            )
-                        ),
-                        "true"
-                    ),
-                    "p5landish"
-                )
-              )
-            {
+            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $ast, 'isa', ::DISPATCH( $::Str, 'new', 'CompUnit' ) ) ), "true" ), "p5landish" ) ) {
                 {
-                    ::DISPATCH( $GLOBAL::Code_die, 'APPLY',
-                        ::DISPATCH( $::Str, 'new', 'Syntax Error!' ) )
+                    ::DISPATCH( $GLOBAL::Code_die, 'APPLY', ::DISPATCH( $::Str, 'new', 'Syntax Error!' ) )
                 }
             }
         };
         {
             my $visitor;
-            $visitor =
-              ::DISPATCH( $::Scalar, 'new',
-                { modified => $_MODIFIED, name => '$visitor' } )
-              unless defined $visitor;
-
-            BEGIN {
-                $visitor =
-                  ::DISPATCH( $::Scalar, 'new',
-                    { modified => $_MODIFIED, name => '$visitor' } );
-            }
+            $visitor = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$visitor' } ) unless defined $visitor;
+            BEGIN { $visitor = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$visitor' } ) }
             for $visitor ( @{ $List_visitors->{_value}{_array} } ) {
                 {
                     ::DISPATCH( $ast, 'emit', $visitor )
@@ -230,13 +109,7 @@
             }
         };
         ::DISPATCH( $GLOBAL::Code_print, 'APPLY', $ast );
-        ::DISPATCH_VAR(
-            $pos, 'STORE',
-            ::DISPATCH(
-                $GLOBAL::Code_infix_58__60__43__62_,
-                'APPLY', $pos, ::DISPATCH( $MATCH, 'to', )
-            )
-          )
+        ::DISPATCH_VAR( $pos, 'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $pos, ::DISPATCH( $MATCH, 'to', ) ) )
     };
     1
 }
