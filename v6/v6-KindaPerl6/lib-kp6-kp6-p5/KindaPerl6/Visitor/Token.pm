@@ -7,7 +7,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -291,7 +291,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -612,7 +612,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -712,7 +712,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -838,7 +838,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -954,7 +954,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -1192,7 +1192,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -1360,7 +1360,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -1499,7 +1499,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -1613,7 +1613,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -1733,7 +1733,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -2052,7 +2052,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -2216,7 +2216,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -2336,7 +2336,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -2467,7 +2467,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -2721,7 +2721,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -2824,7 +2824,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -2926,7 +2926,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 

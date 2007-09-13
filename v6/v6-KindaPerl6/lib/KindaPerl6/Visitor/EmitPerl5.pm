@@ -25,7 +25,7 @@ class CompUnit {
         ~ 'use strict;' ~ Main::newline()
         ~ 'no strict \'vars\';' ~ Main::newline()
         ~ set_secure_mode($args_secure)
-        ~ 'use KindaPerl6::Runtime::Perl5::Runtime;' ~ Main::newline()
+        ~ 'use '~ Main::get_compiler_target_runtime() ~';' ~ Main::newline()
         #~ 'use KindaPerl6::Runtime::Perl6::Hash; '
         ~ 'my $_MODIFIED; BEGIN { $_MODIFIED = {} }' ~ Main::newline()
 

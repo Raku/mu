@@ -7,7 +7,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -123,7 +123,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -315,14 +315,14 @@
                                                                                 ::DISPATCH(
                                                                                     $::Str,
 'new',
-'use KindaPerl6::Runtime::Perl5::Runtime;'
+'use '
                                                                                   )
                                                                                 ,
                                                                                 ::DISPATCH(
                                                                                     $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                     ::DISPATCH(
-                                                                                        $Main::Code_newline,
+                                                                                        $Main::Code_get_compiler_target_runtime,
 'APPLY',
                                                                                       )
                                                                                     ,
@@ -332,7 +332,7 @@
                                                                                         ::DISPATCH(
                                                                                             $::Str,
 'new',
-'my $_MODIFIED; BEGIN { $_MODIFIED = {} }'
+';'
                                                                                           )
                                                                                         ,
                                                                                         ::DISPATCH(
@@ -349,16 +349,15 @@
                                                                                                 ::DISPATCH(
                                                                                                     $::Str,
 'new',
-'BEGIN { '
+'my $_MODIFIED; BEGIN { $_MODIFIED = {} }'
                                                                                                   )
                                                                                                 ,
                                                                                                 ::DISPATCH(
                                                                                                     $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                                     ::DISPATCH(
-                                                                                                        $::Str,
-'new',
-'$_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); '
+                                                                                                        $Main::Code_newline,
+'APPLY',
                                                                                                       )
                                                                                                     ,
                                                                                                     ::DISPATCH(
@@ -367,27 +366,25 @@
                                                                                                         ::DISPATCH(
                                                                                                             $::Str,
 'new',
-'}'
+'BEGIN { '
                                                                                                           )
                                                                                                         ,
                                                                                                         ::DISPATCH(
                                                                                                             $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                                             ::DISPATCH(
-                                                                                                                $Main::Code_newline,
-'APPLY',
+                                                                                                                $::Str,
+'new',
+'$_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); '
                                                                                                               )
                                                                                                             ,
                                                                                                             ::DISPATCH(
                                                                                                                 $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                                                 ::DISPATCH(
-                                                                                                                    ::DISPATCH(
-                                                                                                                        $self,
-"body"
-                                                                                                                      )
-                                                                                                                    ,
-'emit_perl5',
+                                                                                                                    $::Str,
+'new',
+'}'
                                                                                                                   )
                                                                                                                 ,
                                                                                                                 ::DISPATCH(
@@ -402,14 +399,36 @@
                                                                                                                         $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                                                         ::DISPATCH(
-                                                                                                                            $::Str,
-'new',
-'; 1 }'
+                                                                                                                            ::DISPATCH(
+                                                                                                                                $self,
+"body"
+                                                                                                                              )
+                                                                                                                            ,
+'emit_perl5',
                                                                                                                           )
                                                                                                                         ,
                                                                                                                         ::DISPATCH(
-                                                                                                                            $Main::Code_newline,
+                                                                                                                            $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
+                                                                                                                            ::DISPATCH(
+                                                                                                                                $Main::Code_newline,
+'APPLY',
+                                                                                                                              )
+                                                                                                                            ,
+                                                                                                                            ::DISPATCH(
+                                                                                                                                $GLOBAL::Code_infix_58__60__126__62_,
+'APPLY',
+                                                                                                                                ::DISPATCH(
+                                                                                                                                    $::Str,
+'new',
+'; 1 }'
+                                                                                                                                  )
+                                                                                                                                ,
+                                                                                                                                ::DISPATCH(
+                                                                                                                                    $Main::Code_newline,
+'APPLY',
+                                                                                                                                )
+                                                                                                                            )
                                                                                                                         )
                                                                                                                     )
                                                                                                                 )
@@ -595,7 +614,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -711,7 +730,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -827,7 +846,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -943,7 +962,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -1076,7 +1095,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -1193,7 +1212,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -1292,7 +1311,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -1398,7 +1417,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -1504,7 +1523,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -1619,7 +1638,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -1743,7 +1762,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -1975,7 +1994,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -2114,7 +2133,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -2257,7 +2276,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -3024,7 +3043,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -3264,7 +3283,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -3396,7 +3415,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -3528,7 +3547,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -3891,7 +3910,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -4243,7 +4262,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -4476,7 +4495,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -4581,7 +4600,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -5050,7 +5069,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -5213,7 +5232,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -5330,7 +5349,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -5513,7 +5532,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -5751,7 +5770,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -6925,7 +6944,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -7231,7 +7250,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -7662,7 +7681,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -7833,7 +7852,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -7990,7 +8009,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -8167,7 +8186,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -8280,7 +8299,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 
@@ -8390,7 +8409,7 @@
     use strict;
     no strict 'vars';
     use constant KP6_DISABLE_INSECURE_CODE => 0;
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
 

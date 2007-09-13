@@ -28,7 +28,7 @@ lib-modules-p5/%.pm: lib-modules/%.pm
 		fi
 
 lib-kp6-kp6-p5/KindaPerl6/Runtime/Perl6/%.pm: lib/KindaPerl6/Runtime/Perl6/%.pm
-	perl kp6-mp6-perl5.pl < $< | perltidy > $@
+	KP6_TARGET_RUNTIME='KindaPerl6::Runtime::Perl5::KP6Runtime' perl kp6-mp6-perl5.pl < $< | perltidy > $@
 
 
 lib-kp6-mp6-p5/KindaPerl6/Runtime/Perl5/%.pm: lib/KindaPerl6/Runtime/Perl5/%.pm
@@ -41,10 +41,10 @@ lib-kp6-mp6-p5/%.pm: lib/%.pm
 	perl mp6.pl < $< > $@
 
 lib-kp6-kp6-p5/%.pm: lib/%.pm
-	perl kp6-mp6-perl5.pl < $< | perltidy > $@
+	KP6_TARGET_RUNTIME='KindaPerl6::Runtime::Perl5::KP6Runtime' perl kp6-mp6-perl5.pl < $< | perltidy > $@
 
 kp6-kp6.pl: kp6.p6
-	perl kp6-kp6-perl5.pl < $< | perltidy > temp.pl ; \
+	KP6_TARGET_RUNTIME='KindaPerl6::Runtime::Perl5::KP6Runtime' perl kp6-kp6-perl5.pl < $< | perltidy > temp.pl ; \
 		res=$$? ; \
 		if [ $$res = 0 -a -s temp.pl ] ; then \
 			cp temp.pl $@ ; \

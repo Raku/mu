@@ -280,4 +280,8 @@ package Main;
         Data::Dump::Streamer::Dump( @_ );
     }
 
+    sub get_compiler_target_runtime {
+        $ENV{KP6_TARGET_RUNTIME} || "KindaPerl6::Runtime::Perl5::Runtime";
+    }
+
 1;
