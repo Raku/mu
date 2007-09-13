@@ -242,9 +242,6 @@ the LGPL+GPL, then the copyright holder of Muldis DB can provide you a
 customized proprietary license, often at no cost, so that it is still
 possible for you to employ Muldis DB to meet your needs.
 
-For more information on matters such as licensing, including rationale, see
-also the L<Muldis::DB::Copying> file that comes with Muldis DB.
-
 Any versions of Muldis DB that you modify and distribute must carry
 prominent notices stating that you changed the files and the date of any
 changes, in addition to preserving this original copyright notice and other
