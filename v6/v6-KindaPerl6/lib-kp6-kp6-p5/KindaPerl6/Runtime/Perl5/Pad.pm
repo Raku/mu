@@ -197,6 +197,125 @@ sub eval_ast {
     return $self->eval( $code );
 }
 
+# This is a subroutine, not a method
+# TODO - replace COMPILER::Pad with a scalar, and then traverse the Pads using .outer instead
+sub begin_block {
+    # this routine is called by begin-blocks at compile time, in order to execute the code
+    # Input: '::Lit::Code' AST node
+    
+    my $ast = shift;
+
+    # execute the code inside the current pad
+    unshift @COMPILER::PAD, Pad->new( 
+        outer     => $COMPILER::PAD[0], 
+        lexicals  => [ ], 
+        namespace => $_[0],  # optional
+    ); 
+    my $data = $COMPILER::PAD[0]->eval_ast( $ast );  # XXX - want() context
+    shift @COMPILER::PAD;
+    die "At BEGIN: " . $@ if $@;
+    #print "RETURN DATA: ", Dumper($data);
+
+    # check for side-effects
+    my @begin_stmts;
+
+    #print "=pod\n";
+    #print "# BEGIN ENV: ", Dumper( $COMPILER::PAD[0]->lexicals ), "\n";
+
+    for my $pad ( @COMPILER::PAD ) {
+        #print "# Lexicals here: ", Dumper( $pad->lexicals ), "\n";
+        for my $name ( $pad->side_effects ) {
+            my $value = $COMPILER::PAD[0]->eval( "$name" );
+
+            # TODO - create AST, instead of source code
+            my $src = '';
+            if (   ref( $value->{_value} eq 'HASH' ) 
+                && $name ne $value->{_value}{name} 
+            ) {
+                # it seems to be a bound variable
+                if ( $value->{_value}{name} ) {
+                    # the binded thing has a name
+                    $src = $src . "$name := " . $value->{_value}{name} . '; ';
+                    # optimize repeated assignments
+                    $src = $src . "$name = " . $value->{_dispatch}( $value, 'perl' )->{_value};
+                }
+                else {
+                    # no name; bind to the value
+                    $src = $src . "$name := " . $value->{_dispatch}( $value, 'perl' )->{_value} . '; ';
+                }
+            }
+            else {
+                # plain assignment
+                $src = $src . "$name = " . $value->{_dispatch}( $value, 'perl' )->{_value};
+            }
+
+            # TODO - convert directly DATA->AST, instead of DATA->PERL->AST
+            #print "# BEGIN SIDE-EFFECT: $src \n\n";
+            my $p = KindaPerl6::Grammar->exp_stmts( $src, 0);
+            my $pos = $p->to;
+            #print "# parsed to $pos - length = ",length($src)," [$src]\n";
+            if ( $pos != length( $src ) ) {
+                die "Syntax error serializing BEGIN block, after position $pos in: $src\n";
+            }
+            #print "AST: ", Dumper($$p);
+            # TODO - check for shared data (BIND)
+            push @begin_stmts, @$$p;
+        }
+    }
+    unshift @COMPILER::PAD, Pad->new( 
+        outer     => $COMPILER::PAD[0], 
+        lexicals  => [ ], 
+        namespace => $_[0],  # optional
+    ); 
+    my $begin_ast = BEGIN->new(
+        block => Lit::Code->new(
+            sig   => Sig->new(
+                                 'named' => {},
+                                 'invocant' => undef,
+                                 'positional' => []
+                             ),
+            body  => \@begin_stmts,
+            pad   => $COMPILER::PAD[0], 
+            state => {},
+        ),
+    );
+    shift @COMPILER::PAD;
+    #print "BEGIN AST: ",Dumper($begin_ast);
+    #print "BEGIN native: ", $begin_ast->emit( $visitor_emit_perl5  ) );
+    #print "data: ", Dumper( $data );
+    
+    # - convert the 'result' data to ast
+    my $source = $data->{_dispatch}( $data, 'perl' )->{_value};
+    #print "# begin - result data: $source\n";
+    my $p = KindaPerl6::Grammar->exp($source, 0);
+    #say( Main::perl( $$p ) );
+    unshift @COMPILER::PAD, Pad->new( 
+        outer     => $COMPILER::PAD[0], 
+        lexicals  => [ ], 
+        namespace => $_[0],  # optional
+    ); 
+    my $final_ast = Do->new(
+            'block' => Lit::Code->new(
+                pad   => $COMPILER::PAD[0],
+                state => { },
+                sig   => Sig->new( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
+                body  => [ $begin_ast, $$p ],
+            ),
+    );
+    shift @COMPILER::PAD;
+    #print "FINAL AST: ",Dumper($final_ast); 
+    #print "FINAL native: ", $final_ast->emit( $visitor_emit_perl5  );
+
+    # create the runtime initializer
+    # @COMPILER::BEGIN_RUNTIME
+    ## push @COMPILER::BEGIN_RUNTIME, $initializer_name;
+    #print "/begin_block\n";
+    #print "\n=cut\n";
+
+    return $final_ast;
+}
+
+
 1;
 
 __END__
