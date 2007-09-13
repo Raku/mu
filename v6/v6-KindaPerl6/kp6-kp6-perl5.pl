@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 package Main;
 
-use lib 'lib-kp6-kp6-p5/';
+use lib 'lib-kp6-mp6-p5/';
 use strict;
 
 BEGIN {
@@ -9,13 +9,14 @@ BEGIN {
     $Main::_V6_COMPILER_VERSION = '0.001';
 }
 
-use KindaPerl6::Runtime::Perl5::KP6Runtime;  
+use KindaPerl6::Runtime::Perl5::Runtime;  
 use KindaPerl6::Grammar;
 use KindaPerl6::Traverse;
 use KindaPerl6::Ast;
 use KindaPerl6::Grammar::Regex;
-use KindaPerl6::Runtime::Perl6::Compiler;  
+use KindaPerl6::Runtime::Perl5::Compiler;  
 
+$ENV{KP6_TARGET_RUNTIME} = 'KindaPerl6::Runtime::Perl5::KP6Runtime';
 
 # --- command line options
 
@@ -84,8 +85,7 @@ my @visitors;
         my $module_name = 'KindaPerl6::Visitor::' . $_;
         eval "require $module_name";
         die "Can't load $_ plugin: $@" if $@;
-        no strict 'refs';
-        push @visitors, ::DISPATCH(${'::'.$module_name},'new', visitor_args => \%visitor_args );
+        push @visitors, $module_name->new( visitor_args => \%visitor_args );
     }
 
     #print "# Visitors: @visitors \n";
@@ -94,9 +94,12 @@ my @visitors;
 
 
 my $source = join('', <> );
+use Digest::MD5 'md5_hex';
+$COMPILER::source_md5 = md5_hex($source);
+
 my $pos = 0;
 
-::DISPATCH($::COMPILER::Code_env_init, 'APPLY');
+COMPILER::env_init;
 while ( $pos < length( $source ) ) {
     #say( "Source code:", $source );
     my $p = KindaPerl6::Grammar->comp_unit($source, $pos);
@@ -107,7 +110,7 @@ while ( $pos < length( $source ) ) {
         die "Syntax Error\n";
     }
     $ast = $ast->emit( $_ ) for @visitors;
-    say $ast;
+    print $ast;
     $pos = $p->to;
 }
 # emit CHECK blocks
@@ -116,6 +119,6 @@ for ( @COMPILER::CHECK ) {
     unshift @COMPILER::PAD, $pad;
     my $ast = COMPILER::begin_block( $ast );
     $ast = $ast->emit( $_ ) for @visitors;
-    say $ast;
+    print $ast;
     shift @COMPILER::PAD;
 }

@@ -17,7 +17,9 @@ package GLOBAL;
         True
         False
         substr
+        length
         match_p5rx
+
 
         ternary_58__60__63__63__32__33__33__62_
         
@@ -33,7 +35,9 @@ package GLOBAL;
         infix_58__60__45__62_
         infix_58__60__47__62_
         infix_58__60__60__61__62__62_
+        infix_58__60__62__61__62_
         infix_58__60__62__62_
+        infix_58__60__60__62_
         
         prefix_58__60__33__62_
         prefix_58__60__126__62_
@@ -125,7 +129,10 @@ package GLOBAL;
     { ::DISPATCH( $::Bit, 'new', (_int($_[0]) == _int($_[1])) ? 1 : 0) }  # infix:<==>
     sub infix_58__60__60__61__62__62_
     { ::DISPATCH( $::Int, 'new', (_int($_[0]) <=> _int($_[1]))) }  # infix:<<=>>
-
+    sub infix_58__60__62__61__62_
+    { ::DISPATCH( $::Bit, 'new', (_int($_[0] >= _int($_[1])))) } # infix: <>=>
+    sub infix_58__60__60__62_
+    { ::DISPATCH( $::Bit, 'new', (_int($_[0] >= _int($_[1])))) } # infix: <>=>
     sub infix_58__60__33__61__62_ {  # infix:<!=>
         $::Bit->new(_int($_[0]) != _int($_[1]));
     }
@@ -159,6 +166,8 @@ package GLOBAL;
             ) 
         }
         if ( $#_ == 2 ) {
+            #warn "STACK TRACE--------------------------------------\n";
+            #warn join("\n", map { join ', ', caller($_) } 1..6)."\n";
             return ::DISPATCH( $::Str, 'new', 
                 substr( 
                     _str( $_[0] ), _int( $_[1] ), _int( $_[2] ) 
@@ -173,7 +182,11 @@ package GLOBAL;
             ) 
         }
         die "Not enough arguments for substr";
-    }  
+    }
+
+    sub length {
+        ::DISPATCH( $::Int, 'new', length(_str( $_[0] )) );
+    }
 
     # prefix:<~>
     sub prefix_58__60__126__62_ { ::DISPATCH( $::Str, 'new', _str( $_[0] ) ) }  

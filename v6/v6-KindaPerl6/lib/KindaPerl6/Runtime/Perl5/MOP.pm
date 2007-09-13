@@ -29,7 +29,9 @@ use FindBin;
 
 sub ::DISPATCH {
     my $invocant = shift;
-    confess "DISPATCH: calling @_ on invalid object:",Dumper($invocant),"\n" unless $invocant->{_dispatch};
+    unless ($invocant->{_dispatch}) {
+        confess "DISPATCH: calling @_ on invalid object:",Dumper($invocant),"\n" 
+    }
     $invocant->{_dispatch}($invocant,@_);
 }
 
@@ -134,6 +136,7 @@ my $dispatch = sub {
     }
     
     # low-level Method - APPLY can't dispatch itself!
+    #warn 'LOW-LEVEL APPLY '.$method_name."\n".join("\n", map { join ",", caller($_) } 1..6)."\n";
     return $meth->{_value}->( $self, @_ );
 };
 

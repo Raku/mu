@@ -61,10 +61,12 @@ class Rule {
                 $str := Main::backslash() ~ Main::singlequote();
             };
             if ( $len ) {
-                '( ( '~ Main::singlequote() ~ $str ~ Main::singlequote() ~ ' eq substr( $str, $MATCH.to, ' ~ $len ~ ')) ' ~
+                '( ' ~
+                '( length($str) < ' ~ $len ~ ' ) ?? (0) !! ( ' ~
+                '  ( do { '~ Main::singlequote() ~ $str ~ Main::singlequote() ~ ' eq substr( $str, $MATCH.to, ' ~ $len ~ ') } ) ' ~
                 '  ?? (1 + ($MATCH.to = ' ~ $len ~ ' + $MATCH.to ))' ~
                 '  !! (0) ' ~
-                ')';
+                '))';
             }
             else {
                 return '1'
