@@ -308,6 +308,12 @@ token term_meth {
          { return ::Index(  'obj' => $$<term>, 'index' => $$<exp> ) }   # $a[exp]
     | \{ <?opt_ws> <exp> <?opt_ws> \}
          { return ::Lookup( 'obj' => $$<term>, 'index' => $$<exp> ) }   # $a{exp}
+    | \< <ident> \>
+         { return ::Lookup( 
+                'obj' => $$<term>, 
+                'index' => ::Val::Buf( 'buf' => ~$<ident> ),
+            ) 
+         }   # $a<lit>
     |    { return $$<term> }
     ]
 };
