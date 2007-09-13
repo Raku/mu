@@ -419,6 +419,23 @@ class For {
     }
 }
 
+class While {
+    method emit_perl5 {
+        my $cond := $.cond;
+        if   $cond.isa( 'Var' ) 
+          && $cond.sigil eq '@' 
+        {
+        } else {
+            $cond := ::Apply( code => ::Var(sigil=>'&',twigil=>'',name=>'prefix:<@>',namespace => [ 'GLOBAL' ],), arguments => [$cond] );
+        }
+        'do { while (::DISPATCH(::DISPATCH(' ~ $.cond.emit_perl5 ~ ',"true"),"p5landish") ) ' 
+        ~ ' { ' 
+        ~     $.body.emit_perl5 
+        ~ ' } }'
+        ~ Main::newline();
+    }
+}
+
 class Decl {
     method emit_perl5 {
         my $decl := $.decl;

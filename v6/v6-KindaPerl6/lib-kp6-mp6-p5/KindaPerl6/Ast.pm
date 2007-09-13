@@ -227,6 +227,15 @@ sub attribs { my $self = shift; my $List__ = \@_; do { [] }; { 'cond' => $self->
 
 
 ;
+package While;
+sub new { shift; bless { @_ }, "While" }
+sub cond { @_ == 1 ? ( $_[0]->{cond} ) : ( $_[0]->{cond} = $_[1] ) };
+sub body { @_ == 1 ? ( $_[0]->{body} ) : ( $_[0]->{body} = $_[1] ) };
+sub emit { my $self = shift; my $List__ = \@_; my $visitor; my $path; do {  $visitor = $List__->[0];  $path = $List__->[1]; [$visitor, $path] }; KindaPerl6::Traverse::visit($visitor, $self, 'While', $path) };
+sub attribs { my $self = shift; my $List__ = \@_; do { [] }; { 'cond' => $self->{cond},'body' => $self->{body}, } }
+
+
+;
 package For;
 sub new { shift; bless { @_ }, "For" }
 sub cond { @_ == 1 ? ( $_[0]->{cond} ) : ( $_[0]->{cond} = $_[1] ) };

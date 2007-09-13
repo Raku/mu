@@ -493,6 +493,25 @@ class If {
     };
 }
 
+class While {
+    has $.cond;
+    has @.body;
+    method emit( $visitor, $path ) {
+        KindaPerl6::Traverse::visit(
+            $visitor,
+            self,
+            'While',
+            $path,
+        );
+    };
+    method attribs {
+            {
+                cond       => $.cond,
+                body       => @.body,
+            }
+    };
+}
+
 class For {
     has $.cond;
     has @.body;
