@@ -116,7 +116,7 @@ while ( $pos < length( $source ) ) {
         my $last_n_pos = rindex $source_uptohere, "\n";
         my $column = $pos - $last_n_pos;
 
-        die "syntax error at position $pos, line $lines column $column\n";
+        die "syntax error at position $pos, line $lines column $column at:",substr($source,$last_n_pos),"\n";
     }
     $ast = $ast->emit( $_ ) for @visitors;
     print $ast;
