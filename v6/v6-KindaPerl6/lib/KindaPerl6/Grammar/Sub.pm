@@ -128,6 +128,42 @@ token proto {
         }  
 }
 
+token method {
+    method
+    <?ws>  <opt_name>  <?opt_ws> 
+    <method_sig>
+    <?opt_ws> \{ <?opt_ws>  
+        # { say ' parsing statement list ' }
+        { 
+            COMPILER::add_pad();
+        }
+        <exp_stmts> 
+        # { say ' got statement list ', ($$<exp_stmts>).perl } 
+        <?opt_ws> 
+    [   \}     | { say '*** Syntax Error in method \'', get_class_name(), '.', $$<name>, '\' near pos=', $/.to; die 'error in Block'; } ]
+    {
+        # say ' block: ', ($$<exp_stmts>).perl;
+        
+        my $env   := @COMPILER::PAD[0];
+        my $block := $$<exp_stmts>;
+        KindaPerl6::Grammar::declare_parameters(
+            $env,
+            $block,
+            $$<method_sig>,
+        );    
+        COMPILER::drop_pad();
+        return ::Method( 
+            'name'  => $$<opt_name>, 
+            'block' => ::Lit::Code(
+                pad   => $env,
+                state => { },
+                sig   => $$<method_sig>,
+                body  => $block,
+            ),
+        );
+    }
+};
+
 token multi_method {
     multi <?ws> method 
     
@@ -248,5 +284,54 @@ token multi_sub {
                 );                  
         }  
 }
+
+token token {
+    # { say 'parsing Token' }
+    token
+    <?ws>  <opt_name>  <?opt_ws> \{
+        <KindaPerl6::Grammar::Regex.rule>
+    \}
+    {
+        return ::Token(
+            name  => ~$<opt_name>,
+            regex => $$<KindaPerl6::Grammar::Regex.rule>,
+            sym   => undef,
+        );
+    }
+};
+
+token token_sym {
+    # { say 'parsing Token:sym' }
+    [ multi <?ws> | '' ]
+    token
+    <?ws> <namespace> <ident> \: sym \< <angle_quoted> \> <?opt_ws> \{
+        <KindaPerl6::Grammar::Regex.rule>
+    \}
+    {
+            return 
+                ::Call(
+                    hyper     => '',
+                    method   => 'push',
+                    invocant => ::Call(
+                        hyper     => '',
+                        arguments => [ ],
+                        method    => 'long_names',
+                        invocant  => ::Var(
+                            namespace => $$<namespace>,
+                            name      => $$<ident>,
+                            twigil    => '',
+                            sigil     => '&',
+                        ),      
+                    ),              
+                    arguments => [
+                        ::Token(
+                            name  => undef,   
+                            regex => $$<KindaPerl6::Grammar::Regex.rule>,
+                            sym   => ~$<angle_quoted>,
+                        ),
+                    ],
+                );                  
+    }
+};
 
 };
