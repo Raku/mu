@@ -165,6 +165,42 @@
                             }
                         }
                     };
+                    do {
+                        if (::DISPATCH(
+                                ::DISPATCH(
+                                    do {
+                                        (   do {
+                                                my $____some__weird___var____ = ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', ::DISPATCH( $self, 'token_length', ) );
+                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                }
+                                                && do {
+                                                my $____some__weird___var____ = ::DISPATCH( ::DISPATCH( $self, 'token_length', ), 'keys', );
+                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                }
+                                        ) || ::DISPATCH( $::Bit, "new", 0 );
+                                    },
+                                    "true"
+                                ),
+                                "p5landish"
+                            )
+                            )
+                        {
+                            {
+                                my $List_len = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List_len' } );
+                                ::DISPATCH_VAR( $List_len, 'STORE', ::DISPATCH( ::DISPATCH( $self, 'token_length', ), 'keys', ) );
+                                ::DISPATCH(
+                                    $GLOBAL::Code_say,
+                                    'APPLY',
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                        'APPLY',
+                                        ::DISPATCH( $::Str, 'new', 'lengths : ' ),
+                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__126__62_, 'APPLY', $List_len ), ::DISPATCH( $::Str, 'new', ' ' ) )
+                                    )
+                                    )
+                            }
+                        }
+                    };
                     {
                         my $sub;
                         $sub = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$sub' } ) unless defined $sub;

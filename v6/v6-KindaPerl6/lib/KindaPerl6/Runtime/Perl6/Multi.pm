@@ -14,8 +14,8 @@
 
 use v6-alpha;
 class Multi is Code {
-    has @.long_names;    # normal sub and method multi-dispatch
-    has %.token_length;  # 'sym'-based token multi-dispatch
+    has @.long_names;    # sub/method multi-dispatch
+    has %.token_length;  # token:sym  multi-dispatch
             
     method add_variant ( $code ) {
         (self.long_names).push( $code );
@@ -47,6 +47,19 @@ class Multi is Code {
             die "the parameter to Multi.select must be a Capture";
         };
 
+        # token:sym dispatch
+
+        if     defined( self.token_length ) 
+            && ( self.token_length ).keys 
+        {
+            my @len = ( self.token_length ).keys;
+            say "lengths : @len[] ";
+
+            # TODO ...
+        };
+
+        # sub/method dispatch
+        
         for @(self.long_names) -> $sub {
             #say "# testing sub ", $sub;
             if ($sub.signature).arity == (@_[0]).arity {
