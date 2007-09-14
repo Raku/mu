@@ -660,7 +660,7 @@ Using a negative index on an array of fixed size will fail if the
 resulting number of elements exceeds the defined size.
 
 Note that the behaviour of negative indices in Perl 6 is 
-different to that in Perl 5:
+different to that in Perl 5:
 
     # Perl 5...
     ............_____________________________..................

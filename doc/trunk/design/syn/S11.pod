@@ -217,9 +217,9 @@ Such modules are also required to specify exactly which version (or
 versions) of Perl they are expecting to run under, so that future
 versions of Perl can emulate older versions of Perl (or give a cogent
 explanation of why they cannot).  This will allow the language to
-evolve without breaking existing widely used modules.  (Perl 5 library
+evolve without breaking existing widely used modules.  (Perl 5 library
 policy is notably lacking here; it would induce massive breakage even
-to change Perl 5 to make strictness the default.)  If a CPAN module
+to change Perl 5 to make strictness the default.)  If a CPAN module
 breaks because it declares that it supports future versions of Perl
 when it doesn't, then it must be construed to be the module's fault,
 not Perl's.  If Perl evolves in a way that does not support emulation
@@ -353,7 +353,7 @@ something like:
 
 to guarantee that you get the unembraced Perl.  C<:-)>
 
-To allow a version specification that works with both Perl 5 and 6, we
+To allow a version specification that works with both Perl 5 and Perl 6, we
 use variants of the "v6" pseudomodule.  This form specifically allows
 use of a subsequent hyphenated identifier.
 Before the full specification of Perl 6.0.0 is released, you can use C<alpha>
@@ -452,7 +452,7 @@ we said you could force Perl 6 mode in your main program with:
 
     use v6-alpha;
 
-Actually, if you're running a parser that is aware of Perl 6, you
+Actually, if you're running a parser that is aware of Perl 6, you
 can just start your main program with any of:
 
     use v6;

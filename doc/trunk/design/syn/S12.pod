@@ -242,13 +242,13 @@ as a quote and then the result of that is used as the method name.
     $obj.'$methodname'(1,2,3)   # no interpolation; call method with $ in name!
 
 [Note: to help catch the mistaken use of C<< infix:<.> >> as a string
-concatenation operator, Perl 6 will warn you about "useless use of
+concatenation operator, Perl 6 will warn you about "useless use of
 quotes" at compile time if the string inside quotes is an identifier.
 (It does not warn about non-identifier strings, but such strings are
 likely to produce missing method errors at run time in any case.)
 Also, if there is whitespace around an intended C<.> concatenation,
 it cannot be parsed as a method call at all; instead if fails at
-compile time because standard Perl 6 has a pseudo C<< infix:<.> >> operator
+compile time because standard Perl 6 has a pseudo C<< infix:<.> >> operator
 that always fails at compile time.]
 
 For situations where you already have a method located, you
@@ -889,7 +889,7 @@ remain named arguments.)  Any other type information or traits attached
 to the C<proto> are also shared by the routines within its scope,
 so a C<proto> definition can be used to factor out common traits.
 This is particularly useful for establishing grammatical categories
-in a grammar by declaring a C<proto> C<token> or C<proto> C<rule>.  (Perl 6's
+in a grammar by declaring a C<proto> C<token> or C<proto> C<rule>.  (Perl 6's
 grammar does this, for instance.)
 
 You can have multiple C<multi> variables of the same name in the

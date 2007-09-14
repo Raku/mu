@@ -132,7 +132,7 @@ prepared to be redone if a continuation within that scope is taken.
 =head1 The Relationship of Blocks and Statements
 
 The return value of a block is the value of its final statement.
-(This is subtly different from Perl 5's behavior, which was to return
+(This is subtly different from Perl 5's behavior, which was to return
 the value of the last expression evaluated, even if that expression
 was just a conditional.)
 
@@ -203,7 +203,7 @@ If the final statement is a conditional which does not execute any
 branch, the return value is C<undef> in item context and C<()> in
 list context.
 
-The C<unless> statement does not allow an C<elsif> or C<else> in Perl 6.
+The C<unless> statement does not allow an C<elsif> or C<else> in Perl 6.
 
 The value of the conditional expression may be optionally bound to
 a closure parameter:

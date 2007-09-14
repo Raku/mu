@@ -102,8 +102,8 @@ mappings introduced in the future.
 
 =item *
 
-POD sections may be used reliably as multiline comments in Perl 6.
-Unlike in Perl 5, POD syntax now requires that C<=begin comment>
+POD sections may be used reliably as multiline comments in Perl 6.
+Unlike in Perl 5, POD syntax now requires that C<=begin comment>
 and C<=end comment> delimit a POD block correctly without the need
 for C<=cut>.  (In fact, C<=cut> is now gone.)  The format name does
 not have to be C<comment> -- any unrecognized format name will do
@@ -216,7 +216,7 @@ C<m>, C<s>, C<tr>, and C<rx>) enable subsequent user-selected brackets.
 
 Some languages such as C allow you to escape newline characters
 to combine lines.  Other languages (such as regexes) allow you to
-backslash a space character for various reasons.  Perl 6 generalizes
+backslash a space character for various reasons.  Perl 6 generalizes
 this notion to any kind of whitespace.  Any contiguous whitespace
 (including comments) may be hidden from the parser by prefixing it
 with C<\>.  This is known as the "unspace".  An unspace can suppress
@@ -254,7 +254,7 @@ Other postfix operators may also make use of unspace:
     $object\  .say();
     $object\#{ your ad here }.say
 
-Anther normal use of a you-don't-see-this-space is typically to put
+Another normal use of a you-don't-see-this-space is typically to put
 a dotted postfix on the next line:
 
     $object\ # comment
@@ -1515,7 +1515,7 @@ C<::> can also be used to introduce an interpolation (see below).
 Also, in the absence of another sigil, C<::> can serve as its own
 sigil indicating intentional use of a not-yet-declared package name.
 
-Unlike in Perl 5, if a sigil is followed by comma, semicolon, colon,
+Unlike in Perl 5, if a sigil is followed by comma, semicolon, colon,
 or any kind of bracket or whitespace (including Unicode brackets and
 whitespace), it will be taken to be a sigil without a name rather
 than a punctuational variable.  This allows you to use sigils as coercion
@@ -2762,15 +2762,15 @@ match at the beginning of any whitespace.)
 
 There are two possible ways to parse heredocs.  One is to look ahead
 for the newline and grab the lines corresponding to the heredoc, and
-then parse the rest of the original line.  This is how Perl 5 does it.
-Unfortunately this suffers from the problem pervasive in Perl 5 of
+then parse the rest of the original line.  This is how Perl 5 does it.
+Unfortunately this suffers from the problem pervasive in Perl 5 of
 multi-pass parsing, which is masked somewhat because there's no way
-to hide a newline in Perl 5.  In Perl 6, however, we can use "unspace"
+to hide a newline in Perl 5.  In Perl 6, however, we can use "unspace"
 to hide a newline, which means that an algorithm looking ahead to find
 the newline must do a full parse (with possible untoward side effects)
 in order to locate the newline.
 
-Instead, Perl 6 takes the one-pass approach, and just lazily queues
+Instead, Perl 6 takes the one-pass approach, and just lazily queues
 up the heredocs it finds in a line, and waits until it sees a "real"
 newline to look for the text and attach it to the appropriate heredoc.
 The downside of this approach is a slight restriction--you may not use
