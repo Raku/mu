@@ -3466,6 +3466,7 @@
         };
         ::DISPATCH( ::DISPATCH( $::Token, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'name' ) );
         ::DISPATCH( ::DISPATCH( $::Token, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'regex' ) );
+        ::DISPATCH( ::DISPATCH( $::Token, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'sym' ) );
         ::DISPATCH(
             ::DISPATCH( $::Token, 'HOW', ),
             'add_method',
@@ -3536,6 +3537,7 @@
                         {   _hash => {
                                 ::DISPATCH( $::Str, 'new', 'name' )->{_value}  => ::DISPATCH( $self, "name" ),
                                 ::DISPATCH( $::Str, 'new', 'regex' )->{_value} => ::DISPATCH( $self, "regex" ),
+                                ::DISPATCH( $::Str, 'new', 'sym' )->{_value}   => ::DISPATCH( $self, "sym" ),
                             }
                         }
                     );

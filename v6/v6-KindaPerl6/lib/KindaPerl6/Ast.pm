@@ -663,6 +663,7 @@ class Token {
     has $.name;
     #has $.sig;
     has $.regex;
+    has $.sym;  # token:sym<...>
     method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
@@ -676,6 +677,7 @@ class Token {
                 name    => $.name,
                 #sig     => $.sig,
                 regex   => $.regex,
+                sym     => $.sym,
             }
     };
 }

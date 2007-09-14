@@ -2355,6 +2355,316 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
+            ::DISPATCH( $::Str, 'new', 'angle_quoted' ),
+            ::DISPATCH(
+                $::Method,
+                'new',
+                sub {
+                    my $MATCH;
+                    $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) unless defined $MATCH;
+                    BEGIN { $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) }
+                    my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                    my $str;
+                    $str = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$str' } ) unless defined $str;
+                    BEGIN { $str = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$str' } ) }
+                    my $pos;
+                    $pos = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos' } ) unless defined $pos;
+                    BEGIN { $pos = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos' } ) }
+                    $self = shift;
+                    my $CAPTURE;
+                    $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
+                    BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+                    ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                    do {
+                        ::MODIFIED($List__);
+                        $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                    };
+                    do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                    };
+                    do {
+                        ::MODIFIED($str);
+                        $str = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                    };
+                    do {
+                        ::MODIFIED($pos);
+                        $pos = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) );
+                    };
+                    do {
+                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', $str ) ), "true" ), "p5landish" ) ) {
+                            {
+                                ::DISPATCH_VAR( $str, 'STORE', $_ )
+                            }
+                        }
+                    };
+                    $MATCH;
+                    ::DISPATCH_VAR( $MATCH, 'STORE', ::DISPATCH( $::Match, 'new', ) );
+                    ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'match_str', ), 'STORE', $str );
+                    ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'from', ),      'STORE', $pos );
+                    ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', $pos );
+                    ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ),      'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
+                    ::DISPATCH_VAR(
+                        ::DISPATCH( $MATCH, 'bool', ),
+                        'STORE',
+                        do {
+                            {
+                                my $pos1;
+                                $pos1 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos1' } ) unless defined $pos1;
+                                BEGIN { $pos1 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos1' } ) }
+                                do {
+                                    ::MODIFIED($pos1);
+                                    $pos1 = ::DISPATCH( $MATCH, 'to', );
+                                };
+                                do {
+                                    do {
+                                        my $____some__weird___var____ = do {
+                                            {
+                                                do {
+                                                    (   do {
+                                                            my $____some__weird___var____ = do {
+                                                                {
+                                                                    do {
+                                                                        if (::DISPATCH(
+                                                                                ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60__60__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_length, 'APPLY', $str ), ::DISPATCH( $::Int, 'new', 1 ) ), "true" ),
+                                                                                "p5landish"
+                                                                            )
+                                                                            )
+                                                                        {
+                                                                            {
+                                                                                ::DISPATCH( $::Int, 'new', 0 )
+                                                                            }
+                                                                        }
+                                                                        else {
+                                                                            {
+                                                                                do {
+                                                                                    if (::DISPATCH(
+                                                                                            ::DISPATCH(
+                                                                                                ::DISPATCH(
+                                                                                                    $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY',
+                                                                                                    ::DISPATCH( $::Str, 'new', '\\\\' ), ::DISPATCH( $GLOBAL::Code_substr, 'APPLY', $str, ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Int, 'new', 1 ) )
+                                                                                                ),
+                                                                                                "true"
+                                                                                            ),
+                                                                                            "p5landish"
+                                                                                        )
+                                                                                        )
+                                                                                    {
+                                                                                        {
+                                                                                            ::DISPATCH(
+                                                                                                $GLOBAL::Code_infix_58__60__43__62_,
+                                                                                                'APPLY',
+                                                                                                ::DISPATCH( $::Int, 'new', 1 ),
+                                                                                                ::DISPATCH_VAR(
+                                                                                                    ::DISPATCH( $MATCH, 'to', ),
+                                                                                                    'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $::Int, 'new', 1 ), ::DISPATCH( $MATCH, 'to', ) )
+                                                                                                )
+                                                                                                )
+                                                                                        }
+                                                                                    }
+                                                                                    else {
+                                                                                        {
+                                                                                            ::DISPATCH( $::Int, 'new', 0 )
+                                                                                        }
+                                                                                    }
+                                                                                    }
+                                                                            }
+                                                                        }
+                                                                        }
+                                                                }
+                                                            };
+                                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                            }
+                                                            && do {
+                                                            my $____some__weird___var____ = do {
+                                                                {
+                                                                    do {
+                                                                        if (::DISPATCH(
+                                                                                ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60__60__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_length, 'APPLY', $str ), ::DISPATCH( $::Int, 'new', 1 ) ), "true" ),
+                                                                                "p5landish"
+                                                                            )
+                                                                            )
+                                                                        {
+                                                                            {
+                                                                                ::DISPATCH( $::Int, 'new', 0 )
+                                                                            }
+                                                                        }
+                                                                        else {
+                                                                            {
+                                                                                do {
+                                                                                    if (::DISPATCH(
+                                                                                            ::DISPATCH(
+                                                                                                ::DISPATCH(
+                                                                                                    $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY',
+                                                                                                    ::DISPATCH( $::Str, 'new', '\\\\' ), ::DISPATCH( $GLOBAL::Code_substr, 'APPLY', $str, ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Int, 'new', 1 ) )
+                                                                                                ),
+                                                                                                "true"
+                                                                                            ),
+                                                                                            "p5landish"
+                                                                                        )
+                                                                                        )
+                                                                                    {
+                                                                                        {
+                                                                                            ::DISPATCH(
+                                                                                                $GLOBAL::Code_infix_58__60__43__62_,
+                                                                                                'APPLY',
+                                                                                                ::DISPATCH( $::Int, 'new', 1 ),
+                                                                                                ::DISPATCH_VAR(
+                                                                                                    ::DISPATCH( $MATCH, 'to', ),
+                                                                                                    'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $::Int, 'new', 1 ), ::DISPATCH( $MATCH, 'to', ) )
+                                                                                                )
+                                                                                                )
+                                                                                        }
+                                                                                    }
+                                                                                    else {
+                                                                                        {
+                                                                                            ::DISPATCH( $::Int, 'new', 0 )
+                                                                                        }
+                                                                                    }
+                                                                                    }
+                                                                            }
+                                                                        }
+                                                                        }
+                                                                }
+                                                            };
+                                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                            }
+                                                    ) || ::DISPATCH( $::Bit, "new", 0 );
+                                                    }
+                                            }
+                                        };
+                                        ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                        }
+                                        || do {
+                                        my $____some__weird___var____ = do {
+                                            {
+                                                do {
+                                                    (   do {
+                                                            my $____some__weird___var____ = do {
+                                                                {
+                                                                    do {
+                                                                        if (::DISPATCH(
+                                                                                ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60__60__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_length, 'APPLY', $str ), ::DISPATCH( $::Int, 'new', 1 ) ), "true" ),
+                                                                                "p5landish"
+                                                                            )
+                                                                            )
+                                                                        {
+                                                                            {
+                                                                                ::DISPATCH( $::Int, 'new', 0 )
+                                                                            }
+                                                                        }
+                                                                        else {
+                                                                            {
+                                                                                do {
+                                                                                    if (::DISPATCH(
+                                                                                            ::DISPATCH(
+                                                                                                ::DISPATCH(
+                                                                                                    $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY',
+                                                                                                    ::DISPATCH( $::Str, 'new', '\\\\' ), ::DISPATCH( $GLOBAL::Code_substr, 'APPLY', $str, ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Int, 'new', 1 ) )
+                                                                                                ),
+                                                                                                "true"
+                                                                                            ),
+                                                                                            "p5landish"
+                                                                                        )
+                                                                                        )
+                                                                                    {
+                                                                                        {
+                                                                                            ::DISPATCH(
+                                                                                                $GLOBAL::Code_infix_58__60__43__62_,
+                                                                                                'APPLY',
+                                                                                                ::DISPATCH( $::Int, 'new', 1 ),
+                                                                                                ::DISPATCH_VAR(
+                                                                                                    ::DISPATCH( $MATCH, 'to', ),
+                                                                                                    'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $::Int, 'new', 1 ), ::DISPATCH( $MATCH, 'to', ) )
+                                                                                                )
+                                                                                                )
+                                                                                        }
+                                                                                    }
+                                                                                    else {
+                                                                                        {
+                                                                                            ::DISPATCH( $::Int, 'new', 0 )
+                                                                                        }
+                                                                                    }
+                                                                                    }
+                                                                            }
+                                                                        }
+                                                                        }
+                                                                }
+                                                            };
+                                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                            }
+                                                            && do {
+                                                            my $____some__weird___var____ = do {
+                                                                {
+                                                                    do {
+                                                                        if (::DISPATCH(
+                                                                                ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60__60__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_length, 'APPLY', $str ), ::DISPATCH( $::Int, 'new', 1 ) ), "true" ),
+                                                                                "p5landish"
+                                                                            )
+                                                                            )
+                                                                        {
+                                                                            {
+                                                                                ::DISPATCH( $::Int, 'new', 0 )
+                                                                            }
+                                                                        }
+                                                                        else {
+                                                                            {
+                                                                                do {
+                                                                                    if (::DISPATCH(
+                                                                                            ::DISPATCH(
+                                                                                                ::DISPATCH(
+                                                                                                    $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY',
+                                                                                                    ::DISPATCH( $::Str, 'new', '\\\\' ), ::DISPATCH( $GLOBAL::Code_substr, 'APPLY', $str, ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Int, 'new', 1 ) )
+                                                                                                ),
+                                                                                                "true"
+                                                                                            ),
+                                                                                            "p5landish"
+                                                                                        )
+                                                                                        )
+                                                                                    {
+                                                                                        {
+                                                                                            ::DISPATCH(
+                                                                                                $GLOBAL::Code_infix_58__60__43__62_,
+                                                                                                'APPLY',
+                                                                                                ::DISPATCH( $::Int, 'new', 1 ),
+                                                                                                ::DISPATCH_VAR(
+                                                                                                    ::DISPATCH( $MATCH, 'to', ),
+                                                                                                    'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $::Int, 'new', 1 ), ::DISPATCH( $MATCH, 'to', ) )
+                                                                                                )
+                                                                                                )
+                                                                                        }
+                                                                                    }
+                                                                                    else {
+                                                                                        {
+                                                                                            ::DISPATCH( $::Int, 'new', 0 )
+                                                                                        }
+                                                                                    }
+                                                                                    }
+                                                                            }
+                                                                        }
+                                                                        }
+                                                                }
+                                                            };
+                                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                            }
+                                                    ) || ::DISPATCH( $::Bit, "new", 0 );
+                                                    }
+                                            }
+                                        };
+                                        ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                        }
+                                        || ::DISPATCH( $::Bit, "new", 0 );
+                                    }
+                            }
+                            }
+                    );
+                    return ($MATCH);
+                }
+            )
+        );
+        ::DISPATCH(
+            ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
+            'add_method',
             ::DISPATCH( $::Str, 'new', 'val_buf' ),
             ::DISPATCH(
                 $::Method,
@@ -2665,7 +2975,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block74131581017a09016423677528f813f0' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -2701,7 +3011,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block74131581017a09016423677528f813f0' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -2737,7 +3047,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block74131581017a09016423677528f813f0' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -2773,7 +3083,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block74131581017a09016423677528f813f0' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -2798,7 +3108,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block74131581017a09016423677528f813f0' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -2823,7 +3133,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block74131581017a09016423677528f813f0' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -2848,7 +3158,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block74131581017a09016423677528f813f0' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -2873,7 +3183,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block74131581017a09016423677528f813f0' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -2898,7 +3208,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block74131581017a09016423677528f813f0' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -2923,7 +3233,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block74131581017a09016423677528f813f0' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -2948,7 +3258,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block74131581017a09016423677528f813f0' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -2973,7 +3283,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block74131581017a09016423677528f813f0' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -2998,7 +3308,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block74131581017a09016423677528f813f0' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -3023,7 +3333,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block74131581017a09016423677528f813f0' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -3048,7 +3358,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block74131581017a09016423677528f813f0' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -3073,7 +3383,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block74131581017a09016423677528f813f0' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -3098,7 +3408,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block74131581017a09016423677528f813f0' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -3123,7 +3433,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block74131581017a09016423677528f813f0' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -3148,7 +3458,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block74131581017a09016423677528f813f0' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -3173,7 +3483,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block74131581017a09016423677528f813f0' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -3198,7 +3508,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block74131581017a09016423677528f813f0' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -3241,7 +3551,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block74131581017a09016423677528f813f0' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -3266,7 +3576,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block74131581017a09016423677528f813f0' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',

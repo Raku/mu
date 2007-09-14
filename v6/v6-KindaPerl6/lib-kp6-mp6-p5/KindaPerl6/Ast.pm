@@ -308,8 +308,9 @@ package Token;
 sub new { shift; bless { @_ }, "Token" }
 sub name { @_ == 1 ? ( $_[0]->{name} ) : ( $_[0]->{name} = $_[1] ) };
 sub regex { @_ == 1 ? ( $_[0]->{regex} ) : ( $_[0]->{regex} = $_[1] ) };
+sub sym { @_ == 1 ? ( $_[0]->{sym} ) : ( $_[0]->{sym} = $_[1] ) };
 sub emit { my $self = shift; my $List__ = \@_; my $visitor; my $path; do {  $visitor = $List__->[0];  $path = $List__->[1]; [$visitor, $path] }; KindaPerl6::Traverse::visit($visitor, $self, 'Token', $path) };
-sub attribs { my $self = shift; my $List__ = \@_; do { [] }; { 'name' => $self->{name},'regex' => $self->{regex}, } }
+sub attribs { my $self = shift; my $List__ = \@_; do { [] }; { 'name' => $self->{name},'regex' => $self->{regex},'sym' => $self->{sym}, } }
 
 
 ;

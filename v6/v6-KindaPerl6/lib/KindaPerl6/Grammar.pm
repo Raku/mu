@@ -308,10 +308,10 @@ token term_meth {
          { return ::Index(  'obj' => $$<term>, 'index' => $$<exp> ) }   # $a[exp]
     | \{ <?opt_ws> <exp> <?opt_ws> \}
          { return ::Lookup( 'obj' => $$<term>, 'index' => $$<exp> ) }   # $a{exp}
-    | \< <ident> \>
+    | \< <angle_quoted> \>
          { return ::Lookup( 
                 'obj' => $$<term>, 
-                'index' => ::Val::Buf( 'buf' => ~$<ident> ),
+                'index' => ::Val::Buf( 'buf' => ~$<angle_quoted> ),
             ) 
          }   # $a<lit>
     |    { return $$<term> }
@@ -681,6 +681,7 @@ token token {
         return ::Token(
             name  => ~$<opt_name>,
             regex => $$<KindaPerl6::Grammar::Regex.rule>,
+            sym   => undef,
         );
     }
 };
@@ -688,13 +689,14 @@ token token {
 token token_sym {
     # { say 'parsing Token:sym' }
     token
-    <?ws>  <ident> \: sym \< ... \> <?opt_ws> \{
+    <?ws>  <ident> \: sym \< <angle_quoted> \> <?opt_ws> \{
         <KindaPerl6::Grammar::Regex.rule>
     \}
     {
         return ::Token(
             name  => ~$<ident>,
             regex => $$<KindaPerl6::Grammar::Regex.rule>,
+            sym   => ~$<angle_quoted>,
         );
     }
 };

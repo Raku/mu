@@ -82,6 +82,13 @@ token single_quoted {
     |  <!before \' > . <single_quoted>
     |  <''>    
 };
+
+token angle_quoted {
+    |  \\ .  <angle_quoted>
+    |  <!before \> > . <angle_quoted>
+    |  <''>    
+};
+
 token val_buf {
     | \" <quoted_exp_seq> \" { return $$<quoted_exp_seq> }
     | \' <single_quoted>  \' { return ::Val::Buf( 'buf' => ~$<single_quoted> ) }
