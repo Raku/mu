@@ -68,7 +68,7 @@
                                                 ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
                                                 }
                                                 && do {
-                                                my $____some__weird___var____ = ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $node_name, ::DISPATCH( $::Str, 'new', 'Call' ) );
+                                                my $____some__weird___var____ = ::DISPATCH( $node, 'hyper', );
                                                 ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
                                                 }
                                         ) || ::DISPATCH( $::Bit, "new", 0 );

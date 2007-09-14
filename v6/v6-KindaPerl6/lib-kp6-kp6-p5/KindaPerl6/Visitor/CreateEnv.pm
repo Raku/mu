@@ -129,7 +129,7 @@
                                                 ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
                                                 }
                                                 && do {
-                                                my $____some__weird___var____ = ::DISPATCH( $node, 'isa', ::DISPATCH( $::Str, 'new', 'Decl' ) );
+                                                my $____some__weird___var____ = ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $node, 'decl', ), ::DISPATCH( $::Str, 'new', 'my' ) );
                                                 ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
                                                 }
                                         ) || ::DISPATCH( $::Bit, "new", 0 );

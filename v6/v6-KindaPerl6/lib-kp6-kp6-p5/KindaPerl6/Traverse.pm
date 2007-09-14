@@ -268,7 +268,27 @@
                                                 ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
                                                 }
                                                 || do {
-                                                my $____some__weird___var____ = ::DISPATCH( $subnode, 'isa', ::DISPATCH( $::Str, 'new', 'Array' ) );
+                                                my $____some__weird___var____ = do {
+                                                    do {
+                                                        my $____some__weird___var____ = ::DISPATCH( $subnode, 'isa', ::DISPATCH( $::Str, 'new', 'Hash' ) );
+                                                        ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                        }
+                                                        || do {
+                                                        my $____some__weird___var____ = do {
+                                                            do {
+                                                                my $____some__weird___var____ = ::DISPATCH( $subnode, 'isa', ::DISPATCH( $::Str, 'new', 'Str' ) );
+                                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                }
+                                                                || do {
+                                                                my $____some__weird___var____ = ::DISPATCH( $subnode, 'isa', ::DISPATCH( $::Str, 'new', 'Pad' ) );
+                                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                }
+                                                                || ::DISPATCH( $::Bit, "new", 0 );
+                                                        };
+                                                        ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                        }
+                                                        || ::DISPATCH( $::Bit, "new", 0 );
+                                                };
                                                 ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
                                                 }
                                                 || ::DISPATCH( $::Bit, "new", 0 );

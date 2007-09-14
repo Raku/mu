@@ -119,26 +119,168 @@
                                                             }
                                                             && do {
                                                             my $____some__weird___var____ = do {
-                                                                {
-                                                                    my $m2;
-                                                                    $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
-                                                                    BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                    ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'ident', $str, ::DISPATCH( $MATCH, 'to', ) ) );
-                                                                    do {
-                                                                        if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
+                                                                (   do {
+                                                                        my $____some__weird___var____ = do {
                                                                             {
-                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
-                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'ident' ) ), 'STORE', $m2 );
+                                                                                my $MATCH;
+                                                                                $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) unless defined $MATCH;
+                                                                                BEGIN { $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) }
+                                                                                $MATCH;
+                                                                                ::DISPATCH_VAR( $MATCH, 'STORE', ::DISPATCH( $::Match, 'new', ) );
+                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'match_str', ), 'STORE', $str );
+                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'from', ),      'STORE', $pos );
+                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', $pos );
+                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ),      'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
+                                                                                ::DISPATCH_VAR(
+                                                                                    ::DISPATCH( $MATCH, 'bool', ),
+                                                                                    'STORE',
+                                                                                    do {
+                                                                                        {
+                                                                                            my $pos1;
+                                                                                            $pos1 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos1' } ) unless defined $pos1;
+                                                                                            BEGIN { $pos1 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos1' } ) }
+                                                                                            do {
+                                                                                                ::MODIFIED($pos1);
+                                                                                                $pos1 = ::DISPATCH( $MATCH, 'to', );
+                                                                                            };
+                                                                                            do {
+                                                                                                do {
+                                                                                                    my $____some__weird___var____ = do {
+                                                                                                        {
+                                                                                                            do {
+                                                                                                                {
+                                                                                                                    do {
+                                                                                                                        if (::DISPATCH(
+                                                                                                                                ::DISPATCH(
+                                                                                                                                    ::DISPATCH(
+                                                                                                                                        $GLOBAL::Code_infix_58__60__60__62_, 'APPLY',
+                                                                                                                                        ::DISPATCH( $GLOBAL::Code_length, 'APPLY', $str ), ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                                    ),
+                                                                                                                                    "true"
+                                                                                                                                ),
+                                                                                                                                "p5landish"
+                                                                                                                            )
+                                                                                                                            )
+                                                                                                                        {
+                                                                                                                            {
+                                                                                                                                ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                            }
+                                                                                                                        }
+                                                                                                                        else {
+                                                                                                                            {
+                                                                                                                                do {
+                                                                                                                                    if (::DISPATCH(
+                                                                                                                                            ::DISPATCH(
+                                                                                                                                                ::DISPATCH(
+                                                                                                                                                    $GLOBAL::Code_infix_58__60_eq_62_,
+                                                                                                                                                    'APPLY',
+                                                                                                                                                    ::DISPATCH( $::Str, 'new', '\\\'' ),
+                                                                                                                                                    ::DISPATCH(
+                                                                                                                                                        $GLOBAL::Code_substr, 'APPLY',
+                                                                                                                                                        $str, ::DISPATCH( $MATCH, 'to', ),
+                                                                                                                                                        ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                                                    )
+                                                                                                                                                ),
+                                                                                                                                                "true"
+                                                                                                                                            ),
+                                                                                                                                            "p5landish"
+                                                                                                                                        )
+                                                                                                                                        )
+                                                                                                                                    {
+                                                                                                                                        {
+                                                                                                                                            ::DISPATCH(
+                                                                                                                                                $GLOBAL::Code_infix_58__60__43__62_,
+                                                                                                                                                'APPLY',
+                                                                                                                                                ::DISPATCH( $::Int, 'new', 1 ),
+                                                                                                                                                ::DISPATCH_VAR(
+                                                                                                                                                    ::DISPATCH( $MATCH, 'to', ),
+                                                                                                                                                    'STORE',
+                                                                                                                                                    ::DISPATCH(
+                                                                                                                                                        $GLOBAL::Code_infix_58__60__43__62_, 'APPLY',
+                                                                                                                                                        ::DISPATCH( $::Int, 'new', 1 ), ::DISPATCH( $MATCH, 'to', )
+                                                                                                                                                    )
+                                                                                                                                                )
+                                                                                                                                                )
+                                                                                                                                        }
+                                                                                                                                    }
+                                                                                                                                    else {
+                                                                                                                                        {
+                                                                                                                                            ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                                        }
+                                                                                                                                    }
+                                                                                                                                    }
+                                                                                                                            }
+                                                                                                                        }
+                                                                                                                        }
+                                                                                                                }
+                                                                                                                }
+                                                                                                        }
+                                                                                                    };
+                                                                                                    ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                    }
+                                                                                                    || do {
+                                                                                                    my $____some__weird___var____ = do {
+                                                                                                        {
+                                                                                                            ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', $pos1 );
+                                                                                                            do {
+                                                                                                                {
+                                                                                                                    my $m2;
+                                                                                                                    $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
+                                                                                                                    BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
+                                                                                                                    do {
+                                                                                                                        ::MODIFIED($m2);
+                                                                                                                        $m2 = ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) );
+                                                                                                                    };
+                                                                                                                    do {
+                                                                                                                        if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
+                                                                                                                            {
+                                                                                                                                ::DISPATCH( $MATCH, 'to', ::DISPATCH( $m2, 'to', ) );
+                                                                                                                                ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                            }
+                                                                                                                        }
+                                                                                                                        else {
+                                                                                                                            {
+                                                                                                                                ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                            }
+                                                                                                                        }
+                                                                                                                        }
+                                                                                                                }
+                                                                                                                }
+                                                                                                        }
+                                                                                                    };
+                                                                                                    ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                    }
+                                                                                                    || ::DISPATCH( $::Bit, "new", 0 );
+                                                                                                }
+                                                                                        }
+                                                                                        }
+                                                                                );
+                                                                                $MATCH
+                                                                            }
+                                                                        };
+                                                                        ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                        }
+                                                                        && do {
+                                                                        my $____some__weird___var____ = do {
+                                                                            {
+                                                                                my $ret;
+                                                                                $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
+                                                                                BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
+                                                                                ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block2e16550c41d8c7f462b75405d9be02b5', ) );
+                                                                                do {
+                                                                                    if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
+                                                                                        {
+                                                                                            ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
+                                                                                            return ($MATCH)
+                                                                                        }
+                                                                                    }
+                                                                                };
                                                                                 ::DISPATCH( $::Int, 'new', 1 )
                                                                             }
+                                                                        };
+                                                                        ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
                                                                         }
-                                                                        else {
-                                                                            {
-                                                                                ::DISPATCH( $::Int, 'new', 0 )
-                                                                            }
-                                                                        }
-                                                                        }
-                                                                }
+                                                                ) || ::DISPATCH( $::Bit, "new", 0 );
                                                             };
                                                             ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
                                                             }
@@ -151,6 +293,7 @@
                                         || do {
                                         my $____some__weird___var____ = do {
                                             {
+                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', $pos1 );
                                                 do {
                                                     (   do {
                                                             my $____some__weird___var____ = do {
@@ -158,12 +301,12 @@
                                                                     my $m2;
                                                                     $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                     BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                    ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'ident', $str, ::DISPATCH( $MATCH, 'to', ) ) );
+                                                                    ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'exp', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                     do {
                                                                         if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                             {
                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
-                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'ident' ) ), 'STORE', $m2 );
+                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'exp' ) ), 'STORE', $m2 );
                                                                                 ::DISPATCH( $::Int, 'new', 1 )
                                                                             }
                                                                         }
@@ -180,24 +323,19 @@
                                                             && do {
                                                             my $____some__weird___var____ = do {
                                                                 {
-                                                                    my $m2;
-                                                                    $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
-                                                                    BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                    ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'ident', $str, ::DISPATCH( $MATCH, 'to', ) ) );
+                                                                    my $ret;
+                                                                    $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
+                                                                    BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
+                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block2e16550c41d8c7f462b75405d9be02b5', ) );
                                                                     do {
-                                                                        if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
+                                                                        if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
                                                                             {
-                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
-                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'ident' ) ), 'STORE', $m2 );
-                                                                                ::DISPATCH( $::Int, 'new', 1 )
+                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
+                                                                                return ($MATCH)
                                                                             }
                                                                         }
-                                                                        else {
-                                                                            {
-                                                                                ::DISPATCH( $::Int, 'new', 0 )
-                                                                            }
-                                                                        }
-                                                                        }
+                                                                    };
+                                                                    ::DISPATCH( $::Int, 'new', 1 )
                                                                 }
                                                             };
                                                             ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
@@ -313,26 +451,184 @@
                                                             }
                                                             && do {
                                                             my $____some__weird___var____ = do {
-                                                                {
-                                                                    my $m2;
-                                                                    $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
-                                                                    BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                    ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'key', $str, ::DISPATCH( $MATCH, 'to', ) ) );
-                                                                    do {
-                                                                        if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
+                                                                (   do {
+                                                                        my $____some__weird___var____ = do {
                                                                             {
-                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
-                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'key' ) ), 'STORE', $m2 );
-                                                                                ::DISPATCH( $::Int, 'new', 1 )
+                                                                                my $m2;
+                                                                                $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
+                                                                                BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
+                                                                                do {
+                                                                                    ::MODIFIED($m2);
+                                                                                    $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
+                                                                                };
+                                                                                do {
+                                                                                    if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
+                                                                                        {
+                                                                                            ::DISPATCH( $MATCH, 'to', ::DISPATCH( $m2, 'to', ) );
+                                                                                            ::DISPATCH( $::Int, 'new', 1 )
+                                                                                        }
+                                                                                    }
+                                                                                    else {
+                                                                                        {
+                                                                                            ::DISPATCH( $::Int, 'new', 0 )
+                                                                                        }
+                                                                                    }
+                                                                                    }
                                                                             }
+                                                                        };
+                                                                        ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
                                                                         }
-                                                                        else {
-                                                                            {
-                                                                                ::DISPATCH( $::Int, 'new', 0 )
-                                                                            }
+                                                                        && do {
+                                                                        my $____some__weird___var____ = do {
+                                                                            (   do {
+                                                                                    my $____some__weird___var____ = do {
+                                                                                        {
+                                                                                            do {
+                                                                                                if (::DISPATCH(
+                                                                                                        ::DISPATCH(
+                                                                                                            ::DISPATCH( $GLOBAL::Code_infix_58__60__60__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_length, 'APPLY', $str ), ::DISPATCH( $::Int, 'new', 1 ) ),
+                                                                                                            "true"
+                                                                                                        ),
+                                                                                                        "p5landish"
+                                                                                                    )
+                                                                                                    )
+                                                                                                {
+                                                                                                    {
+                                                                                                        ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                    }
+                                                                                                }
+                                                                                                else {
+                                                                                                    {
+                                                                                                        do {
+                                                                                                            if (::DISPATCH(
+                                                                                                                    ::DISPATCH(
+                                                                                                                        ::DISPATCH(
+                                                                                                                            $GLOBAL::Code_infix_58__60_eq_62_,
+                                                                                                                            'APPLY',
+                                                                                                                            ::DISPATCH( $::Str, 'new', '\\\'' ),
+                                                                                                                            ::DISPATCH( $GLOBAL::Code_substr, 'APPLY', $str, ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Int, 'new', 1 ) )
+                                                                                                                        ),
+                                                                                                                        "true"
+                                                                                                                    ),
+                                                                                                                    "p5landish"
+                                                                                                                )
+                                                                                                                )
+                                                                                                            {
+                                                                                                                {
+                                                                                                                    ::DISPATCH(
+                                                                                                                        $GLOBAL::Code_infix_58__60__43__62_,
+                                                                                                                        'APPLY',
+                                                                                                                        ::DISPATCH( $::Int, 'new', 1 ),
+                                                                                                                        ::DISPATCH_VAR(
+                                                                                                                            ::DISPATCH( $MATCH, 'to', ),
+                                                                                                                            'STORE',
+                                                                                                                            ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $::Int, 'new', 1 ), ::DISPATCH( $MATCH, 'to', ) )
+                                                                                                                        )
+                                                                                                                        )
+                                                                                                                }
+                                                                                                            }
+                                                                                                            else {
+                                                                                                                {
+                                                                                                                    ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                }
+                                                                                                            }
+                                                                                                            }
+                                                                                                    }
+                                                                                                }
+                                                                                                }
+                                                                                        }
+                                                                                    };
+                                                                                    ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                    }
+                                                                                    && do {
+                                                                                    my $____some__weird___var____ = do {
+                                                                                        (   do {
+                                                                                                my $____some__weird___var____ = do {
+                                                                                                    {
+                                                                                                        my $m2;
+                                                                                                        $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
+                                                                                                        BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
+                                                                                                        do {
+                                                                                                            ::MODIFIED($m2);
+                                                                                                            $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
+                                                                                                        };
+                                                                                                        do {
+                                                                                                            if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
+                                                                                                                {
+                                                                                                                    ::DISPATCH( $MATCH, 'to', ::DISPATCH( $m2, 'to', ) );
+                                                                                                                    ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                }
+                                                                                                            }
+                                                                                                            else {
+                                                                                                                {
+                                                                                                                    ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                }
+                                                                                                            }
+                                                                                                            }
+                                                                                                    }
+                                                                                                };
+                                                                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                }
+                                                                                                && do {
+                                                                                                my $____some__weird___var____ = do {
+                                                                                                    (   do {
+                                                                                                            my $____some__weird___var____ = do {
+                                                                                                                {
+                                                                                                                    my $m2;
+                                                                                                                    $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
+                                                                                                                    BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
+                                                                                                                    ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'exp', $str, ::DISPATCH( $MATCH, 'to', ) ) );
+                                                                                                                    do {
+                                                                                                                        if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
+                                                                                                                            {
+                                                                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
+                                                                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'exp' ) ), 'STORE', $m2 );
+                                                                                                                                ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                            }
+                                                                                                                        }
+                                                                                                                        else {
+                                                                                                                            {
+                                                                                                                                ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                            }
+                                                                                                                        }
+                                                                                                                        }
+                                                                                                                }
+                                                                                                            };
+                                                                                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                            }
+                                                                                                            && do {
+                                                                                                            my $____some__weird___var____ = do {
+                                                                                                                {
+                                                                                                                    my $ret;
+                                                                                                                    $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
+                                                                                                                    BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
+                                                                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block2e16550c41d8c7f462b75405d9be02b5', ) );
+                                                                                                                    do {
+                                                                                                                        if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
+                                                                                                                            {
+                                                                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
+                                                                                                                                return ($MATCH)
+                                                                                                                            }
+                                                                                                                        }
+                                                                                                                    };
+                                                                                                                    ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                }
+                                                                                                            };
+                                                                                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                            }
+                                                                                                    ) || ::DISPATCH( $::Bit, "new", 0 );
+                                                                                                };
+                                                                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                }
+                                                                                        ) || ::DISPATCH( $::Bit, "new", 0 );
+                                                                                    };
+                                                                                    ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                    }
+                                                                            ) || ::DISPATCH( $::Bit, "new", 0 );
+                                                                        };
+                                                                        ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
                                                                         }
-                                                                        }
-                                                                }
+                                                                ) || ::DISPATCH( $::Bit, "new", 0 );
                                                             };
                                                             ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
                                                             }
@@ -345,25 +641,55 @@
                                         || do {
                                         my $____some__weird___var____ = do {
                                             {
+                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', $pos1 );
                                                 do {
                                                     (   do {
                                                             my $____some__weird___var____ = do {
                                                                 {
-                                                                    my $m2;
-                                                                    $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
-                                                                    BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                    ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'key', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                     do {
-                                                                        if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
+                                                                        if (::DISPATCH(
+                                                                                ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60__60__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_length, 'APPLY', $str ), ::DISPATCH( $::Int, 'new', 1 ) ), "true" ),
+                                                                                "p5landish"
+                                                                            )
+                                                                            )
+                                                                        {
                                                                             {
-                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
-                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'key' ) ), 'STORE', $m2 );
-                                                                                ::DISPATCH( $::Int, 'new', 1 )
+                                                                                ::DISPATCH( $::Int, 'new', 0 )
                                                                             }
                                                                         }
                                                                         else {
                                                                             {
-                                                                                ::DISPATCH( $::Int, 'new', 0 )
+                                                                                do {
+                                                                                    if (::DISPATCH(
+                                                                                            ::DISPATCH(
+                                                                                                ::DISPATCH(
+                                                                                                    $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY',
+                                                                                                    ::DISPATCH( $::Str, 'new', ':' ), ::DISPATCH( $GLOBAL::Code_substr, 'APPLY', $str, ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Int, 'new', 1 ) )
+                                                                                                ),
+                                                                                                "true"
+                                                                                            ),
+                                                                                            "p5landish"
+                                                                                        )
+                                                                                        )
+                                                                                    {
+                                                                                        {
+                                                                                            ::DISPATCH(
+                                                                                                $GLOBAL::Code_infix_58__60__43__62_,
+                                                                                                'APPLY',
+                                                                                                ::DISPATCH( $::Int, 'new', 1 ),
+                                                                                                ::DISPATCH_VAR(
+                                                                                                    ::DISPATCH( $MATCH, 'to', ),
+                                                                                                    'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $::Int, 'new', 1 ), ::DISPATCH( $MATCH, 'to', ) )
+                                                                                                )
+                                                                                                )
+                                                                                        }
+                                                                                    }
+                                                                                    else {
+                                                                                        {
+                                                                                            ::DISPATCH( $::Int, 'new', 0 )
+                                                                                        }
+                                                                                    }
+                                                                                    }
                                                                             }
                                                                         }
                                                                         }
@@ -373,26 +699,83 @@
                                                             }
                                                             && do {
                                                             my $____some__weird___var____ = do {
-                                                                {
-                                                                    my $m2;
-                                                                    $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
-                                                                    BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                    ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'key', $str, ::DISPATCH( $MATCH, 'to', ) ) );
-                                                                    do {
-                                                                        if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
+                                                                (   do {
+                                                                        my $____some__weird___var____ = do {
                                                                             {
-                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
-                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'key' ) ), 'STORE', $m2 );
-                                                                                ::DISPATCH( $::Int, 'new', 1 )
+                                                                                my $m2;
+                                                                                $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
+                                                                                BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
+                                                                                ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'sigil', $str, ::DISPATCH( $MATCH, 'to', ) ) );
+                                                                                do {
+                                                                                    if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
+                                                                                        {
+                                                                                            ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
+                                                                                            ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'sigil' ) ), 'STORE', $m2 );
+                                                                                            ::DISPATCH( $::Int, 'new', 1 )
+                                                                                        }
+                                                                                    }
+                                                                                    else {
+                                                                                        {
+                                                                                            ::DISPATCH( $::Int, 'new', 0 )
+                                                                                        }
+                                                                                    }
+                                                                                    }
                                                                             }
+                                                                        };
+                                                                        ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
                                                                         }
-                                                                        else {
-                                                                            {
-                                                                                ::DISPATCH( $::Int, 'new', 0 )
-                                                                            }
+                                                                        && do {
+                                                                        my $____some__weird___var____ = do {
+                                                                            (   do {
+                                                                                    my $____some__weird___var____ = do {
+                                                                                        {
+                                                                                            my $m2;
+                                                                                            $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
+                                                                                            BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
+                                                                                            ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'ident', $str, ::DISPATCH( $MATCH, 'to', ) ) );
+                                                                                            do {
+                                                                                                if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
+                                                                                                    {
+                                                                                                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
+                                                                                                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'ident' ) ), 'STORE', $m2 );
+                                                                                                        ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                    }
+                                                                                                }
+                                                                                                else {
+                                                                                                    {
+                                                                                                        ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                    }
+                                                                                                }
+                                                                                                }
+                                                                                        }
+                                                                                    };
+                                                                                    ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                    }
+                                                                                    && do {
+                                                                                    my $____some__weird___var____ = do {
+                                                                                        {
+                                                                                            my $ret;
+                                                                                            $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
+                                                                                            BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
+                                                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block2e16550c41d8c7f462b75405d9be02b5', ) );
+                                                                                            do {
+                                                                                                if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
+                                                                                                    {
+                                                                                                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
+                                                                                                        return ($MATCH)
+                                                                                                    }
+                                                                                                }
+                                                                                            };
+                                                                                            ::DISPATCH( $::Int, 'new', 1 )
+                                                                                        }
+                                                                                    };
+                                                                                    ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                    }
+                                                                            ) || ::DISPATCH( $::Bit, "new", 0 );
+                                                                        };
+                                                                        ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
                                                                         }
-                                                                        }
-                                                                }
+                                                                ) || ::DISPATCH( $::Bit, "new", 0 );
                                                             };
                                                             ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
                                                             }
@@ -508,23 +891,481 @@
                                                             && do {
                                                             my $____some__weird___var____ = do {
                                                                 {
-                                                                    my $m2;
-                                                                    $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
-                                                                    BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                    ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'pair', $str, ::DISPATCH( $MATCH, 'to', ) ) );
+                                                                    my $pos1;
+                                                                    $pos1 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos1' } ) unless defined $pos1;
+                                                                    BEGIN { $pos1 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos1' } ) }
                                                                     do {
-                                                                        if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
-                                                                            {
-                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
-                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'pair' ) ), 'STORE', $m2 );
-                                                                                ::DISPATCH( $::Int, 'new', 1 )
+                                                                        ::MODIFIED($pos1);
+                                                                        $pos1 = ::DISPATCH( $MATCH, 'to', );
+                                                                    };
+                                                                    do {
+                                                                        do {
+                                                                            my $____some__weird___var____ = do {
+                                                                                {
+                                                                                    do {
+                                                                                        (   do {
+                                                                                                my $____some__weird___var____ = do {
+                                                                                                    {
+                                                                                                        my $m2;
+                                                                                                        $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
+                                                                                                        BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
+                                                                                                        do {
+                                                                                                            ::MODIFIED($m2);
+                                                                                                            $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
+                                                                                                        };
+                                                                                                        do {
+                                                                                                            if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
+                                                                                                                {
+                                                                                                                    ::DISPATCH( $MATCH, 'to', ::DISPATCH( $m2, 'to', ) );
+                                                                                                                    ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                }
+                                                                                                            }
+                                                                                                            else {
+                                                                                                                {
+                                                                                                                    ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                }
+                                                                                                            }
+                                                                                                            }
+                                                                                                    }
+                                                                                                };
+                                                                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                }
+                                                                                                && do {
+                                                                                                my $____some__weird___var____ = do {
+                                                                                                    (   do {
+                                                                                                            my $____some__weird___var____ = do {
+                                                                                                                {
+                                                                                                                    do {
+                                                                                                                        if (::DISPATCH(
+                                                                                                                                ::DISPATCH(
+                                                                                                                                    ::DISPATCH(
+                                                                                                                                        $GLOBAL::Code_infix_58__60__60__62_, 'APPLY',
+                                                                                                                                        ::DISPATCH( $GLOBAL::Code_length, 'APPLY', $str ), ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                                    ),
+                                                                                                                                    "true"
+                                                                                                                                ),
+                                                                                                                                "p5landish"
+                                                                                                                            )
+                                                                                                                            )
+                                                                                                                        {
+                                                                                                                            {
+                                                                                                                                ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                            }
+                                                                                                                        }
+                                                                                                                        else {
+                                                                                                                            {
+                                                                                                                                do {
+                                                                                                                                    if (::DISPATCH(
+                                                                                                                                            ::DISPATCH(
+                                                                                                                                                ::DISPATCH(
+                                                                                                                                                    $GLOBAL::Code_infix_58__60_eq_62_,
+                                                                                                                                                    'APPLY',
+                                                                                                                                                    ::DISPATCH( $::Str, 'new', ',' ),
+                                                                                                                                                    ::DISPATCH(
+                                                                                                                                                        $GLOBAL::Code_substr, 'APPLY',
+                                                                                                                                                        $str, ::DISPATCH( $MATCH, 'to', ),
+                                                                                                                                                        ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                                                    )
+                                                                                                                                                ),
+                                                                                                                                                "true"
+                                                                                                                                            ),
+                                                                                                                                            "p5landish"
+                                                                                                                                        )
+                                                                                                                                        )
+                                                                                                                                    {
+                                                                                                                                        {
+                                                                                                                                            ::DISPATCH(
+                                                                                                                                                $GLOBAL::Code_infix_58__60__43__62_,
+                                                                                                                                                'APPLY',
+                                                                                                                                                ::DISPATCH( $::Int, 'new', 1 ),
+                                                                                                                                                ::DISPATCH_VAR(
+                                                                                                                                                    ::DISPATCH( $MATCH, 'to', ),
+                                                                                                                                                    'STORE',
+                                                                                                                                                    ::DISPATCH(
+                                                                                                                                                        $GLOBAL::Code_infix_58__60__43__62_, 'APPLY',
+                                                                                                                                                        ::DISPATCH( $::Int, 'new', 1 ), ::DISPATCH( $MATCH, 'to', )
+                                                                                                                                                    )
+                                                                                                                                                )
+                                                                                                                                                )
+                                                                                                                                        }
+                                                                                                                                    }
+                                                                                                                                    else {
+                                                                                                                                        {
+                                                                                                                                            ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                                        }
+                                                                                                                                    }
+                                                                                                                                    }
+                                                                                                                            }
+                                                                                                                        }
+                                                                                                                        }
+                                                                                                                }
+                                                                                                            };
+                                                                                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                            }
+                                                                                                            && do {
+                                                                                                            my $____some__weird___var____ = do {
+                                                                                                                (   do {
+                                                                                                                        my $____some__weird___var____ = do {
+                                                                                                                            {
+                                                                                                                                my $m2;
+                                                                                                                                $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
+                                                                                                                                BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
+                                                                                                                                do {
+                                                                                                                                    ::MODIFIED($m2);
+                                                                                                                                    $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
+                                                                                                                                };
+                                                                                                                                do {
+                                                                                                                                    if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
+                                                                                                                                        {
+                                                                                                                                            ::DISPATCH( $MATCH, 'to', ::DISPATCH( $m2, 'to', ) );
+                                                                                                                                            ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                                        }
+                                                                                                                                    }
+                                                                                                                                    else {
+                                                                                                                                        {
+                                                                                                                                            ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                                        }
+                                                                                                                                    }
+                                                                                                                                    }
+                                                                                                                            }
+                                                                                                                        };
+                                                                                                                        ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                                        }
+                                                                                                                        && do {
+                                                                                                                        my $____some__weird___var____ = do {
+                                                                                                                            (   do {
+                                                                                                                                    my $____some__weird___var____ = do {
+                                                                                                                                        {
+                                                                                                                                            my $m2;
+                                                                                                                                            $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
+                                                                                                                                            BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
+                                                                                                                                            ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'exp_mapping', $str, ::DISPATCH( $MATCH, 'to', ) ) );
+                                                                                                                                            do {
+                                                                                                                                                if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
+                                                                                                                                                    {
+                                                                                                                                                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
+                                                                                                                                                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'exp_mapping' ) ),
+                                                                                                                                                            'STORE', $m2 );
+                                                                                                                                                        ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                                                    }
+                                                                                                                                                }
+                                                                                                                                                else {
+                                                                                                                                                    {
+                                                                                                                                                        ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                                                    }
+                                                                                                                                                }
+                                                                                                                                                }
+                                                                                                                                        }
+                                                                                                                                    };
+                                                                                                                                    ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                                                    }
+                                                                                                                                    && do {
+                                                                                                                                    my $____some__weird___var____ = do {
+                                                                                                                                        {
+                                                                                                                                            my $ret;
+                                                                                                                                            $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
+                                                                                                                                            BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
+                                                                                                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block2e16550c41d8c7f462b75405d9be02b5', ) );
+                                                                                                                                            do {
+                                                                                                                                                if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
+                                                                                                                                                    {
+                                                                                                                                                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
+                                                                                                                                                        return ($MATCH)
+                                                                                                                                                    }
+                                                                                                                                                }
+                                                                                                                                            };
+                                                                                                                                            ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                                        }
+                                                                                                                                    };
+                                                                                                                                    ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                                                    }
+                                                                                                                            ) || ::DISPATCH( $::Bit, "new", 0 );
+                                                                                                                        };
+                                                                                                                        ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                                        }
+                                                                                                                ) || ::DISPATCH( $::Bit, "new", 0 );
+                                                                                                            };
+                                                                                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                            }
+                                                                                                    ) || ::DISPATCH( $::Bit, "new", 0 );
+                                                                                                };
+                                                                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                }
+                                                                                        ) || ::DISPATCH( $::Bit, "new", 0 );
+                                                                                        }
+                                                                                }
+                                                                            };
+                                                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
                                                                             }
-                                                                        }
-                                                                        else {
-                                                                            {
-                                                                                ::DISPATCH( $::Int, 'new', 0 )
+                                                                            || do {
+                                                                            my $____some__weird___var____ = do {
+                                                                                {
+                                                                                    ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', $pos1 );
+                                                                                    do {
+                                                                                        (   do {
+                                                                                                my $____some__weird___var____ = do {
+                                                                                                    {
+                                                                                                        my $m2;
+                                                                                                        $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
+                                                                                                        BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
+                                                                                                        do {
+                                                                                                            ::MODIFIED($m2);
+                                                                                                            $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
+                                                                                                        };
+                                                                                                        do {
+                                                                                                            if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
+                                                                                                                {
+                                                                                                                    ::DISPATCH( $MATCH, 'to', ::DISPATCH( $m2, 'to', ) );
+                                                                                                                    ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                }
+                                                                                                            }
+                                                                                                            else {
+                                                                                                                {
+                                                                                                                    ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                }
+                                                                                                            }
+                                                                                                            }
+                                                                                                    }
+                                                                                                };
+                                                                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                }
+                                                                                                && do {
+                                                                                                my $____some__weird___var____ = do {
+                                                                                                    (   do {
+                                                                                                            my $____some__weird___var____ = do {
+                                                                                                                {
+                                                                                                                    my $pos1;
+                                                                                                                    $pos1 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos1' } ) unless defined $pos1;
+                                                                                                                    BEGIN { $pos1 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos1' } ) }
+                                                                                                                    do {
+                                                                                                                        ::MODIFIED($pos1);
+                                                                                                                        $pos1 = ::DISPATCH( $MATCH, 'to', );
+                                                                                                                    };
+                                                                                                                    do {
+                                                                                                                        do {
+                                                                                                                            my $____some__weird___var____ = do {
+                                                                                                                                {
+                                                                                                                                    do {
+                                                                                                                                        (   do {
+                                                                                                                                                my $____some__weird___var____ = do {
+                                                                                                                                                    {
+                                                                                                                                                        do {
+                                                                                                                                                            if (::DISPATCH(
+                                                                                                                                                                    ::DISPATCH(
+                                                                                                                                                                        ::DISPATCH(
+                                                                                                                                                                            $GLOBAL::Code_infix_58__60__60__62_,
+                                                                                                                                                                            'APPLY',
+                                                                                                                                                                            ::DISPATCH( $GLOBAL::Code_length, 'APPLY', $str ),
+                                                                                                                                                                            ::DISPATCH( $::Int,               'new',   1 )
+                                                                                                                                                                        ),
+                                                                                                                                                                        "true"
+                                                                                                                                                                    ),
+                                                                                                                                                                    "p5landish"
+                                                                                                                                                                )
+                                                                                                                                                                )
+                                                                                                                                                            {
+                                                                                                                                                                {
+                                                                                                                                                                    ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                                                                }
+                                                                                                                                                            }
+                                                                                                                                                            else {
+                                                                                                                                                                {
+                                                                                                                                                                    do {
+                                                                                                                                                                        if (::DISPATCH(
+                                                                                                                                                                                ::DISPATCH(
+                                                                                                                                                                                    ::DISPATCH(
+                                                                                                                                                                                        $GLOBAL::Code_infix_58__60_eq_62_,
+                                                                                                                                                                                        'APPLY',
+                                                                                                                                                                                        ::DISPATCH( $::Str, 'new', ',' ),
+                                                                                                                                                                                        ::DISPATCH(
+                                                                                                                                                                                            $GLOBAL::Code_substr, 'APPLY',
+                                                                                                                                                                                            $str, ::DISPATCH( $MATCH, 'to', ),
+                                                                                                                                                                                            ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                                                                                        )
+                                                                                                                                                                                    ),
+                                                                                                                                                                                    "true"
+                                                                                                                                                                                ),
+                                                                                                                                                                                "p5landish"
+                                                                                                                                                                            )
+                                                                                                                                                                            )
+                                                                                                                                                                        {
+                                                                                                                                                                            {
+                                                                                                                                                                                ::DISPATCH(
+                                                                                                                                                                                    $GLOBAL::Code_infix_58__60__43__62_,
+                                                                                                                                                                                    'APPLY',
+                                                                                                                                                                                    ::DISPATCH( $::Int, 'new', 1 ),
+                                                                                                                                                                                    ::DISPATCH_VAR(
+                                                                                                                                                                                        ::DISPATCH( $MATCH, 'to', ),
+                                                                                                                                                                                        'STORE',
+                                                                                                                                                                                        ::DISPATCH(
+                                                                                                                                                                                            $GLOBAL::Code_infix_58__60__43__62_,
+                                                                                                                                                                                            'APPLY',
+                                                                                                                                                                                            ::DISPATCH( $::Int, 'new', 1 ),
+                                                                                                                                                                                            ::DISPATCH( $MATCH, 'to', )
+                                                                                                                                                                                        )
+                                                                                                                                                                                    )
+                                                                                                                                                                                    )
+                                                                                                                                                                            }
+                                                                                                                                                                        }
+                                                                                                                                                                        else {
+                                                                                                                                                                            {
+                                                                                                                                                                                ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                                                                            }
+                                                                                                                                                                        }
+                                                                                                                                                                        }
+                                                                                                                                                                }
+                                                                                                                                                            }
+                                                                                                                                                            }
+                                                                                                                                                    }
+                                                                                                                                                };
+                                                                                                                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                                                                }
+                                                                                                                                                && do {
+                                                                                                                                                my $____some__weird___var____ = do {
+                                                                                                                                                    {
+                                                                                                                                                        my $m2;
+                                                                                                                                                        $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } )
+                                                                                                                                                            unless defined $m2;
+                                                                                                                                                        BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
+                                                                                                                                                        do {
+                                                                                                                                                            ::MODIFIED($m2);
+                                                                                                                                                            $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
+                                                                                                                                                        };
+                                                                                                                                                        do {
+                                                                                                                                                            if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
+                                                                                                                                                                {
+                                                                                                                                                                    ::DISPATCH( $MATCH, 'to', ::DISPATCH( $m2, 'to', ) );
+                                                                                                                                                                    ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                                                                }
+                                                                                                                                                            }
+                                                                                                                                                            else {
+                                                                                                                                                                {
+                                                                                                                                                                    ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                                                                }
+                                                                                                                                                            }
+                                                                                                                                                            }
+                                                                                                                                                    }
+                                                                                                                                                };
+                                                                                                                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                                                                }
+                                                                                                                                        ) || ::DISPATCH( $::Bit, "new", 0 );
+                                                                                                                                        }
+                                                                                                                                }
+                                                                                                                            };
+                                                                                                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                                            }
+                                                                                                                            || do {
+                                                                                                                            my $____some__weird___var____ = do {
+                                                                                                                                {
+                                                                                                                                    ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', $pos1 );
+                                                                                                                                    do {
+                                                                                                                                        {
+                                                                                                                                            do {
+                                                                                                                                                if (::DISPATCH(
+                                                                                                                                                        ::DISPATCH(
+                                                                                                                                                            ::DISPATCH(
+                                                                                                                                                                $GLOBAL::Code_infix_58__60__60__62_, 'APPLY',
+                                                                                                                                                                ::DISPATCH( $GLOBAL::Code_length, 'APPLY', $str ), ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                                                            ),
+                                                                                                                                                            "true"
+                                                                                                                                                        ),
+                                                                                                                                                        "p5landish"
+                                                                                                                                                    )
+                                                                                                                                                    )
+                                                                                                                                                {
+                                                                                                                                                    {
+                                                                                                                                                        ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                                                    }
+                                                                                                                                                }
+                                                                                                                                                else {
+                                                                                                                                                    {
+                                                                                                                                                        do {
+                                                                                                                                                            if (::DISPATCH(
+                                                                                                                                                                    ::DISPATCH(
+                                                                                                                                                                        ::DISPATCH(
+                                                                                                                                                                            $GLOBAL::Code_infix_58__60_eq_62_,
+                                                                                                                                                                            'APPLY',
+                                                                                                                                                                            ::DISPATCH( $::Str, 'new', '\\\'' ),
+                                                                                                                                                                            ::DISPATCH(
+                                                                                                                                                                                $GLOBAL::Code_substr, 'APPLY',
+                                                                                                                                                                                $str, ::DISPATCH( $MATCH, 'to', ),
+                                                                                                                                                                                ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                                                                            )
+                                                                                                                                                                        ),
+                                                                                                                                                                        "true"
+                                                                                                                                                                    ),
+                                                                                                                                                                    "p5landish"
+                                                                                                                                                                )
+                                                                                                                                                                )
+                                                                                                                                                            {
+                                                                                                                                                                {
+                                                                                                                                                                    ::DISPATCH(
+                                                                                                                                                                        $GLOBAL::Code_infix_58__60__43__62_,
+                                                                                                                                                                        'APPLY',
+                                                                                                                                                                        ::DISPATCH( $::Int, 'new', 1 ),
+                                                                                                                                                                        ::DISPATCH_VAR(
+                                                                                                                                                                            ::DISPATCH( $MATCH, 'to', ),
+                                                                                                                                                                            'STORE',
+                                                                                                                                                                            ::DISPATCH(
+                                                                                                                                                                                $GLOBAL::Code_infix_58__60__43__62_, 'APPLY',
+                                                                                                                                                                                ::DISPATCH( $::Int, 'new', 1 ), ::DISPATCH( $MATCH, 'to', )
+                                                                                                                                                                            )
+                                                                                                                                                                        )
+                                                                                                                                                                        )
+                                                                                                                                                                }
+                                                                                                                                                            }
+                                                                                                                                                            else {
+                                                                                                                                                                {
+                                                                                                                                                                    ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                                                                }
+                                                                                                                                                            }
+                                                                                                                                                            }
+                                                                                                                                                    }
+                                                                                                                                                }
+                                                                                                                                                }
+                                                                                                                                        }
+                                                                                                                                        }
+                                                                                                                                }
+                                                                                                                            };
+                                                                                                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                                            }
+                                                                                                                            || ::DISPATCH( $::Bit, "new", 0 );
+                                                                                                                        }
+                                                                                                                }
+                                                                                                            };
+                                                                                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                            }
+                                                                                                            && do {
+                                                                                                            my $____some__weird___var____ = do {
+                                                                                                                {
+                                                                                                                    my $ret;
+                                                                                                                    $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
+                                                                                                                    BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
+                                                                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block2e16550c41d8c7f462b75405d9be02b5', ) );
+                                                                                                                    do {
+                                                                                                                        if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
+                                                                                                                            {
+                                                                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
+                                                                                                                                return ($MATCH)
+                                                                                                                            }
+                                                                                                                        }
+                                                                                                                    };
+                                                                                                                    ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                }
+                                                                                                            };
+                                                                                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                            }
+                                                                                                    ) || ::DISPATCH( $::Bit, "new", 0 );
+                                                                                                };
+                                                                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                }
+                                                                                        ) || ::DISPATCH( $::Bit, "new", 0 );
+                                                                                        }
+                                                                                }
+                                                                            };
+                                                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
                                                                             }
-                                                                        }
+                                                                            || ::DISPATCH( $::Bit, "new", 0 );
                                                                         }
                                                                 }
                                                             };
@@ -539,58 +1380,23 @@
                                         || do {
                                         my $____some__weird___var____ = do {
                                             {
+                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', $pos1 );
                                                 do {
-                                                    (   do {
-                                                            my $____some__weird___var____ = do {
+                                                    {
+                                                        my $ret;
+                                                        $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
+                                                        BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
+                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block2e16550c41d8c7f462b75405d9be02b5', ) );
+                                                        do {
+                                                            if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
                                                                 {
-                                                                    my $m2;
-                                                                    $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
-                                                                    BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                    ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'pair', $str, ::DISPATCH( $MATCH, 'to', ) ) );
-                                                                    do {
-                                                                        if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
-                                                                            {
-                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
-                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'pair' ) ), 'STORE', $m2 );
-                                                                                ::DISPATCH( $::Int, 'new', 1 )
-                                                                            }
-                                                                        }
-                                                                        else {
-                                                                            {
-                                                                                ::DISPATCH( $::Int, 'new', 0 )
-                                                                            }
-                                                                        }
-                                                                        }
+                                                                    ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
+                                                                    return ($MATCH)
                                                                 }
-                                                            };
-                                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
                                                             }
-                                                            && do {
-                                                            my $____some__weird___var____ = do {
-                                                                {
-                                                                    my $m2;
-                                                                    $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
-                                                                    BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                    ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'pair', $str, ::DISPATCH( $MATCH, 'to', ) ) );
-                                                                    do {
-                                                                        if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
-                                                                            {
-                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
-                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'pair' ) ), 'STORE', $m2 );
-                                                                                ::DISPATCH( $::Int, 'new', 1 )
-                                                                            }
-                                                                        }
-                                                                        else {
-                                                                            {
-                                                                                ::DISPATCH( $::Int, 'new', 0 )
-                                                                            }
-                                                                        }
-                                                                        }
-                                                                }
-                                                            };
-                                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
-                                                            }
-                                                    ) || ::DISPATCH( $::Bit, "new", 0 );
+                                                        };
+                                                        ::DISPATCH( $::Int, 'new', 1 )
+                                                    }
                                                     }
                                             }
                                         };
@@ -702,23 +1508,481 @@
                                                             && do {
                                                             my $____some__weird___var____ = do {
                                                                 {
-                                                                    my $m2;
-                                                                    $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
-                                                                    BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                    ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'pair', $str, ::DISPATCH( $MATCH, 'to', ) ) );
+                                                                    my $pos1;
+                                                                    $pos1 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos1' } ) unless defined $pos1;
+                                                                    BEGIN { $pos1 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos1' } ) }
                                                                     do {
-                                                                        if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
-                                                                            {
-                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
-                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'pair' ) ), 'STORE', $m2 );
-                                                                                ::DISPATCH( $::Int, 'new', 1 )
+                                                                        ::MODIFIED($pos1);
+                                                                        $pos1 = ::DISPATCH( $MATCH, 'to', );
+                                                                    };
+                                                                    do {
+                                                                        do {
+                                                                            my $____some__weird___var____ = do {
+                                                                                {
+                                                                                    do {
+                                                                                        (   do {
+                                                                                                my $____some__weird___var____ = do {
+                                                                                                    {
+                                                                                                        my $m2;
+                                                                                                        $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
+                                                                                                        BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
+                                                                                                        do {
+                                                                                                            ::MODIFIED($m2);
+                                                                                                            $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
+                                                                                                        };
+                                                                                                        do {
+                                                                                                            if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
+                                                                                                                {
+                                                                                                                    ::DISPATCH( $MATCH, 'to', ::DISPATCH( $m2, 'to', ) );
+                                                                                                                    ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                }
+                                                                                                            }
+                                                                                                            else {
+                                                                                                                {
+                                                                                                                    ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                }
+                                                                                                            }
+                                                                                                            }
+                                                                                                    }
+                                                                                                };
+                                                                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                }
+                                                                                                && do {
+                                                                                                my $____some__weird___var____ = do {
+                                                                                                    (   do {
+                                                                                                            my $____some__weird___var____ = do {
+                                                                                                                {
+                                                                                                                    do {
+                                                                                                                        if (::DISPATCH(
+                                                                                                                                ::DISPATCH(
+                                                                                                                                    ::DISPATCH(
+                                                                                                                                        $GLOBAL::Code_infix_58__60__60__62_, 'APPLY',
+                                                                                                                                        ::DISPATCH( $GLOBAL::Code_length, 'APPLY', $str ), ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                                    ),
+                                                                                                                                    "true"
+                                                                                                                                ),
+                                                                                                                                "p5landish"
+                                                                                                                            )
+                                                                                                                            )
+                                                                                                                        {
+                                                                                                                            {
+                                                                                                                                ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                            }
+                                                                                                                        }
+                                                                                                                        else {
+                                                                                                                            {
+                                                                                                                                do {
+                                                                                                                                    if (::DISPATCH(
+                                                                                                                                            ::DISPATCH(
+                                                                                                                                                ::DISPATCH(
+                                                                                                                                                    $GLOBAL::Code_infix_58__60_eq_62_,
+                                                                                                                                                    'APPLY',
+                                                                                                                                                    ::DISPATCH( $::Str, 'new', ',' ),
+                                                                                                                                                    ::DISPATCH(
+                                                                                                                                                        $GLOBAL::Code_substr, 'APPLY',
+                                                                                                                                                        $str, ::DISPATCH( $MATCH, 'to', ),
+                                                                                                                                                        ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                                                    )
+                                                                                                                                                ),
+                                                                                                                                                "true"
+                                                                                                                                            ),
+                                                                                                                                            "p5landish"
+                                                                                                                                        )
+                                                                                                                                        )
+                                                                                                                                    {
+                                                                                                                                        {
+                                                                                                                                            ::DISPATCH(
+                                                                                                                                                $GLOBAL::Code_infix_58__60__43__62_,
+                                                                                                                                                'APPLY',
+                                                                                                                                                ::DISPATCH( $::Int, 'new', 1 ),
+                                                                                                                                                ::DISPATCH_VAR(
+                                                                                                                                                    ::DISPATCH( $MATCH, 'to', ),
+                                                                                                                                                    'STORE',
+                                                                                                                                                    ::DISPATCH(
+                                                                                                                                                        $GLOBAL::Code_infix_58__60__43__62_, 'APPLY',
+                                                                                                                                                        ::DISPATCH( $::Int, 'new', 1 ), ::DISPATCH( $MATCH, 'to', )
+                                                                                                                                                    )
+                                                                                                                                                )
+                                                                                                                                                )
+                                                                                                                                        }
+                                                                                                                                    }
+                                                                                                                                    else {
+                                                                                                                                        {
+                                                                                                                                            ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                                        }
+                                                                                                                                    }
+                                                                                                                                    }
+                                                                                                                            }
+                                                                                                                        }
+                                                                                                                        }
+                                                                                                                }
+                                                                                                            };
+                                                                                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                            }
+                                                                                                            && do {
+                                                                                                            my $____some__weird___var____ = do {
+                                                                                                                (   do {
+                                                                                                                        my $____some__weird___var____ = do {
+                                                                                                                            {
+                                                                                                                                my $m2;
+                                                                                                                                $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
+                                                                                                                                BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
+                                                                                                                                do {
+                                                                                                                                    ::MODIFIED($m2);
+                                                                                                                                    $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
+                                                                                                                                };
+                                                                                                                                do {
+                                                                                                                                    if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
+                                                                                                                                        {
+                                                                                                                                            ::DISPATCH( $MATCH, 'to', ::DISPATCH( $m2, 'to', ) );
+                                                                                                                                            ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                                        }
+                                                                                                                                    }
+                                                                                                                                    else {
+                                                                                                                                        {
+                                                                                                                                            ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                                        }
+                                                                                                                                    }
+                                                                                                                                    }
+                                                                                                                            }
+                                                                                                                        };
+                                                                                                                        ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                                        }
+                                                                                                                        && do {
+                                                                                                                        my $____some__weird___var____ = do {
+                                                                                                                            (   do {
+                                                                                                                                    my $____some__weird___var____ = do {
+                                                                                                                                        {
+                                                                                                                                            my $m2;
+                                                                                                                                            $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
+                                                                                                                                            BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
+                                                                                                                                            ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'exp_parameter_list', $str, ::DISPATCH( $MATCH, 'to', ) ) );
+                                                                                                                                            do {
+                                                                                                                                                if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
+                                                                                                                                                    {
+                                                                                                                                                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
+                                                                                                                                                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'exp_parameter_list' ) ),
+                                                                                                                                                            'STORE', $m2 );
+                                                                                                                                                        ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                                                    }
+                                                                                                                                                }
+                                                                                                                                                else {
+                                                                                                                                                    {
+                                                                                                                                                        ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                                                    }
+                                                                                                                                                }
+                                                                                                                                                }
+                                                                                                                                        }
+                                                                                                                                    };
+                                                                                                                                    ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                                                    }
+                                                                                                                                    && do {
+                                                                                                                                    my $____some__weird___var____ = do {
+                                                                                                                                        {
+                                                                                                                                            my $ret;
+                                                                                                                                            $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
+                                                                                                                                            BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
+                                                                                                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block2e16550c41d8c7f462b75405d9be02b5', ) );
+                                                                                                                                            do {
+                                                                                                                                                if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
+                                                                                                                                                    {
+                                                                                                                                                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
+                                                                                                                                                        return ($MATCH)
+                                                                                                                                                    }
+                                                                                                                                                }
+                                                                                                                                            };
+                                                                                                                                            ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                                        }
+                                                                                                                                    };
+                                                                                                                                    ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                                                    }
+                                                                                                                            ) || ::DISPATCH( $::Bit, "new", 0 );
+                                                                                                                        };
+                                                                                                                        ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                                        }
+                                                                                                                ) || ::DISPATCH( $::Bit, "new", 0 );
+                                                                                                            };
+                                                                                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                            }
+                                                                                                    ) || ::DISPATCH( $::Bit, "new", 0 );
+                                                                                                };
+                                                                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                }
+                                                                                        ) || ::DISPATCH( $::Bit, "new", 0 );
+                                                                                        }
+                                                                                }
+                                                                            };
+                                                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
                                                                             }
-                                                                        }
-                                                                        else {
-                                                                            {
-                                                                                ::DISPATCH( $::Int, 'new', 0 )
+                                                                            || do {
+                                                                            my $____some__weird___var____ = do {
+                                                                                {
+                                                                                    ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', $pos1 );
+                                                                                    do {
+                                                                                        (   do {
+                                                                                                my $____some__weird___var____ = do {
+                                                                                                    {
+                                                                                                        my $m2;
+                                                                                                        $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
+                                                                                                        BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
+                                                                                                        do {
+                                                                                                            ::MODIFIED($m2);
+                                                                                                            $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
+                                                                                                        };
+                                                                                                        do {
+                                                                                                            if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
+                                                                                                                {
+                                                                                                                    ::DISPATCH( $MATCH, 'to', ::DISPATCH( $m2, 'to', ) );
+                                                                                                                    ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                }
+                                                                                                            }
+                                                                                                            else {
+                                                                                                                {
+                                                                                                                    ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                }
+                                                                                                            }
+                                                                                                            }
+                                                                                                    }
+                                                                                                };
+                                                                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                }
+                                                                                                && do {
+                                                                                                my $____some__weird___var____ = do {
+                                                                                                    (   do {
+                                                                                                            my $____some__weird___var____ = do {
+                                                                                                                {
+                                                                                                                    my $pos1;
+                                                                                                                    $pos1 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos1' } ) unless defined $pos1;
+                                                                                                                    BEGIN { $pos1 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos1' } ) }
+                                                                                                                    do {
+                                                                                                                        ::MODIFIED($pos1);
+                                                                                                                        $pos1 = ::DISPATCH( $MATCH, 'to', );
+                                                                                                                    };
+                                                                                                                    do {
+                                                                                                                        do {
+                                                                                                                            my $____some__weird___var____ = do {
+                                                                                                                                {
+                                                                                                                                    do {
+                                                                                                                                        (   do {
+                                                                                                                                                my $____some__weird___var____ = do {
+                                                                                                                                                    {
+                                                                                                                                                        do {
+                                                                                                                                                            if (::DISPATCH(
+                                                                                                                                                                    ::DISPATCH(
+                                                                                                                                                                        ::DISPATCH(
+                                                                                                                                                                            $GLOBAL::Code_infix_58__60__60__62_,
+                                                                                                                                                                            'APPLY',
+                                                                                                                                                                            ::DISPATCH( $GLOBAL::Code_length, 'APPLY', $str ),
+                                                                                                                                                                            ::DISPATCH( $::Int,               'new',   1 )
+                                                                                                                                                                        ),
+                                                                                                                                                                        "true"
+                                                                                                                                                                    ),
+                                                                                                                                                                    "p5landish"
+                                                                                                                                                                )
+                                                                                                                                                                )
+                                                                                                                                                            {
+                                                                                                                                                                {
+                                                                                                                                                                    ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                                                                }
+                                                                                                                                                            }
+                                                                                                                                                            else {
+                                                                                                                                                                {
+                                                                                                                                                                    do {
+                                                                                                                                                                        if (::DISPATCH(
+                                                                                                                                                                                ::DISPATCH(
+                                                                                                                                                                                    ::DISPATCH(
+                                                                                                                                                                                        $GLOBAL::Code_infix_58__60_eq_62_,
+                                                                                                                                                                                        'APPLY',
+                                                                                                                                                                                        ::DISPATCH( $::Str, 'new', ',' ),
+                                                                                                                                                                                        ::DISPATCH(
+                                                                                                                                                                                            $GLOBAL::Code_substr, 'APPLY',
+                                                                                                                                                                                            $str, ::DISPATCH( $MATCH, 'to', ),
+                                                                                                                                                                                            ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                                                                                        )
+                                                                                                                                                                                    ),
+                                                                                                                                                                                    "true"
+                                                                                                                                                                                ),
+                                                                                                                                                                                "p5landish"
+                                                                                                                                                                            )
+                                                                                                                                                                            )
+                                                                                                                                                                        {
+                                                                                                                                                                            {
+                                                                                                                                                                                ::DISPATCH(
+                                                                                                                                                                                    $GLOBAL::Code_infix_58__60__43__62_,
+                                                                                                                                                                                    'APPLY',
+                                                                                                                                                                                    ::DISPATCH( $::Int, 'new', 1 ),
+                                                                                                                                                                                    ::DISPATCH_VAR(
+                                                                                                                                                                                        ::DISPATCH( $MATCH, 'to', ),
+                                                                                                                                                                                        'STORE',
+                                                                                                                                                                                        ::DISPATCH(
+                                                                                                                                                                                            $GLOBAL::Code_infix_58__60__43__62_,
+                                                                                                                                                                                            'APPLY',
+                                                                                                                                                                                            ::DISPATCH( $::Int, 'new', 1 ),
+                                                                                                                                                                                            ::DISPATCH( $MATCH, 'to', )
+                                                                                                                                                                                        )
+                                                                                                                                                                                    )
+                                                                                                                                                                                    )
+                                                                                                                                                                            }
+                                                                                                                                                                        }
+                                                                                                                                                                        else {
+                                                                                                                                                                            {
+                                                                                                                                                                                ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                                                                            }
+                                                                                                                                                                        }
+                                                                                                                                                                        }
+                                                                                                                                                                }
+                                                                                                                                                            }
+                                                                                                                                                            }
+                                                                                                                                                    }
+                                                                                                                                                };
+                                                                                                                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                                                                }
+                                                                                                                                                && do {
+                                                                                                                                                my $____some__weird___var____ = do {
+                                                                                                                                                    {
+                                                                                                                                                        my $m2;
+                                                                                                                                                        $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } )
+                                                                                                                                                            unless defined $m2;
+                                                                                                                                                        BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
+                                                                                                                                                        do {
+                                                                                                                                                            ::MODIFIED($m2);
+                                                                                                                                                            $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
+                                                                                                                                                        };
+                                                                                                                                                        do {
+                                                                                                                                                            if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
+                                                                                                                                                                {
+                                                                                                                                                                    ::DISPATCH( $MATCH, 'to', ::DISPATCH( $m2, 'to', ) );
+                                                                                                                                                                    ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                                                                }
+                                                                                                                                                            }
+                                                                                                                                                            else {
+                                                                                                                                                                {
+                                                                                                                                                                    ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                                                                }
+                                                                                                                                                            }
+                                                                                                                                                            }
+                                                                                                                                                    }
+                                                                                                                                                };
+                                                                                                                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                                                                }
+                                                                                                                                        ) || ::DISPATCH( $::Bit, "new", 0 );
+                                                                                                                                        }
+                                                                                                                                }
+                                                                                                                            };
+                                                                                                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                                            }
+                                                                                                                            || do {
+                                                                                                                            my $____some__weird___var____ = do {
+                                                                                                                                {
+                                                                                                                                    ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', $pos1 );
+                                                                                                                                    do {
+                                                                                                                                        {
+                                                                                                                                            do {
+                                                                                                                                                if (::DISPATCH(
+                                                                                                                                                        ::DISPATCH(
+                                                                                                                                                            ::DISPATCH(
+                                                                                                                                                                $GLOBAL::Code_infix_58__60__60__62_, 'APPLY',
+                                                                                                                                                                ::DISPATCH( $GLOBAL::Code_length, 'APPLY', $str ), ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                                                            ),
+                                                                                                                                                            "true"
+                                                                                                                                                        ),
+                                                                                                                                                        "p5landish"
+                                                                                                                                                    )
+                                                                                                                                                    )
+                                                                                                                                                {
+                                                                                                                                                    {
+                                                                                                                                                        ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                                                    }
+                                                                                                                                                }
+                                                                                                                                                else {
+                                                                                                                                                    {
+                                                                                                                                                        do {
+                                                                                                                                                            if (::DISPATCH(
+                                                                                                                                                                    ::DISPATCH(
+                                                                                                                                                                        ::DISPATCH(
+                                                                                                                                                                            $GLOBAL::Code_infix_58__60_eq_62_,
+                                                                                                                                                                            'APPLY',
+                                                                                                                                                                            ::DISPATCH( $::Str, 'new', '\\\'' ),
+                                                                                                                                                                            ::DISPATCH(
+                                                                                                                                                                                $GLOBAL::Code_substr, 'APPLY',
+                                                                                                                                                                                $str, ::DISPATCH( $MATCH, 'to', ),
+                                                                                                                                                                                ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                                                                            )
+                                                                                                                                                                        ),
+                                                                                                                                                                        "true"
+                                                                                                                                                                    ),
+                                                                                                                                                                    "p5landish"
+                                                                                                                                                                )
+                                                                                                                                                                )
+                                                                                                                                                            {
+                                                                                                                                                                {
+                                                                                                                                                                    ::DISPATCH(
+                                                                                                                                                                        $GLOBAL::Code_infix_58__60__43__62_,
+                                                                                                                                                                        'APPLY',
+                                                                                                                                                                        ::DISPATCH( $::Int, 'new', 1 ),
+                                                                                                                                                                        ::DISPATCH_VAR(
+                                                                                                                                                                            ::DISPATCH( $MATCH, 'to', ),
+                                                                                                                                                                            'STORE',
+                                                                                                                                                                            ::DISPATCH(
+                                                                                                                                                                                $GLOBAL::Code_infix_58__60__43__62_, 'APPLY',
+                                                                                                                                                                                ::DISPATCH( $::Int, 'new', 1 ), ::DISPATCH( $MATCH, 'to', )
+                                                                                                                                                                            )
+                                                                                                                                                                        )
+                                                                                                                                                                        )
+                                                                                                                                                                }
+                                                                                                                                                            }
+                                                                                                                                                            else {
+                                                                                                                                                                {
+                                                                                                                                                                    ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                                                                }
+                                                                                                                                                            }
+                                                                                                                                                            }
+                                                                                                                                                    }
+                                                                                                                                                }
+                                                                                                                                                }
+                                                                                                                                        }
+                                                                                                                                        }
+                                                                                                                                }
+                                                                                                                            };
+                                                                                                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                                            }
+                                                                                                                            || ::DISPATCH( $::Bit, "new", 0 );
+                                                                                                                        }
+                                                                                                                }
+                                                                                                            };
+                                                                                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                            }
+                                                                                                            && do {
+                                                                                                            my $____some__weird___var____ = do {
+                                                                                                                {
+                                                                                                                    my $ret;
+                                                                                                                    $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
+                                                                                                                    BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
+                                                                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block2e16550c41d8c7f462b75405d9be02b5', ) );
+                                                                                                                    do {
+                                                                                                                        if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
+                                                                                                                            {
+                                                                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
+                                                                                                                                return ($MATCH)
+                                                                                                                            }
+                                                                                                                        }
+                                                                                                                    };
+                                                                                                                    ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                }
+                                                                                                            };
+                                                                                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                            }
+                                                                                                    ) || ::DISPATCH( $::Bit, "new", 0 );
+                                                                                                };
+                                                                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                }
+                                                                                        ) || ::DISPATCH( $::Bit, "new", 0 );
+                                                                                        }
+                                                                                }
+                                                                            };
+                                                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
                                                                             }
-                                                                        }
+                                                                            || ::DISPATCH( $::Bit, "new", 0 );
                                                                         }
                                                                 }
                                                             };
@@ -732,61 +1996,559 @@
                                         }
                                         || do {
                                         my $____some__weird___var____ = do {
-                                            {
-                                                do {
-                                                    (   do {
-                                                            my $____some__weird___var____ = do {
-                                                                {
-                                                                    my $m2;
-                                                                    $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
-                                                                    BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                    ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'pair', $str, ::DISPATCH( $MATCH, 'to', ) ) );
-                                                                    do {
-                                                                        if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
-                                                                            {
-                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
-                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'pair' ) ), 'STORE', $m2 );
-                                                                                ::DISPATCH( $::Int, 'new', 1 )
-                                                                            }
+                                            do {
+                                                my $____some__weird___var____ = do {
+                                                    {
+                                                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', $pos1 );
+                                                        do {
+                                                            (   do {
+                                                                    my $____some__weird___var____ = do {
+                                                                        {
+                                                                            my $m2;
+                                                                            $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
+                                                                            BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
+                                                                            ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'exp', $str, ::DISPATCH( $MATCH, 'to', ) ) );
+                                                                            do {
+                                                                                if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
+                                                                                    {
+                                                                                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
+                                                                                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'exp' ) ), 'STORE', $m2 );
+                                                                                        ::DISPATCH( $::Int, 'new', 1 )
+                                                                                    }
+                                                                                }
+                                                                                else {
+                                                                                    {
+                                                                                        ::DISPATCH( $::Int, 'new', 0 )
+                                                                                    }
+                                                                                }
+                                                                                }
                                                                         }
-                                                                        else {
-                                                                            {
-                                                                                ::DISPATCH( $::Int, 'new', 0 )
-                                                                            }
+                                                                    };
+                                                                    ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                    }
+                                                                    && do {
+                                                                    my $____some__weird___var____ = do {
+                                                                        {
+                                                                            my $pos1;
+                                                                            $pos1 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos1' } ) unless defined $pos1;
+                                                                            BEGIN { $pos1 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos1' } ) }
+                                                                            do {
+                                                                                ::MODIFIED($pos1);
+                                                                                $pos1 = ::DISPATCH( $MATCH, 'to', );
+                                                                            };
+                                                                            do {
+                                                                                do {
+                                                                                    my $____some__weird___var____ = do {
+                                                                                        {
+                                                                                            do {
+                                                                                                (   do {
+                                                                                                        my $____some__weird___var____ = do {
+                                                                                                            {
+                                                                                                                my $m2;
+                                                                                                                $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
+                                                                                                                BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
+                                                                                                                do {
+                                                                                                                    ::MODIFIED($m2);
+                                                                                                                    $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
+                                                                                                                };
+                                                                                                                do {
+                                                                                                                    if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
+                                                                                                                        {
+                                                                                                                            ::DISPATCH( $MATCH, 'to', ::DISPATCH( $m2, 'to', ) );
+                                                                                                                            ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                        }
+                                                                                                                    }
+                                                                                                                    else {
+                                                                                                                        {
+                                                                                                                            ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                        }
+                                                                                                                    }
+                                                                                                                    }
+                                                                                                            }
+                                                                                                        };
+                                                                                                        ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                        }
+                                                                                                        && do {
+                                                                                                        my $____some__weird___var____ = do {
+                                                                                                            (   do {
+                                                                                                                    my $____some__weird___var____ = do {
+                                                                                                                        {
+                                                                                                                            do {
+                                                                                                                                if (::DISPATCH(
+                                                                                                                                        ::DISPATCH(
+                                                                                                                                            ::DISPATCH(
+                                                                                                                                                $GLOBAL::Code_infix_58__60__60__62_, 'APPLY',
+                                                                                                                                                ::DISPATCH( $GLOBAL::Code_length, 'APPLY', $str ), ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                                            ),
+                                                                                                                                            "true"
+                                                                                                                                        ),
+                                                                                                                                        "p5landish"
+                                                                                                                                    )
+                                                                                                                                    )
+                                                                                                                                {
+                                                                                                                                    {
+                                                                                                                                        ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                                    }
+                                                                                                                                }
+                                                                                                                                else {
+                                                                                                                                    {
+                                                                                                                                        do {
+                                                                                                                                            if (::DISPATCH(
+                                                                                                                                                    ::DISPATCH(
+                                                                                                                                                        ::DISPATCH(
+                                                                                                                                                            $GLOBAL::Code_infix_58__60_eq_62_,
+                                                                                                                                                            'APPLY',
+                                                                                                                                                            ::DISPATCH( $::Str, 'new', ',' ),
+                                                                                                                                                            ::DISPATCH(
+                                                                                                                                                                $GLOBAL::Code_substr, 'APPLY',
+                                                                                                                                                                $str, ::DISPATCH( $MATCH, 'to', ),
+                                                                                                                                                                ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                                                            )
+                                                                                                                                                        ),
+                                                                                                                                                        "true"
+                                                                                                                                                    ),
+                                                                                                                                                    "p5landish"
+                                                                                                                                                )
+                                                                                                                                                )
+                                                                                                                                            {
+                                                                                                                                                {
+                                                                                                                                                    ::DISPATCH(
+                                                                                                                                                        $GLOBAL::Code_infix_58__60__43__62_,
+                                                                                                                                                        'APPLY',
+                                                                                                                                                        ::DISPATCH( $::Int, 'new', 1 ),
+                                                                                                                                                        ::DISPATCH_VAR(
+                                                                                                                                                            ::DISPATCH( $MATCH, 'to', ),
+                                                                                                                                                            'STORE',
+                                                                                                                                                            ::DISPATCH(
+                                                                                                                                                                $GLOBAL::Code_infix_58__60__43__62_, 'APPLY',
+                                                                                                                                                                ::DISPATCH( $::Int, 'new', 1 ), ::DISPATCH( $MATCH, 'to', )
+                                                                                                                                                            )
+                                                                                                                                                        )
+                                                                                                                                                        )
+                                                                                                                                                }
+                                                                                                                                            }
+                                                                                                                                            else {
+                                                                                                                                                {
+                                                                                                                                                    ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                                                }
+                                                                                                                                            }
+                                                                                                                                            }
+                                                                                                                                    }
+                                                                                                                                }
+                                                                                                                                }
+                                                                                                                        }
+                                                                                                                    };
+                                                                                                                    ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                                    }
+                                                                                                                    && do {
+                                                                                                                    my $____some__weird___var____ = do {
+                                                                                                                        (   do {
+                                                                                                                                my $____some__weird___var____ = do {
+                                                                                                                                    {
+                                                                                                                                        my $m2;
+                                                                                                                                        $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
+                                                                                                                                        BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
+                                                                                                                                        do {
+                                                                                                                                            ::MODIFIED($m2);
+                                                                                                                                            $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
+                                                                                                                                        };
+                                                                                                                                        do {
+                                                                                                                                            if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
+                                                                                                                                                {
+                                                                                                                                                    ::DISPATCH( $MATCH, 'to', ::DISPATCH( $m2, 'to', ) );
+                                                                                                                                                    ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                                                }
+                                                                                                                                            }
+                                                                                                                                            else {
+                                                                                                                                                {
+                                                                                                                                                    ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                                                }
+                                                                                                                                            }
+                                                                                                                                            }
+                                                                                                                                    }
+                                                                                                                                };
+                                                                                                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                                                }
+                                                                                                                                && do {
+                                                                                                                                my $____some__weird___var____ = do {
+                                                                                                                                    (   do {
+                                                                                                                                            my $____some__weird___var____ = do {
+                                                                                                                                                {
+                                                                                                                                                    my $m2;
+                                                                                                                                                    $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
+                                                                                                                                                    BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
+                                                                                                                                                    ::DISPATCH_VAR( $m2, 'STORE',
+                                                                                                                                                        ::DISPATCH( $self, 'exp_parameter_list', $str, ::DISPATCH( $MATCH, 'to', ) ) );
+                                                                                                                                                    do {
+                                                                                                                                                        if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
+                                                                                                                                                            {
+                                                                                                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
+                                                                                                                                                                ::DISPATCH_VAR(
+                                                                                                                                                                    ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'exp_parameter_list' ) ),
+                                                                                                                                                                    'STORE', $m2 );
+                                                                                                                                                                ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                                                            }
+                                                                                                                                                        }
+                                                                                                                                                        else {
+                                                                                                                                                            {
+                                                                                                                                                                ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                                                            }
+                                                                                                                                                        }
+                                                                                                                                                        }
+                                                                                                                                                }
+                                                                                                                                            };
+                                                                                                                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                                                            }
+                                                                                                                                            && do {
+                                                                                                                                            my $____some__weird___var____ = do {
+                                                                                                                                                {
+                                                                                                                                                    my $ret;
+                                                                                                                                                    $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
+                                                                                                                                                    BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
+                                                                                                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block2e16550c41d8c7f462b75405d9be02b5', ) );
+                                                                                                                                                    do {
+                                                                                                                                                        if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
+                                                                                                                                                            {
+                                                                                                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
+                                                                                                                                                                return ($MATCH)
+                                                                                                                                                            }
+                                                                                                                                                        }
+                                                                                                                                                    };
+                                                                                                                                                    ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                                                }
+                                                                                                                                            };
+                                                                                                                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                                                            }
+                                                                                                                                    ) || ::DISPATCH( $::Bit, "new", 0 );
+                                                                                                                                };
+                                                                                                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                                                }
+                                                                                                                        ) || ::DISPATCH( $::Bit, "new", 0 );
+                                                                                                                    };
+                                                                                                                    ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                                    }
+                                                                                                            ) || ::DISPATCH( $::Bit, "new", 0 );
+                                                                                                        };
+                                                                                                        ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                        }
+                                                                                                ) || ::DISPATCH( $::Bit, "new", 0 );
+                                                                                                }
+                                                                                        }
+                                                                                    };
+                                                                                    ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                    }
+                                                                                    || do {
+                                                                                    my $____some__weird___var____ = do {
+                                                                                        {
+                                                                                            ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', $pos1 );
+                                                                                            do {
+                                                                                                (   do {
+                                                                                                        my $____some__weird___var____ = do {
+                                                                                                            {
+                                                                                                                my $m2;
+                                                                                                                $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
+                                                                                                                BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
+                                                                                                                do {
+                                                                                                                    ::MODIFIED($m2);
+                                                                                                                    $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
+                                                                                                                };
+                                                                                                                do {
+                                                                                                                    if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
+                                                                                                                        {
+                                                                                                                            ::DISPATCH( $MATCH, 'to', ::DISPATCH( $m2, 'to', ) );
+                                                                                                                            ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                        }
+                                                                                                                    }
+                                                                                                                    else {
+                                                                                                                        {
+                                                                                                                            ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                        }
+                                                                                                                    }
+                                                                                                                    }
+                                                                                                            }
+                                                                                                        };
+                                                                                                        ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                        }
+                                                                                                        && do {
+                                                                                                        my $____some__weird___var____ = do {
+                                                                                                            (   do {
+                                                                                                                    my $____some__weird___var____ = do {
+                                                                                                                        {
+                                                                                                                            my $pos1;
+                                                                                                                            $pos1 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos1' } ) unless defined $pos1;
+                                                                                                                            BEGIN { $pos1 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos1' } ) }
+                                                                                                                            do {
+                                                                                                                                ::MODIFIED($pos1);
+                                                                                                                                $pos1 = ::DISPATCH( $MATCH, 'to', );
+                                                                                                                            };
+                                                                                                                            do {
+                                                                                                                                do {
+                                                                                                                                    my $____some__weird___var____ = do {
+                                                                                                                                        {
+                                                                                                                                            do {
+                                                                                                                                                (   do {
+                                                                                                                                                        my $____some__weird___var____ = do {
+                                                                                                                                                            {
+                                                                                                                                                                do {
+                                                                                                                                                                    if (::DISPATCH(
+                                                                                                                                                                            ::DISPATCH(
+                                                                                                                                                                                ::DISPATCH(
+                                                                                                                                                                                    $GLOBAL::Code_infix_58__60__60__62_,
+                                                                                                                                                                                    'APPLY',
+                                                                                                                                                                                    ::DISPATCH( $GLOBAL::Code_length, 'APPLY', $str ),
+                                                                                                                                                                                    ::DISPATCH( $::Int,               'new',   1 )
+                                                                                                                                                                                ),
+                                                                                                                                                                                "true"
+                                                                                                                                                                            ),
+                                                                                                                                                                            "p5landish"
+                                                                                                                                                                        )
+                                                                                                                                                                        )
+                                                                                                                                                                    {
+                                                                                                                                                                        {
+                                                                                                                                                                            ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                                                                        }
+                                                                                                                                                                    }
+                                                                                                                                                                    else {
+                                                                                                                                                                        {
+                                                                                                                                                                            do {
+                                                                                                                                                                                if (::DISPATCH(
+                                                                                                                                                                                        ::DISPATCH(
+                                                                                                                                                                                            ::DISPATCH(
+                                                                                                                                                                                                $GLOBAL::Code_infix_58__60_eq_62_,
+                                                                                                                                                                                                'APPLY',
+                                                                                                                                                                                                ::DISPATCH( $::Str, 'new', ',' ),
+                                                                                                                                                                                                ::DISPATCH(
+                                                                                                                                                                                                    $GLOBAL::Code_substr,
+                                                                                                                                                                                                    'APPLY',
+                                                                                                                                                                                                    $str,
+                                                                                                                                                                                                    ::DISPATCH( $MATCH, 'to', ),
+                                                                                                                                                                                                    ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                                                                                                )
+                                                                                                                                                                                            ),
+                                                                                                                                                                                            "true"
+                                                                                                                                                                                        ),
+                                                                                                                                                                                        "p5landish"
+                                                                                                                                                                                    )
+                                                                                                                                                                                    )
+                                                                                                                                                                                {
+                                                                                                                                                                                    {
+                                                                                                                                                                                        ::DISPATCH(
+                                                                                                                                                                                            $GLOBAL::Code_infix_58__60__43__62_,
+                                                                                                                                                                                            'APPLY',
+                                                                                                                                                                                            ::DISPATCH( $::Int, 'new', 1 ),
+                                                                                                                                                                                            ::DISPATCH_VAR(
+                                                                                                                                                                                                ::DISPATCH( $MATCH, 'to', ),
+                                                                                                                                                                                                'STORE',
+                                                                                                                                                                                                ::DISPATCH(
+                                                                                                                                                                                                    $GLOBAL::Code_infix_58__60__43__62_,
+                                                                                                                                                                                                    'APPLY',
+                                                                                                                                                                                                    ::DISPATCH( $::Int, 'new', 1 ),
+                                                                                                                                                                                                    ::DISPATCH( $MATCH, 'to', )
+                                                                                                                                                                                                )
+                                                                                                                                                                                            )
+                                                                                                                                                                                            )
+                                                                                                                                                                                    }
+                                                                                                                                                                                }
+                                                                                                                                                                                else {
+                                                                                                                                                                                    {
+                                                                                                                                                                                        ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                                                                                    }
+                                                                                                                                                                                }
+                                                                                                                                                                                }
+                                                                                                                                                                        }
+                                                                                                                                                                    }
+                                                                                                                                                                    }
+                                                                                                                                                            }
+                                                                                                                                                        };
+                                                                                                                                                        ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                                                                        }
+                                                                                                                                                        && do {
+                                                                                                                                                        my $____some__weird___var____ = do {
+                                                                                                                                                            {
+                                                                                                                                                                my $m2;
+                                                                                                                                                                $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } )
+                                                                                                                                                                    unless defined $m2;
+                                                                                                                                                                BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
+                                                                                                                                                                do {
+                                                                                                                                                                    ::MODIFIED($m2);
+                                                                                                                                                                    $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
+                                                                                                                                                                };
+                                                                                                                                                                do {
+                                                                                                                                                                    if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
+                                                                                                                                                                        {
+                                                                                                                                                                            ::DISPATCH( $MATCH, 'to', ::DISPATCH( $m2, 'to', ) );
+                                                                                                                                                                            ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                                                                        }
+                                                                                                                                                                    }
+                                                                                                                                                                    else {
+                                                                                                                                                                        {
+                                                                                                                                                                            ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                                                                        }
+                                                                                                                                                                    }
+                                                                                                                                                                    }
+                                                                                                                                                            }
+                                                                                                                                                        };
+                                                                                                                                                        ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                                                                        }
+                                                                                                                                                ) || ::DISPATCH( $::Bit, "new", 0 );
+                                                                                                                                                }
+                                                                                                                                        }
+                                                                                                                                    };
+                                                                                                                                    ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                                                    }
+                                                                                                                                    || do {
+                                                                                                                                    my $____some__weird___var____ = do {
+                                                                                                                                        {
+                                                                                                                                            ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', $pos1 );
+                                                                                                                                            do {
+                                                                                                                                                {
+                                                                                                                                                    do {
+                                                                                                                                                        if (::DISPATCH(
+                                                                                                                                                                ::DISPATCH(
+                                                                                                                                                                    ::DISPATCH(
+                                                                                                                                                                        $GLOBAL::Code_infix_58__60__60__62_,
+                                                                                                                                                                        'APPLY',
+                                                                                                                                                                        ::DISPATCH( $GLOBAL::Code_length, 'APPLY', $str ),
+                                                                                                                                                                        ::DISPATCH( $::Int,               'new',   1 )
+                                                                                                                                                                    ),
+                                                                                                                                                                    "true"
+                                                                                                                                                                ),
+                                                                                                                                                                "p5landish"
+                                                                                                                                                            )
+                                                                                                                                                            )
+                                                                                                                                                        {
+                                                                                                                                                            {
+                                                                                                                                                                ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                                                            }
+                                                                                                                                                        }
+                                                                                                                                                        else {
+                                                                                                                                                            {
+                                                                                                                                                                do {
+                                                                                                                                                                    if (::DISPATCH(
+                                                                                                                                                                            ::DISPATCH(
+                                                                                                                                                                                ::DISPATCH(
+                                                                                                                                                                                    $GLOBAL::Code_infix_58__60_eq_62_,
+                                                                                                                                                                                    'APPLY',
+                                                                                                                                                                                    ::DISPATCH( $::Str, 'new', '\\\'' ),
+                                                                                                                                                                                    ::DISPATCH(
+                                                                                                                                                                                        $GLOBAL::Code_substr, 'APPLY',
+                                                                                                                                                                                        $str, ::DISPATCH( $MATCH, 'to', ),
+                                                                                                                                                                                        ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                                                                                    )
+                                                                                                                                                                                ),
+                                                                                                                                                                                "true"
+                                                                                                                                                                            ),
+                                                                                                                                                                            "p5landish"
+                                                                                                                                                                        )
+                                                                                                                                                                        )
+                                                                                                                                                                    {
+                                                                                                                                                                        {
+                                                                                                                                                                            ::DISPATCH(
+                                                                                                                                                                                $GLOBAL::Code_infix_58__60__43__62_,
+                                                                                                                                                                                'APPLY',
+                                                                                                                                                                                ::DISPATCH( $::Int, 'new', 1 ),
+                                                                                                                                                                                ::DISPATCH_VAR(
+                                                                                                                                                                                    ::DISPATCH( $MATCH, 'to', ),
+                                                                                                                                                                                    'STORE',
+                                                                                                                                                                                    ::DISPATCH(
+                                                                                                                                                                                        $GLOBAL::Code_infix_58__60__43__62_,
+                                                                                                                                                                                        'APPLY',
+                                                                                                                                                                                        ::DISPATCH( $::Int, 'new', 1 ),
+                                                                                                                                                                                        ::DISPATCH( $MATCH, 'to', )
+                                                                                                                                                                                    )
+                                                                                                                                                                                )
+                                                                                                                                                                                )
+                                                                                                                                                                        }
+                                                                                                                                                                    }
+                                                                                                                                                                    else {
+                                                                                                                                                                        {
+                                                                                                                                                                            ::DISPATCH( $::Int, 'new', 0 )
+                                                                                                                                                                        }
+                                                                                                                                                                    }
+                                                                                                                                                                    }
+                                                                                                                                                            }
+                                                                                                                                                        }
+                                                                                                                                                        }
+                                                                                                                                                }
+                                                                                                                                                }
+                                                                                                                                        }
+                                                                                                                                    };
+                                                                                                                                    ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                                                    }
+                                                                                                                                    || ::DISPATCH( $::Bit, "new", 0 );
+                                                                                                                                }
+                                                                                                                        }
+                                                                                                                    };
+                                                                                                                    ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                                    }
+                                                                                                                    && do {
+                                                                                                                    my $____some__weird___var____ = do {
+                                                                                                                        {
+                                                                                                                            my $ret;
+                                                                                                                            $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
+                                                                                                                            BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
+                                                                                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block2e16550c41d8c7f462b75405d9be02b5', ) );
+                                                                                                                            do {
+                                                                                                                                if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
+                                                                                                                                    {
+                                                                                                                                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
+                                                                                                                                        return ($MATCH)
+                                                                                                                                    }
+                                                                                                                                }
+                                                                                                                            };
+                                                                                                                            ::DISPATCH( $::Int, 'new', 1 )
+                                                                                                                        }
+                                                                                                                    };
+                                                                                                                    ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                                    }
+                                                                                                            ) || ::DISPATCH( $::Bit, "new", 0 );
+                                                                                                        };
+                                                                                                        ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                        }
+                                                                                                ) || ::DISPATCH( $::Bit, "new", 0 );
+                                                                                                }
+                                                                                        }
+                                                                                    };
+                                                                                    ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                    }
+                                                                                    || ::DISPATCH( $::Bit, "new", 0 );
+                                                                                }
                                                                         }
-                                                                        }
-                                                                }
-                                                            };
-                                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                    };
+                                                                    ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                    }
+                                                            ) || ::DISPATCH( $::Bit, "new", 0 );
                                                             }
-                                                            && do {
-                                                            my $____some__weird___var____ = do {
-                                                                {
-                                                                    my $m2;
-                                                                    $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
-                                                                    BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                    ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'pair', $str, ::DISPATCH( $MATCH, 'to', ) ) );
-                                                                    do {
-                                                                        if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
-                                                                            {
-                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
-                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'pair' ) ), 'STORE', $m2 );
-                                                                                ::DISPATCH( $::Int, 'new', 1 )
-                                                                            }
-                                                                        }
-                                                                        else {
-                                                                            {
-                                                                                ::DISPATCH( $::Int, 'new', 0 )
-                                                                            }
-                                                                        }
-                                                                        }
-                                                                }
-                                                            };
-                                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
-                                                            }
-                                                    ) || ::DISPATCH( $::Bit, "new", 0 );
                                                     }
-                                            }
+                                                };
+                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                }
+                                                || do {
+                                                my $____some__weird___var____ = do {
+                                                    {
+                                                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', $pos1 );
+                                                        do {
+                                                            {
+                                                                my $ret;
+                                                                $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
+                                                                BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
+                                                                ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block2e16550c41d8c7f462b75405d9be02b5', ) );
+                                                                do {
+                                                                    if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
+                                                                        {
+                                                                            ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
+                                                                            return ($MATCH)
+                                                                        }
+                                                                    }
+                                                                };
+                                                                ::DISPATCH( $::Int, 'new', 1 )
+                                                            }
+                                                            }
+                                                    }
+                                                };
+                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                }
+                                                || ::DISPATCH( $::Bit, "new", 0 );
                                         };
                                         ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
                                         }

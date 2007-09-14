@@ -949,8 +949,21 @@
                     do {
                         ::MODIFIED( ::DISPATCH( $self, "capture_to_array" ) );
                         ::DISPATCH( $self, "capture_to_array" ) = do {
-                            do        { my $____some__weird___var____ = $quantified; ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____ }
-                                || do { my $____some__weird___var____ = $quantified; ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____ }
+                            do { my $____some__weird___var____ = $quantified; ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____ }
+                                || do {
+                                my $____some__weird___var____ = do {
+                                    (   do {
+                                            my $____some__weird___var____ = ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'before' ) );
+                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                            }
+                                            && do {
+                                            my $____some__weird___var____ = ::DISPATCH( $::Int, 'new', 1 );
+                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                            }
+                                    ) || ::DISPATCH( $::Bit, "new", 0 );
+                                };
+                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                }
                                 || ::DISPATCH( $::Bit, "new", 0 );
                             }
                     };
@@ -1048,8 +1061,21 @@
                     do {
                         ::MODIFIED( ::DISPATCH( $self, "capture_to_array" ) );
                         ::DISPATCH( $self, "capture_to_array" ) = do {
-                            do        { my $____some__weird___var____ = $quantified; ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____ }
-                                || do { my $____some__weird___var____ = $quantified; ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____ }
+                            do { my $____some__weird___var____ = $quantified; ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____ }
+                                || do {
+                                my $____some__weird___var____ = do {
+                                    (   do {
+                                            my $____some__weird___var____ = ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'after' ) );
+                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                            }
+                                            && do {
+                                            my $____some__weird___var____ = ::DISPATCH( $::Int, 'new', 1 );
+                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                            }
+                                    ) || ::DISPATCH( $::Bit, "new", 0 );
+                                };
+                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                }
                                 || ::DISPATCH( $::Bit, "new", 0 );
                             }
                     };
@@ -1310,8 +1336,21 @@
                     do {
                         ::MODIFIED( ::DISPATCH( $self, "capture_to_array" ) );
                         ::DISPATCH( $self, "capture_to_array" ) = do {
-                            do        { my $____some__weird___var____ = $quantified; ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____ }
-                                || do { my $____some__weird___var____ = $quantified; ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____ }
+                            do { my $____some__weird___var____ = $quantified; ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____ }
+                                || do {
+                                my $____some__weird___var____ = do {
+                                    (   do {
+                                            my $____some__weird___var____ = ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $self, "ident" ) );
+                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                            }
+                                            && do {
+                                            my $____some__weird___var____ = ::DISPATCH( $::Int, 'new', 1 );
+                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                            }
+                                    ) || ::DISPATCH( $::Bit, "new", 0 );
+                                };
+                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                }
                                 || ::DISPATCH( $::Bit, "new", 0 );
                             }
                     };
@@ -1401,8 +1440,21 @@
                     do {
                         ::MODIFIED( ::DISPATCH( $self, "capture_to_array" ) );
                         ::DISPATCH( $self, "capture_to_array" ) = do {
-                            do        { my $____some__weird___var____ = $quantified; ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____ }
-                                || do { my $____some__weird___var____ = $quantified; ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____ }
+                            do { my $____some__weird___var____ = $quantified; ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____ }
+                                || do {
+                                my $____some__weird___var____ = do {
+                                    (   do {
+                                            my $____some__weird___var____ = ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $self, "ident" ) );
+                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                            }
+                                            && do {
+                                            my $____some__weird___var____ = ::DISPATCH( $::Int, 'new', 1 );
+                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                            }
+                                    ) || ::DISPATCH( $::Bit, "new", 0 );
+                                };
+                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                }
                                 || ::DISPATCH( $::Bit, "new", 0 );
                             }
                     };
@@ -1497,8 +1549,21 @@
                     do {
                         ::MODIFIED( ::DISPATCH( $self, "capture_to_array" ) );
                         ::DISPATCH( $self, "capture_to_array" ) = do {
-                            do        { my $____some__weird___var____ = $quantified; ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____ }
-                                || do { my $____some__weird___var____ = $quantified; ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____ }
+                            do { my $____some__weird___var____ = $quantified; ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____ }
+                                || do {
+                                my $____some__weird___var____ = do {
+                                    (   do {
+                                            my $____some__weird___var____ = ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $self, "ident" ) );
+                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                            }
+                                            && do {
+                                            my $____some__weird___var____ = ::DISPATCH( $::Int, 'new', 1 );
+                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                            }
+                                    ) || ::DISPATCH( $::Bit, "new", 0 );
+                                };
+                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                }
                                 || ::DISPATCH( $::Bit, "new", 0 );
                             }
                     };

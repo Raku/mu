@@ -106,7 +106,38 @@
                                                                     ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
                                                                     }
                                                                     || do {
-                                                                    my $____some__weird___var____ = ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $node, 'name', ), ::DISPATCH( $::Str, 'new', '/' ) );
+                                                                    my $____some__weird___var____ = do {
+                                                                        do {
+                                                                            my $____some__weird___var____ = ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $node, 'name', ), ::DISPATCH( $::Str, 'new', '_' ) );
+                                                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                            }
+                                                                            || do {
+                                                                            my $____some__weird___var____ = do {
+                                                                                do {
+                                                                                    my $____some__weird___var____ = ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $node, 'twigil', ), ::DISPATCH( $::Str, 'new', '.' ) );
+                                                                                    ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                    }
+                                                                                    || do {
+                                                                                    my $____some__weird___var____ = do {
+                                                                                        (   do {
+                                                                                                my $____some__weird___var____ = ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $node, 'sigil', ), ::DISPATCH( $::Str, 'new', '&' ) );
+                                                                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                }
+                                                                                                && do {
+                                                                                                my $____some__weird___var____
+                                                                                                    = ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $node, 'name', ), ::DISPATCH( $::Str, 'new', 'self' ) );
+                                                                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                                }
+                                                                                        ) || ::DISPATCH( $::Bit, "new", 0 );
+                                                                                    };
+                                                                                    ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                    }
+                                                                                    || ::DISPATCH( $::Bit, "new", 0 );
+                                                                            };
+                                                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                            }
+                                                                            || ::DISPATCH( $::Bit, "new", 0 );
+                                                                    };
                                                                     ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
                                                                     }
                                                                     || ::DISPATCH( $::Bit, "new", 0 );
