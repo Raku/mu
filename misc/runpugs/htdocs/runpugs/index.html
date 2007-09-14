@@ -5,9 +5,10 @@
 <script language="javascript" src="jquery-1.2.min.js"></script>
 <script language="JavaScript" src="runpugs.js"></script>
 </head>
-<body onunload="HandleOnUnload(event)">
+<body>
 <iframe src="/perl/runpugs.pl" id="scratch" name="scratch"
-style="visibility:hidden" width="700px" height="1px"  onLoad="getreply()"></iframe>
+ style="visibility:hidden" width="700px" height="1px"  
+onLoad="getreply()"></iframe>
 <div id="mainwindow">
 <h1>Run Perl 6 now -- in your browser!</h1>
 <form id="term" name="terminal" action="" method="post">                  
@@ -19,8 +20,7 @@ style="visibility:hidden" width="700px" height="1px"  onLoad="getreply()"></ifra
 onClick="set_version()"><label for="rel">Release version</label>&nbsp;&nbsp;
 <input id="dev" value="1" name="reldev" checked="checked" type="radio" onClick="set_version()"><label for="dev">Development version</label>
 <div id="termwindow">
-<textarea id="cmd" name="cmd" rows="20" cols="80" wrap="virtual"
-onkeydown="return catch_events(this,event)">Please wait while Pugs starts up...</textarea>
+<textarea id="cmd" name="cmd" rows="20" cols="80" wrap="virtual">Please wait while Pugs starts up...</textarea>
 </div>
 </form>
 <script language="JavaScript">
