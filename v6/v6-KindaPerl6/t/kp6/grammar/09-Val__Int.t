@@ -15,5 +15,4 @@ class Val::Int {
 
 say '1..1';
 $_ = '1';
-#say 'ok ' ~ MyGrammar.val_int();
-say 'not ok 1 # this test is recursing ad infinitum...'
+say 'ok ' ~ MyGrammar.val_int();

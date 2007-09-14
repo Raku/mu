@@ -394,10 +394,10 @@
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH( $::Str, 'new', 'my $pos1 := $MATCH.to; do{ ' ),
+                            ::DISPATCH( $::Str, 'new', 'my $pos1 = $MATCH.to + 0; do{ ' ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                ::DISPATCH( [ map { $_->emit_token() } @{ ::DISPATCH( $self, "or" ) } ], 'join', ::DISPATCH( $::Str, 'new', '} || do { $MATCH.to = $pos1; ' ) ), ::DISPATCH( $::Str, 'new', '} }' )
+                                ::DISPATCH( [ map { $_->emit_token() } @{ ::DISPATCH( $self, "or" ) } ], 'join', ::DISPATCH( $::Str, 'new', '} || do { $MATCH.to = $pos1 + 0; ' ) ), ::DISPATCH( $::Str, 'new', '} }' )
                             )
                         )
                     );

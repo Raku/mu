@@ -6,8 +6,6 @@ grammar MyGrammar {
 module Main {
     say '1..3';
     $_ = ' ';
-    say 'not ok # this test is recursing...';
-    exit;
     if MyGrammar.opt_alfanum() {
         say 'ok 1';
     } else {

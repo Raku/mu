@@ -82,8 +82,8 @@ class Rule::Quantifier {
 class Rule::Or {
     method emit_token {
         'do { ' ~
-            'my $pos1 := $MATCH.to; do{ ' ~ 
-            (@.or.>>emit_token).join('} || do { $MATCH.to = $pos1; ') ~
+            'my $pos1 = $MATCH.to + 0; do{ ' ~ 
+            (@.or.>>emit_token).join('} || do { $MATCH.to = $pos1 + 0; ') ~
         '} }';
     }
 }
