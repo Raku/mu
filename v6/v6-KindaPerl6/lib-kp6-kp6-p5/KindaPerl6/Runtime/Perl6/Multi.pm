@@ -25,6 +25,7 @@
         };
         ::DISPATCH( ::DISPATCH( $::Multi, 'HOW', ), 'add_parent',    ::DISPATCH( $::Str, 'new', 'Code' ) );
         ::DISPATCH( ::DISPATCH( $::Multi, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'long_names' ) );
+        ::DISPATCH( ::DISPATCH( $::Multi, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'token_length' ) );
         ::DISPATCH(
             ::DISPATCH( $::Multi, 'HOW', ),
             'add_method',
@@ -69,6 +70,9 @@
                     my $len;
                     $len = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$len' } ) unless defined $len;
                     BEGIN { $len = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$len' } ) }
+                    my $multi;
+                    $multi = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$multi' } ) unless defined $multi;
+                    BEGIN { $multi = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$multi' } ) }
                     my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                     my $code;
                     $code = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$code' } ) unless defined $code;
@@ -98,7 +102,27 @@
                         $sym = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     ::DISPATCH_VAR( $len, 'STORE', ::DISPATCH( $sym, 'chars', ) );
-                    ::DISPATCH( ::DISPATCH( $self, 'long_names', ), 'push', $code );
+                    do {
+                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', ::DISPATCH( $self, 'token_length', ) ) ), "true" ), "p5landish" ) ) {
+                            {
+                                ::DISPATCH_VAR( ::DISPATCH( $self, 'token_length', ), 'STORE', ::DISPATCH( $::Hash, "new", { _hash => {} } ) )
+                            }
+                        }
+                    };
+                    do {
+                        if (::DISPATCH(
+                                ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', ::DISPATCH( ::DISPATCH( $self, 'token_length', ), 'LOOKUP', $len ) ) ), "true" ), "p5landish"
+                            )
+                            )
+                        {
+                            {
+                                ::DISPATCH_VAR( ::DISPATCH( ::DISPATCH( $self, 'token_length', ), 'LOOKUP', $len ), 'STORE', ::DISPATCH( $::Multi, 'new', ) );
+                                ::DISPATCH_VAR( ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, 'token_length', ), 'LOOKUP', $len ), 'long_names', ), 'STORE', ::DISPATCH( $::Array, "new", { _array => [] } ) )
+                            }
+                        }
+                    };
+                    ::DISPATCH_VAR( $multi, 'STORE', ::DISPATCH( ::DISPATCH( $self, 'token_length', ), 'LOOKUP', $len ) );
+                    ::DISPATCH( $multi, 'add_variant', $code );
                 }
             )
         );

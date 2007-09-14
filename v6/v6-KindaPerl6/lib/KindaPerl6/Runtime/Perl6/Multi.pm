@@ -14,7 +14,8 @@
 
 use v6-alpha;
 class Multi is Code {
-    has @.long_names;
+    has @.long_names;    # normal sub and method multi-dispatch
+    has %.token_length;  # 'sym'-based token multi-dispatch
             
     method add_variant ( $code ) {
         (self.long_names).push( $code );
@@ -22,12 +23,23 @@ class Multi is Code {
             
     method add_token_variant ( $code, $sym ) {
         my $len = $sym.chars;
-        # TODO ...
-        # say "add_token_variant: $sym : $len ";
-        (self.long_names).push( $code );
+        #say "add_token_variant: $sym : $len ";
+        if !( defined( self.token_length ) ) {
+            self.token_length = { };   # XXX accessor init bug
+        };
+        if !( defined( ( self.token_length ){$len} ) ) {
+            #say "new length : $len ";
+            ( self.token_length ){$len} = Multi.new();
+            ( ( self.token_length ){$len} ).long_names = [ ];   # XXX accessor init bug
+        };
+        my $multi = ( self.token_length ){$len};
+        $multi.add_variant( $code );
     }
             
     method select {
+
+        # TODO - dispatch on token_length if it is defined
+
         my @candidates;
         my $sub; # XXX 
         
