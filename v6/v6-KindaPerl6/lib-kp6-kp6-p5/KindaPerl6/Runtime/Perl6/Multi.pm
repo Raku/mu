@@ -61,6 +61,50 @@
         ::DISPATCH(
             ::DISPATCH( $::Multi, 'HOW', ),
             'add_method',
+            ::DISPATCH( $::Str, 'new', 'add_token_variant' ),
+            ::DISPATCH(
+                $::Method,
+                'new',
+                sub {
+                    my $len;
+                    $len = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$len' } ) unless defined $len;
+                    BEGIN { $len = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$len' } ) }
+                    my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                    my $code;
+                    $code = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$code' } ) unless defined $code;
+                    BEGIN { $code = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$code' } ) }
+                    my $sym;
+                    $sym = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$sym' } ) unless defined $sym;
+                    BEGIN { $sym = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$sym' } ) }
+                    $self = shift;
+                    my $CAPTURE;
+                    $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
+                    BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+                    ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                    do {
+                        ::MODIFIED($List__);
+                        $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                    };
+                    do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                    };
+                    do {
+                        ::MODIFIED($code);
+                        $code = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                    };
+                    do {
+                        ::MODIFIED($sym);
+                        $sym = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) );
+                    };
+                    ::DISPATCH_VAR( $len, 'STORE', ::DISPATCH( $sym, 'chars', ) );
+                    ::DISPATCH( ::DISPATCH( $self, 'long_names', ), 'push', $code );
+                }
+            )
+        );
+        ::DISPATCH(
+            ::DISPATCH( $::Multi, 'HOW', ),
+            'add_method',
             ::DISPATCH( $::Str, 'new', 'select' ),
             ::DISPATCH(
                 $::Method,

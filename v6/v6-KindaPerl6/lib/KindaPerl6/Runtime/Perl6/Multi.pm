@@ -20,6 +20,13 @@ class Multi is Code {
         (self.long_names).push( $code );
     }
             
+    method add_token_variant ( $code, $sym ) {
+        my $len = $sym.chars;
+        # TODO ...
+        # say "add_token_variant: $sym : $len ";
+        (self.long_names).push( $code );
+    }
+            
     method select {
         my @candidates;
         my $sub; # XXX 

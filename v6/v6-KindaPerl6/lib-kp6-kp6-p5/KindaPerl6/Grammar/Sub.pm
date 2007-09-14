@@ -342,7 +342,7 @@
                                                                                                                                 my $ret;
                                                                                                                                 $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                                                                 BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                                                                ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_blockd1d7650c100185f22f8c2642a403ea1f', ) );
+                                                                                                                                ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022', ) );
                                                                                                                                 do {
                                                                                                                                     if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
                                                                                                                                         {
@@ -391,7 +391,7 @@
                                                         my $ret;
                                                         $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                         BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_blockd1d7650c100185f22f8c2642a403ea1f', ) );
+                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022', ) );
                                                         do {
                                                             if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
                                                                 {
@@ -735,7 +735,7 @@
                                                                                                                                 my $ret;
                                                                                                                                 $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                                                                 BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                                                                ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_blockd1d7650c100185f22f8c2642a403ea1f', ) );
+                                                                                                                                ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022', ) );
                                                                                                                                 do {
                                                                                                                                     if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
                                                                                                                                         {
@@ -784,7 +784,7 @@
                                                         my $ret;
                                                         $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                         BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_blockd1d7650c100185f22f8c2642a403ea1f', ) );
+                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022', ) );
                                                         do {
                                                             if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
                                                                 {
@@ -909,7 +909,7 @@
                                                                     my $ret;
                                                                     $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                     BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_blockd1d7650c100185f22f8c2642a403ea1f', ) );
+                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022', ) );
                                                                     do {
                                                                         if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
                                                                             {
@@ -1151,7 +1151,7 @@
                                                                                                                     my $ret;
                                                                                                                     $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                                                     BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_blockd1d7650c100185f22f8c2642a403ea1f', ) );
+                                                                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022', ) );
                                                                                                                     do {
                                                                                                                         if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
                                                                                                                             {
@@ -1693,7 +1693,8 @@
                                                                                                                                                                             my $____some__weird___var____ = do {
                                                                                                                                                                                 {
                                                                                                                                                                                     my $ret;
-                                                                                                                                                                                    $ret = ::DISPATCH( $::Scalar, 'new',
+                                                                                                                                                                                    $ret
+                                                                                                                                                                                        = ::DISPATCH( $::Scalar, 'new',
                                                                                                                                                                                         { modified => $_MODIFIED, name => '$ret' } )
                                                                                                                                                                                         unless defined $ret;
 
@@ -1704,7 +1705,7 @@
                                                                                                                                                                                     ::DISPATCH_VAR(
                                                                                                                                                                                         $ret, 'STORE',
                                                                                                                                                                                         ::DISPATCH(
-                                                                                                                                                                                            $self, '__rule_blockd1d7650c100185f22f8c2642a403ea1f',
+                                                                                                                                                                                            $self, '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022',
                                                                                                                                                                                         )
                                                                                                                                                                                     );
                                                                                                                                                                                     do {
@@ -1728,7 +1729,8 @@
                                                                                                                                                                                         my $____some__weird___var____ = do {
                                                                                                                                                                                             {
                                                                                                                                                                                                 my $m2;
-                                                                                                                                                                                                $m2 = ::DISPATCH( $::Scalar, 'new',
+                                                                                                                                                                                                $m2
+                                                                                                                                                                                                    = ::DISPATCH( $::Scalar, 'new',
                                                                                                                                                                                                     { modified => $_MODIFIED, name => '$m2' } )
                                                                                                                                                                                                     unless defined $m2;
 
@@ -2023,7 +2025,7 @@
                                                                                                                                                                                                                                                     )
                                                                                                                                                                                                                                                     unless
                                                                                                                                                                                                                                                     defined
-                                                                                                                                                                                                                                                    $ret;
+                                                                                                                                                                                                                                                        $ret;
 
                                                                                                                                                                                                                                                 BEGIN {
                                                                                                                                                                                                                                                     $ret
@@ -2042,7 +2044,7 @@
                                                                                                                                                                                                                                                     'STORE',
                                                                                                                                                                                                                                                     ::DISPATCH(
                                                                                                                                                                                                                                                         $self,
-                                                                                                                                                                                                                                                        '__rule_blockd1d7650c100185f22f8c2642a403ea1f',
+                                                                                                                                                                                                                                                        '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022',
                                                                                                                                                                                                                                                     )
                                                                                                                                                                                                                                                 );
                                                                                                                                                                                                                                                 do {
@@ -2124,7 +2126,7 @@
                                                                                                                                                                                                                             $ret, 'STORE',
                                                                                                                                                                                                                             ::DISPATCH(
                                                                                                                                                                                                                                 $self,
-                                                                                                                                                                                                                                '__rule_blockd1d7650c100185f22f8c2642a403ea1f',
+                                                                                                                                                                                                                                '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022',
                                                                                                                                                                                                                             )
                                                                                                                                                                                                                         );
                                                                                                                                                                                                                         do {
@@ -2534,7 +2536,7 @@
                                                                                                                                     my $ret;
                                                                                                                                     $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                                                                     BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_blockd1d7650c100185f22f8c2642a403ea1f', ) );
+                                                                                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022', ) );
                                                                                                                                     do {
                                                                                                                                         if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
                                                                                                                                             {
@@ -2731,7 +2733,8 @@
                                                                                                                                                                                         do {
                                                                                                                                                                                             {
                                                                                                                                                                                                 my $ret;
-                                                                                                                                                                                                $ret = ::DISPATCH( $::Scalar, 'new',
+                                                                                                                                                                                                $ret
+                                                                                                                                                                                                    = ::DISPATCH( $::Scalar, 'new',
                                                                                                                                                                                                     { modified => $_MODIFIED, name => '$ret' } )
                                                                                                                                                                                                     unless defined $ret;
 
@@ -2743,7 +2746,7 @@
                                                                                                                                                                                                     $ret, 'STORE',
                                                                                                                                                                                                     ::DISPATCH(
                                                                                                                                                                                                         $self,
-                                                                                                                                                                                                        '__rule_blockd1d7650c100185f22f8c2642a403ea1f',
+                                                                                                                                                                                                        '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022',
                                                                                                                                                                                                     )
                                                                                                                                                                                                 );
                                                                                                                                                                                                 do {
@@ -2786,7 +2789,7 @@
                                                                                                                                                                                 { modified => $_MODIFIED, name => '$ret' } );
                                                                                                                                                                         }
                                                                                                                                                                         ::DISPATCH_VAR( $ret, 'STORE',
-                                                                                                                                                                            ::DISPATCH( $self, '__rule_blockd1d7650c100185f22f8c2642a403ea1f', ) );
+                                                                                                                                                                            ::DISPATCH( $self, '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022', ) );
                                                                                                                                                                         do {
                                                                                                                                                                             if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
                                                                                                                                                                                 {
@@ -6075,7 +6078,8 @@
                                                                                                                                                                                         my $____some__weird___var____ = do {
                                                                                                                                                                                             {
                                                                                                                                                                                                 my $m2;
-                                                                                                                                                                                                $m2 = ::DISPATCH( $::Scalar, 'new',
+                                                                                                                                                                                                $m2
+                                                                                                                                                                                                    = ::DISPATCH( $::Scalar, 'new',
                                                                                                                                                                                                     { modified => $_MODIFIED, name => '$m2' } )
                                                                                                                                                                                                     unless defined $m2;
 
@@ -6247,7 +6251,7 @@
                                                                                                                                                                                                                 $ret, 'STORE',
                                                                                                                                                                                                                 ::DISPATCH(
                                                                                                                                                                                                                     $self,
-                                                                                                                                                                                                                    '__rule_blockd1d7650c100185f22f8c2642a403ea1f',
+                                                                                                                                                                                                                    '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022',
                                                                                                                                                                                                                 )
                                                                                                                                                                                                             );
                                                                                                                                                                                                             do {
@@ -6917,7 +6921,8 @@
                                                                                                                                                                             my $____some__weird___var____ = do {
                                                                                                                                                                                 {
                                                                                                                                                                                     my $m2;
-                                                                                                                                                                                    $m2 = ::DISPATCH( $::Scalar, 'new',
+                                                                                                                                                                                    $m2
+                                                                                                                                                                                        = ::DISPATCH( $::Scalar, 'new',
                                                                                                                                                                                         { modified => $_MODIFIED, name => '$m2' } )
                                                                                                                                                                                         unless defined $m2;
 
@@ -7121,7 +7126,7 @@
                                                                                                                                                                                                                             $ret, 'STORE',
                                                                                                                                                                                                                             ::DISPATCH(
                                                                                                                                                                                                                                 $self,
-                                                                                                                                                                                                                                '__rule_blockd1d7650c100185f22f8c2642a403ea1f',
+                                                                                                                                                                                                                                '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022',
                                                                                                                                                                                                                             )
                                                                                                                                                                                                                         );
                                                                                                                                                                                                                         do {
@@ -7275,7 +7280,7 @@
                                                                                                                                                                                                                                                     )
                                                                                                                                                                                                                                                     unless
                                                                                                                                                                                                                                                     defined
-                                                                                                                                                                                                                                                    $m2;
+                                                                                                                                                                                                                                                        $m2;
 
                                                                                                                                                                                                                                                 BEGIN {
                                                                                                                                                                                                                                                     $m2
@@ -7372,7 +7377,7 @@
                                                                                                                                                                                                                                                                 )
                                                                                                                                                                                                                                                                 unless
                                                                                                                                                                                                                                                                 defined
-                                                                                                                                                                                                                                                                $pos1;
+                                                                                                                                                                                                                                                                    $pos1;
 
                                                                                                                                                                                                                                                             BEGIN
                                                                                                                                                                                                                                                             {
@@ -7591,7 +7596,7 @@
                                                                                                                                                                                                                                                                                         )
                                                                                                                                                                                                                                                                                         unless
                                                                                                                                                                                                                                                                                         defined
-                                                                                                                                                                                                                                                                                        $ret;
+                                                                                                                                                                                                                                                                                            $ret;
 
                                                                                                                                                                                                                                                                                     BEGIN
                                                                                                                                                                                                                                                                                     {
@@ -7613,7 +7618,7 @@
                                                                                                                                                                                                                                                                                         'STORE',
                                                                                                                                                                                                                                                                                         ::DISPATCH(
                                                                                                                                                                                                                                                                                             $self,
-                                                                                                                                                                                                                                                                                            '__rule_blockd1d7650c100185f22f8c2642a403ea1f',
+                                                                                                                                                                                                                                                                                            '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022',
                                                                                                                                                                                                                                                                                         )
                                                                                                                                                                                                                                                                                         )
                                                                                                                                                                                                                                                                                         ;
@@ -7704,7 +7709,7 @@
                                                                                                                                                                                                                                                                 )
                                                                                                                                                                                                                                                                 unless
                                                                                                                                                                                                                                                                 defined
-                                                                                                                                                                                                                                                                $ret;
+                                                                                                                                                                                                                                                                    $ret;
 
                                                                                                                                                                                                                                                             BEGIN
                                                                                                                                                                                                                                                             {
@@ -7726,7 +7731,7 @@
                                                                                                                                                                                                                                                                 'STORE',
                                                                                                                                                                                                                                                                 ::DISPATCH(
                                                                                                                                                                                                                                                                     $self,
-                                                                                                                                                                                                                                                                    '__rule_blockd1d7650c100185f22f8c2642a403ea1f',
+                                                                                                                                                                                                                                                                    '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022',
                                                                                                                                                                                                                                                                 )
                                                                                                                                                                                                                                                                 )
                                                                                                                                                                                                                                                                 ;
@@ -9006,7 +9011,7 @@
                                                                                                                                                                                                                                                     )
                                                                                                                                                                                                                                                     unless
                                                                                                                                                                                                                                                     defined
-                                                                                                                                                                                                                                                    $m2;
+                                                                                                                                                                                                                                                        $m2;
 
                                                                                                                                                                                                                                                 BEGIN {
                                                                                                                                                                                                                                                     $m2
@@ -9103,7 +9108,7 @@
                                                                                                                                                                                                                                                                 )
                                                                                                                                                                                                                                                                 unless
                                                                                                                                                                                                                                                                 defined
-                                                                                                                                                                                                                                                                $m2;
+                                                                                                                                                                                                                                                                    $m2;
 
                                                                                                                                                                                                                                                             BEGIN
                                                                                                                                                                                                                                                             {
@@ -9230,7 +9235,7 @@
                                                                                                                                                                                                                                                                             )
                                                                                                                                                                                                                                                                             unless
                                                                                                                                                                                                                                                                             defined
-                                                                                                                                                                                                                                                                            $m2;
+                                                                                                                                                                                                                                                                                $m2;
 
                                                                                                                                                                                                                                                                         BEGIN
                                                                                                                                                                                                                                                                         {
@@ -9500,7 +9505,7 @@
                                                                                                                                                                                                                                                                                                     )
                                                                                                                                                                                                                                                                                                     unless
                                                                                                                                                                                                                                                                                                     defined
-                                                                                                                                                                                                                                                                                                    $m2;
+                                                                                                                                                                                                                                                                                                        $m2;
 
                                                                                                                                                                                                                                                                                                 BEGIN
                                                                                                                                                                                                                                                                                                 {
@@ -9617,7 +9622,7 @@
                                                                                                                                                                                                                                                                                                                 )
                                                                                                                                                                                                                                                                                                                 unless
                                                                                                                                                                                                                                                                                                                 defined
-                                                                                                                                                                                                                                                                                                                $ret;
+                                                                                                                                                                                                                                                                                                                    $ret;
 
                                                                                                                                                                                                                                                                                                             BEGIN
                                                                                                                                                                                                                                                                                                             {
@@ -9639,7 +9644,7 @@
                                                                                                                                                                                                                                                                                                                 'STORE',
                                                                                                                                                                                                                                                                                                                 ::DISPATCH(
                                                                                                                                                                                                                                                                                                                     $self,
-                                                                                                                                                                                                                                                                                                                    '__rule_blockd1d7650c100185f22f8c2642a403ea1f',
+                                                                                                                                                                                                                                                                                                                    '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022',
                                                                                                                                                                                                                                                                                                                 )
                                                                                                                                                                                                                                                                                                                 )
                                                                                                                                                                                                                                                                                                                 ;
@@ -9719,7 +9724,7 @@
                                                                                                                                                                                                                                                                                                                             )
                                                                                                                                                                                                                                                                                                                             unless
                                                                                                                                                                                                                                                                                                                             defined
-                                                                                                                                                                                                                                                                                                                            $m2;
+                                                                                                                                                                                                                                                                                                                                $m2;
 
                                                                                                                                                                                                                                                                                                                         BEGIN
                                                                                                                                                                                                                                                                                                                         {
@@ -9850,7 +9855,7 @@
                                                                                                                                                                                                                                                                                                                                         )
                                                                                                                                                                                                                                                                                                                                         unless
                                                                                                                                                                                                                                                                                                                                         defined
-                                                                                                                                                                                                                                                                                                                                        $m2;
+                                                                                                                                                                                                                                                                                                                                            $m2;
 
                                                                                                                                                                                                                                                                                                                                     BEGIN
                                                                                                                                                                                                                                                                                                                                     {
@@ -9967,7 +9972,7 @@
                                                                                                                                                                                                                                                                                                                                                     )
                                                                                                                                                                                                                                                                                                                                                     unless
                                                                                                                                                                                                                                                                                                                                                     defined
-                                                                                                                                                                                                                                                                                                                                                    $pos1;
+                                                                                                                                                                                                                                                                                                                                                        $pos1;
 
                                                                                                                                                                                                                                                                                                                                                 BEGIN
                                                                                                                                                                                                                                                                                                                                                 {
@@ -10186,7 +10191,7 @@
                                                                                                                                                                                                                                                                                                                                                                             )
                                                                                                                                                                                                                                                                                                                                                                             unless
                                                                                                                                                                                                                                                                                                                                                                             defined
-                                                                                                                                                                                                                                                                                                                                                                            $ret;
+                                                                                                                                                                                                                                                                                                                                                                                $ret;
 
                                                                                                                                                                                                                                                                                                                                                                         BEGIN
                                                                                                                                                                                                                                                                                                                                                                         {
@@ -10208,7 +10213,7 @@
                                                                                                                                                                                                                                                                                                                                                                             'STORE',
                                                                                                                                                                                                                                                                                                                                                                             ::DISPATCH(
                                                                                                                                                                                                                                                                                                                                                                                 $self,
-                                                                                                                                                                                                                                                                                                                                                                                '__rule_blockd1d7650c100185f22f8c2642a403ea1f',
+                                                                                                                                                                                                                                                                                                                                                                                '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022',
                                                                                                                                                                                                                                                                                                                                                                             )
                                                                                                                                                                                                                                                                                                                                                                             )
                                                                                                                                                                                                                                                                                                                                                                             ;
@@ -10303,7 +10308,7 @@
                                                                                                                                                                                                                                                                                                                                                     )
                                                                                                                                                                                                                                                                                                                                                     unless
                                                                                                                                                                                                                                                                                                                                                     defined
-                                                                                                                                                                                                                                                                                                                                                    $ret;
+                                                                                                                                                                                                                                                                                                                                                        $ret;
 
                                                                                                                                                                                                                                                                                                                                                 BEGIN
                                                                                                                                                                                                                                                                                                                                                 {
@@ -10325,7 +10330,7 @@
                                                                                                                                                                                                                                                                                                                                                     'STORE',
                                                                                                                                                                                                                                                                                                                                                     ::DISPATCH(
                                                                                                                                                                                                                                                                                                                                                         $self,
-                                                                                                                                                                                                                                                                                                                                                        '__rule_blockd1d7650c100185f22f8c2642a403ea1f',
+                                                                                                                                                                                                                                                                                                                                                        '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022',
                                                                                                                                                                                                                                                                                                                                                     )
                                                                                                                                                                                                                                                                                                                                                     )
                                                                                                                                                                                                                                                                                                                                                     ;
@@ -11274,7 +11279,8 @@
                                                                                                                                                                                         my $____some__weird___var____ = do {
                                                                                                                                                                                             {
                                                                                                                                                                                                 my $m2;
-                                                                                                                                                                                                $m2 = ::DISPATCH( $::Scalar, 'new',
+                                                                                                                                                                                                $m2
+                                                                                                                                                                                                    = ::DISPATCH( $::Scalar, 'new',
                                                                                                                                                                                                     { modified => $_MODIFIED, name => '$m2' } )
                                                                                                                                                                                                     unless defined $m2;
 
@@ -11439,7 +11445,8 @@
                                                                                                                                                                             my $____some__weird___var____ = do {
                                                                                                                                                                                 {
                                                                                                                                                                                     my $m2;
-                                                                                                                                                                                    $m2 = ::DISPATCH( $::Scalar, 'new',
+                                                                                                                                                                                    $m2
+                                                                                                                                                                                        = ::DISPATCH( $::Scalar, 'new',
                                                                                                                                                                                         { modified => $_MODIFIED, name => '$m2' } )
                                                                                                                                                                                         unless defined $m2;
 
@@ -11485,7 +11492,8 @@
                                                                                                                                                                                         my $____some__weird___var____ = do {
                                                                                                                                                                                             {
                                                                                                                                                                                                 my $m2;
-                                                                                                                                                                                                $m2 = ::DISPATCH( $::Scalar, 'new',
+                                                                                                                                                                                                $m2
+                                                                                                                                                                                                    = ::DISPATCH( $::Scalar, 'new',
                                                                                                                                                                                                     { modified => $_MODIFIED, name => '$m2' } )
                                                                                                                                                                                                     unless defined $m2;
 
@@ -11733,7 +11741,7 @@
                                                                                                                                                                                                                                         'STORE',
                                                                                                                                                                                                                                         ::DISPATCH(
                                                                                                                                                                                                                                             $self,
-                                                                                                                                                                                                                                            '__rule_blockd1d7650c100185f22f8c2642a403ea1f',
+                                                                                                                                                                                                                                            '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022',
                                                                                                                                                                                                                                         )
                                                                                                                                                                                                                                     );
                                                                                                                                                                                                                                     do {
@@ -11791,7 +11799,7 @@
                                                                                                                                                                                                                                                     )
                                                                                                                                                                                                                                                     unless
                                                                                                                                                                                                                                                     defined
-                                                                                                                                                                                                                                                    $m2;
+                                                                                                                                                                                                                                                        $m2;
 
                                                                                                                                                                                                                                                 BEGIN {
                                                                                                                                                                                                                                                     $m2
@@ -11905,7 +11913,7 @@
                                                                                                                                                                                                                                                                 )
                                                                                                                                                                                                                                                                 unless
                                                                                                                                                                                                                                                                 defined
-                                                                                                                                                                                                                                                                $m2;
+                                                                                                                                                                                                                                                                    $m2;
 
                                                                                                                                                                                                                                                             BEGIN
                                                                                                                                                                                                                                                             {
@@ -12018,7 +12026,7 @@
                                                                                                                                                                                                                                                                             )
                                                                                                                                                                                                                                                                             unless
                                                                                                                                                                                                                                                                             defined
-                                                                                                                                                                                                                                                                            $pos1;
+                                                                                                                                                                                                                                                                                $pos1;
 
                                                                                                                                                                                                                                                                         BEGIN
                                                                                                                                                                                                                                                                         {
@@ -12237,7 +12245,7 @@
                                                                                                                                                                                                                                                                                                     )
                                                                                                                                                                                                                                                                                                     unless
                                                                                                                                                                                                                                                                                                     defined
-                                                                                                                                                                                                                                                                                                    $ret;
+                                                                                                                                                                                                                                                                                                        $ret;
 
                                                                                                                                                                                                                                                                                                 BEGIN
                                                                                                                                                                                                                                                                                                 {
@@ -12259,7 +12267,7 @@
                                                                                                                                                                                                                                                                                                     'STORE',
                                                                                                                                                                                                                                                                                                     ::DISPATCH(
                                                                                                                                                                                                                                                                                                         $self,
-                                                                                                                                                                                                                                                                                                        '__rule_blockd1d7650c100185f22f8c2642a403ea1f',
+                                                                                                                                                                                                                                                                                                        '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022',
                                                                                                                                                                                                                                                                                                     )
                                                                                                                                                                                                                                                                                                     )
                                                                                                                                                                                                                                                                                                     ;
@@ -12354,7 +12362,7 @@
                                                                                                                                                                                                                                                                             )
                                                                                                                                                                                                                                                                             unless
                                                                                                                                                                                                                                                                             defined
-                                                                                                                                                                                                                                                                            $ret;
+                                                                                                                                                                                                                                                                                $ret;
 
                                                                                                                                                                                                                                                                         BEGIN
                                                                                                                                                                                                                                                                         {
@@ -12376,7 +12384,7 @@
                                                                                                                                                                                                                                                                             'STORE',
                                                                                                                                                                                                                                                                             ::DISPATCH(
                                                                                                                                                                                                                                                                                 $self,
-                                                                                                                                                                                                                                                                                '__rule_blockd1d7650c100185f22f8c2642a403ea1f',
+                                                                                                                                                                                                                                                                                '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022',
                                                                                                                                                                                                                                                                             )
                                                                                                                                                                                                                                                                             )
                                                                                                                                                                                                                                                                             ;
@@ -13211,7 +13219,8 @@
                                                                                                                                                                             my $____some__weird___var____ = do {
                                                                                                                                                                                 {
                                                                                                                                                                                     my $ret;
-                                                                                                                                                                                    $ret = ::DISPATCH( $::Scalar, 'new',
+                                                                                                                                                                                    $ret
+                                                                                                                                                                                        = ::DISPATCH( $::Scalar, 'new',
                                                                                                                                                                                         { modified => $_MODIFIED, name => '$ret' } )
                                                                                                                                                                                         unless defined $ret;
 
@@ -13222,7 +13231,7 @@
                                                                                                                                                                                     ::DISPATCH_VAR(
                                                                                                                                                                                         $ret, 'STORE',
                                                                                                                                                                                         ::DISPATCH(
-                                                                                                                                                                                            $self, '__rule_blockd1d7650c100185f22f8c2642a403ea1f',
+                                                                                                                                                                                            $self, '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022',
                                                                                                                                                                                         )
                                                                                                                                                                                     );
                                                                                                                                                                                     do {
@@ -14953,7 +14962,7 @@
                                                                                                                                                                                                                                                                 )
                                                                                                                                                                                                                                                                 unless
                                                                                                                                                                                                                                                                 defined
-                                                                                                                                                                                                                                                                $m2;
+                                                                                                                                                                                                                                                                    $m2;
 
                                                                                                                                                                                                                                                             BEGIN
                                                                                                                                                                                                                                                             {
@@ -15219,7 +15228,7 @@
                                                                                                                                                                                                                                                                                         )
                                                                                                                                                                                                                                                                                         unless
                                                                                                                                                                                                                                                                                         defined
-                                                                                                                                                                                                                                                                                        $m2;
+                                                                                                                                                                                                                                                                                            $m2;
 
                                                                                                                                                                                                                                                                                     BEGIN
                                                                                                                                                                                                                                                                                     {
@@ -15497,7 +15506,7 @@
                                                                                                                                                                                                                                                                                                     )
                                                                                                                                                                                                                                                                                                     unless
                                                                                                                                                                                                                                                                                                     defined
-                                                                                                                                                                                                                                                                                                    $ret;
+                                                                                                                                                                                                                                                                                                        $ret;
 
                                                                                                                                                                                                                                                                                                 BEGIN
                                                                                                                                                                                                                                                                                                 {
@@ -15519,7 +15528,7 @@
                                                                                                                                                                                                                                                                                                     'STORE',
                                                                                                                                                                                                                                                                                                     ::DISPATCH(
                                                                                                                                                                                                                                                                                                         $self,
-                                                                                                                                                                                                                                                                                                        '__rule_blockd1d7650c100185f22f8c2642a403ea1f',
+                                                                                                                                                                                                                                                                                                        '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022',
                                                                                                                                                                                                                                                                                                     )
                                                                                                                                                                                                                                                                                                     )
                                                                                                                                                                                                                                                                                                     ;
@@ -15722,7 +15731,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_blockd1d7650c100185f22f8c2642a403ea1f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -15747,7 +15756,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_blockd1d7650c100185f22f8c2642a403ea1f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -15784,7 +15793,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_blockd1d7650c100185f22f8c2642a403ea1f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -15809,7 +15818,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_blockd1d7650c100185f22f8c2642a403ea1f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -15840,7 +15849,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_blockd1d7650c100185f22f8c2642a403ea1f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -15872,7 +15881,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_blockd1d7650c100185f22f8c2642a403ea1f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -15897,7 +15906,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_blockd1d7650c100185f22f8c2642a403ea1f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -15922,7 +15931,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_blockd1d7650c100185f22f8c2642a403ea1f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -15953,7 +15962,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_blockd1d7650c100185f22f8c2642a403ea1f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -16005,7 +16014,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_blockd1d7650c100185f22f8c2642a403ea1f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -16030,7 +16039,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_blockd1d7650c100185f22f8c2642a403ea1f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -16056,7 +16065,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_blockd1d7650c100185f22f8c2642a403ea1f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -16108,7 +16117,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_blockd1d7650c100185f22f8c2642a403ea1f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -16155,7 +16164,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_blockd1d7650c100185f22f8c2642a403ea1f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -16180,7 +16189,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_blockd1d7650c100185f22f8c2642a403ea1f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -16214,7 +16223,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_blockd1d7650c100185f22f8c2642a403ea1f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -16267,7 +16276,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_blockd1d7650c100185f22f8c2642a403ea1f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -16292,7 +16301,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_blockd1d7650c100185f22f8c2642a403ea1f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -16326,7 +16335,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_blockd1d7650c100185f22f8c2642a403ea1f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -16396,7 +16405,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_blockd1d7650c100185f22f8c2642a403ea1f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -16421,7 +16430,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_blockd1d7650c100185f22f8c2642a403ea1f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -16455,7 +16464,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_blockd1d7650c100185f22f8c2642a403ea1f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -16524,7 +16533,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_blockd1d7650c100185f22f8c2642a403ea1f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -16555,7 +16564,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_blockd1d7650c100185f22f8c2642a403ea1f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_blockfb20ed44ca1eef1cf8bc35c2801c4022' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -16577,7 +16586,7 @@
                         ::DISPATCH(
                             $::Call, 'new',
                             ::DISPATCH( $::Str, 'new', 'hyper' )    => ::DISPATCH( $::Str, 'new', '' ),
-                            ::DISPATCH( $::Str, 'new', 'method' )   => ::DISPATCH( $::Str, 'new', 'add_variant' ),
+                            ::DISPATCH( $::Str, 'new', 'method' )   => ::DISPATCH( $::Str, 'new', 'add_token_variant' ),
                             ::DISPATCH( $::Str, 'new', 'invocant' ) => ::DISPATCH(
                                 $::Var, 'new', ::DISPATCH( $::Str, 'new', 'namespace' ) => ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'namespace' ) ) ),
                                 ::DISPATCH( $::Str, 'new', 'name' )   => ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'ident' ) ) ),
@@ -16591,6 +16600,9 @@
                                             $::Token, 'new', ::DISPATCH( $::Str, 'new', 'name' ) => $::Undef,
                                             ::DISPATCH( $::Str, 'new', 'regex' ) => ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_,  'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KindaPerl6::Grammar::Regex.rule' ) ) ),
                                             ::DISPATCH( $::Str, 'new', 'sym' )   => ::DISPATCH( $GLOBAL::Code_prefix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'angle_quoted' ) ) ),
+                                        ),
+                                        ::DISPATCH(
+                                            $::Val::Buf, 'new', ::DISPATCH( $::Str, 'new', 'buf' ) => ::DISPATCH( $GLOBAL::Code_prefix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'angle_quoted' ) ) ),
                                         )
                                     ]
                                 }

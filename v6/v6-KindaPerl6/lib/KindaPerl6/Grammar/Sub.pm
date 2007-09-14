@@ -294,7 +294,7 @@ token token_sym {
             return 
                 ::Call(
                     hyper     => '',
-                    method   => 'add_variant',
+                    method   => 'add_token_variant',
                     invocant => ::Var(
                             namespace => $$<namespace>,
                             name      => $$<ident>,
@@ -307,6 +307,7 @@ token token_sym {
                             regex => $$<KindaPerl6::Grammar::Regex.rule>,
                             sym   => ~$<angle_quoted>,
                         ),
+                        ::Val::Buf( 'buf' => ~$<angle_quoted> ),
                     ],
                 );                  
     }

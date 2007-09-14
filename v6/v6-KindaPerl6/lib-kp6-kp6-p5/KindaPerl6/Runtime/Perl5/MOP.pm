@@ -405,6 +405,14 @@ $meta_Str->add_method(
         } }
     )
 );
+$meta_Str->add_method(
+    'chars',
+    ::DISPATCH( $::Method, 'new', 
+        { code => sub {
+            ::DISPATCH( $::Int, 'new', length( $_[0]{_value} ) )
+        } }
+    )
+);
 
 my $meta_Int = ::DISPATCH( $::Class, 'new', "Int");
 $::Int = $meta_Int->PROTOTYPE();
@@ -802,7 +810,7 @@ sub ::CAPTURIZE {
             # ::DISPATCH( $p, 'does', ::DISPATCH( $::Str, 'new', 'Pair' ) ) 
             # ::DISPATCH( $p, 'does', $::Pair ) 
 
-               exists( $p->{_value}{_argument_name_} )
+               eval { exists( $p->{_value}{_argument_name_} ) }
             
            ) {
                 my $key = ::DISPATCH( ::DISPATCH( $p, '_argument_name_' ), 'str' )->{_value};
