@@ -3,9 +3,12 @@ class Main {
 proto token xyz {}; 
 
 token xyz:sym<abc> { aaa }
+token xyz:sym<abf> { aaa }
+token xyz:sym<abger> { aaa }
 
 $_ = "aaabbb";
-Main.xyz;
+# Main.xyz;   XXX - AST bug
+xyz();
 
 }
 

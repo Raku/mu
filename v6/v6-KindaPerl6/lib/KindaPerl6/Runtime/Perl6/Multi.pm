@@ -29,11 +29,11 @@ class Multi is Code {
         };
         if !( defined( ( self.token_length ){$len} ) ) {
             #say "new length : $len ";
-            ( self.token_length ){$len} = Multi.new();
-            ( ( self.token_length ){$len} ).long_names = [ ];   # XXX accessor init bug
+            ( self.token_length ){$len} = { $sym => Multi.new(), };
+            # ( ( ( self.token_length ){$len} ){$sym} ).long_names = [ ];   # XXX accessor init bug
         };
-        my $multi = ( self.token_length ){$len};
-        $multi.add_variant( $code );
+        my $multi = ( ( self.token_length ){$len} ){$sym};
+        $multi.add_variant( $code );  # XXX
     }
             
     method select {
@@ -52,14 +52,30 @@ class Multi is Code {
         if     defined( self.token_length ) 
             && ( self.token_length ).keys 
         {
-            my @len = ( self.token_length ).keys;
+            my @len = ( ( self.token_length ).keys );
             say "lengths : @len[] ";
+            @len = @len.sort( sub { @_[1] <=> @_[0] } );
+            say "lengths : @len[] ";
+            say "string: $_";
+
+            for @len -> $len {
+                if $len >= ( $_.chars ) {
+                    my %syms = ( self.token_length ){$len};
+                    say "# syms: ", ( %syms.keys );
+
+                    # TODO ...
+                };
+            };
 
             # TODO ...
         };
 
         # sub/method dispatch
         
+        if !( defined( self.long_names ) ) {
+            self.long_names = [ ];   # XXX accessor init bug
+        };
+
         for @(self.long_names) -> $sub {
             #say "# testing sub ", $sub;
             if ($sub.signature).arity == (@_[0]).arity {
