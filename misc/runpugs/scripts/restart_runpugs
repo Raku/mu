@@ -1,12 +1,11 @@
 #!/usr/bin/perl
-my @insts=`ps x | grep termserv | grep -v grep`;
-for my $inst (@insts) {
-my $pid=$inst;
-$pid =~ s/^\s*//;
-$pid =~ s/\s+.*$//;
-print "kill 9,$pid\n";
-kill 9,$pid;
-}
-chdir '/home/andara/apache/bin';
-system('/usr/bin/perl ./termserv.pl');
+
+use strict;
+use Env qw(HOME USER);
+
+print "Killing all instances of 'termserv.pl' for $USER\n";
+system("killall --user $USER termserv.pl");
+chdir "$ENV{HOME}/runpugs/bin";
+print "Executing './termserv.pl' in the background\n";
+system("(./termserv.pl > /dev/null &2>1)&");
 
