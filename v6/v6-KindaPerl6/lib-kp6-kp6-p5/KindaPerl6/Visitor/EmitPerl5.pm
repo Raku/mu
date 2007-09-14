@@ -1929,7 +1929,7 @@
                                                 ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
                                                 }
                                                 && do {
-                                                my $____some__weird___var____ = ::DISPATCH( $node, 'isa', ::DISPATCH( $::Str, 'new', 'Var' ) );
+                                                my $____some__weird___var____ = ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $node, 'namespace', ) );
                                                 ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
                                                 }
                                         ) || ::DISPATCH( $::Bit, "new", 0 );
@@ -2691,7 +2691,7 @@
                                                             ::DISPATCH(
                                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                                 'APPLY',
-                                                                ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_perl5', ),
+                                                                ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) ), 'emit_perl5', ),
                                                                 ::DISPATCH(
                                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                                     'APPLY',
@@ -2749,7 +2749,7 @@
                                                                 ::DISPATCH(
                                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                                     'APPLY',
-                                                                    ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_perl5', ),
+                                                                    ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) ), 'emit_perl5', ),
                                                                     ::DISPATCH(
                                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                                         'APPLY',
@@ -3036,7 +3036,7 @@
                                                 ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
                                                 }
                                                 && do {
-                                                my $____some__weird___var____ = ::DISPATCH( $cond, 'isa', ::DISPATCH( $::Str, 'new', 'Var' ) );
+                                                my $____some__weird___var____ = ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $cond, 'sigil', ), ::DISPATCH( $::Str, 'new', '@' ) );
                                                 ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
                                                 }
                                         ) || ::DISPATCH( $::Bit, "new", 0 );
@@ -3173,7 +3173,7 @@
                                                 ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
                                                 }
                                                 && do {
-                                                my $____some__weird___var____ = ::DISPATCH( $cond, 'isa', ::DISPATCH( $::Str, 'new', 'Var' ) );
+                                                my $____some__weird___var____ = ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $cond, 'sigil', ), ::DISPATCH( $::Str, 'new', '@' ) );
                                                 ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
                                                 }
                                         ) || ::DISPATCH( $::Bit, "new", 0 );

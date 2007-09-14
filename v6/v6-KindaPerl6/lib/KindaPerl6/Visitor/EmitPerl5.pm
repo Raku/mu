@@ -382,7 +382,7 @@ class Apply {
              'do { do { my $____some__weird___var____ = ' ~ (@.arguments[0]).emit_perl5 ~ '; ' ~
                 '::DISPATCH($____some__weird___var____,"true")->{_value} && $____some__weird___var____ ' ~
              '} ||' ~
-             'do { my $____some__weird___var____ = ' ~ (@.arguments[0]).emit_perl5 ~ '; ' ~
+             'do { my $____some__weird___var____ = ' ~ (@.arguments[1]).emit_perl5 ~ '; ' ~
                 '::DISPATCH($____some__weird___var____,"true")->{_value} && $____some__weird___var____ ' ~
              '} || ::DISPATCH( $::Bit, "new", 0 ) }' ~ Main::newline();
         }
@@ -392,7 +392,7 @@ class Apply {
              'do { my $____some__weird___var____ = ' ~ (@.arguments[0]).emit_perl5 ~ '; ' ~
                 '::DISPATCH($____some__weird___var____,"true")->{_value} && $____some__weird___var____ ' ~
              '} &&' ~
-             'do { my $____some__weird___var____ = ' ~ (@.arguments[0]).emit_perl5 ~ '; ' ~
+             'do { my $____some__weird___var____ = ' ~ (@.arguments[1]).emit_perl5 ~ '; ' ~
                 '::DISPATCH($____some__weird___var____,"true")->{_value} && $____some__weird___var____ ' ~
              '}) || ::DISPATCH( $::Bit, "new", 0) }' ~ Main::newline();
         }
