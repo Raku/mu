@@ -23,7 +23,7 @@ sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; $self->{term}->e
 ;
 package Rule::Or;
 sub new { shift; bless { @_ }, "Rule::Or" }
-sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; ('do { ' . ('my $pos1 := $MATCH.to(); do{ ' . (Main::join([ map { $_->emit_token() } @{ $self->{or} } ], '} || do { $MATCH.to( $pos1 ); ') . '} }'))) }
+sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; ('do { ' . ('my $pos1 := $MATCH.to; do{ ' . (Main::join([ map { $_->emit_token() } @{ $self->{or} } ], '} || do { $MATCH.to = $pos1; ') . '} }'))) }
 
 
 ;

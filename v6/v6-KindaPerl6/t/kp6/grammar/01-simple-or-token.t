@@ -1,6 +1,5 @@
 grammar MyGrammar {
-    token ws { ' ' };
-    token opt_ws  {  <?ws> | '' };
+    token opt_ws  { ' ' | '' };
 };
 module Main {
     say '1..2';
