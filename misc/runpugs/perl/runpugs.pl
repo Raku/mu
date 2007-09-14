@@ -159,21 +159,12 @@ sub runpugs {
    my $nrows=scalar @rows;#split("\n",$replyw); 
      ($replyw=~/^\s*$/) && ($nrows=1);
     if ($nrows>20) {$nrows=20;}
-    my $historylist="\n";
-    for my $entry (@history) {
-        my $entryw=HTML::Entities::encode_entities($entry);
-        $historylist.='<option value="'.$entryw.'">'.$entryw.'</option>'."\n";
-    }
     if($replyw!~/Leaving\ pugs\.$/) {
         $replyw.=$nprompt;
         } 
 
     open(HTML,"<../data/runpugs.html");
     while(<HTML>) {
-        /_HIST_/ && do {
-            $html.=$historylist;
-            next;
-        };
         s/_DEV_/$devc/;
         s/_REL_/$relc/;
     	/input.*name=\"sessionid\"/ && do {

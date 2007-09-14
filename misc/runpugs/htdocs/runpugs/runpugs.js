@@ -1,5 +1,5 @@
 var nchars=0;
-var histlist;
+var histlist=new Array();
 var histentry=0;
 var reply="";
 var sessionid=0;
@@ -62,13 +62,15 @@ function catch_events(myfield,e) {
 
 
 function process_events (keycode) {
-//    document.terminal.mon.value=keycode;
     if (keycode == 13) {
         var cmd=document.terminal.cmd.value;
-        //cmd.replace(/^.*pugs\>\ /, "");
-        //cmds=cmd.split('pugs> ');
-        //cmd=cmds[cmds.length-1];
-        frames['scratch'].document.getElementById("cmd").value=cmd;
+       //cmd.replace(/^.*pugs\>\ /, "");
+        var cmds=cmd.split('pugs> ');
+        var lastCmd=cmds[cmds.length-1];
+	if($.trim(lastCmd) != "") {
+		histlist.push(lastCmd);
+	}
+       	frames['scratch'].document.getElementById("cmd").value=cmd;
         frames['scratch'].document.terminal.submit(); 
         return false;
     } else if (keycode==38) {
@@ -95,14 +97,10 @@ function process_events (keycode) {
 }
 
 function getreply () {
-    //getElementById("scratch")
     scratchpad=frames['scratch'].document;//.contentDocument;
     reply=scratchpad.getElementById("cmd").value;
-    histlist=scratchpad.terminal.history.options;
     histentry=histlist.length;
     sessionid=scratchpad.terminal.sessionid.value;
-    //reldev=scratchpad.terminal.reldev.value;
-    //histlist.reverse;
     document.terminal.cmd.value=reply;
     document.terminal.cmd.focus() 
     document.terminal.cmd.scrollTop =document.terminal.cmd.scrollHeight;
@@ -110,9 +108,9 @@ function getreply () {
 }
 
 function hist_next () {
-    if (histentry>1) {
+    if (histentry>=1) {
         histentry-=1;
-        document.terminal.cmd.value=reply+histlist[histentry].value;
+        document.terminal.cmd.value=reply+histlist[histentry];
         document.terminal.cmd.scrollTop =document.terminal.cmd.scrollHeight; 
     }
     return false;
@@ -121,7 +119,7 @@ function hist_next () {
 function hist_prev () {
     if (histentry<histlist.length-1) {
         histentry+=1;
-        document.terminal.cmd.value=reply+histlist[histentry].value;
+        document.terminal.cmd.value=reply+histlist[histentry];
         document.terminal.cmd.scrollTop =document.terminal.cmd.scrollHeight; 
     }
 }
@@ -153,7 +151,7 @@ function HandleOnUnload(evt)
 	( (document.all && window.screenLeft >= 10004)   // IE moves the window 10000 pixels to the right while closing it
 		|| (!document.all && evt.target==null) ) )  // Firefox sets the target of the passed event to null.
 	{ // The window has been closed.  Submit a logout request to the server.
-    var expireSessionUrl='/perl/runpugs3.pl?sessionid='+sessionid+'&reldev=1&ia=1&cmd=%3Aq';
+    var expireSessionUrl='/perl/runpugs.pl?sessionid='+sessionid+'&reldev=1&ia=1&cmd=%3Aq';
 		var objXMLCloser = null;
 		if ( !document.all && !XMLHttpRequest ) return;
 		if ( document.all ) { objXMLCloser = new ActiveXObject( "Microsoft.XMLHTTP" ) }
