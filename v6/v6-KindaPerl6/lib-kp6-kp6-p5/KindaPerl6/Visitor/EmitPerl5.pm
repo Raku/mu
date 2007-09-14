@@ -2248,6 +2248,21 @@
                         $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                     };
                     do {
+                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "parameters" ), 'isa', ::DISPATCH( $::Str, 'new', 'Call' ) ), "true" ), "p5landish" ) ) {
+                            {
+                                return (
+                                    ::DISPATCH(
+                                        ::DISPATCH(
+                                            $::Assign, 'new', ::DISPATCH( $::Str, 'new', 'parameters' ) => ::DISPATCH( $self, "parameters" ),
+                                            ::DISPATCH( $::Str, 'new', 'arguments' ) => ::DISPATCH( $self, "arguments" ),
+                                        ),
+                                        'emit_perl5',
+                                    )
+                                    )
+                            }
+                        }
+                    };
+                    do {
                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "parameters" ), 'isa', ::DISPATCH( $::Str, 'new', 'Lookup' ) ), "true" ), "p5landish" ) ) {
                             {
                                 return (
