@@ -1924,8 +1924,10 @@
                         if (::DISPATCH(
                                 ::DISPATCH(
                                     ::DISPATCH(
-                                        $GLOBAL::Code_infix_58__60__38__38__62_, 'APPLY',
-                                        ::DISPATCH( $node, 'isa', ::DISPATCH( $::Str, 'new', 'Var' ) ), ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $node, 'namespace', ) )
+                                        $::Bit,
+                                        "new",
+                                        ::DISPATCH( ::DISPATCH( $node,                                       'isa',   ::DISPATCH( $::Str, 'new',            'Var' ) ), "true" )->{_value}
+                                            && ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $node,  'namespace', ) ), "true" )->{_value}
                                     ),
                                     "true"
                                 ),
@@ -2622,6 +2624,9 @@
                 $::Method,
                 'new',
                 sub {
+                    my $op;
+                    $op = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$op' } ) unless defined $op;
+                    BEGIN { $op = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$op' } ) }
                     my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                     my $self;
                     $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
@@ -2646,6 +2651,88 @@
                             }
                         }
                     };
+                    do {
+                        ::MODIFIED($op);
+                        $op = ::DISPATCH( ::DISPATCH( $self, "code" ), 'emit_perl5', );
+                    };
+                    do {
+                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $op, ::DISPATCH( $::Str, 'new', '$GLOBAL::Code_infix_58__60__124__124__62_' ) ), "true" ), "p5landish" ) ) {
+                            {
+                                return (
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                        'APPLY',
+                                        ::DISPATCH( $::Str, 'new', '::DISPATCH( $::Bit, "new", ' ),
+                                        ::DISPATCH(
+                                            $GLOBAL::Code_infix_58__60__126__62_,
+                                            'APPLY',
+                                            ::DISPATCH( $::Str, 'new', '::DISPATCH(' ),
+                                            ::DISPATCH(
+                                                $GLOBAL::Code_infix_58__60__126__62_,
+                                                'APPLY',
+                                                ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_perl5', ),
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_infix_58__60__126__62_,
+                                                    'APPLY',
+                                                    ::DISPATCH( $::Str, 'new', ',"true")->{_value} || ' ),
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                                        'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', '::DISPATCH(' ),
+                                                        ::DISPATCH(
+                                                            $GLOBAL::Code_infix_58__60__126__62_,
+                                                            'APPLY',
+                                                            ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) ), 'emit_perl5', ),
+                                                            ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ',"true")->{_value})' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    )
+                                    )
+                            }
+                        }
+                    };
+                    do {
+                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $op, ::DISPATCH( $::Str, 'new', '$GLOBAL::Code_infix_58__60__38__38__62_' ) ), "true" ), "p5landish" ) ) {
+                            {
+                                return (
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                        'APPLY',
+                                        ::DISPATCH( $::Str, 'new', '::DISPATCH( $::Bit, "new", ' ),
+                                        ::DISPATCH(
+                                            $GLOBAL::Code_infix_58__60__126__62_,
+                                            'APPLY',
+                                            ::DISPATCH( $::Str, 'new', '::DISPATCH(' ),
+                                            ::DISPATCH(
+                                                $GLOBAL::Code_infix_58__60__126__62_,
+                                                'APPLY',
+                                                ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_perl5', ),
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_infix_58__60__126__62_,
+                                                    'APPLY',
+                                                    ::DISPATCH( $::Str, 'new', ',"true")->{_value} && ' ),
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                                        'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', '::DISPATCH(' ),
+                                                        ::DISPATCH(
+                                                            $GLOBAL::Code_infix_58__60__126__62_,
+                                                            'APPLY',
+                                                            ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) ), 'emit_perl5', ),
+                                                            ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ',"true")->{_value})' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    )
+                                    )
+                            }
+                        }
+                    };
                     return (
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
@@ -2653,8 +2740,7 @@
                             ::DISPATCH( $::Str, 'new', '::DISPATCH( ' ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
-                                'APPLY',
-                                ::DISPATCH( ::DISPATCH( $self, "code" ), 'emit_perl5', ),
+                                'APPLY', $op,
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
@@ -2903,8 +2989,10 @@
                         if (::DISPATCH(
                                 ::DISPATCH(
                                     ::DISPATCH(
-                                        $GLOBAL::Code_infix_58__60__38__38__62_, 'APPLY',
-                                        ::DISPATCH( $cond, 'isa', ::DISPATCH( $::Str, 'new', 'Var' ) ), ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $cond, 'sigil', ), ::DISPATCH( $::Str, 'new', '@' ) )
+                                        $::Bit,
+                                        "new",
+                                        ::DISPATCH( ::DISPATCH( $cond, 'isa', ::DISPATCH( $::Str, 'new', 'Var' ) ), "true" )->{_value}
+                                            && ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $cond, 'sigil', ), ::DISPATCH( $::Str, 'new', '@' ) ), "true" )->{_value}
                                     ),
                                     "true"
                                 ),
@@ -3033,8 +3121,10 @@
                         if (::DISPATCH(
                                 ::DISPATCH(
                                     ::DISPATCH(
-                                        $GLOBAL::Code_infix_58__60__38__38__62_, 'APPLY',
-                                        ::DISPATCH( $cond, 'isa', ::DISPATCH( $::Str, 'new', 'Var' ) ), ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $cond, 'sigil', ), ::DISPATCH( $::Str, 'new', '@' ) )
+                                        $::Bit,
+                                        "new",
+                                        ::DISPATCH( ::DISPATCH( $cond, 'isa', ::DISPATCH( $::Str, 'new', 'Var' ) ), "true" )->{_value}
+                                            && ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $cond, 'sigil', ), ::DISPATCH( $::Str, 'new', '@' ) ), "true" )->{_value}
                                     ),
                                     "true"
                                 ),

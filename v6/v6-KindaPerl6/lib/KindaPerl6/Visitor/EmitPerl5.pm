@@ -373,7 +373,22 @@ class Apply {
         {
             return '$self';
         }
-        return  '::DISPATCH( ' ~ $.code.emit_perl5 ~ ', \'APPLY\', ' ~ (@.arguments.>>emit_perl5).join(', ') ~ ' )' ~ Main::newline();
+
+        my $op := $.code.emit_perl5;
+        # XXX short circuit ops
+        # ||
+        if $op eq '$GLOBAL::Code_infix_58__60__124__124__62_' {
+             return '::DISPATCH( $::Bit, "new", ' ~
+             '::DISPATCH(' ~ (@.arguments[0]).emit_perl5 ~ ',"true")->{_value} || ' ~
+             '::DISPATCH(' ~ (@.arguments[1]).emit_perl5 ~ ',"true")->{_value})' ~ Main::newline();
+        }
+        # ||
+        if $op eq '$GLOBAL::Code_infix_58__60__38__38__62_' {
+             return '::DISPATCH( $::Bit, "new", ' ~
+             '::DISPATCH(' ~ (@.arguments[0]).emit_perl5 ~ ',"true")->{_value} && ' ~
+             '::DISPATCH(' ~ (@.arguments[1]).emit_perl5 ~ ',"true")->{_value})' ~ Main::newline();
+        }
+        return  '::DISPATCH( ' ~ $op ~ ', \'APPLY\', ' ~ (@.arguments.>>emit_perl5).join(', ') ~ ' )' ~ Main::newline();
     }
 }
 
