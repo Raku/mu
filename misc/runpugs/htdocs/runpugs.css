@@ -19,6 +19,7 @@ LABEL {font-weight: normal; }
 FIELDSET {border: solid white 0px}
 LEGEND {font-weight:normal; text-align: left; }
 
+/*
 DL { 
 }
 
@@ -32,6 +33,7 @@ DD {
     display:block ;
     float: left;
 }
+*/
 
 .copyright {font-size: 9pt}
 .warning {
