@@ -35,7 +35,7 @@ sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; ('(' . (Main::jo
 ;
 package Rule::Subrule;
 sub new { shift; bless { @_ }, "Rule::Subrule" }
-sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; do { if ((substr($self->{metasyntax}, 0, 1) eq Main::singlequote())) { return(Rule::constant(substr(substr($self->{metasyntax}, 1), (0 - 1)))) } else {  } }; my  $meth = ((1 + index($self->{metasyntax}, '.')) ? $self->{metasyntax} : ('self.' . $self->{metasyntax})); return(('do { ' . ('my $m2 = ' . ($meth . ('($str, $MATCH.to); ' . ('if $m2 { $MATCH.to = $m2.to; $MATCH{\'' . ($self->{metasyntax} . ('\'} = $m2; 1 } else { 0 } ' . '}')))))))) }
+sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; do { if ((substr($self->{metasyntax}, 0, 1) eq Main::singlequote())) { return(Rule::constant(substr(substr($self->{metasyntax}, 1), 0, (Main::chars($self->{metasyntax}, ) - 2)))) } else {  } }; my  $meth = ((1 + index($self->{metasyntax}, '.')) ? $self->{metasyntax} : ('self.' . $self->{metasyntax})); return(('do { ' . ('my $m2 = ' . ($meth . ('($str, $MATCH.to); ' . ('if $m2 { $MATCH.to = $m2.to; $MATCH{\'' . ($self->{metasyntax} . ('\'} = $m2; 1 } else { 0 } ' . '}')))))))) }
 
 
 ;

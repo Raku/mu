@@ -98,7 +98,7 @@ class Rule::Subrule {
     method emit_token {
 
         if (substr( $.metasyntax, 0, 1) eq Main::singlequote()) {
-            return Rule::constant(substr(substr($.metasyntax, 1), 0 - 1));
+            return Rule::constant(substr(substr($.metasyntax, 1),0,$.metasyntax.chars - 2));
         };
 
         my $meth := ( 1 + index( $.metasyntax, '.' ) )

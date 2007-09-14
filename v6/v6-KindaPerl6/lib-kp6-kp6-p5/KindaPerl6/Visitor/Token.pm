@@ -543,7 +543,8 @@
                                         ::DISPATCH(
                                             $GLOBAL::Code_substr, 'APPLY',
                                             ::DISPATCH( $GLOBAL::Code_substr, 'APPLY', ::DISPATCH( $self, "metasyntax" ), ::DISPATCH( $::Int, 'new', 1 ) ),
-                                            ::DISPATCH( $GLOBAL::Code_infix_58__60__45__62_, 'APPLY', ::DISPATCH( $::Int, 'new', 0 ), ::DISPATCH( $::Int, 'new', 1 ) )
+                                            ::DISPATCH( $::Int,               'new',   0 ),
+                                            ::DISPATCH( $GLOBAL::Code_infix_58__60__45__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "metasyntax" ), 'chars', ), ::DISPATCH( $::Int, 'new', 2 ) )
                                         )
                                     )
                                     )
