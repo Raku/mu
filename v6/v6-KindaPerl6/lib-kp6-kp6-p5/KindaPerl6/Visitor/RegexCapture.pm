@@ -948,8 +948,11 @@
                     };
                     do {
                         ::MODIFIED( ::DISPATCH( $self, "capture_to_array" ) );
-                        ::DISPATCH( $self, "capture_to_array" ) = ::DISPATCH( $GLOBAL::Code_infix_58__60__124__124__62_,
-                            'APPLY', $quantified, ::DISPATCH( $GLOBAL::Code_infix_58__60__38__38__62_, 'APPLY', ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'before' ) ), ::DISPATCH( $::Int, 'new', 1 ) ) );
+                        ::DISPATCH( $self, "capture_to_array" ) = do {
+                            do        { my $____some__weird___var____ = $quantified; ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____ }
+                                || do { my $____some__weird___var____ = $quantified; ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____ }
+                                || ::DISPATCH( $::Bit, "new", 0 );
+                            }
                     };
                     do {
                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'before' ) ), "true" ), "p5landish" ) ) {
@@ -1044,8 +1047,11 @@
                     };
                     do {
                         ::MODIFIED( ::DISPATCH( $self, "capture_to_array" ) );
-                        ::DISPATCH( $self, "capture_to_array" ) = ::DISPATCH( $GLOBAL::Code_infix_58__60__124__124__62_,
-                            'APPLY', $quantified, ::DISPATCH( $GLOBAL::Code_infix_58__60__38__38__62_, 'APPLY', ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'after' ) ), ::DISPATCH( $::Int, 'new', 1 ) ) );
+                        ::DISPATCH( $self, "capture_to_array" ) = do {
+                            do        { my $____some__weird___var____ = $quantified; ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____ }
+                                || do { my $____some__weird___var____ = $quantified; ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____ }
+                                || ::DISPATCH( $::Bit, "new", 0 );
+                            }
                     };
                     do {
                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'after' ) ), "true" ), "p5landish" ) ) {
@@ -1303,8 +1309,11 @@
                     };
                     do {
                         ::MODIFIED( ::DISPATCH( $self, "capture_to_array" ) );
-                        ::DISPATCH( $self, "capture_to_array" ) = ::DISPATCH( $GLOBAL::Code_infix_58__60__124__124__62_,
-                            'APPLY', $quantified, ::DISPATCH( $GLOBAL::Code_infix_58__60__38__38__62_, 'APPLY', ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $self, "ident" ) ), ::DISPATCH( $::Int, 'new', 1 ) ) );
+                        ::DISPATCH( $self, "capture_to_array" ) = do {
+                            do        { my $____some__weird___var____ = $quantified; ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____ }
+                                || do { my $____some__weird___var____ = $quantified; ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____ }
+                                || ::DISPATCH( $::Bit, "new", 0 );
+                            }
                     };
                     do {
                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $self, "ident" ) ), "true" ), "p5landish" ) ) {
@@ -1391,8 +1400,11 @@
                     };
                     do {
                         ::MODIFIED( ::DISPATCH( $self, "capture_to_array" ) );
-                        ::DISPATCH( $self, "capture_to_array" ) = ::DISPATCH( $GLOBAL::Code_infix_58__60__124__124__62_,
-                            'APPLY', $quantified, ::DISPATCH( $GLOBAL::Code_infix_58__60__38__38__62_, 'APPLY', ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $self, "ident" ) ), ::DISPATCH( $::Int, 'new', 1 ) ) );
+                        ::DISPATCH( $self, "capture_to_array" ) = do {
+                            do        { my $____some__weird___var____ = $quantified; ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____ }
+                                || do { my $____some__weird___var____ = $quantified; ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____ }
+                                || ::DISPATCH( $::Bit, "new", 0 );
+                            }
                     };
                     ::DISPATCH( ::DISPATCH( $self, "rule" ), 'capture_count', ::DISPATCH( $::Int, 'new', 0 ), ::DISPATCH( $::Int, 'new', 0 ), ::DISPATCH( $::Hash, "new", { _hash => {} } ) );
                     do {
@@ -1484,8 +1496,11 @@
                     };
                     do {
                         ::MODIFIED( ::DISPATCH( $self, "capture_to_array" ) );
-                        ::DISPATCH( $self, "capture_to_array" ) = ::DISPATCH( $GLOBAL::Code_infix_58__60__124__124__62_,
-                            'APPLY', $quantified, ::DISPATCH( $GLOBAL::Code_infix_58__60__38__38__62_, 'APPLY', ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $self, "ident" ) ), ::DISPATCH( $::Int, 'new', 1 ) ) );
+                        ::DISPATCH( $self, "capture_to_array" ) = do {
+                            do        { my $____some__weird___var____ = $quantified; ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____ }
+                                || do { my $____some__weird___var____ = $quantified; ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____ }
+                                || ::DISPATCH( $::Bit, "new", 0 );
+                            }
                     };
                     do {
                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $self, "ident" ) ), "true" ), "p5landish" ) ) {

@@ -100,27 +100,17 @@
                                             do {
                                                 if (::DISPATCH(
                                                         ::DISPATCH(
-                                                            ::DISPATCH(
-                                                                $GLOBAL::Code_infix_58__60__124__124__62_,
-                                                                'APPLY',
-                                                                ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $node, 'name', ), ::DISPATCH( $::Str, 'new', '/' ) ),
-                                                                ::DISPATCH(
-                                                                    $GLOBAL::Code_infix_58__60__124__124__62_,
-                                                                    'APPLY',
-                                                                    ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $node, 'name', ), ::DISPATCH( $::Str, 'new', '_' ) ),
-                                                                    ::DISPATCH(
-                                                                        $GLOBAL::Code_infix_58__60__124__124__62_,
-                                                                        'APPLY',
-                                                                        ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $node, 'twigil', ), ::DISPATCH( $::Str, 'new', '.' ) ),
-                                                                        ::DISPATCH(
-                                                                            $GLOBAL::Code_infix_58__60__38__38__62_,
-                                                                            'APPLY',
-                                                                            ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $node, 'sigil', ), ::DISPATCH( $::Str, 'new', '&' ) ),
-                                                                            ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $node, 'name', ),  ::DISPATCH( $::Str, 'new', 'self' ) )
-                                                                        )
-                                                                    )
-                                                                )
-                                                            ),
+                                                            do {
+                                                                do {
+                                                                    my $____some__weird___var____ = ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $node, 'name', ), ::DISPATCH( $::Str, 'new', '/' ) );
+                                                                    ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                    }
+                                                                    || do {
+                                                                    my $____some__weird___var____ = ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $node, 'name', ), ::DISPATCH( $::Str, 'new', '/' ) );
+                                                                    ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                    }
+                                                                    || ::DISPATCH( $::Bit, "new", 0 );
+                                                            },
                                                             "true"
                                                         ),
                                                         "p5landish"

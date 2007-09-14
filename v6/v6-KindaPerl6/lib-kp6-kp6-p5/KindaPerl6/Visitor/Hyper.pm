@@ -62,7 +62,18 @@
                     do {
                         if (::DISPATCH(
                                 ::DISPATCH(
-                                    ::DISPATCH( $GLOBAL::Code_infix_58__60__38__38__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $node_name, ::DISPATCH( $::Str, 'new', 'Call' ) ), ::DISPATCH( $node, 'hyper', ) ), "true"
+                                    do {
+                                        (   do {
+                                                my $____some__weird___var____ = ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $node_name, ::DISPATCH( $::Str, 'new', 'Call' ) );
+                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                }
+                                                && do {
+                                                my $____some__weird___var____ = ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $node_name, ::DISPATCH( $::Str, 'new', 'Call' ) );
+                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                }
+                                        ) || ::DISPATCH( $::Bit, "new", 0 );
+                                    },
+                                    "true"
                                 ),
                                 "p5landish"
                             )

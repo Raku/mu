@@ -55,10 +55,17 @@
                     do {
                         if (::DISPATCH(
                                 ::DISPATCH(
-                                    ::DISPATCH(
-                                        $GLOBAL::Code_infix_58__60__38__38__62_, 'APPLY',
-                                        ::DISPATCH( $node, 'isa', ::DISPATCH( $::Str, 'new', 'Sub' ) ), ::DISPATCH( $GLOBAL::Code_infix_58__60_ne_62_, 'APPLY', ::DISPATCH( $node, 'name', ), ::DISPATCH( $::Str, 'new', '' ) )
-                                    ),
+                                    do {
+                                        (   do {
+                                                my $____some__weird___var____ = ::DISPATCH( $node, 'isa', ::DISPATCH( $::Str, 'new', 'Sub' ) );
+                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                }
+                                                && do {
+                                                my $____some__weird___var____ = ::DISPATCH( $node, 'isa', ::DISPATCH( $::Str, 'new', 'Sub' ) );
+                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                }
+                                        ) || ::DISPATCH( $::Bit, "new", 0 );
+                                    },
                                     "true"
                                 ),
                                 "p5landish"
@@ -92,27 +99,17 @@
                     do {
                         if (::DISPATCH(
                                 ::DISPATCH(
-                                    ::DISPATCH(
-                                        $GLOBAL::Code_infix_58__60__38__38__62_,
-                                        'APPLY',
-                                        ::DISPATCH( $node, 'isa', ::DISPATCH( $::Str, 'new', 'Apply' ) ),
-                                        ::DISPATCH(
-                                            $GLOBAL::Code_infix_58__60__38__38__62_,
-                                            'APPLY',
-                                            ::DISPATCH( ::DISPATCH( $node, 'code', ), 'isa', ::DISPATCH( $::Str, 'new', 'Str' ) ),
-                                            ::DISPATCH(
-                                                $GLOBAL::Code_infix_58__60__38__38__62_,
-                                                'APPLY',
-                                                ::DISPATCH(
-                                                    $GLOBAL::Code_infix_58__60__124__124__62_,
-                                                    'APPLY',
-                                                    ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $node, 'code', ), ::DISPATCH( $::Str, 'new', 'my' ) ),
-                                                    ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $node, 'code', ), ::DISPATCH( $::Str, 'new', 'our' ) )
-                                                ),
-                                                ::DISPATCH( ::DISPATCH( ::DISPATCH( $node, 'arguments', ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'isa', ::DISPATCH( $::Str, 'new', 'Sub' ) )
-                                            )
-                                        )
-                                    ),
+                                    do {
+                                        (   do {
+                                                my $____some__weird___var____ = ::DISPATCH( $node, 'isa', ::DISPATCH( $::Str, 'new', 'Apply' ) );
+                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                }
+                                                && do {
+                                                my $____some__weird___var____ = ::DISPATCH( $node, 'isa', ::DISPATCH( $::Str, 'new', 'Apply' ) );
+                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                }
+                                        ) || ::DISPATCH( $::Bit, "new", 0 );
+                                    },
                                     "true"
                                 ),
                                 "p5landish"
@@ -146,12 +143,17 @@
                     do {
                         if (::DISPATCH(
                                 ::DISPATCH(
-                                    ::DISPATCH(
-                                        $GLOBAL::Code_infix_58__60__38__38__62_,
-                                        'APPLY',
-                                        ::DISPATCH( $node, 'isa', ::DISPATCH( $::Str, 'new', 'Apply' ) ),
-                                        ::DISPATCH( ::DISPATCH( $node, 'code', ), 'isa', ::DISPATCH( $::Str, 'new', 'Str' ) )
-                                    ),
+                                    do {
+                                        (   do {
+                                                my $____some__weird___var____ = ::DISPATCH( $node, 'isa', ::DISPATCH( $::Str, 'new', 'Apply' ) );
+                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                }
+                                                && do {
+                                                my $____some__weird___var____ = ::DISPATCH( $node, 'isa', ::DISPATCH( $::Str, 'new', 'Apply' ) );
+                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                }
+                                        ) || ::DISPATCH( $::Bit, "new", 0 );
+                                    },
                                     "true"
                                 ),
                                 "p5landish"

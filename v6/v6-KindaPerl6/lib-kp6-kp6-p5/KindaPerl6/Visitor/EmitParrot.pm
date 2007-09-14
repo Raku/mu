@@ -2250,22 +2250,17 @@
                     do {
                         if (::DISPATCH(
                                 ::DISPATCH(
-                                    ::DISPATCH(
-                                        $GLOBAL::Code_infix_58__60__124__124__62_,
-                                        'APPLY',
-                                        ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $self, "method" ), ::DISPATCH( $::Str, 'new', 'perl' ) ),
-                                        ::DISPATCH(
-                                            $GLOBAL::Code_infix_58__60__124__124__62_,
-                                            'APPLY',
-                                            ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $self, "method" ), ::DISPATCH( $::Str, 'new', 'yaml' ) ),
-                                            ::DISPATCH(
-                                                $GLOBAL::Code_infix_58__60__124__124__62_,
-                                                'APPLY',
-                                                ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $self, "method" ), ::DISPATCH( $::Str, 'new', 'say' ) ),
-                                                ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $self, "method" ), ::DISPATCH( $::Str, 'new', 'join' ) )
-                                            )
-                                        )
-                                    ),
+                                    do {
+                                        do {
+                                            my $____some__weird___var____ = ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $self, "method" ), ::DISPATCH( $::Str, 'new', 'perl' ) );
+                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                            }
+                                            || do {
+                                            my $____some__weird___var____ = ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $self, "method" ), ::DISPATCH( $::Str, 'new', 'perl' ) );
+                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                            }
+                                            || ::DISPATCH( $::Bit, "new", 0 );
+                                    },
                                     "true"
                                 ),
                                 "p5landish"
@@ -4229,10 +4224,17 @@
                     do {
                         if (::DISPATCH(
                                 ::DISPATCH(
-                                    ::DISPATCH(
-                                        $GLOBAL::Code_infix_58__60__38__38__62_, 'APPLY',
-                                        ::DISPATCH( $cond, 'isa', ::DISPATCH( $::Str, 'new', 'Var' ) ), ::DISPATCH( $GLOBAL::Code_infix_58__60_ne_62_, 'APPLY', ::DISPATCH( $cond, 'sigil', ), ::DISPATCH( $::Str, 'new', '@' ) )
-                                    ),
+                                    do {
+                                        (   do {
+                                                my $____some__weird___var____ = ::DISPATCH( $cond, 'isa', ::DISPATCH( $::Str, 'new', 'Var' ) );
+                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                }
+                                                && do {
+                                                my $____some__weird___var____ = ::DISPATCH( $cond, 'isa', ::DISPATCH( $::Str, 'new', 'Var' ) );
+                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                }
+                                        ) || ::DISPATCH( $::Bit, "new", 0 );
+                                    },
                                     "true"
                                 ),
                                 "p5landish"
