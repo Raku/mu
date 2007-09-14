@@ -168,7 +168,7 @@ token multi_method {
     multi <?ws> method 
     
             # multi method { code... }
-            # (&multi.long_names).push( 
+            # &multi.add_variant( 
             #    method ($a,$b,$c,$d) {
             #        say 'ok 4';
             #    }
@@ -197,17 +197,12 @@ token multi_method {
             return 
                 ::Call(
                     hyper     => '',
-                    method   => 'push',
-                    invocant => ::Call(
-                        hyper     => '',
-                        arguments => [ ],
-                        method    => 'long_names',
-                        invocant  => ::Var(
+                    method   => 'add_variant',
+                    invocant => ::Var(
                             namespace => $$<namespace>,
                             name      => $$<ident>,
                             twigil    => '',
                             sigil     => '&',
-                        ),      
                     ),              
                     arguments => [
                         ::Method( 
@@ -228,13 +223,6 @@ token multi_method {
 token multi_sub {
     multi <?ws> [ sub <?ws> | '' ]
     
-            # multi sub { code... }
-            # (&multi.long_names).push( 
-            #    sub ($a,$b,$c,$d) {
-            #        say 'ok 4';
-            #    }
-            # );
-
         <namespace> <ident>  <?opt_ws> 
         <sub_sig>
         <?opt_ws> \{ <?opt_ws>  
@@ -258,17 +246,12 @@ token multi_sub {
             return 
                 ::Call(
                     hyper     => '',
-                    method   => 'push',
-                    invocant => ::Call(
-                        hyper     => '',
-                        arguments => [ ],
-                        method    => 'long_names',
-                        invocant  => ::Var(
+                    method   => 'add_variant',
+                    invocant => ::Var(
                             namespace => $$<namespace>,
                             name      => $$<ident>,
                             twigil    => '',
                             sigil     => '&',
-                        ),      
                     ),              
                     arguments => [
                         ::Sub( 
@@ -311,17 +294,12 @@ token token_sym {
             return 
                 ::Call(
                     hyper     => '',
-                    method   => 'push',
-                    invocant => ::Call(
-                        hyper     => '',
-                        arguments => [ ],
-                        method    => 'long_names',
-                        invocant  => ::Var(
+                    method   => 'add_variant',
+                    invocant => ::Var(
                             namespace => $$<namespace>,
                             name      => $$<ident>,
                             twigil    => '',
                             sigil     => '&',
-                        ),      
                     ),              
                     arguments => [
                         ::Token(

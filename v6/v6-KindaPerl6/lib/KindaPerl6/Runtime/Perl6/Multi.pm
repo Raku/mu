@@ -16,6 +16,10 @@ use v6-alpha;
 class Multi is Code {
     has @.long_names;
             
+    method add_variant ( $code ) {
+        (self.long_names).push( $code );
+    }
+            
     method select {
         my @candidates;
         my $sub; # XXX 

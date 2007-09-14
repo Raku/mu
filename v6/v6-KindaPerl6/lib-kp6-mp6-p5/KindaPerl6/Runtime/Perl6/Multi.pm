@@ -28,6 +28,39 @@
         ::DISPATCH(
             ::DISPATCH( $::Multi, 'HOW', ),
             'add_method',
+            ::DISPATCH( $::Str, 'new', 'add_variant' ),
+            ::DISPATCH(
+                $::Method,
+                'new',
+                sub {
+                    my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                    my $code;
+                    $code = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$code' } ) unless defined $code;
+                    BEGIN { $code = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$code' } ) }
+                    $self = shift;
+                    my $CAPTURE;
+                    $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
+                    BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+                    ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                    do {
+                        ::MODIFIED($List__);
+                        $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                    };
+                    do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                    };
+                    do {
+                        ::MODIFIED($code);
+                        $code = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                    };
+                    ::DISPATCH( ::DISPATCH( $self, 'long_names', ), 'push', $code );
+                }
+            )
+        );
+        ::DISPATCH(
+            ::DISPATCH( $::Multi, 'HOW', ),
+            'add_method',
             ::DISPATCH( $::Str, 'new', 'select' ),
             ::DISPATCH(
                 $::Method,
