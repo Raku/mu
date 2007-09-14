@@ -419,6 +419,9 @@ $::Int = $meta_Int->PROTOTYPE();
 $meta_Int->add_parent($meta_Value);
 $meta_Int->add_method( 'perl',
     ::DISPATCH( $::Method, 'new',  sub { my $v = $::Str->new( $_[0]{_value} ) } ) );
+# XXX - Bind to attributes fail, so to move on, a increment is interesting
+$meta_Int->add_method( 'increment',
+    ::DISPATCH( $::Method, 'new',  sub { $_[0]{_value}++; $_[0] } ) );
 $meta_Int->add_method( 'str',
     ::DISPATCH( $::Method, 'new',  sub { my $v = $::Str->new( $_[0]{_value} ) } ) );
 $meta_Int->add_method( 'true',

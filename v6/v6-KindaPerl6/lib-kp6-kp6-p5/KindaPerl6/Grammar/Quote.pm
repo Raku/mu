@@ -660,56 +660,7 @@
                                         my $____some__weird___var____ = do {
                                             {
                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $pos1, ::DISPATCH( $::Int, 'new', 0 ) ) );
-                                                do {
-                                                    {
-                                                        do {
-                                                            if (::DISPATCH(
-                                                                    ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60__60__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_length, 'APPLY', $str ), ::DISPATCH( $::Int, 'new', 1 ) ), "true" ), "p5landish"
-                                                                )
-                                                                )
-                                                            {
-                                                                {
-                                                                    ::DISPATCH( $::Int, 'new', 0 )
-                                                                }
-                                                            }
-                                                            else {
-                                                                {
-                                                                    do {
-                                                                        if (::DISPATCH(
-                                                                                ::DISPATCH(
-                                                                                    ::DISPATCH(
-                                                                                        $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY',
-                                                                                        ::DISPATCH( $::Str, 'new', '\\\'' ), ::DISPATCH( $GLOBAL::Code_substr, 'APPLY', $str, ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Int, 'new', 1 ) )
-                                                                                    ),
-                                                                                    "true"
-                                                                                ),
-                                                                                "p5landish"
-                                                                            )
-                                                                            )
-                                                                        {
-                                                                            {
-                                                                                ::DISPATCH(
-                                                                                    $GLOBAL::Code_infix_58__60__43__62_,
-                                                                                    'APPLY',
-                                                                                    ::DISPATCH( $::Int, 'new', 1 ),
-                                                                                    ::DISPATCH_VAR(
-                                                                                        ::DISPATCH( $MATCH, 'to', ),
-                                                                                        'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $::Int, 'new', 1 ), ::DISPATCH( $MATCH, 'to', ) )
-                                                                                    )
-                                                                                    )
-                                                                            }
-                                                                        }
-                                                                        else {
-                                                                            {
-                                                                                ::DISPATCH( $::Int, 'new', 0 )
-                                                                            }
-                                                                        }
-                                                                        }
-                                                                }
-                                                            }
-                                                            }
-                                                    }
-                                                    }
+                                                ::DISPATCH( $::Int, 'new', 1 )
                                             }
                                         };
                                         ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
@@ -1150,7 +1101,7 @@
                                                                                                             my $ret;
                                                                                                             $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                                             BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd', ) );
+                                                                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block1_6f3510002c9e8a6fe9581ad2dcfaedcd', ) );
                                                                                                             do {
                                                                                                                 if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
                                                                                                                     {
@@ -1536,7 +1487,7 @@
                                                                                                             my $ret;
                                                                                                             $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                                             BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd', ) );
+                                                                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block2_6f3510002c9e8a6fe9581ad2dcfaedcd', ) );
                                                                                                             do {
                                                                                                                 if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
                                                                                                                     {
@@ -1763,7 +1714,7 @@
                                                                         my $ret;
                                                                         $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                         BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd', ) );
+                                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block3_6f3510002c9e8a6fe9581ad2dcfaedcd', ) );
                                                                         do {
                                                                             if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
                                                                                 {
@@ -1889,7 +1840,7 @@
                                                                     my $ret;
                                                                     $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                     BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd', ) );
+                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block4_6f3510002c9e8a6fe9581ad2dcfaedcd', ) );
                                                                     do {
                                                                         if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
                                                                             {
@@ -1947,7 +1898,7 @@
                                                                             my $ret;
                                                                             $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                             BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd', ) );
+                                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block5_6f3510002c9e8a6fe9581ad2dcfaedcd', ) );
                                                                             do {
                                                                                 if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
                                                                                     {
@@ -2005,7 +1956,7 @@
                                                                                     my $ret;
                                                                                     $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                     BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd', ) );
+                                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block6_6f3510002c9e8a6fe9581ad2dcfaedcd', ) );
                                                                                     do {
                                                                                         if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
                                                                                             {
@@ -2098,7 +2049,7 @@
                                                                                             my $ret;
                                                                                             $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                             BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd', ) );
+                                                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block7_6f3510002c9e8a6fe9581ad2dcfaedcd', ) );
                                                                                             do {
                                                                                                 if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
                                                                                                     {
@@ -2282,7 +2233,7 @@
                                                                                                                                         my $ret;
                                                                                                                                         $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                                                                         BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd', ) );
+                                                                                                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block8_6f3510002c9e8a6fe9581ad2dcfaedcd', ) );
                                                                                                                                         do {
                                                                                                                                             if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
                                                                                                                                                 {
@@ -2386,7 +2337,7 @@
                                                                                                                                                 my $ret;
                                                                                                                                                 $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                                                                                 BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                                                                                ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd', ) );
+                                                                                                                                                ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block9_6f3510002c9e8a6fe9581ad2dcfaedcd', ) );
                                                                                                                                                 do {
                                                                                                                                                     if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
                                                                                                                                                         {
@@ -2496,7 +2447,7 @@
                                                                                                                                                             unless defined $ret;
                                                                                                                                                         BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
                                                                                                                                                         ::DISPATCH_VAR( $ret, 'STORE',
-                                                                                                                                                            ::DISPATCH( $self, '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd', ) );
+                                                                                                                                                            ::DISPATCH( $self, '__rule_block10_6f3510002c9e8a6fe9581ad2dcfaedcd', ) );
                                                                                                                                                         do {
                                                                                                                                                             if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
                                                                                                                                                                 {
@@ -2612,7 +2563,7 @@
                                                                                                                                                                     $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } );
                                                                                                                                                                 }
                                                                                                                                                                 ::DISPATCH_VAR( $ret, 'STORE',
-                                                                                                                                                                    ::DISPATCH( $self, '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd', ) );
+                                                                                                                                                                    ::DISPATCH( $self, '__rule_block11_6f3510002c9e8a6fe9581ad2dcfaedcd', ) );
                                                                                                                                                                 do {
                                                                                                                                                                     if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
                                                                                                                                                                         {
@@ -2731,7 +2682,7 @@
                                                                                                                                                                                 { modified => $_MODIFIED, name => '$ret' } );
                                                                                                                                                                         }
                                                                                                                                                                         ::DISPATCH_VAR( $ret, 'STORE',
-                                                                                                                                                                            ::DISPATCH( $self, '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd', ) );
+                                                                                                                                                                            ::DISPATCH( $self, '__rule_block12_6f3510002c9e8a6fe9581ad2dcfaedcd', ) );
                                                                                                                                                                         do {
                                                                                                                                                                             if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
                                                                                                                                                                                 {
@@ -2854,8 +2805,10 @@
                                                                                                                                                                                     $ret = ::DISPATCH( $::Scalar, 'new',
                                                                                                                                                                                         { modified => $_MODIFIED, name => '$ret' } );
                                                                                                                                                                                 }
-                                                                                                                                                                                ::DISPATCH_VAR( $ret, 'STORE',
-                                                                                                                                                                                    ::DISPATCH( $self, '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd', )
+                                                                                                                                                                                ::DISPATCH_VAR(
+                                                                                                                                                                                    $ret, 'STORE',
+                                                                                                                                                                                    ::DISPATCH( $self, '__rule_block13_6f3510002c9e8a6fe9581ad2dcfaedcd',
+                                                                                                                                                                                    )
                                                                                                                                                                                 );
                                                                                                                                                                                 do {
                                                                                                                                                                                     if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
@@ -2989,7 +2942,7 @@
                                                                                                                                                                                         ::DISPATCH_VAR(
                                                                                                                                                                                             $ret, 'STORE',
                                                                                                                                                                                             ::DISPATCH(
-                                                                                                                                                                                                $self, '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd',
+                                                                                                                                                                                                $self, '__rule_block14_6f3510002c9e8a6fe9581ad2dcfaedcd',
                                                                                                                                                                                             )
                                                                                                                                                                                         );
                                                                                                                                                                                         do {
@@ -3138,7 +3091,7 @@
                                                                                                                                                                                                     $ret, 'STORE',
                                                                                                                                                                                                     ::DISPATCH(
                                                                                                                                                                                                         $self,
-                                                                                                                                                                                                        '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd',
+                                                                                                                                                                                                        '__rule_block15_6f3510002c9e8a6fe9581ad2dcfaedcd',
                                                                                                                                                                                                     )
                                                                                                                                                                                                 );
                                                                                                                                                                                                 do {
@@ -3310,7 +3263,7 @@
                                                                                                                                                                                                             $ret, 'STORE',
                                                                                                                                                                                                             ::DISPATCH(
                                                                                                                                                                                                                 $self,
-                                                                                                                                                                                                                '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd',
+                                                                                                                                                                                                                '__rule_block16_6f3510002c9e8a6fe9581ad2dcfaedcd',
                                                                                                                                                                                                             )
                                                                                                                                                                                                         );
                                                                                                                                                                                                         do {
@@ -3491,7 +3444,7 @@
                                                                                                                                                                                                                     $ret, 'STORE',
                                                                                                                                                                                                                     ::DISPATCH(
                                                                                                                                                                                                                         $self,
-                                                                                                                                                                                                                        '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd',
+                                                                                                                                                                                                                        '__rule_block17_6f3510002c9e8a6fe9581ad2dcfaedcd',
                                                                                                                                                                                                                     )
                                                                                                                                                                                                                 );
                                                                                                                                                                                                                 do {
@@ -3629,7 +3582,7 @@
                                                                                                                                                                                                                     $ret, 'STORE',
                                                                                                                                                                                                                     ::DISPATCH(
                                                                                                                                                                                                                         $self,
-                                                                                                                                                                                                                        '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd',
+                                                                                                                                                                                                                        '__rule_block18_6f3510002c9e8a6fe9581ad2dcfaedcd',
                                                                                                                                                                                                                     )
                                                                                                                                                                                                                 );
                                                                                                                                                                                                                 do {
@@ -4014,7 +3967,7 @@
                                                                                                                 my $ret;
                                                                                                                 $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                                                 BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                                                ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd', ) );
+                                                                                                                ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block19_6f3510002c9e8a6fe9581ad2dcfaedcd', ) );
                                                                                                                 do {
                                                                                                                     if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
                                                                                                                         {
@@ -4271,7 +4224,7 @@
                                                                                                 my $ret;
                                                                                                 $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                                 BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                                ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd', ) );
+                                                                                                ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block20_6f3510002c9e8a6fe9581ad2dcfaedcd', ) );
                                                                                                 do {
                                                                                                     if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
                                                                                                         {
@@ -4327,7 +4280,7 @@
                                                                                                 my $ret;
                                                                                                 $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                                 BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                                ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd', ) );
+                                                                                                ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block21_6f3510002c9e8a6fe9581ad2dcfaedcd', ) );
                                                                                                 do {
                                                                                                     if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
                                                                                                         {
@@ -4707,57 +4660,7 @@
                                                 my $____some__weird___var____ = do {
                                                     {
                                                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $pos1, ::DISPATCH( $::Int, 'new', 0 ) ) );
-                                                        do {
-                                                            {
-                                                                do {
-                                                                    if (::DISPATCH(
-                                                                            ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60__60__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_length, 'APPLY', $str ), ::DISPATCH( $::Int, 'new', 1 ) ), "true" ),
-                                                                            "p5landish"
-                                                                        )
-                                                                        )
-                                                                    {
-                                                                        {
-                                                                            ::DISPATCH( $::Int, 'new', 0 )
-                                                                        }
-                                                                    }
-                                                                    else {
-                                                                        {
-                                                                            do {
-                                                                                if (::DISPATCH(
-                                                                                        ::DISPATCH(
-                                                                                            ::DISPATCH(
-                                                                                                $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY',
-                                                                                                ::DISPATCH( $::Str, 'new', '\\\'' ), ::DISPATCH( $GLOBAL::Code_substr, 'APPLY', $str, ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Int, 'new', 1 ) )
-                                                                                            ),
-                                                                                            "true"
-                                                                                        ),
-                                                                                        "p5landish"
-                                                                                    )
-                                                                                    )
-                                                                                {
-                                                                                    {
-                                                                                        ::DISPATCH(
-                                                                                            $GLOBAL::Code_infix_58__60__43__62_,
-                                                                                            'APPLY',
-                                                                                            ::DISPATCH( $::Int, 'new', 1 ),
-                                                                                            ::DISPATCH_VAR(
-                                                                                                ::DISPATCH( $MATCH, 'to', ),
-                                                                                                'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $::Int, 'new', 1 ), ::DISPATCH( $MATCH, 'to', ) )
-                                                                                            )
-                                                                                            )
-                                                                                    }
-                                                                                }
-                                                                                else {
-                                                                                    {
-                                                                                        ::DISPATCH( $::Int, 'new', 0 )
-                                                                                    }
-                                                                                }
-                                                                                }
-                                                                        }
-                                                                    }
-                                                                    }
-                                                            }
-                                                            }
+                                                        ::DISPATCH( $::Int, 'new', 1 )
                                                     }
                                                 };
                                                 ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
@@ -5118,57 +5021,7 @@
                                                 my $____some__weird___var____ = do {
                                                     {
                                                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $pos1, ::DISPATCH( $::Int, 'new', 0 ) ) );
-                                                        do {
-                                                            {
-                                                                do {
-                                                                    if (::DISPATCH(
-                                                                            ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60__60__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_length, 'APPLY', $str ), ::DISPATCH( $::Int, 'new', 1 ) ), "true" ),
-                                                                            "p5landish"
-                                                                        )
-                                                                        )
-                                                                    {
-                                                                        {
-                                                                            ::DISPATCH( $::Int, 'new', 0 )
-                                                                        }
-                                                                    }
-                                                                    else {
-                                                                        {
-                                                                            do {
-                                                                                if (::DISPATCH(
-                                                                                        ::DISPATCH(
-                                                                                            ::DISPATCH(
-                                                                                                $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY',
-                                                                                                ::DISPATCH( $::Str, 'new', '\\\'' ), ::DISPATCH( $GLOBAL::Code_substr, 'APPLY', $str, ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Int, 'new', 1 ) )
-                                                                                            ),
-                                                                                            "true"
-                                                                                        ),
-                                                                                        "p5landish"
-                                                                                    )
-                                                                                    )
-                                                                                {
-                                                                                    {
-                                                                                        ::DISPATCH(
-                                                                                            $GLOBAL::Code_infix_58__60__43__62_,
-                                                                                            'APPLY',
-                                                                                            ::DISPATCH( $::Int, 'new', 1 ),
-                                                                                            ::DISPATCH_VAR(
-                                                                                                ::DISPATCH( $MATCH, 'to', ),
-                                                                                                'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $::Int, 'new', 1 ), ::DISPATCH( $MATCH, 'to', ) )
-                                                                                            )
-                                                                                            )
-                                                                                    }
-                                                                                }
-                                                                                else {
-                                                                                    {
-                                                                                        ::DISPATCH( $::Int, 'new', 0 )
-                                                                                    }
-                                                                                }
-                                                                                }
-                                                                        }
-                                                                    }
-                                                                    }
-                                                            }
-                                                            }
+                                                        ::DISPATCH( $::Int, 'new', 1 )
                                                     }
                                                 };
                                                 ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
@@ -5401,7 +5254,7 @@
                                                                                             my $ret;
                                                                                             $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                             BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd', ) );
+                                                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block22_6f3510002c9e8a6fe9581ad2dcfaedcd', ) );
                                                                                             do {
                                                                                                 if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
                                                                                                     {
@@ -5583,7 +5436,7 @@
                                                                                             my $ret;
                                                                                             $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                             BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd', ) );
+                                                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block23_6f3510002c9e8a6fe9581ad2dcfaedcd', ) );
                                                                                             do {
                                                                                                 if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
                                                                                                     {
@@ -5623,7 +5476,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block1_6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -5659,7 +5512,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block2_6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -5695,7 +5548,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block3_6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -5731,7 +5584,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block4_6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -5756,7 +5609,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block5_6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -5781,7 +5634,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block6_6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -5806,7 +5659,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block7_6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -5831,7 +5684,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block8_6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -5856,7 +5709,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block9_6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -5881,7 +5734,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block10_6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -5906,7 +5759,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block11_6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -5931,7 +5784,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block12_6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -5956,7 +5809,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block13_6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -5981,7 +5834,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block14_6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -6006,7 +5859,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block15_6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -6031,7 +5884,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block16_6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -6056,7 +5909,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block17_6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -6081,7 +5934,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block18_6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -6106,7 +5959,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block19_6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -6131,7 +5984,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block20_6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -6156,7 +6009,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block21_6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -6199,7 +6052,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block22_6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -6224,7 +6077,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block6f3510002c9e8a6fe9581ad2dcfaedcd' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block23_6f3510002c9e8a6fe9581ad2dcfaedcd' ),
             ::DISPATCH(
                 $::Method,
                 'new',

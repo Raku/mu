@@ -12,10 +12,16 @@
     BEGIN { $_MODIFIED = {} }
     BEGIN { $_ = ::DISPATCH( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
     {
+        my $count;
+        $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) unless defined $count;
+        BEGIN { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
         do {
             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::KindaPerl6::Visitor::ExtractRuleBlock ), "true" ), "p5landish" ) ) { }
             else {
                 {
+                    my $count;
+                    $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) unless defined $count;
+                    BEGIN { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
                     do {
                         ::MODIFIED($::KindaPerl6::Visitor::ExtractRuleBlock);
                         $::KindaPerl6::Visitor::ExtractRuleBlock = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'KindaPerl6::Visitor::ExtractRuleBlock' ) ), 'PROTOTYPE', );
@@ -23,7 +29,6 @@
                 }
             }
         };
-        ::DISPATCH( ::DISPATCH( $::KindaPerl6::Visitor::ExtractRuleBlock, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'count' ) );
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Visitor::ExtractRuleBlock, 'HOW', ),
             'add_method',
@@ -73,9 +78,6 @@
                                 my $comp_unit;
                                 $comp_unit = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$comp_unit' } ) unless defined $comp_unit;
                                 BEGIN { $comp_unit = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$comp_unit' } ) }
-                                my $a;
-                                $a = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$a' } ) unless defined $a;
-                                BEGIN { $a = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$a' } ) }
                                 my $name;
                                 $name = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$name' } ) unless defined $name;
                                 BEGIN { $name = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$name' } ) }
@@ -85,12 +87,8 @@
                                     $comp_unit = ::DISPATCH( $path, 'INDEX', ::DISPATCH( $GLOBAL::Code_infix_58__60__45__62_, 'APPLY', ::DISPATCH( $::Int, 'new', 0 ), ::DISPATCH( $::Int, 'new', 1 ) ) );
                                 };
                                 do {
-                                    ::MODIFIED($a);
-                                    $a = ::DISPATCH( $self, "count" );
-                                };
-                                do {
-                                    ::MODIFIED($a);
-                                    $a = ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $a, ::DISPATCH( $::Int, 'new', 1 ) );
+                                    ::MODIFIED($count);
+                                    $count = ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $count, ::DISPATCH( $::Int, 'new', 1 ) );
                                 };
                                 do {
                                     ::MODIFIED($name);
@@ -98,7 +96,7 @@
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
                                         ::DISPATCH( $::Str, 'new', '__rule_block' ),
-                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $self, "count" ), $COMPILER::source_md5 )
+                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $count, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '_' ), $COMPILER::source_md5 ) )
                                     );
                                 };
                                 ::DISPATCH(
@@ -117,7 +115,8 @@
                         }
                 }
             )
-            )
+        );
+        $count
     };
     1
 }

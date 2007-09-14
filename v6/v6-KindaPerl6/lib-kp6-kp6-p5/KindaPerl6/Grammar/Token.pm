@@ -552,57 +552,7 @@
                                                 my $____some__weird___var____ = do {
                                                     {
                                                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $pos1, ::DISPATCH( $::Int, 'new', 0 ) ) );
-                                                        do {
-                                                            {
-                                                                do {
-                                                                    if (::DISPATCH(
-                                                                            ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60__60__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_length, 'APPLY', $str ), ::DISPATCH( $::Int, 'new', 1 ) ), "true" ),
-                                                                            "p5landish"
-                                                                        )
-                                                                        )
-                                                                    {
-                                                                        {
-                                                                            ::DISPATCH( $::Int, 'new', 0 )
-                                                                        }
-                                                                    }
-                                                                    else {
-                                                                        {
-                                                                            do {
-                                                                                if (::DISPATCH(
-                                                                                        ::DISPATCH(
-                                                                                            ::DISPATCH(
-                                                                                                $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY',
-                                                                                                ::DISPATCH( $::Str, 'new', '\\\'' ), ::DISPATCH( $GLOBAL::Code_substr, 'APPLY', $str, ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Int, 'new', 1 ) )
-                                                                                            ),
-                                                                                            "true"
-                                                                                        ),
-                                                                                        "p5landish"
-                                                                                    )
-                                                                                    )
-                                                                                {
-                                                                                    {
-                                                                                        ::DISPATCH(
-                                                                                            $GLOBAL::Code_infix_58__60__43__62_,
-                                                                                            'APPLY',
-                                                                                            ::DISPATCH( $::Int, 'new', 1 ),
-                                                                                            ::DISPATCH_VAR(
-                                                                                                ::DISPATCH( $MATCH, 'to', ),
-                                                                                                'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $::Int, 'new', 1 ), ::DISPATCH( $MATCH, 'to', ) )
-                                                                                            )
-                                                                                            )
-                                                                                    }
-                                                                                }
-                                                                                else {
-                                                                                    {
-                                                                                        ::DISPATCH( $::Int, 'new', 0 )
-                                                                                    }
-                                                                                }
-                                                                                }
-                                                                        }
-                                                                    }
-                                                                    }
-                                                            }
-                                                            }
+                                                        ::DISPATCH( $::Int, 'new', 1 )
                                                     }
                                                 };
                                                 ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
@@ -1417,7 +1367,7 @@
                                                                                                                                                                                                                 $ret, 'STORE',
                                                                                                                                                                                                                 ::DISPATCH(
                                                                                                                                                                                                                     $self,
-                                                                                                                                                                                                                    '__rule_blockbbfbc6f70125513e57d9b89fd88ae8ba',
+                                                                                                                                                                                                                    '__rule_block1_bbfbc6f70125513e57d9b89fd88ae8ba',
                                                                                                                                                                                                                 )
                                                                                                                                                                                                             );
                                                                                                                                                                                                             do {
@@ -1507,7 +1457,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_blockbbfbc6f70125513e57d9b89fd88ae8ba' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block1_bbfbc6f70125513e57d9b89fd88ae8ba' ),
             ::DISPATCH(
                 $::Method,
                 'new',

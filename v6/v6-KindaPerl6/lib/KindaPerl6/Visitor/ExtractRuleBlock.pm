@@ -3,7 +3,7 @@ use v6-alpha;
 
 class KindaPerl6::Visitor::ExtractRuleBlock {
 
-    has $.count;
+    my $count;
     method visit ( $node, $node_name, $path ) {
     
         #say "Global ",$node_name;
@@ -12,9 +12,8 @@ class KindaPerl6::Visitor::ExtractRuleBlock {
         {
             use Data::Dumper;
             my $comp_unit := $path[0-1];
-            my $a := $.count;
-            $a := $a  + 1;
-            my $name := '__rule_block'~$.count~$COMPILER::source_md5;
+            $count := $count + 1;
+            my $name := '__rule_block' ~ $count ~ '_' ~ $COMPILER::source_md5;
             push @(($comp_unit.body).body), ::Method(block=>$node.closure,name=>$name);
             $node.closure($name);
             return $node;

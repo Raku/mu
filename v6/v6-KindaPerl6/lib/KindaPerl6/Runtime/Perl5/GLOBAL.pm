@@ -10,6 +10,7 @@ package GLOBAL;
         print 
         say
         warn
+        die
         undef
         undefine
         defined
@@ -151,6 +152,7 @@ package GLOBAL;
     sub True     { ::DISPATCH( $::Bit, 'new',1 ) }  
     sub say      { GLOBAL::print( @_, ::DISPATCH( $::Str, 'new', "\n" ));return True;}
     sub warn     { CORE::warn( join '', map { _str($_) } @_ )}
+    sub die      { confess( join '', map { _str($_) } @_ )}
     sub sleep    { CORE::sleep(_int($_[0]));return True;}
     sub False    { ::DISPATCH( $::Bit, 'new',0 ) }  
     sub TODO     {confess("TODO");}
