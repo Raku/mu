@@ -1,0 +1,2 @@
+cd $HOME/pugs-fallback/pugs
+../build_pugs_fallback.pl

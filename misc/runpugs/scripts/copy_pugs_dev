@@ -1,0 +1,2 @@
+cd $HOME/pugs-dev
+./copy_pugs_dev_safe.pl

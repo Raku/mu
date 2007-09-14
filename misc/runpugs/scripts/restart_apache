@@ -1,0 +1,2 @@
+killall apache > /dev/null 2>&1
+/usr/sbin/apache -f ~/apache/httpd.conf

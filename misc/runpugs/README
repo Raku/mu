@@ -33,6 +33,9 @@ INSTALLATION
     * Start the terminal server script (bin/termserv.pl) 
     
     * To run, simply point your browser to /runpugs/ 
+    
+    * Use scripts to start/stop/restart apache on feather and 
+    maintain latest runpugs
 
 DESCRIPTION
     runpugs has two main components: 
@@ -49,9 +52,14 @@ DESCRIPTION
    The underlying library, Web/Terminal, can in principle be used for any
    interactive shell, not just pugs. So we could have runpython :-)
    See the POD for more info.
+   
+   'scripts' directory has some perl/shell scripts that are being used 
+   to run/maintain runpugs on a feather.perl6.nl account. Those has been 
+   written originally by wim.
 
 AUTHOR
     Wim Vanderbauwhede (wim.vanderbauwhede@gmail.com)
+    Ahmad M. Zawawi (ahmad.zawawi@gmail.com)
 
 COPYRIGHT
     Copyright (c) 2006, Wim Vanderbauwhede. All Rights Reserved. This module is

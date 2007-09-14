@@ -1,0 +1,9 @@
+#!/usr/bin/perl
+my @insts=`ps x | grep termserv | grep -v grep`;
+for my $inst (@insts) {
+my $pid=$inst;
+$pid =~ s/^\s*//;
+$pid =~ s/\s+.*$//;
+print "kill 9,$pid\n";
+kill 9,$pid;
+}

@@ -1,0 +1,4 @@
+#!/usr/bin/perl -w
+chdir '/home/andara/apache/bin';
+system('/usr/bin/perl ./termserv.pl');
+
