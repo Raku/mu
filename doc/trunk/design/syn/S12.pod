@@ -344,7 +344,7 @@ use the dot form of parentheses:
     .doit()     # okay, no arguments
     .doit ()    # ILLEGAL (two terms in a row)
     .doit.()    # okay, no arguments, same as .doit()
-    .doit\ .()  # okay, no arguments, same as .doit() (long dot form)
+    .doit\ .()  # okay, no arguments, same as .doit() (unspace form)
 
 However, you can turn any of the legal forms above into a list
 operator by appending a colon:

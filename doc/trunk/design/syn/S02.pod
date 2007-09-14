@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 4 Sep 2007
+  Last Modified: 14 Sep 2007
   Number: 2
-  Version: 117
+  Version: 118
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -214,27 +214,48 @@ C<m>, C<s>, C<tr>, and C<rx>) enable subsequent user-selected brackets.
 
 =item *
 
-In addition to the general comment forms above, there is a
-whitespace-only comment form that begins with backslash and ends
-with a single dot, separated by 0 or more characters of whitespace,
-which is equivalent to a single dot:
+Some languages such as C allow you to escape newline characters
+to combine lines.  Other languages (such as regexes) allow you to
+backslash a space character for various reasons.  Perl 6 generalizes
+this notion to any kind of whitespace.  Any contiguous whitespace
+(including comments) may be hidden from the parser by prefixing it
+with C<\>.  This is known as the "unspace".  An unspace can suppress
+any of several whitespace dependencies in Perl.  For example, since
+Perl requires an absence of whitespace between a noun and a postfix
+operator, using unspace lets you line up postfix operators:
 
     %hash\  .{$key}
     @array\ .[$ix]
     $subref\.($arg)
 
-This is useful for lining up postfixes.  This is known as the "long dot",
-partly because it substitutes for a dot without the need for an extra dot:
+As a special case to support the use above, a backslashed dot where
+a postfix is expected is considered a degenerate form of unspace.
+Note that whitespace is not allowed before that, hence
 
+    $subref \.($arg)
+
+is a syntax error (two terms in a row).  And
+
+    foo \.($arg)
+
+will be parsed as a list operator with an argument:
+
+    foo(\$_.($arg))
+
+However, other forms of unspace may usefully be preceded by whitespace.
+(Unary uses of backslash may therefore never be followed by whitespace
+or they would be taken as an unspace.)
+
+Other postfix operators may also make use of unspace:
+
+    $number\  ++;
+    $number\  --;
+    1+3\      i;
     $object\  .say();
+    $object\#{ your ad here }.say
 
-The whitespace in the middle may include any of the comment forms above.
-Because comments always count as whitespace, the C<\.> in
-
-    $object\#{ foo }.say
-
-reduce to a "long dot".  Valid ways to
-insert a line break into a sequence of method calls include:
+Anther normal use of a you-don't-see-this-space is typically to put
+a dotted postfix on the next line:
 
     $object\ # comment
     .say
@@ -245,14 +266,9 @@ insert a line break into a sequence of method calls include:
     $object\
     .say
 
-=item *
-
-In fact, any whitespace (including comments) may be hidden from the parser by
-prefixing it with C<\>.  It does not have to end with a dot.  It's just that
-the normal use of a you-don't-see-this-space is typically to put
-a dotted postfix on the next line.  But it also lets you continue
+But unspace is mainly about language extensibility: it lets you continue
 the line in any situation where a newline might confuse the parser,
-regardless of the currently installed parser.  (Unless, of course,
+regardless of your currently installed parser.  (Unless, of course,
 you override the unspace rule itself...)
 
 Although we say that the unspace hides the whitespace from the parser,
@@ -279,6 +295,10 @@ To the heredoc parser that just looks like:
         CODE
         ...
         OUTPUT
+
+Note that this is one of those cases in which it is fine to have
+whitespace before the unspace.  (Note also that the example above
+is not meant to spec how the test suite works. :)
 
 =item *
 
@@ -335,12 +355,12 @@ be written in any of these forms:
     .++
 
     $x\         # comment
-                # inside long dot
+                # inside unspace
     .++
 
     $x\         # comment
-                # inside "unspace"
-    ++          # (but long dot may be preferred...)
+                # inside unspace
+    ++          # (but without the optional postfix dot) 
 
     $x\#『      comment
                 more comment
@@ -355,7 +375,7 @@ be written in any of these forms:
     ].++
 
 A consequence of the postfix rule is that (except when delimiting a
-quote or terminating a "long dot") a dot with whitespace in front
+quote or terminating an unspace) a dot with whitespace in front
 of it is always considered a method call on C<$_> where a term is
 expected.  If a term is not expected at this point, it is a syntax
 error.  (Unless, of course, there is an infix operator of that name
@@ -1378,7 +1398,7 @@ object with parens after it (which may, of course, contain arguments):
     &foo($arg1, $arg2);
 
 Whitespace is not allowed before the parens, but there is a
-corresponding C<.()> operator, plus the "long dot" forms that allow
+corresponding C<.()> operator, plus the "unspace" forms that allow
 you to insert optional whitespace and comments between the backslash
 and the dot:
 
@@ -1730,7 +1750,7 @@ be derived from a type name by use of the C<::> postfix operator:
 
     MyType::<$foo>
     MyType.::.{'$foo'}          # same thing with dots
-    MyType\ .::\ .{'$foo'}      # same thing with long dots
+    MyType\ .::\ .{'$foo'}      # same thing with unspaces
 
 (Directly subscripting the type with either square brackets or curlies
 is reserved for various generic type-theoretic operations.  In most other
@@ -2151,7 +2171,7 @@ Except as noted above, the parser always
 looks for the brackets.  Despite not indicating a true subscript,
 the brackets are similarly parsed as postfix operators.  As postfixes
 the brackets may be separated from their initial C<:foo> with either
-dot or "long dot", but nothing else.
+unspace or dot (or both), but nothgin else.
 
 Regardless of syntax, adverbs used as named arguments generally show
 up as optional named parameters to the function in question--even
@@ -2584,7 +2604,7 @@ statement is expected.) So for any undeclared identifier "C<foo>":
 
     foo.bar             # ILLEGAL       -- postfix must use foo().bar
     foo .bar            # foo($_.bar)   -- no postfix starts with whitespace
-    foo\ .bar           # ILLEGAL       -- long dot must use foo()\ .bar
+    foo\ .bar           # ILLEGAL       -- must use foo()\ .bar
     foo++               # ILLEGAL       -- postfix must use foo()++
     foo 1,2,3           # foo(1,2,3)    -- args always expected after listop
     foo + 1             # foo(+1)       -- term always expected after listop
@@ -2654,7 +2674,7 @@ then C<$x> ends up containing the pair C<< ("if" => 1) >>.  Always.
 
 You can also use the :key($value) form to quote the keys of option
 pairs.  To align values of option pairs, you may use the
-"long dot" postfix forms:
+"unspace" postfix forms:
 
     :longkey\  .($value)
     :shortkey\ .<string>

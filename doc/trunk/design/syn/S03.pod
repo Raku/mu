@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 13 Sep 2007
+  Last Modified: 14 Sep 2007
   Number: 3
-  Version: 122
+  Version: 123
 
 =head1 Overview
 
@@ -343,7 +343,7 @@ See L</Sequence points>.
 
 As with all postfix operators in Perl 6, no space is allowed between
 a term and its postfix.  See S02 for why, and for how to work around the
-restriction with a "long dot".
+restriction with an "unspace".
 
 As mutating methods, all these operators dispatch to the type of
 the operand and return a result of the same type, but they are legal
@@ -3093,7 +3093,7 @@ single operand, because no dwimmery ever happens:
      @positions.»++;           # Same thing, dot form
      @positions».++;           # Same thing, dot form
      @positions.».++;          # Same thing, dot form
-     @positions\  .»\  .++;    # Same thing, long dot form
+     @positions\  .»\  .++;    # Same thing, unspace form
 
      @objects.».run();
      ("f","oo","bar").>>.chars;   # (1,2,3)
@@ -3810,7 +3810,7 @@ constructs:
     while $i < 10 { $i++ }
 
 It is, however, still possible to align subscripts and other postfix
-operators by explicitly using the I<long dot> syntax (see S02):
+operators by explicitly using the I<unspace> syntax (see S02):
 
      %monsters.{'cookie'} = Monster.new;
      %beatles\.{'ringo'}  = Beatle.new;
