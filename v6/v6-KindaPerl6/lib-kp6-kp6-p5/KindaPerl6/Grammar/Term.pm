@@ -220,7 +220,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block609313812b11a8e02e70b20de1f92c72' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block9ead6b7ebbbdb5182974b3f45507126b' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -245,7 +245,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block609313812b11a8e02e70b20de1f92c72' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block9ead6b7ebbbdb5182974b3f45507126b' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -270,7 +270,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block609313812b11a8e02e70b20de1f92c72' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block9ead6b7ebbbdb5182974b3f45507126b' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -310,7 +310,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block609313812b11a8e02e70b20de1f92c72' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block9ead6b7ebbbdb5182974b3f45507126b' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -335,7 +335,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block609313812b11a8e02e70b20de1f92c72' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block9ead6b7ebbbdb5182974b3f45507126b' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -367,7 +367,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block609313812b11a8e02e70b20de1f92c72' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block9ead6b7ebbbdb5182974b3f45507126b' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -392,7 +392,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block609313812b11a8e02e70b20de1f92c72' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block9ead6b7ebbbdb5182974b3f45507126b' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -417,7 +417,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block609313812b11a8e02e70b20de1f92c72' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block9ead6b7ebbbdb5182974b3f45507126b' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -442,7 +442,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block609313812b11a8e02e70b20de1f92c72' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block9ead6b7ebbbdb5182974b3f45507126b' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -473,7 +473,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block609313812b11a8e02e70b20de1f92c72' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block9ead6b7ebbbdb5182974b3f45507126b' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -504,7 +504,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block609313812b11a8e02e70b20de1f92c72' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block9ead6b7ebbbdb5182974b3f45507126b' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -542,7 +542,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block609313812b11a8e02e70b20de1f92c72' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block9ead6b7ebbbdb5182974b3f45507126b' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -567,7 +567,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block609313812b11a8e02e70b20de1f92c72' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block9ead6b7ebbbdb5182974b3f45507126b' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -597,7 +597,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block609313812b11a8e02e70b20de1f92c72' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block9ead6b7ebbbdb5182974b3f45507126b' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -622,7 +622,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block609313812b11a8e02e70b20de1f92c72' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block9ead6b7ebbbdb5182974b3f45507126b' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -647,7 +647,32 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block609313812b11a8e02e70b20de1f92c72' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block9ead6b7ebbbdb5182974b3f45507126b' ),
+            ::DISPATCH(
+                $::Method,
+                'new',
+                sub {
+                    $self = shift;
+                    my $CAPTURE;
+                    $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
+                    BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+                    ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                    do {
+                        ::MODIFIED($List__);
+                        $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                    };
+                    do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                    };
+                    return ( ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'token_sym' ) ) ) );
+                }
+            )
+        );
+        ::DISPATCH(
+            ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
+            'add_method',
+            ::DISPATCH( $::Str, 'new', '__rule_block9ead6b7ebbbdb5182974b3f45507126b' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -672,7 +697,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block609313812b11a8e02e70b20de1f92c72' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block9ead6b7ebbbdb5182974b3f45507126b' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -697,7 +722,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block609313812b11a8e02e70b20de1f92c72' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block9ead6b7ebbbdb5182974b3f45507126b' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -722,7 +747,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block609313812b11a8e02e70b20de1f92c72' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block9ead6b7ebbbdb5182974b3f45507126b' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -747,7 +772,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block609313812b11a8e02e70b20de1f92c72' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block9ead6b7ebbbdb5182974b3f45507126b' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -772,7 +797,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block609313812b11a8e02e70b20de1f92c72' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block9ead6b7ebbbdb5182974b3f45507126b' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -797,7 +822,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block609313812b11a8e02e70b20de1f92c72' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block9ead6b7ebbbdb5182974b3f45507126b' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -859,7 +884,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block609313812b11a8e02e70b20de1f92c72' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block9ead6b7ebbbdb5182974b3f45507126b' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -995,7 +1020,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block609313812b11a8e02e70b20de1f92c72' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block9ead6b7ebbbdb5182974b3f45507126b' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -1092,7 +1117,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block609313812b11a8e02e70b20de1f92c72' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block9ead6b7ebbbdb5182974b3f45507126b' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -1117,7 +1142,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block609313812b11a8e02e70b20de1f92c72' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block9ead6b7ebbbdb5182974b3f45507126b' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -1142,7 +1167,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block609313812b11a8e02e70b20de1f92c72' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block9ead6b7ebbbdb5182974b3f45507126b' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -1167,7 +1192,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block609313812b11a8e02e70b20de1f92c72' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block9ead6b7ebbbdb5182974b3f45507126b' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -1192,7 +1217,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block609313812b11a8e02e70b20de1f92c72' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block9ead6b7ebbbdb5182974b3f45507126b' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -1217,7 +1242,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block609313812b11a8e02e70b20de1f92c72' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block9ead6b7ebbbdb5182974b3f45507126b' ),
             ::DISPATCH(
                 $::Method,
                 'new',

@@ -685,6 +685,20 @@ token token {
     }
 };
 
+token token_sym {
+    # { say 'parsing Token:sym' }
+    token
+    <?ws>  <ident> \: sym \< ... \> <?opt_ws> \{
+        <KindaPerl6::Grammar::Regex.rule>
+    \}
+    {
+        return ::Token(
+            name  => ~$<ident>,
+            regex => $$<KindaPerl6::Grammar::Regex.rule>,
+        );
+    }
+};
+
 }
 
 =begin

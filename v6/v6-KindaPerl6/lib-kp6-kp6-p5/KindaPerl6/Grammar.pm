@@ -12048,7 +12048,191 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', 'token_sym' ),
+            ::DISPATCH(
+                $::Method,
+                'new',
+                sub {
+                    my $MATCH;
+                    $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) unless defined $MATCH;
+                    BEGIN { $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) }
+                    my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                    my $str;
+                    $str = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$str' } ) unless defined $str;
+                    BEGIN { $str = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$str' } ) }
+                    my $pos;
+                    $pos = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos' } ) unless defined $pos;
+                    BEGIN { $pos = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos' } ) }
+                    $self = shift;
+                    my $CAPTURE;
+                    $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
+                    BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+                    ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                    do {
+                        ::MODIFIED($List__);
+                        $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                    };
+                    do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                    };
+                    do {
+                        ::MODIFIED($str);
+                        $str = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                    };
+                    do {
+                        ::MODIFIED($pos);
+                        $pos = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) );
+                    };
+                    do {
+                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', $str ) ), "true" ), "p5landish" ) ) {
+                            {
+                                ::DISPATCH_VAR( $str, 'STORE', $_ )
+                            }
+                        }
+                    };
+                    $MATCH;
+                    ::DISPATCH_VAR( $MATCH, 'STORE', ::DISPATCH( $::Match, 'new', ) );
+                    ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'match_str', ), 'STORE', $str );
+                    ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'from', ),      'STORE', $pos );
+                    ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', $pos );
+                    ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ),      'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
+                    ::DISPATCH_VAR(
+                        ::DISPATCH( $MATCH, 'bool', ),
+                        'STORE',
+                        do {
+                            {
+                                my $pos1;
+                                $pos1 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos1' } ) unless defined $pos1;
+                                BEGIN { $pos1 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos1' } ) }
+                                do {
+                                    ::MODIFIED($pos1);
+                                    $pos1 = ::DISPATCH( $MATCH, 'to', );
+                                };
+                                do {
+                                    {
+                                        do {
+                                            (   do {
+                                                    my $____some__weird___var____ = do {
+                                                        {
+                                                            do {
+                                                                if (::DISPATCH(
+                                                                        ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60__60__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_length, 'APPLY', $str ), ::DISPATCH( $::Int, 'new', 1 ) ), "true" ), "p5landish"
+                                                                    )
+                                                                    )
+                                                                {
+                                                                    {
+                                                                        ::DISPATCH( $::Int, 'new', 0 )
+                                                                    }
+                                                                }
+                                                                else {
+                                                                    {
+                                                                        do {
+                                                                            if (::DISPATCH(
+                                                                                    ::DISPATCH(
+                                                                                        ::DISPATCH(
+                                                                                            $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY',
+                                                                                            ::DISPATCH( $::Str, 'new', 't' ), ::DISPATCH( $GLOBAL::Code_substr, 'APPLY', $str, ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Int, 'new', 1 ) )
+                                                                                        ),
+                                                                                        "true"
+                                                                                    ),
+                                                                                    "p5landish"
+                                                                                )
+                                                                                )
+                                                                            {
+                                                                                {
+                                                                                    ::DISPATCH(
+                                                                                        $GLOBAL::Code_infix_58__60__43__62_,
+                                                                                        'APPLY',
+                                                                                        ::DISPATCH( $::Int, 'new', 1 ),
+                                                                                        ::DISPATCH_VAR(
+                                                                                            ::DISPATCH( $MATCH, 'to', ),
+                                                                                            'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $::Int, 'new', 1 ), ::DISPATCH( $MATCH, 'to', ) )
+                                                                                        )
+                                                                                        )
+                                                                                }
+                                                                            }
+                                                                            else {
+                                                                                {
+                                                                                    ::DISPATCH( $::Int, 'new', 0 )
+                                                                                }
+                                                                            }
+                                                                            }
+                                                                    }
+                                                                }
+                                                                }
+                                                        }
+                                                    };
+                                                    ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                    }
+                                                    && do {
+                                                    my $____some__weird___var____ = do {
+                                                        {
+                                                            do {
+                                                                if (::DISPATCH(
+                                                                        ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60__60__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_length, 'APPLY', $str ), ::DISPATCH( $::Int, 'new', 1 ) ), "true" ), "p5landish"
+                                                                    )
+                                                                    )
+                                                                {
+                                                                    {
+                                                                        ::DISPATCH( $::Int, 'new', 0 )
+                                                                    }
+                                                                }
+                                                                else {
+                                                                    {
+                                                                        do {
+                                                                            if (::DISPATCH(
+                                                                                    ::DISPATCH(
+                                                                                        ::DISPATCH(
+                                                                                            $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY',
+                                                                                            ::DISPATCH( $::Str, 'new', 't' ), ::DISPATCH( $GLOBAL::Code_substr, 'APPLY', $str, ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Int, 'new', 1 ) )
+                                                                                        ),
+                                                                                        "true"
+                                                                                    ),
+                                                                                    "p5landish"
+                                                                                )
+                                                                                )
+                                                                            {
+                                                                                {
+                                                                                    ::DISPATCH(
+                                                                                        $GLOBAL::Code_infix_58__60__43__62_,
+                                                                                        'APPLY',
+                                                                                        ::DISPATCH( $::Int, 'new', 1 ),
+                                                                                        ::DISPATCH_VAR(
+                                                                                            ::DISPATCH( $MATCH, 'to', ),
+                                                                                            'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $::Int, 'new', 1 ), ::DISPATCH( $MATCH, 'to', ) )
+                                                                                        )
+                                                                                        )
+                                                                                }
+                                                                            }
+                                                                            else {
+                                                                                {
+                                                                                    ::DISPATCH( $::Int, 'new', 0 )
+                                                                                }
+                                                                            }
+                                                                            }
+                                                                    }
+                                                                }
+                                                                }
+                                                        }
+                                                    };
+                                                    ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                    }
+                                            ) || ::DISPATCH( $::Bit, "new", 0 );
+                                            }
+                                    }
+                                    }
+                            }
+                            }
+                    );
+                    return ($MATCH);
+                }
+            )
+        );
+        ::DISPATCH(
+            ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
+            'add_method',
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -12082,7 +12266,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -12107,7 +12291,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -12132,7 +12316,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -12166,7 +12350,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -12191,7 +12375,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -12216,7 +12400,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -12250,7 +12434,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -12284,7 +12468,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -12309,7 +12493,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -12334,7 +12518,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -12362,7 +12546,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -12387,7 +12571,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -12442,7 +12626,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -12471,7 +12655,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -12526,7 +12710,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -12551,7 +12735,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -12576,7 +12760,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -12601,7 +12785,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -12645,7 +12829,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -12670,7 +12854,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -12717,7 +12901,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -12753,7 +12937,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -12783,7 +12967,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -12813,7 +12997,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -12838,7 +13022,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -12863,7 +13047,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -12888,7 +13072,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -12922,7 +13106,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -12956,7 +13140,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -12988,7 +13172,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -13020,7 +13204,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -13050,7 +13234,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -13080,7 +13264,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -13111,7 +13295,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -13136,7 +13320,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -13161,7 +13345,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -13186,7 +13370,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -13211,7 +13395,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -13236,7 +13420,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -13268,7 +13452,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -13300,7 +13484,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -13336,7 +13520,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -13361,7 +13545,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -13386,7 +13570,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -13411,7 +13595,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -13436,7 +13620,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -13461,7 +13645,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -13486,7 +13670,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -13511,7 +13695,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -13536,7 +13720,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -13561,7 +13745,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -13586,7 +13770,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -13620,7 +13804,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -13645,7 +13829,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -13670,7 +13854,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -13695,7 +13879,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -13720,7 +13904,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -13745,7 +13929,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -13770,7 +13954,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -13795,7 +13979,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -13825,7 +14009,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -13855,7 +14039,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -13886,7 +14070,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -13926,7 +14110,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -13966,7 +14150,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -13991,7 +14175,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -14016,7 +14200,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -14047,7 +14231,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -14078,7 +14262,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -14109,7 +14293,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -14134,7 +14318,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -14168,7 +14352,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -14225,7 +14409,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -14250,7 +14434,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -14284,7 +14468,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -14337,7 +14521,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -14362,7 +14546,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -14388,7 +14572,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -14438,7 +14622,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -14464,7 +14648,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -14489,7 +14673,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25fed664afc01d66437c616d66825f6f' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
             ::DISPATCH(
                 $::Method,
                 'new',
@@ -14510,6 +14694,36 @@
                     return (
                         ::DISPATCH(
                             $::Token, 'new', ::DISPATCH( $::Str, 'new', 'name' ) => ::DISPATCH( $GLOBAL::Code_prefix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'opt_name' ) ) ),
+                            ::DISPATCH( $::Str, 'new', 'regex' ) => ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KindaPerl6::Grammar::Regex.rule' ) ) ),
+                        )
+                    );
+                }
+            )
+        );
+        ::DISPATCH(
+            ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
+            'add_method',
+            ::DISPATCH( $::Str, 'new', '__rule_block104d4420615752ce6571ca36afa4c6ed' ),
+            ::DISPATCH(
+                $::Method,
+                'new',
+                sub {
+                    $self = shift;
+                    my $CAPTURE;
+                    $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
+                    BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+                    ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                    do {
+                        ::MODIFIED($List__);
+                        $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                    };
+                    do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                    };
+                    return (
+                        ::DISPATCH(
+                            $::Token, 'new', ::DISPATCH( $::Str, 'new', 'name' ) => ::DISPATCH( $GLOBAL::Code_prefix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'ident' ) ) ),
                             ::DISPATCH( $::Str, 'new', 'regex' ) => ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KindaPerl6::Grammar::Regex.rule' ) ) ),
                         )
                     );

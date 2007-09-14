@@ -42,8 +42,11 @@ token term {
     | <val>      { return $$<val> }     # 'value'
     | <lit>      { return $$<lit> }     # [literal construct]
 #   | <bind>     { return $$<bind>   }  # $lhs := $rhs
-    | <token>    { return $$<token>  }  # token  { regex... }
-    | <token_P5> { return $$<token_P5>  }  # token :P5 { regex... }
+    
+    | <token_sym>  
+                 { return $$<token_sym>  }  # token:sym<...>  { regex... }
+    | <token>    { return $$<token>      }  # token  { regex... }
+    | <token_P5> { return $$<token_P5>   }  # token :P5 { regex... }
 
     | <proto>    { return $$<proto>  }  # proto  { code... }
     | <multi_method> 
