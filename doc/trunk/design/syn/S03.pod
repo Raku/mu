@@ -18,7 +18,7 @@ Luke Palmer <luke@luqui.org>
 
 =head1 Overview
 
-For a summary of the changes from Perl 5, see L</Changes to Perl 5 operators>.
+For a summary of the changes from Perl 5, see L</Changes to Perl 5 operators>.
 
 =head1 Operator precedence
 
@@ -234,7 +234,7 @@ Listop (leftward)
 
     4,3, sort 2,1       # 4,3,1,2
 
-As in Perl 5, a list operator looks like a term to the expression on
+As in Perl 5, a list operator looks like a term to the expression on
 its left, so it binds tighter than comma on the left but looser than
 comma on the right--see List operator precedence below.
 
@@ -276,7 +276,7 @@ Class-qualified method call
     $obj.::Class::meth
     $obj.Class::meth    # same thing, assuming Class is predeclared
 
-As in Perl 5, tells the dispatcher which class to start searching from,
+As in Perl 5, tells the dispatcher which class to start searching from,
 not the exact method to call.
 
 =item *
@@ -328,7 +328,7 @@ There is specifically no C<< infix:<.> >> operator, so
 
 will always result in a compile-time error indicating the user should
 use C<< infix:<~> >> instead.  This is to catch an error likely to
-be made by Perl 5 programmers learning Perl 6.
+be made by Perl 5 programmers learning Perl 6.
 
 =back
 
@@ -341,7 +341,7 @@ to a single mutating object in the same expression may result in undefined
 behavior unless some explicit sequencing operator is interposed.
 See L</Sequence points>.
 
-As with all postfix operators in Perl 6, no space is allowed between
+As with all postfix operators in Perl 6, no space is allowed between
 a term and its postfix.  See S02 for why, and for how to work around the
 restriction with a "long dot".
 
@@ -355,9 +355,9 @@ support the common idiom:
     say $x unless %seen{$x}++;
 
 Increment of a C<Str> (in a suitable container) works similarly to
-Perl 5, but is generalized slightly.
+Perl 5, but is generalized slightly.
 A scan is made for the final alphanumeric sequence in
-the string that is not preceded by a '.' character.  Unlike in Perl 5, this
+the string that is not preceded by a '.' character.  Unlike in Perl 5, this
 alphanumeric sequence need not be anchored to the beginning of the
 string, nor does it need to begin with an alphabetic character;
 the final sequence in the string matching C<< <!after '.'> <rangechar>+ >>
@@ -382,7 +382,7 @@ with a decimal number, it's likely to do the right thing:
 
 Character positions are incremented within their natural range for
 any Unicode range that is deemed to represent the digits 0..9 or
-that is deemed to be a complete cyclical alphabet for a (one case
+that is deemed to be a complete cyclical alphabet for (one case
 of) a (Unicode) script.  Only scripts that represent their alphabet
 in codepoints that form a cycle independent of other alphabets may
 be so used.  (This specification defers to the users of such a script
@@ -396,8 +396,8 @@ in such a range, it wraps to the first character of the range and
 sends a "carry" to the position left of it, and that position is
 then incremented in its own range.  If and only if the leftmost
 position is exhausted in its range, an additional character of the
-same range is inserted to hold the carry in the same fashion as Perl
-5, so incrementing '(zz99)' turns into '(aaa00)' and incrementing
+same range is inserted to hold the carry in the same fashion as Perl 5,
+so incrementing '(zz99)' turns into '(aaa00)' and incrementing
 '(99zz)' turns into '(100aa)'.
 
 The following Unicode ranges are some of the possible rangechar ranges.
@@ -435,19 +435,19 @@ not represent 0..9:
     ①..⑳        # circled digits 1..20
     ⒜..⒵        # parenthesize lc
     ⚀..⚅        # die faces 1..6
-    ❶..❿        # dingbat negative circuled 1..10
+    ❶..❿        # dingbat negative circled 1..10
       etc.
 
 While it doesn't really make sense to "carry" such numbers when they
 reach the end of their cycle, treating such values as incrementable may
 be convenient for writing outlines and similar numbered bullet items.
 (Note that we can't just increment unrecognized characters, because
-we have to recognize the final sequence of rangechars before knowing
+we have to locate the string's final sequence of rangechars before knowing
 which portion of the string to increment.  Note also that all character
 increments can be handled by lookup in a single table of successors
 since we've defined our ranges not to include overlapping cycles.)
 
-Perl 6 also supports C<Str> decrement with similar semantics, simply by
+Perl 6 also supports C<Str> decrement with similar semantics, simply by
 running the cycles the other direction.  However, leftmost characters
 are never removed, and the decrement fails when you reach a string like
 "aaa" or "000".
@@ -543,8 +543,8 @@ C<< prefix:<+> >>, numeric context
 
     +$x
 
-Unlike in Perl 5, where C<+> is a no-op, this operator coerces
-to numeric context in Perl 6.  (It coerces only the value, not the
+Unlike in Perl 5, where C<+> is a no-op, this operator coerces
+to numeric context in Perl 6.  (It coerces only the value, not the
 original variable.)  The narrowest appropriate type of C<Int>, C<Num>,
 or C<Complex> will be returned.  A string containing two integers
 separated by a C</> will be returned as a C<Rat>.  Exponential notation
@@ -720,7 +720,7 @@ string value the number of times specified by the right argument and
 returns the result as a single concatenated string regardless of context.
 
 If the count is less than 1, returns the null string.
-The count may not be C<*> because Perl 6 does not support
+The count may not be C<*> because Perl 6 does not support
 infinite strings.  (At least, not yet...)  Note, however, that an
 infinite string may be emulated with C<cat($string xx *)>.
 
@@ -907,8 +907,8 @@ Functions of one argument
 
     rand sleep abs etc.
 
-Note that, unlike in Perl 5, you must use the C<.meth> forms to default
-to C<$_> in Perl 6.
+Note that, unlike in Perl 5, you must use the C<.meth> forms to default
+to C<$_> in Perl 6.
 
 =back
 
@@ -968,7 +968,7 @@ C<< infix:<==> >> etc.
 
     == != < <= > >=
 
-As in Perl 5, converts to C<Num> before comparison.  C<!=> is short for C<!==>.
+As in Perl 5, converts to C<Num> before comparison.  C<!=> is short for C<!==>.
 
 =item *
 
@@ -976,7 +976,7 @@ C<< infix:<eq> >> etc.
 
     eq ne lt le gt ge
 
-As in Perl 5, converts to C<Str> before comparison. C<ne> is short for C<!eq>.
+As in Perl 5, converts to C<Str> before comparison. C<ne> is short for C<!eq>.
 
 =item *
 
@@ -991,7 +991,7 @@ Smart match
 
     $obj ~~ $pattern
 
-Perl 5's C<=~> becomes the "smart match" operator C<~~>, with an
+Perl 5's C<=~> becomes the "smart match" operator C<~~>, with an
 extended set of semantics.  See L</Smart matching> for details.
 
 To catch "brainos", the Perl 6 parser defines an C<< infix:<=~> >>
@@ -1030,7 +1030,7 @@ Canonical equivalence
 Compares two objects for canonical equivalence.  For value types compares
 the values.  For object types, compares current contents according to some
 scheme of canonicalization.  These semantics are those used by hashes
-that allow only values for keys (such as Perl 5 string-key hashes).
+that allow only values for keys (such as Perl 5 string-key hashes).
 See also L</Comparison semantics>.
 
 =item *
@@ -1195,7 +1195,7 @@ The best don't-repeat-yourself solution is simply:
 C<< infix:<?> >>
 
 To catch likely errors by people familiar with C-derived languages
-(including Perl 5), a bare question mark in infix position will
+(including Perl 5), a bare question mark in infix position will
 produce an error suggesting that the user use C<?? !!> instead.
 
 =item *
@@ -1287,7 +1287,7 @@ a C<Pair> object that can, among other things, be used to pass named
 arguments to functions.  It provides item context to both sides.
 It does not actually do an assignment except in a notional sense;
 however its precedence is now equivalent to assignment, and it is
-also right associative.  Note that, unlike in Perl 5, C<< => >>
+also right associative.  Note that, unlike in Perl 5, C<< => >>
 binds tighter than comma.
 
 =item *
@@ -1328,7 +1328,7 @@ C<< infix:<,> >>, the argument separator
 
     1, 2, 3, @many
 
-Unlike in Perl 5, comma operator never returns the last value.  (In item
+Unlike in Perl 5, comma operator never returns the last value.  (In item
 context it returns a list instead.)
 
 =back
@@ -1553,7 +1553,7 @@ The C<item> contextualizer
 
     item foo()
 
-The new name for Perl 5's C<scalar> contextualizer.  Equivalent to C<$()>.
+The new name for Perl 5's C<scalar> contextualizer.  Equivalent to C<$()>.
 We still call the values scalars, and talk about "scalar operators", but
 scalar operators are those that put their arguments into item context.
 
@@ -1578,7 +1578,7 @@ The C<slice> contextualizer
     slice foo()
 
 Forces the subsequent expression to be evaluated in slice context.
-(Slices are considered to be potentially multidimensional in Perl 6.)
+(Slices are considered to be potentially multidimensional in Perl 6.)
 A list of C<Capture>s will be transformed into a list of lists.
 Equivalent to C<@@()>.
 
@@ -1786,15 +1786,15 @@ Huffman-code the language, while others have changed precedence.
 Perl 5's C<${...}>, C<@{...}>, C<%{...}>, etc. dereferencing
 forms are now C<$(...)>, C<@(...)>, C<%(...)>, etc. instead.
 Listop-like forms use the bare sigil following by whitespace.
-Use of the Perl 5 curly forms will result in an error message
+Use of the Perl 5 curly forms will result in an error message
 pointing the user to the new forms.
 
 =item *
 
 C<< -> >> becomes C<.>, like the rest of the world uses.  There is
 a pseudo C<< postfix:{'->'} >> operator that produces a compile-time
-error reminding Perl 5 users to use dot instead.  (The "pointy block"
-use of C<< -> >> in Perl 5 requires preceding whitespace when the arrow
+error reminding Perl 5 users to use dot instead.  (The "pointy block"
+use of C<< -> >> in Perl 5 requires preceding whitespace when the arrow
 could be confused with a postfix, that is when an infix is expected.
 Preceding whitespace is not required in term position.)
 
@@ -1848,7 +1848,7 @@ though that's a silly example since you could just write:
 But that demonstrates the other advantage of the method form, which is
 that it allows the "unary dot" syntax to test the current topic.
 
-Unlike in earlier versions of Perl 6, these filetests do not return
+Unlike in earlier versions of Perl 6, these filetests do not return
 stat buffers, but simple scalars of type C<Bool>, C<Int>, or C<Num>.
 
 In general, the user need not worry about caching the stat buffer
@@ -1866,7 +1866,7 @@ C<.file> attempts to return C<.io.file>.
 Note that C<:s> still returns the filesize, but C<:!s> is true
 only if the file is of size 0.
 
-(Inadvertent use of the Perl 5 forms will normally result in treatment
+(Inadvertent use of the Perl 5 forms will normally result in treatment
 as a negated postdeclared subroutine, which is likely to produce an
 error message at the end of compilation.)
 
@@ -2311,7 +2311,7 @@ explicit C<.pairs>) to make a junction of pairs.
 
 =item *
 
-Perl 5's comparison operators are basically unchanged, except that they
+Perl 5's comparison operators are basically unchanged, except that they
 can be chained because their precedence is unified.
 
 =item *
@@ -2560,7 +2560,7 @@ in front of it, or it will be interpreted as a hash subscript instead.
 
 =head1 Smart matching
 
-Here is the table of smart matches for standard Perl 6
+Here is the table of smart matches for standard Perl 6
 (that is, the dialect of Perl in effect at the start of your
 compilation unit).  Smart matching is generally done on the current
 "topic", that is, on C<$_>.  In the table below, C<$_> represents the
@@ -2708,7 +2708,7 @@ Matching against a C<Grammar> object will call the C<TOP> method
 defined in the grammar.  The C<TOP> method may either be a rule
 itself, or may call the actual top rule automatically.  How the
 C<Grammar> determines the top rule is up to the grammar, but normal
-Perl 6 grammars will default to setting top to the first rule in the
+Perl 6 grammars will default to setting top to the first rule in the
 original base grammar.  Derived grammars then inherit this idea of
 the top rule.  This may be overridden in either the base grammar or a
 derived grammar by explicitly naming a rule C<TOP>, or defining your
