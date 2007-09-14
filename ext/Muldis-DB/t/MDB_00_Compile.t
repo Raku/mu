@@ -5,7 +5,7 @@ use Test;
 plan( 14 );
 
 use_ok( 'Muldis::DB' );
-skip( 1, q{is( Muldis::DB.WHO.version, 0.3.1,
+skip( 1, q{is( Muldis::DB.WHO.version, 0.3.2,
     'Muldis::DB is the correct version' );} );
 
 use_ok( 'Muldis::DB::Literal' );
