@@ -6,6 +6,7 @@ package GLOBAL;
     use Carp 'confess';
     #@ISA = qw(Exporter);
     our @EXPORT = qw( 
+        VAR
         print 
         say
         warn
@@ -114,6 +115,20 @@ package GLOBAL;
         $v = ::DISPATCH( $v, 'FETCH' ) if ref($v);  # .int may return a Scalar
         return $v->{_value}            if ref($v); 
         $v;
+    }
+
+    sub VAR {
+        # returns a proxy object that dispatches to the container
+        my $container = shift;
+        return $container 
+            unless exists $container->{_dispatch_VAR};
+        return {
+            _dispatch => sub {
+                    #print "dispatching method $_[1]\n";
+                    shift;
+                    $container->{_dispatch_VAR}->( $container, @_ );
+                }
+        };
     }
 
     sub print { 
