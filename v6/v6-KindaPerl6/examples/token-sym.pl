@@ -6,7 +6,7 @@ token xyz:sym<abc> { aaa }
 token xyz:sym<abf> { aaa }
 token xyz:sym<abger> { aaa }
 
-$_ = "aaabbb";
+$_ = "abfbbb";
 # Main.xyz;   XXX - AST bug
 xyz();
 

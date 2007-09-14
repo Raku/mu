@@ -55,6 +55,13 @@
                         ::MODIFIED($code);
                         $code = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                     };
+                    do {
+                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', ::DISPATCH( $self, 'long_names', ) ) ), "true" ), "p5landish" ) ) {
+                            {
+                                ::DISPATCH_VAR( ::DISPATCH( $self, 'long_names', ), 'STORE', ::DISPATCH( $::Array, "new", { _array => [] } ) )
+                            }
+                        }
+                    };
                     ::DISPATCH( ::DISPATCH( $self, 'long_names', ), 'push', $code );
                 }
             )
@@ -70,9 +77,6 @@
                     my $len;
                     $len = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$len' } ) unless defined $len;
                     BEGIN { $len = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$len' } ) }
-                    my $multi;
-                    $multi = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$multi' } ) unless defined $multi;
-                    BEGIN { $multi = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$multi' } ) }
                     my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                     my $code;
                     $code = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$code' } ) unless defined $code;
@@ -116,12 +120,12 @@
                             )
                         {
                             {
-                                ::DISPATCH_VAR( ::DISPATCH( ::DISPATCH( $self, 'token_length', ), 'LOOKUP', $len ), 'STORE', ::DISPATCH( $::Hash, "new", { _hash => { $sym->{_value} => ::DISPATCH( $::Multi, 'new', ), } } ) )
+                                ::DISPATCH_VAR( ::DISPATCH( ::DISPATCH( $self, 'token_length', ), 'LOOKUP', $len ), 'STORE', ::DISPATCH( $::Hash, "new", { _hash => {} } ) )
                             }
                         }
                     };
-                    ::DISPATCH_VAR( $multi, 'STORE', ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, 'token_length', ), 'LOOKUP', $len ), 'LOOKUP', $sym ) );
-                    ::DISPATCH( $multi, 'add_variant', $code );
+                    ::DISPATCH_VAR( ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, 'token_length', ), 'LOOKUP', $len ), 'LOOKUP', $sym ), 'STORE', ::DISPATCH( $::Multi, 'new', ) );
+                    ::DISPATCH( ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, 'token_length', ), 'LOOKUP', $len ), 'LOOKUP', $sym ), 'add_variant', $code );
                 }
             )
         );
@@ -238,6 +242,7 @@
                                     )
                                 );
                                 ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', 'string: ' ), ::DISPATCH( $GLOBAL::Code_prefix_58__60__126__62_, 'APPLY', $_ ) ) );
+                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', 'string len: ' ), ::DISPATCH( $_, 'chars', ) );
                                 {
                                     my $len;
                                     $len = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$len' } ) unless defined $len;
@@ -245,24 +250,68 @@
                                     for $len ( @{ $List_len->{_value}{_array} } ) {
                                         {
                                             do {
-                                                if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60__62__61__62_, 'APPLY', $len, ::DISPATCH( $_, 'chars', ) ), "true" ), "p5landish" ) ) {
+                                                if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60__62__61__62_, 'APPLY', ::DISPATCH( $_, 'chars', ), $len ), "true" ), "p5landish" ) ) {
                                                     {
+                                                        my $s;
+                                                        $s = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$s' } ) unless defined $s;
+                                                        BEGIN { $s = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$s' } ) }
                                                         my $Hash_syms = ::DISPATCH( $::Hash, 'new', { modified => $_MODIFIED, name => '$Hash_syms' } );
+                                                        ::DISPATCH_VAR( $s, 'STORE', ::DISPATCH( $GLOBAL::Code_substr, 'APPLY', $_, ::DISPATCH( $::Int, 'new', 0 ), $len ) );
+                                                        ::DISPATCH(
+                                                            $GLOBAL::Code_say,
+                                                            'APPLY',
+                                                            ::DISPATCH(
+                                                                $GLOBAL::Code_infix_58__60__126__62_,
+                                                                'APPLY',
+                                                                ::DISPATCH( $::Str, 'new', '# len: ' ),
+                                                                ::DISPATCH(
+                                                                    $GLOBAL::Code_infix_58__60__126__62_,
+                                                                    'APPLY',
+                                                                    ::DISPATCH( $GLOBAL::Code_prefix_58__60__126__62_, 'APPLY', $len ),
+                                                                    ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' - ' ), ::DISPATCH( $GLOBAL::Code_prefix_58__60__126__62_, 'APPLY', $s ) )
+                                                                )
+                                                            )
+                                                        );
                                                         ::DISPATCH_VAR( $Hash_syms, 'STORE', ::DISPATCH( ::DISPATCH( $self, 'token_length', ), 'LOOKUP', $len ) );
-                                                        ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '# syms: ' ), ::DISPATCH( $Hash_syms, 'keys', ) )
+                                                        ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '# syms: ' ), ::DISPATCH( $Hash_syms, 'keys', ) );
+                                                        {
+                                                            my $sym;
+                                                            $sym = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$sym' } ) unless defined $sym;
+                                                            BEGIN { $sym = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$sym' } ) }
+                                                            for $sym ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $Hash_syms, 'keys', ) )->{_value}{_array} } ) {
+                                                                {
+                                                                    do {
+                                                                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $s, $sym ), "true" ), "p5landish" ) ) {
+                                                                            {
+                                                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', 'found!' ) );
+                                                                                return ( ::DISPATCH( ::DISPATCH( $Hash_syms, 'LOOKUP', $sym ), 'select', $List__ ) )
+                                                                            }
+                                                                        }
+                                                                        }
+                                                                }
+                                                            }
+                                                        }
                                                     }
                                                 }
                                                 }
                                         }
                                     }
-                                }
+                                };
+                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', 'done' ) )
                             }
                         }
                     };
                     do {
                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', ::DISPATCH( $self, 'long_names', ) ) ), "true" ), "p5landish" ) ) {
                             {
-                                ::DISPATCH_VAR( ::DISPATCH( $self, 'long_names', ), 'STORE', ::DISPATCH( $::Array, "new", { _array => [] } ) )
+                                ::DISPATCH(
+                                    $GLOBAL::Code_die,
+                                    'APPLY',
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                        ::DISPATCH( $::Str, 'new', 'can' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', chr(39) ), ::DISPATCH( $::Str, 'new', 't resolve Multi dispatch' ) )
+                                    )
+                                    )
                             }
                         }
                     };

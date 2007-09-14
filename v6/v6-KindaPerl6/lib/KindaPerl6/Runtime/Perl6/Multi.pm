@@ -18,6 +18,11 @@ class Multi is Code {
     has %.token_length;  # token:sym  multi-dispatch
             
     method add_variant ( $code ) {
+
+        if !( defined( self.long_names ) ) {
+            self.long_names = [ ];   # XXX accessor init bug
+        };
+
         (self.long_names).push( $code );
     }
             
@@ -28,12 +33,10 @@ class Multi is Code {
             self.token_length = { };   # XXX accessor init bug
         };
         if !( defined( ( self.token_length ){$len} ) ) {
-            #say "new length : $len ";
-            ( self.token_length ){$len} = { $sym => Multi.new(), };
-            # ( ( ( self.token_length ){$len} ){$sym} ).long_names = [ ];   # XXX accessor init bug
+            ( self.token_length ){$len} = { };
         };
-        my $multi = ( ( self.token_length ){$len} ){$sym};
-        $multi.add_variant( $code );  # XXX
+        ( ( self.token_length ){$len} ){ $sym } = Multi.new();
+        ( ( ( self.token_length ){$len} ){$sym} ).add_variant( $code );
     }
             
     method select {
@@ -57,23 +60,30 @@ class Multi is Code {
             @len = @len.sort( sub { @_[1] <=> @_[0] } );
             say "lengths : @len[] ";
             say "string: $_";
+            say "string len: ",$_.chars;
 
             for @len -> $len {
-                if $len >= ( $_.chars ) {
+                if ( $_.chars ) >= $len {
+                    my $s = substr( $_, 0, $len );   # XXX - pos?
+                    say "# len: $len - $s";
                     my %syms = ( self.token_length ){$len};
                     say "# syms: ", ( %syms.keys );
 
-                    # TODO ...
+                    for %syms.keys -> $sym {
+                        if $s eq $sym {
+                            say "found!";
+                            return ( %syms{$sym} ).select( @_ );
+                        }
+                    }
                 };
             };
-
-            # TODO ...
+            say "done";
         };
 
         # sub/method dispatch
         
         if !( defined( self.long_names ) ) {
-            self.long_names = [ ];   # XXX accessor init bug
+            die "can't resolve Multi dispatch";
         };
 
         for @(self.long_names) -> $sub {
