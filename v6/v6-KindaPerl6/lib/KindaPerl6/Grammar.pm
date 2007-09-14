@@ -689,15 +689,33 @@ token token {
 token token_sym {
     # { say 'parsing Token:sym' }
     token
-    <?ws>  <ident> \: sym \< <angle_quoted> \> <?opt_ws> \{
+    <?ws> <namespace> <ident> \: sym \< <angle_quoted> \> <?opt_ws> \{
         <KindaPerl6::Grammar::Regex.rule>
     \}
     {
-        return ::Token(
-            name  => ~$<ident>,
-            regex => $$<KindaPerl6::Grammar::Regex.rule>,
-            sym   => ~$<angle_quoted>,
-        );
+            return 
+                ::Call(
+                    hyper     => '',
+                    method   => 'push',
+                    invocant => ::Call(
+                        hyper     => '',
+                        arguments => [ ],
+                        method    => 'long_names',
+                        invocant  => ::Var(
+                            namespace => $$<namespace>,
+                            name      => $$<ident>,
+                            twigil    => '',
+                            sigil     => '&',
+                        ),      
+                    ),              
+                    arguments => [
+                        ::Token(
+                            name  => undef,   
+                            regex => $$<KindaPerl6::Grammar::Regex.rule>,
+                            sym   => ~$<angle_quoted>,
+                        ),
+                    ],
+                );                  
     }
 };
 
