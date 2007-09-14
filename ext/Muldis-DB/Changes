@@ -14,6 +14,15 @@
 
     * New file versions are: DB.pm 0.4.0.
 
+    * (DB.pm)  The whole Muldis DB core, that is, all code in this
+    distribution, has been re-licensed under the GNU Lesser General Public
+    License version 3 or later (LGPLv3+).  Also, the current plan is that
+    the LGPLv3+ will be used as the license of many separately distributed
+    Muldis DB extensions started by the same author, such as some
+    implementations over SQL databases, or such as example code in
+    tutorials/cookbooks; or some extensions would be under other
+    GPLv3-compatible licenses.
+
 2007-08-18   Darren Duncan <perl@DarrenDuncan.net>
 
     * Muldis DB version 0.3.1 for Perl 5 is released on CPAN as

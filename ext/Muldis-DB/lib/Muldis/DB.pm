@@ -216,29 +216,17 @@ This file is part of the Muldis DB framework.
 
 Muldis DB is Copyright © 2002-2007, Darren Duncan.  All rights reserved.
 
-Muldis DB is free software.  With respect to just the component file
-"lib/Muldis/DB.pm", you can redistribute it and/or modify it under the
-terms of the GNU Lesser General Public License (LGPL) as published by the
-Free Software Foundation (L<http://www.fsf.org/>); either version 3 of the
-License, or (at your option) any later version.  With respect to all other
-component files, you can redistribute it and/or modify it under the terms
-of the GNU General Public License (GPL) as published by the Free Software
-Foundation; either version 3 of the License, or any later version.  You
-should have received copies of the LGPL and GPL as part of the Muldis DB
-distribution, in the files named "LICENSE/LGPL" and "LICENSE/GPL"; if not,
-see L<http://www.gnu.org/licenses/>.
-
-I<Note that the distribution files Literal.pm and Interface.pm will be
-going away soon, some of their functionality being moved into DB.pm and or
-Example.pm.  Therefore, the above license terms mean that the LGPL will
-soon cover just the tiny part of this distribution that is mandatory to use
-the Muldis DB framework at all (because it defines the role/interface that
-every Engine does).  Furthermore, the majority part of this distribution
-that is covered by the GPL will soon not be mandatory, but optional, when
-using the framework.>
+Muldis DB is free software; you can redistribute it and/or modify it under
+the terms of the GNU Lesser General Public License (LGPL) as published by
+the Free Software Foundation (L<http://www.fsf.org/>); either version 3 of
+the License, or (at your option) any later version.  You should have
+received a copy of the LGPL as part of the Muldis DB distribution, in the
+files named "LICENSE/LGPL" and "LICENSE/GPL" (the LGPLv3 is defined as the
+terms of the GPLv3 plus extra permissions); if not, see
+L<http://www.gnu.org/licenses/>.
 
 If it is not feasible for you to employ Muldis DB subject to the terms of
-the LGPL+GPL, then the copyright holder of Muldis DB can provide you a
+the LGPL, then the copyright holder of Muldis DB can provide you a
 customized proprietary license, often at no cost, so that it is still
 possible for you to employ Muldis DB to meet your needs.
 
