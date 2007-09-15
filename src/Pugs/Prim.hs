@@ -1039,6 +1039,7 @@ op2 "orelse"= op2 "//"	-- XXX wrong
 op2 "andthen"= op2 "&&"	-- XXX even wronger
 op2 "pick" = op2Pick
 op2 "grep" = op2Grep
+op2 "first" = op2First
 op2 "map"  = op2Map
 op2 "join" = op2Join
 op2 "reduce" = op2ReduceL False
@@ -1901,12 +1902,14 @@ initSyms = seq (length syms) $ do
 \\n   List      spre    gather  safe   (Code)\
 \\n   List      pre     map     safe   (Code, List)\
 \\n   List      pre     grep    safe   (Code, List)\
+\\n   Scalar    pre     first   safe   (Code, List)\
 \\n   List      pre     sort    safe   (Code, List)\
 \\n   List      pre     reduce  safe   (Code, List)\
 \\n   List      pre     produce safe   (Code, List)\
 \\n   List      pre     sort    safe   (Array)\
 \\n   List      pre     map     safe   (Array: Code)\
 \\n   List      pre     grep    safe   (Array: Code)\
+\\n   Scalar    pre     first   safe   (Array: Code)\
 \\n   List      pre     sort    safe   (Array: Code)\
 \\n   List      pre     reduce  safe   (Array: Code)\
 \\n   List      pre     produce safe   (Array: Code)\

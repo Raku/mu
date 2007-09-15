@@ -4,7 +4,7 @@ module Pugs.Prim.List (
     op0Zip, op0Cross, op0Cat, op0Each, op0RoundRobin, op1Pick, op1Sum,
     op1Min, op1Max, op1Uniq,
     op2Pick,
-    op2ReduceL, op2Reduce, op2Grep, op2Map, op2Join,
+    op2ReduceL, op2Reduce, op2Grep, op2First, op2Map, op2Join,
     sortByM,
     op1HyperPrefix, op1HyperPostfix, op2Hyper,
 ) where
@@ -329,6 +329,14 @@ op2Grep list sub = do
             evl (App (Val sub) Nothing [Val x])
         fromVal rv
     return $ VList vals
+
+op2First :: Val -> Val -> Eval Val
+op2First sub@(VCode _) list = op2First list sub
+op2First list sub = do
+  (VList vals) <- (op2Grep list sub)
+  if (length vals) > 0 
+    then return $ (vals !! 0)
+    else fail $ "Cannot call first() with a filter that removes all elements from the input list"
 
 op2Map :: Val -> Val -> Eval Val
 op2Map sub@(VCode _) list = op2Map list sub
