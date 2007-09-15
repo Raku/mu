@@ -1,124 +1,187 @@
-var nchars=0;
 var histlist=new Array();
 var histentry=0;
 var reply="";
 var sessionid=0;
-var reldev=1;
+var reldev=0;
+
+var curpos=0;
+var cmd = "";
+var prompt = "pugs> ";
+var cmds = new Array();
+var theme = "wb_theme";
 
 $(window).unload(function() {
 	//send :q to pugs on onload
 	$.ajax({
-		url: '/perl/runpugs.pl?sessionid='+sessionid+'&reldev=1&ia=1&cmd=%3Aq',
-		async: false
-	});                
+		url: "/perl/runpugs.pl?" + "sessionid=" + sessionid + 
+        "&reldev=1&ia=1&cmd=%3Aq",
+		async: true
+	});
 });
+
+function showCursor() {
+    var cursorEl = "#d" + (cmds.length - 1);
+    $(cursorEl).toggleClass('cursorOff');
+    $(cursorEl).toggleClass('cursorOn');
+    setTimeout('showCursor()',1000);
+}
+
+function updateConsole() {
+    $("#tt").empty();
+    $.each(cmds,function(i,n) {
+        var l = (n == "") ? "&nbsp;" : n;
+        $("#tt").append(
+        "<tr><td><pre id='c" + i + "' class='"+ theme +"'>" + 
+        l + "</pre><span id='d" + i + 
+        "' class='cursorOff'>&nbsp;</span></td></tr>"
+        );
+    });
+    var lastId = (cmds.length - 1);
+    var cmdEl = "#c" + lastId;
+    var cursorEl = "#d" + lastId;
+    
+    var scrollHeight = $("#termwin")[0].scrollHeight;
+    $("#termwin").animate({ scrollTop: scrollHeight }, "fast")
+}
+
 $(document).ready( function() {
 	//document is ready now...
-        $('#cmd').keydown(function(event) {
-                return process_events(event.keyCode);
-        });
+    $("#tt").empty();
+    $("#tt").append("<tr><td><pre id='c0' class='wb_theme'>" +
+    "Please wait while Pugs starts up...</pre>"+
+    "<span class='cursor'>&nbsp;</span></td></tr>");
+    
+    $("#theme").change(function() {
+        $("pre").toggleClass(theme);
+        theme = $("#theme").val();
+        $("pre").toggleClass(theme);    
+    });
+    $("#logo").slideDown(2000);
+    
+    showCursor();
 });
 
 
 
 
-function getnchars() {
-    return document.terminal.cmd.value.length
-}
 
-function getcursorpos() {
-	var obj=document.terminal.cmd;
-	if(document.selection) {
-    	obj.focus();			
-		var rng=document.selection.createRange();			
-        rng.moveStart('textedit',-1);
-//        rng.moveEnd('character',getnchars());
-		return rng.text.length;
-	} else if(obj.selectionStart) { // FireFox
-    	var start = obj.selectionStart;
-    	var end   = obj.selectionEnd;
-   		if (start<=end) {
-   			return start;
-		} else {
-   			return end;
-           }
-	}
-}
+$(document).keydown(function(event) {
+    var keyCode = event.keyCode;
+    var cmdEl = "#c" + (cmds.length - 1);
 
-function setcursorpos() {
-	var obj=document.terminal.cmd;
-	if(document.selection) {
-    	obj.focus();			
-		var rng=document.selection.createRange();			
-        rng.moveStart('character',0);
-        rng.moveEnd('textedit');
-//		rng.select();
-	} else if(obj.selectionStart>=0) { // FireFox
-        	obj.selectionStart=nchars;
-    	   obj.selectionEnd=nchars;
-	}
-}
+    var scrollHeight = $("#termwin")[0].scrollHeight;
+    $("#termwin").animate({ scrollTop: scrollHeight }, "fast");
 
-function process_events (keycode) {
-    if (keycode == 13) {
-        var cmd=document.terminal.cmd.value;
-       //cmd.replace(/^.*pugs\>\ /, "");
-        var cmds=cmd.split('pugs> ');
-        var lastCmd=cmds[cmds.length-1];
-	if($.trim(lastCmd) != "") {
-		histlist.push(lastCmd);
-	}
-       	frames['scratch'].document.getElementById("cmd").value=cmd;
+    if(keyCode == 13) {
+        //enter
+        var sessCmds=document.terminal.cmd.value + "\n" + prompt + cmd;
+        var tmpCmds=sessCmds.split('pugs> ');
+        var tmpCmd=tmpCmds[tmpCmds.length-1];
+        if($.trim(tmpCmd) != "") {
+            histlist.push(tmpCmd);
+        }
+       	frames['scratch'].document.getElementById("cmd").value=sessCmds;
         frames['scratch'].document.terminal.submit(); 
+        cmd = "";
         return false;
-    } else if (keycode==38) {
+    } else if(keyCode == 8) {
+        //backspace
+        if(curpos > 0) {
+            curpos -=1
+            cmd = cmd.substring(0,cmd.length-1);
+            $(cmdEl).text(prompt + cmd);
+        }
+        return false;
+    } else if(keyCode == 38) {
+        //up
         hist_next();
-        setcursorpos();
+        
         return false;
-    } else if (keycode==40) {
+    } else if(keyCode == 40) {
+        //down
         hist_prev();
+        $(cmdEl).text(prompt + cmd);
         return false;
-    } else if ((keycode==8)||(keycode==37)||(keycode==46)) {
-        if ((getnchars()>nchars) && (getcursorpos() > nchars)) {
-            return true;
-        } else {
-        setcursorpos();
-            return false;
-        }
-    } else {
-    if(keycode) {
-        return true;
-        } else { 
+    } /*else if(keyCode == 37) {
+        //left
+        $("#status").text("left not implemented");
         return false;
+    } else if(keyCode == 39) {
+        //right
+        $("#status").text("right not implemented");
+        return false;
+    } else if(keyCode == 36) {
+        //home
+        //curpos = 0;
+        $("#status").text("home not implemented");
+        return false;
+    
+    } else if(keyCode == 35) {
+        //end
+        $("#status").text("end not implemented");
+        return false;
+  
+    } */
+      
+      return true;
+});
+$(document).keypress(function(event) {
+
+    var scrollHeight = $("#termwin")[0].scrollHeight;
+    $("#termwin").animate({ scrollTop: scrollHeight }, "fast");
+
+    var keyCode = event.keyCode;
+    var cmdEl = "#c" + (cmds.length - 1);
+    if($.browser.msie || $.browser.opera) {
+        var key = String.fromCharCode(keyCode);
+        if(key >= ' ') {
+            if(($.browser.opera && (keyCode < 35 || keyCode > 40)) || $.browser.msie) {
+                cmd += key;   
+                $(cmdEl).text(prompt + cmd);
+                curpos++;
+            }
         }
+        return false;
+    }else if($.browser.mozilla && keyCode == 0) {
+        var key = String.fromCharCode(event.charCode ? event.charCode : event.keyCode);
+        cmd += key;   
+        $(cmdEl).text(prompt + cmd);
+        curpos++;
+        return false;
     }
-}
+    return true;
+});
+
 
 function getreply () {
-    scratchpad=frames['scratch'].document;//.contentDocument;
+    scratchpad=frames['scratch'].document;
     reply=scratchpad.getElementById("cmd").value;
     histentry=histlist.length;
     sessionid=scratchpad.terminal.sessionid.value;
     document.terminal.cmd.value=reply;
-    document.terminal.cmd.focus() 
-    document.terminal.cmd.scrollTop =document.terminal.cmd.scrollHeight;
-    nchars=document.terminal.cmd.value.length;
+
+	cmds = reply.replace(/ /g,'&nbsp;').split(/\r\n|\n|\r/g);
+    updateConsole();
 }
 
 function hist_next () {
     if (histentry>=1) {
-        histentry-=1;
-        document.terminal.cmd.value=reply+histlist[histentry];
-        document.terminal.cmd.scrollTop =document.terminal.cmd.scrollHeight; 
+        histentry--;
+        cmd=histlist[histentry];
+        curpos=cmd.length;
+        var cmdEl = "#c" + (cmds.length - 1);
+        $(cmdEl).text(prompt + cmd);
     }
     return false;
 }
 
 function hist_prev () {
     if (histentry<histlist.length-1) {
-        histentry+=1;
-        document.terminal.cmd.value=reply+histlist[histentry];
-        document.terminal.cmd.scrollTop =document.terminal.cmd.scrollHeight; 
+        histentry++;
+        cmd=histlist[histentry];
+        curpos=cmd.length;
+        var cmdEl = "#c" + (cmds.length - 1);
+        $(cmdEl).text(prompt + cmd);
     }
 }
 

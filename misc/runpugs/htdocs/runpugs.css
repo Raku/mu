@@ -1,75 +1,47 @@
-BODY {width:100%;margin-left:10%;margin-right:10%; margin-top: 10px; font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; font-size: 12pt; line-height: normal; background-color:#FFFFFF;}
-H1 {font-size: 24pt; 
+body {
+	font:14px arial,helvetica,clean,sans-serif;
+	width:100%;
+	margin-left:10%;margin-right:10%; margin-top: 0px; 
+	line-height: normal; 
+}
+H1 {
+	width: 100%;
+	font-size: 24pt; 
     font-family: Georgia, Serif, Times; 
     font-weight: normal;
     color: white;
     background-color: #204a87;
-    padding: 15px;
-    }
-H2 { font-weight: bold; font-size: 12pt}
-
-EM {font-weight: bold;
-    font-style: normal;
-        text-decoration:none;}
-TT {color: #204a87;
-        font-weight: bold;
-        }
-
+	margin: 5px;
+    padding: 5px;
+}
+H2 { font-weight: bold; font-size: 11pt}
+EM { font-weight: bold; font-style: normal; text-decoration:none;}
+TT {color: #204a87; font-weight: bold; }
 LABEL {font-weight: normal; }
 FIELDSET {border: solid white 0px}
 LEGEND {font-weight:normal; text-align: left; }
 
-/*
-DL { 
-}
-
-DT {
-    display:block;
-    float: left;
-    width: 10ex;
-}
-
-DD {
-    display:block ;
-    float: left;
-}
-*/
-
 .copyright {font-size: 9pt}
-.warning {
-border: solid 2px #204a87;
-padding: 5px;
-}
 .tabon {
 font-weight:bold;
     background-color: #f2f2f0;
     border: solid 2px #204a87;
     padding: 2px;
     padding-bottom: 0px;
-    margin-top: 10px; 
+    margin-top: 0px; 
 
 }
 .taboff {
 font-weight:bold;
     background-color: #c2c2c0;
-color: gray;
+	color: gray;
     border: solid 2px #204a87;
     padding: 2px;
     padding-bottom: 0px;
-    margin-top: 10px; 
+    margin-top: 0px; 
 }
 #mainwindow {
-width: 85ex; /*750px */
-}
-#hist {
-    width: 100%; /*750px; */
-    font-family: "Andale Mono", courier, fixed, monospace;
-    font-weight: normal;
-    font-size: 10pt;
-    color: #204a87;
-    border: solid 0px #204a87;
-    background-color: #f2f2f0;
-    padding-bottom: 5px;
+	width:80%;
 }
 .term {
     background-color: #f2f2f0;
@@ -79,12 +51,9 @@ width: 85ex; /*750px */
 #outputwindow {
     height:40ex;
 }
-#editorwindow {
-    height: 50ex; /*400px;*/
-}
-
 #termwindow {
-    height: 45ex; /*400px;*/
+    height: 100px;
+	display:none;
     background-color: #f2f2f0;
     border: solid 2px #204a87;
     padding: 5px;
@@ -93,36 +62,24 @@ width: 85ex; /*750px */
     font-family: "Andale Mono", courier, fixed, monospace;
     font-size: 11pt;
     font-weight: bold;
-    line-height: 12pt;
+    line-height: 11pt;
     color: #204a87;
     background-color: #f2f2f0;
-/*        border: solid 0px #f2f2f0;*/
 }
 .termfont {
     font-family: "Andale Mono", courier, fixed, monospace;
     font-size: 11pt;
     font-weight: normal;
-    line-height: 12pt;
+    line-height: 11pt;
     color: #204a87;
     background-color: #f2f2f0;
-/*        border: solid 0px #f2f2f0;*/
-}
-#cmdline {
-width: 90%; /* sadly, Safari would need 92% */
-    font-family: "Andale Mono", courier, fixed, monospace;
-    font-size: 11pt;
-    font-weight: normal;
-    line-height: 12pt;
-    color: #204a87;
-    background-color: #f2f2f0;
-        border: solid 0px #f2f2f0;
 }
 #output,#script {
     width: 100%;
     font-family: "Andale Mono", courier, fixed, monospace;
     font-size: 11pt;
     font-weight: normal;
-    line-height: 12pt;
+    line-height: 11pt;
     color: #204a87;
     background-color: #f2f2f0;
     border: solid 0px #f2f2f0;
@@ -134,16 +91,79 @@ width: 90%; /* sadly, Safari would need 92% */
     font-family: "Andale Mono", courier, fixed, monospace;
     font-size: 11pt;
     font-weight: normal;
-    line-height: 12pt;
+    line-height: 11pt;
     color: #204a87;
     background-color: #f2f2f0;
     border: solid 0px #f2f2f0;
-/*    border: solid 2px #204a87;
-    padding: 5px;*/
 }
-/* Linkdefinities */
 A:link, A.bold:link { text-decoration: underline; color: #660066}
 A:active, A.bold:active { text-decoration: underline; color: #6699FF}
 A:visited, A.bold:visited { text-decoration: underline; color: #660066}
 A:hover, A.bold:hover { text-decoration: underline; color: #000099}
 A.taboff:link, A.taboff:active,A.taboff:visited {text-decoration: none; color: #333333}
+.cc {
+	font-family: 'Courier New', Monaco, Courier, monospace;
+	font-size: 11px;
+	color: white;
+	background-color: black;
+	padding: 5px;
+	width:100%;
+	line-height:1em;
+	height:24em;
+	overflow: auto;
+	border: 1px solid white;
+}
+pre {
+	color: white;
+	background-color: black;
+	margin: 0;
+	padding: 0;
+	border: none;
+	display:inline;
+}
+pre.wb_theme  {
+	color: white;
+	background-color: black;
+	margin: 0;
+	padding: 0;
+	border: none;
+	display:inline;
+}
+pre.gb_theme {
+	color: rgb(0,255,0);
+	background-color: black;
+	margin: 0;
+	padding: 0;
+	border: none;
+	display:inline;
+}
+pre.ab_theme {
+	color: rgb(255,140,0);
+	background-color: black;
+	margin: 0;
+	padding: 0;
+	border: none;
+	display:inline;
+}
+.note { 
+	border-style: solid; 
+	border-width: 1px; 
+	border-color: #F0C000; 
+	background-color: #FFFFCE; 
+}
+span.cursorOn {
+	font-family: 'Courier New', Monaco, Courier, monospace;
+	font-size: 11px;
+	display:inline;
+	background: white;
+	color: white;
+	border:none;
+}
+span.cursorOff {
+	font-family: 'Courier New', Monaco, Courier, monospace;
+	font-size: 11px;
+	display:inline;
+	background: black;
+	color: black;
+	border:none;
+}
