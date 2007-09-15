@@ -33,7 +33,7 @@
             ::DISPATCH(
                 $::Method,
                 'new',
-                sub {
+                { code => sub {
                     my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                     my $self;
                     $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
@@ -65,7 +65,7 @@
                             )
                         )
                     );
-                }
+                }}
             )
         );
         ::DISPATCH(
@@ -75,7 +75,7 @@
             ::DISPATCH(
                 $::Method,
                 'new',
-                sub {
+                { code => sub {
                     my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                     my $self;
                     $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
@@ -94,7 +94,7 @@
                         $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                     };
                     ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $self, "key" ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', chr(9) ), ::DISPATCH( $self, "value" ) ) );
-                }
+                }}
             )
         );
         ::DISPATCH(
@@ -104,7 +104,7 @@
             ::DISPATCH(
                 $::Method,
                 'new',
-                sub {
+                { code => sub {
                     my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                     my $self;
                     $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
@@ -123,7 +123,7 @@
                         $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                     };
                     ::DISPATCH( $GLOBAL::Code_true, 'APPLY', );
-                }
+                }}
             )
         );
         ::DISPATCH(
@@ -133,7 +133,7 @@
             ::DISPATCH(
                 $::Method,
                 'new',
-                sub {
+                { code => sub {
                     my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                     my $self;
                     $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
@@ -152,7 +152,7 @@
                         $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                     };
                     ::DISPATCH( ::DISPATCH( $self, "value" ), 'int', );
-                }
+                }}
             )
         );
         ::DISPATCH(
@@ -162,7 +162,7 @@
             ::DISPATCH(
                 $::Method,
                 'new',
-                sub {
+                { code => sub {
                     my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                     my $self;
                     $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
@@ -181,7 +181,7 @@
                         $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                     };
                     ::DISPATCH( $::Hash, "new", { _hash => { ::DISPATCH( $self, "key" )->{_value} => ::DISPATCH( $self, "value" ), } } );
-                }
+                }}
             )
         );
         ::DISPATCH(
@@ -191,7 +191,7 @@
             ::DISPATCH(
                 $::Method,
                 'new',
-                sub {
+                { code => sub {
                     my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                     my $self;
                     $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
@@ -210,7 +210,7 @@
                         $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                     };
                     ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $self, "key" ), ::DISPATCH( $self, "value" ) ] } );
-                }
+                }}
             )
             )
     };

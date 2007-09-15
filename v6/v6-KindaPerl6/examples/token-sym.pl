@@ -1,5 +1,7 @@
 class Main {
 
+sub mysub { 123 };
+
 proto token xyz {}; 
 
 token xyz:sym<abc> { aaa }

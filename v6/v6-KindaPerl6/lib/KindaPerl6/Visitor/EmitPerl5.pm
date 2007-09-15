@@ -627,13 +627,18 @@ class Subset {
 
 class Method {
     method emit_perl5 {
-        'sub ' ~ $.name ~ ' { ' 
-          ~     $.block.emit_declarations 
-          ~     '$self = shift; ' 
-          ~     $.block.emit_arguments 
-          ~     $.block.emit_body
-          ~ ' }' 
-          ~ Main::newline();
+          '::DISPATCH( $::Method, \'new\', { '
+        ~   'code => sub { '  
+        ~     $.block.emit_declarations 
+        ~     '$self = shift; ' 
+        ~     $.block.emit_arguments 
+        ~     $.block.emit_body
+        ~    ' }, '
+        ~   'signature => ' 
+        ~       $.block.emit_signature
+        ~    ', '
+        ~ ' } )' 
+        ~ Main::newline();
     }
 }
 

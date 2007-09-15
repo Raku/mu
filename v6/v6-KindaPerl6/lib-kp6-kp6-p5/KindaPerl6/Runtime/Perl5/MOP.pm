@@ -136,7 +136,7 @@ my $dispatch = sub {
     }
     
     # low-level Method - APPLY can't dispatch itself!
-    #warn 'LOW-LEVEL APPLY '.$method_name."\n".join("\n", map { join ",", caller($_) } 1..6)."\n";
+    # warn 'LOW-LEVEL APPLY '.$method_name."\n".join("\n", map { join ",", caller($_) } 1..6)."\n";
     return $meth->{_value}->( $self, @_ );
 };
 
@@ -752,6 +752,12 @@ $meta_Routine->add_method(
 
 # Method isa Routine
 $meta_Method->add_parent( $meta_Routine );
+# XXX should not need this!
+$meta_Method->add_method( 'signature',
+    ::DISPATCH( $::Method, 'new',  sub { 
+        #print "SIG ", keys %{ $_[0]{_value} }, "\n";
+        $_[0]{_value}{signature};
+    } ) );
 
 
 

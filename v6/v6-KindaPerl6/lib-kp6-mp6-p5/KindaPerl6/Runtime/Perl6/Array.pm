@@ -31,7 +31,7 @@
             ::DISPATCH(
                 $::Method,
                 'new',
-                sub {
+                { code => sub {
                     my $s;
                     $s = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$s' } ) unless defined $s;
                     BEGIN { $s = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$s' } ) }
@@ -64,7 +64,7 @@
                         }
                     };
                     return ( ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $s, ::DISPATCH( $::Str, 'new', ' ]' ) ) );
-                }
+                }}
             )
         );
         ::DISPATCH(
@@ -74,7 +74,7 @@
             ::DISPATCH(
                 $::Method,
                 'new',
-                sub {
+                { code => sub {
                     my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                     my $self;
                     $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
@@ -93,7 +93,7 @@
                         $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                     };
                     ::DISPATCH( $self, 'join', ::DISPATCH( $::Str, 'new', ' ' ) );
-                }
+                }}
             )
         );
         ::DISPATCH(
@@ -103,7 +103,7 @@
             ::DISPATCH(
                 $::Method,
                 'new',
-                sub {
+                { code => sub {
                     my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                     my $self;
                     $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
@@ -122,7 +122,7 @@
                         $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                     };
                     ::DISPATCH( $GLOBAL::Code_infix_58__60__33__61__62_, 'APPLY', ::DISPATCH( $self, 'elems', ), ::DISPATCH( $::Int, 'new', 0 ) );
-                }
+                }}
             )
         );
         ::DISPATCH(
@@ -132,7 +132,7 @@
             ::DISPATCH(
                 $::Method,
                 'new',
-                sub {
+                { code => sub {
                     my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                     my $self;
                     $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
@@ -151,7 +151,7 @@
                         $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                     };
                     ::DISPATCH( $self, 'elems', );
-                }
+                }}
             )
         );
         ::DISPATCH(
@@ -161,7 +161,7 @@
             ::DISPATCH(
                 $::Method,
                 'new',
-                sub {
+                { code => sub {
                     my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                     my $self;
                     $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
@@ -180,7 +180,7 @@
                         $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                     };
                     $self;
-                }
+                }}
             )
         );
         ::DISPATCH(
@@ -190,7 +190,7 @@
             ::DISPATCH(
                 $::Method,
                 'new',
-                sub {
+                { code => sub {
                     my $List_result = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List_result' } );
                     my $s;
                     $s = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$s' } ) unless defined $s;
@@ -235,7 +235,7 @@
                         }
                     };
                     return ($List_result);
-                }
+                } }
             )
             )
     };

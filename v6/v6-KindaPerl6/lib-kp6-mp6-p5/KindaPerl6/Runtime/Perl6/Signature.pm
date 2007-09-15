@@ -33,7 +33,7 @@
             ::DISPATCH(
                 $::Method,
                 'new',
-                sub {
+                { code => sub {
                     my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                     my $self;
                     $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
@@ -52,7 +52,7 @@
                         $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                     };
                     ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $self, "sigil" ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $self, "twigil" ), ::DISPATCH( $self, "name" ) ) );
-                }
+                }}
             )
             )
     };
@@ -95,7 +95,7 @@
             ::DISPATCH(
                 $::Method,
                 'new',
-                sub {
+                { code => sub {
                     my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                     my $self;
                     $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
@@ -114,7 +114,7 @@
                         $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                     };
                     ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "array" ), 'elems', ), ::DISPATCH( ::DISPATCH( $self, "hash" ), 'elems', ) );
-                }
+                }}
             )
         );
         ::DISPATCH(
@@ -124,7 +124,7 @@
             ::DISPATCH(
                 $::Method,
                 'new',
-                sub {
+                { code => sub {
                     my $v;
                     $v = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$v' } ) unless defined $v;
                     BEGIN { $v = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$v' } ) }
@@ -174,7 +174,7 @@
                         }
                     };
                     return ( ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $s, ::DISPATCH( $::Str, 'new', ' )' ) ) );
-                }
+                }}
             )
         );
         ::DISPATCH(
@@ -184,7 +184,7 @@
             ::DISPATCH(
                 $::Method,
                 'new',
-                sub {
+                { code => sub {
                     my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                     my $self;
                     $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
@@ -203,7 +203,7 @@
                         $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                     };
                     ::DISPATCH( $self, 'perl', );
-                }
+                }}
             )
             )
     };

@@ -19,6 +19,8 @@ class Multi is Code {
             
     method add_variant ( $code ) {
 
+        #say "# add_variant: ", $code.WHAT;
+
         if !( defined( self.long_names ) ) {
             self.long_names = [ ];   # XXX accessor init bug
         };
@@ -39,14 +41,12 @@ class Multi is Code {
         ( ( ( self.token_length ){$len} ){$sym} ).add_variant( $code );
     }
             
-    method select {
+    method select ( $capture ) {
+    
+        #say "# capture isa ", $capture.WHAT;
+        #say "capture: $capture";
 
-        # TODO - dispatch on token_length if it is defined
-
-        my @candidates;
-        my $sub; # XXX 
-        
-        unless (@_[0]).isa( 'Capture' ) { 
+        unless $capture.isa( 'Capture' ) { 
             die "the parameter to Multi.select must be a Capture";
         };
 
@@ -72,7 +72,7 @@ class Multi is Code {
                     for %syms.keys -> $sym {
                         if $s eq $sym {
                             say "found!";
-                            return ( %syms{$sym} ).select( @_ );
+                            return ( %syms{$sym} ).select( $capture );
                         }
                     }
                 };
@@ -86,9 +86,13 @@ class Multi is Code {
             die "can't resolve Multi dispatch";
         };
 
+        my @candidates;
+        #say '# testing ', (self.long_names).elems, " candidates in ", (self.long_names).WHAT;
+        
         for @(self.long_names) -> $sub {
-            #say "# testing sub ", $sub;
-            if ($sub.signature).arity == (@_[0]).arity {
+            #say "# testing sub "; #, $sub;
+            #say $sub.WHAT;
+            if ($sub.signature).arity == $capture.arity {
                 @candidates.push( $sub );
             };
         };
