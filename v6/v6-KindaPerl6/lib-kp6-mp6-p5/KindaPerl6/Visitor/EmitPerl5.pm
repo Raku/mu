@@ -209,7 +209,7 @@ sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( $:
 ;
 package Method;
 sub new { shift; bless { @_ }, "Method" }
-sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( $::Method, \'new\', { ' . ('code => sub { ' . ($self->{block}->emit_declarations() . ('$self = shift; ' . ($self->{block}->emit_arguments() . ($self->{block}->emit_body() . (' }, ' . (' } )' . Main::newline())))))))) }
+sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( $::Code, \'new\', { ' . ('code => sub { ' . ($self->{block}->emit_declarations() . ('$self = shift; ' . ($self->{block}->emit_arguments() . ($self->{block}->emit_body() . (' }, ' . ('signature => ' . ($self->{block}->emit_signature() . (', ' . (' } )' . Main::newline()))))))))))) }
 
 
 ;

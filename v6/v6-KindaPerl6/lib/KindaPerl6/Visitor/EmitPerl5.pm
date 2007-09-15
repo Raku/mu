@@ -627,19 +627,16 @@ class Subset {
 
 class Method {
     method emit_perl5 {
-          '::DISPATCH( $::Method, \'new\', { '
+          '::DISPATCH( $::Code, \'new\', { '
         ~   'code => sub { '  
         ~     $.block.emit_declarations 
         ~     '$self = shift; ' 
         ~     $.block.emit_arguments 
         ~     $.block.emit_body
         ~    ' }, '
-        
-        # XXX - this causes an error when recompiling modules ???
-        #~   'signature => ' 
-        #~       $.block.emit_signature
-        #~    ', '
-        
+        ~   'signature => ' 
+        ~       $.block.emit_signature
+        ~    ', '
         ~ ' } )' 
         ~ Main::newline();
     }

@@ -775,6 +775,11 @@ $GLOBAL::Code_VAR_defined = ::DISPATCH( $::Code, 'new',
     } 
 );
 
+# class prototypes are needed because we have circular dependencies
+$::Signature
+    = make_class( proto => $::Signature, name=>"Signature", methods=>{} );
+$::Signature::Item
+    = make_class( proto => $::Signature::Item, name=>"Signature::Item", methods=>{} );
 
 require KindaPerl6::Runtime::Perl6::Pair;
 require KindaPerl6::Runtime::Perl6::NamedArgument;

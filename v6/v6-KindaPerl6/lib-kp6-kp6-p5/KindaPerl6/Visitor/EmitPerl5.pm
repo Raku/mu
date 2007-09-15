@@ -28,8 +28,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'visit' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $node;
@@ -54,6 +53,15 @@
                         };
                         ::DISPATCH( $node, 'emit_perl5', ::DISPATCH( ::DISPATCH( $self, "visitor_args" ), 'LOOKUP', ::DISPATCH( $::Str, 'new', 'secure' ) ) );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'node', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
                 }
             )
             )
@@ -92,8 +100,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $args_secure;
@@ -251,6 +258,15 @@
                             )
                         );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'args_secure', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
                 }
             )
         );
@@ -350,8 +366,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
@@ -380,6 +395,15 @@
                             )
                         );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
@@ -416,8 +440,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
@@ -446,6 +469,15 @@
                             )
                         );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
@@ -482,8 +514,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
@@ -512,6 +543,15 @@
                             )
                         );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
@@ -548,8 +588,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
@@ -588,6 +627,15 @@
                             )
                         );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
@@ -624,8 +672,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
@@ -654,6 +701,15 @@
                             )
                         );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
@@ -690,8 +746,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
@@ -712,6 +767,15 @@
                         };
                         ::DISPATCH( $::Str, 'new', '$::Undef' );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
@@ -748,8 +812,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
@@ -770,6 +833,15 @@
                         };
                         ::DISPATCH( $GLOBAL::Code_die, 'APPLY', ::DISPATCH( $::Str, 'new', 'Emitting of Val::Object not implemented' ) );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
@@ -806,8 +878,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
@@ -828,6 +899,15 @@
                         };
                         ::DISPATCH( $GLOBAL::Code_die, 'APPLY', ::DISPATCH( $::Str, 'new', 'Emitting of Native::Buf not implemented' ) );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
@@ -864,8 +944,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
@@ -891,6 +970,15 @@
                             ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( [ map { $_->emit_perl5() } @{ ::DISPATCH( $self, "seq" ) } ], 'join', ::DISPATCH( $::Str, 'new', ', ' ) ), ::DISPATCH( $::Str, 'new', ')' ) )
                         );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
@@ -927,8 +1015,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
@@ -959,6 +1046,15 @@
                             )
                         );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
@@ -995,8 +1091,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $fields;
                         $fields = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$fields' } ) unless defined $fields;
@@ -1067,6 +1162,15 @@
                             ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' } } )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) ) )
                         );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
@@ -1103,8 +1207,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
@@ -1148,6 +1251,15 @@
                             )
                         );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
@@ -1184,8 +1296,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
@@ -1229,6 +1340,15 @@
                             )
                         );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
@@ -1265,8 +1385,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
@@ -1295,6 +1414,15 @@
                             )
                         );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
         );
@@ -1303,8 +1431,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_body' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
@@ -1325,6 +1452,15 @@
                         };
                         ::DISPATCH( [ map { $_->emit_perl5() } @{ ::DISPATCH( $self, "body" ) } ], 'join', ::DISPATCH( $::Str, 'new', '; ' ) );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
         );
@@ -1333,8 +1469,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_signature' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
@@ -1355,6 +1490,15 @@
                         };
                         ::DISPATCH( ::DISPATCH( $self, "sig" ), 'emit_perl5', );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
         );
@@ -1363,8 +1507,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_declarations' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $s;
                         $s = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$s' } ) unless defined $s;
@@ -1430,6 +1573,15 @@
                         };
                         return ($s);
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
         );
@@ -1438,8 +1590,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_arguments' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $array_;
                         $array_ = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$array_' } ) unless defined $array_;
@@ -1602,6 +1753,15 @@
                         };
                         return ($str);
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
@@ -1638,8 +1798,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $fields;
                         $fields = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$fields' } ) unless defined $fields;
@@ -1720,6 +1879,15 @@
                             )
                         );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
@@ -1756,8 +1924,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
@@ -1796,6 +1963,15 @@
                             )
                         );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
@@ -1832,8 +2008,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
@@ -1872,6 +2047,15 @@
                             )
                         );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
@@ -1908,8 +2092,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $node;
                         $node = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$node' } ) unless defined $node;
@@ -2023,6 +2206,15 @@
                             )
                         );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
@@ -2059,8 +2251,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $table;
                         $table = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$table' } ) unless defined $table;
@@ -2121,6 +2312,15 @@
                         };
                         return ( ::DISPATCH( $Main::Code_mangle_name, 'APPLY', ::DISPATCH( $self, "sigil" ), ::DISPATCH( $self, "twigil" ), ::DISPATCH( $self, "name" ), ::DISPATCH( $self, "namespace" ) ) );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
         );
@@ -2129,8 +2329,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'perl' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
@@ -2206,6 +2405,15 @@
                             )
                         );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
@@ -2242,8 +2450,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $str;
                         $str = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$str' } ) unless defined $str;
@@ -2337,6 +2544,15 @@
                         };
                         return ( ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', 'do {' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $::Str, 'new', '}' ) ) ) );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
@@ -2373,8 +2589,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
@@ -2395,6 +2610,15 @@
                         };
                         return ( ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '$::' ), ::DISPATCH( $self, "name" ) ) );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
@@ -2431,8 +2655,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $invocant;
                         $invocant = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$invocant' } ) unless defined $invocant;
@@ -2626,6 +2849,15 @@
                             }
                             }
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
@@ -2662,8 +2894,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $op;
                         $op = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$op' } ) unless defined $op;
@@ -2839,6 +3070,15 @@
                             )
                         );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
@@ -2875,8 +3115,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
@@ -2907,6 +3146,15 @@
                             )
                         );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
@@ -2943,8 +3191,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
@@ -3010,6 +3257,15 @@
                             )
                         );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
@@ -3046,8 +3302,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $cond;
                         $cond = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$cond' } ) unless defined $cond;
@@ -3150,6 +3405,15 @@
                             )
                         );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
@@ -3186,8 +3450,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $cond;
                         $cond = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$cond' } ) unless defined $cond;
@@ -3278,6 +3541,15 @@
                             )
                         );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
@@ -3314,8 +3586,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $decl;
                         $decl = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$decl' } ) unless defined $decl;
@@ -3819,6 +4090,15 @@
                             )
                         );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
@@ -3855,8 +4135,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $inv;
                         $inv = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$inv' } ) unless defined $inv;
@@ -3974,6 +4253,15 @@
                             )
                         );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
@@ -4010,8 +4298,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $s;
                         $s = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$s' } ) unless defined $s;
@@ -4143,6 +4430,15 @@
                         };
                         return ( ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $s, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' } )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) ) ) );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
@@ -4179,8 +4475,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
@@ -4239,6 +4534,15 @@
                             )
                         );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
@@ -4275,8 +4579,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
@@ -4298,7 +4601,7 @@
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH( $::Str, 'new', '::DISPATCH( $::Method, \\\'new\\\', { ' ),
+                            ::DISPATCH( $::Str, 'new', '::DISPATCH( $::Code, \\\'new\\\', { ' ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
@@ -4320,8 +4623,23 @@
                                                 'APPLY',
                                                 ::DISPATCH( ::DISPATCH( $self, "block" ), 'emit_body', ),
                                                 ::DISPATCH(
-                                                    $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                                    ::DISPATCH( $::Str, 'new', ' }, ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' } )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                                    $GLOBAL::Code_infix_58__60__126__62_,
+                                                    'APPLY',
+                                                    ::DISPATCH( $::Str, 'new', ' }, ' ),
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                                        'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', 'signature => ' ),
+                                                        ::DISPATCH(
+                                                            $GLOBAL::Code_infix_58__60__126__62_,
+                                                            'APPLY',
+                                                            ::DISPATCH( ::DISPATCH( $self, "block" ), 'emit_signature', ),
+                                                            ::DISPATCH(
+                                                                $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                                                ::DISPATCH( $::Str, 'new', ', ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' } )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                                            )
+                                                        )
+                                                    )
                                                 )
                                             )
                                         )
@@ -4330,6 +4648,15 @@
                             )
                         );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
@@ -4366,8 +4693,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
@@ -4431,6 +4757,15 @@
                             )
                         );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
@@ -4467,8 +4802,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
@@ -4497,6 +4831,15 @@
                             )
                         );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
@@ -4533,8 +4876,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
@@ -4560,6 +4902,15 @@
                             ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "block" ), 'emit_perl5', ), ::DISPATCH( $::Str, 'new', ' }' ) )
                         );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
@@ -4596,8 +4947,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
@@ -4668,6 +5018,15 @@
                             }
                             }
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
