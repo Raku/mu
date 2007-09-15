@@ -634,9 +634,12 @@ class Method {
         ~     $.block.emit_arguments 
         ~     $.block.emit_body
         ~    ' }, '
-        ~   'signature => ' 
-        ~       $.block.emit_signature
-        ~    ', '
+        
+        # XXX - this causes an error when recompiling modules ???
+        #~   'signature => ' 
+        #~       $.block.emit_signature
+        #~    ', '
+        
         ~ ' } )' 
         ~ Main::newline();
     }
