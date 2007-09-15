@@ -30,6 +30,12 @@ for my $i (0..$#args) {
   }
 }
 
-my $cmd = "$^X kp6-mp6-perl5.pl <$prog | $^X @args";
+my $cmd;
+if (defined $prog && length $prog){
+	$cmd = "$^X kp6-mp6-perl5.pl <$prog | $^X @args";
+} else {
+	$cmd = "$^X kp6-mp6-perl5.pl | $^X @args";
+}
+
 #print STDERR "run_kp6_perl5.pl: running: $cmd\n";
 system $cmd;
