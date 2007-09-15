@@ -6,7 +6,7 @@ runpugs version 0.4.0 TODO:
 * Add Web-based REPL to run kp6
 'kp6-perl5.pl --secure  | perl -Ilib-kp6-mp6-p5'
 * Put more functionality in JS (clear, timeout, history) [azawawi: history implemented]
-* Use true AJAX for front-end (e.g. prototype.js)
+* Use true AJAX for front-end (e.g. prototype.js) [azawawi: DONE with jQuery...]
 * Convert to Perl6: this is a nice long-term goal. 
     Perl 5 Modules to be ported:
     - IO::Pty (xs based)
