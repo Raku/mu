@@ -1251,8 +1251,8 @@ applySub sub invs args
     | MkCode{ subAssoc = A_chain }      <- sub
     , Nothing                           <- invs
     = case args of
-        (App _ Nothing _:_) -> mungeChainSub sub args
-        _                   -> applyChainSub sub args
+        (App (Var _) Nothing _:_) -> mungeChainSub sub args
+        _                         -> applyChainSub sub args
     -- normal application
     | otherwise
     = applyDisplaced sub invs args
