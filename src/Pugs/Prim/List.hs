@@ -336,7 +336,7 @@ op2First list sub = do
   (VList vals) <- (op2Grep list sub)
   if (length vals) > 0 
     then return $ (vals !! 0)
-    else fail $ "Cannot call first() with a filter that removes all elements from the input list"
+    else return $ undef
 
 op2Map :: Val -> Val -> Eval Val
 op2Map sub@(VCode _) list = op2Map list sub
