@@ -176,6 +176,25 @@ I<This documentation is pending.>
 
 =head1 DESCRIPTION
 
+B<Muldis::DB::Engine::Example>, aka the I<Muldis DB Example Engine>, aka
+I<Example>, is the self-contained and pure-Perl reference implementation of
+Muldis DB.  It is included in the Muldis DB core distribution to allow the
+core to be completely testable on its own.
+
+Example is coded intentionally in a simple fashion so that it is easy to
+maintain and and easy for developers to study.  As a result, while it
+performs correctly and reliably, it also performs quite slowly; you should
+only use Example for testing, development, and study; you should not use it
+in production.  (See the L<Muldis::DB::SeeAlso> file for a list of other
+Engines that are more suitable for production.)
+
+This C<Muldis::DB::Engine::Example> file is the main file of the Example
+Engine, and it is what applications quasi-directly invoke; it directly
+does/subclasses the roles/classes in L<Muldis::DB::Interface>.  The other
+C<Muldis::DB::Engine::Example::\w+> files are used internally by it,
+comprising the rest of the Example Engine, and are not intended to be used
+directly in user code.
+
 I<This documentation is pending.>
 
 =head1 INTERFACE
@@ -197,6 +216,12 @@ This file requires any version of Perl 6.x.y that is at least 6.0.0.
 
 It also requires these Perl 6 classes that are in the current distribution:
 L<Muldis::DB::Interface-0.3.0|Muldis::DB::Interface>.
+
+It also requires these Perl 6 classes that are in the current distribution:
+L<Muldis::DB::Engine::Example::PhysType-0.3.0|
+Muldis::DB::Engine::Example::PhysType>,
+L<Muldis::DB::Engine::Example::Operators-0.3.0|
+Muldis::DB::Engine::Example::Operators>.
 
 =head1 INCOMPATIBILITIES
 

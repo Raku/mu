@@ -1,18 +1,35 @@
                                 Muldis::DB
 ---------------------------------------------------------------------------
 
-2007-09-14   Darren Duncan <perl@DarrenDuncan.net>
+2007-09-xx   Darren Duncan <perl@DarrenDuncan.net>
 
-    * Muldis DB version 0.3.2 for Perl 5 is released on CPAN as
-    Muldis-DB-0.3.2.tar.gz.  Muldis DB version 0.3.2 for Perl 6 is not
+    * Muldis DB version 0.4.0 for Perl 5 is released on CPAN as
+    Muldis-DB-0.4.0.tar.gz.  Muldis DB version 0.4.0 for Perl 6 is not
     released at this time, if ever, since it is currently released only as
     part of the Perl6-Pugs project (in its ext/Muldis-DB/ subdirectory),
     which sets its own less frequent release schedule.  The rest of this
     Changes entry refers only to the Perl 5 version.
 
+    * New file versions are: DB.pm and Interface.pm and Validator.pm and
+    Example.pm 0.4.0.  The other pre-existing versioned files are
+    unchanged.
+
+    * (DB.pm, Interface.pm, Example.pm)  Updates to various
+    main/introductory documentation.  Half rewrote/prepended the
+    DESCRIPTION of DB.pm.  Added a small initial DESCRIPTION to each of
+    Interface.pm, Example.pm.  Further minor edits to other sections.
+
+2007-09-14   Darren Duncan <perl@DarrenDuncan.net>
+
+    * Muldis DB version 0.3.2 for Perl 5 is released on CPAN as
+    Muldis-DB-0.3.2.tar.gz.  Muldis DB version 0.3.2 for Perl 6 is not
+    released at all.  The rest of this Changes entry refers only to the
+    Perl 5 version.
+
     * Removed the file Copying.pod; it isn't particularly useful anymore.
 
-    * New file versions are: DB.pm 0.3.2.
+    * New file versions are: DB.pm 0.3.2.  The other pre-existing versioned
+    files are unchanged.
 
     * (DB.pm)  The whole Muldis DB core, that is, all code in this
     distribution, has been re-licensed under the GNU Lesser General Public
@@ -22,6 +39,21 @@
     implementations over SQL databases, or such as example code in
     tutorials/cookbooks; or some extensions would be under other
     GPLv3-compatible licenses.
+
+2007-08-18   Darren Duncan <perl@DarrenDuncan.net>
+
+    Record update in the PAUSE modules database:
+
+           modid: [Muldis::DB]
+           statd: [c]
+           stats: [m]
+           statl: [p]
+           stati: [O]
+           statp: [l] was [g]
+     description: [Full-featured truly relational DBMS in Perl]
+          userid: [DUNCAND]
+       chapterid: [7]
+        mlstatus: [list]
 
 2007-08-18   Darren Duncan <perl@DarrenDuncan.net>
 
@@ -37,7 +69,8 @@
     of DB.pm will now always be kept in sync with the whole-distribution
     version number declared in the Makefile.PL.
 
-    * New file versions are: DB.pm and Copying.pod 0.3.1.
+    * New file versions are: DB.pm and Copying.pod 0.3.1.  The other
+    pre-existing versioned files are unchanged.
 
     * (DB.pm, Copying.pod)  The license of Muldis DB has been simplified
     to no longer be the duality of the GPL and Affero GPL, as the Affero

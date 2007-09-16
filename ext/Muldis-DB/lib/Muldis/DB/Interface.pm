@@ -429,6 +429,12 @@ I<This documentation is pending.>
 
 =head1 DESCRIPTION
 
+B<Muldis::DB::Interface>, aka I<Interface>, comprises the minimal core of
+the Muldis DB framework, the one component that probably every program
+would use.  Together with the Muldis D language (see L<Language::MuldisD>),
+it defines the common API for Muldis DB implementations to do and which
+applications invoke.
+
 I<This documentation is pending.>
 
 =head1 INTERFACE
