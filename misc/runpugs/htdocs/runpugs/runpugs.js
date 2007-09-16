@@ -9,69 +9,116 @@ var cmd = "";
 var prompt = "pugs> ";
 var cmds = new Array();
 var theme = "wb_theme";
+var fixedCharWidth;
 
-$(window).unload(function() {
-	//send :q to pugs on onload
-	$.ajax({
-		url: "/perl/runpugs.pl?" + "sessionid=" + sessionid + 
-        "&reldev=1&ia=1&cmd=%3Aq",
-		async: true
-	});
-});
-
+//show the cursor
 function showCursor() {
-    var cursorEl = "#d" + (cmds.length - 1);
+    var cmdLen = cmds.length;
+    var cursorEl = (cmdLen == 0) ? "#d0" : "#d" + (cmdLen - 1);
     $(cursorEl).toggleClass('cursorOff');
     $(cursorEl).toggleClass('cursorOn');
     setTimeout('showCursor()',1000);
 }
 
+//move the cursor by css
+function moveCursor() {
+    var left = -(cmd.length-curpos) * fixedCharWidth;
+    var cursorEl = "#d" + (cmds.length - 1);
+    $(cursorEl).css('left',left + "px");
+}
+
+//show command
+function showCmd() {
+    var cmdEl = "#c" + (cmds.length - 1);
+    $(cmdEl).text(prompt + cmd);
+}
+
+//update the console
 function updateConsole() {
     $("#tt").empty();
     $.each(cmds,function(i,n) {
         var l = (n == "") ? "&nbsp;" : n;
-        $("#tt").append(
-        "<tr><td><pre id='c" + i + "' class='"+ theme +"'>" + 
-        l + "</pre><span id='d" + i + 
-        "' class='cursorOff'>&nbsp;</span></td></tr>"
-        );
+        var tr = "<tr><td><pre id='c" + i + 
+            "' class='"+ theme +"'>" + l + "</pre>";
+        if(i == cmds.length - 1) {
+            tr += "<span id='d" + i + 
+            "' class='cursorOff'>&nbsp;</span>";
+        } 
+        $("#tt").append(tr + "</td></tr>");
     });
-    var lastId = (cmds.length - 1);
-    var cmdEl = "#c" + lastId;
-    var cursorEl = "#d" + lastId;
-    
     var scrollHeight = $("#termwin")[0].scrollHeight;
     $("#termwin").animate({ scrollTop: scrollHeight }, "fast")
 }
 
+//wait for when the document is ready
 $(document).ready( function() {
-	//document is ready now...
+
+    //display waiting msg and try to calculate width of 
+    //a single fixed character...
+    var msg = "Please wait while Pugs starts up...";
     $("#tt").empty();
-    $("#tt").append("<tr><td><pre id='c0' class='wb_theme'>" +
-    "Please wait while Pugs starts up...</pre>"+
-    "<span class='cursor'>&nbsp;</span></td></tr>");
-    
+    $("#tt").append("<tr><td><pre id='c0' class='wb_theme'>" + msg +
+    "</pre><span id='d0' class='cursorOff'>&nbsp;</span></td></tr>");
+    fixedCharWidth = ($("#c0")[0]) ? 
+        $("#c0")[0].offsetWidth / msg.length : 8;
+
+    //apply theme and animate logo
     $("#theme").change(function() {
         $("pre").toggleClass(theme);
         theme = $("#theme").val();
-        $("pre").toggleClass(theme);    
+        $("pre").toggleClass(theme);
     });
     $("#logo").slideDown(2000);
-    
+
+    //repaint & start showing the cursor...
+    updateConsole();
     showCursor();
+
+    //attach keyboard listeners...
+    $(document).keydown(function(event) {
+        return onKeyDown(event);
+    });
+    $(document).keypress(function(event) {    
+        return onKeyPress(event);
+    });
+
+    //attach pugs cleanup listener...
+    $(window).unload(function() {
+        //send :q to pugs on onload
+        $.ajax({
+            url: "/perl/runpugs.pl?" + "sessionid=" + sessionid + 
+            "&reldev=1&ia=1&cmd=%3Aq",
+            async: true
+        });
+    });
+
 });
 
+//insert character 'ch' at index 'pos' in string str 
+//and return it
+function insert(str,ch,pos) {
+    var s = str.substring(0,pos);
+    var t = str.substring(pos,str.length);
+    return s + ch + t;
+}
 
-
-
-
-$(document).keydown(function(event) {
-    var keyCode = event.keyCode;
-    var cmdEl = "#c" + (cmds.length - 1);
-
+function focusOnCmd(e) {
+    $(e).focus();
     var scrollHeight = $("#termwin")[0].scrollHeight;
     $("#termwin").animate({ scrollTop: scrollHeight }, "fast");
+}
 
+//$.keydown
+function onKeyDown(event) {
+    if(event.ctrlKey || event.altKey || event.shiftKey) {
+        //ignore ctrl and alt modifiers
+        return true;
+    }
+
+    var keyCode = event.keyCode;
+
+    focusOnCmd("#status");
+    
     if(keyCode == 13) {
         //enter
         var sessCmds=document.terminal.cmd.value + "\n" + prompt + cmd;
@@ -84,75 +131,115 @@ $(document).keydown(function(event) {
         frames['scratch'].document.terminal.submit(); 
         cmd = "";
         return false;
+        
     } else if(keyCode == 8) {
         //backspace
         if(curpos > 0) {
             curpos -=1
-            cmd = cmd.substring(0,cmd.length-1);
-            $(cmdEl).text(prompt + cmd);
+            var newCmd = "";
+            for(var i = 0; i < cmd.length; i++) {
+                if(i != curpos) {
+                    newCmd += cmd.charAt(i);
+                }
+            }
+            cmd = newCmd;
+            showCmd();
         }
         return false;
+        
     } else if(keyCode == 38) {
         //up
         hist_next();
-        
         return false;
+        
     } else if(keyCode == 40) {
         //down
         hist_prev();
-        $(cmdEl).text(prompt + cmd);
         return false;
-    } /*else if(keyCode == 37) {
+        
+    } else if(keyCode == 37) {
         //left
-        $("#status").text("left not implemented");
+        if(curpos > 0) {
+            curpos--;
+            moveCursor();
+        }
         return false;
+        
     } else if(keyCode == 39) {
         //right
-        $("#status").text("right not implemented");
+        if(curpos < cmd.length) {
+            curpos++;
+            moveCursor();
+        }
         return false;
     } else if(keyCode == 36) {
         //home
-        //curpos = 0;
-        $("#status").text("home not implemented");
+        curpos = 0;
+        moveCursor();
         return false;
     
     } else if(keyCode == 35) {
         //end
-        $("#status").text("end not implemented");
+        curpos = cmd.length;
+        moveCursor();
         return false;
   
-    } */
-      
-      return true;
-});
-$(document).keypress(function(event) {
+    } else if(keyCode == 46) {
+        //del
+        if(curpos >= 0){// && curpos <= cmd.length+1) {
+            var newCmd = "";
+            for(var i = 0; i < cmd.length; i++) {
+                if(i != curpos) {
+                    newCmd += cmd.charAt(i);
+                }
+            }
+            cmd = newCmd;
+            //if(curpos > cmd.length) {
+              //  curpos = cmd.length+1;
+            //}
+            showCmd();
+            moveCursor();
+        }
+        return false;
+    }
+    return true;
+}
 
-    var scrollHeight = $("#termwin")[0].scrollHeight;
-    $("#termwin").animate({ scrollTop: scrollHeight }, "fast");
+//$.keypress
+function onKeyPress(event) {
+
+    if(event.ctrlKey || event.altKey) {
+        //ignore ctrl and alt modifiers
+        return;
+    }
+
+    focusOnCmd("#status");
 
     var keyCode = event.keyCode;
-    var cmdEl = "#c" + (cmds.length - 1);
     if($.browser.msie || $.browser.opera) {
         var key = String.fromCharCode(keyCode);
         if(key >= ' ') {
             if(($.browser.opera && (keyCode < 35 || keyCode > 40)) || $.browser.msie) {
-                cmd += key;   
-                $(cmdEl).text(prompt + cmd);
+                //insert key at curpos
+                cmd = insert(cmd,key,curpos);
+                showCmd();
                 curpos++;
             }
         }
         return false;
-    }else if($.browser.mozilla && keyCode == 0) {
+    } else if($.browser.mozilla && keyCode == 0) {
         var key = String.fromCharCode(event.charCode ? event.charCode : event.keyCode);
-        cmd += key;   
-        $(cmdEl).text(prompt + cmd);
+        //insert key at curpos
+        cmd = insert(cmd,key,curpos);
+        showCmd();
         curpos++;
         return false;
     }
     return true;
-});
+}
 
-
+//called by textarea: TODO should be removed when textarea 
+//is replaced by async $.ajax 
 function getreply () {
     scratchpad=frames['scratch'].document;
     reply=scratchpad.getElementById("cmd").value;
@@ -162,29 +249,36 @@ function getreply () {
 
 	cmds = reply.replace(/ /g,'&nbsp;').split(/\r\n|\n|\r/g);
     updateConsole();
+    cmd = "";
+    curpos=0;
+    moveCursor();
+    showCmd();
 }
 
+//next in history (triggered by DOWN)
 function hist_next () {
     if (histentry>=1) {
         histentry--;
         cmd=histlist[histentry];
         curpos=cmd.length;
-        var cmdEl = "#c" + (cmds.length - 1);
-        $(cmdEl).text(prompt + cmd);
+        showCmd();
+        moveCursor();
     }
     return false;
 }
 
+//previous in history (triggered by UP)
 function hist_prev () {
     if (histentry<histlist.length-1) {
         histentry++;
         cmd=histlist[histentry];
         curpos=cmd.length;
-        var cmdEl = "#c" + (cmds.length - 1);
-        $(cmdEl).text(prompt + cmd);
+        showCmd();
+        moveCursor();
     }
 }
 
+//triggered by user selecting release/development version
 function set_version () {
     var reldev=document.terminal.reldev[0].checked;
     if (reldev==true) {
@@ -195,5 +289,7 @@ function set_version () {
         frames['scratch'].document.terminal.reldev[1].checked=true;
     }
     frames['scratch'].document.terminal.submit();
+
+    focusOnCmd("#tt");
 }
 

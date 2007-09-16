@@ -13,6 +13,7 @@ H1 {
     background-color: #204a87;
 	margin: 5px;
     padding: 5px;
+	text-align: center;
 }
 H2 { font-weight: bold; font-size: 11pt}
 EM { font-weight: bold; font-style: normal; text-decoration:none;}
@@ -20,7 +21,6 @@ TT {color: #204a87; font-weight: bold; }
 LABEL {font-weight: normal; }
 FIELDSET {border: solid white 0px}
 LEGEND {font-weight:normal; text-align: left; }
-
 .copyright {font-size: 9pt}
 .tabon {
 font-weight:bold;
@@ -62,7 +62,7 @@ font-weight:bold;
     font-family: "Andale Mono", courier, fixed, monospace;
     font-size: 11pt;
     font-weight: bold;
-    line-height: 11pt;
+    line-height: normal;
     color: #204a87;
     background-color: #f2f2f0;
 }
@@ -70,7 +70,7 @@ font-weight:bold;
     font-family: "Andale Mono", courier, fixed, monospace;
     font-size: 11pt;
     font-weight: normal;
-    line-height: 11pt;
+    line-height: normal;
     color: #204a87;
     background-color: #f2f2f0;
 }
@@ -79,7 +79,7 @@ font-weight:bold;
     font-family: "Andale Mono", courier, fixed, monospace;
     font-size: 11pt;
     font-weight: normal;
-    line-height: 11pt;
+    line-height: normal;
     color: #204a87;
     background-color: #f2f2f0;
     border: solid 0px #f2f2f0;
@@ -91,7 +91,7 @@ font-weight:bold;
     font-family: "Andale Mono", courier, fixed, monospace;
     font-size: 11pt;
     font-weight: normal;
-    line-height: 11pt;
+    line-height: normal;
     color: #204a87;
     background-color: #f2f2f0;
     border: solid 0px #f2f2f0;
@@ -103,12 +103,12 @@ A:hover, A.bold:hover { text-decoration: underline; color: #000099}
 A.taboff:link, A.taboff:active,A.taboff:visited {text-decoration: none; color: #333333}
 .cc {
 	font-family: 'Courier New', Monaco, Courier, monospace;
-	font-size: 11px;
+	font-size: 14px;
 	color: white;
 	background-color: black;
 	padding: 5px;
 	width:100%;
-	line-height:1em;
+	line-height:normal;
 	height:24em;
 	overflow: auto;
 	border: 1px solid white;
@@ -138,7 +138,7 @@ pre.gb_theme {
 	display:inline;
 }
 pre.ab_theme {
-	color: rgb(255,140,0);
+	color: rgb(255,160,0);
 	background-color: black;
 	margin: 0;
 	padding: 0;
@@ -153,17 +153,33 @@ pre.ab_theme {
 }
 span.cursorOn {
 	font-family: 'Courier New', Monaco, Courier, monospace;
-	font-size: 11px;
+	font-size: 14px;
 	display:inline;
 	background: white;
 	color: white;
 	border:none;
+	margin: 0;
+	padding: 0;
+	z-index: 1;
+	position:relative;
+	left:0px;
+	top:0px;
+ 	opacity:0.6;
+  	-moz-opacity:0.6;	
 }
 span.cursorOff {
 	font-family: 'Courier New', Monaco, Courier, monospace;
-	font-size: 11px;
+	font-size: 14px;
 	display:inline;
 	background: black;
+	margin: 0;
+	padding: 0;
 	color: black;
 	border:none;
+	z-index: -1;
+	position:relative;
+	left:0px;
+	top:0px;
+ 	opacity:0.6;
+  	-moz-opacity:0.6;	
 }
