@@ -9,7 +9,7 @@ built-in "first" tests
 
 =cut
 
-plan 7;
+plan 9;
 
 my @list = (1 .. 10);
 
@@ -33,4 +33,12 @@ my @list = (1 .. 10);
 
 {
 	is(@list.first( { ($_ == 11) }), undef, 'first returns undef unsuccessfull match');
+}
+
+{
+	my $count = 0;
+	my $matcher = sub (Num $x) { $count++; return $x % 2 };
+	is(@list.first($matcher), 1, 'first() search for odd elements successfull');
+	is($count, 1, 'Matching closure in first() is only executed once');
+
 }
