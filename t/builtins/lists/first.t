@@ -32,5 +32,5 @@ my @list = (1 .. 10);
 }
 
 {
-    dies_ok { @list.first( { ($_ == 11) } ) }, "first should fail if there is no first element";
+	is(@list.first( { ($_ == 11) }), undef, 'first returns undef unsuccessfull match');
 }
