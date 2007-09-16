@@ -334,7 +334,7 @@ op2First :: Val -> Val -> Eval Val
 op2First sub@(VCode _) list = op2First list sub
 op2First list sub = do
   (VList vals) <- (op2Grep list sub)
-  if (length vals) > 0 
+  if not (null vals)
     then return $ (vals !! 0)
     else return $ undef
 
