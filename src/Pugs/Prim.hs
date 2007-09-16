@@ -1455,6 +1455,13 @@ op1Range x           = do
     int <- fromVal x
     op1Range (VInt int)
 
+{- In the four op2Range* functions below, rationals
+have to be handled separately because Haskell ranges 
+are different from Perl 6 ranges.  For example, 
+in Haskell, [1.1 .. 2] will return [1.1,2.1].  So, we
+run the elements through a filter to ensure that the 
+upper bound is satisfied 
+-}
 op2Range :: Val -> Val -> Eval Val
 op2Range (VStr s) y  = do
     y'  <- fromVal y
@@ -1467,29 +1474,53 @@ op2Range x (VNum n)  = do
     return . VList $ map VNum [x' .. n]
 op2Range (VRat n) y  = do
     y'  <- fromVal y
-    return . VList $ map VRat [n .. y']
+    return . VList $ map VRat (filter (<= y') [n .. y'])
 op2Range x (VRat n)  = do
     x'  <- fromVal x
-    return . VList $ map VRat [x' .. n]
+    return . VList $ map VRat (filter (<= n) [x' .. n])
 op2Range x y         = do
     x'  <- fromVal x
     y'  <- fromVal y
     return . VList $ map VInt [x' .. y']
 
+-- because the right-exclusivity of a range can leave it
+-- with no remaining elements, we need to check before
+-- removing an element when enforcing left-exclusivity
+removeRangeFirst :: [Val] -> [Val]
+removeRangeFirst vals = if null vals then vals else init vals
+
 op2RangeExclRight :: Val -> Val -> Eval Val
+op2RangeExclRight (VRat n) y  = do
+    y' <- fromVal y
+    return . VList $ map VRat (filter (< y') [n .. y'])
+op2RangeExclRight x (VRat n)  = do
+    x'  <- fromVal x
+    return . VList $ map VRat (filter (< n) [x' .. n])
 op2RangeExclRight x y = do
     VList vals <- op2Range x y
-    return . VList $ init vals
+    return . VList $ removeRangeFirst vals
 
 op2RangeExclLeft :: Val -> Val -> Eval Val
+op2RangeExclLeft (VRat n) y  = do
+    y'  <- fromVal y
+    return . VList $ map VRat (filter (\v -> n < v && v <= y') [n .. y'])
+op2RangeExclLeft x (VRat n)  = do
+    x'  <- fromVal x
+    return . VList $ map VRat (filter (\v -> x' < v && v <= n) [x' .. n])
 op2RangeExclLeft x y = do
     VList vals <- op2Range x y
     return . VList $ tail vals
 
 op2RangeExclBoth :: Val -> Val -> Eval Val
+op2RangeExclBoth (VRat n) y  = do
+    y'  <- fromVal y
+    return . VList $ map VRat (filter (\v -> n < v && v < y') [n .. y'])
+op2RangeExclBoth x (VRat n)  = do
+    x'  <- fromVal x
+    return . VList $ map VRat (filter (\v -> x' < v && v < n) [x' .. n])
 op2RangeExclBoth x y = do
     VList vals <- op2Range x y
-    return . VList $ init (tail vals)
+    return . VList $ removeRangeFirst (tail vals)
 
 op2ChainedList :: Val -> Val -> Val
 op2ChainedList x y

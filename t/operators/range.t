@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 47;
+plan 50;
 
 # 3..2 must *not* produce "3 2".  Use reverse to get a reversed range. -lwall
 
@@ -33,10 +33,16 @@ is [1 ..^9], [1..8], "top-exclusive range (..^) works";
 is [1^..^9], [2..8], "double-exclusive range (^..^) works";
 is [1^..^2], [], "double-exclusive range (^..^) can produce null range";
 
+# tests of (x ^..^ x) here and below ensure that our implementation
+# of double-exclusive range does not blindly remove an element
+# from the head and tail of a list
+is [1^..^1], [], "double-exclusive range (x ^..^ x) where x is an int";
+
 is ["a"^.."z"], ["b".."z"], "bottom-exclusive string range (^..) works";
 is ["a"..^"z"], ["a".."y"], "top-exclusive string range (..^) works";
 is ["a"^..^"z"], ["b".."y"], "double-exclusive string range (^..^) works";
 is ['a'^..^'b'], [], "double-exclusive string range (^..^) can produce null range";
+is ['a' ^..^ 'a'], [], "double-exclusive range (x ^..^ x) where x is a char";
 
 is 1.5 ~~ 1^..^2, Bool::True, "lazy evaluation of the range operator", :todo<bug>;
 
@@ -69,7 +75,7 @@ is ~(1.1 ^..^ 4.1), "2.1 3.1"    , "both exclusive float range";
 is ~(1.9 ^..^ 4.1), "2.9 3.9"    , "both exclusive float range";
 is ~(1.1 ^..^ 4.9), "2.1 3.1 4.1", "both exclusive float range";
 is ~(1.9 ^..^ 4.9), "2.9 3.9"    , "both exclusive float range";
-
+is [1.1 ^..^ 1.1], [], "double-exclusive range (x ^..^ x) where x is a float";
 
 # Test that the operands are forced to scalar context
 {
