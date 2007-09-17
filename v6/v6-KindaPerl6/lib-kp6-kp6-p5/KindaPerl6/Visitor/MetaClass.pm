@@ -28,8 +28,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'visit' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $node;

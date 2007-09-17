@@ -30,7 +30,7 @@ $::Array = KindaPerl6::Runtime::Perl5::MOP::make_class(
         },
     push =>sub {
             my $self = shift;
-            push @{ $self->{_value}{_array} }, @_;  # XXX process List properly
+            ::DISPATCH($::Int, 'new', push @{ $self->{_value}{_array} }, @_);  # XXX process List properly
         },
     pop =>sub {
             my $self = shift;
@@ -43,7 +43,7 @@ $::Array = KindaPerl6::Runtime::Perl5::MOP::make_class(
         },
     unshift =>sub {
             my $self = shift;
-            unshift @{ $self->{_value}{_array} };
+            ::DISPATCH($::Int, 'new', unshift @{ $self->{_value}{_array} }, @_);
         },
 
     join =>sub {
