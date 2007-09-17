@@ -13,9 +13,6 @@ my $universe = Recurrence.new(
     :is_universe(1) 
 );
 
-flunk('infinite loop');
-skip_rest; exit;
-
 {
     # 0 .. Inf
     my $span = Recurrence.new( 
