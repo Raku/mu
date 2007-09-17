@@ -38,13 +38,13 @@
                     </table>
                 </div>
                 <div id='status'></div>
-                <div class='note' style='padding: 5px'>
-                    <p>This live web terminal runs the <a href="http://www.pugscode.org/">Pugs</a>
+                <div class='note' style='padding: 5px;'>
+                    This live web terminal runs the <a href="http://www.pugscode.org/">Pugs</a>
                     interpreter for <a href="http://dev.perl.org/perl6/">Perl&nbsp;6</a>.
                     This is the development version, featuring asynchronous jQuery AJAX,
-                    mod_perl and preloaded pugs sessions.</p>
+                    mod_perl and preloaded pugs sessions.
                     <h2>Instructions</h2>
-                    <p><code>runpugs</code> presents the pugs interactive shell. <code>runpugs</code>-specific commands:</p>
+                    <code>runpugs</code> presents the pugs interactive shell. <code>runpugs</code>-specific commands:
                     <dl>
                     <dt><code>help</code></dt><dd> displays the Pugs shell help (same as
                     <code>:h</code>)</dd>
@@ -57,21 +57,21 @@
                     pugs session  before you close the browser window.
                     </p>
                     <h2>Restrictions</h2>
-                    <p>Because this is a web terminal, a number of restrictions apply. 
-                    Please <a href="http://feather.perl6.nl/%7Eandara/runpugs/">read the documentation</a> for more information.</p>
-                    <p class="copyright">
-                    &copy; Copyright 2006 by Wim.Vanderbauwhede. Contact me @ gmail.com<br/>
-                    Enhanced web terminal by Ahmad.Zawawi. Contact me @ gmail.com
-                    </p>
+                    Because this is a web terminal, a number of restrictions apply. 
+                    Please <a href="http://feather.perl6.nl/%7Eandara/runpugs/">read the documentation</a> for more information.
+                    <br/>
                 </div>
             </form>
         </div>
-        <iframe src="/perl/runpugs.pl" id="scratch" name="scratch" style="visibility:hidden" 
-        width="700px" height="1px" onLoad="getreply()"></iframe>
+        <span class="copyright">&copy; Copyright 2006 by Wim.Vanderbauwhede. Contact me @ gmail.com<br/>
+            Enhanced web terminal by Ahmad.Zawawi. Contact me @ gmail.com
+        </span>
         <hr/>
         <a href="http://validator.w3.org/check?uri=referer">
             <img src="http://www.w3.org/Icons/valid-xhtml10" 
                 alt="Valid XHTML 1.0!" height="31" width="88" border="0" />
         </a>        
+        <iframe src="/perl/runpugs.pl" id="scratch" name="scratch" style="visibility:hidden" 
+        width="700px" height="1px" onLoad="getreply()"></iframe>
     </body>
 </html>

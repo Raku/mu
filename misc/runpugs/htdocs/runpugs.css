@@ -1,5 +1,5 @@
 body {
-	font:14px arial,helvetica,clean,sans-serif;
+	font:13px arial,helvetica,clean,sans-serif;
 	width:100%;
 	margin-left:10%;margin-right:10%; margin-top: 0px; 
 	line-height: normal; 
@@ -103,15 +103,16 @@ A:hover, A.bold:hover { text-decoration: underline; color: #000099}
 A.taboff:link, A.taboff:active,A.taboff:visited {text-decoration: none; color: #333333}
 .cc {
 	font-family: 'Courier New', Monaco, Courier, monospace;
-	font-size: 14px;
+	font-size: 13px;
 	color: white;
 	background-color: black;
-	padding: 5px;
-	width:100%;
+	padding: 0px;
+	margin: 0px;
+	width: 100%;
 	line-height:normal;
 	height:24em;
 	overflow: auto;
-	border: 1px solid white;
+	/*border: 1px solid white;*/
 }
 pre {
 	color: white;
@@ -153,7 +154,7 @@ pre.ab_theme {
 }
 span.cursorOn {
 	font-family: 'Courier New', Monaco, Courier, monospace;
-	font-size: 14px;
+	font-size: 13px;
 	display:inline;
 	background: white;
 	color: white;
@@ -169,7 +170,7 @@ span.cursorOn {
 }
 span.cursorOff {
 	font-family: 'Courier New', Monaco, Courier, monospace;
-	font-size: 14px;
+	font-size: 13px;
 	display:inline;
 	background: black;
 	margin: 0;

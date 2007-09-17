@@ -121,8 +121,8 @@ function onKeyDown(event) {
     
     if(keyCode == 13) {
         //enter
-        var sessCmds=document.terminal.cmd.value + "\n" + prompt + cmd;
-        var tmpCmds=sessCmds.split('pugs> ');
+        var sessCmds=document.terminal.cmd.value + cmd;
+        var tmpCmds=sessCmds.split(prompt);
         var tmpCmd=tmpCmds[tmpCmds.length-1];
         if($.trim(tmpCmd) != "") {
             histlist.push(tmpCmd);
@@ -246,12 +246,28 @@ function getreply () {
     histentry=histlist.length;
     sessionid=scratchpad.terminal.sessionid.value;
     document.terminal.cmd.value=reply;
-
-	cmds = reply.replace(/ /g,'&nbsp;').split(/\r\n|\n|\r/g);
+    
+    if(scratchpad.terminal.prompt) {
+        //safely assign prompt...
+        var val = scratchpad.terminal.prompt.value;
+        if(val && val.length == 'pugs> '.length) {
+            prompt = val;
+        }
+    }
+    
+    //escape html from whitespace and html entities
+    //and then split lines
+	cmds = 
+        reply.replace(/&/g,'&amp;')
+        .replace(/ /g,'&nbsp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;')
+        .split(/\r\n|\n|\r/g);
     updateConsole();
     cmd = "";
     curpos=0;
-    moveCursor();
+    //moveCursor();
     showCmd();
 }
 
