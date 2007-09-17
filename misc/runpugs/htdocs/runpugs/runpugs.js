@@ -1,6 +1,5 @@
 var histlist=new Array();
 var histentry=0;
-var reply="";
 var sessionid=0;
 var reldev=0;
 
@@ -27,7 +26,7 @@ function moveCursor() {
     $(cursorEl).css('left',left + "px");
 }
 
-//show command
+//show last command on console
 function showCmd() {
     var cmdEl = "#c" + (cmds.length - 1);
     $(cmdEl).text(prompt + cmd);
@@ -35,8 +34,11 @@ function showCmd() {
 
 //update the console
 function updateConsole() {
-    $("#tt").empty();
     $.each(cmds,function(i,n) {
+        if(i == 0) {
+            //clear only on first usage...
+            $("#tt").empty();
+        }
         var l = (n == "") ? "&nbsp;" : n;
         var tr = "<tr><td><pre id='c" + i + 
             "' class='"+ theme +"'>" + l + "</pre>";
@@ -52,7 +54,6 @@ function updateConsole() {
 
 //wait for when the document is ready
 $(document).ready( function() {
-
     //display waiting msg and try to calculate width of 
     //a single fixed character...
     var msg = "Please wait while Pugs starts up...";
@@ -71,7 +72,6 @@ $(document).ready( function() {
     $("#logo").slideDown(2000);
 
     //repaint & start showing the cursor...
-    updateConsole();
     showCursor();
 
     //attach keyboard listeners...
@@ -92,16 +92,22 @@ $(document).ready( function() {
         });
     });
 
+    //start loading pugs session after page has loaded...
+    $("#hidden_iframe").append(
+        'im there!<iframe src="/perl/runpugs.pl" id="scratch" name="scratch" ' +
+        'style="visibility:hidden" width="700px" height="1px" ' +
+        'onLoad="getreply()"></iframe>');
 });
 
 //insert character 'ch' at index 'pos' in string str 
-//and return it
+//and return the result
 function insert(str,ch,pos) {
     var s = str.substring(0,pos);
     var t = str.substring(pos,str.length);
     return s + ch + t;
 }
 
+//focus on last command very hard ;-)
 function focusOnCmd(e) {
     $(e).focus();
     var scrollHeight = $("#termwin")[0].scrollHeight;
@@ -186,7 +192,7 @@ function onKeyDown(event) {
   
     } else if(keyCode == 46) {
         //del
-        if(curpos >= 0){// && curpos <= cmd.length+1) {
+        if(curpos >= 0){
             var newCmd = "";
             for(var i = 0; i < cmd.length; i++) {
                 if(i != curpos) {
@@ -194,9 +200,6 @@ function onKeyDown(event) {
                 }
             }
             cmd = newCmd;
-            //if(curpos > cmd.length) {
-              //  curpos = cmd.length+1;
-            //}
             showCmd();
             moveCursor();
         }
@@ -242,7 +245,7 @@ function onKeyPress(event) {
 //is replaced by async $.ajax 
 function getreply () {
     scratchpad=frames['scratch'].document;
-    reply=scratchpad.getElementById("cmd").value;
+    var reply=scratchpad.getElementById("cmd").value;
     histentry=histlist.length;
     sessionid=scratchpad.terminal.sessionid.value;
     document.terminal.cmd.value=reply;
