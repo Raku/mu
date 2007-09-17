@@ -33,7 +33,7 @@ module Main {
 
         my $ast = KindaPerl6::Grammar.comp_unit($code, $pos);
         if (!($ast.isa('CompUnit'))) {
-            die 'Syntax Error!! ' ~ $ast ~ $/;
+            die 'AST IS:(' ~ $ast ~ ')';
         };
         for @visitors -> $visitor {
             $ast.emit($visitor);

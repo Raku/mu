@@ -95,7 +95,7 @@
                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $ast, 'isa', ::DISPATCH( $::Str, 'new', 'CompUnit' ) ) ), "true" ), "p5landish" ) ) {
                             {
                                 ::DISPATCH( $GLOBAL::Code_die, 'APPLY',
-                                    ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', 'Syntax Error!! ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $ast, $MATCH ) ) )
+                                    ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', 'AST IS:(' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $ast, ::DISPATCH( $::Str, 'new', ')' ) ) ) )
                             }
                         }
                     };
