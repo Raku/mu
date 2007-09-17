@@ -18,6 +18,15 @@ class Signature is Value {
 
     method arity {
         # ??? how about optionals
+
+        if !( defined( self.array ) ) {
+            self.array = [ ];   # XXX accessor init bug
+        };
+
+        if !( defined( self.hash ) ) {
+            self.hash = { };   # XXX accessor init bug
+        };
+
         @.array.elems + $.hash.elems;
     };
     method perl {

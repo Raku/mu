@@ -56,28 +56,28 @@ class Multi is Code {
             && ( self.token_length ).keys 
         {
             my @len = ( ( self.token_length ).keys );
-            say "lengths : @len[] ";
+            #say "lengths : @len[] ";
             @len = @len.sort( sub { @_[1] <=> @_[0] } );
-            say "lengths : @len[] ";
-            say "string: $_";
-            say "string len: ",$_.chars;
+            #say "lengths : @len[] ";
+            #say "string: $_";
+            #say "string len: ",$_.chars;
 
             for @len -> $len {
                 if ( $_.chars ) >= $len {
                     my $s = substr( $_, 0, $len );   # XXX - pos?
-                    say "# len: $len - $s";
+                    #say "# len: $len - $s";
                     my %syms = ( self.token_length ){$len};
-                    say "# syms: ", ( %syms.keys );
+                    #say "# syms: ", ( %syms.keys );
 
                     for %syms.keys -> $sym {
                         if $s eq $sym {
-                            say "found!";
+                            #say "found!";
                             return ( %syms{$sym} ).select( $capture );
                         }
                     }
                 };
             };
-            say "done";
+            #say "done";
         };
 
         # sub/method dispatch
@@ -86,12 +86,13 @@ class Multi is Code {
             die "can't resolve Multi dispatch";
         };
 
-        my @candidates;
+        my @candidates = [ ];
         #say '# testing ', (self.long_names).elems, " candidates in ", (self.long_names).WHAT;
         
         for @(self.long_names) -> $sub {
             #say "# testing sub "; #, $sub;
             #say $sub.WHAT;
+            #say "signature: ", $sub.signature, "\n";
             if ($sub.signature).arity == $capture.arity {
                 @candidates.push( $sub );
             };
@@ -102,6 +103,7 @@ class Multi is Code {
             return @candidates[0];
         };
         
+        #say "capture: ", $capture;
         die "can't resolve Multi dispatch";
     }
     

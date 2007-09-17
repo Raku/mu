@@ -31,8 +31,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'add_variant' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $code;
@@ -81,8 +80,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'add_token_variant' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $len;
                         $len = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$len' } ) unless defined $len;
@@ -161,8 +159,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'select' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $List_candidates = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List_candidates' } );
                         my $List__          = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
@@ -217,16 +214,6 @@
                                 {
                                     my $List_len = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List_len' } );
                                     ::DISPATCH_VAR( $List_len, 'STORE', ::DISPATCH( ::DISPATCH( $self, 'token_length', ), 'keys', ) );
-                                    ::DISPATCH(
-                                        $GLOBAL::Code_say,
-                                        'APPLY',
-                                        ::DISPATCH(
-                                            $GLOBAL::Code_infix_58__60__126__62_,
-                                            'APPLY',
-                                            ::DISPATCH( $::Str, 'new', 'lengths : ' ),
-                                            ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__126__62_, 'APPLY', $List_len ), ::DISPATCH( $::Str, 'new', ' ' ) )
-                                        )
-                                    );
                                     ::DISPATCH_VAR(
                                         $List_len,
                                         'STORE',
@@ -258,18 +245,6 @@
                                             )
                                         )
                                     );
-                                    ::DISPATCH(
-                                        $GLOBAL::Code_say,
-                                        'APPLY',
-                                        ::DISPATCH(
-                                            $GLOBAL::Code_infix_58__60__126__62_,
-                                            'APPLY',
-                                            ::DISPATCH( $::Str, 'new', 'lengths : ' ),
-                                            ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__126__62_, 'APPLY', $List_len ), ::DISPATCH( $::Str, 'new', ' ' ) )
-                                        )
-                                    );
-                                    ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', 'string: ' ), ::DISPATCH( $GLOBAL::Code_prefix_58__60__126__62_, 'APPLY', $_ ) ) );
-                                    ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', 'string len: ' ), ::DISPATCH( $_, 'chars', ) );
                                     {
                                         my $len;
                                         $len = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$len' } ) unless defined $len;
@@ -284,23 +259,7 @@
                                                             BEGIN { $s = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$s' } ) }
                                                             my $Hash_syms = ::DISPATCH( $::Hash, 'new', { modified => $_MODIFIED, name => '$Hash_syms' } );
                                                             ::DISPATCH_VAR( $s, 'STORE', ::DISPATCH( $GLOBAL::Code_substr, 'APPLY', $_, ::DISPATCH( $::Int, 'new', 0 ), $len ) );
-                                                            ::DISPATCH(
-                                                                $GLOBAL::Code_say,
-                                                                'APPLY',
-                                                                ::DISPATCH(
-                                                                    $GLOBAL::Code_infix_58__60__126__62_,
-                                                                    'APPLY',
-                                                                    ::DISPATCH( $::Str, 'new', '# len: ' ),
-                                                                    ::DISPATCH(
-                                                                        $GLOBAL::Code_infix_58__60__126__62_,
-                                                                        'APPLY',
-                                                                        ::DISPATCH( $GLOBAL::Code_prefix_58__60__126__62_, 'APPLY', $len ),
-                                                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' - ' ), ::DISPATCH( $GLOBAL::Code_prefix_58__60__126__62_, 'APPLY', $s ) )
-                                                                    )
-                                                                )
-                                                            );
                                                             ::DISPATCH_VAR( $Hash_syms, 'STORE', ::DISPATCH( ::DISPATCH( $self, 'token_length', ), 'LOOKUP', $len ) );
-                                                            ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '# syms: ' ), ::DISPATCH( $Hash_syms, 'keys', ) );
                                                             {
                                                                 my $sym;
                                                                 $sym = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$sym' } ) unless defined $sym;
@@ -310,7 +269,6 @@
                                                                         do {
                                                                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $s, $sym ), "true" ), "p5landish" ) ) {
                                                                                 {
-                                                                                    ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', 'found!' ) );
                                                                                     return ( ::DISPATCH( ::DISPATCH( $Hash_syms, 'LOOKUP', $sym ), 'select', $capture ) )
                                                                                 }
                                                                             }
@@ -323,8 +281,7 @@
                                                     }
                                             }
                                         }
-                                    };
-                                    ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', 'done' ) )
+                                    }
                                 }
                             }
                         };
@@ -342,7 +299,7 @@
                                 }
                             }
                         };
-                        $List_candidates;
+                        ::DISPATCH_VAR( $List_candidates, 'STORE', ::DISPATCH( $::Array, "new", { _array => [] } ) );
                         {
                             my $sub;
                             $sub = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$sub' } ) unless defined $sub;
@@ -393,8 +350,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'perl' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $self;

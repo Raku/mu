@@ -31,8 +31,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'perl' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
@@ -53,6 +52,15 @@
                         };
                         ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $self, "sigil" ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $self, "twigil" ), ::DISPATCH( $self, "name" ) ) );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
@@ -94,8 +102,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'arity' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
@@ -114,8 +121,31 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        do {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', ::DISPATCH( $self, 'array', ) ) ), "true" ), "p5landish" ) ) {
+                                {
+                                    ::DISPATCH_VAR( ::DISPATCH( $self, 'array', ), 'STORE', ::DISPATCH( $::Array, "new", { _array => [] } ) )
+                                }
+                            }
+                        };
+                        do {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', ::DISPATCH( $self, 'hash', ) ) ), "true" ), "p5landish" ) ) {
+                                {
+                                    ::DISPATCH_VAR( ::DISPATCH( $self, 'hash', ), 'STORE', ::DISPATCH( $::Hash, "new", { _hash => {} } ) )
+                                }
+                            }
+                        };
                         ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "array" ), 'elems', ), ::DISPATCH( ::DISPATCH( $self, "hash" ), 'elems', ) );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
         );
@@ -124,8 +154,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'perl' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $v;
                         $v = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$v' } ) unless defined $v;
@@ -178,6 +207,15 @@
                         };
                         return ( ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $s, ::DISPATCH( $::Str, 'new', ' )' ) ) );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
         );
@@ -186,8 +224,7 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'str' ),
             ::DISPATCH(
-                $::Method,
-                'new',
+                $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
@@ -208,6 +245,15 @@
                         };
                         ::DISPATCH( $self, 'perl', );
                     },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
                 }
             )
             )
