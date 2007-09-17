@@ -9,6 +9,7 @@ proto token xyz {};
 token xyz:sym<abc>   { abc }
 token xyz:abf        { <Main.ok> abf }
 token xyz:sym<abger> { abger }
+token xyz:sym« << »  { << }
 
 $_ = "abfbbb";
 # Main.xyz;   XXX - AST bug

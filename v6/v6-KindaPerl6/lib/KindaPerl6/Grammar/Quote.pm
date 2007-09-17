@@ -89,6 +89,12 @@ token angle_quoted {
     |  <''>    
 };
 
+token french_quoted {
+    |  \\ .  <french_quoted>
+    |  <!before \» > . <french_quoted>
+    |  <''>    
+};
+
 token val_buf {
     | \" <quoted_exp_seq> \" { return $$<quoted_exp_seq> }
     | \' <single_quoted>  \' { return ::Val::Buf( 'buf' => ~$<single_quoted> ) }

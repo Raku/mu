@@ -284,7 +284,11 @@ token token {
 };
 
 token token_sym_ident {
-    |  sym \< <angle_quoted> \>     { return ~$<angle_quoted> }
+
+    # TODO - process whitespace in angle_quoted and french_quoted strings
+
+    |  sym \< <angle_quoted>  \>    { return ~$<angle_quoted> }
+    |  sym \« <french_quoted> \»    { return ~$<french_quoted> }
     |  <ident>                      { return ~$<ident> }
 }
 
