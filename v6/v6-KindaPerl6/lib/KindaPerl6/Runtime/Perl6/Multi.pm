@@ -29,6 +29,14 @@ class Multi is Code {
     }
             
     method add_token_variant ( $code, $sym ) {
+    
+        # XXX - fixme
+        # http://moritz.faui2k3.org/irclog/out.pl?channel=perl6;date=2007-09-17#i_104660
+        # <TimToady> sym is a way of specifying the identifier of some tokens and later some operator names, 
+        #   but it's not the definition of longest token
+        #   if the rule says "<sym> 'bar'" then the token would be $bar (at least)
+        #   it's basically everything DFAable up to <ws> or ::
+
         my $len = $sym.chars;
         #say "add_token_variant: $sym : $len ";
         if !( defined( self.token_length ) ) {
