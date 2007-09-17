@@ -6,7 +6,6 @@ plan 11;
 # L<S03/List infix precedence/the cross operator>
 ok eval('<a b> X <c d>'), 'cross non-meta operator parses';
 
-# L<S03/List infix precedence/permutations of its sublists>
 is eval('@(<a b> X <1 2>)'), <a 1 a 2 b 1 b 2>,
     'non-meta cross produces expected result';
 
