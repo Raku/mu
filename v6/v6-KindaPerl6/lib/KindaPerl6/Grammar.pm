@@ -22,8 +22,9 @@ token ident_digit {
 };
 
 token ident {
-    <'infix:<'> <infix_op> <'>'>
+    | <'infix:<'> <infix_op> <'>'>
     | [ <!before \d> <?word> | _ ] <?ident_digit>
+    | ¢
 };
 
 token full_ident {
