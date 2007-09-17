@@ -71,7 +71,7 @@ sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; my  $char = $sel
 ;
 package Rule::Block;
 sub new { shift; bless { @_ }, "Rule::Block" }
-sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; return(('do { ' . ('my $ret = self.' . ($self->{closure} . (';' . ('if $ret {' . ('$MATCH.result = $ret; ' . ('return $MATCH;' . ('};' . ('1' . '}')))))))))) }
+sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; return(('do { ' . ('my $ret = self.' . ($self->{closure} . (';' . ('if $ret ne "sTrNgE V4l" {' . ('$MATCH.result = $ret; ' . ('return $MATCH;' . ('};' . ('1' . '}')))))))))) }
 
 
 ;

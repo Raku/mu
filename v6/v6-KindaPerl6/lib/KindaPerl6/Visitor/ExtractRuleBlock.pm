@@ -15,6 +15,7 @@ class KindaPerl6::Visitor::ExtractRuleBlock {
             $count := $count + 1;
             my $name := '__rule_block' ~ $count ~ '_' ~ $COMPILER::source_md5;
             push @(($comp_unit.body).body), ::Method(block=>$node.closure,name=>$name);
+            push @(($node.closure).body), ::Return(result=>::Val::Buf(buf=>'sTrNgE V4l'));
             $node.closure($name);
             return $node;
         }

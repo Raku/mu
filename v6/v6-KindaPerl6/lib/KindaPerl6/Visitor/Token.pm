@@ -208,7 +208,7 @@ class Rule::Block {
         #warn $.closure.emit_perl6;
         return 'do { ' ~ 
              'my $ret = self.'~$.closure ~ ';' ~
-             'if $ret {' ~
+             'if $ret ne "sTrNgE V4l" {' ~
                 '$MATCH.result = $ret; ' ~
                 'return $MATCH;' ~
              '};' ~

@@ -1190,7 +1190,7 @@
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
-                                                ::DISPATCH( $::Str, 'new', 'if $ret {' ),
+                                                ::DISPATCH( $::Str, 'new', 'if $ret ne "sTrNgE V4l" {' ),
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
