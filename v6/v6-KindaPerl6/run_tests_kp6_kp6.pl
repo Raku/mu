@@ -6,7 +6,7 @@ use Test::Harness;
 use Getopt::Long;
 
 #$Test::Harness::Debug = 1;
-#$Test::Harness::Verbose = 1;
+$Test::Harness::Verbose = 1 if $ENV{TEST_VERBOSE};
 
 my $section = undef;
 GetOptions( "section:s" => \$section );
