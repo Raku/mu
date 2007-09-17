@@ -5,6 +5,7 @@ runpugs version 0.4.0 TODO:
 * Improve POD
 * Add Web-based REPL to run kp6
 'kp6-perl5.pl --secure  | perl -Ilib-kp6-mp6-p5'
+* Fix html display escaping problems (moritz: my @a = <foo 1 2 3>);
 * Put more functionality in JS (clear, timeout, history) [azawawi: history implemented]
 * Use true AJAX for front-end (e.g. prototype.js) [azawawi: DONE with jQuery...]
 * Convert to Perl6: this is a nice long-term goal. 
