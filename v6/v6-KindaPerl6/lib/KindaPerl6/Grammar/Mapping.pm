@@ -11,10 +11,22 @@ token key {
 };
 
 token pair {
-    |   <key> 
+    |   <key>                               #  key => value
         <?opt_ws> <'=>'> <?opt_ws>
         <exp>
         { return [ $$<key>, $$<exp> ] }
+    |   \: <ident> \< <angle_quoted> \>     #  :key<value>
+        { 
+            return [ 
+                ::Val::Buf( 'buf' => ~$<ident> ), 
+                ::Val::Buf( 'buf' => ~$<angle_quoted> ) ] 
+        } 
+    |   \: <ident>                          #  :key
+        { 
+            return [ 
+                ::Val::Buf( 'buf' => ~$<ident> ), 
+                ::Val::Bit( 'bit' => 1 ) ] 
+        } 
     |   \: <sigil> <ident>                  #  :$var
         { 
             return [ 
