@@ -283,11 +283,16 @@ token token {
     }
 };
 
+token token_sym_ident {
+    |  sym \< <angle_quoted> \>     { return ~$<angle_quoted> }
+    |  <ident>                      { return ~$<ident> }
+}
+
 token token_sym {
     # { say 'parsing Token:sym' }
     [ multi <?ws> | '' ]
     token
-    <?ws> <namespace> <ident> \: sym \< <angle_quoted> \> <?opt_ws> \{
+    <?ws> <namespace> <ident> \: <token_sym_ident> <?opt_ws> \{
         <KindaPerl6::Grammar::Regex.rule>
     \}
     {
@@ -305,9 +310,9 @@ token token_sym {
                         ::Token(
                             name  => undef,   
                             regex => $$<KindaPerl6::Grammar::Regex.rule>,
-                            sym   => ~$<angle_quoted>,
+                            sym   => ~$<token_sym_ident>,
                         ),
-                        ::Val::Buf( 'buf' => ~$<angle_quoted> ),
+                        ::Val::Buf( 'buf' => ~$<token_sym_ident> ),
                     ],
                 );                  
     }

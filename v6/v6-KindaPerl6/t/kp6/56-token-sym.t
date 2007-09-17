@@ -7,7 +7,7 @@ method ok { say "ok 1" };
 proto token xyz {}; 
 
 token xyz:sym<abc>   { abc }
-token xyz:sym<abf>   { <Main.ok> abf }
+token xyz:abf        { <Main.ok> abf }
 token xyz:sym<abger> { abger }
 
 $_ = "abfbbb";
