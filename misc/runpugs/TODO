@@ -3,11 +3,11 @@ runpugs version 0.4.0 TODO:
 2007/05/07
 * Unicode: hack Net::Telnet so it handles Unicode
 * Improve POD
-* Add Web-based REPL to run kp6
-'kp6-perl5.pl --secure  | perl -Ilib-kp6-mp6-p5'
-* Fix html display escaping problems (moritz: my @a = <foo 1 2 3>);
-* Put more functionality in JS (clear, timeout, history) [azawawi: history implemented]
-* Use true AJAX for front-end (e.g. prototype.js) [azawawi: DONE with jQuery...]
+* Add Web-based REPL to run kp6 using 'kp6-perl5.pl --secure  | perl -Ilib-kp6-mp6-p5'
+* Fix excess html display escaping problems on the server side (my @a = <&nbsp; &gt; &lt;>);
+* Put more functionality in JS (clear, timeout) 
+* Cleanup history code in server-side
+* Use true AJAX [remaining: hidden iframe/html payload -> $.ajax/JSON]
 * Convert to Perl6: this is a nice long-term goal. 
     Perl 5 Modules to be ported:
     - IO::Pty (xs based)
