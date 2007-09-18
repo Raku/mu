@@ -10,16 +10,16 @@
     </head>
     <body>
         <div id="mainwindow">
+            <form id="term" name="terminal" action="" method="post">
             <h1 id="logo" style="display:none;">
                 Run Perl 6 now -- in your browser!
             </h1>
-            <strong>Color schema:</strong>
-            <select id="theme">
-                <option value="wb_theme" selected="selected">White &amp; black</option>
-                <option value="gb_theme">Green</option>
-                <option value="ab_theme">Amber</option>
-            </select>
-            <form id="term" name="terminal" action="" method="post">
+                <strong>Color schema:</strong>
+                <select id="theme">
+                    <option value="wb_theme" selected="selected">White &amp; black</option>
+                    <option value="gb_theme">Green</option>
+                    <option value="ab_theme">Amber</option>
+                </select>
                 <input name="prompt" value=" " type="hidden"/>
                 <input name="sessionid" value="" type="hidden"/>
                 <input name="ia" value="1" type="hidden"/>
@@ -59,8 +59,9 @@
                     <h2>Restrictions</h2>
                     Because this is a web terminal, a number of restrictions apply. 
                     Please <a href="http://feather.perl6.nl/%7Eandara/runpugs/">read the documentation</a> for more information.
+                    <br/><br/>
                     <div class="copyright">&copy; Copyright 2006 by Wim.Vanderbauwhede. Contact me @ gmail.com<br/>
-                        Enhanced web terminal by Ahmad.Zawawi. Contact me @ gmail.com
+                        &nbsp;&nbsp;&nbsp;&nbsp;Enhanced web terminal by Ahmad.Zawawi. Contact me @ gmail.com
                     </div>
                 </div>
             </form>

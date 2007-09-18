@@ -94,7 +94,7 @@ $(document).ready( function() {
 
     //start loading pugs session after page has loaded...
     $("#hidden_iframe").append(
-        'im there!<iframe src="/perl/runpugs.pl" id="scratch" name="scratch" ' +
+        '<iframe src="/perl/runpugs.pl" id="scratch" name="scratch" ' +
         'style="visibility:hidden" width="700px" height="1px" ' +
         'onLoad="getreply()"></iframe>');
 });
@@ -219,10 +219,10 @@ function onKeyPress(event) {
     focusOnCmd("#status");
 
     var keyCode = event.keyCode;
-    if($.browser.msie || $.browser.opera) {
+    if($.browser.msie || $.browser.opera || $.browser.safari) {
         var key = String.fromCharCode(keyCode);
         if(key >= ' ') {
-            if(($.browser.opera && (keyCode < 35 || keyCode > 40)) || $.browser.msie) {
+            if(($.browser.opera && (keyCode < 35 || keyCode > 40)) || $.browser.msie || $.browser.safari) {
                 //insert key at curpos
                 cmd = insert(cmd,key,curpos);
                 showCmd();
@@ -270,7 +270,6 @@ function getreply () {
     updateConsole();
     cmd = "";
     curpos=0;
-    //moveCursor();
     showCmd();
 }
 

@@ -21,7 +21,8 @@ TT {color: #204a87; font-weight: bold; }
 LABEL {font-weight: normal; }
 FIELDSET {border: solid white 0px}
 LEGEND {font-weight:normal; text-align: left; }
-.copyright {font-size: 9pt}
+SELECT {font:13px arial,helvetica,clean,sans-serif;}
+.copyright {font:13px arial,helvetica,clean,sans-serif;}
 .tabon {
 font-weight:bold;
     background-color: #f2f2f0;
@@ -29,7 +30,6 @@ font-weight:bold;
     padding: 2px;
     padding-bottom: 0px;
     margin-top: 0px; 
-
 }
 .taboff {
 font-weight:bold;
@@ -112,7 +112,6 @@ A.taboff:link, A.taboff:active,A.taboff:visited {text-decoration: none; color: #
 	line-height:normal;
 	height:24em;
 	overflow: auto;
-	/*border: 1px solid white;*/
 }
 pre {
 	color: white;
@@ -147,6 +146,7 @@ pre.ab_theme {
 	display:inline;
 }
 .note { 
+	font:13px arial,helvetica,clean,sans-serif;
 	border-style: solid; 
 	border-width: 1px; 
 	border-color: #F0C000; 
