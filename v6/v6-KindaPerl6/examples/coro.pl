@@ -1,4 +1,9 @@
+
+# See:
+# http://www.chiark.greenend.org.uk/~sgtatham/coroutines.html
+
 use strict;
+use warnings;
 
 my $sub = do {
     my $state = 'L1';
@@ -12,14 +17,12 @@ my $sub = do {
             START:
             
             $i = 1;
-            FOR: {
+            do {
                 print "ok sub $i\n";
-                
                 $state = 'L2'; return; L2: ;
                 
                 $i++;
-                goto FOR if $i < 3;
-            }
+            } while $i < 3;
             print "done sub\n";
             
             $state = 'END'; END: ; return;
@@ -40,20 +43,19 @@ my $c = do {
             START:
             
             $i = 1;
-            FOR: {
+            do {
                 print "ok $i\n";
                 
                 $sub->{init}();
-                L1:
+                $state = 'L1'; L1:
                 unless ( $sub->{is_done}() ) {
-                    $state = 'L1'; return $sub->{run}(); 
+                    return $sub->{run}(); 
                 }
                 
                 $state = 'L2'; return; L2: ;
                 
                 $i++;
-                goto FOR if $i < 3;
-            }
+            } while $i < 3;
             print "done\n";
             
             $state = 'END'; END: ; return;
