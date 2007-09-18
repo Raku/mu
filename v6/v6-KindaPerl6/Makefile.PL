@@ -1,3 +1,8 @@
+# Do:
+#    perl Makefile.PL
+#    make help
+# to see help specific to this build system
+
 use strict;
 use ExtUtils::MakeMaker;
 
@@ -7,6 +12,15 @@ WriteMakefile(
     ABSTRACT => 'A bootstrapping Perl 6 compiler with multiple emitter backends',
     VERSION  => '0.01',
     LICENSE  => 'perl',
+
+    PREREQ_FATAL => 0,
+    PREREQ_PM    => { qw(
+        Carp                  0
+        Exporter              0
+        Data::Dump::Streamer  0
+        Data::Dumper          0
+        Perl::Tidy            0
+    ) },
 );
 
 # Voodoo magic specific to building v6-KindaPerl6:
@@ -14,7 +28,7 @@ package MY;
 
 sub test
 {
-    my $self = shift;
+    #my $self = shift;
     #my $inherited = $self->SUPER::test(@_);
 
 <<'END';
@@ -35,6 +49,7 @@ test_base: all
 END
 }
 
+# FIXME: This uses patsubst and wildcard which are gnuisms
 sub constants
 {
     my $self = shift;
@@ -61,15 +76,16 @@ sub top_targets
     my $self = shift;
     my $inherited = $self->SUPER::top_targets(@_);
 
-    # replace this:
-    ## all :: pure_all manifypods
-    ##     $(NOECHO) $(NOOP)
-    #$inherited =~ s/all.*?\$\(NOOP\)/all: \$(kp6_mp6_OBJ) \$(kp6_kp6_OBJ) \$(kp6_mp6_modules_OBJ) \$(kp6_kp6_modules_OBJ) kp6-kp6.pl/;
-$inherited =~ s/^/##/mg;
+    # Show relevant help on `make help'
+    $inherited =~ s/perldoc ExtUtils::MakeMaker/perldoc Makefile.PL/;
 
-$inherited . "\n" .
-<<'END'
-all: $(kp6_mp6_OBJ) $(kp6_kp6_OBJ) $(kp6_mp6_modules_OBJ) $(kp6_kp6_modules_OBJ) kp6-kp6.pl
+    # Add the kp6 targets
+    $inherited =~ s/^(all .*)/$1 \$(kp6_mp6_OBJ) \$(kp6_kp6_OBJ) \$(kp6_mp6_modules_OBJ) \$(kp6_kp6_modules_OBJ) kp6-kp6.pl/m;
+
+    return $inherited . "\n" .
+<<'END';
+# v6-KindaPerl6 specific targets:
+#all: $(kp6_mp6_OBJ) $(kp6_kp6_OBJ) $(kp6_mp6_modules_OBJ) $(kp6_kp6_modules_OBJ) kp6-kp6.pl
 
 lib-kp6-mp6-p5/KindaPerl6/Runtime/Perl6/%.pm: lib/KindaPerl6/Runtime/Perl6/%.pm
 	@echo COMPILE $< $@
@@ -133,6 +149,58 @@ kp6-kp6.pl: kp6.p6
 
 forcerecompile:
 	find lib/KindaPerl6/ -name "*.pm" | grep -v \.svn | xargs touch
-END
 
+# end v6-KindaPerl6 specific targets
+END
 }
+
+sub install
+{
+    my $self = shift;
+    my $inherited = $self->SUPER::install(@_);
+
+    $inherited =~ s/(install.*?NOOP\))/install ::\n\t\@echo "make install does not work yet"\n\tfalse\n/s;
+    $inherited;
+}
+
+__END__
+
+=head1 NAME
+
+Makefile.PL - v6::KindaPerl6 build system
+
+=head1 SYNOPSIS
+
+    perl Makefile.PL
+
+=head1 TARGETS
+
+The following targets are supported in addition to the usual
+ExtUtils::MakeMaker targets.
+
+=over
+
+=item forcerecompile
+
+touches all the .pm files in lib/KindaPerl6, this forces recompilation
+on the next I<make all>.
+
+=item test_grammar
+
+Run grammar tests
+
+=item test_io
+
+Run IO tests
+
+=item test_math
+
+Run math tests
+
+=item test_base
+
+Run base tests
+
+=back
+
+=cut
