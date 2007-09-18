@@ -2,6 +2,12 @@ use v5;
 
 # TODO - test with nested iterators
 
+use threads;
+use strict;
+use warnings;
+
+our $take;
+
 sub gather {
     my $code = shift;
     my @results;
@@ -12,7 +18,12 @@ sub gather {
     };
     # TODO start a thread
     # TODO set a "finished" flag on return
-    $code->();
+    
+    my $thr = threads->new( $code );
+    $thr->join;  # fixme
+    
+    #$code->();  # no threads
+    
     # TODO return an iterator
     return \@results;
 }
