@@ -49,6 +49,7 @@ package GLOBAL;
         prefix_58__60__64__62_        
         prefix_58__60__43__43__62_
         prefix_58__60__124__62_
+        prefix_58__60__45__62_
 
     );
     
@@ -274,6 +275,11 @@ package GLOBAL;
         my $capture = shift;
         my $array = ::DISPATCH( $capture, 'array' );
         @{ $array->{_value}{_array} };
+    }
+
+    # -1
+    sub prefix_58__60__45__62_ {
+        ::DISPATCH( $::Int, 'new', - _int($_[0]) )
     }
 
     sub match_p5rx {
