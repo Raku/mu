@@ -9,8 +9,6 @@ module Muldis::DB::Validator-0.3.0 {
 
     use Test;
 
-    use Muldis::DB::Literal <newQuasiSet>;
-
 ###########################################################################
 
 sub main (Str :$engine_name!, Any :$dbms_config!) {
@@ -396,7 +394,7 @@ I<This documentation is pending.>
 This file requires any version of Perl 6.x.y that is at least 6.0.0.
 
 It also requires these Perl 6 classes that are in the current distribution:
-L<Muldis::DB::Literal-(0.3.0)|Muldis::DB::Literal>, L<Muldis::DB::Interface-0.3.0|Muldis::DB::Interface>.
+L<Muldis::DB::Interface-0.3.0|Muldis::DB::Interface>.
 
 =head1 INCOMPATIBILITIES
 

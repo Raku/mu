@@ -141,10 +141,10 @@ L<Language::MuldisD>.
 Specifically, this file implements the core system-defined operators that
 all Muldis D implementations must have, which is the selectors for and
 general purpose functions and update operators for these data types: Bool,
-Text, Blob, Int, Tuple, Relation, and the Cat.* types.
+Text, Blob, Int, Num, Tuple, Relation, and the Cat.* types.
 
 By contrast, the operators specific to the optional data types are
-implemented by other files: L<Muldis::DB::Engine::Example::Operators::Num>,
+implemented by other files:
 L<Muldis::DB::Engine::Example::Operators::Temporal>,
 L<Muldis::DB::Engine::Example::Operators::Spatial>.
 

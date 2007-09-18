@@ -1028,12 +1028,11 @@ match the API that the language itself specifies as possible
 representations for system-defined data types.
 
 Specifically, this file represents the core system-defined data types that
-all Muldis D implementations must have, namely: Bool, Text, Blob, Int,
+all Muldis D implementations must have, namely: Bool, Text, Blob, Int, Num,
 Tuple, Relation, and the Cat.* types.
 
 By contrast, the optional data types are given physical representations by
-other files: L<Muldis::DB::Engine::Example::PhysType::Num>,
-L<Muldis::DB::Engine::Example::PhysType::Temporal>,
+other files: L<Muldis::DB::Engine::Example::PhysType::Temporal>,
 L<Muldis::DB::Engine::Example::PhysType::Spatial>.
 
 =head1 BUGS AND LIMITATIONS

@@ -2,15 +2,11 @@ use v6-alpha;
 
 use Test;
 
-plan( 14 );
+plan( 12 );
 
 use_ok( 'Muldis::DB' );
 skip( 1, q{is( Muldis::DB.WHO.version, 0.3.2,
     'Muldis::DB is the correct version' );} );
-
-use_ok( 'Muldis::DB::Literal' );
-skip( 1, q{is( Muldis::DB::Literal.WHO.version, 0.3.0,
-    'Muldis::DB::Literal is the correct version' );} );
 
 use_ok( 'Muldis::DB::Interface' );
 skip( 1, q{is( Muldis::DB::Interface.WHO.version, 0.3.0,

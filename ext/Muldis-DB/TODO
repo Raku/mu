@@ -19,26 +19,22 @@ prerequisite for doing anything moderately more complex than what has
 already been done, including the support for user-defined data types,
 stored routines, constraints, virtual variables, and persisting databases.
 
-* Flesh out the user-input validation code in both Literal.pm and in the
-Example Engine, as is appropriate, so that all bad input results in
-graceful failures rather than ungraceful ones.
+* Flesh out the user-input validation code in the Example Engine, as is
+appropriate, so that all bad input results in graceful failures rather than
+ungraceful ones.
 
-* Flesh out the various parts of the test suite.  There are currently 3
-main parts envisioned:  1.  Several t/*.t files that test Literal.pm in
-isolation.  2.  Several t/*.t files that test support libraries of
-Example.pm in isolation.  3.  The Validator(|*).pm files which test
+* Flesh out the various parts of the test suite.  There are currently 2
+main parts envisioned:  1.  Several t/*.t files that test support libraries
+of Example.pm in isolation.  2.  The Validator(|*).pm files which test
 Interface.pm and the Example Engine as a whole, as well as being reused for
 other Engine distributions.  Note that the core test suite should execute
 in the above given order, so consider renaming the Validate Example test to
 a higher number than 50 to make more room for others, such as to 80 or 90
 or 99.
 
-* Update Literal.pm and Interface.pm to flesh out the descriptions of the
-classes and class methods that they provide.
-
 * Update the Example Engine to implement the rest of the relational
 algebra|calculus operators, as well as all the reasonable operators for
-other core data types: Bool, Order, Int, Blob, Text.
+other core data types: Bool, Order, Int, Num, Blob, Text.
 
 * Update the Example Engine to implement persisting databases.  For
 simplicity of implementation and learning, a whole depot will simply be one
@@ -49,11 +45,7 @@ semantics in the simplest way possible.  Other Engines will presumably do
 persistence in an intelligent and scalable (and more complicated) manner.
 
 * Update the Example Engine to implement the optional system-defined data
-types: non-integer numeric, temporal, spatial.
-
-* Optimize the Muldis DB framework core (just Literal.pm and Interface.pm)
-as much as possible so that anything using the framework in general should
-get the best performance feasible.
+types: temporal, spatial.
 
 * Optimize the Example Engine as can be done without making it too
 complicated for its primary use as an Engine reference implementation /
