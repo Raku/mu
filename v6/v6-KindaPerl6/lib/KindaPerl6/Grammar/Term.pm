@@ -114,6 +114,48 @@ token term {
             #COMPILER::begin_block( $bind );   # ::=   compile-time
             return $bind;                         # :=    run-time
         }  
+
+    | <opt_declarator> <coro>               # my? coro xxx? { code... }
+        { 
+            if ($$<coro>).name eq '' {
+                if ($$<opt_declarator>) eq '' {
+                    return $$<coro>;
+                } else {
+                    print "Error: subroutines with declarators should have a name";
+                    die "Error: subroutines with declarators should have a name";
+                };
+            };
+            my $decl;
+            if ($$<opt_declarator>) eq '' {
+                $decl := 'our';
+            } else {
+                $decl := $$<opt_declarator>;
+            };
+            (@COMPILER::PAD[0]).add_lexicals( [
+                ::Decl(  
+                    decl  => $decl,  
+                    var   => ::Var(  
+                        name   => ($$<coro>).name,  
+                        twigil => '',  
+                        sigil  => '&', 
+                        namespace => [ ],
+                    ),  
+                    type  => '', 
+                ),
+            ] );
+            my $bind := ::Bind(  
+                parameters => ::Var(  
+                    name   => ($$<coro>).name,  
+                    twigil => '',  
+                    sigil  => '&', 
+                    namespace => [ ],
+                ),  
+                arguments => $$<coro>
+            );
+            #COMPILER::begin_block( $bind );   # ::=   compile-time
+            return $bind;                         # :=    run-time
+        }  
+
     | <declarator> <?ws> <opt_type> <?opt_ws> <undeclared_var>   # my Int $variable
         { 
             if ($$<declarator>) eq 'my' {

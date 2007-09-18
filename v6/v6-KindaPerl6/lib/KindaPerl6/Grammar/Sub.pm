@@ -67,6 +67,39 @@ token sub {
     }
 };
 
+token coro {
+    coro
+    <?ws>  <opt_name>  <?opt_ws> 
+    <sub_sig>
+    <?opt_ws> \{ 
+        <?opt_ws>  
+        { 
+            COMPILER::add_pad();
+        }
+        <exp_stmts> 
+        <?opt_ws> 
+    [   \}     | { say '*** Syntax Error in coro \'', $$<name>, '\''; die 'error in Block'; } ]
+    { 
+        my $env := @COMPILER::PAD[0];
+        COMPILER::drop_pad();
+        my $block := $$<exp_stmts>;
+        KindaPerl6::Grammar::declare_parameters(
+            $env,
+            $block,
+            $$<sub_sig>,
+        );    
+        return ::Coro( 
+            'name'  => $$<opt_name>, 
+            'block' => ::Lit::Code(
+                pad   => $env,
+                state => { },
+                sig   => $$<sub_sig>,
+                body  => $block,
+            ),
+        );
+    }
+};
+
 token arrow_sub {
     '->'
     <?opt_ws> 
