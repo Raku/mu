@@ -867,7 +867,7 @@ my $libpath  = $FindBin::Bin."/lib";
 my $runtime5 = 'KindaPerl6/Runtime/Perl5';
 my $runtime6 = 'KindaPerl6/Runtime/Perl6';
 my @runtime5 = <$libpath/$runtime5/{IO,Math,Kp6Security}.pm>;
-my @runtime6 = <$libpath/$runtime6/{IO,Math,Multi,Junction}.pm>;
+my @runtime6 = <$libpath/$runtime6/{IO,Math,Multi,Junction,Range}.pm>;
 
 foreach (map { s,^.*($runtime5/.*)\.pm,$1,; s,/,::,g; $_ } @runtime5) {
     eval "require $_";

@@ -32,6 +32,10 @@ class GLOBAL {
     sub infix:<^>($a,$b) {
         one($a,$b);
     };
+    sub infix:<..>($a,$b) {
+        my $r = Range.new(); $r.start = $a; $r.end = $b;
+        $r;
+    };
     sub Inf { Math.Inf };
     sub NaN { Math.NaN };
     sub mkdir { IO.mkdir( @_ ) };

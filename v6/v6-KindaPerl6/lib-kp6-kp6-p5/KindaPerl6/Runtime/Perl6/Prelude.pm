@@ -12,34 +12,36 @@
     BEGIN { $_MODIFIED = {} }
     BEGIN { $_ = ::DISPATCH( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
     {
-        our $Code_all                    = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_all' } );
-        our $Code_any                    = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_any' } );
-        our $Code_none                   = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_none' } );
-        our $Code_one                    = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_one' } );
-        our $Code_infix_58__60__124__62_ = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_infix_58__60__124__62_' } );
-        our $Code_infix_58__60__38__62_  = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_infix_58__60__38__62_' } );
-        our $Code_infix_58__60__94__62_  = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_infix_58__60__94__62_' } );
-        our $Code_Inf                    = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_Inf' } );
-        our $Code_NaN                    = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_NaN' } );
-        our $Code_mkdir                  = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_mkdir' } );
-        our $Code_rmdir                  = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_rmdir' } );
-        our $Code_p5token                = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_p5token' } );
+        our $Code_all                       = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_all' } );
+        our $Code_any                       = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_any' } );
+        our $Code_none                      = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_none' } );
+        our $Code_one                       = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_one' } );
+        our $Code_infix_58__60__124__62_    = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_infix_58__60__124__62_' } );
+        our $Code_infix_58__60__38__62_     = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_infix_58__60__38__62_' } );
+        our $Code_infix_58__60__94__62_     = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_infix_58__60__94__62_' } );
+        our $Code_infix_58__60__46__46__62_ = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_infix_58__60__46__46__62_' } );
+        our $Code_Inf                       = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_Inf' } );
+        our $Code_NaN                       = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_NaN' } );
+        our $Code_mkdir                     = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_mkdir' } );
+        our $Code_rmdir                     = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_rmdir' } );
+        our $Code_p5token                   = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_p5token' } );
         do {
             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::GLOBAL ), "true" ), "p5landish" ) ) { }
             else {
                 {
-                    our $Code_all                    = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_all' } );
-                    our $Code_any                    = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_any' } );
-                    our $Code_none                   = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_none' } );
-                    our $Code_one                    = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_one' } );
-                    our $Code_infix_58__60__124__62_ = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_infix_58__60__124__62_' } );
-                    our $Code_infix_58__60__38__62_  = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_infix_58__60__38__62_' } );
-                    our $Code_infix_58__60__94__62_  = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_infix_58__60__94__62_' } );
-                    our $Code_Inf                    = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_Inf' } );
-                    our $Code_NaN                    = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_NaN' } );
-                    our $Code_mkdir                  = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_mkdir' } );
-                    our $Code_rmdir                  = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_rmdir' } );
-                    our $Code_p5token                = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_p5token' } );
+                    our $Code_all                       = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_all' } );
+                    our $Code_any                       = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_any' } );
+                    our $Code_none                      = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_none' } );
+                    our $Code_one                       = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_one' } );
+                    our $Code_infix_58__60__124__62_    = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_infix_58__60__124__62_' } );
+                    our $Code_infix_58__60__38__62_     = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_infix_58__60__38__62_' } );
+                    our $Code_infix_58__60__94__62_     = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_infix_58__60__94__62_' } );
+                    our $Code_infix_58__60__46__46__62_ = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_infix_58__60__46__46__62_' } );
+                    our $Code_Inf                       = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_Inf' } );
+                    our $Code_NaN                       = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_NaN' } );
+                    our $Code_mkdir                     = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_mkdir' } );
+                    our $Code_rmdir                     = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_rmdir' } );
+                    our $Code_p5token                   = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_p5token' } );
                     do {
                         ::MODIFIED($::GLOBAL);
                         $::GLOBAL = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'GLOBAL' ) ), 'PROTOTYPE', );
@@ -306,6 +308,65 @@
                             $b = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) );
                         };
                         ::DISPATCH( $Code_one, 'APPLY', $a, $b );
+                    },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH(
+                                $::Array, "new",
+                                {   _array => [
+                                        ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'a', namespace => [], } ),
+                                        ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'b', namespace => [], } ),
+                                    ]
+                                }
+                            ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
+                }
+            );
+        };
+        do {
+            ::MODIFIED($Code_infix_58__60__46__46__62_);
+            $Code_infix_58__60__46__46__62_ = ::DISPATCH(
+                $::Code, 'new',
+                {   code => sub {
+                        my $r;
+                        $r = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$r' } ) unless defined $r;
+                        BEGIN { $r = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$r' } ) }
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $a;
+                        $a = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$a' } ) unless defined $a;
+                        BEGIN { $a = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$a' } ) }
+                        my $b;
+                        $b = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$b' } ) unless defined $b;
+                        BEGIN { $b = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$b' } ) }
+                        my $CAPTURE;
+                        $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
+                        BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+                        ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                        do {
+                            ::MODIFIED($List__);
+                            $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                        };
+                        do {
+                            ::MODIFIED($Hash__);
+                            $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
+                            ::MODIFIED($a);
+                            $a = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
+                        do {
+                            ::MODIFIED($b);
+                            $b = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) );
+                        };
+                        ::DISPATCH_VAR( $r, 'STORE', ::DISPATCH( $::Range, 'new', ) );
+                        ::DISPATCH_VAR( ::DISPATCH( $r, 'start', ), 'STORE', $a );
+                        ::DISPATCH_VAR( ::DISPATCH( $r, 'end', ),   'STORE', $b );
+                        $r;
                     },
                     signature => ::DISPATCH(
                         $::Signature,
