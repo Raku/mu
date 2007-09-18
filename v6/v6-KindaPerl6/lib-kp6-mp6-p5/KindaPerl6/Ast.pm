@@ -304,6 +304,15 @@ sub attribs { my $self = shift; my $List__ = \@_; do { [] }; { 'name' => $self->
 
 
 ;
+package Coro;
+sub new { shift; bless { @_ }, "Coro" }
+sub name { @_ == 1 ? ( $_[0]->{name} ) : ( $_[0]->{name} = $_[1] ) };
+sub block { @_ == 1 ? ( $_[0]->{block} ) : ( $_[0]->{block} = $_[1] ) };
+sub emit { my $self = shift; my $List__ = \@_; my $visitor; my $path; do {  $visitor = $List__->[0];  $path = $List__->[1]; [$visitor, $path] }; KindaPerl6::Traverse::visit($visitor, $self, 'Coro', $path) };
+sub attribs { my $self = shift; my $List__ = \@_; do { [] }; { 'name' => $self->{name},'block' => $self->{block}, } }
+
+
+;
 package Token;
 sub new { shift; bless { @_ }, "Token" }
 sub name { @_ == 1 ? ( $_[0]->{name} ) : ( $_[0]->{name} = $_[1] ) };

@@ -659,6 +659,25 @@ class Sub {
     };
 }
 
+class Coro {
+    has $.name;
+    has @.block;
+    method emit( $visitor, $path ) {
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
+            self,
+            'Coro',
+            $path,
+        );
+    };
+    method attribs {
+            { 
+                name    => $.name,
+                block   => $.block,
+            }
+    };
+}
+
 class Token {
     has $.name;
     #has $.sig;
