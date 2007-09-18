@@ -1,0 +1,12 @@
+The Perl 6 Language
+Junctions
+You can build junctions from an array
+too
+There are other types of junction
+all & true for all elements
+one ^ true for exactly one element
+none true for no elements
+my @bad_ext = ('vbs', 'js', 'exe', 'reg');
+if lc($file_ext) eq any(@bad_ext) {
+say "$file_ext files not allowed";
+}

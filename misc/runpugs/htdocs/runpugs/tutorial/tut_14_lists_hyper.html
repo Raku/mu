@@ -1,0 +1,11 @@
+The Perl 6 Language
+Hyper Operators
+Used to perform an operation per
+element of an array
+This is similar to a loop that takes
+elements 0 from @a and @b, adds them
+and puts the result in element 0 of @c
+Gives permission for the operation on
+different elements to be parallelized =>
+good for the Concurrent Future
+my @c = @a >>+<< @b;

@@ -1,0 +1,11 @@
+The Perl 6 Language
+Iterating Over Files Line By Line
+Use open to get a file handle; use :r
+to indicate we want to read
+ Iterate over the file's lines using for
+Close the file when you're done
+my $fh = open "file.txt" :r;
+for =$fh -> $line {
+...
+}
+$fh.close();
