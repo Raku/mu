@@ -66,14 +66,14 @@ class Val::Buf {
 
 class Val::Char {
     method emit_perl5 { 
-        '::DISPATCH( $::Str, \'new\', (code-char ' ~ $.char ~ ') )' ~ Main::newline();
+        # XXX Char != Str
+        "(make-instance 'Str :value (code-char ' ~ $.char ~ ') )" ~ Main::newline();
     }
 }
 
 class Val::Undef {
     method emit_perl5 { 
-        #'(undef)' 
-        '$::Undef'
+        "(make-instance 'Undef )" ~ Main::newline();
     }
 }
 
@@ -99,7 +99,7 @@ class Lit::Seq {
 
 class Lit::Array {
     method emit_perl5 {
-        '::DISPATCH( $::Array, "new", { _array => [' ~ (@.array.>>emit_perl5).join(', ') ~ '] } )' ~ Main::newline();
+        "(make-instance 'Array :value (list " ~ (@.array.>>emit_perl5).join(' ') ~ ") )" ~ Main::newline();
     }
 }
 
