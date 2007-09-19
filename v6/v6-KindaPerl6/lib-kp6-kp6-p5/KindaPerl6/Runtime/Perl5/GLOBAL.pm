@@ -297,7 +297,7 @@ package GLOBAL;
                     bool=>True
             });
         } else {
-            print "false match\n";
+            #print "false match\n";
             ::DISPATCH($::Match,'new',{bool=>False});
         }
     }
