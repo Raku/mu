@@ -174,65 +174,12 @@
                                                                         ::DISPATCH(
                                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                                             'APPLY',
-                                                                            ::DISPATCH( $::Str, 'new', 'use ' ),
+                                                                            ::DISPATCH( $::Str, 'new', '(load (compile-file "lib/KindaPerl6/Runtime/Lisp/Runtime.lisp"))' ),
                                                                             ::DISPATCH(
                                                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                                                 'APPLY',
-                                                                                ::DISPATCH( $Main::Code_get_compiler_target_runtime, 'APPLY', ),
-                                                                                ::DISPATCH(
-                                                                                    $GLOBAL::Code_infix_58__60__126__62_,
-                                                                                    'APPLY',
-                                                                                    ::DISPATCH( $::Str, 'new', ';' ),
-                                                                                    ::DISPATCH(
-                                                                                        $GLOBAL::Code_infix_58__60__126__62_,
-                                                                                        'APPLY',
-                                                                                        ::DISPATCH( $Main::Code_newline, 'APPLY', ),
-                                                                                        ::DISPATCH(
-                                                                                            $GLOBAL::Code_infix_58__60__126__62_,
-                                                                                            'APPLY',
-                                                                                            ::DISPATCH( $::Str, 'new', 'my $_MODIFIED; BEGIN { $_MODIFIED = {} }' ),
-                                                                                            ::DISPATCH(
-                                                                                                $GLOBAL::Code_infix_58__60__126__62_,
-                                                                                                'APPLY',
-                                                                                                ::DISPATCH( $Main::Code_newline, 'APPLY', ),
-                                                                                                ::DISPATCH(
-                                                                                                    $GLOBAL::Code_infix_58__60__126__62_,
-                                                                                                    'APPLY',
-                                                                                                    ::DISPATCH( $::Str, 'new', 'BEGIN { ' ),
-                                                                                                    ::DISPATCH(
-                                                                                                        $GLOBAL::Code_infix_58__60__126__62_,
-                                                                                                        'APPLY',
-                                                                                                        ::DISPATCH( $::Str, 'new', '$_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); ' ),
-                                                                                                        ::DISPATCH(
-                                                                                                            $GLOBAL::Code_infix_58__60__126__62_,
-                                                                                                            'APPLY',
-                                                                                                            ::DISPATCH( $::Str, 'new', '}' ),
-                                                                                                            ::DISPATCH(
-                                                                                                                $GLOBAL::Code_infix_58__60__126__62_,
-                                                                                                                'APPLY',
-                                                                                                                ::DISPATCH( $Main::Code_newline, 'APPLY', ),
-                                                                                                                ::DISPATCH(
-                                                                                                                    $GLOBAL::Code_infix_58__60__126__62_,
-                                                                                                                    'APPLY',
-                                                                                                                    ::DISPATCH( ::DISPATCH( $self, "body" ), 'emit_lisp', ),
-                                                                                                                    ::DISPATCH(
-                                                                                                                        $GLOBAL::Code_infix_58__60__126__62_,
-                                                                                                                        'APPLY',
-                                                                                                                        ::DISPATCH( $Main::Code_newline, 'APPLY', ),
-                                                                                                                        ::DISPATCH(
-                                                                                                                            $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                                                                                                            ::DISPATCH( $::Str, 'new', '; 1 }' ), ::DISPATCH( $Main::Code_newline, 'APPLY', )
-                                                                                                                        )
-                                                                                                                    )
-                                                                                                                )
-                                                                                                            )
-                                                                                                        )
-                                                                                                    )
-                                                                                                )
-                                                                                            )
-                                                                                        )
-                                                                                    )
-                                                                                )
+                                                                                ::DISPATCH( $Main::Code_newline, 'APPLY', ),
+                                                                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "body" ), 'emit_lisp', ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                                                                             )
                                                                         )
                                                                     )
@@ -290,14 +237,14 @@
                         };
                         do {
                             ::MODIFIED($value);
-                            $value = ::DISPATCH( $::Str, 'new', '0' );
+                            $value = ::DISPATCH( $::Str, 'new', 'nil' );
                         };
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60__33__61__62_, 'APPLY', $args_secure, ::DISPATCH( $::Int, 'new', 0 ) ), "true" ), "p5landish" ) ) {
                                 {
                                     do {
                                         ::MODIFIED($value);
-                                        $value = ::DISPATCH( $::Str, 'new', '1' );
+                                        $value = ::DISPATCH( $::Str, 'new', 't' );
                                         }
                                 }
                             }
@@ -1441,15 +1388,7 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        ::DISPATCH(
-                            $GLOBAL::Code_infix_58__60__126__62_,
-                            'APPLY',
-                            ::DISPATCH( $::Str, 'new', '{ ' ),
-                            ::DISPATCH(
-                                $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                ::DISPATCH( $self, 'emit_declarations', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $self, 'emit_body', ), ::DISPATCH( $::Str, 'new', ' }' ) )
-                            )
-                        );
+                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $self, 'emit_declarations', ), ::DISPATCH( $self, 'emit_body', ) );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
