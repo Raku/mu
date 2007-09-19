@@ -84,7 +84,7 @@ sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; my  $fields = $se
 ;
 package Lit::Pair;
 sub new { shift; bless { @_ }, "Lit::Pair" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( $::Pair, \'new\', ' . ('{ key => ' . ($self->{key}->emit_lisp() . (', value => ' . ($self->{value}->emit_lisp() . (' } )' . Main::newline())))))) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(make-instance \'Pair :key ' . ($self->{key}->emit_lisp() . (' :value ' . ($self->{value}->emit_lisp() . (')' . Main::newline()))))) }
 
 
 ;

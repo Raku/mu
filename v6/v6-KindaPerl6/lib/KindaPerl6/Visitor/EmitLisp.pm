@@ -118,10 +118,7 @@ class Lit::Hash {
 
 class Lit::Pair {
     method emit_lisp {
-        '::DISPATCH( $::Pair, \'new\', ' 
-        ~ '{ key => '   ~ $.key.emit_lisp
-        ~ ', value => ' ~ $.value.emit_lisp
-        ~ ' } )' ~ Main::newline();
+        "(make-instance \'Pair :key " ~ $.key.emit_lisp ~ " :value " ~ $.value.emit_lisp ~ ")" ~ Main::newline();
     }
 }
 
