@@ -91,6 +91,7 @@
                     $ast = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ast' } ) unless defined $ast;
                     BEGIN { $ast = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ast' } ) }
                     ::DISPATCH_VAR( $ast, 'STORE', ::DISPATCH( $::KindaPerl6::Grammar, 'comp_unit', $code, $pos ) );
+                    ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', 'Finished matching...' ) );
                     do {
                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $ast, 'isa', ::DISPATCH( $::Str, 'new', 'CompUnit' ) ) ), "true" ), "p5landish" ) ) {
                             {

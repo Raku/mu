@@ -255,6 +255,7 @@ package GLOBAL;
 
 
     # prefix:<$>
+    # XXX: TODO: This should force scalar context.
     sub prefix_58__60__36__62_ { $_[0] }
 
     # prefix:<~>

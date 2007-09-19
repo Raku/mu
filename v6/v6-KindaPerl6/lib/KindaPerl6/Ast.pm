@@ -111,6 +111,9 @@ class Val::Buf {
                 buf    => $.buf,
             }
     };
+    method true {
+        $.buf.true;
+    }
 }
 
 class Val::Char {
