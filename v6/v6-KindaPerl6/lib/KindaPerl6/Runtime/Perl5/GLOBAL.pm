@@ -46,6 +46,7 @@ package GLOBAL;
         infix_58__60__60__62_
         
         prefix_58__60__33__62_
+        prefix_58__60__36__62_
         prefix_58__60__126__62_
         prefix_58__60__64__62_        
         prefix_58__60__43__43__62_
@@ -251,6 +252,11 @@ package GLOBAL;
     sub length {
         ::DISPATCH( $::Int, 'new', length(_str( $_[0] )) );
     }
+
+
+    # prefix:<$>
+    # XXX: TODO: This should force scalar context.
+    sub prefix_58__60__36__62_ { $_[0] }
 
     # prefix:<~>
     sub prefix_58__60__126__62_ { ::DISPATCH( $::Str, 'new', _str( $_[0] ) ) }  
