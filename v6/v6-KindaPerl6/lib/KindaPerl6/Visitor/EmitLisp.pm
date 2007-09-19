@@ -42,35 +42,31 @@ class CompUnit {
 
 class Val::Int {
     method emit_perl5 { 
-        # $.int 
-        '::DISPATCH( $::Int, \'new\', ' ~ $.int ~ ' )' ~ Main::newline();
+        "(make-instance 'Int :value " ~ $.int ~ ")" ~ Main::newline();
     }
 }
 
 class Val::Bit {
     method emit_perl5 { 
-        # $.bit 
-        '::DISPATCH( $::Bit, \'new\', ' ~ $.bit ~ ' )' ~ Main::newline();
+        "(make-instance 'Bit :value " ~ $.bit ~ ")" ~ Main::newline();
     }
 }
 
 class Val::Num {
     method emit_perl5 { 
-        #$.num 
-        '::DISPATCH( $::Num, \'new\', ' ~ $.num ~ ' )' ~ Main::newline();
+        "(make-instance 'Num :value " ~ $.num ~ ")" ~ Main::newline();
     }
 }
 
 class Val::Buf {
     method emit_perl5 { 
-        # '\'' ~ $.buf ~ '\'' 
-        '::DISPATCH( $::Str, \'new\', ' ~ Main::singlequote() ~ Main::mangle_string( $.buf ) ~ Main::singlequote ~ ' )' ~ Main::newline();
+        "(make-instance 'Str :value " ~ '"' ~ Main::mangle_string( $.buf ) ~ '"' ~ ")" ~ Main::newline();
     }
 }
 
 class Val::Char {
     method emit_perl5 { 
-        '::DISPATCH( $::Str, \'new\', chr( ' ~ $.char ~ ' ) )' ~ Main::newline();
+        '::DISPATCH( $::Str, \'new\', (code-char ' ~ $.char ~ ') )' ~ Main::newline();
     }
 }
 
