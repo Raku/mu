@@ -209,7 +209,7 @@ class Rule::Block {
         #XXX - avoid code -> ast -> code 
         #warn $.closure.emit_perl6;
         return 'do { ' ~ 
-             'my $ret = self.'~$.closure ~ ';' ~
+             'my $ret = self.'~$.closure ~ '($MATCH);' ~
              'if $ret ne "sTrNgE V4l" {' ~
                 '$MATCH.result = $ret; ' ~
                 'return $MATCH;' ~

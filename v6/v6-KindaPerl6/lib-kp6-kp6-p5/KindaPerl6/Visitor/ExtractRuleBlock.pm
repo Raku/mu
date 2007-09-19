@@ -103,7 +103,62 @@
                                         'APPLY',
                                         ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $comp_unit, 'body', ), 'body', ) ),
                                         ::DISPATCH(
-                                            $::Method, 'new', ::DISPATCH( $::Str, 'new', 'block' ) => ::DISPATCH( $node, 'closure', ),
+                                            $::Method,
+                                            'new',
+                                            ::DISPATCH( $::Str, 'new', 'block' ) => ::DISPATCH(
+                                                $::Lit::Code,
+                                                'new',
+                                                ::DISPATCH( $::Str, 'new', 'body' ) => ::DISPATCH( ::DISPATCH( $node, 'closure', ), 'body', ),
+                                                ::DISPATCH( $::Str, 'new', 'sig' )  => ::DISPATCH(
+                                                    $::Sig, 'new',
+                                                    ::DISPATCH( $::Str, 'new', 'named' )      => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                                                    ::DISPATCH( $::Str, 'new', 'invocant' )   => ::DISPATCH( $::Str,  'new', '' ),
+                                                    ::DISPATCH( $::Str, 'new', 'positional' ) => ::DISPATCH(
+                                                        $::Array, "new",
+                                                        {   _array => [
+                                                                ::DISPATCH(
+                                                                    $::Var, 'new', ::DISPATCH( $::Str, 'new', 'namespace' ) => ::DISPATCH( $::Array, "new", { _array => [] } ),
+                                                                    ::DISPATCH( $::Str, 'new', 'name' )   => ::DISPATCH( $::Str, 'new', 'MATCH' ),
+                                                                    ::DISPATCH( $::Str, 'new', 'twigil' ) => ::DISPATCH( $::Str, 'new', '' ),
+                                                                    ::DISPATCH( $::Str, 'new', 'sigil' )  => ::DISPATCH( $::Str, 'new', '$' ),
+                                                                )
+                                                            ]
+                                                        }
+                                                    ),
+                                                ),
+                                                ::DISPATCH( $::Str, 'new', 'pad' ) => ::DISPATCH(
+                                                    $::Pad, 'new',
+                                                    ::DISPATCH( $::Str, 'new', 'lexicals' ) => ::DISPATCH(
+                                                        $::Array, "new",
+                                                        {   _array => [
+                                                                ::DISPATCH(
+                                                                    $::Decl, 'new',
+                                                                    ::DISPATCH( $::Str, 'new', 'decl' ) => ::DISPATCH( $::Str, 'new', 'my' ),
+                                                                    ::DISPATCH( $::Str, 'new', 'var' )  => ::DISPATCH(
+                                                                        $::Var, 'new', ::DISPATCH( $::Str, 'new', 'namespace' ) => ::DISPATCH( $::Array, "new", { _array => [] } ),
+                                                                        ::DISPATCH( $::Str, 'new', 'name' )   => ::DISPATCH( $::Str, 'new', '_' ),
+                                                                        ::DISPATCH( $::Str, 'new', 'twigil' ) => ::DISPATCH( $::Str, 'new', '' ),
+                                                                        ::DISPATCH( $::Str, 'new', 'sigil' )  => ::DISPATCH( $::Str, 'new', '@' ),
+                                                                    ),
+                                                                    ::DISPATCH( $::Str, 'new', 'type' ) => ::DISPATCH( $::Str, 'new', '' ),
+                                                                ),
+                                                                ::DISPATCH(
+                                                                    $::Decl, 'new',
+                                                                    ::DISPATCH( $::Str, 'new', 'decl' ) => ::DISPATCH( $::Str, 'new', 'my' ),
+                                                                    ::DISPATCH( $::Str, 'new', 'var' )  => ::DISPATCH(
+                                                                        $::Var, 'new', ::DISPATCH( $::Str, 'new', 'namespace' ) => ::DISPATCH( $::Array, "new", { _array => [] } ),
+                                                                        ::DISPATCH( $::Str, 'new', 'name' )   => ::DISPATCH( $::Str, 'new', 'MATCH' ),
+                                                                        ::DISPATCH( $::Str, 'new', 'twigil' ) => ::DISPATCH( $::Str, 'new', '' ),
+                                                                        ::DISPATCH( $::Str, 'new', 'sigil' )  => ::DISPATCH( $::Str, 'new', '$' ),
+                                                                    ),
+                                                                    ::DISPATCH( $::Str, 'new', 'type' ) => ::DISPATCH( $::Str, 'new', '' ),
+                                                                )
+                                                            ]
+                                                        }
+                                                    ),
+                                                ),
+                                                ::DISPATCH( $::Str, 'new', 'state' ) => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                                            ),
                                             ::DISPATCH( $::Str, 'new', 'name' ) => $name,
                                         )
                                     );

@@ -349,7 +349,7 @@
                                                                                                                                     my $ret;
                                                                                                                                     $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                                                                     BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block1_dc3fa7fc25c597563532a73c23bc1c37', ) );
+                                                                                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block1_dc3fa7fc25c597563532a73c23bc1c37', $MATCH ) );
                                                                                                                                     do {
                                                                                                                                         if (::DISPATCH(
                                                                                                                                                 ::DISPATCH(
@@ -409,7 +409,7 @@
                                                             my $ret;
                                                             $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                             BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block2_dc3fa7fc25c597563532a73c23bc1c37', ) );
+                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block2_dc3fa7fc25c597563532a73c23bc1c37', $MATCH ) );
                                                             do {
                                                                 if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_ne_62_, 'APPLY', $ret, ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) ), "true" ), "p5landish" ) ) {
                                                                     {
@@ -804,7 +804,7 @@
                                                                                                                                     my $ret;
                                                                                                                                     $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                                                                     BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block3_dc3fa7fc25c597563532a73c23bc1c37', ) );
+                                                                                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block3_dc3fa7fc25c597563532a73c23bc1c37', $MATCH ) );
                                                                                                                                     do {
                                                                                                                                         if (::DISPATCH(
                                                                                                                                                 ::DISPATCH(
@@ -864,7 +864,7 @@
                                                             my $ret;
                                                             $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                             BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block4_dc3fa7fc25c597563532a73c23bc1c37', ) );
+                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block4_dc3fa7fc25c597563532a73c23bc1c37', $MATCH ) );
                                                             do {
                                                                 if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_ne_62_, 'APPLY', $ret, ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) ), "true" ), "p5landish" ) ) {
                                                                     {
@@ -1047,7 +1047,7 @@
                                                                         my $ret;
                                                                         $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                         BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block5_dc3fa7fc25c597563532a73c23bc1c37', ) );
+                                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block5_dc3fa7fc25c597563532a73c23bc1c37', $MATCH ) );
                                                                         do {
                                                                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_ne_62_, 'APPLY', $ret, ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) ), "true" ), "p5landish" ) ) {
                                                                                 {
@@ -1285,7 +1285,7 @@
                                                                                                                         my $ret;
                                                                                                                         $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                                                         BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block6_dc3fa7fc25c597563532a73c23bc1c37', ) );
+                                                                                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block6_dc3fa7fc25c597563532a73c23bc1c37', $MATCH ) );
                                                                                                                         do {
                                                                                                                             if (::DISPATCH(
                                                                                                                                     ::DISPATCH(
@@ -1908,6 +1908,7 @@
                                                                                                                                                                                             $ret, 'STORE',
                                                                                                                                                                                             ::DISPATCH(
                                                                                                                                                                                                 $self, '__rule_block7_dc3fa7fc25c597563532a73c23bc1c37',
+                                                                                                                                                                                                $MATCH
                                                                                                                                                                                             )
                                                                                                                                                                                         );
                                                                                                                                                                                         do {
@@ -2296,6 +2297,7 @@
                                                                                                                                                                                                                                                         ::DISPATCH(
                                                                                                                                                                                                                                                             $self,
                                                                                                                                                                                                                                                             '__rule_block8_dc3fa7fc25c597563532a73c23bc1c37',
+                                                                                                                                                                                                                                                            $MATCH
                                                                                                                                                                                                                                                         )
                                                                                                                                                                                                                                                     );
                                                                                                                                                                                                                                                     do {
@@ -2392,6 +2394,7 @@
                                                                                                                                                                                                                                 ::DISPATCH(
                                                                                                                                                                                                                                     $self,
                                                                                                                                                                                                                                     '__rule_block9_dc3fa7fc25c597563532a73c23bc1c37',
+                                                                                                                                                                                                                                    $MATCH
                                                                                                                                                                                                                                 )
                                                                                                                                                                                                                             );
                                                                                                                                                                                                                             do {
@@ -3149,6 +3152,7 @@
                                                                                                                                                                                                         ::DISPATCH(
                                                                                                                                                                                                             $self,
                                                                                                                                                                                                             '__rule_block10_dc3fa7fc25c597563532a73c23bc1c37',
+                                                                                                                                                                                                            $MATCH
                                                                                                                                                                                                         )
                                                                                                                                                                                                     );
                                                                                                                                                                                                     do {
@@ -3586,6 +3590,7 @@
                                                                                                                                                                                                                                                                     ::DISPATCH(
                                                                                                                                                                                                                                                                         $self,
                                                                                                                                                                                                                                                                         '__rule_block11_dc3fa7fc25c597563532a73c23bc1c37',
+                                                                                                                                                                                                                                                                        $MATCH
                                                                                                                                                                                                                                                                     )
                                                                                                                                                                                                                                                                     )
                                                                                                                                                                                                                                                                     ;
@@ -3696,6 +3701,7 @@
                                                                                                                                                                                                                                             ::DISPATCH(
                                                                                                                                                                                                                                                 $self,
                                                                                                                                                                                                                                                 '__rule_block12_dc3fa7fc25c597563532a73c23bc1c37',
+                                                                                                                                                                                                                                                $MATCH
                                                                                                                                                                                                                                             )
                                                                                                                                                                                                                                         );
                                                                                                                                                                                                                                         do {
@@ -4186,7 +4192,7 @@
                                                                                                                                         my $ret;
                                                                                                                                         $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                                                                         BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block13_dc3fa7fc25c597563532a73c23bc1c37', ) );
+                                                                                                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block13_dc3fa7fc25c597563532a73c23bc1c37', $MATCH ) );
                                                                                                                                         do {
                                                                                                                                             if (::DISPATCH(
                                                                                                                                                     ::DISPATCH(
@@ -4424,6 +4430,7 @@
                                                                                                                                                                                                         ::DISPATCH(
                                                                                                                                                                                                             $self,
                                                                                                                                                                                                             '__rule_block14_dc3fa7fc25c597563532a73c23bc1c37',
+                                                                                                                                                                                                            $MATCH
                                                                                                                                                                                                         )
                                                                                                                                                                                                     );
                                                                                                                                                                                                     do {
@@ -4479,8 +4486,12 @@
                                                                                                                                                                                 $ret = ::DISPATCH( $::Scalar, 'new',
                                                                                                                                                                                     { modified => $_MODIFIED, name => '$ret' } );
                                                                                                                                                                             }
-                                                                                                                                                                            ::DISPATCH_VAR( $ret, 'STORE',
-                                                                                                                                                                                ::DISPATCH( $self, '__rule_block15_dc3fa7fc25c597563532a73c23bc1c37', ) );
+                                                                                                                                                                            ::DISPATCH_VAR(
+                                                                                                                                                                                $ret, 'STORE',
+                                                                                                                                                                                ::DISPATCH(
+                                                                                                                                                                                    $self, '__rule_block15_dc3fa7fc25c597563532a73c23bc1c37', $MATCH
+                                                                                                                                                                                )
+                                                                                                                                                                            );
                                                                                                                                                                             do {
                                                                                                                                                                                 if (::DISPATCH(
                                                                                                                                                                                         ::DISPATCH(
@@ -8134,6 +8145,7 @@
                                                                                                                                                                                                                     ::DISPATCH(
                                                                                                                                                                                                                         $self,
                                                                                                                                                                                                                         '__rule_block16_dc3fa7fc25c597563532a73c23bc1c37',
+                                                                                                                                                                                                                        $MATCH
                                                                                                                                                                                                                     )
                                                                                                                                                                                                                 );
                                                                                                                                                                                                                 do {
@@ -9110,6 +9122,7 @@
                                                                                                                                                                                                                                 ::DISPATCH(
                                                                                                                                                                                                                                     $self,
                                                                                                                                                                                                                                     '__rule_block17_dc3fa7fc25c597563532a73c23bc1c37',
+                                                                                                                                                                                                                                    $MATCH
                                                                                                                                                                                                                                 )
                                                                                                                                                                                                                             );
                                                                                                                                                                                                                             do {
@@ -9641,6 +9654,7 @@
                                                                                                                                                                                                                                                                                             ::DISPATCH(
                                                                                                                                                                                                                                                                                                 $self,
                                                                                                                                                                                                                                                                                                 '__rule_block18_dc3fa7fc25c597563532a73c23bc1c37',
+                                                                                                                                                                                                                                                                                                $MATCH
                                                                                                                                                                                                                                                                                             )
                                                                                                                                                                                                                                                                                             )
                                                                                                                                                                                                                                                                                             ;
@@ -9767,6 +9781,7 @@
                                                                                                                                                                                                                                                                     ::DISPATCH(
                                                                                                                                                                                                                                                                         $self,
                                                                                                                                                                                                                                                                         '__rule_block19_dc3fa7fc25c597563532a73c23bc1c37',
+                                                                                                                                                                                                                                                                        $MATCH
                                                                                                                                                                                                                                                                     )
                                                                                                                                                                                                                                                                     )
                                                                                                                                                                                                                                                                     ;
@@ -11808,6 +11823,7 @@
                                                                                                                                                                                                                                                                                                                     ::DISPATCH(
                                                                                                                                                                                                                                                                                                                         $self,
                                                                                                                                                                                                                                                                                                                         '__rule_block20_dc3fa7fc25c597563532a73c23bc1c37',
+                                                                                                                                                                                                                                                                                                                        $MATCH
                                                                                                                                                                                                                                                                                                                     )
                                                                                                                                                                                                                                                                                                                     )
                                                                                                                                                                                                                                                                                                                     ;
@@ -12400,6 +12416,7 @@
                                                                                                                                                                                                                                                                                                                                                                                 ::DISPATCH(
                                                                                                                                                                                                                                                                                                                                                                                     $self,
                                                                                                                                                                                                                                                                                                                                                                                     '__rule_block21_dc3fa7fc25c597563532a73c23bc1c37',
+                                                                                                                                                                                                                                                                                                                                                                                    $MATCH
                                                                                                                                                                                                                                                                                                                                                                                 )
                                                                                                                                                                                                                                                                                                                                                                                 )
                                                                                                                                                                                                                                                                                                                                                                                 ;
@@ -12527,6 +12544,7 @@
                                                                                                                                                                                                                                                                                                                                                         ::DISPATCH(
                                                                                                                                                                                                                                                                                                                                                             $self,
                                                                                                                                                                                                                                                                                                                                                             '__rule_block22_dc3fa7fc25c597563532a73c23bc1c37',
+                                                                                                                                                                                                                                                                                                                                                            $MATCH
                                                                                                                                                                                                                                                                                                                                                         )
                                                                                                                                                                                                                                                                                                                                                         )
                                                                                                                                                                                                                                                                                                                                                         ;
@@ -14076,6 +14094,7 @@
                                                                                                                                                                                                                                             ::DISPATCH(
                                                                                                                                                                                                                                                 $self,
                                                                                                                                                                                                                                                 '__rule_block23_dc3fa7fc25c597563532a73c23bc1c37',
+                                                                                                                                                                                                                                                $MATCH
                                                                                                                                                                                                                                             )
                                                                                                                                                                                                                                         );
                                                                                                                                                                                                                                         do {
@@ -14639,6 +14658,7 @@
                                                                                                                                                                                                                                                                                                         ::DISPATCH(
                                                                                                                                                                                                                                                                                                             $self,
                                                                                                                                                                                                                                                                                                             '__rule_block24_dc3fa7fc25c597563532a73c23bc1c37',
+                                                                                                                                                                                                                                                                                                            $MATCH
                                                                                                                                                                                                                                                                                                         )
                                                                                                                                                                                                                                                                                                         )
                                                                                                                                                                                                                                                                                                         ;
@@ -14766,6 +14786,7 @@
                                                                                                                                                                                                                                                                                 ::DISPATCH(
                                                                                                                                                                                                                                                                                     $self,
                                                                                                                                                                                                                                                                                     '__rule_block25_dc3fa7fc25c597563532a73c23bc1c37',
+                                                                                                                                                                                                                                                                                    $MATCH
                                                                                                                                                                                                                                                                                 )
                                                                                                                                                                                                                                                                                 )
                                                                                                                                                                                                                                                                                 ;
@@ -15702,6 +15723,7 @@
                                                                                                                                                                                             $ret, 'STORE',
                                                                                                                                                                                             ::DISPATCH(
                                                                                                                                                                                                 $self, '__rule_block26_dc3fa7fc25c597563532a73c23bc1c37',
+                                                                                                                                                                                                $MATCH
                                                                                                                                                                                             )
                                                                                                                                                                                         );
                                                                                                                                                                                         do {
@@ -16269,7 +16291,7 @@
                                                                                                                                     my $ret;
                                                                                                                                     $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                                                                     BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block27_dc3fa7fc25c597563532a73c23bc1c37', ) );
+                                                                                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block27_dc3fa7fc25c597563532a73c23bc1c37', $MATCH ) );
                                                                                                                                     do {
                                                                                                                                         if (::DISPATCH(
                                                                                                                                                 ::DISPATCH(
@@ -16854,7 +16876,7 @@
                                                                                                                                                                         $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } );
                                                                                                                                                                     }
                                                                                                                                                                     ::DISPATCH_VAR( $ret, 'STORE',
-                                                                                                                                                                        ::DISPATCH( $self, '__rule_block28_dc3fa7fc25c597563532a73c23bc1c37', ) );
+                                                                                                                                                                        ::DISPATCH( $self, '__rule_block28_dc3fa7fc25c597563532a73c23bc1c37', $MATCH ) );
                                                                                                                                                                     do {
                                                                                                                                                                         if (::DISPATCH(
                                                                                                                                                                                 ::DISPATCH(
@@ -16949,7 +16971,7 @@
                                                                                 my $ret;
                                                                                 $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                 BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block29_dc3fa7fc25c597563532a73c23bc1c37', ) );
+                                                                                ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block29_dc3fa7fc25c597563532a73c23bc1c37', $MATCH ) );
                                                                                 do {
                                                                                     if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_ne_62_, 'APPLY', $ret, ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) ), "true" ), "p5landish" ) ) {
                                                                                         {
@@ -18516,6 +18538,7 @@
                                                                                                                                                                                                                                             ::DISPATCH(
                                                                                                                                                                                                                                                 $self,
                                                                                                                                                                                                                                                 '__rule_block30_dc3fa7fc25c597563532a73c23bc1c37',
+                                                                                                                                                                                                                                                $MATCH
                                                                                                                                                                                                                                             )
                                                                                                                                                                                                                                         );
                                                                                                                                                                                                                                         do {
@@ -18693,6 +18716,10 @@
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $MATCH;
+                        $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) unless defined $MATCH;
+                        BEGIN { $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -18706,10 +18733,22 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        do {
+                            ::MODIFIED($MATCH);
+                            $MATCH = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
                         return ( ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'sig' ) ) ) );
                         return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'MATCH', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
                 }
             )
         );
@@ -18720,6 +18759,10 @@
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $MATCH;
+                        $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) unless defined $MATCH;
+                        BEGIN { $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -18732,6 +18775,10 @@
                         do {
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
+                            ::MODIFIED($MATCH);
+                            $MATCH = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         return (
                             ::DISPATCH(
@@ -18748,7 +18795,15 @@
                         );
                         return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'MATCH', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
                 }
             )
         );
@@ -18759,6 +18814,10 @@
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $MATCH;
+                        $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) unless defined $MATCH;
+                        BEGIN { $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -18772,10 +18831,22 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        do {
+                            ::MODIFIED($MATCH);
+                            $MATCH = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
                         return ( ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'sig' ) ) ) );
                         return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'MATCH', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
                 }
             )
         );
@@ -18786,6 +18857,10 @@
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $MATCH;
+                        $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) unless defined $MATCH;
+                        BEGIN { $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -18798,6 +18873,10 @@
                         do {
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
+                            ::MODIFIED($MATCH);
+                            $MATCH = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         return (
                             ::DISPATCH(
@@ -18808,7 +18887,15 @@
                         );
                         return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'MATCH', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
                 }
             )
         );
@@ -18819,6 +18906,10 @@
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $MATCH;
+                        $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) unless defined $MATCH;
+                        BEGIN { $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -18831,6 +18922,10 @@
                         do {
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
+                            ::MODIFIED($MATCH);
+                            $MATCH = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         return (
                             ::DISPATCH(
@@ -18842,7 +18937,15 @@
                         );
                         return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'MATCH', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
                 }
             )
         );
@@ -18853,6 +18956,10 @@
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $MATCH;
+                        $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) unless defined $MATCH;
+                        BEGIN { $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -18866,10 +18973,22 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        do {
+                            ::MODIFIED($MATCH);
+                            $MATCH = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
                         return ( ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'sig' ) ) ) );
                         return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'MATCH', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
                 }
             )
         );
@@ -18880,6 +18999,10 @@
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $MATCH;
+                        $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) unless defined $MATCH;
+                        BEGIN { $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -18893,10 +19016,22 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        do {
+                            ::MODIFIED($MATCH);
+                            $MATCH = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
                         ::DISPATCH( $COMPILER::Code_add_pad, 'APPLY', );
                         return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'MATCH', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
                 }
             )
         );
@@ -18907,6 +19042,10 @@
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $MATCH;
+                        $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) unless defined $MATCH;
+                        BEGIN { $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -18919,6 +19058,10 @@
                         do {
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
+                            ::MODIFIED($MATCH);
+                            $MATCH = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         ::DISPATCH(
                             $GLOBAL::Code_say, 'APPLY',
@@ -18929,7 +19072,15 @@
                         ::DISPATCH( $GLOBAL::Code_die, 'APPLY', ::DISPATCH( $::Str, 'new', 'error in Block' ) );
                         return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'MATCH', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
                 }
             )
         );
@@ -18940,12 +19091,10 @@
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
-                        my $env;
-                        $env = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$env' } ) unless defined $env;
-                        BEGIN { $env = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$env' } ) }
-                        my $block;
-                        $block = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$block' } ) unless defined $block;
-                        BEGIN { $block = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$block' } ) }
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $MATCH;
+                        $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) unless defined $MATCH;
+                        BEGIN { $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -18960,30 +19109,43 @@
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         do {
-                            ::MODIFIED($env);
-                            $env = ::DISPATCH( $COMPILER::List_PAD, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                            ::MODIFIED($MATCH);
+                            $MATCH = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
+                        do {
+                            ::MODIFIED($GLOBAL::env);
+                            $GLOBAL::env = ::DISPATCH( $COMPILER::List_PAD, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         ::DISPATCH( $COMPILER::Code_drop_pad, 'APPLY', );
                         do {
-                            ::MODIFIED($block);
-                            $block = ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'exp_stmts' ) ) );
+                            ::MODIFIED($GLOBAL::block);
+                            $GLOBAL::block = ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'exp_stmts' ) ) );
                         };
-                        ::DISPATCH( $KindaPerl6::Grammar::Code_declare_parameters, 'APPLY', $env, $block, ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'sub_sig' ) ) ) );
+                        ::DISPATCH( $KindaPerl6::Grammar::Code_declare_parameters,
+                            'APPLY', $GLOBAL::env, $GLOBAL::block, ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'sub_sig' ) ) ) );
                         return (
                             ::DISPATCH(
                                 $::Sub, 'new',
                                 ::DISPATCH( $::Str, 'new', 'name' )  => ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'opt_name' ) ) ),
                                 ::DISPATCH( $::Str, 'new', 'block' ) => ::DISPATCH(
-                                    $::Lit::Code, 'new', ::DISPATCH( $::Str, 'new', 'pad' ) => $env,
+                                    $::Lit::Code, 'new', ::DISPATCH( $::Str, 'new', 'pad' ) => $GLOBAL::env,
                                     ::DISPATCH( $::Str, 'new', 'state' ) => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
                                     ::DISPATCH( $::Str, 'new', 'sig' )  => ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'sub_sig' ) ) ),
-                                    ::DISPATCH( $::Str, 'new', 'body' ) => $block,
+                                    ::DISPATCH( $::Str, 'new', 'body' ) => $GLOBAL::block,
                                 ),
                             )
                         );
                         return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'MATCH', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
                 }
             )
         );
@@ -18994,6 +19156,10 @@
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $MATCH;
+                        $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) unless defined $MATCH;
+                        BEGIN { $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -19007,10 +19173,22 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        do {
+                            ::MODIFIED($MATCH);
+                            $MATCH = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
                         ::DISPATCH( $COMPILER::Code_add_pad, 'APPLY', );
                         return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'MATCH', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
                 }
             )
         );
@@ -19021,6 +19199,10 @@
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $MATCH;
+                        $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) unless defined $MATCH;
+                        BEGIN { $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -19033,6 +19215,10 @@
                         do {
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
+                            ::MODIFIED($MATCH);
+                            $MATCH = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         ::DISPATCH(
                             $GLOBAL::Code_say, 'APPLY',
@@ -19043,7 +19229,15 @@
                         ::DISPATCH( $GLOBAL::Code_die, 'APPLY', ::DISPATCH( $::Str, 'new', 'error in Block' ) );
                         return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'MATCH', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
                 }
             )
         );
@@ -19054,12 +19248,10 @@
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
-                        my $env;
-                        $env = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$env' } ) unless defined $env;
-                        BEGIN { $env = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$env' } ) }
-                        my $block;
-                        $block = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$block' } ) unless defined $block;
-                        BEGIN { $block = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$block' } ) }
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $MATCH;
+                        $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) unless defined $MATCH;
+                        BEGIN { $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -19074,30 +19266,43 @@
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         do {
-                            ::MODIFIED($env);
-                            $env = ::DISPATCH( $COMPILER::List_PAD, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                            ::MODIFIED($MATCH);
+                            $MATCH = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
+                        do {
+                            ::MODIFIED($GLOBAL::env);
+                            $GLOBAL::env = ::DISPATCH( $COMPILER::List_PAD, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         ::DISPATCH( $COMPILER::Code_drop_pad, 'APPLY', );
                         do {
-                            ::MODIFIED($block);
-                            $block = ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'exp_stmts' ) ) );
+                            ::MODIFIED($GLOBAL::block);
+                            $GLOBAL::block = ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'exp_stmts' ) ) );
                         };
-                        ::DISPATCH( $KindaPerl6::Grammar::Code_declare_parameters, 'APPLY', $env, $block, ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'sub_sig' ) ) ) );
+                        ::DISPATCH( $KindaPerl6::Grammar::Code_declare_parameters,
+                            'APPLY', $GLOBAL::env, $GLOBAL::block, ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'sub_sig' ) ) ) );
                         return (
                             ::DISPATCH(
                                 $::Coro, 'new',
                                 ::DISPATCH( $::Str, 'new', 'name' )  => ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'opt_name' ) ) ),
                                 ::DISPATCH( $::Str, 'new', 'block' ) => ::DISPATCH(
-                                    $::Lit::Code, 'new', ::DISPATCH( $::Str, 'new', 'pad' ) => $env,
+                                    $::Lit::Code, 'new', ::DISPATCH( $::Str, 'new', 'pad' ) => $GLOBAL::env,
                                     ::DISPATCH( $::Str, 'new', 'state' ) => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
                                     ::DISPATCH( $::Str, 'new', 'sig' )  => ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'sub_sig' ) ) ),
-                                    ::DISPATCH( $::Str, 'new', 'body' ) => $block,
+                                    ::DISPATCH( $::Str, 'new', 'body' ) => $GLOBAL::block,
                                 ),
                             )
                         );
                         return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'MATCH', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
                 }
             )
         );
@@ -19108,6 +19313,10 @@
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $MATCH;
+                        $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) unless defined $MATCH;
+                        BEGIN { $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -19121,10 +19330,22 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        do {
+                            ::MODIFIED($MATCH);
+                            $MATCH = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
                         ::DISPATCH( $COMPILER::Code_add_pad, 'APPLY', );
                         return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'MATCH', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
                 }
             )
         );
@@ -19135,6 +19356,10 @@
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $MATCH;
+                        $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) unless defined $MATCH;
+                        BEGIN { $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -19148,11 +19373,23 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        do {
+                            ::MODIFIED($MATCH);
+                            $MATCH = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
                         ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '*** Syntax Error in sub ' ) );
                         ::DISPATCH( $GLOBAL::Code_die, 'APPLY', ::DISPATCH( $::Str, 'new', 'error in Block' ) );
                         return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'MATCH', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
                 }
             )
         );
@@ -19163,12 +19400,10 @@
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
-                        my $env;
-                        $env = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$env' } ) unless defined $env;
-                        BEGIN { $env = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$env' } ) }
-                        my $block;
-                        $block = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$block' } ) unless defined $block;
-                        BEGIN { $block = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$block' } ) }
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $MATCH;
+                        $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) unless defined $MATCH;
+                        BEGIN { $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -19183,30 +19418,43 @@
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         do {
-                            ::MODIFIED($env);
-                            $env = ::DISPATCH( $COMPILER::List_PAD, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                            ::MODIFIED($MATCH);
+                            $MATCH = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
+                        do {
+                            ::MODIFIED($GLOBAL::env);
+                            $GLOBAL::env = ::DISPATCH( $COMPILER::List_PAD, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         ::DISPATCH( $COMPILER::Code_drop_pad, 'APPLY', );
                         do {
-                            ::MODIFIED($block);
-                            $block = ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'exp_stmts' ) ) );
+                            ::MODIFIED($GLOBAL::block);
+                            $GLOBAL::block = ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'exp_stmts' ) ) );
                         };
-                        ::DISPATCH( $KindaPerl6::Grammar::Code_declare_parameters, 'APPLY', $env, $block, ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'arrow_sub_sig' ) ) ) );
+                        ::DISPATCH( $KindaPerl6::Grammar::Code_declare_parameters,
+                            'APPLY', $GLOBAL::env, $GLOBAL::block, ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'arrow_sub_sig' ) ) ) );
                         return (
                             ::DISPATCH(
                                 $::Sub, 'new',
                                 ::DISPATCH( $::Str, 'new', 'name' )  => $::Undef,
                                 ::DISPATCH( $::Str, 'new', 'block' ) => ::DISPATCH(
-                                    $::Lit::Code, 'new', ::DISPATCH( $::Str, 'new', 'pad' ) => $env,
+                                    $::Lit::Code, 'new', ::DISPATCH( $::Str, 'new', 'pad' ) => $GLOBAL::env,
                                     ::DISPATCH( $::Str, 'new', 'state' ) => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
                                     ::DISPATCH( $::Str, 'new', 'sig' )  => ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'arrow_sub_sig' ) ) ),
-                                    ::DISPATCH( $::Str, 'new', 'body' ) => $block,
+                                    ::DISPATCH( $::Str, 'new', 'body' ) => $GLOBAL::block,
                                 ),
                             )
                         );
                         return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'MATCH', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
                 }
             )
         );
@@ -19217,9 +19465,10 @@
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
-                        my $bind;
-                        $bind = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$bind' } ) unless defined $bind;
-                        BEGIN { $bind = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$bind' } ) }
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $MATCH;
+                        $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) unless defined $MATCH;
+                        BEGIN { $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -19234,8 +19483,12 @@
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         do {
-                            ::MODIFIED($bind);
-                            $bind = ::DISPATCH(
+                            ::MODIFIED($MATCH);
+                            $MATCH = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
+                        do {
+                            ::MODIFIED($GLOBAL::bind);
+                            $GLOBAL::bind = ::DISPATCH(
                                 $::Bind, 'new',
                                 ::DISPATCH( $::Str, 'new', 'parameters' ) => ::DISPATCH(
                                     $::Var, 'new', ::DISPATCH( $::Str, 'new', 'sigil' ) => ::DISPATCH( $::Str, 'new', '&' ),
@@ -19251,11 +19504,19 @@
                                 ),
                             );
                         };
-                        ::DISPATCH( $COMPILER::Code_begin_block, 'APPLY', $bind );
-                        return ($bind);
+                        ::DISPATCH( $COMPILER::Code_begin_block, 'APPLY', $GLOBAL::bind );
+                        return ($GLOBAL::bind);
                         return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'MATCH', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
                 }
             )
         );
@@ -19266,6 +19527,10 @@
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $MATCH;
+                        $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) unless defined $MATCH;
+                        BEGIN { $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -19279,10 +19544,22 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        do {
+                            ::MODIFIED($MATCH);
+                            $MATCH = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
                         ::DISPATCH( $COMPILER::Code_add_pad, 'APPLY', );
                         return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'MATCH', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
                 }
             )
         );
@@ -19293,6 +19570,10 @@
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $MATCH;
+                        $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) unless defined $MATCH;
+                        BEGIN { $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -19305,6 +19586,10 @@
                         do {
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
+                            ::MODIFIED($MATCH);
+                            $MATCH = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         ::DISPATCH(
                             $GLOBAL::Code_say, 'APPLY',
@@ -19318,7 +19603,15 @@
                         ::DISPATCH( $GLOBAL::Code_die, 'APPLY', ::DISPATCH( $::Str, 'new', 'error in Block' ) );
                         return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'MATCH', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
                 }
             )
         );
@@ -19329,12 +19622,10 @@
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
-                        my $env;
-                        $env = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$env' } ) unless defined $env;
-                        BEGIN { $env = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$env' } ) }
-                        my $block;
-                        $block = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$block' } ) unless defined $block;
-                        BEGIN { $block = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$block' } ) }
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $MATCH;
+                        $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) unless defined $MATCH;
+                        BEGIN { $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -19349,14 +19640,19 @@
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         do {
-                            ::MODIFIED($env);
-                            $env = ::DISPATCH( $COMPILER::List_PAD, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                            ::MODIFIED($MATCH);
+                            $MATCH = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         do {
-                            ::MODIFIED($block);
-                            $block = ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'exp_stmts' ) ) );
+                            ::MODIFIED($GLOBAL::env);
+                            $GLOBAL::env = ::DISPATCH( $COMPILER::List_PAD, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
-                        ::DISPATCH( $KindaPerl6::Grammar::Code_declare_parameters, 'APPLY', $env, $block, ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'method_sig' ) ) ) );
+                        do {
+                            ::MODIFIED($GLOBAL::block);
+                            $GLOBAL::block = ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'exp_stmts' ) ) );
+                        };
+                        ::DISPATCH( $KindaPerl6::Grammar::Code_declare_parameters,
+                            'APPLY', $GLOBAL::env, $GLOBAL::block, ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'method_sig' ) ) ) );
                         ::DISPATCH( $COMPILER::Code_drop_pad, 'APPLY', );
                         return (
                             ::DISPATCH(
@@ -19364,16 +19660,24 @@
                                 'new',
                                 ::DISPATCH( $::Str, 'new', 'name' )  => ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'opt_name' ) ) ),
                                 ::DISPATCH( $::Str, 'new', 'block' ) => ::DISPATCH(
-                                    $::Lit::Code, 'new', ::DISPATCH( $::Str, 'new', 'pad' ) => $env,
+                                    $::Lit::Code, 'new', ::DISPATCH( $::Str, 'new', 'pad' ) => $GLOBAL::env,
                                     ::DISPATCH( $::Str, 'new', 'state' ) => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
                                     ::DISPATCH( $::Str, 'new', 'sig' )  => ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'method_sig' ) ) ),
-                                    ::DISPATCH( $::Str, 'new', 'body' ) => $block,
+                                    ::DISPATCH( $::Str, 'new', 'body' ) => $GLOBAL::block,
                                 ),
                             )
                         );
                         return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'MATCH', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
                 }
             )
         );
@@ -19384,6 +19688,10 @@
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $MATCH;
+                        $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) unless defined $MATCH;
+                        BEGIN { $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -19397,10 +19705,22 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        do {
+                            ::MODIFIED($MATCH);
+                            $MATCH = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
                         ::DISPATCH( $COMPILER::Code_add_pad, 'APPLY', );
                         return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'MATCH', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
                 }
             )
         );
@@ -19411,6 +19731,10 @@
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $MATCH;
+                        $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) unless defined $MATCH;
+                        BEGIN { $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -19423,6 +19747,10 @@
                         do {
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
+                            ::MODIFIED($MATCH);
+                            $MATCH = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         ::DISPATCH(
                             $GLOBAL::Code_say, 'APPLY',
@@ -19436,7 +19764,15 @@
                         ::DISPATCH( $GLOBAL::Code_die, 'APPLY', ::DISPATCH( $::Str, 'new', 'error in Block' ) );
                         return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'MATCH', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
                 }
             )
         );
@@ -19447,12 +19783,10 @@
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
-                        my $env;
-                        $env = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$env' } ) unless defined $env;
-                        BEGIN { $env = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$env' } ) }
-                        my $block;
-                        $block = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$block' } ) unless defined $block;
-                        BEGIN { $block = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$block' } ) }
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $MATCH;
+                        $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) unless defined $MATCH;
+                        BEGIN { $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -19467,14 +19801,19 @@
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         do {
-                            ::MODIFIED($env);
-                            $env = ::DISPATCH( $COMPILER::List_PAD, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                            ::MODIFIED($MATCH);
+                            $MATCH = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         do {
-                            ::MODIFIED($block);
-                            $block = ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'exp_stmts' ) ) );
+                            ::MODIFIED($GLOBAL::env);
+                            $GLOBAL::env = ::DISPATCH( $COMPILER::List_PAD, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
-                        ::DISPATCH( $KindaPerl6::Grammar::Code_declare_parameters, 'APPLY', $env, $block, ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'method_sig' ) ) ) );
+                        do {
+                            ::MODIFIED($GLOBAL::block);
+                            $GLOBAL::block = ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'exp_stmts' ) ) );
+                        };
+                        ::DISPATCH( $KindaPerl6::Grammar::Code_declare_parameters,
+                            'APPLY', $GLOBAL::env, $GLOBAL::block, ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'method_sig' ) ) ) );
                         ::DISPATCH( $COMPILER::Code_drop_pad, 'APPLY', );
                         return (
                             ::DISPATCH(
@@ -19495,10 +19834,10 @@
                                                 'new',
                                                 ::DISPATCH( $::Str, 'new', 'name' )  => ::DISPATCH( $::Str, 'new', '' ),
                                                 ::DISPATCH( $::Str, 'new', 'block' ) => ::DISPATCH(
-                                                    $::Lit::Code, 'new', ::DISPATCH( $::Str, 'new', 'pad' ) => $env,
+                                                    $::Lit::Code, 'new', ::DISPATCH( $::Str, 'new', 'pad' ) => $GLOBAL::env,
                                                     ::DISPATCH( $::Str, 'new', 'state' ) => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
                                                     ::DISPATCH( $::Str, 'new', 'sig' )  => ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'method_sig' ) ) ),
-                                                    ::DISPATCH( $::Str, 'new', 'body' ) => $block,
+                                                    ::DISPATCH( $::Str, 'new', 'body' ) => $GLOBAL::block,
                                                 ),
                                             )
                                         ]
@@ -19508,7 +19847,15 @@
                         );
                         return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'MATCH', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
                 }
             )
         );
@@ -19519,6 +19866,10 @@
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $MATCH;
+                        $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) unless defined $MATCH;
+                        BEGIN { $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -19532,10 +19883,22 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        do {
+                            ::MODIFIED($MATCH);
+                            $MATCH = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
                         ::DISPATCH( $COMPILER::Code_add_pad, 'APPLY', );
                         return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'MATCH', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
                 }
             )
         );
@@ -19546,6 +19909,10 @@
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $MATCH;
+                        $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) unless defined $MATCH;
+                        BEGIN { $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -19558,6 +19925,10 @@
                         do {
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
+                            ::MODIFIED($MATCH);
+                            $MATCH = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         ::DISPATCH(
                             $GLOBAL::Code_say, 'APPLY',
@@ -19571,7 +19942,15 @@
                         ::DISPATCH( $GLOBAL::Code_die, 'APPLY', ::DISPATCH( $::Str, 'new', 'error in Block' ) );
                         return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'MATCH', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
                 }
             )
         );
@@ -19582,12 +19961,10 @@
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
-                        my $env;
-                        $env = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$env' } ) unless defined $env;
-                        BEGIN { $env = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$env' } ) }
-                        my $block;
-                        $block = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$block' } ) unless defined $block;
-                        BEGIN { $block = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$block' } ) }
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $MATCH;
+                        $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) unless defined $MATCH;
+                        BEGIN { $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -19602,14 +19979,19 @@
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         do {
-                            ::MODIFIED($env);
-                            $env = ::DISPATCH( $COMPILER::List_PAD, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                            ::MODIFIED($MATCH);
+                            $MATCH = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         do {
-                            ::MODIFIED($block);
-                            $block = ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'exp_stmts' ) ) );
+                            ::MODIFIED($GLOBAL::env);
+                            $GLOBAL::env = ::DISPATCH( $COMPILER::List_PAD, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
-                        ::DISPATCH( $KindaPerl6::Grammar::Code_declare_parameters, 'APPLY', $env, $block, ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'sub_sig' ) ) ) );
+                        do {
+                            ::MODIFIED($GLOBAL::block);
+                            $GLOBAL::block = ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'exp_stmts' ) ) );
+                        };
+                        ::DISPATCH( $KindaPerl6::Grammar::Code_declare_parameters,
+                            'APPLY', $GLOBAL::env, $GLOBAL::block, ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'sub_sig' ) ) ) );
                         ::DISPATCH( $COMPILER::Code_drop_pad, 'APPLY', );
                         return (
                             ::DISPATCH(
@@ -19629,10 +20011,10 @@
                                                 $::Sub, 'new',
                                                 ::DISPATCH( $::Str, 'new', 'name' )  => ::DISPATCH( $::Str, 'new', '' ),
                                                 ::DISPATCH( $::Str, 'new', 'block' ) => ::DISPATCH(
-                                                    $::Lit::Code, 'new', ::DISPATCH( $::Str, 'new', 'pad' ) => $env,
+                                                    $::Lit::Code, 'new', ::DISPATCH( $::Str, 'new', 'pad' ) => $GLOBAL::env,
                                                     ::DISPATCH( $::Str, 'new', 'state' ) => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
                                                     ::DISPATCH( $::Str, 'new', 'sig' )  => ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'sub_sig' ) ) ),
-                                                    ::DISPATCH( $::Str, 'new', 'body' ) => $block,
+                                                    ::DISPATCH( $::Str, 'new', 'body' ) => $GLOBAL::block,
                                                 ),
                                             )
                                         ]
@@ -19642,7 +20024,15 @@
                         );
                         return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'MATCH', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
                 }
             )
         );
@@ -19653,6 +20043,10 @@
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $MATCH;
+                        $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) unless defined $MATCH;
+                        BEGIN { $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -19665,6 +20059,10 @@
                         do {
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
+                            ::MODIFIED($MATCH);
+                            $MATCH = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         return (
                             ::DISPATCH(
@@ -19675,7 +20073,15 @@
                         );
                         return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'MATCH', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
                 }
             )
         );
@@ -19686,6 +20092,10 @@
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $MATCH;
+                        $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) unless defined $MATCH;
+                        BEGIN { $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -19699,10 +20109,22 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        do {
+                            ::MODIFIED($MATCH);
+                            $MATCH = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
                         return ( ::DISPATCH( $GLOBAL::Code_prefix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'angle_quoted' ) ) ) );
                         return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'MATCH', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
                 }
             )
         );
@@ -19713,6 +20135,10 @@
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $MATCH;
+                        $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) unless defined $MATCH;
+                        BEGIN { $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -19726,10 +20152,22 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        do {
+                            ::MODIFIED($MATCH);
+                            $MATCH = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
                         return ( ::DISPATCH( $GLOBAL::Code_prefix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'french_quoted' ) ) ) );
                         return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'MATCH', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
                 }
             )
         );
@@ -19740,6 +20178,10 @@
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $MATCH;
+                        $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) unless defined $MATCH;
+                        BEGIN { $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -19753,10 +20195,22 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        do {
+                            ::MODIFIED($MATCH);
+                            $MATCH = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
                         return ( ::DISPATCH( $GLOBAL::Code_prefix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'ident' ) ) ) );
                         return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'MATCH', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
                 }
             )
         );
@@ -19767,6 +20221,10 @@
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $MATCH;
+                        $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) unless defined $MATCH;
+                        BEGIN { $MATCH = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$MATCH' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -19779,6 +20237,10 @@
                         do {
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
+                            ::MODIFIED($MATCH);
+                            $MATCH = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         return (
                             ::DISPATCH(
@@ -19809,7 +20271,15 @@
                         );
                         return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'MATCH', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
                 }
             )
             )

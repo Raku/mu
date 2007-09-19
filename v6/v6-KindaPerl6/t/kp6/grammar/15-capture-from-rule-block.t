@@ -1,6 +1,6 @@
 grammar MyGrammar {
     token tok1 {
-        'a' { return Str.new(); };
+        'a' { return Array.new(); };
     };
     token tok2 {
         <tok1> { return $$<tok1>; };
