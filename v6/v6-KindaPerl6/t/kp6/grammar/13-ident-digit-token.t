@@ -2,7 +2,7 @@ grammar MyGrammar {
     token word :P5 {[[:word:]]};
     token ident_digit {
           <?word> <?ident_digit>
-        |  <''>
+        | <''>
     };
 };
 module Main {
