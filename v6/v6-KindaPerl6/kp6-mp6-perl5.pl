@@ -32,7 +32,7 @@ Example:
 =cut
 
 my @visitor_sequence;
-my ($dumpast, $perl5, $perl6, $perl5rx, $parrot, $visitor_sequence, $secure);
+my ($dumpast, $perl5, $perl6, $perl5rx, $parrot, $lisp, $visitor_sequence, $secure);
 my @visitors;
 
 {
@@ -43,6 +43,7 @@ my @visitors;
         'perl5rx'   => \$perl5rx,
         'perl6'	    => \$perl6,
         'parrot'    => \$parrot,
+        'lisp'      => \$lisp,
         'do=s'      => \$visitor_sequence,
         'secure'    => \$secure,
     );
@@ -66,6 +67,10 @@ my @visitors;
     elsif ( $parrot ) {
         push @visitor_sequence, qw( EmitParrot )
             unless @visitor_sequence && $visitor_sequence[-1] eq 'EmitParrot';
+    }
+    elsif ( $lisp ) {
+        push @visitor_sequence, qw( EmitLisp )
+            unless @visitor_sequence && $visitor_sequence[-1] eq 'EmitLisp';
     }
     elsif ( $perl5rx ) {
         push @visitor_sequence, qw( RegexCapture MetaClass Global EmitPerl5Regex )

@@ -42,38 +42,38 @@ class CompUnit {
 
 class Val::Int {
     method emit_perl5 { 
-        "(make-instance 'Int :value " ~ $.int ~ ")" ~ Main::newline();
+        "(make-instance \'Int :value " ~ $.int ~ ")" ~ Main::newline();
     }
 }
 
 class Val::Bit {
     method emit_perl5 { 
-        "(make-instance 'Bit :value " ~ $.bit ~ ")" ~ Main::newline();
+        "(make-instance \'Bit :value " ~ $.bit ~ ")" ~ Main::newline();
     }
 }
 
 class Val::Num {
     method emit_perl5 { 
-        "(make-instance 'Num :value " ~ $.num ~ ")" ~ Main::newline();
+        "(make-instance \'Num :value " ~ $.num ~ ")" ~ Main::newline();
     }
 }
 
 class Val::Buf {
     method emit_perl5 { 
-        "(make-instance 'Str :value " ~ '"' ~ Main::mangle_string( $.buf ) ~ '"' ~ ")" ~ Main::newline();
+        "(make-instance \'Str :value " ~ '"' ~ Main::mangle_string( $.buf ) ~ '"' ~ ")" ~ Main::newline();
     }
 }
 
 class Val::Char {
     method emit_perl5 { 
         # XXX Char != Str
-        "(make-instance 'Str :value (code-char ' ~ $.char ~ ') )" ~ Main::newline();
+        "(make-instance \'Str :value (code-char " ~ $.char ~ ") )" ~ Main::newline();
     }
 }
 
 class Val::Undef {
     method emit_perl5 { 
-        "(make-instance 'Undef )" ~ Main::newline();
+        "(make-instance \'Undef )" ~ Main::newline();
     }
 }
 
@@ -99,7 +99,7 @@ class Lit::Seq {
 
 class Lit::Array {
     method emit_perl5 {
-        "(make-instance 'Array :value (list " ~ (@.array.>>emit_perl5).join(' ') ~ ") )" ~ Main::newline();
+        "(make-instance \'Array :value (list " ~ (@.array.>>emit_perl5).join(' ') ~ ") )" ~ Main::newline();
     }
 }
 
