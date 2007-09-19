@@ -51,7 +51,7 @@
                             ::MODIFIED($node);
                             $node = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
-                        ::DISPATCH( $node, 'emit_perl5', ::DISPATCH( ::DISPATCH( $self, "visitor_args" ), 'LOOKUP', ::DISPATCH( $::Str, 'new', 'secure' ) ) );
+                        ::DISPATCH( $node, 'emit_lisp', ::DISPATCH( ::DISPATCH( $self, "visitor_args" ), 'LOOKUP', ::DISPATCH( $::Str, 'new', 'secure' ) ) );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
@@ -98,7 +98,7 @@
         ::DISPATCH(
             ::DISPATCH( $::CompUnit, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_lisp' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -222,7 +222,7 @@
                                                                                                                         ::DISPATCH(
                                                                                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                                                                                             'APPLY',
-                                                                                                                            ::DISPATCH( ::DISPATCH( $self, "body" ), 'emit_perl5', ),
+                                                                                                                            ::DISPATCH( ::DISPATCH( $self, "body" ), 'emit_lisp', ),
                                                                                                                             ::DISPATCH(
                                                                                                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                                                                                                 'APPLY',
@@ -364,7 +364,7 @@
         ::DISPATCH(
             ::DISPATCH( $::Val::Int, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_lisp' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -443,7 +443,7 @@
         ::DISPATCH(
             ::DISPATCH( $::Val::Bit, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_lisp' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -522,7 +522,7 @@
         ::DISPATCH(
             ::DISPATCH( $::Val::Num, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_lisp' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -601,7 +601,7 @@
         ::DISPATCH(
             ::DISPATCH( $::Val::Buf, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_lisp' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -688,7 +688,7 @@
         ::DISPATCH(
             ::DISPATCH( $::Val::Char, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_lisp' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -765,7 +765,7 @@
         ::DISPATCH(
             ::DISPATCH( $::Val::Undef, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_lisp' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -839,7 +839,7 @@
         ::DISPATCH(
             ::DISPATCH( $::Val::Object, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_lisp' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -905,7 +905,7 @@
         ::DISPATCH(
             ::DISPATCH( $::Native::Buf, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_lisp' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -971,7 +971,7 @@
         ::DISPATCH(
             ::DISPATCH( $::Lit::Seq, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_lisp' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -996,7 +996,7 @@
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
                             ::DISPATCH( $::Str,                               'new',   '(' ),
-                            ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( [ map { $_->emit_perl5() } @{ ::DISPATCH( $self, "seq" ) } ], 'join', ::DISPATCH( $::Str, 'new', ', ' ) ), ::DISPATCH( $::Str, 'new', ')' ) )
+                            ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( [ map { $_->emit_lisp() } @{ ::DISPATCH( $self, "seq" ) } ], 'join', ::DISPATCH( $::Str, 'new', ', ' ) ), ::DISPATCH( $::Str, 'new', ')' ) )
                         );
                     },
                     signature => ::DISPATCH(
@@ -1042,7 +1042,7 @@
         ::DISPATCH(
             ::DISPATCH( $::Lit::Array, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_lisp' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -1073,7 +1073,7 @@
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH( [ map { $_->emit_perl5() } @{ ::DISPATCH( $self, "array" ) } ], 'join', ::DISPATCH( $::Str, 'new', ' ' ) ),
+                                ::DISPATCH( [ map { $_->emit_lisp() } @{ ::DISPATCH( $self, "array" ) } ], 'join', ::DISPATCH( $::Str, 'new', ' ' ) ),
                                 ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ') )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                             )
                         );
@@ -1121,7 +1121,7 @@
         ::DISPATCH(
             ::DISPATCH( $::Lit::Hash, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_lisp' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -1174,12 +1174,12 @@
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
-                                                ::DISPATCH( ::DISPATCH( $field, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_perl5', ),
+                                                ::DISPATCH( ::DISPATCH( $field, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_lisp', ),
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
                                                     ::DISPATCH( $::Str, 'new', '->{_value} => ' ),
-                                                    ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $field, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) ), 'emit_perl5', ), ::DISPATCH( $::Str, 'new', ',' ) )
+                                                    ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $field, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) ), 'emit_lisp', ), ::DISPATCH( $::Str, 'new', ',' ) )
                                                 )
                                             )
                                         );
@@ -1237,7 +1237,7 @@
         ::DISPATCH(
             ::DISPATCH( $::Lit::Pair, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_lisp' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -1269,14 +1269,14 @@
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
-                                    ::DISPATCH( ::DISPATCH( $self, "key" ), 'emit_perl5', ),
+                                    ::DISPATCH( ::DISPATCH( $self, "key" ), 'emit_lisp', ),
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
                                         ::DISPATCH( $::Str, 'new', ', value => ' ),
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                            ::DISPATCH( ::DISPATCH( $self, "value" ), 'emit_perl5', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' } )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                            ::DISPATCH( ::DISPATCH( $self, "value" ), 'emit_lisp', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' } )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                                         )
                                     )
                                 )
@@ -1326,7 +1326,7 @@
         ::DISPATCH(
             ::DISPATCH( $::Lit::NamedArgument, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_lisp' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -1358,14 +1358,14 @@
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
-                                    ::DISPATCH( ::DISPATCH( $self, "key" ), 'emit_perl5', ),
+                                    ::DISPATCH( ::DISPATCH( $self, "key" ), 'emit_lisp', ),
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
                                         ::DISPATCH( $::Str, 'new', ', value => ' ),
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                            ::DISPATCH( ::DISPATCH( $self, "value" ), 'emit_perl5', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' } )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                            ::DISPATCH( ::DISPATCH( $self, "value" ), 'emit_lisp', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' } )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                                         )
                                     )
                                 )
@@ -1415,7 +1415,7 @@
         ::DISPATCH(
             ::DISPATCH( $::Lit::Code, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_lisp' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -1482,7 +1482,7 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        ::DISPATCH( [ map { $_->emit_perl5() } @{ ::DISPATCH( $self, "body" ) } ], 'join', ::DISPATCH( $::Str, 'new', '; ' ) );
+                        ::DISPATCH( [ map { $_->emit_lisp() } @{ ::DISPATCH( $self, "body" ) } ], 'join', ::DISPATCH( $::Str, 'new', '; ' ) );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
@@ -1520,7 +1520,7 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        ::DISPATCH( ::DISPATCH( $self, "sig" ), 'emit_perl5', );
+                        ::DISPATCH( ::DISPATCH( $self, "sig" ), 'emit_lisp', );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
@@ -1596,7 +1596,7 @@
                                             'APPLY', $s,
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                                ::DISPATCH( $name, 'emit_perl5', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ';' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                                ::DISPATCH( $name, 'emit_lisp', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ';' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                                             )
                                         );
                                         }
@@ -1709,7 +1709,7 @@
                         };
                         do {
                             ::MODIFIED($str);
-                            $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $CAPTURE_decl, 'emit_perl5', ) );
+                            $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $CAPTURE_decl, 'emit_lisp', ) );
                         };
                         do {
                             ::MODIFIED($str);
@@ -1729,7 +1729,7 @@
                         };
                         do {
                             ::MODIFIED($str);
-                            $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $bind_, 'emit_perl5', ), ::DISPATCH( $::Str, 'new', ';' ) ) );
+                            $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $bind_, 'emit_lisp', ), ::DISPATCH( $::Str, 'new', ';' ) ) );
                         };
                         do {
                             ::MODIFIED($bind_hash);
@@ -1745,7 +1745,7 @@
                         };
                         do {
                             ::MODIFIED($str);
-                            $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $bind_hash, 'emit_perl5', ), ::DISPATCH( $::Str, 'new', ';' ) ) );
+                            $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $bind_hash, 'emit_lisp', ), ::DISPATCH( $::Str, 'new', ';' ) ) );
                         };
                         do {
                             ::MODIFIED($i);
@@ -1774,7 +1774,7 @@
                                     };
                                     do {
                                         ::MODIFIED($str);
-                                        $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $bind, 'emit_perl5', ), ::DISPATCH( $::Str, 'new', ';' ) ) );
+                                        $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $bind, 'emit_lisp', ), ::DISPATCH( $::Str, 'new', ';' ) ) );
                                     };
                                     do {
                                         ::MODIFIED($i);
@@ -1828,7 +1828,7 @@
         ::DISPATCH(
             ::DISPATCH( $::Lit::Object, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_lisp' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -1881,12 +1881,12 @@
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
-                                                ::DISPATCH( ::DISPATCH( $field, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_perl5', ),
+                                                ::DISPATCH( ::DISPATCH( $field, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_lisp', ),
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
                                                     ::DISPATCH( $::Str, 'new', ' => ' ),
-                                                    ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $field, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) ), 'emit_perl5', ), ::DISPATCH( $::Str, 'new', ',' ) )
+                                                    ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $field, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) ), 'emit_lisp', ), ::DISPATCH( $::Str, 'new', ',' ) )
                                                 )
                                             )
                                         );
@@ -1954,7 +1954,7 @@
         ::DISPATCH(
             ::DISPATCH( $::Index, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_lisp' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -1982,14 +1982,14 @@
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH( ::DISPATCH( $self, "obj" ), 'emit_perl5', ),
+                                ::DISPATCH( ::DISPATCH( $self, "obj" ), 'emit_lisp', ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
                                     ::DISPATCH( $::Str, 'new', ', \\\'INDEX\\\', ' ),
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                        ::DISPATCH( ::DISPATCH( $self, "index" ), 'emit_perl5', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                        ::DISPATCH( ::DISPATCH( $self, "index" ), 'emit_lisp', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                                     )
                                 )
                             )
@@ -2038,7 +2038,7 @@
         ::DISPATCH(
             ::DISPATCH( $::Lookup, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_lisp' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -2066,14 +2066,14 @@
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH( ::DISPATCH( $self, "obj" ), 'emit_perl5', ),
+                                ::DISPATCH( ::DISPATCH( $self, "obj" ), 'emit_lisp', ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
                                     ::DISPATCH( $::Str, 'new', ', \\\'LOOKUP\\\', ' ),
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                        ::DISPATCH( ::DISPATCH( $self, "index" ), 'emit_perl5', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                        ::DISPATCH( ::DISPATCH( $self, "index" ), 'emit_lisp', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                                     )
                                 )
                             )
@@ -2122,7 +2122,7 @@
         ::DISPATCH(
             ::DISPATCH( $::Assign, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_lisp' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -2225,14 +2225,14 @@
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH( $node, 'emit_perl5', ),
+                                ::DISPATCH( $node, 'emit_lisp', ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
                                     ::DISPATCH( $::Str, 'new', ', \\\'STORE\\\', ' ),
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                        ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'emit_perl5', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                        ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'emit_lisp', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                                     )
                                 )
                             )
@@ -2281,7 +2281,7 @@
         ::DISPATCH(
             ::DISPATCH( $::Var, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_lisp' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -2480,7 +2480,7 @@
         ::DISPATCH(
             ::DISPATCH( $::Bind, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_lisp' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -2513,7 +2513,7 @@
                                                 $::Assign, 'new', ::DISPATCH( $::Str, 'new', 'parameters' ) => ::DISPATCH( $self, "parameters" ),
                                                 ::DISPATCH( $::Str, 'new', 'arguments' ) => ::DISPATCH( $self, "arguments" ),
                                             ),
-                                            'emit_perl5',
+                                            'emit_lisp',
                                         )
                                         )
                                 }
@@ -2528,7 +2528,7 @@
                                                 $::Assign, 'new', ::DISPATCH( $::Str, 'new', 'parameters' ) => ::DISPATCH( $self, "parameters" ),
                                                 ::DISPATCH( $::Str, 'new', 'arguments' ) => ::DISPATCH( $self, "arguments" ),
                                             ),
-                                            'emit_perl5',
+                                            'emit_lisp',
                                         )
                                         )
                                 }
@@ -2543,7 +2543,7 @@
                                                 $::Assign, 'new', ::DISPATCH( $::Str, 'new', 'parameters' ) => ::DISPATCH( $self, "parameters" ),
                                                 ::DISPATCH( $::Str, 'new', 'arguments' ) => ::DISPATCH( $self, "arguments" ),
                                             ),
-                                            'emit_perl5',
+                                            'emit_lisp',
                                         )
                                         )
                                 }
@@ -2557,7 +2557,7 @@
                                 ::DISPATCH( $::Str, 'new', '::MODIFIED(' ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                    ::DISPATCH( ::DISPATCH( $self, "parameters" ), 'emit_perl5', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ');' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                    ::DISPATCH( ::DISPATCH( $self, "parameters" ), 'emit_lisp', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ');' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                                 )
                             );
                         };
@@ -2569,8 +2569,8 @@
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
-                                    ::DISPATCH( ::DISPATCH( $self, "parameters" ), 'emit_perl5', ),
-                                    ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' = ' ), ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'emit_perl5', ) )
+                                    ::DISPATCH( ::DISPATCH( $self, "parameters" ), 'emit_lisp', ),
+                                    ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' = ' ), ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'emit_lisp', ) )
                                 )
                             );
                         };
@@ -2619,7 +2619,7 @@
         ::DISPATCH(
             ::DISPATCH( $::Proto, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_lisp' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -2685,7 +2685,7 @@
         ::DISPATCH(
             ::DISPATCH( $::Call, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_lisp' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -2732,7 +2732,7 @@
                                             {
                                                 do {
                                                     ::MODIFIED($invocant);
-                                                    $invocant = ::DISPATCH( ::DISPATCH( $self, "invocant" ), 'emit_perl5', );
+                                                    $invocant = ::DISPATCH( ::DISPATCH( $self, "invocant" ), 'emit_lisp', );
                                                     }
                                             }
                                         }
@@ -2743,7 +2743,7 @@
                                 {
                                     do {
                                         ::MODIFIED($invocant);
-                                        $invocant = ::DISPATCH( ::DISPATCH( $self, "invocant" ), 'emit_perl5', );
+                                        $invocant = ::DISPATCH( ::DISPATCH( $self, "invocant" ), 'emit_lisp', );
                                         }
                                 }
                             }
@@ -2774,7 +2774,7 @@
                         };
                         do {
                             ::MODIFIED($call);
-                            $call = ::DISPATCH( [ map { $_->emit_perl5() } @{ ::DISPATCH( $self, "arguments" ) } ], 'join', ::DISPATCH( $::Str, 'new', ', ' ) );
+                            $call = ::DISPATCH( [ map { $_->emit_lisp() } @{ ::DISPATCH( $self, "arguments" ) } ], 'join', ::DISPATCH( $::Str, 'new', ', ' ) );
                         };
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "hyper" ), "true" ), "p5landish" ) ) {
@@ -2924,7 +2924,7 @@
         ::DISPATCH(
             ::DISPATCH( $::Apply, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_lisp' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -2957,7 +2957,7 @@
                         };
                         do {
                             ::MODIFIED($op);
-                            $op = ::DISPATCH( ::DISPATCH( $self, "code" ), 'emit_perl5', );
+                            $op = ::DISPATCH( ::DISPATCH( $self, "code" ), 'emit_lisp', );
                         };
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $op, ::DISPATCH( $::Str, 'new', '$GLOBAL::Code_infix_58__60__124__124__62_' ) ), "true" ), "p5landish" ) ) {
@@ -2970,7 +2970,7 @@
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
-                                                ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_perl5', ),
+                                                ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_lisp', ),
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
@@ -2990,7 +2990,7 @@
                                                                 ::DISPATCH(
                                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                                     'APPLY',
-                                                                    ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) ), 'emit_perl5', ),
+                                                                    ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) ), 'emit_lisp', ),
                                                                     ::DISPATCH(
                                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                                         'APPLY',
@@ -3030,7 +3030,7 @@
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
-                                                    ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_perl5', ),
+                                                    ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_lisp', ),
                                                     ::DISPATCH(
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
@@ -3050,7 +3050,7 @@
                                                                     ::DISPATCH(
                                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                                         'APPLY',
-                                                                        ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) ), 'emit_perl5', ),
+                                                                        ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) ), 'emit_lisp', ),
                                                                         ::DISPATCH(
                                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                                             'APPLY',
@@ -3094,7 +3094,7 @@
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY',
-                                            ::DISPATCH( [ map { $_->emit_perl5() } @{ ::DISPATCH( $self, "arguments" ) } ], 'join', ::DISPATCH( $::Str, 'new', ', ' ) ),
+                                            ::DISPATCH( [ map { $_->emit_lisp() } @{ ::DISPATCH( $self, "arguments" ) } ], 'join', ::DISPATCH( $::Str, 'new', ', ' ) ),
                                             ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                                         )
                                     )
@@ -3145,7 +3145,7 @@
         ::DISPATCH(
             ::DISPATCH( $::Return, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_lisp' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -3173,7 +3173,7 @@
                                 ::DISPATCH( $::Str, 'new', 'return(' ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                    ::DISPATCH( ::DISPATCH( $self, "result" ), 'emit_perl5', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ')' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                    ::DISPATCH( ::DISPATCH( $self, "result" ), 'emit_lisp', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ')' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                                 )
                             )
                         );
@@ -3221,7 +3221,7 @@
         ::DISPATCH(
             ::DISPATCH( $::If, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_lisp' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -3249,7 +3249,7 @@
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH( ::DISPATCH( $self, "cond" ), 'emit_perl5', ),
+                                ::DISPATCH( ::DISPATCH( $self, "cond" ), 'emit_lisp', ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
@@ -3263,7 +3263,7 @@
                                             ::DISPATCH( $self, "body" ),
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                                ::DISPATCH( $::Str, 'new', '{ ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "body" ), 'emit_perl5', ), ::DISPATCH( $::Str, 'new', ' } ' ) )
+                                                ::DISPATCH( $::Str, 'new', '{ ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "body" ), 'emit_lisp', ), ::DISPATCH( $::Str, 'new', ' } ' ) )
                                             ),
                                             ::DISPATCH( $::Str, 'new', '{ } ' )
                                         ),
@@ -3278,7 +3278,7 @@
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
                                                     ::DISPATCH( $::Str, 'new', ' else { ' ),
-                                                    ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "otherwise" ), 'emit_perl5', ), ::DISPATCH( $::Str, 'new', ' }' ) )
+                                                    ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "otherwise" ), 'emit_lisp', ), ::DISPATCH( $::Str, 'new', ' }' ) )
                                                 ),
                                                 ::DISPATCH( $::Str, 'new', '' )
                                             ),
@@ -3332,7 +3332,7 @@
         ::DISPATCH(
             ::DISPATCH( $::For, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_lisp' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -3407,7 +3407,7 @@
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH( ::DISPATCH( $self, "topic" ), 'emit_perl5', ),
+                                ::DISPATCH( ::DISPATCH( $self, "topic" ), 'emit_lisp', ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
@@ -3415,7 +3415,7 @@
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
-                                        ::DISPATCH( $cond, 'emit_perl5', ),
+                                        ::DISPATCH( $cond, 'emit_lisp', ),
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY',
@@ -3427,7 +3427,7 @@
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
-                                                    ::DISPATCH( ::DISPATCH( $self, "body" ), 'emit_perl5', ),
+                                                    ::DISPATCH( ::DISPATCH( $self, "body" ), 'emit_lisp', ),
                                                     ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' } ' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                                                 )
                                             )
@@ -3480,7 +3480,7 @@
         ::DISPATCH(
             ::DISPATCH( $::While, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_lisp' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -3555,7 +3555,7 @@
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH( ::DISPATCH( $self, "cond" ), 'emit_perl5', ),
+                                ::DISPATCH( ::DISPATCH( $self, "cond" ), 'emit_lisp', ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
@@ -3566,7 +3566,7 @@
                                         ::DISPATCH( $::Str, 'new', ' { ' ),
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                            ::DISPATCH( ::DISPATCH( $self, "body" ), 'emit_perl5', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' } }' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                            ::DISPATCH( ::DISPATCH( $self, "body" ), 'emit_lisp', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' } }' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                                         )
                                     )
                                 )
@@ -3616,7 +3616,7 @@
         ::DISPATCH(
             ::DISPATCH( $::Decl, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_lisp' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -3710,7 +3710,7 @@
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
                                 ::DISPATCH( $::Str, 'new', ', \\\'new\\\', { modified => $_MODIFIED, name => \\\'' ),
-                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_perl5', ), ::DISPATCH( $::Str, 'new', '\\\' } ) ' ) )
+                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ), ::DISPATCH( $::Str, 'new', '\\\' } ) ' ) )
                             );
                         };
                         do {
@@ -3734,7 +3734,7 @@
                                                         ::DISPATCH(
                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                             'APPLY',
-                                                            ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_perl5', ),
+                                                            ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ),
                                                             ::DISPATCH(
                                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                                 'APPLY',
@@ -3749,7 +3749,7 @@
                                                                         ::DISPATCH(
                                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                                             'APPLY',
-                                                                            ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_perl5', ),
+                                                                            ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ),
                                                                             ::DISPATCH(
                                                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                                                 'APPLY',
@@ -3761,7 +3761,7 @@
                                                                                     ::DISPATCH(
                                                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                                                         'APPLY',
-                                                                                        ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_perl5', ),
+                                                                                        ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ),
                                                                                         ::DISPATCH(
                                                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                                                             'APPLY',
@@ -3776,7 +3776,7 @@
                                                                                                     ::DISPATCH(
                                                                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                                                                         'APPLY',
-                                                                                                        ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_perl5', ),
+                                                                                                        ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ),
                                                                                                         ::DISPATCH(
                                                                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                                                                             'APPLY',
@@ -3810,7 +3810,7 @@
                                                         ::DISPATCH(
                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                             'APPLY',
-                                                            ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_perl5', ),
+                                                            ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ),
                                                             ::DISPATCH(
                                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                                 'APPLY',
@@ -3836,7 +3836,7 @@
                                                         ::DISPATCH(
                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                             'APPLY',
-                                                            ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_perl5', ),
+                                                            ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ),
                                                             ::DISPATCH(
                                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                                 'APPLY',
@@ -3862,7 +3862,7 @@
                                                         ::DISPATCH(
                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                             'APPLY',
-                                                            ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_perl5', ),
+                                                            ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ),
                                                             ::DISPATCH(
                                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                                 'APPLY',
@@ -3881,7 +3881,7 @@
                                     return (
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
-                                            'APPLY', $s, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_perl5', ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                            'APPLY', $s, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                                         )
                                         )
                                 }
@@ -3902,7 +3902,7 @@
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
-                                                    ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_perl5', ),
+                                                    ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ),
                                                     ::DISPATCH(
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
@@ -3910,7 +3910,7 @@
                                                         ::DISPATCH(
                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                             'APPLY',
-                                                            ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_perl5', ),
+                                                            ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ),
                                                             ::DISPATCH(
                                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                                 'APPLY',
@@ -3925,7 +3925,7 @@
                                                                         ::DISPATCH(
                                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                                             'APPLY',
-                                                                            ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_perl5', ),
+                                                                            ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ),
                                                                             ::DISPATCH(
                                                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                                                 'APPLY',
@@ -3937,7 +3937,7 @@
                                                                                     ::DISPATCH(
                                                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                                                         'APPLY',
-                                                                                        ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_perl5', ),
+                                                                                        ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ),
                                                                                         ::DISPATCH(
                                                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                                                             'APPLY',
@@ -3979,7 +3979,7 @@
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
-                                                    ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_perl5', ),
+                                                    ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ),
                                                     ::DISPATCH(
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
@@ -3987,7 +3987,7 @@
                                                         ::DISPATCH(
                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                             'APPLY',
-                                                            ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_perl5', ),
+                                                            ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ),
                                                             ::DISPATCH(
                                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                                 'APPLY',
@@ -4002,7 +4002,7 @@
                                                                         ::DISPATCH(
                                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                                             'APPLY',
-                                                                            ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_perl5', ),
+                                                                            ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ),
                                                                             ::DISPATCH(
                                                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                                                 'APPLY',
@@ -4014,7 +4014,7 @@
                                                                                     ::DISPATCH(
                                                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                                                         'APPLY',
-                                                                                        ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_perl5', ),
+                                                                                        ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ),
                                                                                         ::DISPATCH(
                                                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                                                             'APPLY',
@@ -4060,7 +4060,7 @@
                                                     ::DISPATCH(
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
-                                                        ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_perl5', ),
+                                                        ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ),
                                                         ::DISPATCH(
                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                             'APPLY',
@@ -4097,7 +4097,7 @@
                                                     ::DISPATCH(
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
-                                                        ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_perl5', ),
+                                                        ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ),
                                                         ::DISPATCH(
                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                             'APPLY',
@@ -4118,7 +4118,7 @@
                         return (
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                ::DISPATCH( $self, "decl" ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' ' ), ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_perl5', ) )
+                                ::DISPATCH( $self, "decl" ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' ' ), ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ) )
                             )
                         );
                     },
@@ -4165,7 +4165,7 @@
         ::DISPATCH(
             ::DISPATCH( $::Sig, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_lisp' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -4328,7 +4328,7 @@
         ::DISPATCH(
             ::DISPATCH( $::Capture, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_lisp' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -4368,7 +4368,7 @@
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
                                                 ::DISPATCH( $::Str, 'new', 'invocant => ' ),
-                                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "invocant" ), 'emit_perl5', ), ::DISPATCH( $::Str, 'new', ', ' ) )
+                                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "invocant" ), 'emit_lisp', ), ::DISPATCH( $::Str, 'new', ', ' ) )
                                             )
                                         );
                                         }
@@ -4402,8 +4402,8 @@
                                             {
                                                 do {
                                                     ::MODIFIED($s);
-                                                    $s = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_,
-                                                        'APPLY', $s, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $item, 'emit_perl5', ), ::DISPATCH( $::Str, 'new', ', ' ) ) );
+                                                    $s = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $s,
+                                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $item, 'emit_lisp', ), ::DISPATCH( $::Str, 'new', ', ' ) ) );
                                                     }
                                             }
                                         }
@@ -4440,12 +4440,12 @@
                                                         ::DISPATCH(
                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                             'APPLY',
-                                                            ::DISPATCH( ::DISPATCH( $item, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_perl5', ),
+                                                            ::DISPATCH( ::DISPATCH( $item, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_lisp', ),
                                                             ::DISPATCH(
                                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                                 'APPLY',
                                                                 ::DISPATCH( $::Str, 'new', '->{_value} => ' ),
-                                                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $item, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) ), 'emit_perl5', ), ::DISPATCH( $::Str, 'new', ', ' ) )
+                                                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $item, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) ), 'emit_lisp', ), ::DISPATCH( $::Str, 'new', ', ' ) )
                                                             )
                                                         )
                                                     );
@@ -4505,7 +4505,7 @@
         ::DISPATCH(
             ::DISPATCH( $::Subset, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_lisp' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -4537,7 +4537,7 @@
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
-                                    ::DISPATCH( ::DISPATCH( $self, "base_class" ), 'emit_perl5', ),
+                                    ::DISPATCH( ::DISPATCH( $self, "base_class" ), 'emit_lisp', ),
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
@@ -4553,7 +4553,7 @@
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
-                                                    ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "block" ), 'block', ), 'emit_perl5', ),
+                                                    ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "block" ), 'block', ), 'emit_lisp', ),
                                                     ::DISPATCH(
                                                         $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
                                                         ::DISPATCH( $::Str, 'new', ' } ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' } )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
@@ -4609,7 +4609,7 @@
         ::DISPATCH(
             ::DISPATCH( $::Method, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_lisp' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -4723,7 +4723,7 @@
         ::DISPATCH(
             ::DISPATCH( $::Sub, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_lisp' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -4832,7 +4832,7 @@
         ::DISPATCH(
             ::DISPATCH( $::Do, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_lisp' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -4859,7 +4859,7 @@
                             ::DISPATCH( $::Str, 'new', 'do { ' ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                ::DISPATCH( ::DISPATCH( $self, "block" ), 'emit_perl5', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' }' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                ::DISPATCH( ::DISPATCH( $self, "block" ), 'emit_lisp', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' }' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                             )
                         );
                     },
@@ -4906,7 +4906,7 @@
         ::DISPATCH(
             ::DISPATCH( $::BEGIN, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_lisp' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -4931,7 +4931,7 @@
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
                             ::DISPATCH( $::Str, 'new', 'BEGIN { ' ),
-                            ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "block" ), 'emit_perl5', ), ::DISPATCH( $::Str, 'new', ' }' ) )
+                            ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "block" ), 'emit_lisp', ), ::DISPATCH( $::Str, 'new', ' }' ) )
                         );
                     },
                     signature => ::DISPATCH(
@@ -4977,7 +4977,7 @@
         ::DISPATCH(
             ::DISPATCH( $::Use, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_lisp' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
