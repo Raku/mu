@@ -1,7 +1,7 @@
 (defpackage :GLOBAL)
 (in-package :GLOBAL)
 
-(defparameter say (make-instance 'Code :value #'(
+(defparameter Code_say (make-instance 'Code :value #'(
 
     (lambda (&rest strs)
       (loop for str in strs collect
