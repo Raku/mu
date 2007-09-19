@@ -5,7 +5,6 @@ runpugs version 0.4.0 TODO:
 * Improve POD
 * Add Web-based REPL to run kp6 using 'kp6-perl5.pl --secure  | perl -Ilib-kp6-mp6-p5'
 * Fix excess html display escaping problems on the server side (my @a = <&nbsp; &gt; &lt;>);
-* Port mod_perl -> mod_perl2 for apache2/mod_deflate efficiency
 * Put more functionality in JS (clear, timeout) 
 * Cleanup history code in server-side
 * Use true AJAX [remaining: hidden iframe/html payload -> $.ajax/JSON]
@@ -17,3 +16,36 @@ runpugs version 0.4.0 TODO:
     - YAML::Syck (xs based)
     - The Perl 6 equivalents of POSIX, Errno, IO::Select, Carp
    Of course we can use the Perl 5 implementations for the time being.
+
+
+
+* Port mod_perl -> mod_perl2 for apache2/mod_deflate efficiency
+
+So far we need to do the following:
+
+in lib/startup.pl => use Apache::Registry => use ModPerl::Registry
+in httpd.conf => every Apache:: => ModPerl::
+in perl/runpugs.pl => Make file reference absolute in open HTML
+in data/runpugs.html => make sure we reference /perl/runpugs.pl
+
+------------------ http.conf config for mod_perl2
+<IfModule mod_perl.c>
+    PerlRequire  /home/runpugs/apache/lib/startup.pl
+        PerlTaintCheck On
+  <IfModule mod_alias.c>
+   Alias /perl/ /home/runpugs/apache/perl/
+    Alias /cgi-perl/ /home/runpugs/apache/cgi-perl/
+  </IfModule>
+  <Location /perl>
+    SetHandler perl-script
+      PerlResponseHandler ModPerl::Registry
+      PerlOptions +ParseHeaders
+    Options +ExecCGI
+  </Location>
+    <Location /cgi-perl>
+        SetHandler perl-script
+        PerlHandler ModPerl::PerlRun
+        Options +ExecCGI
+        PerlSendHeader On
+    </Location>
+</IfModule>
