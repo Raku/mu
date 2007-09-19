@@ -296,11 +296,12 @@ package GLOBAL;
                 print "<<< p5 token $regex returned true\n";
             }
             #print "matched up to:",pos($string),"\n";
-            my $m = ::DISPATCH($::Match,'new');
-            ::DISPATCH($m, match_str => $_[1]);
-            ::DISPATCH($m, from => $_[2]);
-            ::DISPATCH($m, to => ::DISPATCH($::Int,'new',pos($string)));
-            ::DISPATCH($m, bool => ::DISPATCH($::Bit,'new',1));
+            my $m = ::DISPATCH($::Match,'new',{
+                match_str => $_[1],
+                from => $_[2],
+                to => ::DISPATCH($::Int,'new',pos($string)),
+                bool => ::DISPATCH($::Bit,'new',1),
+            });
             return $m;
         } else {
             if ($ENV{KP6_TOKEN_DEBUGGER}) {
