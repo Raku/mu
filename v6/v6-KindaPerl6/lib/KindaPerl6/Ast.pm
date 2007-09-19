@@ -112,7 +112,7 @@ class Val::Buf {
             }
     };
     method true {
-        $.buf.true;
+        1;
     }
 }
 

@@ -45,7 +45,7 @@ sub new { shift; bless { @_ }, "Val::Buf" }
 sub buf { @_ == 1 ? ( $_[0]->{buf} ) : ( $_[0]->{buf} = $_[1] ) };
 sub emit { my $self = shift; my $List__ = \@_; my $visitor; my $path; do {  $visitor = $List__->[0];  $path = $List__->[1]; [$visitor, $path] }; KindaPerl6::Traverse::visit($visitor, $self, 'Val::Buf', $path) };
 sub attribs { my $self = shift; my $List__ = \@_; do { [] }; { 'buf' => $self->{buf}, } };
-sub true { my $self = shift; my $List__ = \@_; do { [] }; $self->{buf}->true() }
+sub true { my $self = shift; my $List__ = \@_; do { [] }; 1 }
 
 
 ;

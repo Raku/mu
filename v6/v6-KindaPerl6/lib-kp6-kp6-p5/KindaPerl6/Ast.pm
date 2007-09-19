@@ -650,7 +650,7 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        ::DISPATCH( ::DISPATCH( $self, "buf" ), 'true', );
+                        ::DISPATCH( $::Int, 'new', 1 );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
