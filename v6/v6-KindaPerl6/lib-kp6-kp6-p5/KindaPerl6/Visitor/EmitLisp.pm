@@ -1185,8 +1185,20 @@
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH( $::Str, 'new', '(let ((hash (make-hash-table))) ' ),
-                            ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' hash)' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) ) )
+                            ::DISPATCH( $::Str, 'new', '(make-instance \\\'Hash :value ' ),
+                            ::DISPATCH(
+                                $GLOBAL::Code_infix_58__60__126__62_,
+                                'APPLY',
+                                ::DISPATCH( $::Str, 'new', '(let ((hash (make-hash-table))) ' ),
+                                ::DISPATCH(
+                                    $GLOBAL::Code_infix_58__60__126__62_,
+                                    'APPLY', $str,
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                        ::DISPATCH( $::Str, 'new', ' hash)' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ')' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                    )
+                                )
+                            )
                         );
                     },
                     signature => ::DISPATCH(
