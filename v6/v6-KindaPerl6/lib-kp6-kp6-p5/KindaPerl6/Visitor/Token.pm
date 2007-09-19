@@ -91,7 +91,7 @@
                                                     ::DISPATCH(
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
-                                                        ::DISPATCH( $::Str, 'new', 'if (%*ENV{"KP6_TOKEN_DEBUGGER"}) { say "inside token ' ),
+                                                        ::DISPATCH( $::Str, 'new', 'if (%*ENV{"KP6_TOKEN_DEBUGGER"}) { say ">>> token ' ),
                                                         ::DISPATCH(
                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                             'APPLY',
@@ -99,18 +99,53 @@
                                                             ::DISPATCH(
                                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                                 'APPLY',
-                                                                ::DISPATCH( $::Str, 'new', '"; };if (!(defined($str))) { $str = $_; };  my $MATCH;' ),
+                                                                ::DISPATCH( $::Str, 'new', ' at " ~ $pos ~ " of (" ~ $str ~ ")"; };' ),
                                                                 ::DISPATCH(
                                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                                     'APPLY',
-                                                                    ::DISPATCH( $::Str, 'new', '$MATCH = Match.new(); $MATCH.match_str = $str; $MATCH.from = $pos; $MATCH.to = $pos; $MATCH.bool = 1; ' ),
+                                                                    ::DISPATCH( $::Str, 'new', 'if (!(defined($str))) { $str = $_; };  my $MATCH;' ),
                                                                     ::DISPATCH(
                                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                                         'APPLY',
-                                                                        ::DISPATCH( $::Str, 'new', '$MATCH.bool = ' ),
+                                                                        ::DISPATCH( $::Str, 'new', '$MATCH = Match.new(); $MATCH.match_str = $str; $MATCH.from = $pos; $MATCH.to = $pos; $MATCH.bool = 1; ' ),
                                                                         ::DISPATCH(
                                                                             $GLOBAL::Code_infix_58__60__126__62_,
-                                                                            'APPLY', $perl6_source, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '; ' ), ::DISPATCH( $::Str, 'new', 'return $MATCH }' ) )
+                                                                            'APPLY',
+                                                                            ::DISPATCH( $::Str, 'new', '$MATCH.bool = ' ),
+                                                                            ::DISPATCH(
+                                                                                $GLOBAL::Code_infix_58__60__126__62_,
+                                                                                'APPLY',
+                                                                                $perl6_source,
+                                                                                ::DISPATCH(
+                                                                                    $GLOBAL::Code_infix_58__60__126__62_,
+                                                                                    'APPLY',
+                                                                                    ::DISPATCH( $::Str, 'new', '; ' ),
+                                                                                    ::DISPATCH(
+                                                                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                                                                        'APPLY',
+                                                                                        ::DISPATCH( $::Str, 'new', 'if (%*ENV{"KP6_TOKEN_DEBUGGER"}) { if ($MATCH.bool) { say "<<< token ' ),
+                                                                                        ::DISPATCH(
+                                                                                            $GLOBAL::Code_infix_58__60__126__62_,
+                                                                                            'APPLY',
+                                                                                            ::DISPATCH( $node, 'name', ),
+                                                                                            ::DISPATCH(
+                                                                                                $GLOBAL::Code_infix_58__60__126__62_,
+                                                                                                'APPLY',
+                                                                                                ::DISPATCH( $::Str, 'new', ' returned true "; } else {say "<<< token ' ),
+                                                                                                ::DISPATCH(
+                                                                                                    $GLOBAL::Code_infix_58__60__126__62_,
+                                                                                                    'APPLY',
+                                                                                                    ::DISPATCH( $node, 'name', ),
+                                                                                                    ::DISPATCH(
+                                                                                                        $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                                                                                        ::DISPATCH( $::Str, 'new', ' returned false "; } };' ), ::DISPATCH( $::Str, 'new', 'return $MATCH }' )
+                                                                                                    )
+                                                                                                )
+                                                                                            )
+                                                                                        )
+                                                                                    )
+                                                                                )
+                                                                            )
                                                                         )
                                                                     )
                                                                 )

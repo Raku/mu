@@ -64,7 +64,20 @@
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true" ), "p5landish" ) ) {
                                 {
-                                    ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', 'inside token token_p5_modifier' ) )
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_say,
+                                        'APPLY',
+                                        ::DISPATCH(
+                                            $GLOBAL::Code_infix_58__60__126__62_,
+                                            'APPLY',
+                                            ::DISPATCH( $::Str, 'new', '>>> token token_p5_modifier at ' ),
+                                            ::DISPATCH(
+                                                $GLOBAL::Code_infix_58__60__126__62_,
+                                                'APPLY', $pos,
+                                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' of (' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $::Str, 'new', ')' ) ) )
+                                            )
+                                        )
+                                        )
                                 }
                             }
                         };
@@ -211,6 +224,24 @@
                                 }
                                 }
                         );
+                        do {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true" ), "p5landish" ) ) {
+                                {
+                                    do {
+                                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
+                                            {
+                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token token_p5_modifier returned true ' ) )
+                                            }
+                                        }
+                                        else {
+                                            {
+                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token token_p5_modifier returned false ' ) )
+                                            }
+                                        }
+                                        }
+                                }
+                            }
+                        };
                         return ($MATCH);
                     },
                     signature => ::DISPATCH(
@@ -273,7 +304,20 @@
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true" ), "p5landish" ) ) {
                                 {
-                                    ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', 'inside token token_p5_body' ) )
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_say,
+                                        'APPLY',
+                                        ::DISPATCH(
+                                            $GLOBAL::Code_infix_58__60__126__62_,
+                                            'APPLY',
+                                            ::DISPATCH( $::Str, 'new', '>>> token token_p5_body at ' ),
+                                            ::DISPATCH(
+                                                $GLOBAL::Code_infix_58__60__126__62_,
+                                                'APPLY', $pos,
+                                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' of (' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $::Str, 'new', ')' ) ) )
+                                            )
+                                        )
+                                        )
                                 }
                             }
                         };
@@ -599,6 +643,24 @@
                                 }
                                 }
                         );
+                        do {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true" ), "p5landish" ) ) {
+                                {
+                                    do {
+                                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
+                                            {
+                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token token_p5_body returned true ' ) )
+                                            }
+                                        }
+                                        else {
+                                            {
+                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token token_p5_body returned false ' ) )
+                                            }
+                                        }
+                                        }
+                                }
+                            }
+                        };
                         return ($MATCH);
                     },
                     signature => ::DISPATCH(
@@ -661,7 +723,20 @@
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true" ), "p5landish" ) ) {
                                 {
-                                    ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', 'inside token token_P5' ) )
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_say,
+                                        'APPLY',
+                                        ::DISPATCH(
+                                            $GLOBAL::Code_infix_58__60__126__62_,
+                                            'APPLY',
+                                            ::DISPATCH( $::Str, 'new', '>>> token token_P5 at ' ),
+                                            ::DISPATCH(
+                                                $GLOBAL::Code_infix_58__60__126__62_,
+                                                'APPLY', $pos,
+                                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' of (' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $::Str, 'new', ')' ) ) )
+                                            )
+                                        )
+                                        )
                                 }
                             }
                         };
@@ -1022,7 +1097,7 @@
                                                                                                                             do {
                                                                                                                                 if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                                     {
-                                                                                                                                        ::DISPATCH( $MATCH, 'to', ::DISPATCH( $m2, 'to', ) );
+                                                                                                                                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
                                                                                                                                         ::DISPATCH( $::Int, 'new', 1 )
                                                                                                                                     }
                                                                                                                                 }
@@ -1079,7 +1154,7 @@
                                                                                                                                                     do {
                                                                                                                                                         if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                                                             {
-                                                                                                                                                                ::DISPATCH( $MATCH, 'to', ::DISPATCH( $m2, 'to', ) );
+                                                                                                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
                                                                                                                                                                 ::DISPATCH( $::Int, 'new', 1 )
                                                                                                                                                             }
                                                                                                                                                         }
@@ -1151,7 +1226,11 @@
                                                                                                                                                                             do {
                                                                                                                                                                                 if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                                                                                     {
-                                                                                                                                                                                        ::DISPATCH( $MATCH, 'to', ::DISPATCH( $m2, 'to', ) );
+                                                                                                                                                                                        ::DISPATCH_VAR(
+                                                                                                                                                                                            ::DISPATCH( $MATCH, 'to', ),
+                                                                                                                                                                                            'STORE',
+                                                                                                                                                                                            ::DISPATCH( $m2, 'to', )
+                                                                                                                                                                                        );
                                                                                                                                                                                         ::DISPATCH( $::Int, 'new', 1 )
                                                                                                                                                                                     }
                                                                                                                                                                                 }
@@ -1542,6 +1621,24 @@
                                 }
                                 }
                         );
+                        do {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true" ), "p5landish" ) ) {
+                                {
+                                    do {
+                                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
+                                            {
+                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token token_P5 returned true ' ) )
+                                            }
+                                        }
+                                        else {
+                                            {
+                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token token_P5 returned false ' ) )
+                                            }
+                                        }
+                                        }
+                                }
+                            }
+                        };
                         return ($MATCH);
                     },
                     signature => ::DISPATCH(

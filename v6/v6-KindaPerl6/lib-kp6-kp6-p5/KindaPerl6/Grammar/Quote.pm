@@ -64,7 +64,20 @@
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true" ), "p5landish" ) ) {
                                 {
-                                    ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', 'inside token double_quoted' ) )
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_say,
+                                        'APPLY',
+                                        ::DISPATCH(
+                                            $GLOBAL::Code_infix_58__60__126__62_,
+                                            'APPLY',
+                                            ::DISPATCH( $::Str, 'new', '>>> token double_quoted at ' ),
+                                            ::DISPATCH(
+                                                $GLOBAL::Code_infix_58__60__126__62_,
+                                                'APPLY', $pos,
+                                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' of (' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $::Str, 'new', ')' ) ) )
+                                            )
+                                        )
+                                        )
                                 }
                             }
                         };
@@ -678,6 +691,24 @@
                                 }
                                 }
                         );
+                        do {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true" ), "p5landish" ) ) {
+                                {
+                                    do {
+                                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
+                                            {
+                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token double_quoted returned true ' ) )
+                                            }
+                                        }
+                                        else {
+                                            {
+                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token double_quoted returned false ' ) )
+                                            }
+                                        }
+                                        }
+                                }
+                            }
+                        };
                         return ($MATCH);
                     },
                     signature => ::DISPATCH(
@@ -740,7 +771,20 @@
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true" ), "p5landish" ) ) {
                                 {
-                                    ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', 'inside token quoted_any' ) )
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_say,
+                                        'APPLY',
+                                        ::DISPATCH(
+                                            $GLOBAL::Code_infix_58__60__126__62_,
+                                            'APPLY',
+                                            ::DISPATCH( $::Str, 'new', '>>> token quoted_any at ' ),
+                                            ::DISPATCH(
+                                                $GLOBAL::Code_infix_58__60__126__62_,
+                                                'APPLY', $pos,
+                                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' of (' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $::Str, 'new', ')' ) ) )
+                                            )
+                                        )
+                                        )
                                 }
                             }
                         };
@@ -783,6 +827,24 @@
                                 }
                                 }
                         );
+                        do {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true" ), "p5landish" ) ) {
+                                {
+                                    do {
+                                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
+                                            {
+                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token quoted_any returned true ' ) )
+                                            }
+                                        }
+                                        else {
+                                            {
+                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token quoted_any returned false ' ) )
+                                            }
+                                        }
+                                        }
+                                }
+                            }
+                        };
                         return ($MATCH);
                     },
                     signature => ::DISPATCH(
@@ -845,7 +907,20 @@
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true" ), "p5landish" ) ) {
                                 {
-                                    ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', 'inside token quoted_array' ) )
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_say,
+                                        'APPLY',
+                                        ::DISPATCH(
+                                            $GLOBAL::Code_infix_58__60__126__62_,
+                                            'APPLY',
+                                            ::DISPATCH( $::Str, 'new', '>>> token quoted_array at ' ),
+                                            ::DISPATCH(
+                                                $GLOBAL::Code_infix_58__60__126__62_,
+                                                'APPLY', $pos,
+                                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' of (' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $::Str, 'new', ')' ) ) )
+                                            )
+                                        )
+                                        )
                                 }
                             }
                         };
@@ -1067,7 +1142,7 @@
                                                                                                     do {
                                                                                                         if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                             {
-                                                                                                                ::DISPATCH( $MATCH, 'to', ::DISPATCH( $m2, 'to', ) );
+                                                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
                                                                                                                 ::DISPATCH( $::Int, 'new', 1 )
                                                                                                             }
                                                                                                         }
@@ -1203,6 +1278,24 @@
                                 }
                                 }
                         );
+                        do {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true" ), "p5landish" ) ) {
+                                {
+                                    do {
+                                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
+                                            {
+                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token quoted_array returned true ' ) )
+                                            }
+                                        }
+                                        else {
+                                            {
+                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token quoted_array returned false ' ) )
+                                            }
+                                        }
+                                        }
+                                }
+                            }
+                        };
                         return ($MATCH);
                     },
                     signature => ::DISPATCH(
@@ -1265,7 +1358,20 @@
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true" ), "p5landish" ) ) {
                                 {
-                                    ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', 'inside token quoted_hash' ) )
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_say,
+                                        'APPLY',
+                                        ::DISPATCH(
+                                            $GLOBAL::Code_infix_58__60__126__62_,
+                                            'APPLY',
+                                            ::DISPATCH( $::Str, 'new', '>>> token quoted_hash at ' ),
+                                            ::DISPATCH(
+                                                $GLOBAL::Code_infix_58__60__126__62_,
+                                                'APPLY', $pos,
+                                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' of (' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $::Str, 'new', ')' ) ) )
+                                            )
+                                        )
+                                        )
                                 }
                             }
                         };
@@ -1487,7 +1593,7 @@
                                                                                                     do {
                                                                                                         if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                             {
-                                                                                                                ::DISPATCH( $MATCH, 'to', ::DISPATCH( $m2, 'to', ) );
+                                                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
                                                                                                                 ::DISPATCH( $::Int, 'new', 1 )
                                                                                                             }
                                                                                                         }
@@ -1623,6 +1729,24 @@
                                 }
                                 }
                         );
+                        do {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true" ), "p5landish" ) ) {
+                                {
+                                    do {
+                                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
+                                            {
+                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token quoted_hash returned true ' ) )
+                                            }
+                                        }
+                                        else {
+                                            {
+                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token quoted_hash returned false ' ) )
+                                            }
+                                        }
+                                        }
+                                }
+                            }
+                        };
                         return ($MATCH);
                     },
                     signature => ::DISPATCH(
@@ -1685,7 +1809,20 @@
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true" ), "p5landish" ) ) {
                                 {
-                                    ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', 'inside token quoted_scalar' ) )
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_say,
+                                        'APPLY',
+                                        ::DISPATCH(
+                                            $GLOBAL::Code_infix_58__60__126__62_,
+                                            'APPLY',
+                                            ::DISPATCH( $::Str, 'new', '>>> token quoted_scalar at ' ),
+                                            ::DISPATCH(
+                                                $GLOBAL::Code_infix_58__60__126__62_,
+                                                'APPLY', $pos,
+                                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' of (' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $::Str, 'new', ')' ) ) )
+                                            )
+                                        )
+                                        )
                                 }
                             }
                         };
@@ -1862,6 +1999,24 @@
                                 }
                                 }
                         );
+                        do {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true" ), "p5landish" ) ) {
+                                {
+                                    do {
+                                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
+                                            {
+                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token quoted_scalar returned true ' ) )
+                                            }
+                                        }
+                                        else {
+                                            {
+                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token quoted_scalar returned false ' ) )
+                                            }
+                                        }
+                                        }
+                                }
+                            }
+                        };
                         return ($MATCH);
                     },
                     signature => ::DISPATCH(
@@ -1924,7 +2079,20 @@
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true" ), "p5landish" ) ) {
                                 {
-                                    ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', 'inside token quoted_exp' ) )
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_say,
+                                        'APPLY',
+                                        ::DISPATCH(
+                                            $GLOBAL::Code_infix_58__60__126__62_,
+                                            'APPLY',
+                                            ::DISPATCH( $::Str, 'new', '>>> token quoted_exp at ' ),
+                                            ::DISPATCH(
+                                                $GLOBAL::Code_infix_58__60__126__62_,
+                                                'APPLY', $pos,
+                                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' of (' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $::Str, 'new', ')' ) ) )
+                                            )
+                                        )
+                                        )
                                 }
                             }
                         };
@@ -4359,6 +4527,24 @@
                                 }
                                 }
                         );
+                        do {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true" ), "p5landish" ) ) {
+                                {
+                                    do {
+                                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
+                                            {
+                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token quoted_exp returned true ' ) )
+                                            }
+                                        }
+                                        else {
+                                            {
+                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token quoted_exp returned false ' ) )
+                                            }
+                                        }
+                                        }
+                                }
+                            }
+                        };
                         return ($MATCH);
                     },
                     signature => ::DISPATCH(
@@ -4421,7 +4607,20 @@
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true" ), "p5landish" ) ) {
                                 {
-                                    ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', 'inside token quoted_exp_seq' ) )
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_say,
+                                        'APPLY',
+                                        ::DISPATCH(
+                                            $GLOBAL::Code_infix_58__60__126__62_,
+                                            'APPLY',
+                                            ::DISPATCH( $::Str, 'new', '>>> token quoted_exp_seq at ' ),
+                                            ::DISPATCH(
+                                                $GLOBAL::Code_infix_58__60__126__62_,
+                                                'APPLY', $pos,
+                                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' of (' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $::Str, 'new', ')' ) ) )
+                                            )
+                                        )
+                                        )
                                 }
                             }
                         };
@@ -4693,6 +4892,24 @@
                                 }
                                 }
                         );
+                        do {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true" ), "p5landish" ) ) {
+                                {
+                                    do {
+                                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
+                                            {
+                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token quoted_exp_seq returned true ' ) )
+                                            }
+                                        }
+                                        else {
+                                            {
+                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token quoted_exp_seq returned false ' ) )
+                                            }
+                                        }
+                                        }
+                                }
+                            }
+                        };
                         return ($MATCH);
                     },
                     signature => ::DISPATCH(
@@ -4755,7 +4972,20 @@
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true" ), "p5landish" ) ) {
                                 {
-                                    ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', 'inside token single_quoted' ) )
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_say,
+                                        'APPLY',
+                                        ::DISPATCH(
+                                            $GLOBAL::Code_infix_58__60__126__62_,
+                                            'APPLY',
+                                            ::DISPATCH( $::Str, 'new', '>>> token single_quoted at ' ),
+                                            ::DISPATCH(
+                                                $GLOBAL::Code_infix_58__60__126__62_,
+                                                'APPLY', $pos,
+                                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' of (' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $::Str, 'new', ')' ) ) )
+                                            )
+                                        )
+                                        )
                                 }
                             }
                         };
@@ -5081,6 +5311,24 @@
                                 }
                                 }
                         );
+                        do {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true" ), "p5landish" ) ) {
+                                {
+                                    do {
+                                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
+                                            {
+                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token single_quoted returned true ' ) )
+                                            }
+                                        }
+                                        else {
+                                            {
+                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token single_quoted returned false ' ) )
+                                            }
+                                        }
+                                        }
+                                }
+                            }
+                        };
                         return ($MATCH);
                     },
                     signature => ::DISPATCH(
@@ -5143,7 +5391,20 @@
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true" ), "p5landish" ) ) {
                                 {
-                                    ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', 'inside token angle_quoted' ) )
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_say,
+                                        'APPLY',
+                                        ::DISPATCH(
+                                            $GLOBAL::Code_infix_58__60__126__62_,
+                                            'APPLY',
+                                            ::DISPATCH( $::Str, 'new', '>>> token angle_quoted at ' ),
+                                            ::DISPATCH(
+                                                $GLOBAL::Code_infix_58__60__126__62_,
+                                                'APPLY', $pos,
+                                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' of (' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $::Str, 'new', ')' ) ) )
+                                            )
+                                        )
+                                        )
                                 }
                             }
                         };
@@ -5469,6 +5730,24 @@
                                 }
                                 }
                         );
+                        do {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true" ), "p5landish" ) ) {
+                                {
+                                    do {
+                                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
+                                            {
+                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token angle_quoted returned true ' ) )
+                                            }
+                                        }
+                                        else {
+                                            {
+                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token angle_quoted returned false ' ) )
+                                            }
+                                        }
+                                        }
+                                }
+                            }
+                        };
                         return ($MATCH);
                     },
                     signature => ::DISPATCH(
@@ -5531,7 +5810,20 @@
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true" ), "p5landish" ) ) {
                                 {
-                                    ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', 'inside token french_quoted' ) )
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_say,
+                                        'APPLY',
+                                        ::DISPATCH(
+                                            $GLOBAL::Code_infix_58__60__126__62_,
+                                            'APPLY',
+                                            ::DISPATCH( $::Str, 'new', '>>> token french_quoted at ' ),
+                                            ::DISPATCH(
+                                                $GLOBAL::Code_infix_58__60__126__62_,
+                                                'APPLY', $pos,
+                                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' of (' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $::Str, 'new', ')' ) ) )
+                                            )
+                                        )
+                                        )
                                 }
                             }
                         };
@@ -5933,6 +6225,24 @@
                                 }
                                 }
                         );
+                        do {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true" ), "p5landish" ) ) {
+                                {
+                                    do {
+                                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
+                                            {
+                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token french_quoted returned true ' ) )
+                                            }
+                                        }
+                                        else {
+                                            {
+                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token french_quoted returned false ' ) )
+                                            }
+                                        }
+                                        }
+                                }
+                            }
+                        };
                         return ($MATCH);
                     },
                     signature => ::DISPATCH(
@@ -5995,7 +6305,20 @@
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true" ), "p5landish" ) ) {
                                 {
-                                    ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', 'inside token val_buf' ) )
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_say,
+                                        'APPLY',
+                                        ::DISPATCH(
+                                            $GLOBAL::Code_infix_58__60__126__62_,
+                                            'APPLY',
+                                            ::DISPATCH( $::Str, 'new', '>>> token val_buf at ' ),
+                                            ::DISPATCH(
+                                                $GLOBAL::Code_infix_58__60__126__62_,
+                                                'APPLY', $pos,
+                                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' of (' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $::Str, 'new', ')' ) ) )
+                                            )
+                                        )
+                                        )
                                 }
                             }
                         };
@@ -6412,6 +6735,24 @@
                                 }
                                 }
                         );
+                        do {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true" ), "p5landish" ) ) {
+                                {
+                                    do {
+                                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
+                                            {
+                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token val_buf returned true ' ) )
+                                            }
+                                        }
+                                        else {
+                                            {
+                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token val_buf returned false ' ) )
+                                            }
+                                        }
+                                        }
+                                }
+                            }
+                        };
                         return ($MATCH);
                     },
                     signature => ::DISPATCH(

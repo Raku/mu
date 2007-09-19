@@ -287,11 +287,14 @@ package GLOBAL;
         my ($regex,$string,$pos) = (_str($_[0]),_str($_[1]),_int($_[2]));
         pos($string) = $pos;
         if ($ENV{KP6_TOKEN_DEBUGGER}) {
-            print "inside p5 token $regex \n";
+            print ">>> inside p5 token $regex at $pos of ($string)\n";
         }
         my $bool = $string =~ /\G$regex/c;
         #print "regex:<$regex> string:<$string>\n";
         if ($bool) {
+            if ($ENV{KP6_TOKEN_DEBUGGER}) {
+                print "<<< p5 token $regex returned true\n";
+            }
             #print "matched up to:",pos($string),"\n";
             my $m = ::DISPATCH($::Match,'new');
             ::DISPATCH($m, match_str => $_[1]);
@@ -300,6 +303,9 @@ package GLOBAL;
             ::DISPATCH($m, bool => ::DISPATCH($::Bit,'new',1));
             return $m;
         } else {
+            if ($ENV{KP6_TOKEN_DEBUGGER}) {
+                print "<<< p5 token $regex returned false\n";
+            }
             #print "false match\n";
             my $m = ::DISPATCH($::Match,'new');
             ::DISPATCH($m, bool => ::DISPATCH($::Bit,'new',0));
