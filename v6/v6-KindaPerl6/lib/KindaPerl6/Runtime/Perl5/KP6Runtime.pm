@@ -1,6 +1,8 @@
 
 use v5;
 
+$| = 1;
+
 use KindaPerl6::Runtime::Perl5::MOP;
 use KindaPerl6::Runtime::Perl5::MP6Runtime;
 #use KindaPerl6::Runtime::Perl5::Pad;

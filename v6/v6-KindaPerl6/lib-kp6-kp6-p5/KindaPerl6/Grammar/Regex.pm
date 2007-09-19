@@ -112,10 +112,7 @@
                                                     my $m2;
                                                     $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                     BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                    do {
-                                                        ::MODIFIED($m2);
-                                                        $m2 = ::DISPATCH( $::KindaPerl6::Grammar, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                    };
+                                                    ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $::KindaPerl6::Grammar, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                     do {
                                                         if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                             {
@@ -142,7 +139,14 @@
                                     do {
                                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
                                             {
-                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token ws returned true ' ) )
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_say,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', '<<< token ws returned true to (' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Str, 'new', ')' ) )
+                                                    )
+                                                    )
                                             }
                                         }
                                         else {
@@ -264,10 +268,7 @@
                                                             my $m2;
                                                             $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                             BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                            do {
-                                                                ::MODIFIED($m2);
-                                                                $m2 = ::DISPATCH( $::KindaPerl6::Grammar, 'full_ident', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                            };
+                                                            ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $::KindaPerl6::Grammar, 'full_ident', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                             do {
                                                                 if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                     {
@@ -328,7 +329,14 @@
                                     do {
                                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
                                             {
-                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token ident returned true ' ) )
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_say,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', '<<< token ident returned true to (' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Str, 'new', ')' ) )
+                                                    )
+                                                    )
                                             }
                                         }
                                         else {
@@ -447,10 +455,7 @@
                                                 $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
                                                 'APPLY',
                                                 ::DISPATCH( $GLOBAL::Code_infix_58__60_ne_62_, 'APPLY', ::DISPATCH( $::Str, 'new', '' ), ::DISPATCH( $GLOBAL::Code_substr, 'APPLY', $str, ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Int, 'new', 1 ) ) ),
-                                                ::DISPATCH(
-                                                    $GLOBAL::Code_infix_58__60__43__62_, 'APPLY',
-                                                    ::DISPATCH( $::Int, 'new', 1 ), ::DISPATCH( $MATCH, 'to', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $::Int, 'new', 1 ), ::DISPATCH( $MATCH, 'to', ) ) )
-                                                ),
+                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $::Int, 'new', 1 ), ::DISPATCH( $MATCH, 'to', ) ) ),
                                                 ::DISPATCH( $::Int, 'new', 0 )
                                                 )
                                         }
@@ -464,7 +469,14 @@
                                     do {
                                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
                                             {
-                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token any returned true ' ) )
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_say,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', '<<< token any returned true to (' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Str, 'new', ')' ) )
+                                                    )
+                                                    )
                                             }
                                         }
                                         else {
@@ -648,11 +660,9 @@
                                                                                     $GLOBAL::Code_infix_58__60_ne_62_, 'APPLY',
                                                                                     ::DISPATCH( $::Str, 'new', '' ), ::DISPATCH( $GLOBAL::Code_substr, 'APPLY', $str, ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Int, 'new', 1 ) )
                                                                                 ),
-                                                                                ::DISPATCH(
-                                                                                    $GLOBAL::Code_infix_58__60__43__62_,
-                                                                                    'APPLY',
-                                                                                    ::DISPATCH( $::Int, 'new', 1 ),
-                                                                                    ::DISPATCH( $MATCH, 'to', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $::Int, 'new', 1 ), ::DISPATCH( $MATCH, 'to', ) ) )
+                                                                                ::DISPATCH_VAR(
+                                                                                    ::DISPATCH( $MATCH, 'to', ),
+                                                                                    'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $::Int, 'new', 1 ), ::DISPATCH( $MATCH, 'to', ) )
                                                                                 ),
                                                                                 ::DISPATCH( $::Int, 'new', 0 )
                                                                             );
@@ -814,11 +824,9 @@
                                                                                             $GLOBAL::Code_infix_58__60_ne_62_, 'APPLY',
                                                                                             ::DISPATCH( $::Str, 'new', '' ), ::DISPATCH( $GLOBAL::Code_substr, 'APPLY', $str, ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Int, 'new', 1 ) )
                                                                                         ),
-                                                                                        ::DISPATCH(
-                                                                                            $GLOBAL::Code_infix_58__60__43__62_,
-                                                                                            'APPLY',
-                                                                                            ::DISPATCH( $::Int, 'new', 1 ),
-                                                                                            ::DISPATCH( $MATCH, 'to', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $::Int, 'new', 1 ), ::DISPATCH( $MATCH, 'to', ) ) )
+                                                                                        ::DISPATCH_VAR(
+                                                                                            ::DISPATCH( $MATCH, 'to', ),
+                                                                                            'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $::Int, 'new', 1 ), ::DISPATCH( $MATCH, 'to', ) )
                                                                                         ),
                                                                                         ::DISPATCH( $::Int, 'new', 0 )
                                                                                     );
@@ -883,7 +891,14 @@
                                     do {
                                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
                                             {
-                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token literal returned true ' ) )
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_say,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', '<<< token literal returned true to (' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Str, 'new', ')' ) )
+                                                    )
+                                                    )
                                             }
                                         }
                                         else {
@@ -1087,11 +1102,9 @@
                                                                                                     $GLOBAL::Code_infix_58__60_ne_62_, 'APPLY',
                                                                                                     ::DISPATCH( $::Str, 'new', '' ), ::DISPATCH( $GLOBAL::Code_substr, 'APPLY', $str, ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Int, 'new', 1 ) )
                                                                                                 ),
-                                                                                                ::DISPATCH(
-                                                                                                    $GLOBAL::Code_infix_58__60__43__62_,
-                                                                                                    'APPLY',
-                                                                                                    ::DISPATCH( $::Int, 'new', 1 ),
-                                                                                                    ::DISPATCH( $MATCH, 'to', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $::Int, 'new', 1 ), ::DISPATCH( $MATCH, 'to', ) ) )
+                                                                                                ::DISPATCH_VAR(
+                                                                                                    ::DISPATCH( $MATCH, 'to', ),
+                                                                                                    'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $::Int, 'new', 1 ), ::DISPATCH( $MATCH, 'to', ) )
                                                                                                 ),
                                                                                                 ::DISPATCH( $::Int, 'new', 0 )
                                                                                             );
@@ -1186,10 +1199,7 @@
                                                                                                                         my $m2;
                                                                                                                         $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                                                                         BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                                                        do {
-                                                                                                                            ::MODIFIED($m2);
-                                                                                                                            $m2 = ::DISPATCH( $self, 'literal', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                        };
+                                                                                                                        ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'literal', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                                         do {
                                                                                                                             if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                                 {
@@ -1370,10 +1380,7 @@
                                                                                                                     my $m2;
                                                                                                                     $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                                                                     BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                                                    do {
-                                                                                                                        ::MODIFIED($m2);
-                                                                                                                        $m2 = ::DISPATCH( $self, 'parsed_code', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                    };
+                                                                                                                    ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'parsed_code', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                                     do {
                                                                                                                         if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                             {
@@ -1483,10 +1490,7 @@
                                                                                                                                         my $m2;
                                                                                                                                         $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                                                                                         BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                                                                        do {
-                                                                                                                                            ::MODIFIED($m2);
-                                                                                                                                            $m2 = ::DISPATCH( $self, 'metasyntax', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                                        };
+                                                                                                                                        ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'metasyntax', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                                                         do {
                                                                                                                                             if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                                                 {
@@ -1716,14 +1720,10 @@
                                                                                                                             ::DISPATCH( $::Str, 'new', '' ),
                                                                                                                             ::DISPATCH( $GLOBAL::Code_substr, 'APPLY', $str, ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Int, 'new', 1 ) )
                                                                                                                         ),
-                                                                                                                        ::DISPATCH(
-                                                                                                                            $GLOBAL::Code_infix_58__60__43__62_,
-                                                                                                                            'APPLY',
-                                                                                                                            ::DISPATCH( $::Int, 'new', 1 ),
-                                                                                                                            ::DISPATCH(
-                                                                                                                                $MATCH, 'to',
-                                                                                                                                ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $::Int, 'new', 1 ), ::DISPATCH( $MATCH, 'to', ) )
-                                                                                                                            )
+                                                                                                                        ::DISPATCH_VAR(
+                                                                                                                            ::DISPATCH( $MATCH, 'to', ),
+                                                                                                                            'STORE',
+                                                                                                                            ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $::Int, 'new', 1 ), ::DISPATCH( $MATCH, 'to', ) )
                                                                                                                         ),
                                                                                                                         ::DISPATCH( $::Int, 'new', 0 )
                                                                                                                     );
@@ -1818,7 +1818,16 @@
                                     do {
                                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
                                             {
-                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token metasyntax returned true ' ) )
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_say,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                                        'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', '<<< token metasyntax returned true to (' ),
+                                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Str, 'new', ')' ) )
+                                                    )
+                                                    )
                                             }
                                         }
                                         else {
@@ -2022,11 +2031,9 @@
                                                                                                     $GLOBAL::Code_infix_58__60_ne_62_, 'APPLY',
                                                                                                     ::DISPATCH( $::Str, 'new', '' ), ::DISPATCH( $GLOBAL::Code_substr, 'APPLY', $str, ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Int, 'new', 1 ) )
                                                                                                 ),
-                                                                                                ::DISPATCH(
-                                                                                                    $GLOBAL::Code_infix_58__60__43__62_,
-                                                                                                    'APPLY',
-                                                                                                    ::DISPATCH( $::Int, 'new', 1 ),
-                                                                                                    ::DISPATCH( $MATCH, 'to', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $::Int, 'new', 1 ), ::DISPATCH( $MATCH, 'to', ) ) )
+                                                                                                ::DISPATCH_VAR(
+                                                                                                    ::DISPATCH( $MATCH, 'to', ),
+                                                                                                    'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $::Int, 'new', 1 ), ::DISPATCH( $MATCH, 'to', ) )
                                                                                                 ),
                                                                                                 ::DISPATCH( $::Int, 'new', 0 )
                                                                                             );
@@ -2156,11 +2163,9 @@
                                                                                                     $GLOBAL::Code_infix_58__60_ne_62_, 'APPLY',
                                                                                                     ::DISPATCH( $::Str, 'new', '' ), ::DISPATCH( $GLOBAL::Code_substr, 'APPLY', $str, ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Int, 'new', 1 ) )
                                                                                                 ),
-                                                                                                ::DISPATCH(
-                                                                                                    $GLOBAL::Code_infix_58__60__43__62_,
-                                                                                                    'APPLY',
-                                                                                                    ::DISPATCH( $::Int, 'new', 1 ),
-                                                                                                    ::DISPATCH( $MATCH, 'to', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $::Int, 'new', 1 ), ::DISPATCH( $MATCH, 'to', ) ) )
+                                                                                                ::DISPATCH_VAR(
+                                                                                                    ::DISPATCH( $MATCH, 'to', ),
+                                                                                                    'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $::Int, 'new', 1 ), ::DISPATCH( $MATCH, 'to', ) )
                                                                                                 ),
                                                                                                 ::DISPATCH( $::Int, 'new', 0 )
                                                                                             );
@@ -2243,7 +2248,16 @@
                                     do {
                                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
                                             {
-                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token char_range returned true ' ) )
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_say,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                                        'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', '<<< token char_range returned true to (' ),
+                                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Str, 'new', ')' ) )
+                                                    )
+                                                    )
                                             }
                                         }
                                         else {
@@ -2365,10 +2379,7 @@
                                                             my $m2;
                                                             $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                             BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                            do {
-                                                                ::MODIFIED($m2);
-                                                                $m2 = ::DISPATCH( $self, 'ident', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                            };
+                                                            ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'ident', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                             do {
                                                                 if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                     {
@@ -2457,10 +2468,7 @@
                                                                                     my $m2;
                                                                                     $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                                     BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                    do {
-                                                                                        ::MODIFIED($m2);
-                                                                                        $m2 = ::DISPATCH( $self, 'char_range', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                    };
+                                                                                    ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'char_range', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                     do {
                                                                                         if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                             {
@@ -2557,7 +2565,16 @@
                                     do {
                                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
                                             {
-                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token char_class returned true ' ) )
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_say,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                                        'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', '<<< token char_class returned true to (' ),
+                                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Str, 'new', ')' ) )
+                                                    )
+                                                    )
                                             }
                                         }
                                         else {
@@ -2679,10 +2696,7 @@
                                                                 my $m2;
                                                                 $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                 BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                do {
-                                                                    ::MODIFIED($m2);
-                                                                    $m2 = ::DISPATCH( $::KindaPerl6::Grammar, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                };
+                                                                ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $::KindaPerl6::Grammar, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                 do {
                                                                     if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                         {
@@ -2757,10 +2771,7 @@
                                                                                                     my $m2;
                                                                                                     $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                                                     BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                                    do {
-                                                                                                        ::MODIFIED($m2);
-                                                                                                        $m2 = ::DISPATCH( $::KindaPerl6::Grammar, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                    };
+                                                                                                    ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $::KindaPerl6::Grammar, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                     do {
                                                                                                         if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                             {
@@ -2906,7 +2917,16 @@
                                     do {
                                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
                                             {
-                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token parsed_code returned true ' ) )
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_say,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                                        'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', '<<< token parsed_code returned true to (' ),
+                                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Str, 'new', ')' ) )
+                                                    )
+                                                    )
                                             }
                                         }
                                         else {
@@ -3663,7 +3683,16 @@
                                     do {
                                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
                                             {
-                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token named_capture_body returned true ' ) )
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_say,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                                        'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', '<<< token named_capture_body returned true to (' ),
+                                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Str, 'new', ')' ) )
+                                                    )
+                                                    )
                                             }
                                         }
                                         else {
@@ -4200,7 +4229,16 @@
                                     do {
                                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
                                             {
-                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token variables returned true ' ) )
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_say,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                                        'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', '<<< token variables returned true to (' ),
+                                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Str, 'new', ')' ) )
+                                                    )
+                                                    )
                                             }
                                         }
                                         else {
@@ -4456,7 +4494,16 @@
                                     do {
                                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
                                             {
-                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token assertion_modifier returned true ' ) )
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_say,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                                        'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', '<<< token assertion_modifier returned true to (' ),
+                                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Str, 'new', ')' ) )
+                                                    )
+                                                    )
                                             }
                                         }
                                         else {
@@ -5136,10 +5183,7 @@
                                                                                                                             my $m2;
                                                                                                                             $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                                                                             BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                                                            do {
-                                                                                                                                ::MODIFIED($m2);
-                                                                                                                                $m2 = ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                            };
+                                                                                                                            ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                                             do {
                                                                                                                                 if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                                     {
@@ -5497,10 +5541,7 @@
                                                                                                                                     my $m2;
                                                                                                                                     $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                                                                                     BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                                                                    do {
-                                                                                                                                        ::MODIFIED($m2);
-                                                                                                                                        $m2 = ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                                    };
+                                                                                                                                    ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                                                     do {
                                                                                                                                         if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                                             {
@@ -8193,7 +8234,16 @@
                                     do {
                                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
                                             {
-                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token rule_terms returned true ' ) )
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_say,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                                        'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', '<<< token rule_terms returned true to (' ),
+                                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Str, 'new', ')' ) )
+                                                    )
+                                                    )
                                             }
                                         }
                                         else {
@@ -8469,10 +8519,7 @@
                                                                                                             my $m2;
                                                                                                             $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                                                             BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                                            do {
-                                                                                                                ::MODIFIED($m2);
-                                                                                                                $m2 = ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                            };
+                                                                                                            ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                             do {
                                                                                                                 if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                     {
@@ -8570,10 +8617,7 @@
                                                                                                                                     my $m2;
                                                                                                                                     $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                                                                                     BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                                                                    do {
-                                                                                                                                        ::MODIFIED($m2);
-                                                                                                                                        $m2 = ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                                    };
+                                                                                                                                    ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                                                     do {
                                                                                                                                         if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                                             {
@@ -8897,10 +8941,7 @@
                                                                                                                     my $m2;
                                                                                                                     $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                                                                     BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                                                    do {
-                                                                                                                        ::MODIFIED($m2);
-                                                                                                                        $m2 = ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                    };
+                                                                                                                    ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                                     do {
                                                                                                                         if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                             {
@@ -8998,10 +9039,7 @@
                                                                                                                                             my $m2;
                                                                                                                                             $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                                                                                             BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                                                                            do {
-                                                                                                                                                ::MODIFIED($m2);
-                                                                                                                                                $m2 = ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                                            };
+                                                                                                                                            ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                                                             do {
                                                                                                                                                 if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                                                     {
@@ -10395,7 +10433,14 @@
                                     do {
                                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
                                             {
-                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token term returned true ' ) )
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_say,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', '<<< token term returned true to (' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Str, 'new', ')' ) )
+                                                    )
+                                                    )
                                             }
                                         }
                                         else {
@@ -10577,10 +10622,7 @@
                                                                                     my $m2;
                                                                                     $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                                     BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                    do {
-                                                                                        ::MODIFIED($m2);
-                                                                                        $m2 = ::DISPATCH( $::KindaPerl6::Grammar, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                    };
+                                                                                    ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $::KindaPerl6::Grammar, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                     do {
                                                                                         if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                             {
@@ -10963,7 +11005,14 @@
                                     do {
                                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
                                             {
-                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token quant returned true ' ) )
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_say,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', '<<< token quant returned true to (' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Str, 'new', ')' ) )
+                                                    )
+                                                    )
                                             }
                                         }
                                         else {
@@ -11219,7 +11268,14 @@
                                     do {
                                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
                                             {
-                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token greedy returned true ' ) )
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_say,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', '<<< token greedy returned true to (' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Str, 'new', ')' ) )
+                                                    )
+                                                    )
                                             }
                                         }
                                         else {
@@ -11341,10 +11397,7 @@
                                                                 my $m2;
                                                                 $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                 BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                do {
-                                                                    ::MODIFIED($m2);
-                                                                    $m2 = ::DISPATCH( $::KindaPerl6::Grammar, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                };
+                                                                ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $::KindaPerl6::Grammar, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                 do {
                                                                     if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                         {
@@ -11397,10 +11450,7 @@
                                                                                         my $m2;
                                                                                         $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                                         BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                        do {
-                                                                                            ::MODIFIED($m2);
-                                                                                            $m2 = ::DISPATCH( $::KindaPerl6::Grammar, 'opt_ws2', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                        };
+                                                                                        ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $::KindaPerl6::Grammar, 'opt_ws2', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                         do {
                                                                                             if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                 {
@@ -11490,10 +11540,8 @@
                                                                                                                                                     my $m2;
                                                                                                                                                     $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                                                                                                     BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                                                                                    do {
-                                                                                                                                                        ::MODIFIED($m2);
-                                                                                                                                                        $m2 = ::DISPATCH( $::KindaPerl6::Grammar, 'opt_ws3', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                                                    };
+                                                                                                                                                    ::DISPATCH_VAR( $m2, 'STORE',
+                                                                                                                                                        ::DISPATCH( $::KindaPerl6::Grammar, 'opt_ws3', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                                                                     do {
                                                                                                                                                         if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                                                             {
@@ -11617,7 +11665,16 @@
                                     do {
                                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
                                             {
-                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token quantifier returned true ' ) )
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_say,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                                        'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', '<<< token quantifier returned true to (' ),
+                                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Str, 'new', ')' ) )
+                                                    )
+                                                    )
                                             }
                                         }
                                         else {
@@ -11905,7 +11962,16 @@
                                     do {
                                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
                                             {
-                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token concat_list returned true ' ) )
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_say,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                                        'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', '<<< token concat_list returned true to (' ),
+                                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Str, 'new', ')' ) )
+                                                    )
+                                                    )
                                             }
                                         }
                                         else {
@@ -12079,7 +12145,14 @@
                                     do {
                                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
                                             {
-                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token concat returned true ' ) )
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_say,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', '<<< token concat returned true to (' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Str, 'new', ')' ) )
+                                                    )
+                                                    )
                                             }
                                         }
                                         else {
@@ -12443,7 +12516,14 @@
                                     do {
                                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
                                             {
-                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token or_list returned true ' ) )
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_say,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', '<<< token or_list returned true to (' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Str, 'new', ')' ) )
+                                                    )
+                                                    )
                                             }
                                         }
                                         else {
@@ -12577,10 +12657,7 @@
                                                                                                     my $m2;
                                                                                                     $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                                                     BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                                    do {
-                                                                                                        ::MODIFIED($m2);
-                                                                                                        $m2 = ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                    };
+                                                                                                    ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                     do {
                                                                                                         if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                             {
@@ -12751,7 +12828,14 @@
                                     do {
                                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
                                             {
-                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token rule returned true ' ) )
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_say,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', '<<< token rule returned true to (' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Str, 'new', ')' ) )
+                                                    )
+                                                    )
                                             }
                                         }
                                         else {

@@ -114,10 +114,7 @@
                                                                         my $m2;
                                                                         $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                         BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                        do {
-                                                                            ::MODIFIED($m2);
-                                                                            $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                        };
+                                                                        ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                         do {
                                                                             if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                 {
@@ -203,10 +200,7 @@
                                                                                                 my $m2;
                                                                                                 $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                                                 BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                                do {
-                                                                                                    ::MODIFIED($m2);
-                                                                                                    $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                };
+                                                                                                ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                 do {
                                                                                                     if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                         {
@@ -259,10 +253,7 @@
                                                                                                                         my $m2;
                                                                                                                         $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                                                                         BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                                                        do {
-                                                                                                                            ::MODIFIED($m2);
-                                                                                                                            $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                        };
+                                                                                                                        ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                                         do {
                                                                                                                             if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                                 {
@@ -445,7 +436,16 @@
                                     do {
                                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
                                             {
-                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token method_sig returned true ' ) )
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_say,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                                        'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', '<<< token method_sig returned true to (' ),
+                                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Str, 'new', ')' ) )
+                                                    )
+                                                    )
                                             }
                                         }
                                         else {
@@ -569,10 +569,7 @@
                                                                         my $m2;
                                                                         $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                         BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                        do {
-                                                                            ::MODIFIED($m2);
-                                                                            $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                        };
+                                                                        ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                         do {
                                                                             if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                 {
@@ -658,10 +655,7 @@
                                                                                                 my $m2;
                                                                                                 $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                                                 BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                                do {
-                                                                                                    ::MODIFIED($m2);
-                                                                                                    $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                };
+                                                                                                ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                 do {
                                                                                                     if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                         {
@@ -714,10 +708,7 @@
                                                                                                                         my $m2;
                                                                                                                         $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                                                                         BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                                                        do {
-                                                                                                                            ::MODIFIED($m2);
-                                                                                                                            $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                        };
+                                                                                                                        ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                                         do {
                                                                                                                             if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                                 {
@@ -900,7 +891,14 @@
                                     do {
                                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
                                             {
-                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token sub_sig returned true ' ) )
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_say,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', '<<< token sub_sig returned true to (' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Str, 'new', ')' ) )
+                                                    )
+                                                    )
                                             }
                                         }
                                         else {
@@ -1138,10 +1136,7 @@
                                                                                     my $m2;
                                                                                     $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                                     BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                    do {
-                                                                                        ::MODIFIED($m2);
-                                                                                        $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                    };
+                                                                                    ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                     do {
                                                                                         if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                             {
@@ -1194,10 +1189,7 @@
                                                                                                             my $m2;
                                                                                                             $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                                                             BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                                            do {
-                                                                                                                ::MODIFIED($m2);
-                                                                                                                $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                            };
+                                                                                                            ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                             do {
                                                                                                                 if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                     {
@@ -1347,7 +1339,16 @@
                                     do {
                                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
                                             {
-                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token arrow_sub_sig returned true ' ) )
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_say,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                                        'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', '<<< token arrow_sub_sig returned true to (' ),
+                                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Str, 'new', ')' ) )
+                                                    )
+                                                    )
                                             }
                                         }
                                         else {
@@ -1646,10 +1647,7 @@
                                                                                                     my $m2;
                                                                                                     $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                                                     BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                                    do {
-                                                                                                        ::MODIFIED($m2);
-                                                                                                        $m2 = ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                    };
+                                                                                                    ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                     do {
                                                                                                         if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                             {
@@ -1702,10 +1700,7 @@
                                                                                                                             my $m2;
                                                                                                                             $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                                                                             BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                                                            do {
-                                                                                                                                ::MODIFIED($m2);
-                                                                                                                                $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                            };
+                                                                                                                            ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                                             do {
                                                                                                                                 if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                                     {
@@ -1759,10 +1754,7 @@
                                                                                                                                                     my $m2;
                                                                                                                                                     $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                                                                                                     BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                                                                                    do {
-                                                                                                                                                        ::MODIFIED($m2);
-                                                                                                                                                        $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                                                    };
+                                                                                                                                                    ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                                                                     do {
                                                                                                                                                         if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                                                             {
@@ -1873,10 +1865,8 @@
                                                                                                                                                                                 $m2 = ::DISPATCH( $::Scalar, 'new',
                                                                                                                                                                                     { modified => $_MODIFIED, name => '$m2' } );
                                                                                                                                                                             }
-                                                                                                                                                                            do {
-                                                                                                                                                                                ::MODIFIED($m2);
-                                                                                                                                                                                $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                                                                            };
+                                                                                                                                                                            ::DISPATCH_VAR( $m2, 'STORE',
+                                                                                                                                                                                ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                                                                                             do {
                                                                                                                                                                                 if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                                                                                     {
@@ -2029,13 +2019,13 @@
                                                                                                                                                                                                                         }
                                                                                                                                                                                                                     );
                                                                                                                                                                                                                 }
-                                                                                                                                                                                                                do {
-                                                                                                                                                                                                                    ::MODIFIED($m2);
-                                                                                                                                                                                                                    $m2
-                                                                                                                                                                                                                        = ::DISPATCH( $self, 'opt_ws',
-                                                                                                                                                                                                                        $str,
-                                                                                                                                                                                                                        ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                                                                                                                };
+                                                                                                                                                                                                                ::DISPATCH_VAR(
+                                                                                                                                                                                                                    $m2, 'STORE',
+                                                                                                                                                                                                                    ::DISPATCH(
+                                                                                                                                                                                                                        $self, 'opt_ws', $str,
+                                                                                                                                                                                                                        ::DISPATCH( $MATCH, 'to', )
+                                                                                                                                                                                                                    )
+                                                                                                                                                                                                                );
                                                                                                                                                                                                                 do {
                                                                                                                                                                                                                     if (::DISPATCH(
                                                                                                                                                                                                                             ::DISPATCH( $m2, "true" ),
@@ -2513,7 +2503,14 @@
                                     do {
                                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
                                             {
-                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token sub returned true ' ) )
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_say,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', '<<< token sub returned true to (' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Str, 'new', ')' ) )
+                                                    )
+                                                    )
                                             }
                                         }
                                         else {
@@ -2882,10 +2879,7 @@
                                                                                                                 my $m2;
                                                                                                                 $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                                                                 BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                                                do {
-                                                                                                                    ::MODIFIED($m2);
-                                                                                                                    $m2 = ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                };
+                                                                                                                ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                                 do {
                                                                                                                     if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                         {
@@ -2938,10 +2932,7 @@
                                                                                                                                         my $m2;
                                                                                                                                         $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                                                                                         BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                                                                        do {
-                                                                                                                                            ::MODIFIED($m2);
-                                                                                                                                            $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                                        };
+                                                                                                                                        ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                                                         do {
                                                                                                                                             if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                                                 {
@@ -2996,10 +2987,8 @@
                                                                                                                                                                 $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } )
                                                                                                                                                                     unless defined $m2;
                                                                                                                                                                 BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                                                                                                do {
-                                                                                                                                                                    ::MODIFIED($m2);
-                                                                                                                                                                    $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                                                                };
+                                                                                                                                                                ::DISPATCH_VAR( $m2, 'STORE',
+                                                                                                                                                                    ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                                                                                 do {
                                                                                                                                                                     if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                                                                         {
@@ -3112,11 +3101,12 @@
                                                                                                                                                                                             $m2 = ::DISPATCH( $::Scalar, 'new',
                                                                                                                                                                                                 { modified => $_MODIFIED, name => '$m2' } );
                                                                                                                                                                                         }
-                                                                                                                                                                                        do {
-                                                                                                                                                                                            ::MODIFIED($m2);
-                                                                                                                                                                                            $m2 = ::DISPATCH( $self, 'opt_ws', $str,
-                                                                                                                                                                                                ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                                                                                        };
+                                                                                                                                                                                        ::DISPATCH_VAR(
+                                                                                                                                                                                            $m2, 'STORE',
+                                                                                                                                                                                            ::DISPATCH(
+                                                                                                                                                                                                $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', )
+                                                                                                                                                                                            )
+                                                                                                                                                                                        );
                                                                                                                                                                                         do {
                                                                                                                                                                                             if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                                                                                                 {
@@ -3286,16 +3276,16 @@
                                                                                                                                                                                                                                     }
                                                                                                                                                                                                                                 );
                                                                                                                                                                                                                             }
-                                                                                                                                                                                                                            do {
-                                                                                                                                                                                                                                ::MODIFIED($m2);
-                                                                                                                                                                                                                                $m2 = ::DISPATCH(
+                                                                                                                                                                                                                            ::DISPATCH_VAR(
+                                                                                                                                                                                                                                $m2, 'STORE',
+                                                                                                                                                                                                                                ::DISPATCH(
                                                                                                                                                                                                                                     $self, 'opt_ws',
                                                                                                                                                                                                                                     $str,
                                                                                                                                                                                                                                     ::DISPATCH(
                                                                                                                                                                                                                                         $MATCH, 'to',
                                                                                                                                                                                                                                     )
-                                                                                                                                                                                                                                );
-                                                                                                                                                                                                                            };
+                                                                                                                                                                                                                                )
+                                                                                                                                                                                                                            );
                                                                                                                                                                                                                             do {
                                                                                                                                                                                                                                 if (::DISPATCH(
                                                                                                                                                                                                                                         ::DISPATCH(
@@ -3834,7 +3824,14 @@
                                     do {
                                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
                                             {
-                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token coro returned true ' ) )
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_say,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', '<<< token coro returned true to (' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Str, 'new', ')' ) )
+                                                    )
+                                                    )
                                             }
                                         }
                                         else {
@@ -4012,10 +4009,7 @@
                                                                             my $m2;
                                                                             $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                             BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                            do {
-                                                                                ::MODIFIED($m2);
-                                                                                $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                            };
+                                                                            ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                             do {
                                                                                 if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                     {
@@ -4068,10 +4062,7 @@
                                                                                                     my $m2;
                                                                                                     $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                                                     BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                                    do {
-                                                                                                        ::MODIFIED($m2);
-                                                                                                        $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                    };
+                                                                                                    ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                     do {
                                                                                                         if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                             {
@@ -4169,10 +4160,7 @@
                                                                                                                             my $m2;
                                                                                                                             $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                                                                             BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                                                            do {
-                                                                                                                                ::MODIFIED($m2);
-                                                                                                                                $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                            };
+                                                                                                                            ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                                             do {
                                                                                                                                 if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                                     {
@@ -4260,10 +4248,8 @@
                                                                                                                                                                 $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } )
                                                                                                                                                                     unless defined $m2;
                                                                                                                                                                 BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                                                                                                do {
-                                                                                                                                                                    ::MODIFIED($m2);
-                                                                                                                                                                    $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                                                                };
+                                                                                                                                                                ::DISPATCH_VAR( $m2, 'STORE',
+                                                                                                                                                                    ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                                                                                 do {
                                                                                                                                                                     if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                                                                         {
@@ -4569,7 +4555,16 @@
                                     do {
                                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
                                             {
-                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token arrow_sub returned true ' ) )
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_say,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                                        'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', '<<< token arrow_sub returned true to (' ),
+                                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Str, 'new', ')' ) )
+                                                    )
+                                                    )
                                             }
                                         }
                                         else {
@@ -5010,10 +5005,7 @@
                                                                                                                             my $m2;
                                                                                                                             $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                                                                             BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                                                            do {
-                                                                                                                                ::MODIFIED($m2);
-                                                                                                                                $m2 = ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                            };
+                                                                                                                            ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                                             do {
                                                                                                                                 if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                                     {
@@ -7720,10 +7712,8 @@
                                                                                                                                                                                 $m2 = ::DISPATCH( $::Scalar, 'new',
                                                                                                                                                                                     { modified => $_MODIFIED, name => '$m2' } );
                                                                                                                                                                             }
-                                                                                                                                                                            do {
-                                                                                                                                                                                ::MODIFIED($m2);
-                                                                                                                                                                                $m2 = ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                                                                            };
+                                                                                                                                                                            ::DISPATCH_VAR( $m2, 'STORE',
+                                                                                                                                                                                ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                                                                                             do {
                                                                                                                                                                                 if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                                                                                     {
@@ -7849,10 +7839,8 @@
                                                                                                                                                                                 $m2 = ::DISPATCH( $::Scalar, 'new',
                                                                                                                                                                                     { modified => $_MODIFIED, name => '$m2' } );
                                                                                                                                                                             }
-                                                                                                                                                                            do {
-                                                                                                                                                                                ::MODIFIED($m2);
-                                                                                                                                                                                $m2 = ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                                                                            };
+                                                                                                                                                                            ::DISPATCH_VAR( $m2, 'STORE',
+                                                                                                                                                                                ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                                                                                             do {
                                                                                                                                                                                 if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                                                                                     {
@@ -7974,11 +7962,13 @@
                                                                                                                                                                                                         $m2 = ::DISPATCH( $::Scalar, 'new',
                                                                                                                                                                                                             { modified => $_MODIFIED, name => '$m2' } );
                                                                                                                                                                                                     }
-                                                                                                                                                                                                    do {
-                                                                                                                                                                                                        ::MODIFIED($m2);
-                                                                                                                                                                                                        $m2 = ::DISPATCH( $self, 'opt_ws', $str,
-                                                                                                                                                                                                            ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                                                                                                    };
+                                                                                                                                                                                                    ::DISPATCH_VAR(
+                                                                                                                                                                                                        $m2, 'STORE',
+                                                                                                                                                                                                        ::DISPATCH(
+                                                                                                                                                                                                            $self, 'opt_ws',
+                                                                                                                                                                                                            $str, ::DISPATCH( $MATCH, 'to', )
+                                                                                                                                                                                                        )
+                                                                                                                                                                                                    );
                                                                                                                                                                                                     do {
                                                                                                                                                                                                         if (::DISPATCH(
                                                                                                                                                                                                                 ::DISPATCH( $m2, "true" ), "p5landish"
@@ -8245,7 +8235,14 @@
                                     do {
                                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
                                             {
-                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token proto returned true ' ) )
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_say,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', '<<< token proto returned true to (' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Str, 'new', ')' ) )
+                                                    )
+                                                    )
                                             }
                                         }
                                         else {
@@ -8758,10 +8755,7 @@
                                                                                                                                         my $m2;
                                                                                                                                         $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                                                                                         BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                                                                        do {
-                                                                                                                                            ::MODIFIED($m2);
-                                                                                                                                            $m2 = ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                                        };
+                                                                                                                                        ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                                                         do {
                                                                                                                                             if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                                                 {
@@ -8816,10 +8810,8 @@
                                                                                                                                                                 $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } )
                                                                                                                                                                     unless defined $m2;
                                                                                                                                                                 BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                                                                                                do {
-                                                                                                                                                                    ::MODIFIED($m2);
-                                                                                                                                                                    $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                                                                };
+                                                                                                                                                                ::DISPATCH_VAR( $m2, 'STORE',
+                                                                                                                                                                    ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                                                                                 do {
                                                                                                                                                                     if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                                                                         {
@@ -8899,11 +8891,12 @@
                                                                                                                                                                                             $m2 = ::DISPATCH( $::Scalar, 'new',
                                                                                                                                                                                                 { modified => $_MODIFIED, name => '$m2' } );
                                                                                                                                                                                         }
-                                                                                                                                                                                        do {
-                                                                                                                                                                                            ::MODIFIED($m2);
-                                                                                                                                                                                            $m2 = ::DISPATCH( $self, 'opt_ws', $str,
-                                                                                                                                                                                                ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                                                                                        };
+                                                                                                                                                                                        ::DISPATCH_VAR(
+                                                                                                                                                                                            $m2, 'STORE',
+                                                                                                                                                                                            ::DISPATCH(
+                                                                                                                                                                                                $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', )
+                                                                                                                                                                                            )
+                                                                                                                                                                                        );
                                                                                                                                                                                         do {
                                                                                                                                                                                             if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                                                                                                 {
@@ -9052,13 +9045,13 @@
                                                                                                                                                                                                                         }
                                                                                                                                                                                                                     );
                                                                                                                                                                                                                 }
-                                                                                                                                                                                                                do {
-                                                                                                                                                                                                                    ::MODIFIED($m2);
-                                                                                                                                                                                                                    $m2
-                                                                                                                                                                                                                        = ::DISPATCH( $self, 'opt_ws',
-                                                                                                                                                                                                                        $str,
-                                                                                                                                                                                                                        ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                                                                                                                };
+                                                                                                                                                                                                                ::DISPATCH_VAR(
+                                                                                                                                                                                                                    $m2, 'STORE',
+                                                                                                                                                                                                                    ::DISPATCH(
+                                                                                                                                                                                                                        $self, 'opt_ws', $str,
+                                                                                                                                                                                                                        ::DISPATCH( $MATCH, 'to', )
+                                                                                                                                                                                                                    )
+                                                                                                                                                                                                                );
                                                                                                                                                                                                                 do {
                                                                                                                                                                                                                     if (::DISPATCH(
                                                                                                                                                                                                                             ::DISPATCH( $m2, "true" ),
@@ -9302,14 +9295,10 @@
                                                                                                                                                                                                                                                             )
                                                                                                                                                                                                                                                             ;
                                                                                                                                                                                                                                                     }
-                                                                                                                                                                                                                                                    do {
-                                                                                                                                                                                                                                                        ::MODIFIED(
-                                                                                                                                                                                                                                                            $m2
-                                                                                                                                                                                                                                                            )
-                                                                                                                                                                                                                                                            ;
-                                                                                                                                                                                                                                                        $m2
-                                                                                                                                                                                                                                                            =
-                                                                                                                                                                                                                                                            ::DISPATCH(
+                                                                                                                                                                                                                                                    ::DISPATCH_VAR(
+                                                                                                                                                                                                                                                        $m2,
+                                                                                                                                                                                                                                                        'STORE',
+                                                                                                                                                                                                                                                        ::DISPATCH(
                                                                                                                                                                                                                                                             $self,
                                                                                                                                                                                                                                                             'opt_ws',
                                                                                                                                                                                                                                                             $str,
@@ -9317,9 +9306,8 @@
                                                                                                                                                                                                                                                                 $MATCH,
                                                                                                                                                                                                                                                                 'to',
                                                                                                                                                                                                                                                             )
-                                                                                                                                                                                                                                                            )
-                                                                                                                                                                                                                                                            ;
-                                                                                                                                                                                                                                                    };
+                                                                                                                                                                                                                                                        )
+                                                                                                                                                                                                                                                    );
                                                                                                                                                                                                                                                     do {
                                                                                                                                                                                                                                                         if
                                                                                                                                                                                                                                                             (
@@ -9943,7 +9931,14 @@
                                     do {
                                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
                                             {
-                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token method returned true ' ) )
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_say,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', '<<< token method returned true to (' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Str, 'new', ')' ) )
+                                                    )
+                                                    )
                                             }
                                         }
                                         else {
@@ -10384,10 +10379,7 @@
                                                                                                                             my $m2;
                                                                                                                             $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                                                                             BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                                                            do {
-                                                                                                                                ::MODIFIED($m2);
-                                                                                                                                $m2 = ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                            };
+                                                                                                                            ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                                             do {
                                                                                                                                 if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                                     {
@@ -10920,11 +10912,13 @@
                                                                                                                                                                                                                         }
                                                                                                                                                                                                                     );
                                                                                                                                                                                                                 }
-                                                                                                                                                                                                                do {
-                                                                                                                                                                                                                    ::MODIFIED($m2);
-                                                                                                                                                                                                                    $m2 = ::DISPATCH( $self, 'ws', $str,
-                                                                                                                                                                                                                        ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                                                                                                                };
+                                                                                                                                                                                                                ::DISPATCH_VAR(
+                                                                                                                                                                                                                    $m2, 'STORE',
+                                                                                                                                                                                                                    ::DISPATCH(
+                                                                                                                                                                                                                        $self, 'ws', $str,
+                                                                                                                                                                                                                        ::DISPATCH( $MATCH, 'to', )
+                                                                                                                                                                                                                    )
+                                                                                                                                                                                                                );
                                                                                                                                                                                                                 do {
                                                                                                                                                                                                                     if (::DISPATCH(
                                                                                                                                                                                                                             ::DISPATCH( $m2, "true" ),
@@ -11186,14 +11180,10 @@
                                                                                                                                                                                                                                                             )
                                                                                                                                                                                                                                                             ;
                                                                                                                                                                                                                                                     }
-                                                                                                                                                                                                                                                    do {
-                                                                                                                                                                                                                                                        ::MODIFIED(
-                                                                                                                                                                                                                                                            $m2
-                                                                                                                                                                                                                                                            )
-                                                                                                                                                                                                                                                            ;
-                                                                                                                                                                                                                                                        $m2
-                                                                                                                                                                                                                                                            =
-                                                                                                                                                                                                                                                            ::DISPATCH(
+                                                                                                                                                                                                                                                    ::DISPATCH_VAR(
+                                                                                                                                                                                                                                                        $m2,
+                                                                                                                                                                                                                                                        'STORE',
+                                                                                                                                                                                                                                                        ::DISPATCH(
                                                                                                                                                                                                                                                             $self,
                                                                                                                                                                                                                                                             'opt_ws',
                                                                                                                                                                                                                                                             $str,
@@ -11201,9 +11191,8 @@
                                                                                                                                                                                                                                                                 $MATCH,
                                                                                                                                                                                                                                                                 'to',
                                                                                                                                                                                                                                                             )
-                                                                                                                                                                                                                                                            )
-                                                                                                                                                                                                                                                            ;
-                                                                                                                                                                                                                                                    };
+                                                                                                                                                                                                                                                        )
+                                                                                                                                                                                                                                                    );
                                                                                                                                                                                                                                                     do {
                                                                                                                                                                                                                                                         if
                                                                                                                                                                                                                                                             (
@@ -11428,15 +11417,10 @@
                                                                                                                                                                                                                                                                                     )
                                                                                                                                                                                                                                                                                     ;
                                                                                                                                                                                                                                                                             }
-                                                                                                                                                                                                                                                                            do
-                                                                                                                                                                                                                                                                            {
-                                                                                                                                                                                                                                                                                ::MODIFIED(
-                                                                                                                                                                                                                                                                                    $m2
-                                                                                                                                                                                                                                                                                    )
-                                                                                                                                                                                                                                                                                    ;
-                                                                                                                                                                                                                                                                                $m2
-                                                                                                                                                                                                                                                                                    =
-                                                                                                                                                                                                                                                                                    ::DISPATCH(
+                                                                                                                                                                                                                                                                            ::DISPATCH_VAR(
+                                                                                                                                                                                                                                                                                $m2,
+                                                                                                                                                                                                                                                                                'STORE',
+                                                                                                                                                                                                                                                                                ::DISPATCH(
                                                                                                                                                                                                                                                                                     $self,
                                                                                                                                                                                                                                                                                     'opt_ws',
                                                                                                                                                                                                                                                                                     $str,
@@ -11444,9 +11428,9 @@
                                                                                                                                                                                                                                                                                         $MATCH,
                                                                                                                                                                                                                                                                                         'to',
                                                                                                                                                                                                                                                                                     )
-                                                                                                                                                                                                                                                                                    )
-                                                                                                                                                                                                                                                                                    ;
-                                                                                                                                                                                                                                                                            };
+                                                                                                                                                                                                                                                                                )
+                                                                                                                                                                                                                                                                                )
+                                                                                                                                                                                                                                                                                ;
                                                                                                                                                                                                                                                                             do
                                                                                                                                                                                                                                                                             {
                                                                                                                                                                                                                                                                                 if
@@ -11702,15 +11686,10 @@
                                                                                                                                                                                                                                                                                                             )
                                                                                                                                                                                                                                                                                                             ;
                                                                                                                                                                                                                                                                                                     }
-                                                                                                                                                                                                                                                                                                    do
-                                                                                                                                                                                                                                                                                                    {
-                                                                                                                                                                                                                                                                                                        ::MODIFIED(
-                                                                                                                                                                                                                                                                                                            $m2
-                                                                                                                                                                                                                                                                                                            )
-                                                                                                                                                                                                                                                                                                            ;
-                                                                                                                                                                                                                                                                                                        $m2
-                                                                                                                                                                                                                                                                                                            =
-                                                                                                                                                                                                                                                                                                            ::DISPATCH(
+                                                                                                                                                                                                                                                                                                    ::DISPATCH_VAR(
+                                                                                                                                                                                                                                                                                                        $m2,
+                                                                                                                                                                                                                                                                                                        'STORE',
+                                                                                                                                                                                                                                                                                                        ::DISPATCH(
                                                                                                                                                                                                                                                                                                             $self,
                                                                                                                                                                                                                                                                                                             'opt_ws',
                                                                                                                                                                                                                                                                                                             $str,
@@ -11718,9 +11697,9 @@
                                                                                                                                                                                                                                                                                                                 $MATCH,
                                                                                                                                                                                                                                                                                                                 'to',
                                                                                                                                                                                                                                                                                                             )
-                                                                                                                                                                                                                                                                                                            )
-                                                                                                                                                                                                                                                                                                            ;
-                                                                                                                                                                                                                                                                                                    };
+                                                                                                                                                                                                                                                                                                        )
+                                                                                                                                                                                                                                                                                                        )
+                                                                                                                                                                                                                                                                                                        ;
                                                                                                                                                                                                                                                                                                     do
                                                                                                                                                                                                                                                                                                     {
                                                                                                                                                                                                                                                                                                         if
@@ -12066,15 +12045,10 @@
                                                                                                                                                                                                                                                                                                                                                 )
                                                                                                                                                                                                                                                                                                                                                 ;
                                                                                                                                                                                                                                                                                                                                         }
-                                                                                                                                                                                                                                                                                                                                        do
-                                                                                                                                                                                                                                                                                                                                        {
-                                                                                                                                                                                                                                                                                                                                            ::MODIFIED(
-                                                                                                                                                                                                                                                                                                                                                $m2
-                                                                                                                                                                                                                                                                                                                                                )
-                                                                                                                                                                                                                                                                                                                                                ;
-                                                                                                                                                                                                                                                                                                                                            $m2
-                                                                                                                                                                                                                                                                                                                                                =
-                                                                                                                                                                                                                                                                                                                                                ::DISPATCH(
+                                                                                                                                                                                                                                                                                                                                        ::DISPATCH_VAR(
+                                                                                                                                                                                                                                                                                                                                            $m2,
+                                                                                                                                                                                                                                                                                                                                            'STORE',
+                                                                                                                                                                                                                                                                                                                                            ::DISPATCH(
                                                                                                                                                                                                                                                                                                                                                 $self,
                                                                                                                                                                                                                                                                                                                                                 'opt_ws',
                                                                                                                                                                                                                                                                                                                                                 $str,
@@ -12082,9 +12056,9 @@
                                                                                                                                                                                                                                                                                                                                                     $MATCH,
                                                                                                                                                                                                                                                                                                                                                     'to',
                                                                                                                                                                                                                                                                                                                                                 )
-                                                                                                                                                                                                                                                                                                                                                )
-                                                                                                                                                                                                                                                                                                                                                ;
-                                                                                                                                                                                                                                                                                                                                        };
+                                                                                                                                                                                                                                                                                                                                            )
+                                                                                                                                                                                                                                                                                                                                            )
+                                                                                                                                                                                                                                                                                                                                            ;
                                                                                                                                                                                                                                                                                                                                         do
                                                                                                                                                                                                                                                                                                                                         {
                                                                                                                                                                                                                                                                                                                                             if
@@ -12843,7 +12817,16 @@
                                     do {
                                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
                                             {
-                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token multi_method returned true ' ) )
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_say,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                                        'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', '<<< token multi_method returned true to (' ),
+                                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Str, 'new', ')' ) )
+                                                    )
+                                                    )
                                             }
                                         }
                                         else {
@@ -13284,10 +13267,7 @@
                                                                                                                             my $m2;
                                                                                                                             $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                                                                             BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                                                            do {
-                                                                                                                                ::MODIFIED($m2);
-                                                                                                                                $m2 = ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                            };
+                                                                                                                            ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                                             do {
                                                                                                                                 if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                                     {
@@ -13602,11 +13582,13 @@
                                                                                                                                                                                                         $m2 = ::DISPATCH( $::Scalar, 'new',
                                                                                                                                                                                                             { modified => $_MODIFIED, name => '$m2' } );
                                                                                                                                                                                                     }
-                                                                                                                                                                                                    do {
-                                                                                                                                                                                                        ::MODIFIED($m2);
-                                                                                                                                                                                                        $m2 = ::DISPATCH( $self, 'ws', $str,
-                                                                                                                                                                                                            ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                                                                                                    };
+                                                                                                                                                                                                    ::DISPATCH_VAR(
+                                                                                                                                                                                                        $m2, 'STORE',
+                                                                                                                                                                                                        ::DISPATCH(
+                                                                                                                                                                                                            $self, 'ws',
+                                                                                                                                                                                                            $str, ::DISPATCH( $MATCH, 'to', )
+                                                                                                                                                                                                        )
+                                                                                                                                                                                                    );
                                                                                                                                                                                                     do {
                                                                                                                                                                                                         if (::DISPATCH(
                                                                                                                                                                                                                 ::DISPATCH( $m2, "true" ), "p5landish"
@@ -13746,10 +13728,8 @@
                                                                                                                                                                                 $m2 = ::DISPATCH( $::Scalar, 'new',
                                                                                                                                                                                     { modified => $_MODIFIED, name => '$m2' } );
                                                                                                                                                                             }
-                                                                                                                                                                            do {
-                                                                                                                                                                                ::MODIFIED($m2);
-                                                                                                                                                                                $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                                                                            };
+                                                                                                                                                                            ::DISPATCH_VAR( $m2, 'STORE',
+                                                                                                                                                                                ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                                                                                             do {
                                                                                                                                                                                 if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                                                                                     {
@@ -13837,11 +13817,13 @@
                                                                                                                                                                                                         $m2 = ::DISPATCH( $::Scalar, 'new',
                                                                                                                                                                                                             { modified => $_MODIFIED, name => '$m2' } );
                                                                                                                                                                                                     }
-                                                                                                                                                                                                    do {
-                                                                                                                                                                                                        ::MODIFIED($m2);
-                                                                                                                                                                                                        $m2 = ::DISPATCH( $self, 'opt_ws', $str,
-                                                                                                                                                                                                            ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                                                                                                    };
+                                                                                                                                                                                                    ::DISPATCH_VAR(
+                                                                                                                                                                                                        $m2, 'STORE',
+                                                                                                                                                                                                        ::DISPATCH(
+                                                                                                                                                                                                            $self, 'opt_ws',
+                                                                                                                                                                                                            $str, ::DISPATCH( $MATCH, 'to', )
+                                                                                                                                                                                                        )
+                                                                                                                                                                                                    );
                                                                                                                                                                                                     do {
                                                                                                                                                                                                         if (::DISPATCH(
                                                                                                                                                                                                                 ::DISPATCH( $m2, "true" ), "p5landish"
@@ -14006,16 +13988,16 @@
                                                                                                                                                                                                                                     }
                                                                                                                                                                                                                                 );
                                                                                                                                                                                                                             }
-                                                                                                                                                                                                                            do {
-                                                                                                                                                                                                                                ::MODIFIED($m2);
-                                                                                                                                                                                                                                $m2 = ::DISPATCH(
+                                                                                                                                                                                                                            ::DISPATCH_VAR(
+                                                                                                                                                                                                                                $m2, 'STORE',
+                                                                                                                                                                                                                                ::DISPATCH(
                                                                                                                                                                                                                                     $self, 'opt_ws',
                                                                                                                                                                                                                                     $str,
                                                                                                                                                                                                                                     ::DISPATCH(
                                                                                                                                                                                                                                         $MATCH, 'to',
                                                                                                                                                                                                                                     )
-                                                                                                                                                                                                                                );
-                                                                                                                                                                                                                            };
+                                                                                                                                                                                                                                )
+                                                                                                                                                                                                                            );
                                                                                                                                                                                                                             do {
                                                                                                                                                                                                                                 if (::DISPATCH(
                                                                                                                                                                                                                                         ::DISPATCH(
@@ -14303,15 +14285,10 @@
                                                                                                                                                                                                                                                                         )
                                                                                                                                                                                                                                                                         ;
                                                                                                                                                                                                                                                                 }
-                                                                                                                                                                                                                                                                do
-                                                                                                                                                                                                                                                                {
-                                                                                                                                                                                                                                                                    ::MODIFIED(
-                                                                                                                                                                                                                                                                        $m2
-                                                                                                                                                                                                                                                                        )
-                                                                                                                                                                                                                                                                        ;
-                                                                                                                                                                                                                                                                    $m2
-                                                                                                                                                                                                                                                                        =
-                                                                                                                                                                                                                                                                        ::DISPATCH(
+                                                                                                                                                                                                                                                                ::DISPATCH_VAR(
+                                                                                                                                                                                                                                                                    $m2,
+                                                                                                                                                                                                                                                                    'STORE',
+                                                                                                                                                                                                                                                                    ::DISPATCH(
                                                                                                                                                                                                                                                                         $self,
                                                                                                                                                                                                                                                                         'opt_ws',
                                                                                                                                                                                                                                                                         $str,
@@ -14319,9 +14296,9 @@
                                                                                                                                                                                                                                                                             $MATCH,
                                                                                                                                                                                                                                                                             'to',
                                                                                                                                                                                                                                                                         )
-                                                                                                                                                                                                                                                                        )
-                                                                                                                                                                                                                                                                        ;
-                                                                                                                                                                                                                                                                };
+                                                                                                                                                                                                                                                                    )
+                                                                                                                                                                                                                                                                    )
+                                                                                                                                                                                                                                                                    ;
                                                                                                                                                                                                                                                                 do
                                                                                                                                                                                                                                                                 {
                                                                                                                                                                                                                                                                     if
@@ -14971,7 +14948,16 @@
                                     do {
                                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
                                             {
-                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token multi_sub returned true ' ) )
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_say,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                                        'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', '<<< token multi_sub returned true to (' ),
+                                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Str, 'new', ')' ) )
+                                                    )
+                                                    )
                                             }
                                         }
                                         else {
@@ -15412,10 +15398,7 @@
                                                                                                                             my $m2;
                                                                                                                             $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                                                                             BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                                                            do {
-                                                                                                                                ::MODIFIED($m2);
-                                                                                                                                $m2 = ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                            };
+                                                                                                                            ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                                             do {
                                                                                                                                 if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                                     {
@@ -15469,10 +15452,7 @@
                                                                                                                                                     my $m2;
                                                                                                                                                     $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                                                                                                     BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                                                                                    do {
-                                                                                                                                                        ::MODIFIED($m2);
-                                                                                                                                                        $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                                                    };
+                                                                                                                                                    ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                                                                     do {
                                                                                                                                                         if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                                                             {
@@ -15806,7 +15786,14 @@
                                     do {
                                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
                                             {
-                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token token returned true ' ) )
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_say,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', '<<< token token returned true to (' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Str, 'new', ')' ) )
+                                                    )
+                                                    )
                                             }
                                         }
                                         else {
@@ -16997,7 +16984,16 @@
                                     do {
                                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
                                             {
-                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token token_sym_ident returned true ' ) )
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_say,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                                        'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', '<<< token token_sym_ident returned true to (' ),
+                                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Str, 'new', ')' ) )
+                                                    )
+                                                    )
                                             }
                                         }
                                         else {
@@ -17491,10 +17487,7 @@
                                                                                                                                                     my $m2;
                                                                                                                                                     $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                                                                                                     BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                                                                                    do {
-                                                                                                                                                        ::MODIFIED($m2);
-                                                                                                                                                        $m2 = ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                                                    };
+                                                                                                                                                    ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                                                                     do {
                                                                                                                                                         if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                                                             {
@@ -17892,10 +17885,7 @@
                                                                                                                                         my $m2;
                                                                                                                                         $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) unless defined $m2;
                                                                                                                                         BEGIN { $m2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$m2' } ) }
-                                                                                                                                        do {
-                                                                                                                                            ::MODIFIED($m2);
-                                                                                                                                            $m2 = ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                                        };
+                                                                                                                                        ::DISPATCH_VAR( $m2, 'STORE', ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to', ) ) );
                                                                                                                                         do {
                                                                                                                                             if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                                                 {
@@ -18120,11 +18110,13 @@
                                                                                                                                                                                                         $m2 = ::DISPATCH( $::Scalar, 'new',
                                                                                                                                                                                                             { modified => $_MODIFIED, name => '$m2' } );
                                                                                                                                                                                                     }
-                                                                                                                                                                                                    do {
-                                                                                                                                                                                                        ::MODIFIED($m2);
-                                                                                                                                                                                                        $m2 = ::DISPATCH( $self, 'opt_ws', $str,
-                                                                                                                                                                                                            ::DISPATCH( $MATCH, 'to', ) );
-                                                                                                                                                                                                    };
+                                                                                                                                                                                                    ::DISPATCH_VAR(
+                                                                                                                                                                                                        $m2, 'STORE',
+                                                                                                                                                                                                        ::DISPATCH(
+                                                                                                                                                                                                            $self, 'opt_ws',
+                                                                                                                                                                                                            $str, ::DISPATCH( $MATCH, 'to', )
+                                                                                                                                                                                                        )
+                                                                                                                                                                                                    );
                                                                                                                                                                                                     do {
                                                                                                                                                                                                         if (::DISPATCH(
                                                                                                                                                                                                                 ::DISPATCH( $m2, "true" ), "p5landish"
@@ -18652,7 +18644,16 @@
                                     do {
                                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $MATCH, 'bool', ), "true" ), "p5landish" ) ) {
                                             {
-                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< token token_sym returned true ' ) )
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_say,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                                        'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', '<<< token token_sym returned true to (' ),
+                                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'to', ), ::DISPATCH( $::Str, 'new', ')' ) )
+                                                    )
+                                                    )
                                             }
                                         }
                                         else {

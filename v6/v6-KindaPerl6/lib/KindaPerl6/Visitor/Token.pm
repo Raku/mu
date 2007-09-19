@@ -19,7 +19,7 @@ class KindaPerl6::Visitor::Token {
                 ~ 'if (!(defined($str))) { $str = $_; };  my $MATCH;'
                 ~ '$MATCH = Match.new(); $MATCH.match_str = $str; $MATCH.from = $pos; $MATCH.to = $pos; $MATCH.bool = 1; '
                 ~ '$MATCH.bool = ' ~ $perl6_source ~ '; ' 
-                ~ 'if (%*ENV{"KP6_TOKEN_DEBUGGER"}) { if ($MATCH.bool) { say "<<< token '~ $node.name ~' returned true "; } else {say "<<< token '~ $node.name ~' returned false "; } };'
+                ~ 'if (%*ENV{"KP6_TOKEN_DEBUGGER"}) { if ($MATCH.bool) { say "<<< token '~ $node.name ~' returned true to ("~$MATCH.to~")"; } else {say "<<< token '~ $node.name ~' returned false "; } };'
                 ~ 'return $MATCH }';
             #warn 'Intermediate code: ', $source;
 
@@ -120,7 +120,7 @@ class Rule::SubruleNoCapture {
             ?? $.metasyntax 
             !! ( 'self.' ~ $.metasyntax );
         'do { ' ~
-          'my $m2 := ' ~ $meth ~ '($str, $MATCH.to); ' ~
+          'my $m2 = ' ~ $meth ~ '($str, $MATCH.to); ' ~
           'if $m2 { $MATCH.to = $m2.to; 1 } else { 0 } ' ~
         '}'
     }
@@ -153,7 +153,7 @@ class Rule::Constant {
 class Rule::Dot {
     method emit_token {
         '( (\'\' ne substr( $str, $MATCH.to, 1 )) ' ~
-        '  ?? (1 + $MATCH.to( 1 + $MATCH.to ))' ~
+        '  ?? ($MATCH.to = (1 + $MATCH.to ))' ~
         '  !! (0) ' ~
         ')';
     }

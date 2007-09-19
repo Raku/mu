@@ -5,7 +5,7 @@ grammar KindaPerl6::Grammar {
 
 token double_quoted {
     |  <!before \\ | \' | \" | \$ | \@ | \% > . <double_quoted>
-    |  <''>    
+    |  <''>
 };
 
 token quoted_any { . }
@@ -65,7 +65,7 @@ token quoted_exp {
 token quoted_exp_seq {
     <quoted_exp> 
     [
-    |  <before \" >     { return $$<quoted_exp> }
+    |  <before \" >     { return $$<quoted_exp>;}
     |  
         <quoted_exp_seq> 
         {        

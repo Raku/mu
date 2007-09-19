@@ -5,7 +5,7 @@ use MiniPerl6::Perl5::Runtime;
 use MiniPerl6::Perl5::Match;
 package KindaPerl6::Visitor::Token;
 sub new { shift; bless { @_ }, "KindaPerl6::Visitor::Token" }
-sub visit { my $self = shift; my $List__ = \@_; my $node; my $node_name; do {  $node = $List__->[0];  $node_name = $List__->[1]; [$node, $node_name] }; do { if (($node_name eq 'Token')) { my  $perl6_source = $node->regex()->emit_token();my  $source = ('method ' . ($node->name() . (' ( $str, $pos ) { ' . ('if (%*ENV{"KP6_TOKEN_DEBUGGER"}) { say ">>> token ' . ($node->name() . (' at " ~ $pos ~ " of (" ~ $str ~ ")"; };' . ('if (!(defined($str))) { $str = $_; };  my $MATCH;' . ('$MATCH = Match.new(); $MATCH.match_str = $str; $MATCH.from = $pos; $MATCH.to = $pos; $MATCH.bool = 1; ' . ('$MATCH.bool = ' . ($perl6_source . ('; ' . ('if (%*ENV{"KP6_TOKEN_DEBUGGER"}) { if ($MATCH.bool) { say "<<< token ' . ($node->name() . (' returned true "; } else {say "<<< token ' . ($node->name() . (' returned false "; } };' . 'return $MATCH }'))))))))))))))));my  $ast = KindaPerl6::Grammar->term($source);return(${$ast}) } else {  } } }
+sub visit { my $self = shift; my $List__ = \@_; my $node; my $node_name; do {  $node = $List__->[0];  $node_name = $List__->[1]; [$node, $node_name] }; do { if (($node_name eq 'Token')) { my  $perl6_source = $node->regex()->emit_token();my  $source = ('method ' . ($node->name() . (' ( $str, $pos ) { ' . ('if (%*ENV{"KP6_TOKEN_DEBUGGER"}) { say ">>> token ' . ($node->name() . (' at " ~ $pos ~ " of (" ~ $str ~ ")"; };' . ('if (!(defined($str))) { $str = $_; };  my $MATCH;' . ('$MATCH = Match.new(); $MATCH.match_str = $str; $MATCH.from = $pos; $MATCH.to = $pos; $MATCH.bool = 1; ' . ('$MATCH.bool = ' . ($perl6_source . ('; ' . ('if (%*ENV{"KP6_TOKEN_DEBUGGER"}) { if ($MATCH.bool) { say "<<< token ' . ($node->name() . (' returned true to ("~$MATCH.to~")"; } else {say "<<< token ' . ($node->name() . (' returned false "; } };' . 'return $MATCH }'))))))))))))))));my  $ast = KindaPerl6::Grammar->term($source);return(${$ast}) } else {  } } }
 
 
 ;
@@ -41,7 +41,7 @@ sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; do { if ((substr
 ;
 package Rule::SubruleNoCapture;
 sub new { shift; bless { @_ }, "Rule::SubruleNoCapture" }
-sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; my  $meth = ((1 + index($self->{metasyntax}, '.')) ? $self->{metasyntax} : ('self.' . $self->{metasyntax})); ('do { ' . ('my $m2 := ' . ($meth . ('($str, $MATCH.to); ' . ('if $m2 { $MATCH.to = $m2.to; 1 } else { 0 } ' . '}'))))) }
+sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; my  $meth = ((1 + index($self->{metasyntax}, '.')) ? $self->{metasyntax} : ('self.' . $self->{metasyntax})); ('do { ' . ('my $m2 = ' . ($meth . ('($str, $MATCH.to); ' . ('if $m2 { $MATCH.to = $m2.to; 1 } else { 0 } ' . '}'))))) }
 
 
 ;
@@ -59,7 +59,7 @@ sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; my  $str = $self
 ;
 package Rule::Dot;
 sub new { shift; bless { @_ }, "Rule::Dot" }
-sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; ('( (\'\' ne substr( $str, $MATCH.to, 1 )) ' . ('  ?? (1 + $MATCH.to( 1 + $MATCH.to ))' . ('  !! (0) ' . ')'))) }
+sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; ('( (\'\' ne substr( $str, $MATCH.to, 1 )) ' . ('  ?? ($MATCH.to = (1 + $MATCH.to ))' . ('  !! (0) ' . ')'))) }
 
 
 ;
