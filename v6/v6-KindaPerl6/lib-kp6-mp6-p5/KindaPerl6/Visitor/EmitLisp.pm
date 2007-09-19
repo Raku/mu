@@ -18,37 +18,37 @@ sub emit_perl5 { my $self = shift; my $List__ = \@_; my $args_secure; do {  $arg
 ;
 package Val::Int;
 sub new { shift; bless { @_ }, "Val::Int" }
-sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( $::Int, \'new\', ' . ($self->{int} . (' )' . Main::newline()))) }
+sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('(make-instance \'Int :value ' . ($self->{int} . (')' . Main::newline()))) }
 
 
 ;
 package Val::Bit;
 sub new { shift; bless { @_ }, "Val::Bit" }
-sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( $::Bit, \'new\', ' . ($self->{bit} . (' )' . Main::newline()))) }
+sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('(make-instance \'Bit :value ' . ($self->{bit} . (')' . Main::newline()))) }
 
 
 ;
 package Val::Num;
 sub new { shift; bless { @_ }, "Val::Num" }
-sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( $::Num, \'new\', ' . ($self->{num} . (' )' . Main::newline()))) }
+sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('(make-instance \'Num :value ' . ($self->{num} . (')' . Main::newline()))) }
 
 
 ;
 package Val::Buf;
 sub new { shift; bless { @_ }, "Val::Buf" }
-sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( $::Str, \'new\', ' . (Main::singlequote() . (Main::mangle_string($self->{buf}) . (Main::singlequote() . (' )' . Main::newline()))))) }
+sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('(make-instance \'Str :value ' . ('"' . (Main::mangle_string($self->{buf}) . ('"' . (')' . Main::newline()))))) }
 
 
 ;
 package Val::Char;
 sub new { shift; bless { @_ }, "Val::Char" }
-sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( $::Str, \'new\', chr( ' . ($self->{char} . (' ) )' . Main::newline()))) }
+sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('(make-instance \'Str :value (code-char ' . ($self->{char} . (') )' . Main::newline()))) }
 
 
 ;
 package Val::Undef;
 sub new { shift; bless { @_ }, "Val::Undef" }
-sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; '$::Undef' }
+sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('(make-instance \'Undef )' . Main::newline()) }
 
 
 ;
@@ -72,7 +72,7 @@ sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('(' . (Main::jo
 ;
 package Lit::Array;
 sub new { shift; bless { @_ }, "Lit::Array" }
-sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( $::Array, "new", { _array => [' . (Main::join([ map { $_->emit_perl5() } @{ $self->{array} } ], ', ') . ('] } )' . Main::newline()))) }
+sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('(make-instance \'Array :value (list ' . (Main::join([ map { $_->emit_perl5() } @{ $self->{array} } ], ' ') . (') )' . Main::newline()))) }
 
 
 ;

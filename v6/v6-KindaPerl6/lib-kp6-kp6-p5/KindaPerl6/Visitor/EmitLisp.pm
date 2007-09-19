@@ -388,10 +388,15 @@
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH( $::Str, 'new', '::DISPATCH( $::Int, \\\'new\\\', ' ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                ::DISPATCH( $self, "int" ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                ::DISPATCH( $::Str, 'new', '(make-instance ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', chr(39) ), ::DISPATCH( $::Str, 'new', 'Int :value ' ) )
+                            ),
+                            ::DISPATCH(
+                                $GLOBAL::Code_infix_58__60__126__62_,
+                                'APPLY',
+                                ::DISPATCH( $self, "int" ),
+                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ')' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                             )
                         );
                     },
@@ -462,10 +467,15 @@
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH( $::Str, 'new', '::DISPATCH( $::Bit, \\\'new\\\', ' ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                ::DISPATCH( $self, "bit" ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                ::DISPATCH( $::Str, 'new', '(make-instance ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', chr(39) ), ::DISPATCH( $::Str, 'new', 'Bit :value ' ) )
+                            ),
+                            ::DISPATCH(
+                                $GLOBAL::Code_infix_58__60__126__62_,
+                                'APPLY',
+                                ::DISPATCH( $self, "bit" ),
+                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ')' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                             )
                         );
                     },
@@ -536,10 +546,15 @@
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH( $::Str, 'new', '::DISPATCH( $::Num, \\\'new\\\', ' ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                ::DISPATCH( $self, "num" ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                ::DISPATCH( $::Str, 'new', '(make-instance ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', chr(39) ), ::DISPATCH( $::Str, 'new', 'Num :value ' ) )
+                            ),
+                            ::DISPATCH(
+                                $GLOBAL::Code_infix_58__60__126__62_,
+                                'APPLY',
+                                ::DISPATCH( $self, "num" ),
+                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ')' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                             )
                         );
                     },
@@ -610,18 +625,21 @@
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH( $::Str, 'new', '::DISPATCH( $::Str, \\\'new\\\', ' ),
+                            ::DISPATCH(
+                                $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                ::DISPATCH( $::Str, 'new', '(make-instance ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', chr(39) ), ::DISPATCH( $::Str, 'new', 'Str :value ' ) )
+                            ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH( $Main::Code_singlequote, 'APPLY', ),
+                                ::DISPATCH( $::Str, 'new', '"' ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
                                     ::DISPATCH( $Main::Code_mangle_string, 'APPLY', ::DISPATCH( $self, "buf" ) ),
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                        ::DISPATCH( $Main::Code_singlequote, 'APPLY', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                        ::DISPATCH( $::Str, 'new', '"' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ')' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                                     )
                                 )
                             )
@@ -694,10 +712,13 @@
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH( $::Str, 'new', '::DISPATCH( $::Str, \\\'new\\\', chr( ' ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                ::DISPATCH( $self, "char" ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' ) )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                ::DISPATCH( $::Str, 'new', '(make-instance ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', chr(39) ), ::DISPATCH( $::Str, 'new', 'Str :value (code-char ' ) )
+                            ),
+                            ::DISPATCH(
+                                $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                ::DISPATCH( $self, "char" ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ') )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                             )
                         );
                     },
@@ -765,7 +786,15 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        ::DISPATCH( $::Str, 'new', '$::Undef' );
+                        ::DISPATCH(
+                            $GLOBAL::Code_infix_58__60__126__62_,
+                            'APPLY',
+                            ::DISPATCH(
+                                $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                ::DISPATCH( $::Str, 'new', '(make-instance ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', chr(39) ), ::DISPATCH( $::Str, 'new', 'Undef )' ) )
+                            ),
+                            ::DISPATCH( $Main::Code_newline, 'APPLY', )
+                        );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
@@ -1037,12 +1066,15 @@
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH( $::Str, 'new', '::DISPATCH( $::Array, "new", { _array => [' ),
+                            ::DISPATCH(
+                                $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                ::DISPATCH( $::Str, 'new', '(make-instance ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', chr(39) ), ::DISPATCH( $::Str, 'new', 'Array :value (list ' ) )
+                            ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH( [ map { $_->emit_perl5() } @{ ::DISPATCH( $self, "array" ) } ], 'join', ::DISPATCH( $::Str, 'new', ', ' ) ),
-                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '] } )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                ::DISPATCH( [ map { $_->emit_perl5() } @{ ::DISPATCH( $self, "array" ) } ], 'join', ::DISPATCH( $::Str, 'new', ' ' ) ),
+                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ') )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                             )
                         );
                     },
