@@ -1,2 +1,2 @@
-(defclass Bit ()
+(defclass ::Bit ()
   ((value :initarg :value)))
