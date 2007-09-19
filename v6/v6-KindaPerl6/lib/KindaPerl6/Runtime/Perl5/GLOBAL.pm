@@ -289,19 +289,21 @@ package GLOBAL;
         if ($ENV{KP6_TOKEN_DEBUGGER}) {
             print "inside p5 token $regex \n";
         }
-        my $bool = $string =~ /\G$regex/gc;
+        my $bool = $string =~ /\G$regex/c;
         #print "regex:<$regex> string:<$string>\n";
         if ($bool) {
             #print "matched up to:",pos($string),"\n";
-            ::DISPATCH($::Match,'new',{
-                    match_str=>$_[1],
-                    from=>$_[2],
-                    to=>::DISPATCH($::Int,'new',pos($string)),
-                    bool=>True
-            });
+            my $m = ::DISPATCH($::Match,'new');
+            ::DISPATCH($m, match_str => $_[1]);
+            ::DISPATCH($m, from => $_[2]);
+            ::DISPATCH($m, to => ::DISPATCH($::Int,'new',pos($string)));
+            ::DISPATCH($m, bool => ::DISPATCH($::Bit,'new',1));
+            return $m;
         } else {
             #print "false match\n";
-            ::DISPATCH($::Match,'new',{bool=>False});
+            my $m = ::DISPATCH($::Match,'new');
+            ::DISPATCH($m, bool => ::DISPATCH($::Bit,'new',0));
+            return $m;
         }
     }
 

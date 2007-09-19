@@ -41,7 +41,7 @@ sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; do { if ((substr
 ;
 package Rule::SubruleNoCapture;
 sub new { shift; bless { @_ }, "Rule::SubruleNoCapture" }
-sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; my  $meth = ((1 + index($self->{metasyntax}, '.')) ? $self->{metasyntax} : ('self.' . $self->{metasyntax})); ('do { ' . ('my $m2 := ' . ($meth . ('($str, $MATCH.to); ' . ('if $m2 { $MATCH.to( $m2.to ); 1 } else { 0 } ' . '}'))))) }
+sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; my  $meth = ((1 + index($self->{metasyntax}, '.')) ? $self->{metasyntax} : ('self.' . $self->{metasyntax})); ('do { ' . ('my $m2 := ' . ($meth . ('($str, $MATCH.to); ' . ('if $m2 { $MATCH.to = $m2.to; 1 } else { 0 } ' . '}'))))) }
 
 
 ;

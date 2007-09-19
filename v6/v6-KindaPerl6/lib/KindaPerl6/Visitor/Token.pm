@@ -119,7 +119,7 @@ class Rule::SubruleNoCapture {
             !! ( 'self.' ~ $.metasyntax );
         'do { ' ~
           'my $m2 := ' ~ $meth ~ '($str, $MATCH.to); ' ~
-          'if $m2 { $MATCH.to( $m2.to ); 1 } else { 0 } ' ~
+          'if $m2 { $MATCH.to = $m2.to; 1 } else { 0 } ' ~
         '}'
     }
 }
