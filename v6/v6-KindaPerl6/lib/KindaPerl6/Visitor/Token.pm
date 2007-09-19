@@ -15,7 +15,7 @@ class KindaPerl6::Visitor::Token {
             
             # Emitted Perl 6 "method" code
             my $source := 'method ' ~ $node.name ~ ' ( $str, $pos ) { ' 
-                ~ 'if (!(defined($str))) { $str = $_; };  my $MATCH;'
+                ~ 'if (%*ENV{"KP6_TOKEN_DEBUGGER"}) { say "inside token '~ $node.name ~'"; };if (!(defined($str))) { $str = $_; };  my $MATCH;'
                 ~ '$MATCH = Match.new(); $MATCH.match_str = $str; $MATCH.from = $pos; $MATCH.to = $pos; $MATCH.bool = 1; '
                 ~ '$MATCH.bool = ' ~ $perl6_source ~ '; ' 
                 ~ 'return $MATCH }';
