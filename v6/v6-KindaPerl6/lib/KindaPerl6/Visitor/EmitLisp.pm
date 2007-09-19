@@ -346,15 +346,10 @@ class Call {
         else {
             if ( $meth eq '' ) {
                 # $var.()
-                '( APPLY ' ~ $invocant ~ ' ' ~ $call ~ ' )' ~ Main::newline()
+                '( APPLY ' ~ $invocant ~ ' (list ' ~ $call ~ ') )' ~ Main::newline()
             }
             else {
-                  '( ' 
-                ~ $meth ~ ' '
-                ~ $invocant ~ ' '
-                ~ $call
-                ~ ' )' 
-                ~ Main::newline()
+                '( ' ~ $meth ~ ' ' ~ $invocant ~ ' (list ' ~ $call ~ ') )' ~ Main::newline()
             };
         };
         
@@ -392,7 +387,7 @@ class Apply {
                 '::DISPATCH($____some__weird___var____,"true")->{_value} && $____some__weird___var____ ' ~
              '}) || ::DISPATCH( $::Bit, "new", 0) }' ~ Main::newline();
         }
-        return  '( APPLY ' ~ $op ~ ' ' ~ (@.arguments.>>emit_lisp).join(' ') ~ ' )' ~ Main::newline();
+        return  '( APPLY ' ~ $op ~ ' (list ' ~ (@.arguments.>>emit_lisp).join(' ') ~ ') )' ~ Main::newline();
     }
 }
 
