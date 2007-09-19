@@ -123,10 +123,7 @@ class Lit::Pair {
 
 class Lit::NamedArgument {
     method emit_lisp {
-        '::DISPATCH( $::NamedArgument, \'new\', ' 
-        ~ '{ _argument_name_ => '   ~ $.key.emit_lisp
-        ~ ', value => ' ~ $.value.emit_lisp
-        ~ ' } )' ~ Main::newline();
+        "(make-instance \'NamedArgument :_argument_name_ " ~ $.key.emit_lisp ~ " :value " ~ $.value.emit_lisp ~ ")" ~ Main::newline();
     }
 }
 

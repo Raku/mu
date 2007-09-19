@@ -90,7 +90,7 @@ sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(make-instance 
 ;
 package Lit::NamedArgument;
 sub new { shift; bless { @_ }, "Lit::NamedArgument" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( $::NamedArgument, \'new\', ' . ('{ _argument_name_ => ' . ($self->{key}->emit_lisp() . (', value => ' . ($self->{value}->emit_lisp() . (' } )' . Main::newline())))))) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(make-instance \'NamedArgument :_argument_name_ ' . ($self->{key}->emit_lisp() . (' :value ' . ($self->{value}->emit_lisp() . (')' . Main::newline()))))) }
 
 
 ;
