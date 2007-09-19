@@ -7,8 +7,10 @@
       (loop for str in strs collect
            (format t "~a" (slot-value  'value)))
       (format t "~%")
-      ; XXX: Should this return T or Bool::True?
-      t)
+      
+      ; return Bool::True
+      (make-instance 'Bit :value 1)
+    )
 
- ...)))
+)))
 
