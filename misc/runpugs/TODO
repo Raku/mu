@@ -5,6 +5,7 @@ runpugs version 0.4.0 TODO:
 * Improve POD
 * Add Web-based REPL to run kp6 using 'kp6-perl5.pl --secure  | perl -Ilib-kp6-mp6-p5'
 * Fix excess html display escaping problems on the server side (my @a = <&nbsp; &gt; &lt;>);
+* Port mod_perl -> mod_perl2 for apache2/mod_deflate efficiency
 * Put more functionality in JS (clear, timeout) 
 * Cleanup history code in server-side
 * Use true AJAX [remaining: hidden iframe/html payload -> $.ajax/JSON]
