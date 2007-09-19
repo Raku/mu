@@ -28,185 +28,195 @@
             'add_method',
             ::DISPATCH( $::Str, 'new', 'visit' ),
             ::DISPATCH(
-                $::Method,
-                'new',
-                sub {
-                    my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                    my $node;
-                    $node = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$node' } ) unless defined $node;
-                    BEGIN { $node = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$node' } ) }
-                    $self = shift;
-                    my $CAPTURE;
-                    $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
-                    BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
-                    ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
-                    do {
-                        ::MODIFIED($List__);
-                        $List__ = ::DISPATCH( $CAPTURE, 'array', );
-                    };
-                    do {
-                        ::MODIFIED($Hash__);
-                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
-                    };
-                    do {
-                        ::MODIFIED($node);
-                        $node = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
-                    };
-                    do {
-                        if (::DISPATCH(
-                                ::DISPATCH(
-                                    do {
-                                        (   do {
-                                                my $____some__weird___var____ = ::DISPATCH( $node, 'isa', ::DISPATCH( $::Str, 'new', 'Sub' ) );
-                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
-                                                }
-                                                && do {
-                                                my $____some__weird___var____ = ::DISPATCH( $GLOBAL::Code_infix_58__60_ne_62_, 'APPLY', ::DISPATCH( $node, 'name', ), ::DISPATCH( $::Str, 'new', '' ) );
-                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
-                                                }
-                                        ) || ::DISPATCH( $::Bit, "new", 0 );
-                                    },
-                                    "true"
-                                ),
-                                "p5landish"
-                            )
-                            )
-                        {
-                            {
-                                return (
+                $::Code, 'new',
+                {   code => sub {
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $node;
+                        $node = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$node' } ) unless defined $node;
+                        BEGIN { $node = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$node' } ) }
+                        $self = shift;
+                        my $CAPTURE;
+                        $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
+                        BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+                        ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                        do {
+                            ::MODIFIED($List__);
+                            $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                        };
+                        do {
+                            ::MODIFIED($Hash__);
+                            $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
+                            ::MODIFIED($node);
+                            $node = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
+                        do {
+                            if (::DISPATCH(
                                     ::DISPATCH(
-                                        $::Bind, 'new',
-                                        ::DISPATCH( $::Str, 'new', 'parameters' ) => ::DISPATCH(
-                                            $::Decl, 'new',
-                                            ::DISPATCH( $::Str, 'new', 'decl' ) => ::DISPATCH( $::Str, 'new', 'our' ),
-                                            ::DISPATCH( $::Str, 'new', 'var' )  => ::DISPATCH(
-                                                $::Var, 'new', ::DISPATCH( $::Str, 'new', 'name' ) => ::DISPATCH( $node, 'name', ),
+                                        do {
+                                            (   do {
+                                                    my $____some__weird___var____ = ::DISPATCH( $node, 'isa', ::DISPATCH( $::Str, 'new', 'Sub' ) );
+                                                    ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                    }
+                                                    && do {
+                                                    my $____some__weird___var____ = ::DISPATCH( $GLOBAL::Code_infix_58__60_ne_62_, 'APPLY', ::DISPATCH( $node, 'name', ), ::DISPATCH( $::Str, 'new', '' ) );
+                                                    ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                    }
+                                            ) || ::DISPATCH( $::Bit, "new", 0 );
+                                        },
+                                        "true"
+                                    ),
+                                    "p5landish"
+                                )
+                                )
+                            {
+                                {
+                                    return (
+                                        ::DISPATCH(
+                                            $::Bind, 'new',
+                                            ::DISPATCH( $::Str, 'new', 'parameters' ) => ::DISPATCH(
+                                                $::Decl, 'new',
+                                                ::DISPATCH( $::Str, 'new', 'decl' ) => ::DISPATCH( $::Str, 'new', 'our' ),
+                                                ::DISPATCH( $::Str, 'new', 'var' )  => ::DISPATCH(
+                                                    $::Var, 'new', ::DISPATCH( $::Str, 'new', 'name' ) => ::DISPATCH( $node, 'name', ),
+                                                    ::DISPATCH( $::Str, 'new', 'twigil' ) => ::DISPATCH( $::Str, 'new', '' ),
+                                                    ::DISPATCH( $::Str, 'new', 'sigil' )  => ::DISPATCH( $::Str, 'new', '&' ),
+                                                    ::DISPATCH( $::Str, 'new', 'namespace' ) => ::DISPATCH( $::Array, "new", { _array => [] } ),
+                                                ),
+                                                ::DISPATCH( $::Str, 'new', 'type' ) => ::DISPATCH( $::Str, 'new', '' ),
+                                            ),
+                                            ::DISPATCH( $::Str, 'new', 'arguments' ) => ::DISPATCH(
+                                                $::Sub, 'new', ::DISPATCH( $::Str, 'new', 'name' ) => ::DISPATCH( $::Str, 'new', '' ),
+                                                ::DISPATCH( $::Str, 'new', 'block' ) => ::DISPATCH( $node, 'block', ),
+                                            ),
+                                        )
+                                        )
+                                }
+                            }
+                        };
+                        do {
+                            if (::DISPATCH(
+                                    ::DISPATCH(
+                                        do {
+                                            (   do {
+                                                    my $____some__weird___var____ = ::DISPATCH( $node, 'isa', ::DISPATCH( $::Str, 'new', 'Apply' ) );
+                                                    ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                    }
+                                                    && do {
+                                                    my $____some__weird___var____ = do {
+                                                        (   do {
+                                                                my $____some__weird___var____ = ::DISPATCH( ::DISPATCH( $node, 'code', ), 'isa', ::DISPATCH( $::Str, 'new', 'Str' ) );
+                                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                }
+                                                                && do {
+                                                                my $____some__weird___var____ = do {
+                                                                    (   do {
+                                                                            my $____some__weird___var____ = do {
+                                                                                do {
+                                                                                    my $____some__weird___var____ = ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $node, 'code', ), ::DISPATCH( $::Str, 'new', 'my' ) );
+                                                                                    ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                    }
+                                                                                    || do {
+                                                                                    my $____some__weird___var____ = ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $node, 'code', ), ::DISPATCH( $::Str, 'new', 'our' ) );
+                                                                                    ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                                    }
+                                                                                    || ::DISPATCH( $::Bit, "new", 0 );
+                                                                            };
+                                                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                            }
+                                                                            && do {
+                                                                            my $____some__weird___var____
+                                                                                = ::DISPATCH( ::DISPATCH( ::DISPATCH( $node, 'arguments', ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'isa', ::DISPATCH( $::Str, 'new', 'Sub' ) );
+                                                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                            }
+                                                                    ) || ::DISPATCH( $::Bit, "new", 0 );
+                                                                };
+                                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                                }
+                                                        ) || ::DISPATCH( $::Bit, "new", 0 );
+                                                    };
+                                                    ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                    }
+                                            ) || ::DISPATCH( $::Bit, "new", 0 );
+                                        },
+                                        "true"
+                                    ),
+                                    "p5landish"
+                                )
+                                )
+                            {
+                                {
+                                    return (
+                                        ::DISPATCH(
+                                            $::Bind, 'new',
+                                            ::DISPATCH( $::Str, 'new', 'parameters' ) => ::DISPATCH(
+                                                $::Decl, 'new',
+                                                ::DISPATCH( $::Str, 'new', 'decl' ) => ::DISPATCH( $node, 'code', ),
+                                                ::DISPATCH( $::Str, 'new', 'var' )  => ::DISPATCH(
+                                                    $::Var, 'new', ::DISPATCH( $::Str, 'new', 'name' ) => ::DISPATCH( ::DISPATCH( ::DISPATCH( $node, 'arguments', ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'name', ),
+                                                    ::DISPATCH( $::Str, 'new', 'twigil' ) => ::DISPATCH( $::Str, 'new', '' ),
+                                                    ::DISPATCH( $::Str, 'new', 'sigil' )  => ::DISPATCH( $::Str, 'new', '&' ),
+                                                    ::DISPATCH( $::Str, 'new', 'namespace' ) => ::DISPATCH( $::Array, "new", { _array => [] } ),
+                                                ),
+                                                ::DISPATCH( $::Str, 'new', 'type' ) => ::DISPATCH( $::Str, 'new', '' ),
+                                            ),
+                                            ::DISPATCH( $::Str, 'new', 'arguments' ) => ::DISPATCH(
+                                                $::Sub, 'new', ::DISPATCH( $::Str, 'new', 'name' ) => ::DISPATCH( $::Str, 'new', '' ),
+                                                ::DISPATCH( $::Str, 'new', 'block' ) => ::DISPATCH( ::DISPATCH( ::DISPATCH( $node, 'arguments', ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'block', ),
+                                            ),
+                                        )
+                                        )
+                                }
+                            }
+                        };
+                        do {
+                            if (::DISPATCH(
+                                    ::DISPATCH(
+                                        do {
+                                            (   do {
+                                                    my $____some__weird___var____ = ::DISPATCH( $node, 'isa', ::DISPATCH( $::Str, 'new', 'Apply' ) );
+                                                    ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                    }
+                                                    && do {
+                                                    my $____some__weird___var____ = ::DISPATCH( ::DISPATCH( $node, 'code', ), 'isa', ::DISPATCH( $::Str, 'new', 'Str' ) );
+                                                    ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                    }
+                                            ) || ::DISPATCH( $::Bit, "new", 0 );
+                                        },
+                                        "true"
+                                    ),
+                                    "p5landish"
+                                )
+                                )
+                            {
+                                {
+                                    return (
+                                        ::DISPATCH(
+                                            $::Apply, 'new',
+                                            ::DISPATCH( $::Str, 'new', 'arguments' ) => ::DISPATCH( $node, 'arguments', ),
+                                            ::DISPATCH( $::Str, 'new', 'code' )      => ::DISPATCH(
+                                                $::Var, 'new', ::DISPATCH( $::Str, 'new', 'name' ) => ::DISPATCH( $node, 'code', ),
                                                 ::DISPATCH( $::Str, 'new', 'twigil' ) => ::DISPATCH( $::Str, 'new', '' ),
                                                 ::DISPATCH( $::Str, 'new', 'sigil' )  => ::DISPATCH( $::Str, 'new', '&' ),
                                                 ::DISPATCH( $::Str, 'new', 'namespace' ) => ::DISPATCH( $::Array, "new", { _array => [] } ),
                                             ),
-                                            ::DISPATCH( $::Str, 'new', 'type' ) => ::DISPATCH( $::Str, 'new', '' ),
-                                        ),
-                                        ::DISPATCH( $::Str, 'new', 'arguments' ) => ::DISPATCH(
-                                            $::Sub, 'new', ::DISPATCH( $::Str, 'new', 'name' ) => ::DISPATCH( $::Str, 'new', '' ),
-                                            ::DISPATCH( $::Str, 'new', 'block' ) => ::DISPATCH( $node, 'block', ),
-                                        ),
-                                    )
-                                    )
+                                        )
+                                        )
+                                }
                             }
+                        };
+                        return ($::Undef);
+                    },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'node', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
-                    };
-                    do {
-                        if (::DISPATCH(
-                                ::DISPATCH(
-                                    do {
-                                        (   do {
-                                                my $____some__weird___var____ = ::DISPATCH( $node, 'isa', ::DISPATCH( $::Str, 'new', 'Apply' ) );
-                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
-                                                }
-                                                && do {
-                                                my $____some__weird___var____ = do {
-                                                    (   do {
-                                                            my $____some__weird___var____ = ::DISPATCH( ::DISPATCH( $node, 'code', ), 'isa', ::DISPATCH( $::Str, 'new', 'Str' ) );
-                                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
-                                                            }
-                                                            && do {
-                                                            my $____some__weird___var____ = do {
-                                                                (   do {
-                                                                        my $____some__weird___var____ = do {
-                                                                            do {
-                                                                                my $____some__weird___var____ = ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $node, 'code', ), ::DISPATCH( $::Str, 'new', 'my' ) );
-                                                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
-                                                                                }
-                                                                                || do {
-                                                                                my $____some__weird___var____ = ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $node, 'code', ), ::DISPATCH( $::Str, 'new', 'our' ) );
-                                                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
-                                                                                }
-                                                                                || ::DISPATCH( $::Bit, "new", 0 );
-                                                                        };
-                                                                        ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
-                                                                        }
-                                                                        && do {
-                                                                        my $____some__weird___var____ = ::DISPATCH( ::DISPATCH( ::DISPATCH( $node, 'arguments', ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'isa', ::DISPATCH( $::Str, 'new', 'Sub' ) );
-                                                                        ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
-                                                                        }
-                                                                ) || ::DISPATCH( $::Bit, "new", 0 );
-                                                            };
-                                                            ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
-                                                            }
-                                                    ) || ::DISPATCH( $::Bit, "new", 0 );
-                                                };
-                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
-                                                }
-                                        ) || ::DISPATCH( $::Bit, "new", 0 );
-                                    },
-                                    "true"
-                                ),
-                                "p5landish"
-                            )
-                            )
-                        {
-                            {
-                                return (
-                                    ::DISPATCH(
-                                        $::Bind, 'new',
-                                        ::DISPATCH( $::Str, 'new', 'parameters' ) => ::DISPATCH(
-                                            $::Decl, 'new',
-                                            ::DISPATCH( $::Str, 'new', 'decl' ) => ::DISPATCH( $node, 'code', ),
-                                            ::DISPATCH( $::Str, 'new', 'var' )  => ::DISPATCH(
-                                                $::Var, 'new', ::DISPATCH( $::Str, 'new', 'name' ) => ::DISPATCH( ::DISPATCH( ::DISPATCH( $node, 'arguments', ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'name', ),
-                                                ::DISPATCH( $::Str, 'new', 'twigil' ) => ::DISPATCH( $::Str, 'new', '' ),
-                                                ::DISPATCH( $::Str, 'new', 'sigil' )  => ::DISPATCH( $::Str, 'new', '&' ),
-                                                ::DISPATCH( $::Str, 'new', 'namespace' ) => ::DISPATCH( $::Array, "new", { _array => [] } ),
-                                            ),
-                                            ::DISPATCH( $::Str, 'new', 'type' ) => ::DISPATCH( $::Str, 'new', '' ),
-                                        ),
-                                        ::DISPATCH( $::Str, 'new', 'arguments' ) => ::DISPATCH(
-                                            $::Sub, 'new', ::DISPATCH( $::Str, 'new', 'name' ) => ::DISPATCH( $::Str, 'new', '' ),
-                                            ::DISPATCH( $::Str, 'new', 'block' ) => ::DISPATCH( ::DISPATCH( ::DISPATCH( $node, 'arguments', ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'block', ),
-                                        ),
-                                    )
-                                    )
-                            }
-                        }
-                    };
-                    do {
-                        if (::DISPATCH(
-                                ::DISPATCH(
-                                    do {
-                                        (   do {
-                                                my $____some__weird___var____ = ::DISPATCH( $node, 'isa', ::DISPATCH( $::Str, 'new', 'Apply' ) );
-                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
-                                                }
-                                                && do {
-                                                my $____some__weird___var____ = ::DISPATCH( ::DISPATCH( $node, 'code', ), 'isa', ::DISPATCH( $::Str, 'new', 'Str' ) );
-                                                ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
-                                                }
-                                        ) || ::DISPATCH( $::Bit, "new", 0 );
-                                    },
-                                    "true"
-                                ),
-                                "p5landish"
-                            )
-                            )
-                        {
-                            {
-                                return (
-                                    ::DISPATCH(
-                                        $::Apply, 'new',
-                                        ::DISPATCH( $::Str, 'new', 'arguments' ) => ::DISPATCH( $node, 'arguments', ),
-                                        ::DISPATCH( $::Str, 'new', 'code' )      => ::DISPATCH(
-                                            $::Var, 'new', ::DISPATCH( $::Str, 'new', 'name' ) => ::DISPATCH( $node, 'code', ),
-                                            ::DISPATCH( $::Str, 'new', 'twigil' ) => ::DISPATCH( $::Str, 'new', '' ),
-                                            ::DISPATCH( $::Str, 'new', 'sigil' )  => ::DISPATCH( $::Str, 'new', '&' ),
-                                            ::DISPATCH( $::Str, 'new', 'namespace' ) => ::DISPATCH( $::Array, "new", { _array => [] } ),
-                                        ),
-                                    )
-                                    )
-                            }
-                        }
-                    };
-                    return ($::Undef);
+                    ),
                 }
             )
             )

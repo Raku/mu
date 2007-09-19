@@ -780,6 +780,13 @@ $::Signature
     = make_class( proto => $::Signature, name=>"Signature", methods=>{} );
 $::Signature::Item
     = make_class( proto => $::Signature::Item, name=>"Signature::Item", methods=>{} );
+$::Array
+    = make_class( proto => $::Array, name=>"Array", methods=>{} );
+$::Hash
+    = make_class( proto => $::Hash, name=>"Hash", methods=>{} );
+
+require KindaPerl6::Runtime::Perl6::Pair;
+require KindaPerl6::Runtime::Perl6::NamedArgument;
 
 require KindaPerl6::Runtime::Perl6::Pair;
 require KindaPerl6::Runtime::Perl6::NamedArgument;

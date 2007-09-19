@@ -262,7 +262,8 @@
                                                                                     BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
                                                                                     ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block1_fcede4b644212b7139f6d5edc2e8114e', ) );
                                                                                     do {
-                                                                                        if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
+                                                                                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_ne_62_, 'APPLY', $ret, ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) ), "true" ), "p5landish" ) )
+                                                                                        {
                                                                                             {
                                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                 return ($MATCH)
@@ -322,7 +323,7 @@
                                                                         BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
                                                                         ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block2_fcede4b644212b7139f6d5edc2e8114e', ) );
                                                                         do {
-                                                                            if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
+                                                                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_ne_62_, 'APPLY', $ret, ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) ), "true" ), "p5landish" ) ) {
                                                                                 {
                                                                                     ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                     return ($MATCH)
@@ -616,7 +617,14 @@
                                                                                                                         BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
                                                                                                                         ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block3_fcede4b644212b7139f6d5edc2e8114e', ) );
                                                                                                                         do {
-                                                                                                                            if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
+                                                                                                                            if (::DISPATCH(
+                                                                                                                                    ::DISPATCH(
+                                                                                                                                        ::DISPATCH( $GLOBAL::Code_infix_58__60_ne_62_, 'APPLY', $ret, ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) ), "true"
+                                                                                                                                    ),
+                                                                                                                                    "p5landish"
+                                                                                                                                )
+                                                                                                                                )
+                                                                                                                            {
                                                                                                                                 {
                                                                                                                                     ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                                                     return ($MATCH)
@@ -919,7 +927,15 @@
                                                                                                                                 BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
                                                                                                                                 ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block4_fcede4b644212b7139f6d5edc2e8114e', ) );
                                                                                                                                 do {
-                                                                                                                                    if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
+                                                                                                                                    if (::DISPATCH(
+                                                                                                                                            ::DISPATCH(
+                                                                                                                                                ::DISPATCH( $GLOBAL::Code_infix_58__60_ne_62_, 'APPLY', $ret, ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) ),
+                                                                                                                                                "true"
+                                                                                                                                            ),
+                                                                                                                                            "p5landish"
+                                                                                                                                        )
+                                                                                                                                        )
+                                                                                                                                    {
                                                                                                                                         {
                                                                                                                                             ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                                                             return ($MATCH)
@@ -1054,7 +1070,12 @@
                                                                                                     BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
                                                                                                     ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block5_fcede4b644212b7139f6d5edc2e8114e', ) );
                                                                                                     do {
-                                                                                                        if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
+                                                                                                        if (::DISPATCH(
+                                                                                                                ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_ne_62_, 'APPLY', $ret, ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) ), "true" ),
+                                                                                                                "p5landish"
+                                                                                                            )
+                                                                                                            )
+                                                                                                        {
                                                                                                             {
                                                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                                 return ($MATCH)
@@ -1202,7 +1223,14 @@
                                                                                                                 BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
                                                                                                                 ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block6_fcede4b644212b7139f6d5edc2e8114e', ) );
                                                                                                                 do {
-                                                                                                                    if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
+                                                                                                                    if (::DISPATCH(
+                                                                                                                            ::DISPATCH(
+                                                                                                                                ::DISPATCH( $GLOBAL::Code_infix_58__60_ne_62_, 'APPLY', $ret, ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) ), "true"
+                                                                                                                            ),
+                                                                                                                            "p5landish"
+                                                                                                                        )
+                                                                                                                        )
+                                                                                                                    {
                                                                                                                         {
                                                                                                                             ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                                             return ($MATCH)
@@ -1528,7 +1556,18 @@
                                                                                                                                                 BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
                                                                                                                                                 ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block7_fcede4b644212b7139f6d5edc2e8114e', ) );
                                                                                                                                                 do {
-                                                                                                                                                    if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
+                                                                                                                                                    if (::DISPATCH(
+                                                                                                                                                            ::DISPATCH(
+                                                                                                                                                                ::DISPATCH(
+                                                                                                                                                                    $GLOBAL::Code_infix_58__60_ne_62_, 'APPLY',
+                                                                                                                                                                    $ret, ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' )
+                                                                                                                                                                ),
+                                                                                                                                                                "true"
+                                                                                                                                                            ),
+                                                                                                                                                            "p5landish"
+                                                                                                                                                        )
+                                                                                                                                                        )
+                                                                                                                                                    {
                                                                                                                                                         {
                                                                                                                                                             ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                                                                             return ($MATCH)
@@ -1739,7 +1778,14 @@
                                                                                                                         BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
                                                                                                                         ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block8_fcede4b644212b7139f6d5edc2e8114e', ) );
                                                                                                                         do {
-                                                                                                                            if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
+                                                                                                                            if (::DISPATCH(
+                                                                                                                                    ::DISPATCH(
+                                                                                                                                        ::DISPATCH( $GLOBAL::Code_infix_58__60_ne_62_, 'APPLY', $ret, ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) ), "true"
+                                                                                                                                    ),
+                                                                                                                                    "p5landish"
+                                                                                                                                )
+                                                                                                                                )
+                                                                                                                            {
                                                                                                                                 {
                                                                                                                                     ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                                                     return ($MATCH)
@@ -1784,7 +1830,7 @@
                                                             BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
                                                             ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block9_fcede4b644212b7139f6d5edc2e8114e', ) );
                                                             do {
-                                                                if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
+                                                                if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_ne_62_, 'APPLY', $ret, ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) ), "true" ), "p5landish" ) ) {
                                                                     {
                                                                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                         return ($MATCH)
@@ -2092,7 +2138,18 @@
                                                                                                                                                 BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
                                                                                                                                                 ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block10_fcede4b644212b7139f6d5edc2e8114e', ) );
                                                                                                                                                 do {
-                                                                                                                                                    if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
+                                                                                                                                                    if (::DISPATCH(
+                                                                                                                                                            ::DISPATCH(
+                                                                                                                                                                ::DISPATCH(
+                                                                                                                                                                    $GLOBAL::Code_infix_58__60_ne_62_, 'APPLY',
+                                                                                                                                                                    $ret, ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' )
+                                                                                                                                                                ),
+                                                                                                                                                                "true"
+                                                                                                                                                            ),
+                                                                                                                                                            "p5landish"
+                                                                                                                                                        )
+                                                                                                                                                        )
+                                                                                                                                                    {
                                                                                                                                                         {
                                                                                                                                                             ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                                                                             return ($MATCH)
@@ -2303,7 +2360,14 @@
                                                                                                                         BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
                                                                                                                         ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block11_fcede4b644212b7139f6d5edc2e8114e', ) );
                                                                                                                         do {
-                                                                                                                            if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
+                                                                                                                            if (::DISPATCH(
+                                                                                                                                    ::DISPATCH(
+                                                                                                                                        ::DISPATCH( $GLOBAL::Code_infix_58__60_ne_62_, 'APPLY', $ret, ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) ), "true"
+                                                                                                                                    ),
+                                                                                                                                    "p5landish"
+                                                                                                                                )
+                                                                                                                                )
+                                                                                                                            {
                                                                                                                                 {
                                                                                                                                     ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                                                     return ($MATCH)
@@ -2551,7 +2615,18 @@
                                                                                                                                                         ::DISPATCH_VAR( $ret, 'STORE',
                                                                                                                                                             ::DISPATCH( $self, '__rule_block12_fcede4b644212b7139f6d5edc2e8114e', ) );
                                                                                                                                                         do {
-                                                                                                                                                            if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
+                                                                                                                                                            if (::DISPATCH(
+                                                                                                                                                                    ::DISPATCH(
+                                                                                                                                                                        ::DISPATCH(
+                                                                                                                                                                            $GLOBAL::Code_infix_58__60_ne_62_,
+                                                                                                                                                                            'APPLY', $ret, ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' )
+                                                                                                                                                                        ),
+                                                                                                                                                                        "true"
+                                                                                                                                                                    ),
+                                                                                                                                                                    "p5landish"
+                                                                                                                                                                )
+                                                                                                                                                                )
+                                                                                                                                                            {
                                                                                                                                                                 {
                                                                                                                                                                     ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                                                                                     return ($MATCH)
@@ -2773,7 +2848,15 @@
                                                                                                                                 BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
                                                                                                                                 ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block13_fcede4b644212b7139f6d5edc2e8114e', ) );
                                                                                                                                 do {
-                                                                                                                                    if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
+                                                                                                                                    if (::DISPATCH(
+                                                                                                                                            ::DISPATCH(
+                                                                                                                                                ::DISPATCH( $GLOBAL::Code_infix_58__60_ne_62_, 'APPLY', $ret, ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) ),
+                                                                                                                                                "true"
+                                                                                                                                            ),
+                                                                                                                                            "p5landish"
+                                                                                                                                        )
+                                                                                                                                        )
+                                                                                                                                    {
                                                                                                                                         {
                                                                                                                                             ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                                                             return ($MATCH)
@@ -2818,7 +2901,7 @@
                                                                     BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
                                                                     ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block14_fcede4b644212b7139f6d5edc2e8114e', ) );
                                                                     do {
-                                                                        if ( ::DISPATCH( ::DISPATCH( $ret, "true" ), "p5landish" ) ) {
+                                                                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_ne_62_, 'APPLY', $ret, ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) ), "true" ), "p5landish" ) ) {
                                                                             {
                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                 return ($MATCH)
@@ -2883,6 +2966,7 @@
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         return ( ::DISPATCH( $::Val::Buf, 'new', ::DISPATCH( $::Str, 'new', 'buf' ) => ::DISPATCH( $GLOBAL::Code_prefix_58__60__126__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'ident' ) ) ), ) );
+                        return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
                     signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
                 }
@@ -2909,6 +2993,7 @@
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         return ( ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'exp' ) ) ) );
+                        return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
                     signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
                 }
@@ -2944,6 +3029,7 @@
                                 }
                             )
                         );
+                        return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
                     signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
                 }
@@ -2981,6 +3067,7 @@
                                 }
                             )
                         );
+                        return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
                     signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
                 }
@@ -3016,6 +3103,7 @@
                                 }
                             )
                         );
+                        return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
                     signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
                 }
@@ -3058,6 +3146,7 @@
                                 }
                             )
                         );
+                        return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
                     signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
                 }
@@ -3093,6 +3182,7 @@
                                 }
                             )
                         );
+                        return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
                     signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
                 }
@@ -3119,6 +3209,7 @@
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         return ( ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'pair' ) ) ) ] } ) );
+                        return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
                     signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
                 }
@@ -3145,6 +3236,7 @@
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         return ( ::DISPATCH( $::Array, "new", { _array => [] } ) );
+                        return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
                     signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
                 }
@@ -3186,6 +3278,7 @@
                                 }
                             )
                         );
+                        return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
                     signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
                 }
@@ -3226,6 +3319,7 @@
                                 }
                             )
                         );
+                        return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
                     signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
                 }
@@ -3261,6 +3355,7 @@
                                 }
                             )
                         );
+                        return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
                     signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
                 }
@@ -3287,6 +3382,7 @@
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         return ( ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'exp' ) ) ) ] } ) );
+                        return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
                     signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
                 }
@@ -3313,6 +3409,7 @@
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         return ( ::DISPATCH( $::Array, "new", { _array => [] } ) );
+                        return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
                     },
                     signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
                 }
