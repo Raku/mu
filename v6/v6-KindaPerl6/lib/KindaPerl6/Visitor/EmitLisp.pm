@@ -338,7 +338,7 @@ class Call {
              $meth := '';  
         };
         
-        my $call := (@.arguments.>>emit_lisp).join(', ');
+        my $call := (@.arguments.>>emit_lisp).join(' ');
         if ($.hyper) {
             # TODO - hyper + role
             '[ map { $_' ~ '->' ~ $meth ~ '(' ~ $call ~ ') } @{ ' ~ $invocant ~ ' } ]' ~ Main::newline();
@@ -346,12 +346,12 @@ class Call {
         else {
             if ( $meth eq '' ) {
                 # $var.()
-                '::DISPATCH( ' ~ $invocant ~ ', \'APPLY\', ' ~ $call ~ ' )' ~ Main::newline()
+                '( APPLY ' ~ $invocant ~ ' ' ~ $call ~ ' )' ~ Main::newline()
             }
             else {
-                  '::DISPATCH( ' 
-                ~ $invocant ~ ', '
-                ~ '\'' ~ $meth ~ '\', '
+                  '( ' 
+                ~ $meth ~ ' '
+                ~ $invocant ~ ' '
                 ~ $call
                 ~ ' )' 
                 ~ Main::newline()
@@ -392,7 +392,7 @@ class Apply {
                 '::DISPATCH($____some__weird___var____,"true")->{_value} && $____some__weird___var____ ' ~
              '}) || ::DISPATCH( $::Bit, "new", 0) }' ~ Main::newline();
         }
-        return  '::DISPATCH( ' ~ $op ~ ', \'APPLY\', ' ~ (@.arguments.>>emit_lisp).join(', ') ~ ' )' ~ Main::newline();
+        return  '( APPLY ' ~ $op ~ ' ' ~ (@.arguments.>>emit_lisp).join(' ') ~ ' )' ~ Main::newline();
     }
 }
 
