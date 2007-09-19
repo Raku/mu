@@ -11,14 +11,14 @@ module Main {
     }
     $_ = '';
     if MyGrammar.word() {
-        say 'not ok 1';
+        say 'not ok 2';
     } else {
-        say 'ok 1';
+        say 'ok 2';
     }
     $_ = '1';
     if MyGrammar.word() {
-        say 'ok 1';
+        say 'ok 3';
     } else {
-        say 'not ok 1';
+        say 'not ok 3';
     }
 };
