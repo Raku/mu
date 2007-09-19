@@ -286,6 +286,9 @@ package GLOBAL;
     sub match_p5rx {
         my ($regex,$string,$pos) = (_str($_[0]),_str($_[1]),_int($_[2]));
         pos($string) = $pos;
+        if ($ENV{KP6_TOKEN_DEBUGGER}) {
+            print "inside p5 token $regex \n";
+        }
         my $bool = $string =~ /\G$regex/gc;
         #print "regex:<$regex> string:<$string>\n";
         if ($bool) {

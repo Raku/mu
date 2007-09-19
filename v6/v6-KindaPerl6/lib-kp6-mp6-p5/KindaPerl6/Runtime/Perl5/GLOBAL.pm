@@ -25,7 +25,7 @@ package GLOBAL;
         require
         slurp
 
-        longmess
+        print_backtrace
 
         ternary_58__60__63__63__32__33__33__62_
         
@@ -286,6 +286,9 @@ package GLOBAL;
     sub match_p5rx {
         my ($regex,$string,$pos) = (_str($_[0]),_str($_[1]),_int($_[2]));
         pos($string) = $pos;
+        if ($ENV{KP6_TOKEN_DEBUGGER}) {
+            print "inside p5 token $regex \n";
+        }
         my $bool = $string =~ /\G$regex/gc;
         #print "regex:<$regex> string:<$string>\n";
         if ($bool) {
@@ -302,23 +305,21 @@ package GLOBAL;
         }
     }
 
-    sub longmess {
+    sub print_backtrace {
         package DB;
         my $depth = 0;
-        my $mess = '';
         while (my ($package, $filename, $line, $subroutine, $hasargs,$wantarray, $evaltext, $is_require, $hints, $bitmask) = caller(++$depth)) {
             if ($subroutine ne '(eval)') {
-                $mess .= "$subroutine(".join(',',map {
+                print "$subroutine(",join(',',map {
                         package GLOBAL;
                         if (ref $_) {
-                            ::DISPATCH($_,"perl")->{_value} . '->'.  _str($_);
+                            _str($_);
                         } else {
-                            "native $_";
+                            $_;
                         }
-                } @DB::args).")\n";
+                } @DB::args),")\n";
             }
         }
-        return ::DISPATCH($::Str,'new',$mess);
     }
 
 
