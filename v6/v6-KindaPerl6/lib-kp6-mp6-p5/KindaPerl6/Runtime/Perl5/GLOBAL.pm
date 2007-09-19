@@ -25,6 +25,7 @@ package GLOBAL;
         require
         slurp
 
+        longmess
 
         ternary_58__60__63__63__32__33__33__62_
         
@@ -301,6 +302,24 @@ package GLOBAL;
         }
     }
 
+    sub longmess {
+        package DB;
+        my $depth = 0;
+        my $mess = '';
+        while (my ($package, $filename, $line, $subroutine, $hasargs,$wantarray, $evaltext, $is_require, $hints, $bitmask) = caller(++$depth)) {
+            if ($subroutine ne '(eval)') {
+                $mess .= "$subroutine(".join(',',map {
+                        package GLOBAL;
+                        if (ref $_) {
+                            ::DISPATCH($_,"perl")->{_value} . '->'.  _str($_);
+                        } else {
+                            "native $_";
+                        }
+                } @DB::args).")\n";
+            }
+        }
+        return ::DISPATCH($::Str,'new',$mess);
+    }
 
 
 {

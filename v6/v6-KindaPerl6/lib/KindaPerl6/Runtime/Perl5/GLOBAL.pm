@@ -25,6 +25,7 @@ package GLOBAL;
         require
         slurp
 
+        print_backtrace
 
         ternary_58__60__63__63__32__33__33__62_
         
@@ -301,6 +302,22 @@ package GLOBAL;
         }
     }
 
+    sub print_backtrace {
+        package DB;
+        my $depth = 0;
+        while (my ($package, $filename, $line, $subroutine, $hasargs,$wantarray, $evaltext, $is_require, $hints, $bitmask) = caller(++$depth)) {
+            if ($subroutine ne '(eval)') {
+                print "$subroutine(",join(',',map {
+                        package GLOBAL;
+                        if (ref $_) {
+                            _str($_);
+                        } else {
+                            $_;
+                        }
+                } @DB::args),")\n";
+            }
+        }
+    }
 
 
 {
