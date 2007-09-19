@@ -1174,12 +1174,17 @@
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
-                                                ::DISPATCH( ::DISPATCH( $field, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_lisp', ),
+                                                ::DISPATCH( $::Str, 'new', '(setf (gethash \\\'' ),
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
-                                                    ::DISPATCH( $::Str, 'new', '->{_value} => ' ),
-                                                    ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $field, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) ), 'emit_lisp', ), ::DISPATCH( $::Str, 'new', ',' ) )
+                                                    ::DISPATCH( ::DISPATCH( $field, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_lisp', ),
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                                        'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', ') ' ),
+                                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $field, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) ), 'emit_lisp', ), ::DISPATCH( $::Str, 'new', ')' ) )
+                                                    )
                                                 )
                                             )
                                         );
@@ -1190,8 +1195,8 @@
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH( $::Str, 'new', '::DISPATCH( $::Hash, "new", { _hash => { ' ),
-                            ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' } } )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) ) )
+                            ::DISPATCH( $::Str, 'new', '(let ((hash (make-hash-table))) ' ),
+                            ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' hash)' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) ) )
                         );
                     },
                     signature => ::DISPATCH(

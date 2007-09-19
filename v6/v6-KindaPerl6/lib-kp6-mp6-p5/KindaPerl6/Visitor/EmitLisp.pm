@@ -78,7 +78,7 @@ sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(make-instance 
 ;
 package Lit::Hash;
 sub new { shift; bless { @_ }, "Lit::Hash" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; my  $fields = $self->{hash}; my  $str = ''; my  $field; do { for my $field ( @{$fields} ) { $str = ($str . ($field->[0]->emit_lisp() . ('->{_value} => ' . ($field->[1]->emit_lisp() . ',')))) } }; ('::DISPATCH( $::Hash, "new", { _hash => { ' . ($str . (' } } )' . Main::newline()))) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; my  $fields = $self->{hash}; my  $str = ''; my  $field; do { for my $field ( @{$fields} ) { $str = ($str . ('(setf (gethash \'' . ($field->[0]->emit_lisp() . (') ' . ($field->[1]->emit_lisp() . ')'))))) } }; ('(let ((hash (make-hash-table))) ' . ($str . (' hash)' . Main::newline()))) }
 
 
 ;
