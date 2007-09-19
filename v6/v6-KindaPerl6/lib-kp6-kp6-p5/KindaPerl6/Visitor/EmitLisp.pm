@@ -1119,7 +1119,7 @@
                                                     ::DISPATCH(
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
-                                                        ::DISPATCH( $::Str, 'new', ') ' ),
+                                                        ::DISPATCH( $::Str, 'new', ' hash) ' ),
                                                         ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $field, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) ), 'emit_lisp', ), ::DISPATCH( $::Str, 'new', ')' ) )
                                                     )
                                                 )

@@ -106,7 +106,7 @@ class Lit::Hash {
         my $str := '';
         my $field;
         for @$fields -> $field { 
-            $str := $str ~ '(setf (gethash \'' ~ ($field[0]).emit_lisp ~ ') ' ~ ($field[1]).emit_lisp ~ ')';
+            $str := $str ~ '(setf (gethash \'' ~ ($field[0]).emit_lisp ~ ' hash) ' ~ ($field[1]).emit_lisp ~ ')';
         }; 
           '(make-instance \'Hash :value '
         ~   '(let ((hash (make-hash-table))) ' ~ $str ~ ' hash)' 
