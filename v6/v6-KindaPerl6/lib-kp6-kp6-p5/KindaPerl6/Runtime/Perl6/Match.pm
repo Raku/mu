@@ -57,7 +57,7 @@
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, 'result', ), "true" ), "p5landish" ) ) {
                                 {
-                                    return ( ::DISPATCH( $self, 'result', ) )
+                                    ::DISPATCH( return ( ::DISPATCH( $self, 'result', ) ), 'str', )
                                 }
                             }
                         };
