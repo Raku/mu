@@ -19,7 +19,7 @@ class Match {
     };
 
     method true {
-        return $.bool;
+        return $.bool.true;
     };
 
     method set_from {

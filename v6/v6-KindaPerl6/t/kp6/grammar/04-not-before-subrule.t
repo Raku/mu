@@ -15,7 +15,7 @@ grammar MyGrammar {
     };
 };
 module Main {
-    say '1..2';
+    say '1..3';
 
     $_ = '1abc';
     if MyGrammar.myrule() {

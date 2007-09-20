@@ -66,7 +66,7 @@ class Rule {
             if ( $len ) {
                 'do {if (length($str) <  ' ~ $len ~ ') {(0)} else { if (' ~
                 Main::singlequote() ~ $str ~ Main::singlequote() ~ ' eq substr($str, $MATCH.to, ' ~ $len ~ ')) {' ~
-                '(1 + ($MATCH.to = (' ~ $len ~ ' + $MATCH.to) ))} else {(0)}}}';
+                '$MATCH.to = (' ~ $len ~ ' + $MATCH.to); 1;} else {(0)}}}';
             }
             else {
                 return '1'
@@ -273,8 +273,8 @@ class Rule::Before {
                     '$MATCH = Match.new(); $MATCH.match_str = $str; $MATCH.from = $pos; $MATCH.to = ($pos + 0); $MATCH.bool = 1; ' ~
                     '$MATCH.bool = !(' ~
                         $.rule.emit_token ~
-                    '); ' ~
-                    '$MATCH; ' ~
+                    '); $MATCH.to = ($MATCH.from + 0); ' ~
+                    '$MATCH.bool; ' ~
                 '}'
         }
         else {
@@ -284,8 +284,8 @@ class Rule::Before {
                     '$MATCH = Match.new(); $MATCH.match_str = $str; $MATCH.from = $pos; $MATCH.to = ($pos + 0); $MATCH.bool = 1; ' ~
                     '$MATCH.bool =  ' ~
                         $.rule.emit_token ~
-                    '; ' ~
-                    '$MATCH; ' ~
+                    '; $MATCH.to = ($MATCH.from + 0); ' ~
+                    '$MATCH.bool; ' ~
                 '}'
         }
     }

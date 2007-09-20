@@ -305,8 +305,8 @@
                                                                         ::DISPATCH(
                                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                                             'APPLY',
-                                                                            ::DISPATCH( $::Str, 'new', '(1 + ($MATCH.to = (' ),
-                                                                            ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $len, ::DISPATCH( $::Str, 'new', ' + $MATCH.to) ))} else {(0)}}}' ) )
+                                                                            ::DISPATCH( $::Str, 'new', '$MATCH.to = (' ),
+                                                                            ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $len, ::DISPATCH( $::Str, 'new', ' + $MATCH.to); 1;} else {(0)}}}' ) )
                                                                         )
                                                                     )
                                                                 )
@@ -1509,8 +1509,10 @@
                                                             'APPLY',
                                                             ::DISPATCH( ::DISPATCH( $self, "rule" ), 'emit_token', ),
                                                             ::DISPATCH(
-                                                                $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                                                ::DISPATCH( $::Str, 'new', '); ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '$MATCH; ' ), ::DISPATCH( $::Str, 'new', '}' ) )
+                                                                $GLOBAL::Code_infix_58__60__126__62_,
+                                                                'APPLY',
+                                                                ::DISPATCH( $::Str, 'new', '); $MATCH.to = ($MATCH.from + 0); ' ),
+                                                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '$MATCH.bool; ' ), ::DISPATCH( $::Str, 'new', '}' ) )
                                                             )
                                                         )
                                                     )
@@ -1544,8 +1546,10 @@
                                                             'APPLY',
                                                             ::DISPATCH( ::DISPATCH( $self, "rule" ), 'emit_token', ),
                                                             ::DISPATCH(
-                                                                $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                                                ::DISPATCH( $::Str, 'new', '; ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '$MATCH; ' ), ::DISPATCH( $::Str, 'new', '}' ) )
+                                                                $GLOBAL::Code_infix_58__60__126__62_,
+                                                                'APPLY',
+                                                                ::DISPATCH( $::Str, 'new', '; $MATCH.to = ($MATCH.from + 0); ' ),
+                                                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '$MATCH.bool; ' ), ::DISPATCH( $::Str, 'new', '}' ) )
                                                             )
                                                         )
                                                     )

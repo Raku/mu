@@ -110,7 +110,7 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        return ( ::DISPATCH( $self, "bool" ) );
+                        return ( ::DISPATCH( ::DISPATCH( $self, "bool" ), 'true', ) );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
