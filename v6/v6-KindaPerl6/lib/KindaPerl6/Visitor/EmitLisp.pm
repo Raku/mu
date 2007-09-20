@@ -40,38 +40,38 @@ class CompUnit {
 
 class Val::Int {
     method emit_lisp { 
-        "(make-instance \'Int :value " ~ $.int ~ ")" ~ Main::newline();
+        "(make-instance \'kp6-int :value " ~ $.int ~ ")" ~ Main::newline();
     }
 }
 
 class Val::Bit {
     method emit_lisp { 
-        "(make-instance \'Bit :value " ~ $.bit ~ ")" ~ Main::newline();
+        "(make-instance \'kp6-bit :value " ~ $.bit ~ ")" ~ Main::newline();
     }
 }
 
 class Val::Num {
     method emit_lisp { 
-        "(make-instance \'Num :value " ~ $.num ~ ")" ~ Main::newline();
+        "(make-instance \'kp6-num :value " ~ $.num ~ ")" ~ Main::newline();
     }
 }
 
 class Val::Buf {
     method emit_lisp { 
-        "(make-instance \'Str :value " ~ '"' ~ Main::mangle_string( $.buf ) ~ '"' ~ ")" ~ Main::newline();
+        "(make-instance \'kp6-str :value " ~ '"' ~ Main::mangle_string( $.buf ) ~ '"' ~ ")" ~ Main::newline();
     }
 }
 
 class Val::Char {
     method emit_lisp { 
         # XXX Char != Str
-        "(make-instance \'Str :value (code-char " ~ $.char ~ ") )" ~ Main::newline();
+        "(make-instance \'kp6-str :value (code-char " ~ $.char ~ ") )" ~ Main::newline();
     }
 }
 
 class Val::Undef {
     method emit_lisp { 
-        "(make-instance \'Undef )" ~ Main::newline();
+        "(make-instance \'kp6-undef )" ~ Main::newline();
     }
 }
 
@@ -97,7 +97,7 @@ class Lit::Seq {
 
 class Lit::Array {
     method emit_lisp {
-        "(make-instance \'Array :value (list " ~ (@.array.>>emit_lisp).join(' ') ~ ") )" ~ Main::newline();
+        "(make-instance \'kp6-array :value (list " ~ (@.array.>>emit_lisp).join(' ') ~ ") )" ~ Main::newline();
     }
 }
 
@@ -109,7 +109,7 @@ class Lit::Hash {
         for @$fields -> $field { 
             $str := $str ~ '(setf (gethash \'' ~ ($field[0]).emit_lisp ~ ' hash) ' ~ ($field[1]).emit_lisp ~ ')';
         }; 
-          '(make-instance \'Hash :value '
+          '(make-instance \'kp6-hash :value '
         ~   '(let ((hash (make-hash-table))) ' ~ $str ~ ' hash)' 
         ~ ')'
         ~ Main::newline();
@@ -118,13 +118,13 @@ class Lit::Hash {
 
 class Lit::Pair {
     method emit_lisp {
-        "(make-instance \'Pair :key " ~ $.key.emit_lisp ~ " :value " ~ $.value.emit_lisp ~ ")" ~ Main::newline();
+        "(make-instance \'kp6-pair :key " ~ $.key.emit_lisp ~ " :value " ~ $.value.emit_lisp ~ ")" ~ Main::newline();
     }
 }
 
 class Lit::NamedArgument {
     method emit_lisp {
-        "(make-instance \'NamedArgument :_argument_name_ " ~ $.key.emit_lisp ~ " :value " ~ $.value.emit_lisp ~ ")" ~ Main::newline();
+        "(make-instance \'kp6-named-argument :_argument_name_ " ~ $.key.emit_lisp ~ " :value " ~ $.value.emit_lisp ~ ")" ~ Main::newline();
     }
 }
 
