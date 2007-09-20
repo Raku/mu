@@ -424,7 +424,7 @@ class If {
           )
         ~ ( $.otherwise 
             ?? ' else { ' ~ $.otherwise.emit_perl5 ~ ' }' 
-            !! '' 
+            !! ' else { ::DISPATCH($::Bit, "new", 0) }' 
           )
         ~ ' }' ~ Main::newline();
     }

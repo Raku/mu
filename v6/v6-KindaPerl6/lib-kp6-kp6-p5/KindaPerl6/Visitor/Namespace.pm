@@ -97,9 +97,11 @@
                                                     )
                                             }
                                         }
+                                        else { ::DISPATCH( $::Bit, "new", 0 ) }
                                         }
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         return ($::Undef);
                     },

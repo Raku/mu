@@ -59,7 +59,8 @@
                             $node_name = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) );
                         };
                         do {
-                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $node_name, ::DISPATCH( $::Str, 'new', 'Lit::Code' ) ), "true" ), "p5landish" ) ) { {} }
+                            if   ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $node_name, ::DISPATCH( $::Str, 'new', 'Lit::Code' ) ), "true" ), "p5landish" ) ) { {} }
+                            else                                                                                                                                                                     { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         return ($::Undef);
                     },

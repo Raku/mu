@@ -1607,6 +1607,7 @@
                                         )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $self, "name" ), ::DISPATCH( $::Str, 'new', '/' ) ), "true" ), "p5landish" ) ) {
@@ -1614,6 +1615,7 @@
                                     return ( ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $table, 'LOOKUP', ::DISPATCH( $self, "sigil" ) ), ::DISPATCH( $::Str, 'new', 'MATCH' ) ) )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         return (
                             ::DISPATCH(
@@ -1884,6 +1886,7 @@
                                         }
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
                             if (::DISPATCH(
@@ -2025,6 +2028,7 @@
                                         }
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
                             ::MODIFIED($meth);
@@ -2039,6 +2043,7 @@
                                         }
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
                             ::MODIFIED($call);
@@ -2553,6 +2558,7 @@
                                         }
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
@@ -3042,6 +3048,7 @@
                                         }
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
                             ::MODIFIED($code);
@@ -3073,6 +3080,7 @@
                                         )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         return ($code);
                     },

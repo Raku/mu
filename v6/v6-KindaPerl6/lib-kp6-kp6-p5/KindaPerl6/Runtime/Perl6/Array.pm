@@ -275,6 +275,7 @@
                                                 ::DISPATCH( $List_result, 'push', $v )
                                             }
                                         }
+                                        else { ::DISPATCH( $::Bit, "new", 0 ) }
                                         }
                                 }
                             }

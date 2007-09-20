@@ -113,6 +113,7 @@
                                                     )
                                             }
                                         }
+                                        else { ::DISPATCH( $::Bit, "new", 0 ) }
                                         }
                                 }
                             }

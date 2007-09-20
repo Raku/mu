@@ -167,7 +167,7 @@ sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; return(('return(
 ;
 package If;
 sub new { shift; bless { @_ }, "If" }
-sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('do { if (::DISPATCH(::DISPATCH(' . ($self->{cond}->emit_perl5() . (',"true"),"p5landish") ) ' . (($self->{body} ? ('{ ' . ($self->{body}->emit_perl5() . ' } ')) : '{ } ') . (($self->{otherwise} ? (' else { ' . ($self->{otherwise}->emit_perl5() . ' }')) : '') . (' }' . Main::newline())))))) }
+sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('do { if (::DISPATCH(::DISPATCH(' . ($self->{cond}->emit_perl5() . (',"true"),"p5landish") ) ' . (($self->{body} ? ('{ ' . ($self->{body}->emit_perl5() . ' } ')) : '{ } ') . (($self->{otherwise} ? (' else { ' . ($self->{otherwise}->emit_perl5() . ' }')) : ' else { ::DISPATCH($::Bit, "new", 0) }') . (' }' . Main::newline())))))) }
 
 
 ;

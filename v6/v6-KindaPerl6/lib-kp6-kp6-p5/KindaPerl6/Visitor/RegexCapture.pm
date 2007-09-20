@@ -65,6 +65,7 @@
                                     return ($node)
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         return ($::Undef);
                     },
@@ -279,6 +280,7 @@
                                                     }
                                             }
                                         }
+                                        else { ::DISPATCH( $::Bit, "new", 0 ) }
                                         }
                                 }
                             }
@@ -1130,6 +1132,7 @@
                                     return ($count)
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
                             ::MODIFIED( ::DISPATCH( $self, "capture_to_array" ) );
@@ -1158,6 +1161,7 @@
                                     ::DISPATCH( ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'before' ) ), 'capture_to_array', ::DISPATCH( $::Int, 'new', 1 ) )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         ::DISPATCH_VAR( ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'before' ) ), 'STORE', $self );
                         ::DISPATCH( ::DISPATCH( $self, "rule" ), 'capture_count', ::DISPATCH( $::Int, 'new', 0 ), ::DISPATCH( $::Int, 'new', 0 ), ::DISPATCH( $::Hash, "new", { _hash => {} } ) );
@@ -1259,6 +1263,7 @@
                                     return ($count)
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
                             ::MODIFIED( ::DISPATCH( $self, "capture_to_array" ) );
@@ -1287,6 +1292,7 @@
                                     ::DISPATCH( ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'after' ) ), 'capture_to_array', ::DISPATCH( $::Int, 'new', 1 ) )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         ::DISPATCH_VAR( ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'after' ) ), 'STORE', $self );
                         ::DISPATCH( ::DISPATCH( $self, "rule" ), 'capture_count', ::DISPATCH( $::Int, 'new', 0 ), ::DISPATCH( $::Int, 'new', 0 ), ::DISPATCH( $::Hash, "new", { _hash => {} } ) );
@@ -1613,6 +1619,7 @@
                                     ::DISPATCH( ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $self, "ident" ) ), 'capture_to_array', ::DISPATCH( $::Int, 'new', 1 ) )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         ::DISPATCH_VAR( ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $self, "ident" ) ), 'STORE', $self );
                         $count;
@@ -1735,6 +1742,7 @@
                                     ::DISPATCH( ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $self, "ident" ) ), 'capture_to_array', ::DISPATCH( $::Int, 'new', 1 ) )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         ::DISPATCH_VAR( ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $self, "ident" ) ), 'STORE', $self );
                         $count;
@@ -1860,6 +1868,7 @@
                                     ::DISPATCH( ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $self, "ident" ) ), 'capture_to_array', ::DISPATCH( $::Int, 'new', 1 ) )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         ::DISPATCH_VAR( ::DISPATCH( $seen, 'LOOKUP', $count ), 'STORE', $self );
                         ::DISPATCH( ::DISPATCH( $self, "rule" ), 'capture_count', ::DISPATCH( $::Int, 'new', 0 ), ::DISPATCH( $::Int, 'new', 0 ), ::DISPATCH( $::Hash, "new", { _hash => {} } ) );

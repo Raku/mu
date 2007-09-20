@@ -171,6 +171,7 @@
                                     return ($node)
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         ::DISPATCH( $::Int, 'new', 0 );
                     },

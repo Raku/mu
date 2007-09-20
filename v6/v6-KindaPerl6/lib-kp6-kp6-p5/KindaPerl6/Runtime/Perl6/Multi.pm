@@ -60,6 +60,7 @@
                                     ::DISPATCH_VAR( ::DISPATCH( $self, 'long_names', ), 'STORE', ::DISPATCH( $::Array, "new", { _array => [] } ) )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         ::DISPATCH( ::DISPATCH( $self, 'long_names', ), 'push', $code );
                     },
@@ -120,6 +121,7 @@
                                     ::DISPATCH_VAR( ::DISPATCH( $self, 'token_length', ), 'STORE', ::DISPATCH( $::Hash, "new", { _hash => {} } ) )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
                             if (::DISPATCH(
@@ -131,6 +133,7 @@
                                     ::DISPATCH_VAR( ::DISPATCH( ::DISPATCH( $self, 'token_length', ), 'LOOKUP', $len ), 'STORE', ::DISPATCH( $::Hash, "new", { _hash => {} } ) )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         ::DISPATCH_VAR( ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, 'token_length', ), 'LOOKUP', $len ), 'LOOKUP', $sym ), 'STORE', ::DISPATCH( $::Multi, 'new', ) );
                         ::DISPATCH( ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, 'token_length', ), 'LOOKUP', $len ), 'LOOKUP', $sym ), 'add_variant', $code );
@@ -272,18 +275,21 @@
                                                                                     return ( ::DISPATCH( ::DISPATCH( $Hash_syms, 'LOOKUP', $sym ), 'select', $capture ) )
                                                                                 }
                                                                             }
+                                                                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                             }
                                                                     }
                                                                 }
                                                             }
                                                         }
                                                     }
+                                                    else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                     }
                                             }
                                         }
                                     }
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', ::DISPATCH( $self, 'long_names', ) ) ), "true" ), "p5landish" ) ) {
@@ -298,6 +304,7 @@
                                         )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         ::DISPATCH_VAR( $List_candidates, 'STORE', ::DISPATCH( $::Array, "new", { _array => [] } ) );
                         {
@@ -313,6 +320,7 @@
                                                 ::DISPATCH( $List_candidates, 'push', $sub )
                                             }
                                         }
+                                        else { ::DISPATCH( $::Bit, "new", 0 ) }
                                         }
                                 }
                             }
@@ -323,6 +331,7 @@
                                     return ( ::DISPATCH( $List_candidates, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ) )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         ::DISPATCH(
                             $GLOBAL::Code_die,

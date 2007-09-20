@@ -60,6 +60,7 @@
                                     ::DISPATCH( return ( ::DISPATCH( $self, 'result', ) ), 'str', )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         ::DISPATCH(
                             $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
@@ -310,6 +311,7 @@
                                     ::DISPATCH_VAR( ::DISPATCH( $self, "hash" ), 'STORE', ::DISPATCH( $::Hash, "new", { _hash => {} } ) )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         return ( ::DISPATCH( ::DISPATCH( $self, "hash" ), 'LOOKUP', $key ) );
                     },

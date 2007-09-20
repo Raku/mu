@@ -91,6 +91,7 @@
                                         }
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $node, 'isa', ::DISPATCH( $::Str, 'new', 'Array' ) ), "true" ), "p5landish" ) ) {
@@ -119,6 +120,7 @@
                                     return ($result)
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $node, 'isa', ::DISPATCH( $::Str, 'new', 'Hash' ) ), "true" ), "p5landish" ) ) {
@@ -148,6 +150,7 @@
                                     return ($result)
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $node, 'isa', ::DISPATCH( $::Str, 'new', 'Str' ) ), "true" ), "p5landish" ) ) {
@@ -155,6 +158,7 @@
                                     return ($node)
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $node, 'isa', ::DISPATCH( $::Str, 'new', 'Pad' ) ), "true" ), "p5landish" ) ) {
@@ -162,6 +166,7 @@
                                     return ($node)
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
                             ::MODIFIED($path);
@@ -170,7 +175,6 @@
                         do {
                             ::MODIFIED($result);
                             $result = ::DISPATCH( $visitor, 'visit', $node, $node_name, $path );
-                            print "result $result, visitor $visitor, node $node, name ".GLOBAL::_str($node_name).", path ".GLOBAL::_str($path)."\n";
                         };
                         do {
                             if ( ::DISPATCH( ::DISPATCH( $result, "true" ), "p5landish" ) ) {
@@ -178,6 +182,7 @@
                                     return ($result)
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
                             ::MODIFIED($result);

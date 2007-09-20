@@ -163,6 +163,7 @@
                                     return ( ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', $ast ) )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         ::DISPATCH( $::Int, 'new', 0 );
                     },
@@ -256,6 +257,7 @@
                                         }
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $str, ::DISPATCH( $Main::Code_singlequote, 'APPLY', ) ), "true" ), "p5landish" ) ) {
@@ -266,6 +268,7 @@
                                         }
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
                             if ( ::DISPATCH( ::DISPATCH( $len, "true" ), "p5landish" ) ) {
@@ -638,6 +641,7 @@
                                         )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
                             ::MODIFIED($meth);
@@ -1095,6 +1099,7 @@
                                     return ($rul)
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $char, ::DISPATCH( $::Str, 'new', 'N' ) ), "true" ), "p5landish" ) ) {
@@ -1113,6 +1118,7 @@
                                     return ($rul)
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $char, ::DISPATCH( $::Str, 'new', 'd' ) ), "true" ), "p5landish" ) ) {
@@ -1131,6 +1137,7 @@
                                     return ($rul)
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $char, ::DISPATCH( $::Str, 'new', 's' ) ), "true" ), "p5landish" ) ) {
@@ -1149,6 +1156,7 @@
                                     return ($rul)
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         return ( ::DISPATCH( $Rule::Code_constant, 'APPLY', $char ) );
                     },

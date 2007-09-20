@@ -551,6 +551,7 @@
                                                 ::DISPATCH_VAR( $str, 'STORE', $_ )
                                             }
                                         }
+                                        else { ::DISPATCH( $::Bit, "new", 0 ) }
                                     };
                                     return ( ::DISPATCH( $GLOBAL::Code_match_p5rx, 'APPLY', $regex, $str, $pos ) );
                                 },

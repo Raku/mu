@@ -80,6 +80,7 @@
                                         )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', $str ) ), "true" ), "p5landish" ) ) {
@@ -87,6 +88,7 @@
                                     ::DISPATCH_VAR( $str, 'STORE', $_ )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         $MATCH;
                         ::DISPATCH_VAR( $MATCH, 'STORE', ::DISPATCH( $::Match, 'new', ) );
@@ -711,6 +713,7 @@
                                         }
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         return ($MATCH);
                     },
@@ -790,6 +793,7 @@
                                         )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', $str ) ), "true" ), "p5landish" ) ) {
@@ -797,6 +801,7 @@
                                     ::DISPATCH_VAR( $str, 'STORE', $_ )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         $MATCH;
                         ::DISPATCH_VAR( $MATCH, 'STORE', ::DISPATCH( $::Match, 'new', ) );
@@ -874,6 +879,7 @@
                                         }
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         return ($MATCH);
                     },
@@ -953,6 +959,7 @@
                                         )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', $str ) ), "true" ), "p5landish" ) ) {
@@ -960,6 +967,7 @@
                                     ::DISPATCH_VAR( $str, 'STORE', $_ )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         $MATCH;
                         ::DISPATCH_VAR( $MATCH, 'STORE', ::DISPATCH( $::Match, 'new', ) );
@@ -1272,12 +1280,14 @@
                                                                                                                                         ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< some closure returing... ' ) )
                                                                                                                                     }
                                                                                                                                 }
+                                                                                                                                else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                                                             };
                                                                                                                             ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                                             ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                                                                                                                             return ($MATCH)
                                                                                                                         }
                                                                                                                     }
+                                                                                                                    else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                                                 };
                                                                                                                 ::DISPATCH( $::Int, 'new', 1 )
                                                                                                             }
@@ -1333,6 +1343,7 @@
                                         }
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         return ($MATCH);
                     },
@@ -1412,6 +1423,7 @@
                                         )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', $str ) ), "true" ), "p5landish" ) ) {
@@ -1419,6 +1431,7 @@
                                     ::DISPATCH_VAR( $str, 'STORE', $_ )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         $MATCH;
                         ::DISPATCH_VAR( $MATCH, 'STORE', ::DISPATCH( $::Match, 'new', ) );
@@ -1731,12 +1744,14 @@
                                                                                                                                         ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< some closure returing... ' ) )
                                                                                                                                     }
                                                                                                                                 }
+                                                                                                                                else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                                                             };
                                                                                                                             ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                                             ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                                                                                                                             return ($MATCH)
                                                                                                                         }
                                                                                                                     }
+                                                                                                                    else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                                                 };
                                                                                                                 ::DISPATCH( $::Int, 'new', 1 )
                                                                                                             }
@@ -1792,6 +1807,7 @@
                                         }
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         return ($MATCH);
                     },
@@ -1871,6 +1887,7 @@
                                         )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', $str ) ), "true" ), "p5landish" ) ) {
@@ -1878,6 +1895,7 @@
                                     ::DISPATCH_VAR( $str, 'STORE', $_ )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         $MATCH;
                         ::DISPATCH_VAR( $MATCH, 'STORE', ::DISPATCH( $::Match, 'new', ) );
@@ -2026,12 +2044,14 @@
                                                                                                     ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< some closure returing... ' ) )
                                                                                                 }
                                                                                             }
+                                                                                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                         };
                                                                                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                                                                                         return ($MATCH)
                                                                                     }
                                                                                 }
+                                                                                else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                             };
                                                                             ::DISPATCH( $::Int, 'new', 1 )
                                                                         }
@@ -2075,6 +2095,7 @@
                                         }
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         return ($MATCH);
                     },
@@ -2154,6 +2175,7 @@
                                         )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', $str ) ), "true" ), "p5landish" ) ) {
@@ -2161,6 +2183,7 @@
                                     ::DISPATCH_VAR( $str, 'STORE', $_ )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         $MATCH;
                         ::DISPATCH_VAR( $MATCH, 'STORE', ::DISPATCH( $::Match, 'new', ) );
@@ -2224,12 +2247,14 @@
                                                                                                 ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< some closure returing... ' ) )
                                                                                             }
                                                                                         }
+                                                                                        else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                     };
                                                                                     ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                     ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                                                                                     return ($MATCH)
                                                                                 }
                                                                             }
+                                                                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                         };
                                                                         ::DISPATCH( $::Int, 'new', 1 )
                                                                     }
@@ -2291,12 +2316,14 @@
                                                                                                         ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< some closure returing... ' ) )
                                                                                                     }
                                                                                                 }
+                                                                                                else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                             };
                                                                                             ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                             ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                                                                                             return ($MATCH)
                                                                                         }
                                                                                     }
+                                                                                    else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                 };
                                                                                 ::DISPATCH( $::Int, 'new', 1 )
                                                                             }
@@ -2364,12 +2391,14 @@
                                                                                                                 ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< some closure returing... ' ) )
                                                                                                             }
                                                                                                         }
+                                                                                                        else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                                     };
                                                                                                     ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                     ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                                                                                                     return ($MATCH)
                                                                                                 }
                                                                                             }
+                                                                                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                         };
                                                                                         ::DISPATCH( $::Int, 'new', 1 )
                                                                                     }
@@ -2472,12 +2501,14 @@
                                                                                                                         ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< some closure returing... ' ) )
                                                                                                                     }
                                                                                                                 }
+                                                                                                                else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                                             };
                                                                                                             ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                             ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                                                                                                             return ($MATCH)
                                                                                                         }
                                                                                                     }
+                                                                                                    else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                                 };
                                                                                                 ::DISPATCH( $::Int, 'new', 1 )
                                                                                             }
@@ -2680,12 +2711,14 @@
                                                                                                                                                                         ::DISPATCH( $::Str, 'new', '<<< some closure returing... ' ) )
                                                                                                                                                                 }
                                                                                                                                                             }
+                                                                                                                                                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                                                                                         };
                                                                                                                                                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                                                                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                                                                                                                                                         return ($MATCH)
                                                                                                                                                     }
                                                                                                                                                 }
+                                                                                                                                                else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                                                                             };
                                                                                                                                             ::DISPATCH( $::Int, 'new', 1 )
                                                                                                                                         }
@@ -2814,12 +2847,14 @@
                                                                                                                                                                                 ::DISPATCH( $::Str, 'new', '<<< some closure returing... ' ) )
                                                                                                                                                                         }
                                                                                                                                                                     }
+                                                                                                                                                                    else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                                                                                                 };
                                                                                                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                                                                                                                                                                 return ($MATCH)
                                                                                                                                                             }
                                                                                                                                                         }
+                                                                                                                                                        else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                                                                                     };
                                                                                                                                                     ::DISPATCH( $::Int, 'new', 1 )
                                                                                                                                                 }
@@ -2953,6 +2988,7 @@
                                                                                                                                                                                         ::DISPATCH( $::Str, 'new', '<<< some closure returing... ' ) )
                                                                                                                                                                                 }
                                                                                                                                                                             }
+                                                                                                                                                                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                                                                                                         };
                                                                                                                                                                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                                                                                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ),
@@ -2960,6 +2996,7 @@
                                                                                                                                                                         return ($MATCH)
                                                                                                                                                                     }
                                                                                                                                                                 }
+                                                                                                                                                                else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                                                                                             };
                                                                                                                                                             ::DISPATCH( $::Int, 'new', 1 )
                                                                                                                                                         }
@@ -3102,6 +3139,7 @@
                                                                                                                                                                                                 )
                                                                                                                                                                                         }
                                                                                                                                                                                     }
+                                                                                                                                                                                    else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                                                                                                                 };
                                                                                                                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                                                                                                 ::DISPATCH_VAR(
@@ -3112,6 +3150,7 @@
                                                                                                                                                                                 return ($MATCH)
                                                                                                                                                                             }
                                                                                                                                                                         }
+                                                                                                                                                                        else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                                                                                                     };
                                                                                                                                                                     ::DISPATCH( $::Int, 'new', 1 )
                                                                                                                                                                 }
@@ -3271,6 +3310,7 @@
                                                                                                                                                                                                         )
                                                                                                                                                                                                 }
                                                                                                                                                                                             }
+                                                                                                                                                                                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                                                                                                                         };
                                                                                                                                                                                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                                                                                                         ::DISPATCH_VAR(
@@ -3281,6 +3321,7 @@
                                                                                                                                                                                         return ($MATCH)
                                                                                                                                                                                     }
                                                                                                                                                                                 }
+                                                                                                                                                                                else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                                                                                                             };
                                                                                                                                                                             ::DISPATCH( $::Int, 'new', 1 )
                                                                                                                                                                         }
@@ -3444,6 +3485,7 @@
                                                                                                                                                                                                                 )
                                                                                                                                                                                                         }
                                                                                                                                                                                                     }
+                                                                                                                                                                                                    else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                                                                                                                                 };
                                                                                                                                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ),
                                                                                                                                                                                                     'STORE', $ret );
@@ -3455,6 +3497,7 @@
                                                                                                                                                                                                 return ($MATCH)
                                                                                                                                                                                             }
                                                                                                                                                                                         }
+                                                                                                                                                                                        else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                                                                                                                     };
                                                                                                                                                                                     ::DISPATCH( $::Int, 'new', 1 )
                                                                                                                                                                                 }
@@ -3630,6 +3673,7 @@
                                                                                                                                                                                                                         )
                                                                                                                                                                                                                 }
                                                                                                                                                                                                             }
+                                                                                                                                                                                                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                                                                                                                                         };
                                                                                                                                                                                                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ),
                                                                                                                                                                                                             'STORE', $ret );
@@ -3641,6 +3685,7 @@
                                                                                                                                                                                                         return ($MATCH)
                                                                                                                                                                                                     }
                                                                                                                                                                                                 }
+                                                                                                                                                                                                else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                                                                                                                             };
                                                                                                                                                                                             ::DISPATCH( $::Int, 'new', 1 )
                                                                                                                                                                                         }
@@ -3829,6 +3874,9 @@
                                                                                                                                                                                                                                 )
                                                                                                                                                                                                                         }
                                                                                                                                                                                                                     }
+                                                                                                                                                                                                                    else {
+                                                                                                                                                                                                                        ::DISPATCH( $::Bit, "new", 0 );
+                                                                                                                                                                                                                    }
                                                                                                                                                                                                                 };
                                                                                                                                                                                                                 ::DISPATCH_VAR(
                                                                                                                                                                                                                     ::DISPATCH( $MATCH, 'result', ),
@@ -3841,6 +3889,7 @@
                                                                                                                                                                                                                 return ($MATCH)
                                                                                                                                                                                                             }
                                                                                                                                                                                                         }
+                                                                                                                                                                                                        else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                                                                                                                                     };
                                                                                                                                                                                                     ::DISPATCH( $::Int, 'new', 1 )
                                                                                                                                                                                                 }
@@ -4048,6 +4097,10 @@
                                                                                                                                                                                                                                         )
                                                                                                                                                                                                                                 }
                                                                                                                                                                                                                             }
+                                                                                                                                                                                                                            else {
+                                                                                                                                                                                                                                ::DISPATCH( $::Bit, "new",
+                                                                                                                                                                                                                                    0 );
+                                                                                                                                                                                                                            }
                                                                                                                                                                                                                         };
                                                                                                                                                                                                                         ::DISPATCH_VAR(
                                                                                                                                                                                                                             ::DISPATCH( $MATCH, 'result',
@@ -4064,6 +4117,7 @@
                                                                                                                                                                                                                         return ($MATCH)
                                                                                                                                                                                                                     }
                                                                                                                                                                                                                 }
+                                                                                                                                                                                                                else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                                                                                                                                             };
                                                                                                                                                                                                             ::DISPATCH( $::Int, 'new', 1 )
                                                                                                                                                                                                         }
@@ -4284,6 +4338,11 @@
                                                                                                                                                                                                                                                 )
                                                                                                                                                                                                                                         }
                                                                                                                                                                                                                                     }
+                                                                                                                                                                                                                                    else {
+                                                                                                                                                                                                                                        ::DISPATCH(
+                                                                                                                                                                                                                                            $::Bit, "new",
+                                                                                                                                                                                                                                            0 );
+                                                                                                                                                                                                                                    }
                                                                                                                                                                                                                                 };
                                                                                                                                                                                                                                 ::DISPATCH_VAR(
                                                                                                                                                                                                                                     ::DISPATCH(
@@ -4304,6 +4363,10 @@
                                                                                                                                                                                                                                 );
                                                                                                                                                                                                                                 return ($MATCH)
                                                                                                                                                                                                                             }
+                                                                                                                                                                                                                        }
+                                                                                                                                                                                                                        else {
+                                                                                                                                                                                                                            ::DISPATCH( $::Bit, "new",
+                                                                                                                                                                                                                                0 );
                                                                                                                                                                                                                         }
                                                                                                                                                                                                                     };
                                                                                                                                                                                                                     ::DISPATCH( $::Int, 'new', 1 )
@@ -4494,6 +4557,11 @@
                                                                                                                                                                                                                                                 )
                                                                                                                                                                                                                                         }
                                                                                                                                                                                                                                     }
+                                                                                                                                                                                                                                    else {
+                                                                                                                                                                                                                                        ::DISPATCH(
+                                                                                                                                                                                                                                            $::Bit, "new",
+                                                                                                                                                                                                                                            0 );
+                                                                                                                                                                                                                                    }
                                                                                                                                                                                                                                 };
                                                                                                                                                                                                                                 ::DISPATCH_VAR(
                                                                                                                                                                                                                                     ::DISPATCH(
@@ -4514,6 +4582,10 @@
                                                                                                                                                                                                                                 );
                                                                                                                                                                                                                                 return ($MATCH)
                                                                                                                                                                                                                             }
+                                                                                                                                                                                                                        }
+                                                                                                                                                                                                                        else {
+                                                                                                                                                                                                                            ::DISPATCH( $::Bit, "new",
+                                                                                                                                                                                                                                0 );
                                                                                                                                                                                                                         }
                                                                                                                                                                                                                     };
                                                                                                                                                                                                                     ::DISPATCH( $::Int, 'new', 1 )
@@ -4897,12 +4969,14 @@
                                                                                                                                             ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< some closure returing... ' ) )
                                                                                                                                         }
                                                                                                                                     }
+                                                                                                                                    else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                                                                 };
                                                                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                                                                                                                                 return ($MATCH)
                                                                                                                             }
                                                                                                                         }
+                                                                                                                        else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                                                     };
                                                                                                                     ::DISPATCH( $::Int, 'new', 1 )
                                                                                                                 }
@@ -4966,6 +5040,7 @@
                                         }
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         return ($MATCH);
                     },
@@ -5045,6 +5120,7 @@
                                         )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', $str ) ), "true" ), "p5landish" ) ) {
@@ -5052,6 +5128,7 @@
                                     ::DISPATCH_VAR( $str, 'STORE', $_ )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         $MATCH;
                         ::DISPATCH_VAR( $MATCH, 'STORE', ::DISPATCH( $::Match, 'new', ) );
@@ -5234,12 +5311,14 @@
                                                                                                                             ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< some closure returing... ' ) )
                                                                                                                         }
                                                                                                                     }
+                                                                                                                    else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                                                 };
                                                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                                                                                                                 return ($MATCH)
                                                                                                             }
                                                                                                         }
+                                                                                                        else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                                     };
                                                                                                     ::DISPATCH( $::Int, 'new', 1 )
                                                                                                 }
@@ -5309,12 +5388,14 @@
                                                                                                                             ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< some closure returing... ' ) )
                                                                                                                         }
                                                                                                                     }
+                                                                                                                    else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                                                 };
                                                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                                                                                                                 return ($MATCH)
                                                                                                             }
                                                                                                         }
+                                                                                                        else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                                     };
                                                                                                     ::DISPATCH( $::Int, 'new', 1 )
                                                                                                 }
@@ -5366,6 +5447,7 @@
                                         }
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         return ($MATCH);
                     },
@@ -5445,6 +5527,7 @@
                                         )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', $str ) ), "true" ), "p5landish" ) ) {
@@ -5452,6 +5535,7 @@
                                     ::DISPATCH_VAR( $str, 'STORE', $_ )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         $MATCH;
                         ::DISPATCH_VAR( $MATCH, 'STORE', ::DISPATCH( $::Match, 'new', ) );
@@ -5820,6 +5904,7 @@
                                         }
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         return ($MATCH);
                     },
@@ -5899,6 +5984,7 @@
                                         )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', $str ) ), "true" ), "p5landish" ) ) {
@@ -5906,6 +5992,7 @@
                                     ::DISPATCH_VAR( $str, 'STORE', $_ )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         $MATCH;
                         ::DISPATCH_VAR( $MATCH, 'STORE', ::DISPATCH( $::Match, 'new', ) );
@@ -6274,6 +6361,7 @@
                                         }
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         return ($MATCH);
                     },
@@ -6353,6 +6441,7 @@
                                         )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', $str ) ), "true" ), "p5landish" ) ) {
@@ -6360,6 +6449,7 @@
                                     ::DISPATCH_VAR( $str, 'STORE', $_ )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         $MATCH;
                         ::DISPATCH_VAR( $MATCH, 'STORE', ::DISPATCH( $::Match, 'new', ) );
@@ -6800,6 +6890,7 @@
                                         }
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         return ($MATCH);
                     },
@@ -6879,6 +6970,7 @@
                                         )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', $str ) ), "true" ), "p5landish" ) ) {
@@ -6886,6 +6978,7 @@
                                     ::DISPATCH_VAR( $str, 'STORE', $_ )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         $MATCH;
                         ::DISPATCH_VAR( $MATCH, 'STORE', ::DISPATCH( $::Match, 'new', ) );
@@ -7070,12 +7163,14 @@
                                                                                                                         ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< some closure returing... ' ) )
                                                                                                                     }
                                                                                                                 }
+                                                                                                                else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                                             };
                                                                                                             ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                             ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                                                                                                             return ($MATCH)
                                                                                                         }
                                                                                                     }
+                                                                                                    else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                                 };
                                                                                                 ::DISPATCH( $::Int, 'new', 1 )
                                                                                             }
@@ -7264,12 +7359,14 @@
                                                                                                                         ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< some closure returing... ' ) )
                                                                                                                     }
                                                                                                                 }
+                                                                                                                else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                                             };
                                                                                                             ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                             ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                                                                                                             return ($MATCH)
                                                                                                         }
                                                                                                     }
+                                                                                                    else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                                                 };
                                                                                                 ::DISPATCH( $::Int, 'new', 1 )
                                                                                             }
@@ -7319,6 +7416,7 @@
                                         }
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         return ($MATCH);
                     },

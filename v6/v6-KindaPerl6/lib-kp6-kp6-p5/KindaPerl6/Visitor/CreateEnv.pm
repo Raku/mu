@@ -118,6 +118,7 @@
                                     return ($node2)
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
                             if (::DISPATCH(
@@ -144,6 +145,7 @@
                                     return ( ::DISPATCH( $node, 'var', ) )
                                 }
                             }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         return ($::Undef);
                     },
