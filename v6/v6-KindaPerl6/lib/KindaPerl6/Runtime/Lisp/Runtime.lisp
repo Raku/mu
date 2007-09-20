@@ -1,8 +1,8 @@
 (dolist (file '("package"
-		"Value" "Container"      ; Base classes
-        "Undef"                  ; Undef
-		"Bit" "Int" "Str" "Code" ; Values
-		"Hash" "Array"           ; Containers
-		"GLOBAL"                 ; Functions
+		"Value" "Container"            ; Base classes
+        "Undef"                        ; Undef
+		"Bit" "Num" "Int" "Str" "Code" ; Values
+		"Hash" "Array"                 ; Containers
+		"GLOBAL"                       ; Functions
 		))
   (load (compile-file (format nil "lib/KindaPerl6/Runtime/Lisp/~A.lisp" file))))
