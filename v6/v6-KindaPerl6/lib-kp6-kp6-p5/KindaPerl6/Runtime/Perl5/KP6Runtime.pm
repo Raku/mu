@@ -11,6 +11,14 @@ use KindaPerl6::Runtime::Perl5::Wrap;
 use KindaPerl6::Runtime::Perl5::GLOBAL;
 use KindaPerl6::Runtime::Perl5::Grammar;
 
+    $Main::Code_newline = ::DISPATCH( $::Code, 'new', 
+        { code => sub { ::DISPATCH( $::Str, 'new', "\n") }, src => '&Main::newline' } );
+
+    $Main::Code_get_compiler_target_runtime = ::DISPATCH( $::Code, 'new', 
+        { code => sub { ::DISPATCH( $::Str, 'new', 'KindaPerl6::Runtime::Perl5::KP6Runtime') }, src => '&Main::newline' } );
+
+
+
 1;
 
 __END__

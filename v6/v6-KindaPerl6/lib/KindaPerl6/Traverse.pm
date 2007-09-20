@@ -55,6 +55,9 @@ class KindaPerl6::Traverse {
     }
 
     sub visit_subnode ( $visitor, $subnode, $path ) {
+        if (!($subnode)) {
+            return;
+        }
         if     $subnode.isa('Array') 
             || $subnode.isa('Hash') 
             || $subnode.isa('Str') 

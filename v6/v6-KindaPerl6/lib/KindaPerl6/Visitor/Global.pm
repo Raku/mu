@@ -15,8 +15,10 @@ class KindaPerl6::Visitor::Global {
     
         if    ( $node_name eq 'CompUnit' )
         {
+            if ($node.body) {
             ($node.body).emit( $self );
             return $node;
+            }
         }
         
         if    ( $node_name eq 'Lit::Code' )

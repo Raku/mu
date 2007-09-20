@@ -18,7 +18,9 @@ module Main {
     @visitors.push(KindaPerl6::Visitor::Token.new());
     @visitors.push(KindaPerl6::Visitor::MetaClass.new());
     @visitors.push(KindaPerl6::Visitor::Global.new())
-    @visitors.push(KindaPerl6::Visitor::EmitPerl5.new());
+    my $emit_p5 = KindaPerl6::Visitor::EmitPerl5.new();
+    $emit_p5.visitor_args = { secure => 1 };
+    @visitors.push($emit_p5);
 
     my $code = slurp;
 
@@ -35,18 +37,16 @@ module Main {
 
         my $match = KindaPerl6::Grammar.comp_unit($code, $pos);
         my $ast = $match.result;
-        say 'Finished matching...';
         if (!($ast.isa('CompUnit'))) {
             die 'AST IS:(' ~ $ast.result ~ ')';
         };
     
+        my $res;
         for @visitors -> $visitor {
-            say 'Starting visitor...';
-            $ast.emit($visitor);
+            $res = $ast.emit($visitor);
         };
-        print $ast;
-        $pos = $pos + $/.to;
-
+        print $res;
+        $pos = $pos + $match.to;
     }
 
 }

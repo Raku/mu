@@ -36,10 +36,12 @@ class KindaPerl6::Visitor::MetaClass {
             else {
                 my $metaclass := 'Class';
                 my $trait;
-                for @($node.traits) -> $trait {
-                    if $trait[0] eq 'meta' {
-                        $metaclass := $trait[1];
-                    }
+                if ($node.traits) {
+                    for @($node.traits) -> $trait {
+                        if $trait[0] eq 'meta' {
+                            $metaclass := $trait[1];
+                        }
+                    };
                 };
                 my $metaobject := ::Call(
                     'hyper'     => '',
@@ -50,6 +52,11 @@ class KindaPerl6::Visitor::MetaClass {
                     'invocant' => ::Proto( name => $metaclass ),  
                 );
                 # 'If' == avoid redefining the prototype object
+                my $body := $node.body;
+                my $pad;
+                if ($body) {
+                    $pad := $body.pad;
+                }
                 push @$module, 
                     ::If(
                         cond      => 
@@ -72,12 +79,13 @@ class KindaPerl6::Visitor::MetaClass {
                                 ],
                                 sig   =>
                                   ::Sig( named => {}, invocant => '', positional => [], ),
-                                pad   => ($node.body).pad,
+                                pad   => $pad,
                                 state => { },
                             ),
                     );
             };
             my $trait;
+            if ($node.traits) {
             for @($node.traits) -> $trait {
                 if $trait[0] eq 'does' {
                     # Bar->HOW->add_role('bar');
@@ -125,8 +133,11 @@ class KindaPerl6::Visitor::MetaClass {
                 };
                 };
             };
-               
+            };
             my $item;
+            if ($node) {
+            if ($node.body) {
+            if (($node.body).body) {
             for @(($node.body).body) -> $item {
 
                 # METHOD
@@ -209,9 +220,12 @@ class KindaPerl6::Visitor::MetaClass {
                 # TODO
 
             };
-            
+            };};};
             # Everything else
             my $item;
+            if ($node) {
+            if ($node.body) {
+            if (($node.body).body) {
             for @(($node.body).body) -> $item {
                 if    $item.isa( 'Method' )
                   ||  (  ( $item.isa( 'Decl' ) )
@@ -220,21 +234,31 @@ class KindaPerl6::Visitor::MetaClass {
                 { }
                 else
                 {
+                    if (!$module) {
+                        $module := [ ];
+                    }
                     push @$module, $item;
                 }
             };
-            
+            };
+            };
+            my $body := $node.body;
+            my $pad;
+            if ($body) {
+                $pad := $body.pad;
+            };
             return ::CompUnit( 
                 unit_type => 'module',
-                name => $node.name, 
+                name => $node.name,
                 body => ::Lit::Code(
-                    pad   => ($node.body).pad,
+                    pad   => $pad,
                     state => { },
                     sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
                     body  => $module,
                 ),
             );
-            
+            };
+
         };
         return;
     };

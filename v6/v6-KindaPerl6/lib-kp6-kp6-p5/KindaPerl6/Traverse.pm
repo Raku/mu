@@ -266,6 +266,14 @@
                             $path = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 ) );
                         };
                         do {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', $subnode ), "true" ), "p5landish" ) ) {
+                                {
+                                    return ($::Undef)
+                                }
+                            }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
+                        };
+                        do {
                             if (::DISPATCH(
                                     ::DISPATCH(
                                         do {

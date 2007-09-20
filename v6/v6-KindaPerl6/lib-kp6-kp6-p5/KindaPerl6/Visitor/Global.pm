@@ -61,8 +61,15 @@
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $node_name, ::DISPATCH( $::Str, 'new', 'CompUnit' ) ), "true" ), "p5landish" ) ) {
                                 {
-                                    ::DISPATCH( ::DISPATCH( $node, 'body', ), 'emit', $GLOBAL::self );
-                                    return ($node)
+                                    do {
+                                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $node, 'body', ), "true" ), "p5landish" ) ) {
+                                            {
+                                                ::DISPATCH( ::DISPATCH( $node, 'body', ), 'emit', $GLOBAL::self );
+                                                return ($node)
+                                            }
+                                        }
+                                        else { ::DISPATCH( $::Bit, "new", 0 ) }
+                                        }
                                 }
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }

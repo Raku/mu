@@ -24,6 +24,8 @@ package GLOBAL;
         match_p5rx
         require
         slurp
+        keys
+        push
 
         print_backtrace
 
@@ -142,6 +144,9 @@ package GLOBAL;
         } @_ );
     }
 
+      sub keys { ::DISPATCH( $_[0], 'keys' ) }
+      sub GLOBAL::push { ::DISPATCH( $_[0], 'push' ) }
+
     my $undef = ::DISPATCH( $::Undef, 'new', 0 );
     sub undef    { $undef }
     sub undefine { ::DISPATCH( $_[0], 'STORE', $undef ) }
@@ -258,7 +263,7 @@ package GLOBAL;
     # prefix:<$> and prefix:<%>
     # XXX: TODO: This should force scalar|hash context.
     sub prefix_58__60__36__62_ { $_[0] }
-    sub prefix_58__60__37__62_ { $_[0] }
+    sub prefix_58__60__37__62_ { ::DISPATCH( $_[0], 'hash') }
 
     # prefix:<~>
     sub prefix_58__60__126__62_ { ::DISPATCH( $::Str, 'new', _str( $_[0] ) ) }  
