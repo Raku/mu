@@ -125,9 +125,13 @@ Match one of the \'yada-yada-yada\' placeholder expressions (@...@, @???@ or
 yadaLiteral :: RuleParser Exp
 yadaLiteral = expRule $ do
     sym  <- choice . map symbol $ words " ... ??? !!! "
-    return $ App (_Var $ doYada sym) Nothing [Val $ VStr (sym ++ " - not yet implemented")]
+    exp <- option emptyExp ruleExpression
+    return $ App (_Var $ doYada sym) Nothing $
+        if exp == emptyExp
+            then [(Val $ VStr "Unimplemented stub called")]
+            else [exp]
     where
-    doYada "..." = "&fail_" -- XXX rename to fail() eventually
+    doYada "..." = "&fail"
     doYada "???" = "&warn"
     doYada "!!!" = "&die"
     doYada _ = error "Bad yada symbol"
