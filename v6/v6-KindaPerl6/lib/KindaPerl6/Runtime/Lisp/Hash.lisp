@@ -1,4 +1,4 @@
 (in-package #:kp6-cl)
 
-(defclass Hash ()
+(defclass kp6-hash ()
   ((value :initarg :value)))

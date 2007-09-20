@@ -1,4 +1,4 @@
 (in-package #:kp6-cl)
 
-(defclass ::Bit ()
+(defclass kp6-bit ()
   ((value :initarg :value)))

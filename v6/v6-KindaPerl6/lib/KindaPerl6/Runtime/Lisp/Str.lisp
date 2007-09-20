@@ -1,7 +1,7 @@
 (in-package #:kp6-cl)
 
 ; TODO: subclass Value
-(defclass Str ()
+(defclass kp6-str ()
   ((value :initarg :value)))
   
-(defmethod str ((s Str)) s)
+(defmethod str ((s kp6-str)) s)

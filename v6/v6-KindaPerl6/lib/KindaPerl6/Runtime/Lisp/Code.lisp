@@ -1,6 +1,6 @@
 (in-package #:kp6-cl)
 
-(defclass Code ()
+(defclass kp6-code ()
   ((value :initarg :value)))
 
 (defun my-APPLY (self arg)
