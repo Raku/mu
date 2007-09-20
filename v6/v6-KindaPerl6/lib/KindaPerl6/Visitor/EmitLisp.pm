@@ -361,7 +361,7 @@ class Call {
 
 class Apply {
     method emit_lisp {
-        if     ( $.code.name eq 'self' )
+        if     ( $.code.isa( 'Var' ) && $.code.name eq 'self' )
             # && ( @.arguments.elems == 0 )
         {
             return '$self';

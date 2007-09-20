@@ -2906,7 +2906,25 @@
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         do {
-                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "code" ), 'name', ), ::DISPATCH( $::Str, 'new', 'self' ) ), "true" ), "p5landish" ) ) {
+                            if (::DISPATCH(
+                                    ::DISPATCH(
+                                        do {
+                                            (   do {
+                                                    my $____some__weird___var____ = ::DISPATCH( ::DISPATCH( $self, "code" ), 'isa', ::DISPATCH( $::Str, 'new', 'Var' ) );
+                                                    ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                    }
+                                                    && do {
+                                                    my $____some__weird___var____ = ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "code" ), 'name', ), ::DISPATCH( $::Str, 'new', 'self' ) );
+                                                    ::DISPATCH( $____some__weird___var____, "true" )->{_value} && $____some__weird___var____;
+                                                    }
+                                            ) || ::DISPATCH( $::Bit, "new", 0 );
+                                        },
+                                        "true"
+                                    ),
+                                    "p5landish"
+                                )
+                                )
+                            {
                                 {
                                     return ( ::DISPATCH( $::Str, 'new', '$self' ) )
                                 }
