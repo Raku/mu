@@ -92,8 +92,8 @@
                         ::DISPATCH_VAR( $MATCH, 'STORE', ::DISPATCH( $::Match, 'new', ) );
                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'match_str', ), 'STORE', $str );
                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'from', ),      'STORE', $pos );
-                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', $pos );
-                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ),      'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
+                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $pos, ::DISPATCH( $::Int, 'new', 0 ) ) );
+                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                         ::DISPATCH_VAR(
                             ::DISPATCH( $MATCH, 'bool', ),
                             'STORE',
@@ -118,8 +118,8 @@
                                                                         ::DISPATCH_VAR( $MATCH, 'STORE', ::DISPATCH( $::Match, 'new', ) );
                                                                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'match_str', ), 'STORE', $str );
                                                                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'from', ),      'STORE', $pos );
-                                                                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', $pos );
-                                                                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ),      'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
+                                                                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $pos, ::DISPATCH( $::Int, 'new', 0 ) ) );
+                                                                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                                                                         ::DISPATCH_VAR(
                                                                             ::DISPATCH( $MATCH, 'bool', ),
                                                                             'STORE',
@@ -668,7 +668,8 @@
                                                                                     do {
                                                                                         if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                             {
-                                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
+                                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),
+                                                                                                    'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $m2, 'to', ), ::DISPATCH( $::Int, 'new', 0 ) ) );
                                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'double_quoted' ) ), 'STORE', $m2 );
                                                                                                 ::DISPATCH( $::Int, 'new', 1 )
                                                                                             }
@@ -824,8 +825,8 @@
                         ::DISPATCH_VAR( $MATCH, 'STORE', ::DISPATCH( $::Match, 'new', ) );
                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'match_str', ), 'STORE', $str );
                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'from', ),      'STORE', $pos );
-                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', $pos );
-                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ),      'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
+                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $pos, ::DISPATCH( $::Int, 'new', 0 ) ) );
+                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                         ::DISPATCH_VAR(
                             ::DISPATCH( $MATCH, 'bool', ),
                             'STORE',
@@ -987,8 +988,8 @@
                         ::DISPATCH_VAR( $MATCH, 'STORE', ::DISPATCH( $::Match, 'new', ) );
                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'match_str', ), 'STORE', $str );
                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'from', ),      'STORE', $pos );
-                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', $pos );
-                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ),      'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
+                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $pos, ::DISPATCH( $::Int, 'new', 0 ) ) );
+                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                         ::DISPATCH_VAR(
                             ::DISPATCH( $MATCH, 'bool', ),
                             'STORE',
@@ -1011,8 +1012,8 @@
                                                                 ::DISPATCH_VAR( $MATCH, 'STORE', ::DISPATCH( $::Match, 'new', ) );
                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'match_str', ), 'STORE', $str );
                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'from', ),      'STORE', $pos );
-                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', $pos );
-                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ),      'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
+                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $pos, ::DISPATCH( $::Int, 'new', 0 ) ) );
+                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                                                                 ::DISPATCH_VAR(
                                                                     ::DISPATCH( $MATCH, 'bool', ),
                                                                     'STORE',
@@ -1103,7 +1104,8 @@
                                                                             do {
                                                                                 if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                     {
-                                                                                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
+                                                                                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),
+                                                                                            'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $m2, 'to', ), ::DISPATCH( $::Int, 'new', 0 ) ) );
                                                                                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'var' ) ), 'STORE', $m2 );
                                                                                         ::DISPATCH( $::Int, 'new', 1 )
                                                                                     }
@@ -1191,7 +1193,8 @@
                                                                                                     do {
                                                                                                         if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                             {
-                                                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
+                                                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),
+                                                                                                                    'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $m2, 'to', ), ::DISPATCH( $::Int, 'new', 0 ) ) );
                                                                                                                 ::DISPATCH( $::Int, 'new', 1 )
                                                                                                             }
                                                                                                         }
@@ -1445,8 +1448,8 @@
                         ::DISPATCH_VAR( $MATCH, 'STORE', ::DISPATCH( $::Match, 'new', ) );
                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'match_str', ), 'STORE', $str );
                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'from', ),      'STORE', $pos );
-                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', $pos );
-                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ),      'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
+                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $pos, ::DISPATCH( $::Int, 'new', 0 ) ) );
+                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                         ::DISPATCH_VAR(
                             ::DISPATCH( $MATCH, 'bool', ),
                             'STORE',
@@ -1469,8 +1472,8 @@
                                                                 ::DISPATCH_VAR( $MATCH, 'STORE', ::DISPATCH( $::Match, 'new', ) );
                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'match_str', ), 'STORE', $str );
                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'from', ),      'STORE', $pos );
-                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', $pos );
-                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ),      'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
+                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $pos, ::DISPATCH( $::Int, 'new', 0 ) ) );
+                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                                                                 ::DISPATCH_VAR(
                                                                     ::DISPATCH( $MATCH, 'bool', ),
                                                                     'STORE',
@@ -1561,7 +1564,8 @@
                                                                             do {
                                                                                 if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                     {
-                                                                                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
+                                                                                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),
+                                                                                            'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $m2, 'to', ), ::DISPATCH( $::Int, 'new', 0 ) ) );
                                                                                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'var' ) ), 'STORE', $m2 );
                                                                                         ::DISPATCH( $::Int, 'new', 1 )
                                                                                     }
@@ -1649,7 +1653,8 @@
                                                                                                     do {
                                                                                                         if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                             {
-                                                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
+                                                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),
+                                                                                                                    'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $m2, 'to', ), ::DISPATCH( $::Int, 'new', 0 ) ) );
                                                                                                                 ::DISPATCH( $::Int, 'new', 1 )
                                                                                                             }
                                                                                                         }
@@ -1903,8 +1908,8 @@
                         ::DISPATCH_VAR( $MATCH, 'STORE', ::DISPATCH( $::Match, 'new', ) );
                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'match_str', ), 'STORE', $str );
                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'from', ),      'STORE', $pos );
-                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', $pos );
-                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ),      'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
+                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $pos, ::DISPATCH( $::Int, 'new', 0 ) ) );
+                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                         ::DISPATCH_VAR(
                             ::DISPATCH( $MATCH, 'bool', ),
                             'STORE',
@@ -1927,8 +1932,8 @@
                                                                 ::DISPATCH_VAR( $MATCH, 'STORE', ::DISPATCH( $::Match, 'new', ) );
                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'match_str', ), 'STORE', $str );
                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'from', ),      'STORE', $pos );
-                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', $pos );
-                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ),      'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
+                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $pos, ::DISPATCH( $::Int, 'new', 0 ) ) );
+                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                                                                 ::DISPATCH_VAR(
                                                                     ::DISPATCH( $MATCH, 'bool', ),
                                                                     'STORE',
@@ -2019,7 +2024,8 @@
                                                                             do {
                                                                                 if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                     {
-                                                                                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
+                                                                                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),
+                                                                                            'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $m2, 'to', ), ::DISPATCH( $::Int, 'new', 0 ) ) );
                                                                                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'var' ) ), 'STORE', $m2 );
                                                                                         ::DISPATCH( $::Int, 'new', 1 )
                                                                                     }
@@ -2183,8 +2189,8 @@
                         ::DISPATCH_VAR( $MATCH, 'STORE', ::DISPATCH( $::Match, 'new', ) );
                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'match_str', ), 'STORE', $str );
                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'from', ),      'STORE', $pos );
-                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', $pos );
-                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ),      'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
+                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $pos, ::DISPATCH( $::Int, 'new', 0 ) ) );
+                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                         ::DISPATCH_VAR(
                             ::DISPATCH( $MATCH, 'bool', ),
                             'STORE',
@@ -2209,7 +2215,8 @@
                                                                         do {
                                                                             if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                 {
-                                                                                    ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
+                                                                                    ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),
+                                                                                        'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $m2, 'to', ), ::DISPATCH( $::Int, 'new', 0 ) ) );
                                                                                     ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'quoted_array' ) ), 'STORE', $m2 );
                                                                                     ::DISPATCH( $::Int, 'new', 1 )
                                                                                 }
@@ -2268,7 +2275,8 @@
                                                                                 do {
                                                                                     if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                         {
-                                                                                            ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
+                                                                                            ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),
+                                                                                                'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $m2, 'to', ), ::DISPATCH( $::Int, 'new', 0 ) ) );
                                                                                             ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'quoted_hash' ) ), 'STORE', $m2 );
                                                                                             ::DISPATCH( $::Int, 'new', 1 )
                                                                                         }
@@ -2327,7 +2335,8 @@
                                                                                         do {
                                                                                             if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                 {
-                                                                                                    ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
+                                                                                                    ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),
+                                                                                                        'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $m2, 'to', ), ::DISPATCH( $::Int, 'new', 0 ) ) );
                                                                                                     ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'quoted_scalar' ) ), 'STORE', $m2 );
                                                                                                     ::DISPATCH( $::Int, 'new', 1 )
                                                                                                 }
@@ -4155,7 +4164,16 @@
                                                                                                                                                                                                                                     ),
                                                                                                                                                                                                                                     'STORE',
                                                                                                                                                                                                                                     ::DISPATCH(
-                                                                                                                                                                                                                                        $m2, 'to',
+                                                                                                                                                                                                                                        $GLOBAL::Code_infix_58__60__43__62_,
+                                                                                                                                                                                                                                        'APPLY',
+                                                                                                                                                                                                                                        ::DISPATCH(
+                                                                                                                                                                                                                                            $m2, 'to',
+                                                                                                                                                                                                                                        ),
+                                                                                                                                                                                                                                        ::DISPATCH(
+                                                                                                                                                                                                                                            $::Int,
+                                                                                                                                                                                                                                            'new',
+                                                                                                                                                                                                                                            0
+                                                                                                                                                                                                                                        )
                                                                                                                                                                                                                                     )
                                                                                                                                                                                                                                 );
                                                                                                                                                                                                                                 ::DISPATCH_VAR(
@@ -4601,7 +4619,11 @@
                                                                                                                     do {
                                                                                                                         if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                                             {
-                                                                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
+                                                                                                                                ::DISPATCH_VAR(
+                                                                                                                                    ::DISPATCH( $MATCH, 'to', ),
+                                                                                                                                    'STORE',
+                                                                                                                                    ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $m2, 'to', ), ::DISPATCH( $::Int, 'new', 0 ) )
+                                                                                                                                );
                                                                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'double_quoted' ) ), 'STORE', $m2 );
                                                                                                                                 ::DISPATCH( $::Int, 'new', 1 )
                                                                                                                             }
@@ -4792,8 +4814,8 @@
                         ::DISPATCH_VAR( $MATCH, 'STORE', ::DISPATCH( $::Match, 'new', ) );
                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'match_str', ), 'STORE', $str );
                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'from', ),      'STORE', $pos );
-                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', $pos );
-                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ),      'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
+                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $pos, ::DISPATCH( $::Int, 'new', 0 ) ) );
+                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                         ::DISPATCH_VAR(
                             ::DISPATCH( $MATCH, 'bool', ),
                             'STORE',
@@ -4816,7 +4838,7 @@
                                                                 do {
                                                                     if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                         {
-                                                                            ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
+                                                                            ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $m2, 'to', ), ::DISPATCH( $::Int, 'new', 0 ) ) );
                                                                             ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'quoted_exp' ) ), 'STORE', $m2 );
                                                                             ::DISPATCH( $::Int, 'new', 1 )
                                                                         }
@@ -4853,8 +4875,9 @@
                                                                                                     ::DISPATCH_VAR( $MATCH, 'STORE', ::DISPATCH( $::Match, 'new', ) );
                                                                                                     ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'match_str', ), 'STORE', $str );
                                                                                                     ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'from', ),      'STORE', $pos );
-                                                                                                    ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', $pos );
-                                                                                                    ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ),      'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
+                                                                                                    ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),
+                                                                                                        'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $pos, ::DISPATCH( $::Int, 'new', 0 ) ) );
+                                                                                                    ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                                                                                                     ::DISPATCH_VAR(
                                                                                                         ::DISPATCH( $MATCH, 'bool', ),
                                                                                                         'STORE',
@@ -4991,7 +5014,8 @@
                                                                                                     do {
                                                                                                         if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                             {
-                                                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
+                                                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),
+                                                                                                                    'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $m2, 'to', ), ::DISPATCH( $::Int, 'new', 0 ) ) );
                                                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'quoted_exp_seq' ) ), 'STORE', $m2 );
                                                                                                                 ::DISPATCH( $::Int, 'new', 1 )
                                                                                                             }
@@ -5168,8 +5192,8 @@
                         ::DISPATCH_VAR( $MATCH, 'STORE', ::DISPATCH( $::Match, 'new', ) );
                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'match_str', ), 'STORE', $str );
                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'from', ),      'STORE', $pos );
-                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', $pos );
-                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ),      'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
+                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $pos, ::DISPATCH( $::Int, 'new', 0 ) ) );
+                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                         ::DISPATCH_VAR(
                             ::DISPATCH( $MATCH, 'bool', ),
                             'STORE',
@@ -5286,7 +5310,8 @@
                                                                                     do {
                                                                                         if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                             {
-                                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
+                                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),
+                                                                                                    'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $m2, 'to', ), ::DISPATCH( $::Int, 'new', 0 ) ) );
                                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'single_quoted' ) ), 'STORE', $m2 );
                                                                                                 ::DISPATCH( $::Int, 'new', 1 )
                                                                                             }
@@ -5328,8 +5353,8 @@
                                                                                 ::DISPATCH_VAR( $MATCH, 'STORE', ::DISPATCH( $::Match, 'new', ) );
                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'match_str', ), 'STORE', $str );
                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'from', ),      'STORE', $pos );
-                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', $pos );
-                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ),      'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
+                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $pos, ::DISPATCH( $::Int, 'new', 0 ) ) );
+                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                                                                                 ::DISPATCH_VAR(
                                                                                     ::DISPATCH( $MATCH, 'bool', ),
                                                                                     'STORE',
@@ -5468,7 +5493,8 @@
                                                                                             do {
                                                                                                 if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                     {
-                                                                                                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
+                                                                                                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),
+                                                                                                            'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $m2, 'to', ), ::DISPATCH( $::Int, 'new', 0 ) ) );
                                                                                                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'single_quoted' ) ), 'STORE', $m2 );
                                                                                                         ::DISPATCH( $::Int, 'new', 1 )
                                                                                                     }
@@ -5628,8 +5654,8 @@
                         ::DISPATCH_VAR( $MATCH, 'STORE', ::DISPATCH( $::Match, 'new', ) );
                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'match_str', ), 'STORE', $str );
                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'from', ),      'STORE', $pos );
-                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', $pos );
-                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ),      'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
+                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $pos, ::DISPATCH( $::Int, 'new', 0 ) ) );
+                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                         ::DISPATCH_VAR(
                             ::DISPATCH( $MATCH, 'bool', ),
                             'STORE',
@@ -5746,7 +5772,8 @@
                                                                                     do {
                                                                                         if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                             {
-                                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
+                                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),
+                                                                                                    'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $m2, 'to', ), ::DISPATCH( $::Int, 'new', 0 ) ) );
                                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'angle_quoted' ) ), 'STORE', $m2 );
                                                                                                 ::DISPATCH( $::Int, 'new', 1 )
                                                                                             }
@@ -5788,8 +5815,8 @@
                                                                                 ::DISPATCH_VAR( $MATCH, 'STORE', ::DISPATCH( $::Match, 'new', ) );
                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'match_str', ), 'STORE', $str );
                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'from', ),      'STORE', $pos );
-                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', $pos );
-                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ),      'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
+                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $pos, ::DISPATCH( $::Int, 'new', 0 ) ) );
+                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                                                                                 ::DISPATCH_VAR(
                                                                                     ::DISPATCH( $MATCH, 'bool', ),
                                                                                     'STORE',
@@ -5928,7 +5955,8 @@
                                                                                             do {
                                                                                                 if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                     {
-                                                                                                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
+                                                                                                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),
+                                                                                                            'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $m2, 'to', ), ::DISPATCH( $::Int, 'new', 0 ) ) );
                                                                                                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'angle_quoted' ) ), 'STORE', $m2 );
                                                                                                         ::DISPATCH( $::Int, 'new', 1 )
                                                                                                     }
@@ -6088,8 +6116,8 @@
                         ::DISPATCH_VAR( $MATCH, 'STORE', ::DISPATCH( $::Match, 'new', ) );
                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'match_str', ), 'STORE', $str );
                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'from', ),      'STORE', $pos );
-                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', $pos );
-                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ),      'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
+                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $pos, ::DISPATCH( $::Int, 'new', 0 ) ) );
+                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                         ::DISPATCH_VAR(
                             ::DISPATCH( $MATCH, 'bool', ),
                             'STORE',
@@ -6206,7 +6234,8 @@
                                                                                     do {
                                                                                         if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                             {
-                                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
+                                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),
+                                                                                                    'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $m2, 'to', ), ::DISPATCH( $::Int, 'new', 0 ) ) );
                                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'french_quoted' ) ), 'STORE', $m2 );
                                                                                                 ::DISPATCH( $::Int, 'new', 1 )
                                                                                             }
@@ -6248,8 +6277,8 @@
                                                                                 ::DISPATCH_VAR( $MATCH, 'STORE', ::DISPATCH( $::Match, 'new', ) );
                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'match_str', ), 'STORE', $str );
                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'from', ),      'STORE', $pos );
-                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', $pos );
-                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ),      'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
+                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $pos, ::DISPATCH( $::Int, 'new', 0 ) ) );
+                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                                                                                 ::DISPATCH_VAR(
                                                                                     ::DISPATCH( $MATCH, 'bool', ),
                                                                                     'STORE',
@@ -6464,7 +6493,8 @@
                                                                                             do {
                                                                                                 if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                                     {
-                                                                                                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
+                                                                                                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),
+                                                                                                            'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $m2, 'to', ), ::DISPATCH( $::Int, 'new', 0 ) ) );
                                                                                                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'french_quoted' ) ), 'STORE', $m2 );
                                                                                                         ::DISPATCH( $::Int, 'new', 1 )
                                                                                                     }
@@ -6624,8 +6654,8 @@
                         ::DISPATCH_VAR( $MATCH, 'STORE', ::DISPATCH( $::Match, 'new', ) );
                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'match_str', ), 'STORE', $str );
                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'from', ),      'STORE', $pos );
-                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', $pos );
-                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ),      'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
+                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),        'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $pos, ::DISPATCH( $::Int, 'new', 0 ) ) );
+                        ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                         ::DISPATCH_VAR(
                             ::DISPATCH( $MATCH, 'bool', ),
                             'STORE',
@@ -6708,7 +6738,8 @@
                                                                                     do {
                                                                                         if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                             {
-                                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
+                                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),
+                                                                                                    'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $m2, 'to', ), ::DISPATCH( $::Int, 'new', 0 ) ) );
                                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'quoted_exp_seq' ) ), 'STORE', $m2 );
                                                                                                 ::DISPATCH( $::Int, 'new', 1 )
                                                                                             }
@@ -6902,7 +6933,8 @@
                                                                                     do {
                                                                                         if ( ::DISPATCH( ::DISPATCH( $m2, "true" ), "p5landish" ) ) {
                                                                                             {
-                                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ), 'STORE', ::DISPATCH( $m2, 'to', ) );
+                                                                                                ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),
+                                                                                                    'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', ::DISPATCH( $m2, 'to', ), ::DISPATCH( $::Int, 'new', 0 ) ) );
                                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'single_quoted' ) ), 'STORE', $m2 );
                                                                                                 ::DISPATCH( $::Int, 'new', 1 )
                                                                                             }

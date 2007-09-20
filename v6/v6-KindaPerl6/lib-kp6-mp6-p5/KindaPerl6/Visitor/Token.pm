@@ -5,13 +5,13 @@ use MiniPerl6::Perl5::Runtime;
 use MiniPerl6::Perl5::Match;
 package KindaPerl6::Visitor::Token;
 sub new { shift; bless { @_ }, "KindaPerl6::Visitor::Token" }
-sub visit { my $self = shift; my $List__ = \@_; my $node; my $node_name; do {  $node = $List__->[0];  $node_name = $List__->[1]; [$node, $node_name] }; do { if (($node_name eq 'Token')) { my  $perl6_source = $node->regex()->emit_token();my  $source = ('method ' . ($node->name() . (' ( $str, $pos ) { ' . ('if (%*ENV{"KP6_TOKEN_DEBUGGER"}) { say ">>> token ' . ($node->name() . (' at " ~ $pos ~ " of (" ~ $str ~ ")"; };' . ('if (!(defined($str))) { $str = $_; };  my $MATCH;' . ('$MATCH = Match.new(); $MATCH.match_str = $str; $MATCH.from = $pos; $MATCH.to = $pos; $MATCH.bool = 1; ' . ('$MATCH.bool = ' . ($perl6_source . ('; ' . ('if (%*ENV{"KP6_TOKEN_DEBUGGER"}) { if ($MATCH.bool) { say "<<< token ' . ($node->name() . (' returned true to ("~$MATCH.to~")"; } else {say "<<< token ' . ($node->name() . (' returned false "; } };' . 'return $MATCH }'))))))))))))))));my  $ast = KindaPerl6::Grammar->term($source);return(${$ast}) } else {  } } }
+sub visit { my $self = shift; my $List__ = \@_; my $node; my $node_name; do {  $node = $List__->[0];  $node_name = $List__->[1]; [$node, $node_name] }; do { if (($node_name eq 'Token')) { my  $perl6_source = $node->regex()->emit_token();my  $source = ('method ' . ($node->name() . (' ( $str, $pos ) { ' . ('if (%*ENV{"KP6_TOKEN_DEBUGGER"}) { say ">>> token ' . ($node->name() . (' at " ~ $pos ~ " of (" ~ $str ~ ")"; };' . ('if (!(defined($str))) { $str = $_; };  my $MATCH;' . ('$MATCH = Match.new(); $MATCH.match_str = $str; $MATCH.from = $pos; $MATCH.to = ($pos + 0); $MATCH.bool = 1; ' . ('$MATCH.bool = ' . ($perl6_source . ('; ' . ('if (%*ENV{"KP6_TOKEN_DEBUGGER"}) { if ($MATCH.bool) { say "<<< token ' . ($node->name() . (' returned true to ("~$MATCH.to~")"; } else {say "<<< token ' . ($node->name() . (' returned false "; } };' . 'return $MATCH }'))))))))))))))));my  $ast = KindaPerl6::Grammar->term($source);return(${$ast}) } else {  } } }
 
 
 ;
 package Rule;
 sub new { shift; bless { @_ }, "Rule" }
-sub constant { my $List__ = \@_; my $str; do {  $str = $List__->[0]; [$str] }; my  $len = Main::chars($str, ); do { if (($str eq Main::backslash())) { $str = (Main::backslash() . Main::backslash()) } else {  } }; do { if (($str eq Main::singlequote())) { $str = (Main::backslash() . Main::singlequote()) } else {  } }; do { if ($len) { ('do {if (length($str) <  ' . ($len . (') {(0)} else { if (' . (Main::singlequote() . ($str . (Main::singlequote() . (' eq substr($str, $MATCH.to, ' . ($len . (')) {' . ('(1 + ($MATCH.to = ' . ($len . ' + $MATCH.to ))} else {(0)}}}'))))))))))) } else { return('1') } } }
+sub constant { my $List__ = \@_; my $str; do {  $str = $List__->[0]; [$str] }; my  $len = Main::chars($str, ); do { if (($str eq Main::backslash())) { $str = (Main::backslash() . Main::backslash()) } else {  } }; do { if (($str eq Main::singlequote())) { $str = (Main::backslash() . Main::singlequote()) } else {  } }; do { if ($len) { ('do {if (length($str) <  ' . ($len . (') {(0)} else { if (' . (Main::singlequote() . ($str . (Main::singlequote() . (' eq substr($str, $MATCH.to, ' . ($len . (')) {' . ('(1 + ($MATCH.to = (' . ($len . ' + $MATCH.to) ))} else {(0)}}}'))))))))))) } else { return('1') } } }
 
 
 ;
@@ -23,7 +23,7 @@ sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; $self->{term}->e
 ;
 package Rule::Or;
 sub new { shift; bless { @_ }, "Rule::Or" }
-sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; ('do { ' . ('my $pos1 = $MATCH.to + 0; do{ ' . (Main::join([ map { $_->emit_token() } @{ $self->{or} } ], '} || do { $MATCH.to = $pos1 + 0; ') . '} }'))) }
+sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; ('do { ' . ('my $pos1 = ($MATCH.to + 0); do{ ' . (Main::join([ map { $_->emit_token() } @{ $self->{or} } ], '} || do { $MATCH.to = ($pos1 + 0); ') . '} }'))) }
 
 
 ;
@@ -35,13 +35,13 @@ sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; ('(' . (Main::jo
 ;
 package Rule::Subrule;
 sub new { shift; bless { @_ }, "Rule::Subrule" }
-sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; do { if ((substr($self->{metasyntax}, 0, 1) eq Main::singlequote())) { return(Rule::constant(substr(substr($self->{metasyntax}, 1), 0, (Main::chars($self->{metasyntax}, ) - 2)))) } else {  } }; my  $meth = ((1 + index($self->{metasyntax}, '.')) ? $self->{metasyntax} : ('self.' . $self->{metasyntax})); return(('do { ' . ('my $m2 = ' . ($meth . ('($str, $MATCH.to); ' . ('if $m2 { $MATCH.to = $m2.to; $MATCH{\'' . ($self->{metasyntax} . ('\'} = $m2; 1 } else { 0 } ' . '}')))))))) }
+sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; do { if ((substr($self->{metasyntax}, 0, 1) eq Main::singlequote())) { return(Rule::constant(substr(substr($self->{metasyntax}, 1), 0, (Main::chars($self->{metasyntax}, ) - 2)))) } else {  } }; my  $meth = ((1 + index($self->{metasyntax}, '.')) ? $self->{metasyntax} : ('self.' . $self->{metasyntax})); return(('do { ' . ('my $m2 = ' . ($meth . ('($str, $MATCH.to); ' . ('if $m2 { $MATCH.to = ($m2.to + 0); $MATCH{\'' . ($self->{metasyntax} . ('\'} = $m2; 1 } else { 0 } ' . '}')))))))) }
 
 
 ;
 package Rule::SubruleNoCapture;
 sub new { shift; bless { @_ }, "Rule::SubruleNoCapture" }
-sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; my  $meth = ((1 + index($self->{metasyntax}, '.')) ? $self->{metasyntax} : ('self.' . $self->{metasyntax})); ('do { ' . ('my $m2 = ' . ($meth . ('($str, $MATCH.to); ' . ('if $m2 { $MATCH.to = $m2.to; 1 } else { 0 } ' . '}'))))) }
+sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; my  $meth = ((1 + index($self->{metasyntax}, '.')) ? $self->{metasyntax} : ('self.' . $self->{metasyntax})); ('do { ' . ('my $m2 = ' . ($meth . ('($str, $MATCH.to); ' . ('if $m2 { $MATCH.to = ($m2.to + 0); 1 } else { 0 } ' . '}'))))) }
 
 
 ;
@@ -89,7 +89,7 @@ sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; Main::say(('# TO
 ;
 package Rule::Before;
 sub new { shift; bless { @_ }, "Rule::Before" }
-sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; do { if (($self->{assertion_modifier} eq '!')) { return(('do { ' . ('my $MATCH; ' . ('$MATCH = Match.new(); $MATCH.match_str = $str; $MATCH.from = $pos; $MATCH.to = $pos; $MATCH.bool = 1; ' . ('$MATCH.bool = !(' . ($self->{rule}->emit_token() . ('); ' . ('$MATCH; ' . '}')))))))) } else { return(('do { ' . ('my $MATCH; ' . ('$MATCH = Match.new(); $MATCH.match_str = $str; $MATCH.from = $pos; $MATCH.to = $pos; $MATCH.bool = 1; ' . ('$MATCH.bool =  ' . ($self->{rule}->emit_token() . ('; ' . ('$MATCH; ' . '}')))))))) } } }
+sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; do { if (($self->{assertion_modifier} eq '!')) { return(('do { ' . ('my $MATCH; ' . ('$MATCH = Match.new(); $MATCH.match_str = $str; $MATCH.from = $pos; $MATCH.to = ($pos + 0); $MATCH.bool = 1; ' . ('$MATCH.bool = !(' . ($self->{rule}->emit_token() . ('); ' . ('$MATCH; ' . '}')))))))) } else { return(('do { ' . ('my $MATCH; ' . ('$MATCH = Match.new(); $MATCH.match_str = $str; $MATCH.from = $pos; $MATCH.to = ($pos + 0); $MATCH.bool = 1; ' . ('$MATCH.bool =  ' . ($self->{rule}->emit_token() . ('; ' . ('$MATCH; ' . '}')))))))) } } }
 
 
 ;

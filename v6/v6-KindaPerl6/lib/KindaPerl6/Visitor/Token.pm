@@ -17,7 +17,7 @@ class KindaPerl6::Visitor::Token {
             my $source := 'method ' ~ $node.name ~ ' ( $str, $pos ) { ' 
                 ~ 'if (%*ENV{"KP6_TOKEN_DEBUGGER"}) { say ">>> token '~ $node.name ~' at " ~ $pos ~ " of (" ~ $str ~ ")"; };'
                 ~ 'if (!(defined($str))) { $str = $_; };  my $MATCH;'
-                ~ '$MATCH = Match.new(); $MATCH.match_str = $str; $MATCH.from = $pos; $MATCH.to = $pos; $MATCH.bool = 1; '
+                ~ '$MATCH = Match.new(); $MATCH.match_str = $str; $MATCH.from = $pos; $MATCH.to = ($pos + 0); $MATCH.bool = 1; '
                 ~ '$MATCH.bool = ' ~ $perl6_source ~ '; ' 
                 ~ 'if (%*ENV{"KP6_TOKEN_DEBUGGER"}) { if ($MATCH.bool) { say "<<< token '~ $node.name ~' returned true to ("~$MATCH.to~")"; } else {say "<<< token '~ $node.name ~' returned false "; } };'
                 ~ 'return $MATCH }';
@@ -66,7 +66,7 @@ class Rule {
             if ( $len ) {
                 'do {if (length($str) <  ' ~ $len ~ ') {(0)} else { if (' ~
                 Main::singlequote() ~ $str ~ Main::singlequote() ~ ' eq substr($str, $MATCH.to, ' ~ $len ~ ')) {' ~
-                '(1 + ($MATCH.to = ' ~ $len ~ ' + $MATCH.to ))} else {(0)}}}';
+                '(1 + ($MATCH.to = (' ~ $len ~ ' + $MATCH.to) ))} else {(0)}}}';
             }
             else {
                 return '1'
@@ -84,8 +84,8 @@ class Rule::Quantifier {
 class Rule::Or {
     method emit_token {
         'do { ' ~
-            'my $pos1 = $MATCH.to + 0; do{ ' ~ 
-            (@.or.>>emit_token).join('} || do { $MATCH.to = $pos1 + 0; ') ~
+            'my $pos1 = ($MATCH.to + 0); do{ ' ~ 
+            (@.or.>>emit_token).join('} || do { $MATCH.to = ($pos1 + 0); ') ~
         '} }';
     }
 }
@@ -109,7 +109,7 @@ class Rule::Subrule {
         return 'do { ' ~
           'my $m2 = ' ~ $meth ~ '($str, $MATCH.to); ' ~
           ## 'my $m2 := ' ~ $meth ~ '($str, { 'pos' => $MATCH.to, 'KEY' => $key }); ' ~
-          'if $m2 { $MATCH.to = $m2.to; $MATCH{\'' ~ $.metasyntax ~ '\'} = $m2; 1 } else { 0 } ' ~
+          'if $m2 { $MATCH.to = ($m2.to + 0); $MATCH{\'' ~ $.metasyntax ~ '\'} = $m2; 1 } else { 0 } ' ~
           '}';
     };
 }
@@ -121,7 +121,7 @@ class Rule::SubruleNoCapture {
             !! ( 'self.' ~ $.metasyntax );
         'do { ' ~
           'my $m2 = ' ~ $meth ~ '($str, $MATCH.to); ' ~
-          'if $m2 { $MATCH.to = $m2.to; 1 } else { 0 } ' ~
+          'if $m2 { $MATCH.to = ($m2.to + 0); 1 } else { 0 } ' ~
         '}'
     }
 }
@@ -270,7 +270,7 @@ class Rule::Before {
             return
                 'do { ' ~
                     'my $MATCH; ' ~
-                    '$MATCH = Match.new(); $MATCH.match_str = $str; $MATCH.from = $pos; $MATCH.to = $pos; $MATCH.bool = 1; ' ~
+                    '$MATCH = Match.new(); $MATCH.match_str = $str; $MATCH.from = $pos; $MATCH.to = ($pos + 0); $MATCH.bool = 1; ' ~
                     '$MATCH.bool = !(' ~
                         $.rule.emit_token ~
                     '); ' ~
@@ -281,7 +281,7 @@ class Rule::Before {
             return
                 'do { ' ~
                     'my $MATCH; ' ~
-                    '$MATCH = Match.new(); $MATCH.match_str = $str; $MATCH.from = $pos; $MATCH.to = $pos; $MATCH.bool = 1; ' ~
+                    '$MATCH = Match.new(); $MATCH.match_str = $str; $MATCH.from = $pos; $MATCH.to = ($pos + 0); $MATCH.bool = 1; ' ~
                     '$MATCH.bool =  ' ~
                         $.rule.emit_token ~
                     '; ' ~

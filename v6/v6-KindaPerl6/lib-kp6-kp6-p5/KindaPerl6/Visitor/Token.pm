@@ -107,7 +107,7 @@
                                                                     ::DISPATCH(
                                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                                         'APPLY',
-                                                                        ::DISPATCH( $::Str, 'new', '$MATCH = Match.new(); $MATCH.match_str = $str; $MATCH.from = $pos; $MATCH.to = $pos; $MATCH.bool = 1; ' ),
+                                                                        ::DISPATCH( $::Str, 'new', '$MATCH = Match.new(); $MATCH.match_str = $str; $MATCH.from = $pos; $MATCH.to = ($pos + 0); $MATCH.bool = 1; ' ),
                                                                         ::DISPATCH(
                                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                                             'APPLY',
@@ -305,8 +305,8 @@
                                                                         ::DISPATCH(
                                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                                             'APPLY',
-                                                                            ::DISPATCH( $::Str, 'new', '(1 + ($MATCH.to = ' ),
-                                                                            ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $len, ::DISPATCH( $::Str, 'new', ' + $MATCH.to ))} else {(0)}}}' ) )
+                                                                            ::DISPATCH( $::Str, 'new', '(1 + ($MATCH.to = (' ),
+                                                                            ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $len, ::DISPATCH( $::Str, 'new', ' + $MATCH.to) ))} else {(0)}}}' ) )
                                                                         )
                                                                     )
                                                                 )
@@ -463,10 +463,10 @@
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH( $::Str, 'new', 'my $pos1 = $MATCH.to + 0; do{ ' ),
+                                ::DISPATCH( $::Str, 'new', 'my $pos1 = ($MATCH.to + 0); do{ ' ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                    ::DISPATCH( [ map { $_->emit_token() } @{ ::DISPATCH( $self, "or" ) } ], 'join', ::DISPATCH( $::Str, 'new', '} || do { $MATCH.to = $pos1 + 0; ' ) ), ::DISPATCH( $::Str, 'new', '} }' )
+                                    ::DISPATCH( [ map { $_->emit_token() } @{ ::DISPATCH( $self, "or" ) } ], 'join', ::DISPATCH( $::Str, 'new', '} || do { $MATCH.to = ($pos1 + 0); ' ) ), ::DISPATCH( $::Str, 'new', '} }' )
                                 )
                             )
                         );
@@ -667,7 +667,7 @@
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
-                                                ::DISPATCH( $::Str, 'new', 'if $m2 { $MATCH.to = $m2.to; $MATCH{\\\'' ),
+                                                ::DISPATCH( $::Str, 'new', 'if $m2 { $MATCH.to = ($m2.to + 0); $MATCH{\\\'' ),
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
                                                     ::DISPATCH( $self, "metasyntax" ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '\\\'} = $m2; 1 } else { 0 } ' ), ::DISPATCH( $::Str, 'new', '}' ) )
@@ -771,7 +771,7 @@
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
                                         ::DISPATCH( $::Str, 'new', '($str, $MATCH.to); ' ),
-                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', 'if $m2 { $MATCH.to = $m2.to; 1 } else { 0 } ' ), ::DISPATCH( $::Str, 'new', '}' ) )
+                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', 'if $m2 { $MATCH.to = ($m2.to + 0); 1 } else { 0 } ' ), ::DISPATCH( $::Str, 'new', '}' ) )
                                     )
                                 )
                             )
@@ -1499,7 +1499,7 @@
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
-                                                    ::DISPATCH( $::Str, 'new', '$MATCH = Match.new(); $MATCH.match_str = $str; $MATCH.from = $pos; $MATCH.to = $pos; $MATCH.bool = 1; ' ),
+                                                    ::DISPATCH( $::Str, 'new', '$MATCH = Match.new(); $MATCH.match_str = $str; $MATCH.from = $pos; $MATCH.to = ($pos + 0); $MATCH.bool = 1; ' ),
                                                     ::DISPATCH(
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
@@ -1534,7 +1534,7 @@
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
-                                                    ::DISPATCH( $::Str, 'new', '$MATCH = Match.new(); $MATCH.match_str = $str; $MATCH.from = $pos; $MATCH.to = $pos; $MATCH.bool = 1; ' ),
+                                                    ::DISPATCH( $::Str, 'new', '$MATCH = Match.new(); $MATCH.match_str = $str; $MATCH.from = $pos; $MATCH.to = ($pos + 0); $MATCH.bool = 1; ' ),
                                                     ::DISPATCH(
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
