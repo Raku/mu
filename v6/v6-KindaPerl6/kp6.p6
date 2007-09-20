@@ -12,6 +12,7 @@ module Main {
     use KindaPerl6::Visitor::MetaClass;
     use KindaPerl6::Visitor::Global;
     use KindaPerl6::Visitor::EmitPerl5;
+    use KindaPerl6::Visitor::Perl;
 
     my @visitors;
     @visitors.push(KindaPerl6::Visitor::ExtractRuleBlock.new());
@@ -40,7 +41,9 @@ module Main {
         if (!($ast.isa('CompUnit'))) {
             die 'AST IS:(' ~ $ast.result ~ ')';
         };
-    
+
+        warn 'The ast is: ' ~ $ast.emit(KindaPerl6::Visitor::Perl.new());
+
         my $res;
         for @visitors -> $visitor {
             $res = $ast.emit($visitor);

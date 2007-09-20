@@ -124,9 +124,16 @@
                                                                 else {
                                                                     {
                                                                         do {
-                                                                            ::MODIFIED($result);
-                                                                            $result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_,
-                                                                                'APPLY', $result, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $subitem, 'emit', $self ), ::DISPATCH( $::Str, 'new', ', ' ) ) );
+                                                                            if ( ::DISPATCH( ::DISPATCH( $subitem, "true" ), "p5landish" ) ) {
+                                                                                {
+                                                                                    do {
+                                                                                        ::MODIFIED($result);
+                                                                                        $result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_,
+                                                                                            'APPLY', $result, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $subitem, 'emit', $self ), ::DISPATCH( $::Str, 'new', ', ' ) ) );
+                                                                                        }
+                                                                                }
+                                                                            }
+                                                                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                             }
                                                                     }
                                                                 }
@@ -223,10 +230,24 @@
                                                                 else {
                                                                     {
                                                                         do {
-                                                                            ::MODIFIED($result);
-                                                                            $result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_,
-                                                                                'APPLY', $result,
-                                                                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $data, 'LOOKUP', $item ), 'emit', $self ), ::DISPATCH( $::Str, 'new', ', ' ) ) );
+                                                                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $data, 'LOOKUP', $item ), "true" ), "p5landish" ) ) {
+                                                                                {
+                                                                                    do {
+                                                                                        ::MODIFIED($result);
+                                                                                        $result = ::DISPATCH(
+                                                                                            $GLOBAL::Code_infix_58__60__126__62_,
+                                                                                            'APPLY', $result,
+                                                                                            ::DISPATCH(
+                                                                                                $GLOBAL::Code_infix_58__60__126__62_,
+                                                                                                'APPLY',
+                                                                                                ::DISPATCH( ::DISPATCH( $data, 'LOOKUP', $item ), 'emit', $self ),
+                                                                                                ::DISPATCH( $::Str, 'new', ', ' )
+                                                                                            )
+                                                                                        );
+                                                                                        }
+                                                                                }
+                                                                            }
+                                                                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                                                                             }
                                                                     }
                                                                 }

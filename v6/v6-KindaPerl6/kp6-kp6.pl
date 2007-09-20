@@ -61,6 +61,7 @@
         use KindaPerl6::Visitor::MetaClass;
         use KindaPerl6::Visitor::Global;
         use KindaPerl6::Visitor::EmitPerl5;
+        use KindaPerl6::Visitor::Perl;
         $List_visitors;
         ::DISPATCH( $List_visitors, 'push', ::DISPATCH( $::KindaPerl6::Visitor::ExtractRuleBlock, 'new', ) );
         ::DISPATCH( $List_visitors, 'push', ::DISPATCH( $::KindaPerl6::Visitor::Token,            'new', ) );
@@ -117,6 +118,7 @@
                         }
                         else { ::DISPATCH( $::Bit, "new", 0 ) }
                     };
+                    ::DISPATCH( $GLOBAL::Code_warn, 'APPLY', ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', 'The ast is: ' ), ::DISPATCH( $ast, 'emit', ::DISPATCH( $::KindaPerl6::Visitor::Perl, 'new', ) ) ) );
                     $res;
                     {
                         my $visitor;

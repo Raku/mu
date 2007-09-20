@@ -22,7 +22,9 @@ class KindaPerl6::Visitor::Perl {
                         $result := $result ~ ' [ ... ], ';
                     }
                     else {
+                        if ($subitem) {
                         $result := $result ~ $subitem.emit( self ) ~ ", ";
+                        }
                     };
                 };
                 $result := $result ~ " ], ";
@@ -45,8 +47,10 @@ class KindaPerl6::Visitor::Perl {
                 $result := $result ~ "\'" ~ $data{$item} ~ "\', ";
             } 
             else {
+                if ($data{$item}) {
                 $result := $result ~ ($data{$item}).emit( self ) ~ ", "; 
-            }; 
+                }
+            };
             };
             };
         };
