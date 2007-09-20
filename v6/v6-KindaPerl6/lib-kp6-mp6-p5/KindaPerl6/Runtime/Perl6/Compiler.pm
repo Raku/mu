@@ -362,9 +362,6 @@
                         my $pad;
                         $pad = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pad' } ) unless defined $pad;
                         BEGIN { $pad = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pad' } ) }
-                        my $decl;
-                        $decl = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$decl' } ) unless defined $decl;
-                        BEGIN { $decl = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$decl' } ) }
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $sigil;
                         $sigil = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$sigil' } ) unless defined $sigil;
@@ -404,7 +401,6 @@
                         ::DISPATCH_VAR( ::DISPATCH( $var, 'twigil', ), 'STORE', $twigil );
                         ::DISPATCH_VAR( ::DISPATCH( $var, 'name', ),   'STORE', $name );
                         ::DISPATCH_VAR( $pad, 'STORE', ::DISPATCH( $COMPILER::List_PAD, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ) );
-                        ::DISPATCH_VAR( $decl, 'STORE', ::DISPATCH( $pad, 'declaration', $var ) );
                         return ($var);
                     },
                     signature => ::DISPATCH(

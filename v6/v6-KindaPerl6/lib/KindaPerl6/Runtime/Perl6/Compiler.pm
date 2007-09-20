@@ -60,7 +60,7 @@ module COMPILER {
         $var.twigil = $twigil;
         $var.name = $name;
         my $pad = @COMPILER::PAD[0];
-        my $decl = $pad.declaration( $var );
+        #my $decl = $pad.declaration( $var );
         #print "COMPILER::get_var: @_ --> $decl\n";
         # TODO - annotate the variable with: Type, declarator
         return $var;
