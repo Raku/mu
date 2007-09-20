@@ -1,6 +1,4 @@
-(defpackage #:kp6-GLOBAL
-  (:use #:cl #:kp6-cl))
-(in-package #:kp6-GLOBAL)
+(in-package #:kp6-global)
 
 (defparameter kp6-Code_say (make-instance 'kp6-code
   :value #'(lambda (&rest strs)
