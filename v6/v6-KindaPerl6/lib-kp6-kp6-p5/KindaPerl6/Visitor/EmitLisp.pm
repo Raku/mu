@@ -332,7 +332,7 @@
                             'APPLY',
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                ::DISPATCH( $::Str, 'new', '(make-instance ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', chr(39) ), ::DISPATCH( $::Str, 'new', 'Int :value ' ) )
+                                ::DISPATCH( $::Str, 'new', '(make-instance ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', chr(39) ), ::DISPATCH( $::Str, 'new', 'kp6-int :value ' ) )
                             ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
@@ -411,7 +411,7 @@
                             'APPLY',
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                ::DISPATCH( $::Str, 'new', '(make-instance ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', chr(39) ), ::DISPATCH( $::Str, 'new', 'Bit :value ' ) )
+                                ::DISPATCH( $::Str, 'new', '(make-instance ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', chr(39) ), ::DISPATCH( $::Str, 'new', 'kp6-bit :value ' ) )
                             ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
@@ -490,7 +490,7 @@
                             'APPLY',
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                ::DISPATCH( $::Str, 'new', '(make-instance ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', chr(39) ), ::DISPATCH( $::Str, 'new', 'Num :value ' ) )
+                                ::DISPATCH( $::Str, 'new', '(make-instance ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', chr(39) ), ::DISPATCH( $::Str, 'new', 'kp6-num :value ' ) )
                             ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
@@ -569,7 +569,7 @@
                             'APPLY',
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                ::DISPATCH( $::Str, 'new', '(make-instance ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', chr(39) ), ::DISPATCH( $::Str, 'new', 'Str :value ' ) )
+                                ::DISPATCH( $::Str, 'new', '(make-instance ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', chr(39) ), ::DISPATCH( $::Str, 'new', 'kp6-str :value ' ) )
                             ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
@@ -656,7 +656,7 @@
                             'APPLY',
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                ::DISPATCH( $::Str, 'new', '(make-instance ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', chr(39) ), ::DISPATCH( $::Str, 'new', 'Str :value (code-char ' ) )
+                                ::DISPATCH( $::Str, 'new', '(make-instance ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', chr(39) ), ::DISPATCH( $::Str, 'new', 'kp6-str :value (code-char ' ) )
                             ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
@@ -733,7 +733,7 @@
                             'APPLY',
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                ::DISPATCH( $::Str, 'new', '(make-instance ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', chr(39) ), ::DISPATCH( $::Str, 'new', 'Undef )' ) )
+                                ::DISPATCH( $::Str, 'new', '(make-instance ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', chr(39) ), ::DISPATCH( $::Str, 'new', 'kp6-undef )' ) )
                             ),
                             ::DISPATCH( $Main::Code_newline, 'APPLY', )
                         );
@@ -1010,7 +1010,7 @@
                             'APPLY',
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                ::DISPATCH( $::Str, 'new', '(make-instance ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', chr(39) ), ::DISPATCH( $::Str, 'new', 'Array :value (list ' ) )
+                                ::DISPATCH( $::Str, 'new', '(make-instance ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', chr(39) ), ::DISPATCH( $::Str, 'new', 'kp6-array :value (list ' ) )
                             ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
@@ -1137,7 +1137,7 @@
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH( $::Str, 'new', '(make-instance \\\'Hash :value ' ),
+                            ::DISPATCH( $::Str, 'new', '(make-instance \\\'kp6-hash :value ' ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
@@ -1222,7 +1222,7 @@
                             'APPLY',
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                ::DISPATCH( $::Str, 'new', '(make-instance ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', chr(39) ), ::DISPATCH( $::Str, 'new', 'Pair :key ' ) )
+                                ::DISPATCH( $::Str, 'new', '(make-instance ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', chr(39) ), ::DISPATCH( $::Str, 'new', 'kp6-pair :key ' ) )
                             ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
@@ -1309,7 +1309,7 @@
                             'APPLY',
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                ::DISPATCH( $::Str, 'new', '(make-instance ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', chr(39) ), ::DISPATCH( $::Str, 'new', 'NamedArgument :_argument_name_ ' ) )
+                                ::DISPATCH( $::Str, 'new', '(make-instance ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', chr(39) ), ::DISPATCH( $::Str, 'new', 'kp6-named-argument :_argument_name_ ' ) )
                             ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,

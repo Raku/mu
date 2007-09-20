@@ -18,37 +18,37 @@ sub emit_lisp { my $self = shift; my $List__ = \@_; my $args_secure; do {  $args
 ;
 package Val::Int;
 sub new { shift; bless { @_ }, "Val::Int" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(make-instance \'Int :value ' . ($self->{int} . (')' . Main::newline()))) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(make-instance \'kp6-int :value ' . ($self->{int} . (')' . Main::newline()))) }
 
 
 ;
 package Val::Bit;
 sub new { shift; bless { @_ }, "Val::Bit" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(make-instance \'Bit :value ' . ($self->{bit} . (')' . Main::newline()))) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(make-instance \'kp6-bit :value ' . ($self->{bit} . (')' . Main::newline()))) }
 
 
 ;
 package Val::Num;
 sub new { shift; bless { @_ }, "Val::Num" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(make-instance \'Num :value ' . ($self->{num} . (')' . Main::newline()))) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(make-instance \'kp6-num :value ' . ($self->{num} . (')' . Main::newline()))) }
 
 
 ;
 package Val::Buf;
 sub new { shift; bless { @_ }, "Val::Buf" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(make-instance \'Str :value ' . ('"' . (Main::mangle_string($self->{buf}) . ('"' . (')' . Main::newline()))))) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(make-instance \'kp6-str :value ' . ('"' . (Main::mangle_string($self->{buf}) . ('"' . (')' . Main::newline()))))) }
 
 
 ;
 package Val::Char;
 sub new { shift; bless { @_ }, "Val::Char" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(make-instance \'Str :value (code-char ' . ($self->{char} . (') )' . Main::newline()))) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(make-instance \'kp6-str :value (code-char ' . ($self->{char} . (') )' . Main::newline()))) }
 
 
 ;
 package Val::Undef;
 sub new { shift; bless { @_ }, "Val::Undef" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(make-instance \'Undef )' . Main::newline()) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(make-instance \'kp6-undef )' . Main::newline()) }
 
 
 ;
@@ -72,25 +72,25 @@ sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(' . (Main::joi
 ;
 package Lit::Array;
 sub new { shift; bless { @_ }, "Lit::Array" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(make-instance \'Array :value (list ' . (Main::join([ map { $_->emit_lisp() } @{ $self->{array} } ], ' ') . (') )' . Main::newline()))) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(make-instance \'kp6-array :value (list ' . (Main::join([ map { $_->emit_lisp() } @{ $self->{array} } ], ' ') . (') )' . Main::newline()))) }
 
 
 ;
 package Lit::Hash;
 sub new { shift; bless { @_ }, "Lit::Hash" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; my  $fields = $self->{hash}; my  $str = ''; my  $field; do { for my $field ( @{$fields} ) { $str = ($str . ('(setf (gethash \'' . ($field->[0]->emit_lisp() . (' hash) ' . ($field->[1]->emit_lisp() . ')'))))) } }; ('(make-instance \'Hash :value ' . ('(let ((hash (make-hash-table))) ' . ($str . (' hash)' . (')' . Main::newline()))))) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; my  $fields = $self->{hash}; my  $str = ''; my  $field; do { for my $field ( @{$fields} ) { $str = ($str . ('(setf (gethash \'' . ($field->[0]->emit_lisp() . (' hash) ' . ($field->[1]->emit_lisp() . ')'))))) } }; ('(make-instance \'kp6-hash :value ' . ('(let ((hash (make-hash-table))) ' . ($str . (' hash)' . (')' . Main::newline()))))) }
 
 
 ;
 package Lit::Pair;
 sub new { shift; bless { @_ }, "Lit::Pair" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(make-instance \'Pair :key ' . ($self->{key}->emit_lisp() . (' :value ' . ($self->{value}->emit_lisp() . (')' . Main::newline()))))) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(make-instance \'kp6-pair :key ' . ($self->{key}->emit_lisp() . (' :value ' . ($self->{value}->emit_lisp() . (')' . Main::newline()))))) }
 
 
 ;
 package Lit::NamedArgument;
 sub new { shift; bless { @_ }, "Lit::NamedArgument" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(make-instance \'NamedArgument :_argument_name_ ' . ($self->{key}->emit_lisp() . (' :value ' . ($self->{value}->emit_lisp() . (')' . Main::newline()))))) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(make-instance \'kp6-named-argument :_argument_name_ ' . ($self->{key}->emit_lisp() . (' :value ' . ($self->{value}->emit_lisp() . (')' . Main::newline()))))) }
 
 
 ;
