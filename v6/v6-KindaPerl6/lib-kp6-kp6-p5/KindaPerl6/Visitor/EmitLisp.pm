@@ -2272,10 +2272,10 @@
                             $table = ::DISPATCH(
                                 $::Hash, "new",
                                 {   _hash => {
-                                        ::DISPATCH( $::Str, 'new', '$' )->{_value} => ::DISPATCH( $::Str, 'new', '$' ),
-                                        ::DISPATCH( $::Str, 'new', '@' )->{_value} => ::DISPATCH( $::Str, 'new', '$List_' ),
-                                        ::DISPATCH( $::Str, 'new', '%' )->{_value} => ::DISPATCH( $::Str, 'new', '$Hash_' ),
-                                        ::DISPATCH( $::Str, 'new', '&' )->{_value} => ::DISPATCH( $::Str, 'new', '$Code_' ),
+                                        ::DISPATCH( $::Str, 'new', '$' )->{_value} => ::DISPATCH( $::Str, 'new', 'kp6-' ),
+                                        ::DISPATCH( $::Str, 'new', '@' )->{_value} => ::DISPATCH( $::Str, 'new', 'kp6-List_' ),
+                                        ::DISPATCH( $::Str, 'new', '%' )->{_value} => ::DISPATCH( $::Str, 'new', 'kp6-Hash_' ),
+                                        ::DISPATCH( $::Str, 'new', '&' )->{_value} => ::DISPATCH( $::Str, 'new', 'kp6-Code_' ),
                                     }
                                 }
                             );
@@ -2304,7 +2304,7 @@
                                 }
                             }
                         };
-                        return ( ::DISPATCH( $Main::Code_mangle_name, 'APPLY', ::DISPATCH( $self, "sigil" ), ::DISPATCH( $self, "twigil" ), ::DISPATCH( $self, "name" ), ::DISPATCH( $self, "namespace" ) ) );
+                        return ( ::DISPATCH( $Main::Code_mangle_name_lisp, 'APPLY', ::DISPATCH( $self, "sigil" ), ::DISPATCH( $self, "twigil" ), ::DISPATCH( $self, "name" ), ::DISPATCH( $self, "namespace" ) ) );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
@@ -2783,7 +2783,7 @@
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
-                                                    ::DISPATCH( $::Str, 'new', '(APPLY ' ),
+                                                    ::DISPATCH( $::Str, 'new', '( APPLY ' ),
                                                     ::DISPATCH(
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
@@ -2794,7 +2794,7 @@
                                                             ::DISPATCH( $::Str, 'new', ' (list ' ),
                                                             ::DISPATCH(
                                                                 $GLOBAL::Code_infix_58__60__126__62_,
-                                                                'APPLY', $call, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '))' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                                                'APPLY', $call, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ') )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                                                             )
                                                         )
                                                     )

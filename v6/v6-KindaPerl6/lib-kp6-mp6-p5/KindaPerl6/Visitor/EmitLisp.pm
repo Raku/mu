@@ -130,7 +130,7 @@ sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; my  $node = $self
 ;
 package Var;
 sub new { shift; bless { @_ }, "Var" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; my  $table = { '$' => '$','@' => '$List_','%' => '$Hash_','&' => '$Code_', }; do { if (($self->{twigil} eq '.')) { return(('::DISPATCH( $self, "' . ($self->{name} . ('" )' . Main::newline())))) } else {  } }; do { if (($self->{name} eq '/')) { return(($table->{$self->{sigil}} . 'MATCH')) } else {  } }; return(Main::mangle_name($self->{sigil}, $self->{twigil}, $self->{name}, $self->{namespace})) };
+sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; my  $table = { '$' => 'kp6-','@' => 'kp6-List_','%' => 'kp6-Hash_','&' => 'kp6-Code_', }; do { if (($self->{twigil} eq '.')) { return(('::DISPATCH( $self, "' . ($self->{name} . ('" )' . Main::newline())))) } else {  } }; do { if (($self->{name} eq '/')) { return(($table->{$self->{sigil}} . 'MATCH')) } else {  } }; return(Main::mangle_name_lisp($self->{sigil}, $self->{twigil}, $self->{name}, $self->{namespace})) };
 sub perl { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( $::Signature::Item, "new", { ' . ('sigil  => \'' . ($self->{sigil} . ('\', ' . ('twigil => \'' . ($self->{twigil} . ('\', ' . ('name   => \'' . ($self->{name} . ('\', ' . ('namespace => [ ], ' . ('} )' . Main::newline())))))))))))) }
 
 
@@ -149,7 +149,7 @@ sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; return(('$::' . $
 ;
 package Call;
 sub new { shift; bless { @_ }, "Call" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; my  $invocant; do { if (Main::isa($self->{invocant}, 'Proto')) { do { if (($self->{invocant}->name() eq 'self')) { $invocant = '$self' } else { $invocant = $self->{invocant}->emit_lisp() } } } else { $invocant = $self->{invocant}->emit_lisp() } }; do { if (($invocant eq 'self')) { $invocant = '$self' } else {  } }; my  $meth = $self->{method}; do { if (($meth eq 'postcircumfix:<( )>')) { $meth = '' } else {  } }; my  $call = Main::join([ map { $_->emit_lisp() } @{ $self->{arguments} } ], ' '); do { if ($self->{hyper}) { ('[ map { $_' . ('->' . ($meth . ('(' . ($call . (') } @{ ' . ($invocant . (' } ]' . Main::newline())))))))) } else { do { if (($meth eq '')) { ('(APPLY ' . ($invocant . (' (list ' . ($call . ('))' . Main::newline()))))) } else { ('( ' . ($meth . (' ' . ($invocant . (' (list ' . ($call . (') )' . Main::newline()))))))) } } } } }
+sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; my  $invocant; do { if (Main::isa($self->{invocant}, 'Proto')) { do { if (($self->{invocant}->name() eq 'self')) { $invocant = '$self' } else { $invocant = $self->{invocant}->emit_lisp() } } } else { $invocant = $self->{invocant}->emit_lisp() } }; do { if (($invocant eq 'self')) { $invocant = '$self' } else {  } }; my  $meth = $self->{method}; do { if (($meth eq 'postcircumfix:<( )>')) { $meth = '' } else {  } }; my  $call = Main::join([ map { $_->emit_lisp() } @{ $self->{arguments} } ], ' '); do { if ($self->{hyper}) { ('[ map { $_' . ('->' . ($meth . ('(' . ($call . (') } @{ ' . ($invocant . (' } ]' . Main::newline())))))))) } else { do { if (($meth eq '')) { ('( APPLY ' . ($invocant . (' (list ' . ($call . (') )' . Main::newline()))))) } else { ('( ' . ($meth . (' ' . ($invocant . (' (list ' . ($call . (') )' . Main::newline()))))))) } } } } }
 
 
 ;

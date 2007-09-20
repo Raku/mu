@@ -261,10 +261,10 @@ class Var {
         # %x    => $Hash_x
         # &x    => $Code_x
         my $table := {
-            '$' => '$',
-            '@' => '$List_',
-            '%' => '$Hash_',
-            '&' => '$Code_',
+            '$' => 'kp6-',
+            '@' => 'kp6-List_',
+            '%' => 'kp6-Hash_',
+            '&' => 'kp6-Code_',
         };
         
         if $.twigil eq '.' {
@@ -275,7 +275,7 @@ class Var {
             return $table{$.sigil} ~ 'MATCH' 
         };
         
-        return Main::mangle_name( $.sigil, $.twigil, $.name, $.namespace ); 
+        return Main::mangle_name_lisp( $.sigil, $.twigil, $.name, $.namespace ); 
     };
     method perl {
         # this is used by the signature emitter
