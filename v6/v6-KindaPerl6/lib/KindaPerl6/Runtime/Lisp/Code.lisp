@@ -4,4 +4,4 @@
   ((value :initarg :value)))
 
 (defun my-APPLY (self arg)
-  (funcall (slot-value self 'value) (make-instance 'Str :value arg)))
+  (funcall (slot-value self 'value) (make-instance 'kp6-str :value arg)))
