@@ -126,7 +126,7 @@ my $dispatch = sub {
     }
 
     my $meth = get_method_from_object( $self, $method_name );
-    die "no method '$method_name' in Class '", $self->{_isa}[0]{_value}{class_name}, "'\n"
+    confess "no method '$method_name' in Class '", $self->{_isa}[0]{_value}{class_name}, "'\n"
         unless $meth;
         
     if ( ref( $meth->{_value} ) eq 'HASH' && exists $meth->{_value}{code} ) {

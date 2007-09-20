@@ -1,2 +1,2 @@
 #!/bin/sh
-cat - | KP6_TOKEN_DEBUGGER=1 perl -Ilib-kp6-kp6-p5 kp6-kp6.pl 2>/dev/null | perl -pi -e 's/(\>\>\>|\<\<\<)/($1 eq ">>>") ? ("    " x $::LEVEL++) : ("    " x --$::LEVEL )/ge ' | less
+cat - | KP6_TOKEN_DEBUGGER=1 perl -Ilib-kp6-kp6-p5 kp6-kp6.pl 2>/dev/null | perl -pi -e 's/(\>\>\>|\<\<\<|\-\-\-)/($1 eq ">>>") ? chr($::LEVEL + 65).("   " x $::LEVEL++) : $1 eq "<<<" ? chr(--$::LEVEL + 65).("   " x $::LEVEL ) : chr($::LEVEL + 65).("   " x $::LEVEL ) /ge' | less

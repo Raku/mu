@@ -11,7 +11,7 @@ sub visit { my $self = shift; my $List__ = \@_; my $node; my $node_name; do {  $
 ;
 package Rule;
 sub new { shift; bless { @_ }, "Rule" }
-sub constant { my $List__ = \@_; my $str; do {  $str = $List__->[0]; [$str] }; my  $len = Main::chars($str, ); do { if (($str eq Main::backslash())) { $str = (Main::backslash() . Main::backslash()) } else {  } }; do { if (($str eq Main::singlequote())) { $str = (Main::backslash() . Main::singlequote()) } else {  } }; do { if ($len) { ('do {if (length($str) <  ' . ($len . (') {(0)} else { if (' . (Main::singlequote() . ($str . (Main::singlequote() . (' eq substr($str, $MATCH.to, ' . ($len . (')) {' . ('$MATCH.to = (' . ($len . ' + $MATCH.to); 1;} else {(0)}}}'))))))))))) } else { return('1') } } }
+sub constant { my $List__ = \@_; my $str; do {  $str = $List__->[0]; [$str] }; my  $len = Main::chars($str, ); do { if (($str eq Main::backslash())) { $str = (Main::backslash() . Main::backslash()) } else {  } }; do { if (($str eq Main::singlequote())) { $str = (Main::backslash() . Main::singlequote()) } else {  } }; do { if ($len) { ('do {if (length($str) <  ' . ($len . (') {(0)} else { if (' . (Main::singlequote() . ($str . (Main::singlequote() . (' eq substr($str, $MATCH.to, ' . ($len . (')) {' . ('$MATCH.to = (' . ($len . ' + $MATCH.to);  1;} else {(0)}}}'))))))))))) } else { return('1') } } }
 
 
 ;
@@ -71,7 +71,7 @@ sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; my  $char = $sel
 ;
 package Rule::Block;
 sub new { shift; bless { @_ }, "Rule::Block" }
-sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; return(('do { ' . ('my $ret = self.' . ($self->{closure} . ('($MATCH);' . ('if $ret ne "sTrNgE V4l" {' . ('$MATCH.result = $ret; ' . ('$MATCH.bool = 1; ' . ('return $MATCH;' . ('};' . ('1' . '}'))))))))))) }
+sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; return(('do { ' . ('my $ret = self.' . ($self->{closure} . ('($MATCH);' . ('if $ret ne "sTrNgE V4l" {' . ('if (%*ENV{"KP6_TOKEN_DEBUGGER"}) { say "<<< some closure returing... " }; ' . ('$MATCH.result = $ret; ' . ('$MATCH.bool = 1; ' . ('return $MATCH;' . ('};' . ('1' . '}')))))))))))) }
 
 
 ;

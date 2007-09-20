@@ -1259,6 +1259,20 @@
                                                                                                                         )
                                                                                                                     {
                                                                                                                         {
+                                                                                                                            do {
+                                                                                                                                if (::DISPATCH(
+                                                                                                                                        ::DISPATCH(
+                                                                                                                                            ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true"
+                                                                                                                                        ),
+                                                                                                                                        "p5landish"
+                                                                                                                                    )
+                                                                                                                                    )
+                                                                                                                                {
+                                                                                                                                    {
+                                                                                                                                        ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< some closure returing... ' ) )
+                                                                                                                                    }
+                                                                                                                                }
+                                                                                                                            };
                                                                                                                             ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                                             ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                                                                                                                             return ($MATCH)
@@ -1704,6 +1718,20 @@
                                                                                                                         )
                                                                                                                     {
                                                                                                                         {
+                                                                                                                            do {
+                                                                                                                                if (::DISPATCH(
+                                                                                                                                        ::DISPATCH(
+                                                                                                                                            ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true"
+                                                                                                                                        ),
+                                                                                                                                        "p5landish"
+                                                                                                                                    )
+                                                                                                                                    )
+                                                                                                                                {
+                                                                                                                                    {
+                                                                                                                                        ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< some closure returing... ' ) )
+                                                                                                                                    }
+                                                                                                                                }
+                                                                                                                            };
                                                                                                                             ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                                             ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                                                                                                                             return ($MATCH)
@@ -1992,6 +2020,13 @@
                                                                             do {
                                                                                 if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_ne_62_, 'APPLY', $ret, ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) ), "true" ), "p5landish" ) ) {
                                                                                     {
+                                                                                        do {
+                                                                                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true" ), "p5landish" ) ) {
+                                                                                                {
+                                                                                                    ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< some closure returing... ' ) )
+                                                                                                }
+                                                                                            }
+                                                                                        };
                                                                                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                                                                                         return ($MATCH)
@@ -2183,6 +2218,13 @@
                                                                         do {
                                                                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_ne_62_, 'APPLY', $ret, ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) ), "true" ), "p5landish" ) ) {
                                                                                 {
+                                                                                    do {
+                                                                                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true" ), "p5landish" ) ) {
+                                                                                            {
+                                                                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< some closure returing... ' ) )
+                                                                                            }
+                                                                                        }
+                                                                                    };
                                                                                     ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                     ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                                                                                     return ($MATCH)
@@ -2243,6 +2285,13 @@
                                                                                 do {
                                                                                     if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_ne_62_, 'APPLY', $ret, ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) ), "true" ), "p5landish" ) ) {
                                                                                         {
+                                                                                            do {
+                                                                                                if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true" ), "p5landish" ) ) {
+                                                                                                    {
+                                                                                                        ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< some closure returing... ' ) )
+                                                                                                    }
+                                                                                                }
+                                                                                            };
                                                                                             ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                             ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                                                                                             return ($MATCH)
@@ -2307,6 +2356,15 @@
                                                                                                 )
                                                                                             {
                                                                                                 {
+                                                                                                    do {
+                                                                                                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true" ), "p5landish" )
+                                                                                                            )
+                                                                                                        {
+                                                                                                            {
+                                                                                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< some closure returing... ' ) )
+                                                                                                            }
+                                                                                                        }
+                                                                                                    };
                                                                                                     ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                     ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                                                                                                     return ($MATCH)
@@ -2404,6 +2462,17 @@
                                                                                                         )
                                                                                                     {
                                                                                                         {
+                                                                                                            do {
+                                                                                                                if (::DISPATCH(
+                                                                                                                        ::DISPATCH( ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true" ), "p5landish"
+                                                                                                                    )
+                                                                                                                    )
+                                                                                                                {
+                                                                                                                    {
+                                                                                                                        ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< some closure returing... ' ) )
+                                                                                                                    }
+                                                                                                                }
+                                                                                                            };
                                                                                                             ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                             ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                                                                                                             return ($MATCH)
@@ -2593,6 +2662,25 @@
                                                                                                                                                     )
                                                                                                                                                 {
                                                                                                                                                     {
+                                                                                                                                                        do {
+                                                                                                                                                            if (::DISPATCH(
+                                                                                                                                                                    ::DISPATCH(
+                                                                                                                                                                        ::DISPATCH(
+                                                                                                                                                                            $GLOBAL::Hash_ENV, 'LOOKUP',
+                                                                                                                                                                            ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' )
+                                                                                                                                                                        ),
+                                                                                                                                                                        "true"
+                                                                                                                                                                    ),
+                                                                                                                                                                    "p5landish"
+                                                                                                                                                                )
+                                                                                                                                                                )
+                                                                                                                                                            {
+                                                                                                                                                                {
+                                                                                                                                                                    ::DISPATCH( $GLOBAL::Code_say, 'APPLY',
+                                                                                                                                                                        ::DISPATCH( $::Str, 'new', '<<< some closure returing... ' ) )
+                                                                                                                                                                }
+                                                                                                                                                            }
+                                                                                                                                                        };
                                                                                                                                                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                                                                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                                                                                                                                                         return ($MATCH)
@@ -2708,6 +2796,25 @@
                                                                                                                                                             )
                                                                                                                                                         {
                                                                                                                                                             {
+                                                                                                                                                                do {
+                                                                                                                                                                    if (::DISPATCH(
+                                                                                                                                                                            ::DISPATCH(
+                                                                                                                                                                                ::DISPATCH(
+                                                                                                                                                                                    $GLOBAL::Hash_ENV, 'LOOKUP',
+                                                                                                                                                                                    ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' )
+                                                                                                                                                                                ),
+                                                                                                                                                                                "true"
+                                                                                                                                                                            ),
+                                                                                                                                                                            "p5landish"
+                                                                                                                                                                        )
+                                                                                                                                                                        )
+                                                                                                                                                                    {
+                                                                                                                                                                        {
+                                                                                                                                                                            ::DISPATCH( $GLOBAL::Code_say, 'APPLY',
+                                                                                                                                                                                ::DISPATCH( $::Str, 'new', '<<< some closure returing... ' ) )
+                                                                                                                                                                        }
+                                                                                                                                                                    }
+                                                                                                                                                                };
                                                                                                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                                                                                                                                                                 return ($MATCH)
@@ -2828,6 +2935,25 @@
                                                                                                                                                                     )
                                                                                                                                                                 {
                                                                                                                                                                     {
+                                                                                                                                                                        do {
+                                                                                                                                                                            if (::DISPATCH(
+                                                                                                                                                                                    ::DISPATCH(
+                                                                                                                                                                                        ::DISPATCH(
+                                                                                                                                                                                            $GLOBAL::Hash_ENV, 'LOOKUP',
+                                                                                                                                                                                            ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' )
+                                                                                                                                                                                        ),
+                                                                                                                                                                                        "true"
+                                                                                                                                                                                    ),
+                                                                                                                                                                                    "p5landish"
+                                                                                                                                                                                )
+                                                                                                                                                                                )
+                                                                                                                                                                            {
+                                                                                                                                                                                {
+                                                                                                                                                                                    ::DISPATCH( $GLOBAL::Code_say, 'APPLY',
+                                                                                                                                                                                        ::DISPATCH( $::Str, 'new', '<<< some closure returing... ' ) )
+                                                                                                                                                                                }
+                                                                                                                                                                            }
+                                                                                                                                                                        };
                                                                                                                                                                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                                                                                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ),
                                                                                                                                                                             'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
@@ -2953,6 +3079,30 @@
                                                                                                                                                                             )
                                                                                                                                                                         {
                                                                                                                                                                             {
+                                                                                                                                                                                do {
+                                                                                                                                                                                    if (::DISPATCH(
+                                                                                                                                                                                            ::DISPATCH(
+                                                                                                                                                                                                ::DISPATCH(
+                                                                                                                                                                                                    $GLOBAL::Hash_ENV, 'LOOKUP',
+                                                                                                                                                                                                    ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' )
+                                                                                                                                                                                                ),
+                                                                                                                                                                                                "true"
+                                                                                                                                                                                            ),
+                                                                                                                                                                                            "p5landish"
+                                                                                                                                                                                        )
+                                                                                                                                                                                        )
+                                                                                                                                                                                    {
+                                                                                                                                                                                        {
+                                                                                                                                                                                            ::DISPATCH(
+                                                                                                                                                                                                $GLOBAL::Code_say,
+                                                                                                                                                                                                'APPLY',
+                                                                                                                                                                                                ::DISPATCH(
+                                                                                                                                                                                                    $::Str, 'new', '<<< some closure returing... '
+                                                                                                                                                                                                )
+                                                                                                                                                                                                )
+                                                                                                                                                                                        }
+                                                                                                                                                                                    }
+                                                                                                                                                                                };
                                                                                                                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                                                                                                 ::DISPATCH_VAR(
                                                                                                                                                                                     ::DISPATCH( $MATCH, 'bool', ),
@@ -3094,6 +3244,34 @@
                                                                                                                                                                                     )
                                                                                                                                                                                 {
                                                                                                                                                                                     {
+                                                                                                                                                                                        do {
+                                                                                                                                                                                            if (::DISPATCH(
+                                                                                                                                                                                                    ::DISPATCH(
+                                                                                                                                                                                                        ::DISPATCH(
+                                                                                                                                                                                                            $GLOBAL::Hash_ENV,
+                                                                                                                                                                                                            'LOOKUP',
+                                                                                                                                                                                                            ::DISPATCH(
+                                                                                                                                                                                                                $::Str, 'new', 'KP6_TOKEN_DEBUGGER'
+                                                                                                                                                                                                            )
+                                                                                                                                                                                                        ),
+                                                                                                                                                                                                        "true"
+                                                                                                                                                                                                    ),
+                                                                                                                                                                                                    "p5landish"
+                                                                                                                                                                                                )
+                                                                                                                                                                                                )
+                                                                                                                                                                                            {
+                                                                                                                                                                                                {
+                                                                                                                                                                                                    ::DISPATCH(
+                                                                                                                                                                                                        $GLOBAL::Code_say,
+                                                                                                                                                                                                        'APPLY',
+                                                                                                                                                                                                        ::DISPATCH(
+                                                                                                                                                                                                            $::Str, 'new',
+                                                                                                                                                                                                            '<<< some closure returing... '
+                                                                                                                                                                                                        )
+                                                                                                                                                                                                        )
+                                                                                                                                                                                                }
+                                                                                                                                                                                            }
+                                                                                                                                                                                        };
                                                                                                                                                                                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                                                                                                         ::DISPATCH_VAR(
                                                                                                                                                                                             ::DISPATCH( $MATCH, 'bool', ),
@@ -3238,6 +3416,35 @@
                                                                                                                                                                                             )
                                                                                                                                                                                         {
                                                                                                                                                                                             {
+                                                                                                                                                                                                do {
+                                                                                                                                                                                                    if (::DISPATCH(
+                                                                                                                                                                                                            ::DISPATCH(
+                                                                                                                                                                                                                ::DISPATCH(
+                                                                                                                                                                                                                    $GLOBAL::Hash_ENV,
+                                                                                                                                                                                                                    'LOOKUP',
+                                                                                                                                                                                                                    ::DISPATCH(
+                                                                                                                                                                                                                        $::Str, 'new',
+                                                                                                                                                                                                                        'KP6_TOKEN_DEBUGGER'
+                                                                                                                                                                                                                    )
+                                                                                                                                                                                                                ),
+                                                                                                                                                                                                                "true"
+                                                                                                                                                                                                            ),
+                                                                                                                                                                                                            "p5landish"
+                                                                                                                                                                                                        )
+                                                                                                                                                                                                        )
+                                                                                                                                                                                                    {
+                                                                                                                                                                                                        {
+                                                                                                                                                                                                            ::DISPATCH(
+                                                                                                                                                                                                                $GLOBAL::Code_say,
+                                                                                                                                                                                                                'APPLY',
+                                                                                                                                                                                                                ::DISPATCH(
+                                                                                                                                                                                                                    $::Str, 'new',
+                                                                                                                                                                                                                    '<<< some closure returing... '
+                                                                                                                                                                                                                )
+                                                                                                                                                                                                                )
+                                                                                                                                                                                                        }
+                                                                                                                                                                                                    }
+                                                                                                                                                                                                };
                                                                                                                                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ),
                                                                                                                                                                                                     'STORE', $ret );
                                                                                                                                                                                                 ::DISPATCH_VAR(
@@ -3394,6 +3601,36 @@
                                                                                                                                                                                                     )
                                                                                                                                                                                                 {
                                                                                                                                                                                                     {
+                                                                                                                                                                                                        do {
+                                                                                                                                                                                                            if (::DISPATCH(
+                                                                                                                                                                                                                    ::DISPATCH(
+                                                                                                                                                                                                                        ::DISPATCH(
+                                                                                                                                                                                                                            $GLOBAL::Hash_ENV,
+                                                                                                                                                                                                                            'LOOKUP',
+                                                                                                                                                                                                                            ::DISPATCH(
+                                                                                                                                                                                                                                $::Str, 'new',
+                                                                                                                                                                                                                                'KP6_TOKEN_DEBUGGER'
+                                                                                                                                                                                                                            )
+                                                                                                                                                                                                                        ),
+                                                                                                                                                                                                                        "true"
+                                                                                                                                                                                                                    ),
+                                                                                                                                                                                                                    "p5landish"
+                                                                                                                                                                                                                )
+                                                                                                                                                                                                                )
+                                                                                                                                                                                                            {
+                                                                                                                                                                                                                {
+                                                                                                                                                                                                                    ::DISPATCH(
+                                                                                                                                                                                                                        $GLOBAL::Code_say,
+                                                                                                                                                                                                                        'APPLY',
+                                                                                                                                                                                                                        ::DISPATCH(
+                                                                                                                                                                                                                            $::Str,
+                                                                                                                                                                                                                            'new',
+                                                                                                                                                                                                                            '<<< some closure returing... '
+                                                                                                                                                                                                                        )
+                                                                                                                                                                                                                        )
+                                                                                                                                                                                                                }
+                                                                                                                                                                                                            }
+                                                                                                                                                                                                        };
                                                                                                                                                                                                         ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ),
                                                                                                                                                                                                             'STORE', $ret );
                                                                                                                                                                                                         ::DISPATCH_VAR(
@@ -3562,6 +3799,37 @@
                                                                                                                                                                                                             )
                                                                                                                                                                                                         {
                                                                                                                                                                                                             {
+                                                                                                                                                                                                                do {
+                                                                                                                                                                                                                    if (::DISPATCH(
+                                                                                                                                                                                                                            ::DISPATCH(
+                                                                                                                                                                                                                                ::DISPATCH(
+                                                                                                                                                                                                                                    $GLOBAL::Hash_ENV,
+                                                                                                                                                                                                                                    'LOOKUP',
+                                                                                                                                                                                                                                    ::DISPATCH(
+                                                                                                                                                                                                                                        $::Str,
+                                                                                                                                                                                                                                        'new',
+                                                                                                                                                                                                                                        'KP6_TOKEN_DEBUGGER'
+                                                                                                                                                                                                                                    )
+                                                                                                                                                                                                                                ),
+                                                                                                                                                                                                                                "true"
+                                                                                                                                                                                                                            ),
+                                                                                                                                                                                                                            "p5landish"
+                                                                                                                                                                                                                        )
+                                                                                                                                                                                                                        )
+                                                                                                                                                                                                                    {
+                                                                                                                                                                                                                        {
+                                                                                                                                                                                                                            ::DISPATCH(
+                                                                                                                                                                                                                                $GLOBAL::Code_say,
+                                                                                                                                                                                                                                'APPLY',
+                                                                                                                                                                                                                                ::DISPATCH(
+                                                                                                                                                                                                                                    $::Str,
+                                                                                                                                                                                                                                    'new',
+                                                                                                                                                                                                                                    '<<< some closure returing... '
+                                                                                                                                                                                                                                )
+                                                                                                                                                                                                                                )
+                                                                                                                                                                                                                        }
+                                                                                                                                                                                                                    }
+                                                                                                                                                                                                                };
                                                                                                                                                                                                                 ::DISPATCH_VAR(
                                                                                                                                                                                                                     ::DISPATCH( $MATCH, 'result', ),
                                                                                                                                                                                                                     'STORE', $ret );
@@ -3750,6 +4018,37 @@
                                                                                                                                                                                                                     )
                                                                                                                                                                                                                 {
                                                                                                                                                                                                                     {
+                                                                                                                                                                                                                        do {
+                                                                                                                                                                                                                            if (::DISPATCH(
+                                                                                                                                                                                                                                    ::DISPATCH(
+                                                                                                                                                                                                                                        ::DISPATCH(
+                                                                                                                                                                                                                                            $GLOBAL::Hash_ENV,
+                                                                                                                                                                                                                                            'LOOKUP',
+                                                                                                                                                                                                                                            ::DISPATCH(
+                                                                                                                                                                                                                                                $::Str,
+                                                                                                                                                                                                                                                'new',
+                                                                                                                                                                                                                                                'KP6_TOKEN_DEBUGGER'
+                                                                                                                                                                                                                                            )
+                                                                                                                                                                                                                                        ),
+                                                                                                                                                                                                                                        "true"
+                                                                                                                                                                                                                                    ),
+                                                                                                                                                                                                                                    "p5landish"
+                                                                                                                                                                                                                                )
+                                                                                                                                                                                                                                )
+                                                                                                                                                                                                                            {
+                                                                                                                                                                                                                                {
+                                                                                                                                                                                                                                    ::DISPATCH(
+                                                                                                                                                                                                                                        $GLOBAL::Code_say,
+                                                                                                                                                                                                                                        'APPLY',
+                                                                                                                                                                                                                                        ::DISPATCH(
+                                                                                                                                                                                                                                            $::Str,
+                                                                                                                                                                                                                                            'new',
+                                                                                                                                                                                                                                            '<<< some closure returing... '
+                                                                                                                                                                                                                                        )
+                                                                                                                                                                                                                                        )
+                                                                                                                                                                                                                                }
+                                                                                                                                                                                                                            }
+                                                                                                                                                                                                                        };
                                                                                                                                                                                                                         ::DISPATCH_VAR(
                                                                                                                                                                                                                             ::DISPATCH( $MATCH, 'result',
                                                                                                                                                                                                                             ),
@@ -3955,6 +4254,37 @@
                                                                                                                                                                                                                             )
                                                                                                                                                                                                                         {
                                                                                                                                                                                                                             {
+                                                                                                                                                                                                                                do {
+                                                                                                                                                                                                                                    if (::DISPATCH(
+                                                                                                                                                                                                                                            ::DISPATCH(
+                                                                                                                                                                                                                                                ::DISPATCH(
+                                                                                                                                                                                                                                                    $GLOBAL::Hash_ENV,
+                                                                                                                                                                                                                                                    'LOOKUP',
+                                                                                                                                                                                                                                                    ::DISPATCH(
+                                                                                                                                                                                                                                                        $::Str,
+                                                                                                                                                                                                                                                        'new',
+                                                                                                                                                                                                                                                        'KP6_TOKEN_DEBUGGER'
+                                                                                                                                                                                                                                                    )
+                                                                                                                                                                                                                                                ),
+                                                                                                                                                                                                                                                "true"
+                                                                                                                                                                                                                                            ),
+                                                                                                                                                                                                                                            "p5landish"
+                                                                                                                                                                                                                                        )
+                                                                                                                                                                                                                                        )
+                                                                                                                                                                                                                                    {
+                                                                                                                                                                                                                                        {
+                                                                                                                                                                                                                                            ::DISPATCH(
+                                                                                                                                                                                                                                                $GLOBAL::Code_say,
+                                                                                                                                                                                                                                                'APPLY',
+                                                                                                                                                                                                                                                ::DISPATCH(
+                                                                                                                                                                                                                                                    $::Str,
+                                                                                                                                                                                                                                                    'new',
+                                                                                                                                                                                                                                                    '<<< some closure returing... '
+                                                                                                                                                                                                                                                )
+                                                                                                                                                                                                                                                )
+                                                                                                                                                                                                                                        }
+                                                                                                                                                                                                                                    }
+                                                                                                                                                                                                                                };
                                                                                                                                                                                                                                 ::DISPATCH_VAR(
                                                                                                                                                                                                                                     ::DISPATCH(
                                                                                                                                                                                                                                         $MATCH,
@@ -4134,6 +4464,37 @@
                                                                                                                                                                                                                             )
                                                                                                                                                                                                                         {
                                                                                                                                                                                                                             {
+                                                                                                                                                                                                                                do {
+                                                                                                                                                                                                                                    if (::DISPATCH(
+                                                                                                                                                                                                                                            ::DISPATCH(
+                                                                                                                                                                                                                                                ::DISPATCH(
+                                                                                                                                                                                                                                                    $GLOBAL::Hash_ENV,
+                                                                                                                                                                                                                                                    'LOOKUP',
+                                                                                                                                                                                                                                                    ::DISPATCH(
+                                                                                                                                                                                                                                                        $::Str,
+                                                                                                                                                                                                                                                        'new',
+                                                                                                                                                                                                                                                        'KP6_TOKEN_DEBUGGER'
+                                                                                                                                                                                                                                                    )
+                                                                                                                                                                                                                                                ),
+                                                                                                                                                                                                                                                "true"
+                                                                                                                                                                                                                                            ),
+                                                                                                                                                                                                                                            "p5landish"
+                                                                                                                                                                                                                                        )
+                                                                                                                                                                                                                                        )
+                                                                                                                                                                                                                                    {
+                                                                                                                                                                                                                                        {
+                                                                                                                                                                                                                                            ::DISPATCH(
+                                                                                                                                                                                                                                                $GLOBAL::Code_say,
+                                                                                                                                                                                                                                                'APPLY',
+                                                                                                                                                                                                                                                ::DISPATCH(
+                                                                                                                                                                                                                                                    $::Str,
+                                                                                                                                                                                                                                                    'new',
+                                                                                                                                                                                                                                                    '<<< some closure returing... '
+                                                                                                                                                                                                                                                )
+                                                                                                                                                                                                                                                )
+                                                                                                                                                                                                                                        }
+                                                                                                                                                                                                                                    }
+                                                                                                                                                                                                                                };
                                                                                                                                                                                                                                 ::DISPATCH_VAR(
                                                                                                                                                                                                                                     ::DISPATCH(
                                                                                                                                                                                                                                         $MATCH,
@@ -4523,6 +4884,20 @@
                                                                                                                             )
                                                                                                                         {
                                                                                                                             {
+                                                                                                                                do {
+                                                                                                                                    if (::DISPATCH(
+                                                                                                                                            ::DISPATCH(
+                                                                                                                                                ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true"
+                                                                                                                                            ),
+                                                                                                                                            "p5landish"
+                                                                                                                                        )
+                                                                                                                                        )
+                                                                                                                                    {
+                                                                                                                                        {
+                                                                                                                                            ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< some closure returing... ' ) )
+                                                                                                                                        }
+                                                                                                                                    }
+                                                                                                                                };
                                                                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                                                                                                                                 return ($MATCH)
@@ -4848,6 +5223,18 @@
                                                                                                             )
                                                                                                         {
                                                                                                             {
+                                                                                                                do {
+                                                                                                                    if (::DISPATCH(
+                                                                                                                            ::DISPATCH( ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true" ),
+                                                                                                                            "p5landish"
+                                                                                                                        )
+                                                                                                                        )
+                                                                                                                    {
+                                                                                                                        {
+                                                                                                                            ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< some closure returing... ' ) )
+                                                                                                                        }
+                                                                                                                    }
+                                                                                                                };
                                                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                                                                                                                 return ($MATCH)
@@ -4911,6 +5298,18 @@
                                                                                                             )
                                                                                                         {
                                                                                                             {
+                                                                                                                do {
+                                                                                                                    if (::DISPATCH(
+                                                                                                                            ::DISPATCH( ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true" ),
+                                                                                                                            "p5landish"
+                                                                                                                        )
+                                                                                                                        )
+                                                                                                                    {
+                                                                                                                        {
+                                                                                                                            ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< some closure returing... ' ) )
+                                                                                                                        }
+                                                                                                                    }
+                                                                                                                };
                                                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                                 ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                                                                                                                 return ($MATCH)
@@ -6661,6 +7060,17 @@
                                                                                                         )
                                                                                                     {
                                                                                                         {
+                                                                                                            do {
+                                                                                                                if (::DISPATCH(
+                                                                                                                        ::DISPATCH( ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true" ), "p5landish"
+                                                                                                                    )
+                                                                                                                    )
+                                                                                                                {
+                                                                                                                    {
+                                                                                                                        ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< some closure returing... ' ) )
+                                                                                                                    }
+                                                                                                                }
+                                                                                                            };
                                                                                                             ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                             ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                                                                                                             return ($MATCH)
@@ -6844,6 +7254,17 @@
                                                                                                         )
                                                                                                     {
                                                                                                         {
+                                                                                                            do {
+                                                                                                                if (::DISPATCH(
+                                                                                                                        ::DISPATCH( ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'KP6_TOKEN_DEBUGGER' ) ), "true" ), "p5landish"
+                                                                                                                    )
+                                                                                                                    )
+                                                                                                                {
+                                                                                                                    {
+                                                                                                                        ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '<<< some closure returing... ' ) )
+                                                                                                                    }
+                                                                                                                }
+                                                                                                            };
                                                                                                             ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result', ), 'STORE', $ret );
                                                                                                             ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'bool', ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) );
                                                                                                             return ($MATCH)
