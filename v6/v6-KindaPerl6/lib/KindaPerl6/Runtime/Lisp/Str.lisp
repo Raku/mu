@@ -2,6 +2,6 @@
 
 ; TODO: subclass Value
 (defclass kp6-str ()
-  ((value :initarg :value)))
+  ((value :initarg :value :accessor kp6-value)))
   
 (defmethod str ((s kp6-str)) s)

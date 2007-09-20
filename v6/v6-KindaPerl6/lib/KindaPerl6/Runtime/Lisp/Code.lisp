@@ -1,7 +1,7 @@
 (in-package #:kp6-cl)
 
 (defclass kp6-code ()
-  ((value :initarg :value)))
+  ((value :initarg :value :accessor kp6-value)))
 
-(defun kp6-APPLY (self arg)
-  (funcall (slot-value self 'value) arg))
+(defun kp6-apply (self arg)
+  (funcall (kp6-value self) arg))
