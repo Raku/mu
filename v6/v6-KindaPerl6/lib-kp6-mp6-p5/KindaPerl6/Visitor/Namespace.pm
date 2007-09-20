@@ -5,7 +5,8 @@ use MiniPerl6::Perl5::Runtime;
 use MiniPerl6::Perl5::Match;
 package KindaPerl6::Visitor::Namespace;
 sub new { shift; bless { @_ }, "KindaPerl6::Visitor::Namespace" }
-sub visit { my $self = shift; my $List__ = \@_; my $node; my $node_name; do {  $node = $List__->[0];  $node_name = $List__->[1]; [$node, $node_name] }; do { if (($node_name eq 'Var')) { do { if (@{$node->namespace()}) { Main::say('global ', $node->name()) } else {  } } } else {  } }; return((undef)) }
+my  $table = { '$' => 'Scalar_','@' => 'List_','%' => 'Hash_','&' => 'Code_', };
+sub visit { my $self = shift; my $List__ = \@_; my $node; my $node_name; do {  $node = $List__->[0];  $node_name = $List__->[1]; [$node, $node_name] }; do { if (($node_name eq 'Var')) { do { if (@{$node->namespace()}) { Main::say('global ', $node->name());return(Lookup->new( 'obj' => Lookup->new( 'obj' => Var->new( 'namespace' => [],'name' => 'KP6','twigil' => '','sigil' => '%', ),'index' => Val::Buf->new( 'buf' => 'a', ), ),'index' => Val::Buf->new( 'buf' => 'b', ), )) } else {  } } } else {  } }; return((undef)) }
 
 
 ;

@@ -12,10 +12,16 @@
     BEGIN { $_MODIFIED = {} }
     BEGIN { $_ = ::DISPATCH( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
     {
+        my $table;
+        $table = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$table' } ) unless defined $table;
+        BEGIN { $table = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$table' } ) }
         do {
             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::KindaPerl6::Visitor::Namespace ), "true" ), "p5landish" ) ) { }
             else {
                 {
+                    my $table;
+                    $table = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$table' } ) unless defined $table;
+                    BEGIN { $table = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$table' } ) }
                     do {
                         ::MODIFIED($::KindaPerl6::Visitor::Namespace);
                         $::KindaPerl6::Visitor::Namespace = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'KindaPerl6::Visitor::Namespace' ) ), 'PROTOTYPE', );
@@ -64,7 +70,25 @@
                                     do {
                                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $node, 'namespace', ) ), "true" ), "p5landish" ) ) {
                                             {
-                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', 'global ' ), ::DISPATCH( $node, 'name', ) )
+                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', 'global ' ), ::DISPATCH( $node, 'name', ) );
+                                                return (
+                                                    ::DISPATCH(
+                                                        $::Lookup,
+                                                        'new',
+                                                        ::DISPATCH( $::Str, 'new', 'obj' ) => ::DISPATCH(
+                                                            $::Lookup,
+                                                            'new',
+                                                            ::DISPATCH( $::Str, 'new', 'obj' ) => ::DISPATCH(
+                                                                $::Var, 'new', ::DISPATCH( $::Str, 'new', 'namespace' ) => ::DISPATCH( $::Array, "new", { _array => [] } ),
+                                                                ::DISPATCH( $::Str, 'new', 'name' )   => ::DISPATCH( $::Str, 'new', 'KP6' ),
+                                                                ::DISPATCH( $::Str, 'new', 'twigil' ) => ::DISPATCH( $::Str, 'new', '' ),
+                                                                ::DISPATCH( $::Str, 'new', 'sigil' )  => ::DISPATCH( $::Str, 'new', '%' ),
+                                                            ),
+                                                            ::DISPATCH( $::Str, 'new', 'index' ) => ::DISPATCH( $::Val::Buf, 'new', ::DISPATCH( $::Str, 'new', 'buf' ) => ::DISPATCH( $::Str, 'new', 'a' ), ),
+                                                        ),
+                                                        ::DISPATCH( $::Str, 'new', 'index' ) => ::DISPATCH( $::Val::Buf, 'new', ::DISPATCH( $::Str, 'new', 'buf' ) => ::DISPATCH( $::Str, 'new', 'b' ), ),
+                                                    )
+                                                    )
                                             }
                                         }
                                         }
@@ -91,7 +115,20 @@
                     ),
                 }
             )
-            )
+        );
+        do {
+            ::MODIFIED($table);
+            $table = ::DISPATCH(
+                $::Hash, "new",
+                {   _hash => {
+                        ::DISPATCH( $::Str, 'new', '$' )->{_value} => ::DISPATCH( $::Str, 'new', 'Scalar_' ),
+                        ::DISPATCH( $::Str, 'new', '@' )->{_value} => ::DISPATCH( $::Str, 'new', 'List_' ),
+                        ::DISPATCH( $::Str, 'new', '%' )->{_value} => ::DISPATCH( $::Str, 'new', 'Hash_' ),
+                        ::DISPATCH( $::Str, 'new', '&' )->{_value} => ::DISPATCH( $::Str, 'new', 'Code_' ),
+                    }
+                }
+            );
+            }
     };
     1
 }
