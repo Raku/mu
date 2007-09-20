@@ -1,4 +1,5 @@
 (in-package #:kp6-cl)
 
-(defclass kp6-bit (kp6-value)
+; XXX: Make this support `t' and `nil' and 1 and 0
+(defclass kp6-Bit (kp6-Value)
   ())
