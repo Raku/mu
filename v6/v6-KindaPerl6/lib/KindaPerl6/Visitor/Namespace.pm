@@ -22,7 +22,7 @@ class KindaPerl6::Visitor::Namespace {
         {
             if @($node.namespace) {
                 say "global ", $node.name;
-                # $X::Y::z -> %KP6<X><Y><Scalar_z>
+                # $X::Y::z -> %KP6<X::Y><Scalar_z>
                 return ::Lookup(
                         obj => ::Lookup(
                             obj => ::Var(
@@ -31,9 +31,9 @@ class KindaPerl6::Visitor::Namespace {
                                 twigil    => '',
                                 sigil     => '%',
                             ),
-                            index => ::Val::Buf( buf => 'a', ),
+                            index => ::Val::Buf( buf => ($node.namespace).join('::'), ),
                         ),
-                        index => ::Val::Buf( buf => 'b', ),
+                        index => ::Val::Buf( buf => ($table{$node.sigil} ~ $node.name), ),
                     );
                 
             }

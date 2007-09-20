@@ -84,9 +84,15 @@
                                                                 ::DISPATCH( $::Str, 'new', 'twigil' ) => ::DISPATCH( $::Str, 'new', '' ),
                                                                 ::DISPATCH( $::Str, 'new', 'sigil' )  => ::DISPATCH( $::Str, 'new', '%' ),
                                                             ),
-                                                            ::DISPATCH( $::Str, 'new', 'index' ) => ::DISPATCH( $::Val::Buf, 'new', ::DISPATCH( $::Str, 'new', 'buf' ) => ::DISPATCH( $::Str, 'new', 'a' ), ),
+                                                            ::DISPATCH( $::Str, 'new', 'index' ) =>
+                                                                ::DISPATCH( $::Val::Buf, 'new', ::DISPATCH( $::Str, 'new', 'buf' ) => ::DISPATCH( ::DISPATCH( $node, 'namespace', ), 'join', ::DISPATCH( $::Str, 'new', '::' ) ), ),
                                                         ),
-                                                        ::DISPATCH( $::Str, 'new', 'index' ) => ::DISPATCH( $::Val::Buf, 'new', ::DISPATCH( $::Str, 'new', 'buf' ) => ::DISPATCH( $::Str, 'new', 'b' ), ),
+                                                        ::DISPATCH( $::Str, 'new', 'index' ) => ::DISPATCH(
+                                                            $::Val::Buf,
+                                                            'new',
+                                                            ::DISPATCH( $::Str, 'new', 'buf' ) =>
+                                                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $table, 'LOOKUP', ::DISPATCH( $node, 'sigil', ) ), ::DISPATCH( $node, 'name', ) ),
+                                                        ),
                                                     )
                                                     )
                                             }
