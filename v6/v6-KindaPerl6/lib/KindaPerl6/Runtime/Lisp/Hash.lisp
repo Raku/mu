@@ -25,7 +25,7 @@
     (let ((hash (kp6-value self)))
       (remhash key hash))))
 
-(defmethod kp6-CLEAR ((self kp6-Hash) key)
+(defmethod kp6-CLEAR ((self kp6-Hash))
   "Empties the hash"
   (let ((hash (kp6-value self)))
     (clrhash hash))
