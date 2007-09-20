@@ -544,6 +544,14 @@ $meta_Object->add_method(
     )
 );
 $meta_Object->add_method(
+    'true',
+    ::DISPATCH( $::Method, 'new', 
+        sub {
+            ::DISPATCH( $::Bit, 'new',  1 );  # ???
+        }
+    )
+);
+$meta_Object->add_method(
     'defined',
     ::DISPATCH( $::Method, 'new', 
         sub {
@@ -553,7 +561,7 @@ $meta_Object->add_method(
 );
 
 # Object.FETCH is a no-op
-# $meta_Object->add_method( 'FETCH',        ::DISPATCH( $::Method, 'new',  sub { $_[0] } ) );
+$meta_Object->add_method( 'FETCH',        ::DISPATCH( $::Method, 'new',  sub { $_[0] } ) );
 # Object.STORE is forbidden
 my $method_readonly = ::DISPATCH( $::Method, 'new', 
     { code => sub {

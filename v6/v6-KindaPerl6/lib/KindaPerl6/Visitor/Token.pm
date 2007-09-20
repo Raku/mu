@@ -152,10 +152,10 @@ class Rule::Constant {
 
 class Rule::Dot {
     method emit_token {
-        '( (\'\' ne substr( $str, $MATCH.to, 1 )) ' ~
-        '  ?? ($MATCH.to = (1 + $MATCH.to ))' ~
-        '  !! (0) ' ~
-        ')';
+        'do { if (\'\' ne substr( $str, $MATCH.to, 1 )) {' ~
+        '   ($MATCH.to = (1 + $MATCH.to )); 1 } else {' ~
+        '   0 } ' ~
+        '}';
     }
 }
 
@@ -212,6 +212,7 @@ class Rule::Block {
              'my $ret = self.'~$.closure ~ '($MATCH);' ~
              'if $ret ne "sTrNgE V4l" {' ~
                 '$MATCH.result = $ret; ' ~
+                '$MATCH.bool = 1; ' ~
                 'return $MATCH;' ~
              '};' ~
              '1' ~

@@ -59,7 +59,7 @@ sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; my  $str = $self
 ;
 package Rule::Dot;
 sub new { shift; bless { @_ }, "Rule::Dot" }
-sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; ('( (\'\' ne substr( $str, $MATCH.to, 1 )) ' . ('  ?? ($MATCH.to = (1 + $MATCH.to ))' . ('  !! (0) ' . ')'))) }
+sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; ('do { if (\'\' ne substr( $str, $MATCH.to, 1 )) {' . ('   ($MATCH.to = (1 + $MATCH.to )); 1 } else {' . ('   0 } ' . '}'))) }
 
 
 ;
@@ -71,7 +71,7 @@ sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; my  $char = $sel
 ;
 package Rule::Block;
 sub new { shift; bless { @_ }, "Rule::Block" }
-sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; return(('do { ' . ('my $ret = self.' . ($self->{closure} . ('($MATCH);' . ('if $ret ne "sTrNgE V4l" {' . ('$MATCH.result = $ret; ' . ('return $MATCH;' . ('};' . ('1' . '}')))))))))) }
+sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; return(('do { ' . ('my $ret = self.' . ($self->{closure} . ('($MATCH);' . ('if $ret ne "sTrNgE V4l" {' . ('$MATCH.result = $ret; ' . ('$MATCH.bool = 1; ' . ('return $MATCH;' . ('};' . ('1' . '}'))))))))))) }
 
 
 ;
