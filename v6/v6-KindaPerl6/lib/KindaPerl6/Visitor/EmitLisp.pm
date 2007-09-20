@@ -33,38 +33,38 @@ class CompUnit {
 
 class Val::Int {
     method emit_lisp { 
-        "(make-instance \'kp6-int :value " ~ $.int ~ ")" ~ Main::newline();
+        "(make-instance \'kp6-Int :value " ~ $.int ~ ")" ~ Main::newline();
     }
 }
 
 class Val::Bit {
     method emit_lisp { 
-        "(make-instance \'kp6-bit :value " ~ $.bit ~ ")" ~ Main::newline();
+        "(make-instance \'kp6-Bit :value " ~ $.bit ~ ")" ~ Main::newline();
     }
 }
 
 class Val::Num {
     method emit_lisp { 
-        "(make-instance \'kp6-num :value " ~ $.num ~ ")" ~ Main::newline();
+        "(make-instance \'kp6-Num :value " ~ $.num ~ ")" ~ Main::newline();
     }
 }
 
 class Val::Buf {
     method emit_lisp { 
-        "(make-instance \'kp6-str :value " ~ '"' ~ Main::mangle_string( $.buf ) ~ '"' ~ ")" ~ Main::newline();
+        "(make-instance \'kp6-Str :value " ~ '"' ~ Main::mangle_string( $.buf ) ~ '"' ~ ")" ~ Main::newline();
     }
 }
 
 class Val::Char {
     method emit_lisp { 
         # XXX Char != Str
-        "(make-instance \'kp6-str :value (code-char " ~ $.char ~ ") )" ~ Main::newline();
+        "(make-instance \'kp6-Str :value (code-char " ~ $.char ~ "))" ~ Main::newline();
     }
 }
 
 class Val::Undef {
     method emit_lisp { 
-        "(make-instance \'kp6-undef )" ~ Main::newline();
+        "(make-instance \'kp6-Undef)" ~ Main::newline();
     }
 }
 
@@ -90,7 +90,7 @@ class Lit::Seq {
 
 class Lit::Array {
     method emit_lisp {
-        "(make-instance \'kp6-array :value (list " ~ (@.array.>>emit_lisp).join(' ') ~ ") )" ~ Main::newline();
+        "(make-instance \'kp6-Array :value (list " ~ (@.array.>>emit_lisp).join(' ') ~ "))" ~ Main::newline();
     }
 }
 
@@ -100,11 +100,10 @@ class Lit::Hash {
         my $str := '';
         my $field;
         for @$fields -> $field { 
-            $str := $str ~ '(setf (gethash \'' ~ ($field[0]).emit_lisp ~ ' hash) ' ~ ($field[1]).emit_lisp ~ ')';
+            $str := $str ~ '  (kp6-STORE hash ' ~ ($field[0]).emit_lisp ~ ' ' ~ ($field[1]).emit_lisp ~ ')' ~ Main::newline();
         }; 
-          '(make-instance \'kp6-hash :value '
-        ~   '(let ((hash (make-hash-table))) ' ~ $str ~ ' hash)' 
-        ~ ')'
+          '(let ((hash (make-instance \'kp6-Hash)))' ~ Main::newline()
+        ~ $str ~ ' hash)'
         ~ Main::newline();
     }
 }
