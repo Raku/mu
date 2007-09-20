@@ -66,7 +66,7 @@ sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; die('Emitting of 
 ;
 package Lit::Seq;
 sub new { shift; bless { @_ }, "Lit::Seq" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(' . (Main::join([ map { $_->emit_lisp() } @{ $self->{seq} } ], ', ') . ')')) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(' . (Main::join([ map { $_->emit_lisp() } @{ $self->{seq} } ], ' ') . ')')) }
 
 
 ;
@@ -97,10 +97,10 @@ sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(make-instance 
 package Lit::Code;
 sub new { shift; bless { @_ }, "Lit::Code" }
 sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ($self->emit_declarations() . $self->emit_body()) };
-sub emit_body { my $self = shift; my $List__ = \@_; do { [] }; Main::join([ map { $_->emit_lisp() } @{ $self->{body} } ], '; ') };
+sub emit_body { my $self = shift; my $List__ = \@_; do { [] }; Main::join([ map { $_->emit_lisp() } @{ $self->{body} } ], ' ') };
 sub emit_signature { my $self = shift; my $List__ = \@_; do { [] }; $self->{sig}->emit_lisp() };
-sub emit_declarations { my $self = shift; my $List__ = \@_; do { [] }; my  $s; my  $name; do { for my $name ( @{$self->{pad}->variable_names()} ) { my  $decl = Decl->new( 'decl' => 'my','type' => '','var' => Var->new( 'sigil' => '','twigil' => '','name' => $name,'namespace' => [], ), );$s = ($s . ($name->emit_lisp() . (';' . Main::newline()))) } }; return($s) };
-sub emit_arguments { my $self = shift; my $List__ = \@_; do { [] }; my  $array_ = Var->new( 'sigil' => '@','twigil' => '','name' => '_','namespace' => [], ); my  $hash_ = Var->new( 'sigil' => '%','twigil' => '','name' => '_','namespace' => [], ); my  $CAPTURE = Var->new( 'sigil' => '$','twigil' => '','name' => 'CAPTURE','namespace' => [], ); my  $CAPTURE_decl = Decl->new( 'decl' => 'my','type' => '','var' => $CAPTURE, ); my  $str = ''; $str = ($str . $CAPTURE_decl->emit_lisp()); $str = ($str . '::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));'); my  $bind_ = Bind->new( 'parameters' => $array_,'arguments' => Call->new( 'invocant' => $CAPTURE,'method' => 'array','arguments' => [], ), ); $str = ($str . ($bind_->emit_lisp() . ';')); my  $bind_hash = Bind->new( 'parameters' => $hash_,'arguments' => Call->new( 'invocant' => $CAPTURE,'method' => 'hash','arguments' => [], ), ); $str = ($str . ($bind_hash->emit_lisp() . ';')); my  $i = 0; my  $field; do { for my $field ( @{$self->{sig}->positional()} ) { my  $bind = Bind->new( 'parameters' => $field,'arguments' => Index->new( 'obj' => $array_,'index' => Val::Int->new( 'int' => $i, ), ), );$str = ($str . ($bind->emit_lisp() . ';'));$i = ($i + 1) } }; return($str) }
+sub emit_declarations { my $self = shift; my $List__ = \@_; do { [] }; my  $s; my  $name; do { for my $name ( @{$self->{pad}->variable_names()} ) { my  $decl = Decl->new( 'decl' => 'my','type' => '','var' => Var->new( 'sigil' => '','twigil' => '','name' => $name,'namespace' => [], ), );$s = ($s . ($name->emit_lisp() . (' ' . Main::newline()))) } }; return($s) };
+sub emit_arguments { my $self = shift; my $List__ = \@_; do { [] }; my  $array_ = Var->new( 'sigil' => '@','twigil' => '','name' => '_','namespace' => [], ); my  $hash_ = Var->new( 'sigil' => '%','twigil' => '','name' => '_','namespace' => [], ); my  $CAPTURE = Var->new( 'sigil' => '$','twigil' => '','name' => 'CAPTURE','namespace' => [], ); my  $CAPTURE_decl = Decl->new( 'decl' => 'my','type' => '','var' => $CAPTURE, ); my  $str = ''; $str = ($str . $CAPTURE_decl->emit_lisp()); $str = ($str . '::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));'); my  $bind_ = Bind->new( 'parameters' => $array_,'arguments' => Call->new( 'invocant' => $CAPTURE,'method' => 'array','arguments' => [], ), ); $str = ($str . ($bind_->emit_lisp() . ' ')); my  $bind_hash = Bind->new( 'parameters' => $hash_,'arguments' => Call->new( 'invocant' => $CAPTURE,'method' => 'hash','arguments' => [], ), ); $str = ($str . ($bind_hash->emit_lisp() . ' ')); my  $i = 0; my  $field; do { for my $field ( @{$self->{sig}->positional()} ) { my  $bind = Bind->new( 'parameters' => $field,'arguments' => Index->new( 'obj' => $array_,'index' => Val::Int->new( 'int' => $i, ), ), );$str = ($str . ($bind->emit_lisp() . ' '));$i = ($i + 1) } }; return($str) }
 
 
 ;

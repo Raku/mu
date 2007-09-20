@@ -953,7 +953,7 @@
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
                             ::DISPATCH( $::Str,                               'new',   '(' ),
-                            ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( [ map { $_->emit_lisp() } @{ ::DISPATCH( $self, "seq" ) } ], 'join', ::DISPATCH( $::Str, 'new', ', ' ) ), ::DISPATCH( $::Str, 'new', ')' ) )
+                            ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( [ map { $_->emit_lisp() } @{ ::DISPATCH( $self, "seq" ) } ], 'join', ::DISPATCH( $::Str, 'new', ' ' ) ), ::DISPATCH( $::Str, 'new', ')' ) )
                         );
                     },
                     signature => ::DISPATCH(
@@ -1444,7 +1444,7 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        ::DISPATCH( [ map { $_->emit_lisp() } @{ ::DISPATCH( $self, "body" ) } ], 'join', ::DISPATCH( $::Str, 'new', '; ' ) );
+                        ::DISPATCH( [ map { $_->emit_lisp() } @{ ::DISPATCH( $self, "body" ) } ], 'join', ::DISPATCH( $::Str, 'new', ' ' ) );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
@@ -1558,7 +1558,7 @@
                                             'APPLY', $s,
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                                ::DISPATCH( $name, 'emit_lisp', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ';' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                                ::DISPATCH( $name, 'emit_lisp', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' ' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                                             )
                                         );
                                         }
@@ -1691,7 +1691,7 @@
                         };
                         do {
                             ::MODIFIED($str);
-                            $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $bind_, 'emit_lisp', ), ::DISPATCH( $::Str, 'new', ';' ) ) );
+                            $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $bind_, 'emit_lisp', ), ::DISPATCH( $::Str, 'new', ' ' ) ) );
                         };
                         do {
                             ::MODIFIED($bind_hash);
@@ -1707,7 +1707,7 @@
                         };
                         do {
                             ::MODIFIED($str);
-                            $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $bind_hash, 'emit_lisp', ), ::DISPATCH( $::Str, 'new', ';' ) ) );
+                            $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $bind_hash, 'emit_lisp', ), ::DISPATCH( $::Str, 'new', ' ' ) ) );
                         };
                         do {
                             ::MODIFIED($i);
@@ -1736,7 +1736,7 @@
                                     };
                                     do {
                                         ::MODIFIED($str);
-                                        $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $bind, 'emit_lisp', ), ::DISPATCH( $::Str, 'new', ';' ) ) );
+                                        $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $bind, 'emit_lisp', ), ::DISPATCH( $::Str, 'new', ' ' ) ) );
                                     };
                                     do {
                                         ::MODIFIED($i);
