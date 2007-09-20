@@ -1,5 +1,4 @@
-(defpackage :GLOBAL)
-(in-package :GLOBAL)
+(in-package #:kp6-cl)
 
 (defparameter say (make-instance 'Code
   :value #'(lambda (&rest strs)

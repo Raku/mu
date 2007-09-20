@@ -1,4 +1,4 @@
-(defpackage "Code")
+(in-package #:kp6-cl)
 
 (defclass Code ()
   ((value :initarg :value)))
