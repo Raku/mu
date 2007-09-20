@@ -89,7 +89,7 @@ sub top_targets
 
 lib-kp6-mp6-p5/KindaPerl6/Runtime/Perl6/%.pm: lib/KindaPerl6/Runtime/Perl6/%.pm
 	@echo COMPILE $< $@
-	$(PERL) kp6-mp6-perl5.pl < $< | perltidy -pro=util/perltidyrc > $@.temp ; \
+	@$(PERL) kp6-mp6-perl5.pl < $< | perltidy -pro=util/perltidyrc > $@.temp ; \
 		res=$$? ; \
 		if [ $$res = 0 -a -s $@.temp ] ; then \
 			mv $@.temp $@ ; \
@@ -99,7 +99,7 @@ lib-kp6-mp6-p5/KindaPerl6/Runtime/Perl6/%.pm: lib/KindaPerl6/Runtime/Perl6/%.pm
 		fi
 lib-modules-kp6-mp6-p5/%.pm: lib-modules/%.pm
 	@echo COMPILE $< $@
-	$(PERL) kp6-mp6-perl5.pl < $< | perltidy -pro=util/perltidyrc > $@.temp ; \
+	@$(PERL) kp6-mp6-perl5.pl < $< | perltidy -pro=util/perltidyrc > $@.temp ; \
 		res=$$? ; \
 		if [ $$res = 0 -a -s $@.temp ] ; then \
 			mv $@.temp $@ ; \
@@ -110,7 +110,7 @@ lib-modules-kp6-mp6-p5/%.pm: lib-modules/%.pm
 
 lib-modules-kp6-kp6-p5/%.pm: lib-modules/%.pm
 	@echo COMPILE $< $@
-	KP6_TARGET_RUNTIME='KindaPerl6::Runtime::Perl5::KP6Runtime' $(PERL) kp6-mp6-perl5.pl < $< | perltidy -pro=util/perltidyrc > $@.temp ; \
+	@KP6_TARGET_RUNTIME='KindaPerl6::Runtime::Perl5::KP6Runtime' $(PERL) kp6-mp6-perl5.pl < $< | perltidy -pro=util/perltidyrc > $@.temp ; \
 		res=$$? ; \
 		if [ $$res = 0 -a -s $@.temp ] ; then \
 			mv $@.temp $@ ; \
