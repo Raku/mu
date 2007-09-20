@@ -7,6 +7,7 @@
    #:kp6-value ; accessors
    ))
 
+; XXX no longer needed, we now use a Perl 6 hash instead of namespaces
 (defpackage #:kp6-GLOBAL
   (:use #:cl #:kp6-cl)
   (:export #:say))
