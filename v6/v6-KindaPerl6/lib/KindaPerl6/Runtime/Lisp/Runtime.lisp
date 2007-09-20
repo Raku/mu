@@ -1,12 +1,6 @@
-; Values
-(load (compile-file "lib/KindaPerl6/Runtime/Lisp/Bit.lisp"))
-(load (compile-file "lib/KindaPerl6/Runtime/Lisp/Int.lisp"))
-(load (compile-file "lib/KindaPerl6/Runtime/Lisp/Str.lisp"))
-(load (compile-file "lib/KindaPerl6/Runtime/Lisp/Code.lisp"))
-
-; Containers
-(load (compile-file "lib/KindaPerl6/Runtime/Lisp/Hash.lisp"))
-(load (compile-file "lib/KindaPerl6/Runtime/Lisp/Array.lisp"))
-
-; Functions
-(load (compile-file "lib/KindaPerl6/Runtime/Lisp/GLOBAL.lisp"))
+(dolist (file '("package"
+		"Bit" "Int" "Str" "Code" ; Values
+		"Hash" "Array"           ; Containers
+		"GLOBAL"                 ; Functions
+		))
+  (load (compile-file (format nil "lib/KindaPerl6/Runtime/Lisp/~A.lisp" file))))
