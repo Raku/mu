@@ -1,4 +1,6 @@
 (dolist (file '("package"
+		"Value" "Container"      ; Base classes
+        "Undef"                  ; Undef
 		"Bit" "Int" "Str" "Code" ; Values
 		"Hash" "Array"           ; Containers
 		"GLOBAL"                 ; Functions
