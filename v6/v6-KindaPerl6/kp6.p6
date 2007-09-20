@@ -7,16 +7,18 @@ module Main {
     use KindaPerl6::Runtime::Perl6::Compiler;
     use KindaPerl6::Runtime::Perl6::Grammar;
 
-    my @visitors;
-    @visitors.push('ExtractRuleBlock');
-    @visitors.push('Token');
-    @visitors.push('MetaClass');
-    @visitors.push('Global');
-    @visitors.push('EmitPerl5');
+    use KindaPerl6::Visitor::ExtractRuleBlock;
+    use KindaPerl6::Visitor::Token;
+    use KindaPerl6::Visitor::MetaClass;
+    use KindaPerl6::Visitor::Global;
+    use KindaPerl6::Visitor::EmitPerl5;
 
-    for @visitors -> $visitor {
-        require 'KindaPerl6::Visitor::' ~ $visitor;
-    }
+    my @visitors;
+    @visitors.push(KindaPerl6::Visitor::ExtractRuleBlock.new());
+    @visitors.push(KindaPerl6::Visitor::Token.new());
+    @visitors.push(KindaPerl6::Visitor::MetaClass.new());
+    @visitors.push(KindaPerl6::Visitor::Global.new())
+    @visitors.push(KindaPerl6::Visitor::EmitPerl5.new());
 
     my $code = slurp;
 
@@ -31,11 +33,13 @@ module Main {
 
     while ($len > $pos) {
 
-        my $ast = KindaPerl6::Grammar.comp_unit($code, $pos);
+        my $match = KindaPerl6::Grammar.comp_unit($code, $pos);
+        my $ast = $match.result;
         say 'Finished matching...';
         if (!($ast.isa('CompUnit'))) {
-            die 'AST IS:(' ~ $ast ~ ')';
+            die 'AST IS:(' ~ $ast.result ~ ')';
         };
+    
         for @visitors -> $visitor {
             $ast.emit($visitor);
         };

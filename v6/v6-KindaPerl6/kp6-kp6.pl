@@ -50,22 +50,17 @@
         use KindaPerl6::Grammar::Regex;
         use KindaPerl6::Runtime::Perl6::Compiler;
         use KindaPerl6::Runtime::Perl6::Grammar;
+        use KindaPerl6::Visitor::ExtractRuleBlock;
+        use KindaPerl6::Visitor::Token;
+        use KindaPerl6::Visitor::MetaClass;
+        use KindaPerl6::Visitor::Global;
+        use KindaPerl6::Visitor::EmitPerl5;
         $List_visitors;
-        ::DISPATCH( $List_visitors, 'push', ::DISPATCH( $::Str, 'new', 'ExtractRuleBlock' ) );
-        ::DISPATCH( $List_visitors, 'push', ::DISPATCH( $::Str, 'new', 'Token' ) );
-        ::DISPATCH( $List_visitors, 'push', ::DISPATCH( $::Str, 'new', 'MetaClass' ) );
-        ::DISPATCH( $List_visitors, 'push', ::DISPATCH( $::Str, 'new', 'Global' ) );
-        ::DISPATCH( $List_visitors, 'push', ::DISPATCH( $::Str, 'new', 'EmitPerl5' ) );
-        {
-            my $visitor;
-            $visitor = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$visitor' } ) unless defined $visitor;
-            BEGIN { $visitor = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$visitor' } ) }
-            for $visitor ( @{ $List_visitors->{_value}{_array} } ) {
-                {
-                    ::DISPATCH( $GLOBAL::Code_require, 'APPLY', ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', 'KindaPerl6::Visitor::' ), $visitor ) )
-                }
-            }
-        };
+        ::DISPATCH( $List_visitors, 'push', ::DISPATCH( $::KindaPerl6::Visitor::ExtractRuleBlock, 'new', ) );
+        ::DISPATCH( $List_visitors, 'push', ::DISPATCH( $::KindaPerl6::Visitor::Token,            'new', ) );
+        ::DISPATCH( $List_visitors, 'push', ::DISPATCH( $::KindaPerl6::Visitor::MetaClass,        'new', ) );
+        ::DISPATCH( $List_visitors, 'push', ::DISPATCH( $::KindaPerl6::Visitor::Global,           'new', ) );
+        ::DISPATCH( $List_visitors, 'push', ::DISPATCH( $::KindaPerl6::Visitor::EmitPerl5,        'new', ) );
         ::DISPATCH_VAR( $code, 'STORE', ::DISPATCH( $GLOBAL::Code_slurp, 'APPLY', ) );
         ::DISPATCH( $COMPILER::Code_env_init, 'APPLY', );
         ::DISPATCH_VAR(
@@ -87,16 +82,27 @@
         do {
             while ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60__62__62_, 'APPLY', $len, $pos ), "true" ), "p5landish" ) ) {
                 {
+                    my $match;
+                    $match = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$match' } ) unless defined $match;
+                    BEGIN { $match = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$match' } ) }
                     my $ast;
                     $ast = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ast' } ) unless defined $ast;
                     BEGIN { $ast = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ast' } ) }
-                    ::DISPATCH_VAR( $ast, 'STORE', ::DISPATCH( $::KindaPerl6::Grammar, 'comp_unit', $code, $pos ) );
+                    ::DISPATCH_VAR( $match, 'STORE', ::DISPATCH( $::KindaPerl6::Grammar, 'comp_unit', $code, $pos ) );
+                    ::DISPATCH_VAR( $ast, 'STORE', ::DISPATCH( $match, 'result', ) );
                     ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', 'Finished matching...' ) );
                     do {
+
                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $ast, 'isa', ::DISPATCH( $::Str, 'new', 'CompUnit' ) ) ), "true" ), "p5landish" ) ) {
                             {
-                                ::DISPATCH( $GLOBAL::Code_die, 'APPLY',
-                                    ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', 'AST IS:(' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $ast, ::DISPATCH( $::Str, 'new', ')' ) ) ) )
+                                ::DISPATCH(
+                                    $GLOBAL::Code_die,
+                                    'APPLY',
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                        ::DISPATCH( $::Str, 'new', 'AST IS:(' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $ast, 'result', ), ::DISPATCH( $::Str, 'new', ')' ) )
+                                    )
+                                    )
                             }
                         }
                     };
