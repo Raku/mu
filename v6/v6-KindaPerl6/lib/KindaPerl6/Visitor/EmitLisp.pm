@@ -201,13 +201,13 @@ class Lit::Object {
 
 class Index {
     method emit_lisp {
-        '::DISPATCH( ' ~ $.obj.emit_lisp ~ ', \'INDEX\', ' ~ $.index.emit_lisp ~ ' )' ~ Main::newline();
+        '( kp6-index ' ~ $.obj.emit_lisp ~ ' ' ~ $.index.emit_lisp ~ ' )' ~ Main::newline()
     }
 }
 
 class Lookup {
     method emit_lisp {
-        '::DISPATCH( ' ~ $.obj.emit_lisp ~ ', \'LOOKUP\', ' ~ $.index.emit_lisp ~ ' )' ~ Main::newline();
+        '( kp6-lookup ' ~ $.obj.emit_lisp ~ ' ' ~ $.index.emit_lisp ~ ' )' ~ Main::newline()
     }
 }
 

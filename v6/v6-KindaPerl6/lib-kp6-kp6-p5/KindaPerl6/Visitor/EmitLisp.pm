@@ -1940,7 +1940,7 @@
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH( $::Str, 'new', '::DISPATCH( ' ),
+                            ::DISPATCH( $::Str, 'new', '( kp6-index ' ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
@@ -1948,7 +1948,7 @@
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
-                                    ::DISPATCH( $::Str, 'new', ', \\\'INDEX\\\', ' ),
+                                    ::DISPATCH( $::Str, 'new', ' ' ),
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
                                         ::DISPATCH( ::DISPATCH( $self, "index" ), 'emit_lisp', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
@@ -2024,7 +2024,7 @@
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH( $::Str, 'new', '::DISPATCH( ' ),
+                            ::DISPATCH( $::Str, 'new', '( kp6-lookup ' ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
@@ -2032,7 +2032,7 @@
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
-                                    ::DISPATCH( $::Str, 'new', ', \\\'LOOKUP\\\', ' ),
+                                    ::DISPATCH( $::Str, 'new', ' ' ),
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
                                         ::DISPATCH( ::DISPATCH( $self, "index" ), 'emit_lisp', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )

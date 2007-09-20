@@ -112,13 +112,13 @@ sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; my  $fields = $se
 ;
 package Index;
 sub new { shift; bless { @_ }, "Index" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( ' . ($self->{obj}->emit_lisp() . (', \'INDEX\', ' . ($self->{index}->emit_lisp() . (' )' . Main::newline()))))) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('( kp6-index ' . ($self->{obj}->emit_lisp() . (' ' . ($self->{index}->emit_lisp() . (' )' . Main::newline()))))) }
 
 
 ;
 package Lookup;
 sub new { shift; bless { @_ }, "Lookup" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( ' . ($self->{obj}->emit_lisp() . (', \'LOOKUP\', ' . ($self->{index}->emit_lisp() . (' )' . Main::newline()))))) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('( kp6-lookup ' . ($self->{obj}->emit_lisp() . (' ' . ($self->{index}->emit_lisp() . (' )' . Main::newline()))))) }
 
 
 ;
