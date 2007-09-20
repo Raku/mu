@@ -192,13 +192,13 @@ class Lit::Object {
 
 class Index {
     method emit_lisp {
-        '( kp6-index \'' ~ $.obj.emit_lisp ~ ' ' ~ $.index.emit_lisp ~ ' )' ~ Main::newline()
+        '(kp6-index \'' ~ $.obj.emit_lisp ~ ' ' ~ $.index.emit_lisp ~ ')' ~ Main::newline()
     }
 }
 
 class Lookup {
     method emit_lisp {
-        '( kp6-lookup \'' ~ $.obj.emit_lisp ~ ' ' ~ $.index.emit_lisp ~ ' )' ~ Main::newline()
+        '(kp6-lookup \'' ~ $.obj.emit_lisp ~ ' ' ~ $.index.emit_lisp ~ ')' ~ Main::newline()
     }
 }
 
@@ -339,10 +339,10 @@ class Call {
         else {
             if ( $meth eq '' ) {
                 # $var.()
-                '( kp6-apply \'' ~ $invocant ~ ' (list ' ~ $call ~ ') )' ~ Main::newline()
+                '(kp6-APPLY \'' ~ $invocant ~ ' (list ' ~ $call ~ '))' ~ Main::newline()
             }
             else {
-                '( ' ~ $meth ~ ' \'' ~ $invocant ~ ' (list ' ~ $call ~ ') )' ~ Main::newline()
+                '(' ~ $meth ~ ' \'' ~ $invocant ~ ' (list ' ~ $call ~ '))' ~ Main::newline()
             };
         };
         
@@ -380,7 +380,7 @@ class Apply {
                 '::DISPATCH($____some__weird___var____,"true")->{_value} && $____some__weird___var____ ' ~
              '}) || ::DISPATCH( $::Bit, "new", 0) }' ~ Main::newline();
         }
-        return  '( APPLY ' ~ $op ~ ' (list ' ~ (@.arguments.>>emit_lisp).join(' ') ~ ') )' ~ Main::newline();
+        return  '(kp6-APPLY ' ~ $op ~ ' (list ' ~ (@.arguments.>>emit_lisp).join(' ') ~ '))' ~ Main::newline();
     }
 }
 
