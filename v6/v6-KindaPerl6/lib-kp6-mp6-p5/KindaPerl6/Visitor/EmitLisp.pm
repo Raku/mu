@@ -112,13 +112,13 @@ sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; my  $fields = $se
 ;
 package Index;
 sub new { shift; bless { @_ }, "Index" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('( kp6-index ' . ($self->{obj}->emit_lisp() . (' ' . ($self->{index}->emit_lisp() . (' )' . Main::newline()))))) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('( kp6-index \'' . ($self->{obj}->emit_lisp() . (' ' . ($self->{index}->emit_lisp() . (' )' . Main::newline()))))) }
 
 
 ;
 package Lookup;
 sub new { shift; bless { @_ }, "Lookup" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('( kp6-lookup ' . ($self->{obj}->emit_lisp() . (' ' . ($self->{index}->emit_lisp() . (' )' . Main::newline()))))) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('( kp6-lookup \'' . ($self->{obj}->emit_lisp() . (' ' . ($self->{index}->emit_lisp() . (' )' . Main::newline()))))) }
 
 
 ;
@@ -149,7 +149,7 @@ sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; return(('$::' . $
 ;
 package Call;
 sub new { shift; bless { @_ }, "Call" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; my  $invocant; do { if (Main::isa($self->{invocant}, 'Proto')) { do { if (($self->{invocant}->name() eq 'self')) { $invocant = '$self' } else { $invocant = $self->{invocant}->emit_lisp() } } } else { $invocant = $self->{invocant}->emit_lisp() } }; do { if (($invocant eq 'self')) { $invocant = '$self' } else {  } }; my  $meth = $self->{method}; do { if (($meth eq 'postcircumfix:<( )>')) { $meth = '' } else {  } }; my  $call = Main::join([ map { $_->emit_lisp() } @{ $self->{arguments} } ], ' '); do { if ($self->{hyper}) { ('[ map { $_' . ('->' . ($meth . ('(' . ($call . (') } @{ ' . ($invocant . (' } ]' . Main::newline())))))))) } else { do { if (($meth eq '')) { ('( APPLY ' . ($invocant . (' (list ' . ($call . (') )' . Main::newline()))))) } else { ('( ' . ($meth . (' ' . ($invocant . (' (list ' . ($call . (') )' . Main::newline()))))))) } } } } }
+sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; my  $invocant; do { if (Main::isa($self->{invocant}, 'Proto')) { do { if (($self->{invocant}->name() eq 'self')) { $invocant = '$self' } else { $invocant = $self->{invocant}->emit_lisp() } } } else { $invocant = $self->{invocant}->emit_lisp() } }; do { if (($invocant eq 'self')) { $invocant = '$self' } else {  } }; my  $meth = $self->{method}; do { if (($meth eq 'postcircumfix:<( )>')) { $meth = '' } else {  } }; my  $call = Main::join([ map { $_->emit_lisp() } @{ $self->{arguments} } ], ' '); do { if ($self->{hyper}) { ('[ map { $_' . ('->' . ($meth . ('(' . ($call . (') } @{ ' . ($invocant . (' } ]' . Main::newline())))))))) } else { do { if (($meth eq '')) { ('( kp6-apply \'' . ($invocant . (' (list ' . ($call . (') )' . Main::newline()))))) } else { ('( ' . ($meth . (' \'' . ($invocant . (' (list ' . ($call . (') )' . Main::newline()))))))) } } } } }
 
 
 ;
