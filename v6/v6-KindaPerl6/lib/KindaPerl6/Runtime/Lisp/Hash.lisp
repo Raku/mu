@@ -1,39 +1,49 @@
 (in-package #:kp6-cl)
 
-(defclass kp6-hash (kp6-container)
-  ())
+(defclass kp6-Hash (kp6-Container)
+  ((value
+    :initarg :value
+    :initform (make-hash-table :test #'equal))))
 
-; XXX: Best way to make a constuctor in a class?
-(defun kp6-Hash-new ()
-  "Returns a p6-Hash instance"
-  (let ((hash (make-hash-table :test #'equal)))
-    ; TODO: Populate the hash with key-value pairs?
-    (make-instance 'kp6-Hash :value hash)))
-
-(defmethod STORE ((self kp6-Hash) key value)
+(defmethod kp6-STORE ((self kp6-Hash) key value)
   "Stores a key-value pair in the hash"
   (let ((hash (slot-value self 'value)))
     (setf (gethash key hash) value)
     hash))
 
-(defmethod LOOKUP ((self kp6-Hash) key)
+; LOOKUP is what FETCH is in Perl 5, apperently FETCH now gets the
+; whole hash object *shrug*
+(defmethod kp6-LOOKUP ((self kp6-Hash) key)
   "Looks up a value in the hash by key"
   (let* ((hash (slot-value self 'value))
         (entry (gethash key hash)))
     entry))
 
-(defmethod pairs ((self kp6-Hash))
-  "Returns a list of key-value pairs in the hash in undetermined order"
+(defmethod kp6-DELETE ((self kp6-Hash) key)
+  "Deletes a key-value pair from the hash given a key"
+  (make-instance 'kp6-Bit :value
+    (let ((hash (kp6-value self)))
+      (remhash key hash))))
+
+(defmethod kp6-CLEAR ((self kp6-Hash) key)
+  "Empties the hash"
+  (let ((hash (kp6-value self)))
+    (clrhash hash))
+  ; XXX: Just return true for now?
+  (make-instance 'kp6-Bit :value 1))
+
+(defmethod kp6-pairs ((self kp6-Hash))
+  "Returns an Array of key-value pairs in the hash in `maphash' order"
   (make-instance 'kp6-Array :value 
-    (let ((hash (slot-value self 'value))
+    (let ((hash (kp6-value self))
           (values))
       (maphash #'(lambda (key val)
-                   (push key values)
-                   (push val values))
+                   (push val values)
+                   (push key values))
                hash)
       values)))
                  
-(defmethod elems ((self kp6-Hash))
+(defmethod kp6-elems ((self kp6-Hash))
   "Returns the number of elements in the hash"
   (make-instance 'kp6-Int :value 
-    (hash-table-count (slot-value self 'value))))
+    (hash-table-count (kp6-value self))))
