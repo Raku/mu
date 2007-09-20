@@ -41,6 +41,7 @@ module Main {
         };
     
         for @visitors -> $visitor {
+            say 'Starting visitor...';
             $ast.emit($visitor);
         };
         print $ast;

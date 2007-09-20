@@ -170,6 +170,7 @@
                         do {
                             ::MODIFIED($result);
                             $result = ::DISPATCH( $visitor, 'visit', $node, $node_name, $path );
+                            print "result $result, visitor $visitor, node $node, name ".GLOBAL::_str($node_name).", path ".GLOBAL::_str($path)."\n";
                         };
                         do {
                             if ( ::DISPATCH( ::DISPATCH( $result, "true" ), "p5landish" ) ) {

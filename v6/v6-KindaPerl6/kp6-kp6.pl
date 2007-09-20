@@ -112,6 +112,7 @@
                         BEGIN { $visitor = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$visitor' } ) }
                         for $visitor ( @{ $List_visitors->{_value}{_array} } ) {
                             {
+                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', 'Starting visitor...' ) );
                                 ::DISPATCH( $ast, 'emit', $visitor )
                             }
                         }

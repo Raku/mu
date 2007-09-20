@@ -163,7 +163,8 @@
                                     return ( ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', $ast ) )
                                 }
                             }
-                            }
+                        };
+                        ::DISPATCH( $::Int, 'new', 0 );
                     },
                     signature => ::DISPATCH(
                         $::Signature,

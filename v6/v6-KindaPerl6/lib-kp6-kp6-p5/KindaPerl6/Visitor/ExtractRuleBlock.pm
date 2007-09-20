@@ -171,7 +171,8 @@
                                     return ($node)
                                 }
                             }
-                            }
+                        };
+                        ::DISPATCH( $::Int, 'new', 0 );
                     },
                     signature => ::DISPATCH(
                         $::Signature,

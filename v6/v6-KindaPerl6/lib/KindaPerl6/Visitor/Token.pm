@@ -35,6 +35,7 @@ class KindaPerl6::Visitor::Token {
 
             return $$ast;
         }
+        0;
     }
 
 }
