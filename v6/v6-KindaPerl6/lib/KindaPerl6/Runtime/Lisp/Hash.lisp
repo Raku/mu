@@ -2,7 +2,6 @@
 
 (defclass kp6-Hash (kp6-Container)
   ((value
-    :initarg :value
     :initform (make-hash-table :test #'equal))))
 
 (defmethod kp6-STORE ((self kp6-Hash) key value)
