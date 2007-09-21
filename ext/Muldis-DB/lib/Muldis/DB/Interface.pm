@@ -417,9 +417,9 @@ Muldis::DB::Engine::Role::HostGateRtn.
 
     # Instantiate a Muldis::DB DBMS / virtual machine.
     my $dbms = Muldis::DB::Interface::new_dbms(
-            :engine_name('Muldis::DB::Engine::Example'),
-            :dbms_config({}),
-        );
+        :engine_name('Muldis::DB::Engine::Example'),
+        :dbms_config({}),
+    );
 
     # TODO: Create or connect to a repository and work with it.
 
@@ -519,19 +519,19 @@ references.
 
 =head1 BUGS AND LIMITATIONS
 
-The Muldis::DB framework for Perl 6 is built with a lot of code that should
-be superfluous, since the Muldis::DB authors can not yet assume that a
+The Muldis DB framework for Perl 6 is built with a lot of code that should
+be superfluous, since the Muldis DB authors can not yet assume that a
 number of desired Perl 6 features are actually available in the language
-implementations yet, and so and so Muldis::DB includes its own substituted
-implementations of those features, which have been made as part of
-Muldis::DB for Perl 5 anyway due to Perl 5's relative deficiencies.  The
+implementations yet, and so and so Muldis DB includes its own substituted
+implementations of those features, which have been made as part of Muldis
+DB for Perl 5 anyway due to Perl 5's relative deficiencies.  The
 reimplemented features include manual type-checks of routine arguments (as
 if the parameters were declared C<Any>), and the use of C<Array> rather
 than C<Seq> or C<Set> or C<Bag>, and the use of Arrays of Arrays rather
 than C<Mapping> or C<Hash> (because non-Str keys may not be supported yet).
 Also, explicit clones are made of any "read only" Array or Hash arguments
-or return values, so to safeguard the Muldis::DB internals against any
-subsequent mutation of them by callers.  Hopefully, Muldis::DB for Perl 6
+or return values, so to safeguard the Muldis DB internals against any
+subsequent mutation of them by callers.  Hopefully, Muldis DB for Perl 6
 will be able to have its code base slimmed considerably when the Perl 6
 implementations themselves are more mature.
 
@@ -543,9 +543,9 @@ Darren Duncan (C<perl@DarrenDuncan.net>)
 
 =head1 LICENSE AND COPYRIGHT
 
-This file is part of the Muldis::DB framework.
+This file is part of the Muldis DB framework.
 
-Muldis::DB is Copyright © 2002-2007, Darren Duncan.
+Muldis DB is Copyright © 2002-2007, Darren Duncan.
 
 See the LICENSE AND COPYRIGHT of L<Muldis::DB> for details.
 

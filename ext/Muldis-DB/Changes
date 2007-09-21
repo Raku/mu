@@ -19,14 +19,24 @@
     accordingly, which is further described below.  Also removed the
     t/MDB_10_Literal_Simple.t test file.
 
-    * New file versions are: DB.pm and Interface.pm and Validator.pm and
-    Example.pm 0.4.0.  The other pre-existing versioned files are
-    unchanged.
+    * All versioned files had their version numbers brought up to 0.4.0.
 
     * (DB.pm, Interface.pm, Example.pm)  Updates to various
     main/introductory documentation.  Half rewrote/prepended the
     DESCRIPTION of DB.pm.  Added a small initial DESCRIPTION to each of
     Interface.pm, Example.pm.  Further minor edits to other sections.
+
+    * Minor updates to all versioned files such that most references to the
+    project name were changed to "Muldis DB" from "Muldis::DB".
+
+    * (SeeAlso.pod)  Updated the PROSPECTIVE MULDIS DB EXTENSIONS section
+    mainly to bring various names, terminology, and references up to date
+    with design changes.  Any package names containing "Literal" now have
+    "PHMD" instead, and any docs refering to "Muldis DB AST nodes" now
+    refer to "Perl Hosted Muldis D".  Re-added the
+    Muldis::DB::AST::StringRepr module that was removed in release 0.1.0
+    under the new name Muldis::DB::PHMD::Translate::ConcreteMuldisD (it's
+    not part of Literal.pm anymore).  Other small renames and changes.
 
     * Updated the TODO file.
 

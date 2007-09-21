@@ -166,9 +166,9 @@ Darren Duncan (C<perl@DarrenDuncan.net>)
 
 =head1 LICENSE AND COPYRIGHT
 
-This file is part of the Muldis::DB framework.
+This file is part of the Muldis DB framework.
 
-Muldis::DB is Copyright © 2002-2007, Darren Duncan.
+Muldis DB is Copyright © 2002-2007, Darren Duncan.
 
 See the LICENSE AND COPYRIGHT of L<Muldis::DB> for details.
 
