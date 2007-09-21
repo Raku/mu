@@ -1,7 +1,7 @@
 body {
 	font:13px arial,helvetica,clean,sans-serif;
 	width:100%;
-	margin-left:10%;margin-right:10%; margin-top: 0px; 
+	margin-left:10%;margin-right:0%; margin-top: 0px; 
 	line-height: normal; 
 }
 H1 {
@@ -11,8 +11,8 @@ H1 {
     font-weight: normal;
     color: white;
     background-color: #204a87;
-	margin: 5px;
-    padding: 5px;
+	margin: 0px;
+    padding: 0px;
 	text-align: center;
 }
 H2 { font-weight: bold; font-size: 11pt}
@@ -21,7 +21,7 @@ TT {color: #204a87; font-weight: bold; }
 LABEL {font-weight: normal; }
 FIELDSET {border: solid white 0px}
 LEGEND {font-weight:normal; text-align: left; }
-SELECT {font:13px arial,helvetica,clean,sans-serif;}
+SELECT {font:12px arial,helvetica,clean,sans-serif;}
 .copyright {font:13px arial,helvetica,clean,sans-serif;}
 .tabon {
 font-weight:bold;

@@ -14,20 +14,22 @@
             <h1 id="logo" style="display:none;">
                 Run Perl 6 now -- in your browser!
             </h1>
-                <strong>Color schema:</strong>
-                <select id="theme">
-                    <option value="wb_theme" selected="selected">White &amp; black</option>
-                    <option value="gb_theme">Green</option>
-                    <option value="ab_theme">Amber</option>
-                </select>
-                <input name="prompt" value=" " type="hidden"/>
-                <input name="sessionid" value="" type="hidden"/>
-                <input name="ia" value="1" type="hidden"/>
-                <input name="action" value="runpugs" type="hidden"/>
-                <input id="rel" value="1" name="reldev" type="radio" checked="checked" onClick="set_version()"/>
-                <label for="rel"><strong>Release version</strong></label>&nbsp;&nbsp;
-                <input id="dev" value="1" name="reldev" type="radio" onClick="set_version()"/>
-                <label for="dev"><strong>Development version</strong></label>
+                <div id="toolbar">
+                    <strong>Text color:</strong>
+                    <select id="theme">
+                        <option value="wb_theme" selected="selected">&nbsp;White&nbsp;</option>
+                        <option value="gb_theme">&nbsp;Green&nbsp;</option>
+                        <option value="ab_theme">&nbsp;Amber&nbsp;</option>
+                    </select>
+                    <input name="prompt" value=" " type="hidden"/>
+                    <input name="sessionid" value="" type="hidden"/>
+                    <input name="ia" value="1" type="hidden"/>
+                    <input name="action" value="runpugs" type="hidden"/>
+                    <input id="rel" value="1" name="reldev" type="radio" checked="checked" onClick="set_version()"/>
+                    <label for="rel"><strong>Release version</strong></label>&nbsp;&nbsp;
+                    <input id="dev" value="1" name="reldev" type="radio" onClick="set_version()"/>
+                    <label for="dev"><strong>Development version</strong></label>
+                </div>
                 <div id="termwindow">
                     <textarea id="cmd" name="cmd" rows="3" cols="80">Please wait while Pugs 
                     starts up...</textarea>
@@ -66,11 +68,11 @@
                 </div>
             </form>
         </div>
-        <hr/>
-        <a href="http://validator.w3.org/check?uri=referer">
-            <img src="http://www.w3.org/Icons/valid-xhtml10" 
-                alt="Valid XHTML 1.0!" height="31" width="88" border="0" />
-        </a>        
+        <br/>
+        <a href="http://validator.w3.org/check?uri=referer"><img src="http://www.w3.org/Icons/valid-xhtml10" 
+                alt="Valid XHTML 1.0!" height="31" width="88" border="0" /></a>
+        <a href="http://jigsaw.w3.org/css-validator/check/referer"><img src="http://jigsaw.w3.org/css-validator/images/vcss" 
+               alt="Valid CSS!" height="31" width="88" border="0"/></a>
         <div id="hidden_iframe"></div>
         <!--
         //This is now inserted automatically by jQuery to start loading things after $(document).ready()

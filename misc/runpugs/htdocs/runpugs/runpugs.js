@@ -295,6 +295,8 @@ function getreply () {
     histentry=histlist.length;
     sessionid=scratchpad.terminal.sessionid.value;
     document.terminal.cmd.value=reply;
+
+    //$("#toolbar").slideDown(2000);
     
     if(scratchpad.terminal.prompt) {
         //safely assign prompt...
@@ -359,6 +361,8 @@ function set_version () {
     }
     frames['scratch'].document.terminal.submit();
 
+    $("#rel").blur();
+    $("#dev").blur();
     focusOnCmd("#tt");
 }
 
