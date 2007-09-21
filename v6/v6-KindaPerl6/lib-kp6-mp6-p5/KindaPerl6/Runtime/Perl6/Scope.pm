@@ -173,7 +173,7 @@
                         };
                         ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '# not found in current pad' ) );
                         do {
-                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, 'outer', ), "true" ), "p5landish" ) ) {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', ::DISPATCH( $self, 'outer', ) ), "true" ), "p5landish" ) ) {
                                 {
                                     return ( ::DISPATCH( ::DISPATCH( $self, 'outer', ), 'LOOKUP', $key ) )
                                 }

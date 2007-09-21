@@ -20,7 +20,7 @@ class Scope is Container {
             return (self.vars){$key};
         };
         say "# not found in current pad";
-        if self.outer {
+        if defined self.outer {
             return (self.outer).LOOKUP( $key );
         };
         return undef;
