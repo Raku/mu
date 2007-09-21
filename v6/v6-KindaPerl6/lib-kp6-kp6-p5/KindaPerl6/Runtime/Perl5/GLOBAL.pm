@@ -262,7 +262,7 @@ package GLOBAL;
 
     # prefix:<$> and prefix:<%>
     # XXX: TODO: This should force scalar|hash context.
-    sub prefix_58__60__36__62_ { $_[0] }
+    sub prefix_58__60__36__62_ { ::DISPATCH( $_[0], 'scalar') }
     sub prefix_58__60__37__62_ { ::DISPATCH( $_[0], 'hash') }
 
     # prefix:<~>

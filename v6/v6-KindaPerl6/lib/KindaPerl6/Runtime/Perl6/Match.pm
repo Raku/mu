@@ -18,6 +18,14 @@ class Match {
         !! undef;
     };
 
+    method scalar {
+        if ($.result) {
+            return $.result;
+        } else {
+            return self.str()
+        }
+    };
+
     method true {
         return $.bool.true;
     };

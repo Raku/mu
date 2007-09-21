@@ -13746,7 +13746,7 @@
                         };
                         do {
                             ::MODIFIED($GLOBAL::env);
-                            $GLOBAL::env = ::DISPATCH( $COMPILER::List_PAD, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                            $GLOBAL::env = ::DISPATCH( $COMPILER::List_PAD, 'INDEX', ::DISPATCH( $::Int, 'new', ) );
                         };
                         ::DISPATCH( $COMPILER::Code_drop_pad, 'APPLY', );
                         return (

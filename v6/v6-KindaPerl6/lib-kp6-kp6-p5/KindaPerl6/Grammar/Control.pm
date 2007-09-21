@@ -8723,7 +8723,7 @@
                         };
                         do {
                             ::MODIFIED($GLOBAL::env);
-                            $GLOBAL::env = ::DISPATCH( $COMPILER::List_PAD, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                            $GLOBAL::env = ::DISPATCH( $COMPILER::List_PAD, 'INDEX', ::DISPATCH( $::Int, 'new', ) );
                         };
                         ::DISPATCH( $COMPILER::Code_drop_pad, 'APPLY', );
                         return (
@@ -9072,7 +9072,7 @@
                         ::DISPATCH( $COMPILER::Code_add_pad, 'APPLY', );
                         do {
                             ::MODIFIED($GLOBAL::env);
-                            $GLOBAL::env = ::DISPATCH( $COMPILER::List_PAD, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                            $GLOBAL::env = ::DISPATCH( $COMPILER::List_PAD, 'INDEX', ::DISPATCH( $::Int, 'new', ) );
                         };
                         ::DISPATCH(
                             $GLOBAL::Code_push,
@@ -9128,7 +9128,7 @@
                         };
                         do {
                             ::MODIFIED($GLOBAL::env);
-                            $GLOBAL::env = ::DISPATCH( $COMPILER::List_PAD, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                            $GLOBAL::env = ::DISPATCH( $COMPILER::List_PAD, 'INDEX', ::DISPATCH( $::Int, 'new', ) );
                         };
                         ::DISPATCH( $COMPILER::Code_drop_pad, 'APPLY', );
                         do {

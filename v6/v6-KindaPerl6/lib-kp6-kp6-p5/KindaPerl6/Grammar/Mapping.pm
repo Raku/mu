@@ -3864,7 +3864,7 @@
                                         ::DISPATCH(
                                             $::Lit::NamedArgument, 'new',
                                             ::DISPATCH( $::Str, 'new', 'key' ) =>
-                                                ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'pair' ) ) ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ),
+                                                ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'pair' ) ) ), 'INDEX', ::DISPATCH( $::Int, 'new', ) ),
                                             ::DISPATCH( $::Str, 'new', 'value' ) =>
                                                 ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'pair' ) ) ), 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) ),
                                         ),
@@ -3922,7 +3922,7 @@
                                         ::DISPATCH(
                                             $::Lit::NamedArgument, 'new',
                                             ::DISPATCH( $::Str, 'new', 'key' ) =>
-                                                ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'pair' ) ) ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ),
+                                                ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'pair' ) ) ), 'INDEX', ::DISPATCH( $::Int, 'new', ) ),
                                             ::DISPATCH( $::Str, 'new', 'value' ) =>
                                                 ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'pair' ) ) ), 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) ),
                                         )
