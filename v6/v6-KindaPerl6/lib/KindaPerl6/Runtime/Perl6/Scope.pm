@@ -1,21 +1,34 @@
 use v6-alpha;
 class Scope is Container {
 
-    has $.hash;
+    has $.vars;
     has $.outer;  # static or dynamic scope
     
     method inner {
         my $inner = Scope.new();
         $inner.outer = self;
-        $inner.hash  = {};
+        $inner.vars  = {};
         return $inner;
     };
 
     method LOOKUP ( $key ) {
-        if exists( $.hash{$key} ) {
-            return $.hash{$key};
+        if exists( $.vars{$key} ) {
+            return $.vars{$key};
         };
-        return (self.outer).LOOKUP( $key );
+        if defined( self.outer ) {
+            return (self.outer).LOOKUP( $key );
+        };
+        return undef;
+    };
+
+    method exists ( $key ) {
+        if exists( $.vars{$key} ) {
+            return $.vars{$key};
+        };
+        if defined( self.outer ) {
+            return (self.outer).exists( $key );
+        };
+        return False;
     };
 
     # TODO !!!

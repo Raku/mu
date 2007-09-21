@@ -24,7 +24,7 @@
             }
         };
         ::DISPATCH( ::DISPATCH( $::Scope, 'HOW', ), 'add_parent',    ::DISPATCH( $::Str, 'new', 'Container' ) );
-        ::DISPATCH( ::DISPATCH( $::Scope, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'hash' ) );
+        ::DISPATCH( ::DISPATCH( $::Scope, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'vars' ) );
         ::DISPATCH( ::DISPATCH( $::Scope, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'outer' ) );
         ::DISPATCH(
             ::DISPATCH( $::Scope, 'HOW', ),
@@ -55,7 +55,7 @@
                         };
                         ::DISPATCH_VAR( $inner, 'STORE', ::DISPATCH( $::Scope, 'new', ) );
                         ::DISPATCH_VAR( ::DISPATCH( $inner, 'outer', ), 'STORE', $self );
-                        ::DISPATCH_VAR( ::DISPATCH( $inner, 'hash', ), 'STORE', ::DISPATCH( $::Hash, "new", { _hash => {} } ) );
+                        ::DISPATCH_VAR( ::DISPATCH( $inner, 'vars', ), 'STORE', ::DISPATCH( $::Hash, "new", { _hash => {} } ) );
                         return ($inner);
                     },
                     signature => ::DISPATCH(
@@ -99,14 +99,80 @@
                             $key = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         do {
-                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_exists, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "hash" ), 'LOOKUP', $key ) ), "true" ), "p5landish" ) ) {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_exists, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "vars" ), 'LOOKUP', $key ) ), "true" ), "p5landish" ) ) {
                                 {
-                                    return ( ::DISPATCH( ::DISPATCH( $self, "hash" ), 'LOOKUP', $key ) )
+                                    return ( ::DISPATCH( ::DISPATCH( $self, "vars" ), 'LOOKUP', $key ) )
                                 }
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
-                        return ( ::DISPATCH( ::DISPATCH( $self, 'outer', ), 'LOOKUP', $key ) );
+                        do {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', ::DISPATCH( $self, 'outer', ) ), "true" ), "p5landish" ) ) {
+                                {
+                                    return ( ::DISPATCH( ::DISPATCH( $self, 'outer', ), 'LOOKUP', $key ) )
+                                }
+                            }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
+                        };
+                        return ($::Undef);
+                    },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'key', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
+                }
+            )
+        );
+        ::DISPATCH(
+            ::DISPATCH( $::Scope, 'HOW', ),
+            'add_method',
+            ::DISPATCH( $::Str, 'new', 'exists' ),
+            ::DISPATCH(
+                $::Code, 'new',
+                {   code => sub {
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $key;
+                        $key = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$key' } ) unless defined $key;
+                        BEGIN { $key = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$key' } ) }
+                        $self = shift;
+                        my $CAPTURE;
+                        $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
+                        BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+                        ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                        do {
+                            ::MODIFIED($List__);
+                            $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                        };
+                        do {
+                            ::MODIFIED($Hash__);
+                            $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
+                            ::MODIFIED($key);
+                            $key = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
+                        do {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_exists, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "vars" ), 'LOOKUP', $key ) ), "true" ), "p5landish" ) ) {
+                                {
+                                    return ( ::DISPATCH( ::DISPATCH( $self, "vars" ), 'LOOKUP', $key ) )
+                                }
+                            }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
+                        };
+                        do {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', ::DISPATCH( $self, 'outer', ) ), "true" ), "p5landish" ) ) {
+                                {
+                                    return ( ::DISPATCH( ::DISPATCH( $self, 'outer', ), 'exists', $key ) )
+                                }
+                            }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
+                        };
+                        return ( ::DISPATCH( $::Bit, 'new', ) );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
