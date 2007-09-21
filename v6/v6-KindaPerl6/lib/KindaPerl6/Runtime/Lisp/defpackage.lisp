@@ -16,4 +16,12 @@
    #:kp6-CLEAR
    #:kp6-pairs
    #:kp6-elems
+
+   ;; Other stuff, urgh
+
+   ; functions.lisp
+   #:kp6-apply-function
+
+   ; foreign.lisp
+   #:cl->perl
    ))
