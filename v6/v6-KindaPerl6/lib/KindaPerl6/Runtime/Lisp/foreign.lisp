@@ -30,6 +30,9 @@
 (defmethod cl->perl ((object (eql nil)) &key)
   (make-instance 'kp6-Array))
 
+(defmethod cl->perl ((object kp6-Object) &key)
+  object)
+
 (defgeneric perl->cl (object &key &allow-other-keys)
   (:documentation "Convert a Perl 6 object into a Lisp object."))
 
