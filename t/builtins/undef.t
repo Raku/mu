@@ -219,12 +219,12 @@ else {
         # I want symbolic lookups because I need the rx names for test results.
 
         eval '"1" ~~ %MY::{$_}';
-        ok(defined($num), "{$_}: successful hypothetical", :todo);
-        ok(!defined($alpha), "{$_}: failed hypothetical");
+        ok(defined($num), '{$_}: successful hypothetical', :todo);
+        ok(!defined($alpha), '{$_}: failed hypothetical');
 
         eval '"A" ~~ %MY::{$_}';
-        ok(!defined($num), "{$_}: failed hypothetical (2nd go)");
-        ok(defined($alpha), "{$_}: successful hypothetical (2nd go)", :todo);
+        ok(!defined($num), '{$_}: failed hypothetical (2nd go)');
+        ok(defined($alpha), '{$_}: successful hypothetical (2nd go)', :todo);
     }
 }
 
