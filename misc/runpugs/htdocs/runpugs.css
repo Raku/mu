@@ -112,10 +112,11 @@ A.taboff:link, A.taboff:active,A.taboff:visited {text-decoration: none; color: #
 	line-height:normal;
 	height:24em;
 	overflow: auto;
+	background: black url('moosecamel_25.png') no-repeat 50% 50%;
 }
 pre {
 	color: white;
-	background-color: black;
+	background-color: transparent;
 	margin: 0;
 	padding: 0;
 	border: none;
@@ -123,7 +124,7 @@ pre {
 }
 pre.wb_theme  {
 	color: white;
-	background-color: black;
+	background-color: transparent;
 	margin: 0;
 	padding: 0;
 	border: none;
@@ -131,7 +132,7 @@ pre.wb_theme  {
 }
 pre.gb_theme {
 	color: rgb(0,255,0);
-	background-color: black;
+	background-color: transparent;
 	margin: 0;
 	padding: 0;
 	border: none;
@@ -139,7 +140,7 @@ pre.gb_theme {
 }
 pre.ab_theme {
 	color: rgb(255,160,0);
-	background-color: black;
+	background-color: transparent;
 	margin: 0;
 	padding: 0;
 	border: none;
