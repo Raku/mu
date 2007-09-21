@@ -3,6 +3,7 @@
 (defclass kp6-Str (kp6-Value)
   ())
 
-(defmethod str ((self kp6-Str))
-  "Stringify the string object, just fetch the boxed value (is this even needed?)"
-  (kp6-value self))
+(defgeneric str (self)
+  (:documentation "Stringify the string object, just fetch the boxed value (is this even needed?)")
+  (:method ((self kp6-Str))
+    self))
