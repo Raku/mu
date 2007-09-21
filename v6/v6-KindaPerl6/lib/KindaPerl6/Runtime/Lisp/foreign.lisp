@@ -6,6 +6,9 @@
 (defmethod cl->perl ((object list) &key)
   (make-instance 'kp6-Array :value object))
 
+(defmethod cl->perl ((object character) &key)
+  (cl->perl (string object)))
+
 (defmethod cl->perl ((object string) &key)
   (make-instance 'kp6-Str :value object))
 
