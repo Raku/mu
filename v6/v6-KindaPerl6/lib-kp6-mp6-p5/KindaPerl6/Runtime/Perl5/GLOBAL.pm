@@ -14,6 +14,7 @@ package GLOBAL;
         undef
         undefine
         defined
+        exists
         true
         not
         sleep
@@ -155,6 +156,11 @@ package GLOBAL;
         return ::DISPATCH( $::Bit, 'new',0 )
             unless defined $_[0];
         ::DISPATCH( $_[0], 'defined' ) 
+    } 
+    sub exists  { 
+        #print "EXIST? \n";
+        ::DISPATCH( $::Bit, 'new', 
+            defined $_[0] ? 1 : 0 );
     } 
     sub true     { ::DISPATCH( $_[0], 'true' ) }  
     sub not      { ::DISPATCH( $::Bit, 'new', ! ( ::DISPATCH( $_[0], 'true' )->{_value} ) ) }  

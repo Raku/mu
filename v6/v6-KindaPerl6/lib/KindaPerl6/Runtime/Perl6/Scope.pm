@@ -11,9 +11,11 @@ class Scope is Container {
         return $inner;
     };
 
+    method hash { self };  # Scope behaves like Hash
+
     method LOOKUP ( $key ) {
-        if exists( $.vars{$key} ) {
-            return $.vars{$key};
+        if exists( (self.vars){$key} ) {
+            return (self.vars){$key};
         };
         if defined( self.outer ) {
             return (self.outer).LOOKUP( $key );
@@ -22,13 +24,21 @@ class Scope is Container {
     };
 
     method exists ( $key ) {
-        if exists( $.vars{$key} ) {
-            return $.vars{$key};
+        if exists((self.vars){$key}) {
+            return (self.vars){$key};
         };
         if defined( self.outer ) {
             return (self.outer).exists( $key );
         };
         return False;
+    };
+
+    method create ( $key ) {
+        say "create key $key in ", (self.vars).perl;
+        if exists( (self.vars){$key} ) {
+            return (self.vars){$key};
+        };
+        (self.vars){$key} = undef;
     };
 
     # TODO !!!
