@@ -1,4 +1,4 @@
 (in-package #:kp6-cl)
 
-(defclass kp6-Package (kp6-Object)
+(defclass kp6-Package (kp6-Hash)
   ())
