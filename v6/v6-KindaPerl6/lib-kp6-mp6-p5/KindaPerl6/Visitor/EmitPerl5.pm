@@ -107,7 +107,7 @@ sub emit_arguments { my $self = shift; my $List__ = \@_; do { [] }; my  $array_ 
 ;
 package Lit::Object;
 sub new { shift; bless { @_ }, "Lit::Object" }
-sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $fields = $self->{fields}; my  $str = ''; my  $field; do { for my $field ( @{$fields} ) { $str = ($str . ($field->[0]->emit_perl5() . (' => ' . ($field->[1]->emit_perl5() . ',')))) } }; ('::DISPATCH( $::' . ($self->{class} . (', \'new\', ' . ($str . (' )' . Main::newline()))))) }
+sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $fields = $self->{fields}; my  $str = ''; my  $field; do { for my $field ( @{$fields} ) { $str = ($str . ('::DISPATCH( $::NamedArgument, "new", ' . ('{ ' . ('_argument_name_ => ' . ($field->[0]->emit_perl5() . (', ' . ('value           => ' . ($field->[1]->emit_perl5() . (', ' . ' } ), '))))))))) } }; ('::DISPATCH( $::' . ($self->{class} . (', \'new\', ' . ($str . (' )' . Main::newline()))))) }
 
 
 ;

@@ -206,7 +206,13 @@ class Lit::Object {
         # say @fields.map(sub { $_[0].emit_perl5 ~ ' => ' ~ $_[1].emit_perl5}).join(', ') ~ ')';
         my $field;
         for @$fields -> $field { 
-            $str := $str ~ ($field[0]).emit_perl5 ~ ' => ' ~ ($field[1]).emit_perl5 ~ ',';
+            $str := $str 
+                ~ '::DISPATCH( $::NamedArgument, "new", '
+                ~ '{ '
+                ~    '_argument_name_ => ' ~ ($field[0]).emit_perl5 ~ ', '
+                ~    'value           => ' ~ ($field[1]).emit_perl5 ~ ', '
+                ~ ' } ), '
+                ;
         }; 
         '::DISPATCH( $::' ~ $.class ~ ', \'new\', ' ~ $str ~ ' )' ~ Main::newline();
     }

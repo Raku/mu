@@ -11,6 +11,9 @@ use KindaPerl6::Runtime::Perl5::Wrap;
 use KindaPerl6::Runtime::Perl5::GLOBAL;
 use KindaPerl6::Runtime::Perl5::Grammar;
 
+#    ::DISPATCH( ::DISPATCH($::Object, 'HOW'), 'redefine_method', 'new',
+#	sub { 
+
     $Main::Code_newline = ::DISPATCH( $::Code, 'new', 
         { code => sub { ::DISPATCH( $::Str, 'new', "\n") }, src => '&Main::newline' } );
 
