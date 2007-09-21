@@ -1,4 +1,4 @@
-(dolist (file '("package"
+(dolist (file '("defpackage"
 		"Object"
 		"Value" "Container"            ; Base classes
 		"Undef"                        ; Undef
