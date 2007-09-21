@@ -304,6 +304,9 @@ package GLOBAL;
 
     sub match_p5rx {
         my ($regex,$string,$pos) = (_str($_[0]),_str($_[1]),_int($_[2]));
+        unless (defined $string) {
+            $string = _str($_);
+        }
         pos($string) = $pos;
         if ($ENV{KP6_TOKEN_DEBUGGER}) {
             print ">>> inside p5 token $regex at $pos of ($string)\n";
@@ -315,19 +318,56 @@ package GLOBAL;
                 print "<<< p5 token $regex returned true\n";
             }
             #print "matched up to:",pos($string),"\n";
-            my $m = ::DISPATCH($::Match,'new',{
-                match_str => $_[1],
-                from => $_[2],
-                to => ::DISPATCH($::Int,'new',pos($string)),
-                bool => ::DISPATCH($::Bit,'new',1),
-            });
+            my $m = ::DISPATCH($::Match,'new',
+                               ::DISPATCH(
+                                          $::NamedArgument,
+                                          "new",
+                                          {
+                                           _argument_name_ => ::DISPATCH( $::Str, 'new', 'match_str' ),
+                                            value => $_[1]
+                                          }
+                                         ),
+                               ::DISPATCH(
+                                          $::NamedArgument,
+                                          "new",
+                                          {
+                                           _argument_name_ => ::DISPATCH( $::Str, 'new', 'from' ),
+                                            value => $_[2]
+                                          }
+                                         ),
+                               ::DISPATCH(
+                                          $::NamedArgument,
+                                          "new",
+                                          {
+                                           _argument_name_ => ::DISPATCH( $::Str, 'new', 'to' ),
+                                            value => ::DISPATCH($::Int,'new',pos($string)),
+                                          }
+                                         ),
+                               ::DISPATCH(
+                                          $::NamedArgument,
+                                          "new",
+                                          {
+                                           _argument_name_ => ::DISPATCH( $::Str, 'new', 'bool' ),
+                                            value => ::DISPATCH($::Bit,'new',1)
+                                          }
+                                         ),
+                           );
             return $m;
         } else {
             if ($ENV{KP6_TOKEN_DEBUGGER}) {
                 print "<<< p5 token $regex returned false\n";
             }
             #print "false match\n";
-            my $m = ::DISPATCH($::Match,'new',{bool => ::DISPATCH($::Bit,'new',0)});
+            my $m = ::DISPATCH($::Match,'new',
+                               ::DISPATCH(
+                                          $::NamedArgument,
+                                          "new",
+                                          {
+                                           _argument_name_ => ::DISPATCH( $::Str, 'new', 'bool' ),
+                                           value => ::DISPATCH($::Bit,'new',0)
+                                          }
+                                         ),
+                              );
             return $m;
         }
     }
