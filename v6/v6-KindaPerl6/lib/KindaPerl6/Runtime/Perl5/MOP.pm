@@ -840,6 +840,24 @@ $::Cell = make_class( proto => $::Cell, name=>"Cell",parent=>[$::meta_Container]
            return ${$_[0]{_value}{cell}} || ::DISPATCH($::Undef,'new',0);
         },
 });
+$::HashCell = make_class( proto => $::HashCell, name=>"HashCell",parent=>[$::meta_Container],methods=>{
+    new=>sub {
+            my $v = {
+                %{ $_[0] },
+                _value => $_[1],
+                _roles        => { 'container' => 1, 'auto_deref' => 1 },
+                _dispatch_VAR => $::dispatch_VAR,
+            };
+        },
+    STORE=>sub {
+           $_[0]{_value}{cell}{ $_[0]{_value}{key} } = $_[1];
+        },
+    FETCH=>sub {
+           exists $_[0]{_value}{cell}{ $_[0]{_value}{key} } 
+                ? $_[0]{_value}{cell}{ $_[0]{_value}{key} }
+                : ::DISPATCH($::Undef,'new',0);
+        },
+});
 
 require KindaPerl6::Runtime::Perl6::Hash;
 require KindaPerl6::Runtime::Perl5::Hash;

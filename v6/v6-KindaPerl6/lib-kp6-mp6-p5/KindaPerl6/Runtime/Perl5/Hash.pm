@@ -19,7 +19,10 @@ $::Hash = KindaPerl6::Runtime::Perl5::MOP::make_class(
         },
     LOOKUP=>sub {
             my $key = ::DISPATCH(::DISPATCH($_[1],"str"),"p5landish");
-            return ::DISPATCH($::Cell,"new",{cell=>\$_[0]{_value}{_hash}{$key}});
+            return ::DISPATCH($::HashCell,"new",{
+                    cell=> $_[0]{_value}{_hash},
+                    key => $key,
+                });
         },
     elems => sub {
             ::DISPATCH($::Int,"new",scalar(keys(%{$_[0]{_value}{_hash}})));

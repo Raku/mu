@@ -5,19 +5,22 @@ class Scope is Container {
     has $.outer;  # static or dynamic scope
     
     method inner {
-        my $inner = Scope.new();
-        $inner.outer = self;
-        $inner.vars  = {};
+        my $inner = Scope.new( outer => self, vars => {} );
+        #$inner.outer = self;
+        #$inner.vars  = {};
         return $inner;
     };
 
     method hash { self };  # Scope behaves like Hash
 
     method LOOKUP ( $key ) {
+        say "# lookup key $key in ", (self.vars).perl;
         if exists( (self.vars){$key} ) {
+            say "# found key";
             return (self.vars){$key};
         };
-        if defined( self.outer ) {
+        say "# not found in current pad";
+        if self.outer {
             return (self.outer).LOOKUP( $key );
         };
         return undef;
@@ -34,7 +37,7 @@ class Scope is Container {
     };
 
     method create ( $key ) {
-        say "create key $key in ", (self.vars).perl;
+        say "# create key $key in ", (self.vars).perl;
         if exists( (self.vars){$key} ) {
             return (self.vars){$key};
         };
