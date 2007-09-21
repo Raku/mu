@@ -55,9 +55,9 @@
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         do {
-                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, 'result', ), "true" ), "p5landish" ) ) {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "result" ), "true" ), "p5landish" ) ) {
                                 {
-                                    ::DISPATCH( return ( ::DISPATCH( $self, 'result', ) ), 'str', )
+                                    return ( ::DISPATCH( ::DISPATCH( $self, "result" ), 'str', ) )
                                 }
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
@@ -65,12 +65,9 @@
                         ::DISPATCH(
                             $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
                             'APPLY',
-                            ::DISPATCH( $self, 'bool', ),
+                            ::DISPATCH( $self, "bool" ),
                             ::DISPATCH(
-                                $GLOBAL::Code_substr, 'APPLY',
-                                ::DISPATCH( $self, 'match_str', ),
-                                ::DISPATCH( $self, 'from', ),
-                                ::DISPATCH( $GLOBAL::Code_infix_58__60__45__62_, 'APPLY', ::DISPATCH( $self, 'to', ), ::DISPATCH( $self, 'from', ) )
+                                $GLOBAL::Code_substr, 'APPLY', ::DISPATCH( $self, "match_str" ), ::DISPATCH( $self, "from" ), ::DISPATCH( $GLOBAL::Code_infix_58__60__45__62_, 'APPLY', ::DISPATCH( $self, "to" ), ::DISPATCH( $self, "from" ) )
                             ),
                             $::Undef
                         );

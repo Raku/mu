@@ -10,11 +10,11 @@ class Match {
     has $.hash;
 
     method str {
-        if (self.result) {
-            return self.result.str;
+        if ($.result) {
+            return $.result.str;
         }
-           self.bool
-        ?? substr( self.match_str, self.from, self.to - self.from )
+           $.bool
+        ?? substr( $.match_str, $.from, $.to - $.from )
         !! undef;
     };
 
