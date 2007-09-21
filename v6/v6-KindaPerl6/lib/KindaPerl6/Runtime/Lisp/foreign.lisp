@@ -12,6 +12,12 @@
 (defmethod cl->perl ((object string) &key)
   (make-instance 'kp6-Str :value object))
 
+(defmethod cl->perl ((object integer) &key)
+  (make-instance 'kp6-Int :value object))
+
+(defmethod cl->perl ((object number) &key)
+  (make-instance 'kp6-Num :value object))
+
 (defmethod cl->perl ((object (eql 'true)) &key)
   (make-instance 'kp6-Bit :value 1))
 
