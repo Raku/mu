@@ -42,7 +42,8 @@ module Main {
             die 'AST IS:(' ~ $ast.result ~ ')';
         };
 
-        warn 'The ast is: ' ~ $ast.emit(KindaPerl6::Visitor::Perl.new());
+        say $ast.emit(KindaPerl6::Visitor::Perl.new());
+        exit;
 
         my $res;
         for @visitors -> $visitor {

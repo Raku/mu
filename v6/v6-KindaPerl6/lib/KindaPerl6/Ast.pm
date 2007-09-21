@@ -217,7 +217,6 @@ class Lit::Hash {
             }
     };
 }
-
 class Lit::Pair {
     has $.key;
     has $.value;

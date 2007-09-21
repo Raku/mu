@@ -11,6 +11,7 @@ use KindaPerl6::Runtime::Perl5::DispatchSugar;
 use Data::Dumper;
 use Carp qw(confess);
 use FindBin;
+use UNIVERSAL;
 
 =for some possible later use
     {
@@ -174,8 +175,24 @@ my $method_new = sugar {
             sub {
                 my $v = sugar {
                     %{ $_[0] },
-                    _value => $_[1],  
+                    _value => $_[1]
                 };
+                for my $arg_count(1..$#_) {
+                    my $arg = $_[$arg_count];
+                    if ($::NamedArgument &&
+                        ref $arg &&
+                        UNIVERSAL::isa($arg,'HASH') &&
+                        $arg->{_isa} &&
+                        @{$arg->{_isa}} &&
+                        grep { $_ == ::DISPATCH($::NamedArgument, 'HOW') } @{$arg->{_isa}}
+                       ) {
+                        my $key = GLOBAL::_str(::DISPATCH($arg, '_argument_name_'));
+                        my $value = ::DISPATCH($arg, 'value');
+                        $v->{_value} = {} unless ref $v->{_value} eq 'HASH';
+                        $v->{_value}{$key} = $value;
+                    }
+                }
+                $v;
             } 
     },
 };
@@ -220,6 +237,8 @@ $meta_Object = sugar {
 $meta_Object->{_value}{methods}{WHAT} = ::DISPATCH( $::Method, 'new',  sub { $::Object } );
 $meta_Object->{_value}{methods}{HOW}  = ::DISPATCH( $::Method, 'new',  sub { $meta_Object } );
 $meta_Object->{_value}{methods}{new}  = $method_new;
+
+
 $::Object                             = sugar {
     %::PROTO,
 
@@ -899,5 +918,7 @@ foreach (map { s,^.*($runtime6/.*)\.pm,$1,; s,/,::,g; $_ } @runtime6) {
 }
 
 require KindaPerl6::Runtime::Perl6::Prelude;
+
+
 
 1;

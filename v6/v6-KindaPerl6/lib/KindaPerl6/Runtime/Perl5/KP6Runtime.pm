@@ -11,17 +11,13 @@ use KindaPerl6::Runtime::Perl5::Wrap;
 use KindaPerl6::Runtime::Perl5::GLOBAL;
 use KindaPerl6::Runtime::Perl5::Grammar;
 
-#    ::DISPATCH( ::DISPATCH($::Object, 'HOW'), 'redefine_method', 'new',
-#	sub { 
-
     $Main::Code_newline = ::DISPATCH( $::Code, 'new', 
         { code => sub { ::DISPATCH( $::Str, 'new', "\n") }, src => '&Main::newline' } );
 
     $Main::Code_get_compiler_target_runtime = ::DISPATCH( $::Code, 'new', 
         { code => sub { ::DISPATCH( $::Str, 'new', 'KindaPerl6::Runtime::Perl5::KP6Runtime') }, src => '&Main::newline' } );
 
-
-
+    $Main::Code_V6_COMPILER_NAME = ::DISPATCH( $::Code, 'new', { code => sub { ::DISPATCH( $::Str, 'new', 'Bootstrapped KP6')}});
 1;
 
 __END__
