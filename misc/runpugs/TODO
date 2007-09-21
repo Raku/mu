@@ -8,6 +8,7 @@ runpugs version 0.4.0 TODO:
 * Put more functionality in JS (clear, timeout) 
 * Cleanup history code in server-side
 * Use true AJAX [remaining: hidden iframe/html payload -> $.ajax/JSON]
+* Create WML/XHTML non-javascript mobile phone version of runpugs
 * Convert to Perl6: this is a nice long-term goal. 
     Perl 5 Modules to be ported:
     - IO::Pty (xs based)
