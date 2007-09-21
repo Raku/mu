@@ -14,7 +14,7 @@
 ; whole hash object *shrug*
 (defmethod kp6-LOOKUP ((self kp6-Hash) key)
   "Looks up a value in the hash by key"
-  (let* ((hash (slot-value self 'value))
+  (let* ((hash (kp6-value self))
         (entry (gethash key hash)))
     entry))
 
