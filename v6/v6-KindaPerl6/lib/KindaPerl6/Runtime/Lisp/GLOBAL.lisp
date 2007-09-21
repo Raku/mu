@@ -1,5 +1,3 @@
-; lookup the &GLOBAL::say variable,
-; and then store the Code object into it
 (in-package #:kp6-cl)
 
 (let ((packages (make-instance 'kp6-Hash)))
@@ -13,13 +11,26 @@
   (defun kp6-remove-package (name)
     (kp6-DELETE packages name)))
 
+(defun is-kp6-package (object)
+  (typep object 'kp6-Package))
+
 (kp6-create-package "GLOBAL")
 
-(kp6-store (kp6-find-package "GLOBAL")
-	   "Code_say"
-	   (make-instance 'kp6-Code
-			  :value #'(lambda (&rest strs)
-				     (dolist (str strs)
-				       (format t "~A" (kp6-value str)))
-				     (terpri)
-				     (cl->perl 'true))))
+(defmacro define-kp6-function ((name &key (package "GLOBAL") returns) params &body body)
+    `(progn
+      (when (null (kp6-find-package ,package))
+	(kp6-create-package ,package))
+      (kp6-store (kp6-find-package ,package)
+       (concatenate 'string "Code_" ,name)
+       (make-instance 'kp6-Code
+	:value #'(lambda ,params
+		   ,@body
+		   ,@(when (not (null returns))
+			   (list `(cl->perl ,returns))))))))
+
+(define-kp6-function ("say" :returns 'true) (&rest strs)
+  (format t "~{~A~}~%" (mapcar #'kp6-value strs)))
+
+(define-kp6-function ("elems") (array)
+  (assert (typep array 'kp6-Array))
+  (length (kp6-value array)))
