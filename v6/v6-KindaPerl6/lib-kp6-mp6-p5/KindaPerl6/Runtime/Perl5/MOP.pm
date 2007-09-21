@@ -294,6 +294,11 @@ $meta_Class->add_method(
                                 name => '...',    # XXX name??? - get name from 'self'
                             } )
                           unless defined $_[0]{_value}{$meth_name};
+
+                        # do we have more parameters? we should store it as the value.
+                        if ($_[1]) {
+                            ::DISPATCH_VAR( $_[0]{_value}{$meth_name}, 'STORE', $_[1] );
+                        }
                         
                         $_[0]{_value}{$meth_name};
                     } } 
