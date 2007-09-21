@@ -91,6 +91,13 @@ class Rule::Or {
     }
 }
 
+class P5Token {
+    method emit_token {
+        'do { my $m2 = match_p5rx("' ~ $.regex ~ '",$str,($pos+0)); if ($m2) { $MATCH.to = $m2.to + 0; 1 } else { 0 } }';
+    }
+}
+
+
 class Rule::Concat {
     method emit_token {
         '(' ~ (@.concat.>>emit_token).join(' && ') ~ ')';

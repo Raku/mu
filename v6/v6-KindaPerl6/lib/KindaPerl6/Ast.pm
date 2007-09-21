@@ -680,6 +680,23 @@ class Coro {
     };
 }
 
+class P5Token {
+    has $.regex;
+    method emit( $visitor, $path ) {
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
+            self,
+            'P5Token',
+            $path,
+        );
+    };
+    method attribs {
+        {
+            regex => $.regex,
+        }
+    }
+}
+
 class Token {
     has $.name;
     #has $.sig;

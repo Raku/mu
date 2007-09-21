@@ -15,44 +15,10 @@ token token_P5 {
         <token_p5_body>
     \}
     {
-        my $string := ::Var(
-            'sigil'  => '$',
-            'twigil' => '',
-            'name'   => 'string',
-            'namespace' => [ ], 
-        );
-        my $pos := ::Var(
-            'sigil'  => '$',
-            'twigil' => '',
-            'name'   => 'pos',
-            'namespace' => [ ], 
-        )
-        my $code := [::Apply(
-            code=>::Var(sigil=>'&',twigil=>'',name=>'match_p5rx', namespace => [ ] ),
-            arguments=>[::Val::Buf(buf=>$$<token_p5_body>),$string,$pos]
-        )];
-        COMPILER::add_pad();
-        my $env  := @COMPILER::PAD[0];
-        COMPILER::drop_pad();
-        my $sig  := ::Sig( 
-            'invocant' => ::Var( 
-                'sigil'  => '$',
-                'twigil' => '',
-                'name'   => 'self',
-                'namespace' => [ ], 
-            ), 
-            'positional' => [$string,$pos], 
-            'named' => { }
-        );
-        KindaPerl6::Grammar::declare_parameters( $env, $code, $sig);    
-        return ::Method( 
-            'name'  => $$<opt_name>, 
-            'block' => ::Lit::Code(
-                pad   => $env,
-                state => { },
-                sig   => $sig,
-                body  => $code,
-            ),
+        return ::Token(
+             'name' => $$<opt_name>,
+             'regex' => ::P5Token(regex => $$<token_p5_body>),
+             'sym' => undef
         );
     }
 };

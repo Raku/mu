@@ -302,7 +302,7 @@ package GLOBAL;
 
     sub match_p5rx {
         my ($regex,$string,$pos) = (_str($_[0]),_str($_[1]),_int($_[2]));
-        unless (defined $string) {
+        if ($_[1] == $::Undef) {
             $string = _str($_);
         }
         pos($string) = $pos;

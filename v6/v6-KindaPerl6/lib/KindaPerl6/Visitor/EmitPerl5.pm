@@ -439,7 +439,6 @@ class If {
         ~ ' }' ~ Main::newline();
     }
 }
-
 class For {
     method emit_perl5 {
         my $cond := $.cond;

@@ -27,6 +27,12 @@ sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; ('do { ' . ('my 
 
 
 ;
+package P5Token;
+sub new { shift; bless { @_ }, "P5Token" }
+sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; ('do { my $m2 = match_p5rx("' . ($self->{regex} . '",$str,($pos+0)); if ($m2) { $MATCH.to = $m2.to + 0; 1 } else { 0 } }')) }
+
+
+;
 package Rule::Concat;
 sub new { shift; bless { @_ }, "Rule::Concat" }
 sub emit_token { my $self = shift; my $List__ = \@_; do { [] }; ('(' . (Main::join([ map { $_->emit_token() } @{ $self->{concat} } ], ' && ') . ')')) }
