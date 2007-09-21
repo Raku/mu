@@ -1,6 +1,3 @@
-; ??? no longer needed, we now use a Perl 6 hash instead of namespaces
-; (in-package #:kp6-global)
-
 ; lookup the &GLOBAL::say variable,
 ; and then store the Code object into it
 (in-package #:kp6-cl)
