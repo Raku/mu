@@ -2171,7 +2171,7 @@ Except as noted above, the parser always
 looks for the brackets.  Despite not indicating a true subscript,
 the brackets are similarly parsed as postfix operators.  As postfixes
 the brackets may be separated from their initial C<:foo> with either
-unspace or dot (or both), but nothgin else.
+unspace or dot (or both), but nothing else.
 
 Regardless of syntax, adverbs used as named arguments generally show
 up as optional named parameters to the function in question--even

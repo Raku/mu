@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 2 Nov 2004
-  Last Modified: 2 Jun 2007
+  Last Modified: 21 Sep 2007
   Number: 13
-  Version: 9
+  Version: 10
 
 =head1 Overview
 
@@ -141,6 +141,18 @@ this hash over a lexical scope, so you could have different policies
 on magical autogeneration.  The default mappings correspond to the
 standard fallback mappings of Perl 5 overloading.
 
+These deep mappings are mainly intended for infix operators that would have
+difficulty naming all their variants.  Prefix operators tend to be simpler;
+note in particular that
+
+    multi prefix:<~> is deep {...}
+
+is better written:
+
+    method Str {...}
+
+(see below).
+
 =head1 Type Casting
 
 A class may define methods that allow it to respond as if it were a
@@ -189,8 +201,37 @@ it certainly creates a new C<Dog> object.  But if you say:
 it might call C<Dog.new>, or it might pull a C<Dog> with Spot's
 identity from the dog cache, or it might do absolutely nothing if
 C<$spot> already knows how to be a C<Dog>.  As a fallback, if no
-method responds to C<&.()>, the class will be asked to attempt to
+method responds to a coercion request, the class will be asked to attempt to
 do C<Dog.new($spot)> instead.
+
+It is also possible (and often preferable) to specify coercions from
+the other end, that is, for a class to specify how to coerce one of
+its values to some other class.  If you define a method whose name
+is a declared type, it is taken as a coercion to that type:
+
+    method Str { self.makestringval() }
+
+As with all methods, you can also export the corresponding multi:
+
+    method Str is export { self.makestringval() }
+
+in which case you can use both calling forms:
+
+    $x.Str
+    Str($x)
+
+If the source class and the destination class both specify a
+coercion routine, the ambiguity is settled by the ordinary rules
+of multiple dispatch.  Usually the source class will have the more
+specific argument and will win; ties are also possible, and those
+calls will fail.  Additional arguments may sway the dispatch one way
+or the other depending on the candidate list.
+
+Note that, because the name of an anonymous class is unknown, coercion to
+an anonymous class can only be specified by the destination class:
+
+    $someclass = generate_class();
+    $someclass($x);
 
 =cut
 
