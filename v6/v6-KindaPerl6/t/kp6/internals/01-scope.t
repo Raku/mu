@@ -1,7 +1,7 @@
 
 use KindaPerl6::Runtime::Perl6::Scope;
 
-say '1..1';
+say '1..3';
 
 my $s = Scope.new( vars => {} );
 
