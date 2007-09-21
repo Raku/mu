@@ -857,6 +857,9 @@ $::HashCell = make_class( proto => $::HashCell, name=>"HashCell",parent=>[$::met
                 ? $_[0]{_value}{cell}{ $_[0]{_value}{key} }
                 : ::DISPATCH($::Undef,'new',0);
         },
+    exists => sub {
+           ::DISPATCH( $::Bit, 'new', exists $_[0]{_value}{cell}{ $_[0]{_value}{key} } ? 1 : 0 )
+        },
 });
 
 require KindaPerl6::Runtime::Perl6::Hash;

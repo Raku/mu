@@ -158,9 +158,7 @@ package GLOBAL;
         ::DISPATCH( $_[0], 'defined' ) 
     } 
     sub exists  { 
-        #print "EXIST? \n";
-        ::DISPATCH( $::Bit, 'new', 
-            defined $_[0] ? 1 : 0 );
+        ::DISPATCH( VAR($_[0]), 'exists' );
     } 
     sub true     { ::DISPATCH( $_[0], 'true' ) }  
     sub not      { ::DISPATCH( $::Bit, 'new', ! ( ::DISPATCH( $_[0], 'true' )->{_value} ) ) }  
