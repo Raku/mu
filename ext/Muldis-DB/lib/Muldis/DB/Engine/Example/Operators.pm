@@ -14,32 +14,35 @@ module Muldis::DB::Engine::Example::Operators-0.3.0 {
 
 ###########################################################################
 
-## sys.type.Bool ##
+## sys.Core.Universal.Universal ##
 
-
-## sys.type.Order ##
-
-
-## sys.type.Int ##
-
-'sys.rtn.Int.equal' => sub ($dbms!, Hash $ro_args!) {
+'sys.Core.Universal.is_equal' => sub ($dbms!, Hash $ro_args!) {
     my ($v1, $v2) = $ro_args<v1 v2>;
     return ptBool( :v($v1.equal( $v2 )) );
 },
 
-'sys.rtn.Int.not_equal' => sub ($dbms!, Hash $ro_args!) {
+'sys.Core.Universal.is_not_equal' => sub ($dbms!, Hash $ro_args!) {
     my ($v1, $v2) = $ro_args<v1 v2>;
     return ptBool( :v(!$v1.equal( $v2 )) );
 },
 
-'sys.rtn.Int.assign' => sub ($dbms!, Hash $upd_args!, Hash $ro_args!) {
+'sys.Core.Universal.assign'
+        => sub ($dbms!, Hash $upd_args!, Hash $ro_args!) {
     my ($target) = $upd_args<target>;
     my ($v) = $ro_args<v>;
     $target.store( $v );
     return;
 },
 
-'sys.rtn.Int.sum' => sub ($dbms!, Hash $ro_args!) {
+## sys.Core.Bool.Bool ##
+
+
+## sys.Core.Order.Order ##
+
+
+## sys.Core.Int.Int ##
+
+'sys.Core.Int.sum' => sub ($dbms!, Hash $ro_args!) {
     my ($addends) = $ro_args<addends>;
     my Int $sum = 0;
     for $addends.array_from_value_attr() -> $addend {
@@ -48,12 +51,12 @@ module Muldis::DB::Engine::Example::Operators-0.3.0 {
     return ptInt( :v($sum) );
 },
 
-'sys.rtn.Int.difference' => sub ($dbms!, Hash $ro_args!) {
+'sys.Core.Int.difference' => sub ($dbms!, Hash $ro_args!) {
     my ($minuend, $subtrahend) = $ro_args<minuend subtrahend>;
     return ptInt( :v($minuend.v() - $subtrahend.v()) );
 },
 
-'sys.rtn.Int.product' => sub ($dbms!, Hash $ro_args!) {
+'sys.Core.Int.product' => sub ($dbms!, Hash $ro_args!) {
     my ($factors) = $ro_args<factors>;
     my Int $product = 1;
     for $factors.array_from_value_attr() -> $factor {
@@ -62,44 +65,47 @@ module Muldis::DB::Engine::Example::Operators-0.3.0 {
     return ptInt( :v($product) );
 },
 
-'sys.rtn.Int.quotient' => sub ($dbms!, Hash $ro_args!) {
+'sys.Core.Int.quotient' => sub ($dbms!, Hash $ro_args!) {
     my ($dividend, $divisor) = $ro_args<dividend divisor>;
     my Int $divisor_v = $divisor.v();
-    die q{sys.rtn.Int.quotient(): Arg :$divisor is zero.}
+    die q{sys.Core.Int.quotient(): Arg :$divisor is zero.}
         if $divisor_v === 0;
 #    return ptInt( :v(floor ($dividend.v() div $divisor_v)) );
     return ptInt( :v(floor ($dividend.v() / $divisor_v)) );
 },
 
-'sys.rtn.Int.remainder' => sub ($dbms!, Hash $ro_args!) {
+'sys.Core.Int.remainder' => sub ($dbms!, Hash $ro_args!) {
     my ($dividend, $divisor) = $ro_args<dividend divisor>;
     my Int $divisor_v = $divisor.v();
-    die q{sys.rtn.Int.remainder(): Arg :$divisor is zero.}
+    die q{sys.Core.Int.remainder(): Arg :$divisor is zero.}
         if $divisor_v === 0;
 #    return ptInt( :v($dividend.v() mod $divisor_v) );
     return ptInt( :v($dividend.v() % $divisor_v) );
 },
 
-'sys.rtn.Int.abs' => sub ($dbms!, Hash $ro_args!) {
+'sys.Core.Int.abs' => sub ($dbms!, Hash $ro_args!) {
     my ($v) = $ro_args<v>;
     return ptInt( :v(abs $v.v()) );
 },
 
-'sys.rtn.Int.power' => sub ($dbms!, Hash $ro_args!) {
+'sys.Core.Int.power' => sub ($dbms!, Hash $ro_args!) {
     my ($radix, $exponent) = $ro_args<radix exponent>;
     return ptInt( :v($radix.v() ** $exponent.v()) );
 },
 
-## sys.type.Blob ##
+## sys.Core.Num.Num ##
 
 
-## sys.type.Text ##
+## sys.Core.Blob.Blob ##
 
 
-## sys.type.Tuple ##
+## sys.Core.Text.Text ##
 
 
-## sys.type.Relation ##
+## sys.Core.Tuple.Tuple ##
+
+
+## sys.Core.Relation.Relation ##
 
 
 ###########################################################################
@@ -141,7 +147,7 @@ L<Language::MuldisD>.
 Specifically, this file implements the core system-defined operators that
 all Muldis D implementations must have, which is the selectors for and
 general purpose functions and update operators for these data types: Bool,
-Text, Blob, Int, Num, Tuple, Relation, and the Cat.* types.
+Order, Int, Num, Text, Blob, Tuple, Relation, and the Cat.* types.
 
 By contrast, the operators specific to the optional data types are
 implemented by other files:

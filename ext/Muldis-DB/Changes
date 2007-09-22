@@ -10,6 +10,15 @@
     which sets its own less frequent release schedule.  The rest of this
     Changes entry refers only to the Perl 5 version.
 
+    * This release is a snapshot to show a particular mid-way point in a
+    large sequence of changes.  To summarize, the public API of Muldis DB
+    has been rewritten, documentation for that API was added (including an
+    example), and both the Example Engine and the Validator suite were
+    (substantially) updated to conform to the new API.  However, the
+    Example Engine is still incapable of executing any tasks, so that
+    aspect is unchanged from before.  The next release should flesh out
+    Example so that it executes some tasks.
+
     * Removed the file Literal.pm; Muldis DB now uses Perl Hosted Abstract
     Muldis D (composed of Perl array refs, hash refs, scalars), as
     described in Language::MuldisD::PerlHosted, rather than Literal
@@ -73,7 +82,21 @@
     first actual example code for using Muldis DB, however contrived.
 
     * (Example.pm)  Rewrote the Example.pm code to conform to the changed
-    API declared by Interface.pm.  TODO: FINISH THIS.
+    API declared by Interface.pm.  The new version implements the root
+    module, the ::DBMS and ::Var classes, but not the ::(Func|Proc)Binding
+    classes.  Also, the interface-role implementing classes were all
+    renamed aside from interface-conformity, specifically "::Public" was
+    added to all their names, that signifying that these are the only
+    classes that applications would directly invoke.  This file stands to
+    be substantially updated in the next releases, but for the most part
+    most Example code will be put in other files, with Example.pm limited
+    to providing just the public interface.
+
+    * (PhysType.pm, Operators.pm)  Made a minimal set of updates to these
+    files to bring them up to date with the current Muldis D type or
+    routine names for what they implement, and to remove any references to
+    Literal.pm.  These files stand to be substantially updated, or even
+    replaced in the next releases.
 
     * (SeeAlso.pod)  Updated the PROSPECTIVE MULDIS DB EXTENSIONS section
     mainly to bring various names, terminology, and references up to date

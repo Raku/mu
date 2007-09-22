@@ -216,21 +216,21 @@ submethod BUILD (Bool :$v!) {
 ###########################################################################
 
 method root_type of Str () {
-    return 'sys.type.Bool';
+    return 'sys.Core.Bool.Bool';
 }
 
 method which of Str () {
     if (!$!which.defined) {
         my Str $s = ~$!v;
-        $!which = "13 sys.type.Bool {$s.graphs} $s";
+        $!which = "18 sys.Core.Bool.Bool {$s.graphs} $s";
     }
     return $!which;
 }
 
 ###########################################################################
 
-method as_ast of Muldis::DB::Literal::Bool () {
-    return ::Muldis::DB::Literal::Bool.new( :v($!v) );
+method as_ast of Muldis::DB::LOSE::Bool () {
+    return ::Muldis::DB::LOSE::Bool.new( :v($!v) );
 }
 
 ###########################################################################
@@ -269,21 +269,21 @@ submethod BUILD (Order :$v!) {
 ###########################################################################
 
 method root_type of Str () {
-    return 'sys.type.Order';
+    return 'sys.Core.Order.Order';
 }
 
 method which of Str () {
     if (!$!which.defined) {
         my Str $s = ~$!v;
-        $!which = "14 sys.type.Order {$s.graphs} $s";
+        $!which = "20 sys.Core.Order.Order {$s.graphs} $s";
     }
     return $!which;
 }
 
 ###########################################################################
 
-method as_ast of Muldis::DB::Literal::Order () {
-    return ::Muldis::DB::Literal::Order.new( :v($!v) );
+method as_ast of Muldis::DB::LOSE::Order () {
+    return ::Muldis::DB::LOSE::Order.new( :v($!v) );
 }
 
 ###########################################################################
@@ -322,21 +322,21 @@ submethod BUILD (Int :$v!) {
 ###########################################################################
 
 method root_type of Str () {
-    return 'sys.type.Int';
+    return 'sys.Core.Int.Int';
 }
 
 method which of Str () {
     if (!$!which.defined) {
         my Str $s = ~$!v;
-        $!which = "12 sys.type.Int {$s.graphs} $s";
+        $!which = "16 sys.Core.Int.Int {$s.graphs} $s";
     }
     return $!which;
 }
 
 ###########################################################################
 
-method as_ast of Muldis::DB::Literal::Int () {
-    return ::Muldis::DB::Literal::Int.new( :v($!v) );
+method as_ast of Muldis::DB::LOSE::Int () {
+    return ::Muldis::DB::LOSE::Int.new( :v($!v) );
 }
 
 ###########################################################################
@@ -375,21 +375,21 @@ submethod BUILD (Blob :$v!) {
 ###########################################################################
 
 method root_type of Str () {
-    return 'sys.type.Blob';
+    return 'sys.Core.Blob.Blob';
 }
 
 method which of Str () {
     if (!$!which.defined) {
         my Str $s = ~$!v;
-        $!which = "13 sys.type.Blob {$s.graphs} $s";
+        $!which = "18 sys.Core.Blob.Blob {$s.graphs} $s";
     }
     return $!which;
 }
 
 ###########################################################################
 
-method as_ast of Muldis::DB::Literal::Blob () {
-    return ::Muldis::DB::Literal::Blob.new( :v($!v) );
+method as_ast of Muldis::DB::LOSE::Blob () {
+    return ::Muldis::DB::LOSE::Blob.new( :v($!v) );
 }
 
 ###########################################################################
@@ -428,21 +428,21 @@ submethod BUILD (Str :$v!) {
 ###########################################################################
 
 method root_type of Str () {
-    return 'sys.type.Text';
+    return 'sys.Core.Text.Text';
 }
 
 method which of Str () {
     if (!$!which.defined) {
         my Str $s = $!v;
-        $!which = "13 sys.type.Text {$s.graphs} $s";
+        $!which = "18 sys.Core.Text.Text {$s.graphs} $s";
     }
     return $!which;
 }
 
 ###########################################################################
 
-method as_ast of Muldis::DB::Literal::Text () {
-    return ::Muldis::DB::Literal::Text.new( :v($!v) );
+method as_ast of Muldis::DB::LOSE::Text () {
+    return ::Muldis::DB::LOSE::Text.new( :v($!v) );
 }
 
 ###########################################################################
@@ -485,13 +485,14 @@ submethod BUILD
 ###########################################################################
 
 method root_type of Str () {
-    return 'sys.type.' ~ (self._allows_quasi() ?? 'Quasi' !! '') ~ 'Tuple';
+    my $unqltp = ($self->_allows_quasi() ?? 'Quasi' !! '') ~ 'Tuple';
+    return "sys.Core.$unqltp.$unqltp";
 }
 
 method which of Str () {
     if (!$!which.defined) {
-        my Str $root_type = 'sys.type.'
-            ~ (self._allows_quasi() ?? 'Quasi' !! '') ~ 'Tuple';
+        my $unqltp = ($self->_allows_quasi() ?? 'Quasi' !! '') ~ 'Tuple';
+        my Str $root_type = "sys.Core.$unqltp.$unqltp";
         my Str $tpwl = $root_type.graphs ~ q{ } ~ $root_type;
         my Str $s = "H {$!heading.which()} B {$!body.which()}";
         $!which = "$tpwl {$s.graphs} $s";
@@ -501,12 +502,12 @@ method which of Str () {
 
 ###########################################################################
 
-method as_ast of Muldis::DB::Literal::_Tuple () {
+method as_ast of Muldis::DB::LOSE::_Tuple () {
     my $call_args = \( :heading($!heading.as_ast()),
         :body($!body.as_ast()) );
     return self._allows_quasi()
-        ?? ::Muldis::DB::Literal::QuasiTuple.new.callwith( |$call_args )
-        !! ::Muldis::DB::Literal::Tuple.new.callwith( |$call_args );
+        ?? ::Muldis::DB::LOSE::QuasiTuple.new.callwith( |$call_args )
+        !! ::Muldis::DB::LOSE::Tuple.new.callwith( |$call_args );
 }
 
 ###########################################################################
@@ -598,14 +599,15 @@ submethod BUILD
 ###########################################################################
 
 method root_type of Str () {
-    return
-        'sys.type.' ~ (self._allows_quasi() ?? 'Quasi' !! '') ~ 'Relation';
+    my $unqltp = ($self->_allows_quasi() ?? 'Quasi' !! '') ~ 'Relation';
+    return "sys.Core.$unqltp.$unqltp";
 }
 
 method which of Str () {
     if (!$!which.defined) {
-        my Str $root_type = 'sys.type.'
-            ~ (self._allows_quasi() ?? 'Quasi' !! '') ~ 'Relation';
+        my $unqltp
+            = ($self->_allows_quasi() ?? 'Quasi' !! '') ~ 'Relation';
+        my Str $root_type = "sys.Core.$unqltp.$unqltp";
         my Str $tpwl = $root_type.graphs ~ q{ } ~ $root_type;
         my Str $s = "H {$!heading.which()} B "
             ~ $!key_over_all.keys.sort.join( q{ } );
@@ -616,12 +618,12 @@ method which of Str () {
 
 ###########################################################################
 
-method as_ast of Muldis::DB::Literal::_Relation () {
+method as_ast of Muldis::DB::LOSE::_Relation () {
     my $call_args = \( :heading($!heading.as_ast()),
         :body([$!body.map:{ .as_ast() }]) );
     return self._allows_quasi()
-        ?? ::Muldis::DB::Literal::QuasiRelation.new.callwith( |$call_args )
-        !! ::Muldis::DB::Literal::Relation.new.callwith( |$call_args );
+        ?? ::Muldis::DB::LOSE::QuasiRelation.new.callwith( |$call_args )
+        !! ::Muldis::DB::LOSE::Relation.new.callwith( |$call_args );
 }
 
 ###########################################################################
@@ -719,12 +721,12 @@ submethod BUILD (Str :$kind!, Any :$spec!) {
 ###########################################################################
 
 method root_type of Str () {
-    return 'sys.type._TypeInvo' ~ (self._allows_quasi() ?? 'AQ' !! 'NQ');
+    return 'sys.LOSE._TypeInvo' ~ (self._allows_quasi() ?? 'AQ' !! 'NQ');
 }
 
 method which of Str () {
     if (!$!which.defined) {
-        my Str $tpwl = '20 sys.type._TypeInvo'
+        my Str $tpwl = '20 sys.LOSE._TypeInvo'
             ~ (self._allows_quasi() ?? 'AQ' !! 'NQ');
         my Str $sk = $!kind.graphs ~ q{ } ~ $!kind;
         my Str $ss = $!kind === 'Any'|'Scalar'
@@ -737,14 +739,14 @@ method which of Str () {
 
 ###########################################################################
 
-method as_ast of Muldis::DB::Literal::_TypeInvo () {
+method as_ast of Muldis::DB::LOSE::_TypeInvo () {
     my $call_args = \( :kind($!kind),
         :spec($!kind === 'Any' ?? $!spec
-            !! $!kind === 'Scalar' ?? ::Muldis::DB::Literal::EntityName.new( :text($!spec) )
+            !! $!kind === 'Scalar' ?? ::Muldis::DB::LOSE::EntityName.new( :text($!spec) )
             !! $!spec.as_ast()) );
     return self._allows_quasi()
-        ?? ::Muldis::DB::Literal::QuasiTypeInvo.new.callwith( |$call_args )
-        !! ::Muldis::DB::Literal::TypeInvo.new.callwith( |$call_args );
+        ?? ::Muldis::DB::LOSE::QuasiTypeInvo.new.callwith( |$call_args )
+        !! ::Muldis::DB::LOSE::TypeInvo.new.callwith( |$call_args );
 }
 
 ###########################################################################
@@ -811,12 +813,12 @@ submethod BUILD (Hash :$map!) {
 ###########################################################################
 
 method root_type of Str () {
-    return 'sys.type._TypeDict' ~ (self._allows_quasi() ?? 'AQ' !! 'NQ');
+    return 'sys.LOSE._TypeDict' ~ (self._allows_quasi() ?? 'AQ' !! 'NQ');
 }
 
 method which of Str () {
     if (!$!which.defined) {
-        my Str $tpwl = '20 sys.type._TypeDict'
+        my Str $tpwl = '20 sys.LOSE._TypeDict'
             ~ (self._allows_quasi() ?? 'AQ' !! 'NQ');
         my Str $s = $!map.pairs.sort.map:{
                 "K {.key.graphs} {.key} V {.value.which()}";
@@ -828,13 +830,13 @@ method which of Str () {
 
 ###########################################################################
 
-method as_ast of Muldis::DB::Literal::_TypeDict () {
+method as_ast of Muldis::DB::LOSE::_TypeDict () {
     my $call_args = \( :map([ $!map.pairs.map:{
-            [::Muldis::DB::Literal::EntityName.new( :text(.key) ), .value.as_ast()],
+            [::Muldis::DB::LOSE::EntityName.new( :text(.key) ), .value.as_ast()],
         } ]) );
     return self._allows_quasi()
-        ?? ::Muldis::DB::Literal::QuasiTypeDict.new.callwith( |$call_args )
-        !! ::Muldis::DB::Literal::TypeDict.new.callwith( |$call_args );
+        ?? ::Muldis::DB::LOSE::QuasiTypeDict.new.callwith( |$call_args )
+        !! ::Muldis::DB::LOSE::TypeDict.new.callwith( |$call_args );
 }
 
 ###########################################################################
@@ -916,12 +918,12 @@ submethod BUILD (Hash :$map!) {
 ###########################################################################
 
 method root_type of Str () {
-    return 'sys.type._ValueDict' ~ (self._allows_quasi() ?? 'AQ' !! 'NQ');
+    return 'sys.LOSE._ValueDict' ~ (self._allows_quasi() ?? 'AQ' !! 'NQ');
 }
 
 method which of Str () {
     if (!$!which.defined) {
-        my Str $tpwl = '20 sys.type._ValueDict'
+        my Str $tpwl = '20 sys.LOSE._ValueDict'
             ~ (self._allows_quasi() ?? 'AQ' !! 'NQ');
         my Str $s = $!map.pairs.sort.map:{
                 "K {.key.graphs} {.key} V {.value.which()}";
@@ -933,9 +935,9 @@ method which of Str () {
 
 ###########################################################################
 
-method as_ast of Muldis::DB::Literal::_ExprDict () {
-    return ::Muldis::DB::Literal::_ExprDict.new( :map([ $!map.pairs.map:{
-            [::Muldis::DB::Literal::EntityName.new( :text(.key) ), .value.as_ast()],
+method as_ast of Muldis::DB::LOSE::_ExprDict () {
+    return ::Muldis::DB::LOSE::_ExprDict.new( :map([ $!map.pairs.map:{
+            [::Muldis::DB::LOSE::EntityName.new( :text(.key) ), .value.as_ast()],
         } ]) );
 }
 
@@ -1028,8 +1030,8 @@ match the API that the language itself specifies as possible
 representations for system-defined data types.
 
 Specifically, this file represents the core system-defined data types that
-all Muldis D implementations must have, namely: Bool, Text, Blob, Int, Num,
-Tuple, Relation, and the Cat.* types.
+all Muldis D implementations must have, namely: Bool, Order, Int, Num,
+Text, Blob, Tuple, Relation, and the Cat.* types.
 
 By contrast, the optional data types are given physical representations by
 other files: L<Muldis::DB::Engine::Example::PhysType::Temporal>,
