@@ -106,17 +106,17 @@ method assoc_proc_bindings of Array () {
 method call_func of Muldis::DB::Interface::Var
         (Str :$func_name!, Hash :$args!) {
 
-    my $f = ::Muldis::DB::Engine::Example::Public::FuncBinding.new(
-        :dbms(self) );
+#    my $f = ::Muldis::DB::Engine::Example::Public::FuncBinding.new(
+#        :dbms(self) );
 
     my $result = ::Muldis::DB::Engine::Example::Public::Var.new(
         :dbms(self), 'sys.Core.Universal.Universal' );
 
-    $f.bind_func( :func_name($func_name) );
-    $f.bind_result( :var($result) );
-    $f.bind_params( :args($args) );
+#    $f.bind_func( :func_name($func_name) );
+#    $f.bind_result( :var($result) );
+#    $f.bind_params( :args($args) );
 
-    $f.call();
+#    $f.call();
 
     return $result;
 }
@@ -125,14 +125,14 @@ method call_func of Muldis::DB::Interface::Var
 
 method call_proc (Str :$proc_name!, Hash :$upd_args!, Hash :$ro_args!) {
 
-    my $p = ::Muldis::DB::Engine::Example::Public::ProcBinding.new(
-        :dbms(self) );
+#    my $p = ::Muldis::DB::Engine::Example::Public::ProcBinding.new(
+#        :dbms(self) );
 
-    $p.bind_proc( :proc_name($proc_name) );
-    $p.bind_upd_params( :args($upd_args) );
-    $p.bind_ro_params( :args($ro_args) );
+#    $p.bind_proc( :proc_name($proc_name) );
+#    $p.bind_upd_params( :args($upd_args) );
+#    $p.bind_ro_params( :args($ro_args) );
 
-    $p.call();
+#    $p.call();
 
     return;
 }
@@ -192,8 +192,8 @@ submethod BUILD (Muldis::DB::Engine::Example::Public::DBMS :$dbms!,
     $!dbms = $dbms;
     $dbms!assoc_vars.{self.WHERE} = self;
 
-    $!var = ::Muldis::DB::Engine::Example::VM::Var.new(
-        :decl_type($decl_type) ); # TODO; or some such
+#    $!var = ::Muldis::DB::Engine::Example::VM::Var.new(
+#        :decl_type($decl_type) ); # TODO; or some such
 
     return;
 }
@@ -206,14 +206,14 @@ submethod DESTROY () {
 ###########################################################################
 
 method fetch_ast of Array () {
-    return $!var.as_phmd(); # TODO; or some such
+#    return $!var.as_phmd(); # TODO; or some such
 }
 
 ###########################################################################
 
 method store_ast (Array :$ast!) {
     # TODO: input checks.
-    $!var = from_phmd( $ast ); # TODO; or some such
+#    $!var = from_phmd( $ast ); # TODO; or some such
     return;
 }
 

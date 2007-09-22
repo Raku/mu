@@ -98,6 +98,13 @@
     Literal.pm.  These files stand to be substantially updated, or even
     replaced in the next releases.
 
+    * (Validator.pm)  Rewrote the foods/suppliers/shipments scenario, which
+    is basically all the code, so it uses the new API in Interface.pm; this
+    version is barely half the code size of the old one, but it doesn't
+    create a user-defined routine to combine the tasks to be done; an
+    additional version will be provided in a subsequent release that does.
+    The SYNOPSIS, plus the MDB_50_Validate_Example.t, were minor updated.
+
     * (SeeAlso.pod)  Updated the PROSPECTIVE MULDIS DB EXTENSIONS section
     mainly to bring various names, terminology, and references up to date
     with design changes.  Any package names containing "Literal" now have

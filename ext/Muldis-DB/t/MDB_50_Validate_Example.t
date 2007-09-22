@@ -3,6 +3,6 @@ use v6-alpha;
 use Muldis::DB::Validator;
 
 Muldis::DB::Validator::main(
-        :engine_name('Muldis::DB::Engine::Example'),
-        :dbms_config({}),
-    );
+    :engine_name('Muldis::DB::Engine::Example'),
+    :dbms_config({}),
+);

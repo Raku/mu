@@ -485,13 +485,13 @@ submethod BUILD
 ###########################################################################
 
 method root_type of Str () {
-    my $unqltp = ($self->_allows_quasi() ?? 'Quasi' !! '') ~ 'Tuple';
+    my Str $unqltp = (self._allows_quasi() ?? 'Quasi' !! '') ~ 'Tuple';
     return "sys.Core.$unqltp.$unqltp";
 }
 
 method which of Str () {
     if (!$!which.defined) {
-        my $unqltp = ($self->_allows_quasi() ?? 'Quasi' !! '') ~ 'Tuple';
+        my Str $unqltp = (self._allows_quasi() ?? 'Quasi' !! '') ~ 'Tuple';
         my Str $root_type = "sys.Core.$unqltp.$unqltp";
         my Str $tpwl = $root_type.graphs ~ q{ } ~ $root_type;
         my Str $s = "H {$!heading.which()} B {$!body.which()}";
@@ -599,14 +599,14 @@ submethod BUILD
 ###########################################################################
 
 method root_type of Str () {
-    my $unqltp = ($self->_allows_quasi() ?? 'Quasi' !! '') ~ 'Relation';
+    my Str $unqltp = (self._allows_quasi() ?? 'Quasi' !! '') ~ 'Relation';
     return "sys.Core.$unqltp.$unqltp";
 }
 
 method which of Str () {
     if (!$!which.defined) {
-        my $unqltp
-            = ($self->_allows_quasi() ?? 'Quasi' !! '') ~ 'Relation';
+        my Str $unqltp
+            = (self._allows_quasi() ?? 'Quasi' !! '') ~ 'Relation';
         my Str $root_type = "sys.Core.$unqltp.$unqltp";
         my Str $tpwl = $root_type.graphs ~ q{ } ~ $root_type;
         my Str $s = "H {$!heading.which()} B "
