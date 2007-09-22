@@ -358,7 +358,13 @@ class Apply {
             return '$self';
         }
 
-        my $op := $.code.emit_lisp;
+        # XXX: FIXME: ARGH: The AST or the Lisp runtime (probably the
+        # latter) needs to be fixed up. This is a shameless hack to
+        # make C<say "hello world"> work.
+        my $op := '"Code_say"';
+
+        #my $op := $.code.emit_lisp;
+
         # XXX short circuit ops
         # ||
         if $op eq '$GLOBAL::Code_infix_58__60__124__124__62_' {
@@ -380,7 +386,7 @@ class Apply {
                 '::DISPATCH($____some__weird___var____,"true")->{_value} && $____some__weird___var____ ' ~
              '}) || ::DISPATCH( $::Bit, "new", 0) }' ~ Main::newline();
         }
-        return  '(kp6-APPLY ' ~ $op ~ ' (list ' ~ (@.arguments.>>emit_lisp).join(' ') ~ '))' ~ Main::newline();
+        return  '(kp6-apply-function ' ~ $op ~ ' (mapcar #\'cl->perl (list ' ~ (@.arguments.>>emit_lisp).join(' ') ~ ')))' ~ Main::newline();
     }
 }
 
@@ -394,16 +400,18 @@ class Return {
 
 class If {
     method emit_lisp {
-        'do { if (::DISPATCH(::DISPATCH(' ~ $.cond.emit_lisp ~ ',"true"),"p5landish") ) ' 
+        #'do { if (::DISPATCH(::DISPATCH(' ~ $.cond.emit_lisp ~ ',"true"),"p5landish") ) ' 
+        # XXX: Cast the value to a true/false in lisp
+        '(if (kp6-value ' ~ $.cond.emit_lisp ~ ')'
         ~ ( $.body 
-            ?? '{ ' ~ $.body.emit_lisp ~ ' } '
-            !! '{ } '
+            ?? '(progn ' ~ $.body.emit_lisp ~ ') '
+            !! '(progn)'
           )
         ~ ( $.otherwise 
-            ?? ' else { ' ~ $.otherwise.emit_lisp ~ ' }' 
-            !! '' 
+            ?? ' (progn ' ~ $.otherwise.emit_lisp ~ ' )' 
+            !! '(progn)' 
           )
-        ~ ' }' ~ Main::newline();
+        ~ ' )' ~ Main::newline();
     }
 }
 
@@ -636,11 +644,9 @@ class Sub {
 }
 
 class Do {
+    # Everything's an expression in lisp so do {} is implicit:)
     method emit_lisp {
-        'do { ' ~ 
-          $.block.emit_lisp ~ 
-        ' }'
-        ~ Main::newline();
+        $.block.emit_lisp ~ Main::newline();
     }
 }
 
