@@ -70,7 +70,6 @@
                                     do {
                                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $node, 'namespace', ) ), "true" ), "p5landish" ) ) {
                                             {
-                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', 'global ' ), ::DISPATCH( $node, 'name', ) );
                                                 return (
                                                     ::DISPATCH(
                                                         $::Lookup,

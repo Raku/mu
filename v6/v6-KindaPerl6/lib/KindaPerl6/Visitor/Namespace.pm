@@ -21,7 +21,7 @@ class KindaPerl6::Visitor::Namespace {
         if    ( $node_name eq 'Var' )
         {
             if @($node.namespace) {
-                say "global ", $node.name;
+                #say "global ", $node.name;
                 # $X::Y::z -> %KP6<X::Y><Scalar_z>
                 return ::Lookup(
                         obj => ::Lookup(
