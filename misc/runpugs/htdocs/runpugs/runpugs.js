@@ -12,6 +12,31 @@ var cmds = new Array();
 var theme = "wb_theme";
 var fixedCharWidth;
 
+//for tutorials & school ;-)
+var tutorialMode = 0;
+var slide = 0;
+var slides = new Array(
+    'default_info.html',
+    'tutorial/01_helloworld.html',
+    'tutorial/02_vars.html',
+    'tutorial/03_iteration_array.html',
+    'tutorial/04_iteration_hash.html',
+    'tutorial/05_iteration_many.html',
+    'tutorial/06_conditionals.html',
+    'tutorial/07_junctions.html',
+    'tutorial/08_junctions_array.html',
+    'tutorial/09_chained_comparison.html',
+    'tutorial/10_io.html',
+    'tutorial/11_io_iteration.html',
+    'tutorial/12_io_reading.html',
+    'tutorial/13_lists_reduction.html',
+    'tutorial/14_lists_hyper.html',
+    'tutorial/15_lists_cross.html',
+    'tutorial/16_grammar.html',
+    'tutorial/17_final.html'
+);
+
+ 
 //show the cursor
 function showCursor() {
     var cmdLen = cmds.length;
@@ -94,12 +119,34 @@ $(document).ready( function() {
         });
     });
 
+    //load default text into element id 'info'
+    loadSlide();
+
     //start loading pugs session after page has loaded...
     $("#hidden_iframe").append(
         '<iframe src="/perl/runpugs.pl" id="scratch" name="scratch" ' +
         'style="visibility:hidden" width="700px" height="1px" ' +
         'onLoad="getreply()"></iframe>');
 });
+
+//load a slide into #info with an slideup/slidedown effect
+function loadSlide() {
+    if(debug) {
+        alert("slide url to be loaded = '" + slides[slide] + "'");
+    }
+    $("#info").slideUp("fast");
+    $.ajax({
+        url: slides[slide],
+        async: true,
+        success: function(data) {
+            if(debug) {
+                alert("slide data received: " + data);
+            }
+            $("#info").html(data);
+            $("#info").slideDown("slow");
+        }
+    });
+}
 
 //insert character 'ch' at index 'pos' in string str 
 //and return the result
@@ -132,10 +179,35 @@ function onKeyDown(event) {
         var sessCmds=document.terminal.cmd.value + cmd;
         var tmpCmds=sessCmds.split(prompt);
         var tmpCmd=tmpCmds[tmpCmds.length-1];
-        if($.trim(tmpCmd) != "") {
+        var trimTmpCmd = $.trim(tmpCmd);
+        if(trimTmpCmd != "") {
             histlist.push(tmpCmd);
         }
-        
+
+        //for tutorial, back, next support
+        if(trimTmpCmd == ":tutorial") {
+            tutorialMode = !tutorialMode;
+            slide = (tutorialMode) ? 1 : 0;
+            loadSlide();
+        }
+        if(trimTmpCmd == ":back" || trimTmpCmd == ":next") {
+            if(tutorialMode) {
+                if(trimTmpCmd == ":back") {
+                    slide--;
+                    if(slide < 1) {
+                        slide = 1;
+                    }
+                    loadSlide(slide);
+                } else {
+                    //next command
+                    slide++;
+                    if(slide >= slides.length) {
+                        slide--;
+                    }
+                    loadSlide(slide);
+                }
+            }
+        }
         if(debug) {
             alert("data to be sent: " + sessCmds);
         }
