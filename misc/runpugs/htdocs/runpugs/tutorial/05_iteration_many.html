@@ -1,0 +1,9 @@
+<h2>Iterating Over Many Arrays At Once</h2>
+More generally, can iterate over two or more arrays at a time.<br/>
+Use the zip function to interleave the elements of two or move lists.</br>
+<pre>
+for zip(@ids; @logins; @groupids) -> $id, $login, $groupid {
+    say "$login:x:$id:$groupid:...";
+}
+</pre>
+Type <code>:next</code> to continue

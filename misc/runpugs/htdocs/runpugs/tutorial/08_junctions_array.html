@@ -1,0 +1,14 @@
+<h2>Junctions</h2>
+You can also build junctions from an array too.<br/>
+There are other types of junction:<br/>
+
+<code>all</code> &amp;     true for all elements<br/>
+<code>one</code> ^     true for exactly one element<br/>
+<code>none</code>      true for no elements<br/>
+<pre>
+my @bad_ext = ('vbs', 'js', 'exe', 'reg');
+if lc($file_ext) eq any(@bad_ext) {
+    say "$file_ext files not allowed";
+}
+</pre> 
+Type <code>:next</code> to continue

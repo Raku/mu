@@ -1,0 +1,12 @@
+<h2>Reading Entire Files</h2>
+Reading in an entire file is now as simple as<br/>
+<pre>
+my $file_content = slurp("filename.txt");
+</pre>
+Or to get an array with an element for each line in the file</br>
+<pre>
+my @lines = slurp("filename.txt");
+</pre>
+Reads the whole file in one go - very handy, but 
+be careful when dealing with big files!<br/>
+Type <code>:next</code> to continue

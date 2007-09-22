@@ -1,0 +1,14 @@
+<h2>Junctions</h2>
+Allow you to test a variable against many conditions more easily.<br/>
+The equivalent Perl 5 is
+<pre>
+unless $input eq 'y' | 'n' | 'c' {
+    print "(y)es/(n)o/(c)ancel? ";
+}
+unless ($input eq 'y' ||
+    $input eq 'n' ||
+    $input eq 'c') {
+    print "(y)es/(n)o)/(c)ancel? ";
+}
+</pre>
+Type <code>:next</code> to continue

@@ -1,0 +1,12 @@
+<h2>Grammars</h2>
+Grammars make defining how to parse things easier.<br/>
+Encourages re-use<br/>
+<pre>
+grammar ConfigFile {
+    token File { <Section>+ }
+    token Section { <Heading> <Entry>* }
+    token Heading { <'['> (\w+) <']'> \n }
+    token Entry { (\w+) <ws> = <ws> (\w+) \n+ }
+}
+</pre>
+Type <code>:next</code> to continue

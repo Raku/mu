@@ -1,0 +1,14 @@
+<h2>Iterating Over A Hash</h2>
+Can iterate over all of the keys...<br/>
+Or all of the values with <code>.values</code>, or<br/>
+both at the same time with <code>.keys</code><br/>
+<pre>
+for %opinions.keys -> $what {
+    say “Jonathan has a view on $what“;
+}
+# Print environment variables
+    for %*ENV.kv -> $var, $value {
+    say “$var = $value";
+}
+</pre>
+Type <code>:next</code> to continue

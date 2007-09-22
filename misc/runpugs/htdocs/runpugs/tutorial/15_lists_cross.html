@@ -1,0 +1,14 @@
+<h2>Cross Operators</h2>
+Forms every possible permutation of two or more lists
+<pre>
+(1,2) X (3,4) # ((1,3),(1,4),(2,3),(2,4))
+</pre>
+This is a special case; can stick an operator in-between two Xs
+<pre>
+# If @user_facts contains words relating to
+# a user, can concatenate all possible
+# combinations of them together - test for
+# weak passwords. :-)
+my @guesses = @user_facts X~X @user_facts;
+</pre>
+Type <code>:next</code> to continue

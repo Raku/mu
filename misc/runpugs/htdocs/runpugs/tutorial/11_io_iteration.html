@@ -1,0 +1,13 @@
+<h2>Iterating Over Files Line By Line</h2>
+Use open to get a file handle.<br/>
+Use <code>:r</code> to indicate we want to read.<br/>
+Iterate over the file's lines using for.<br/>
+Close the file when you're done.<br/>
+<pre>
+my $fh = open "file.txt" :r;
+for =$fh -> $line {
+    #do something with $line here
+}
+$fh.close();
+</pre>
+Type <code>:next</code> to continue
