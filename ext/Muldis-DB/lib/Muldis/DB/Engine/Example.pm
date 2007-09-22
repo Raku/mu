@@ -6,152 +6,248 @@ use Muldis::DB::Engine::Example::Operators;
 ###########################################################################
 ###########################################################################
 
-class Muldis::DB::Engine::Example-0.3.0 {
+module Muldis::DB::Engine::Example-0.3.0 {
     # Note: This given version applies to all of this file's packages.
-
-    does Muldis::DB::Engine::Role;
 
 ###########################################################################
 
-submethod new_dbms of Muldis::DB::Engine::Example::DBMS
+sub new_dbms of Muldis::DB::Engine::Example::Public::DBMS
         (Any :$dbms_config!) {
-    return ::Muldis::DB::Engine::Example::DBMS.new(
+    return ::Muldis::DB::Engine::Example::Public::DBMS.new(
         :dbms_config($dbms_config) );
 }
 
 ###########################################################################
 
-} # class Muldis::DB::Engine::Example
+} # module Muldis::DB::Engine::Example
 
 ###########################################################################
 ###########################################################################
 
-class Muldis::DB::Engine::Example::DBMS {
-    does Muldis::DB::Engine::Role::DBMS;
+class Muldis::DB::Engine::Example::Public::DBMS {
+    does Muldis::DB::Interface::DBMS;
 
+    # Allow objects of these to update DBMS' "assoc" list re themselves.
+    trusts Muldis::DB::Engine::Example::Public::Var;
+    trusts Muldis::DB::Engine::Example::Public::FuncBinding;
+    trusts Muldis::DB::Engine::Example::Public::ProcBinding;
+
+    # User-supplied config data for this DBMS object / virtual machine.
+    # For the moment, the Example Engine doesn't actually have anything
+    # that can be configured in this way, so input $dbms_config is ignored.
     has Any $!dbms_config;
+
+    # Lists of user-held objects associated with parts of this DBMS.
+    # For each of these, Hash keys are obj .WHERE/addrs, vals the objs.
+    # These should be weak obj-refs, so objs disappear from here
+    has Hash $!assoc_vars;
+    has Hash $!assoc_func_bindings;
+    has Hash $!assoc_proc_bindings;
+
+    # Maintain actual state of the this DBMS' virtual machine.
+    # TODO: the VM itself should be in another file, this attr with it.
+    has Int $!trans_nest_level;
 
 ###########################################################################
 
 submethod BUILD (Any :$dbms_config!) {
+
     $!dbms_config = $dbms_config;
+
+    $!assoc_vars          = {};
+    $!assoc_func_bindings = {};
+    $!assoc_proc_bindings = {};
+
+    $!trans_nest_level = 0;
+
+    return;
+}
+
+submethod DESTROY () {
+    # TODO: check for active trans and rollback ... or member VM does it.
+    # Likewise with closing open files or whatever.
     return;
 }
 
 ###########################################################################
 
-method new_var of Muldis::DB::Engine::Example::HostGateVar
-        (Muldis::DB::Literal::_TypeInvo :$decl_type!) {
-    return ::Muldis::DB::Engine::Example::HostGateVar.new(
+method new_var of Muldis::DB::Engine::Example::Public::Var
+        (Str :$decl_type!) {
+    return ::Muldis::DB::Engine::Example::Public::Var.new(
         :dbms(self), :decl_type($decl_type) );
 }
 
-method prepare of Muldis::DB::Engine::Example::HostGateRtn
-        (Muldis::DB::Literal::HostGateRtn :$rtn_ast!) {
-    return ::Muldis::DB::Engine::Example::HostGateRtn.new(
-        :dbms(self), :rtn_ast($rtn_ast) );
+method assoc_vars of Array () {
+    return [$!assoc_vars.values];
+}
+
+method new_func_binding of Muldis::DB::Engine::Example::Public::FuncBinding
+        () {
+    return ::Muldis::DB::Engine::Example::Public::FuncBinding.new(
+        :dbms(self) );
+}
+
+method assoc_func_bindings of Array () {
+    return [$!assoc_func_bindings.values];
+}
+
+method new_proc_binding of Muldis::DB::Engine::Example::Public::ProcBinding
+        () {
+    return ::Muldis::DB::Engine::Example::Public::ProcBinding.new(
+        :dbms(self) );
+}
+
+method assoc_proc_bindings of Array () {
+    return [$!assoc_proc_bindings.values];
 }
 
 ###########################################################################
 
-} # class Muldis::DB::Engine::Example::DBMS
+method call_func of Muldis::DB::Interface::Var
+        (Str :$func_name!, Hash :$args!) {
+
+    my $f = ::Muldis::DB::Engine::Example::Public::FuncBinding.new(
+        :dbms(self) );
+
+    my $result = ::Muldis::DB::Engine::Example::Public::Var.new(
+        :dbms(self), 'sys.Core.Universal.Universal' );
+
+    $f.bind_func( :func_name($func_name) );
+    $f.bind_result( :var($result) );
+    $f.bind_params( :args($args) );
+
+    $f.call();
+
+    return $result;
+}
 
 ###########################################################################
-###########################################################################
 
-class Muldis::DB::Engine::Example::HostGateVar {
-    does Muldis::DB::Engine::Role::HostGateVar;
+method call_proc (Str :$proc_name!, Hash :$upd_args!, Hash :$ro_args!) {
 
-    has Muldis::DB::Engine::Example::DBMS $!dbms;
-    has Muldis::DB::Literal::_TypeInvo         $!decl_type;
-    has Muldis::DB::Literal::Node             $!val_ast;
+    my $p = ::Muldis::DB::Engine::Example::Public::ProcBinding.new(
+        :dbms(self) );
 
-    trusts Muldis::DB::Engine::Example::HostGateRtn;
+    $p.bind_proc( :proc_name($proc_name) );
+    $p.bind_upd_params( :args($upd_args) );
+    $p.bind_ro_params( :args($ro_args) );
 
-###########################################################################
-
-submethod BUILD (Muldis::DB::Engine::Example::DBMS :$dbms!,
-        Muldis::DB::Literal::_TypeInvo :$decl_type!) {
-
-    $!dbms      = $dbms;
-    $!decl_type = $decl_type;
-    $!val_ast   = ::Muldis::DB::Literal::Bool.new( :v(Bool::False) );
-        # TODO: make default value of $decl_type
+    $p.call();
 
     return;
 }
 
 ###########################################################################
 
-method fetch_ast of Muldis::DB::Literal::Node () {
-    return $!val_ast;
+method trans_nest_level of Int () {
+    return $!trans_nest_level;
 }
 
-###########################################################################
+method start_trans () {
+    # TODO: the actual work.
+    $!trans_nest_level ++;
+    return;
+}
 
-method store_ast (Muldis::DB::Literal::Node :$val_ast!) {
-    $!val_ast = $val_ast;
+method commit_trans () {
+    die q{commit_trans(): Could not commit a transaction;}
+            ~ q{ none are currently active.}
+        if $!trans_nest_level == 0;
+    # TODO: the actual work.
+    $!trans_nest_level --;
+    return;
+}
+
+method rollback_trans () {
+    die q{rollback_trans(): Could not rollback a transaction;}
+            ~ q{ none are currently active.}
+        if $!trans_nest_level == 0;
+    # TODO: the actual work.
+    $!trans_nest_level --;
     return;
 }
 
 ###########################################################################
 
-} # class Muldis::DB::Engine::Example::HostGateVar
+} # class Muldis::DB::Engine::Example::Public::DBMS
 
 ###########################################################################
 ###########################################################################
 
-class Muldis::DB::Engine::Example::HostGateRtn {
-    does Muldis::DB::Engine::Role::HostGateRtn;
+class Muldis::DB::Engine::Example::Public::Var {
+    does Muldis::DB::Interface::Var;
 
-    has Muldis::DB::Engine::Example::DBMS $!dbms;
-    has Muldis::DB::Literal::HostGateRtn      $!rtn_ast;
-    has Code                              $!prep_rtn;
-    has Hash                              $!bound_upd_args;
-    has Hash                              $!bound_ro_args;
+    has Muldis::DB::Engine::Example::Public::DBMS $!dbms;
+
+    has Muldis::DB::Engine::Example::VM::Var $!var;
+    # TODO: cache Perl-Hosted Muldis D version of $!var.
 
 ###########################################################################
 
-submethod BUILD (Muldis::DB::Engine::Example::DBMS :$dbms!,
-        Muldis::DB::Literal::HostGateRtn :$rtn_ast!) {
+submethod BUILD (Muldis::DB::Engine::Example::Public::DBMS :$dbms!,
+        Str :$decl_type!) {
 
-    my $prep_rtn = sub { 1; }; # TODO; the real thing.
+    # TODO: input checks.
 
-    $!dbms           = $dbms;
-    $!rtn_ast        = $rtn_ast;
-    $!prep_rtn       = $prep_rtn;
-    $!bound_upd_args = {};
-    $!bound_ro_args  = {};
+    $!dbms = $dbms;
+    $dbms!assoc_vars.{self.WHERE} = self;
 
+    $!var = ::Muldis::DB::Engine::Example::VM::Var.new(
+        :decl_type($decl_type) ); # TODO; or some such
+
+    return;
+}
+
+submethod DESTROY () {
+    $!dbms!assoc_vars.delete( self.WHERE );
     return;
 }
 
 ###########################################################################
 
-method bind_host_params (Array :$upd_args!, Array :$ro_args!) {
-    # TODO: Compare declared type of each routine param and the variable
-    # we are trying to bind to it, that they are of compatible types.
-    # TODO: Fix this!
-#    for $upd_args -> $elem {
-#        $!bound_upd_args.{$elem.[0].text()} = $elem.[1];
-#    }
-#    for $ro_args -> $elem {
-#        $!bound_ro_args.{$elem.[0].text()} = $elem.[1];
-#    }
+method fetch_ast of Array () {
+    return $!var.as_phmd(); # TODO; or some such
+}
+
+###########################################################################
+
+method store_ast (Array :$ast!) {
+    # TODO: input checks.
+    $!var = from_phmd( $ast ); # TODO; or some such
     return;
 }
 
 ###########################################################################
 
-method execute () {
-    # TODO: Fix this!
-#    $!prep_rtn.( |%$!bound_upd_args, |%$!bound_ro_args );
-    return;
-}
+} # class Muldis::DB::Engine::Example::Public::Var
+
+###########################################################################
+###########################################################################
+
+class Muldis::DB::Engine::Example::Public::FuncBinding {
+    does Muldis::DB::Interface::FuncBinding;
 
 ###########################################################################
 
-} # class Muldis::DB::Engine::Example::HostGateRtn
+# TODO.
+
+###########################################################################
+
+} # class Muldis::DB::Engine::Example::Public::FuncBinding
+
+###########################################################################
+###########################################################################
+
+class Muldis::DB::Engine::Example::Public::ProcBinding {
+    does Muldis::DB::Interface::ProcBinding;
+
+###########################################################################
+
+# TODO.
+
+###########################################################################
+
+} # class Muldis::DB::Engine::Example::Public::ProcBinding
 
 ###########################################################################
 ###########################################################################
@@ -163,12 +259,18 @@ method execute () {
 =head1 NAME
 
 Muldis::DB::Engine::Example -
-Self-contained reference implementation of a Muldis::DB Engine
+Self-contained reference implementation of a Muldis DB Engine
 
 =head1 VERSION
 
 This document describes Muldis::DB::Engine::Example version 0.3.0 for Perl
 6.
+
+It also describes the same-number versions for Perl 6 of
+Muldis::DB::Engine::Example::Public::DBMS,
+Muldis::DB::Engine::Example::Public::Var,
+Muldis::DB::Engine::Example::Public::FuncBinding, and
+Muldis::DB::Engine::Example::Public::ProcBinding.
 
 =head1 SYNOPSIS
 
@@ -189,9 +291,10 @@ in production.  (See the L<Muldis::DB::SeeAlso> file for a list of other
 Engines that are more suitable for production.)
 
 This C<Muldis::DB::Engine::Example> file is the main file of the Example
-Engine, and it is what applications quasi-directly invoke; it directly
-does/subclasses the roles/classes in L<Muldis::DB::Interface>.  The other
-C<Muldis::DB::Engine::Example::\w+> files are used internally by it,
+Engine, and it is what applications quasi-directly invoke; its
+C<Muldis::DB::Engine::Example::Public::\w+> classes directly do/subclass
+the roles/classes in L<Muldis::DB::Interface>.  The other
+C<Muldis::DB::Engine::Example::\w+> files are used internally by this file,
 comprising the rest of the Example Engine, and are not intended to be used
 directly in user code.
 

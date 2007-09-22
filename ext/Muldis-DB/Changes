@@ -21,13 +21,13 @@
 
     * All versioned files had their version numbers brought up to 0.4.0.
 
+    * Minor updates to all versioned files such that most references to the
+    project name were changed to "Muldis DB" from "Muldis::DB".
+
     * (DB.pm, Interface.pm, Example.pm)  Updates to various
     main/introductory documentation.  Half rewrote/prepended the
     DESCRIPTION of DB.pm.  Added a small initial DESCRIPTION to each of
     Interface.pm, Example.pm.  Further minor edits to other sections.
-
-    * Minor updates to all versioned files such that most references to the
-    project name were changed to "Muldis DB" from "Muldis::DB".
 
     * (Interface.pm)  Rewrote 90% of the code to provide a substantially
     different, though similar, API.  The new_dbms function of the
@@ -71,6 +71,9 @@
     which illustrates invoking the system-defined relational join operator,
     where the arguments and result are Perl-lexical variables; this is the
     first actual example code for using Muldis DB, however contrived.
+
+    * (Example.pm)  Rewrote the Example.pm code to conform to the changed
+    API declared by Interface.pm.  TODO: FINISH THIS.
 
     * (SeeAlso.pod)  Updated the PROSPECTIVE MULDIS DB EXTENSIONS section
     mainly to bring various names, terminology, and references up to date
