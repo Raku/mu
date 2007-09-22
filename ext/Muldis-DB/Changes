@@ -29,6 +29,49 @@
     * Minor updates to all versioned files such that most references to the
     project name were changed to "Muldis DB" from "Muldis::DB".
 
+    * (Interface.pm)  Rewrote 90% of the code to provide a substantially
+    different, though similar, API.  The new_dbms function of the
+    Muldis::DB::Interface module now has a modified version of what code
+    used to be in the constructor submethod of ::DBMS (it is the code that
+    loads an Engine and invokes it to make a ::DBMS object), rather than
+    the former being an optional wrapper for the latter.  All remaining
+    ::Interface::\w+ named packages of Interface.pm are now just roles that
+    declare method interfaces but don't implement any, and the
+    correspondingly named Engine classes must inherit said roles and
+    implement the methods; they are no longer wrapper classes that do
+    validation on behalf of, and then invoke, the Engines, but rather the
+    Engines must do their own input validation now, and user applications
+    are now invoking the public Engine classes directly.  The
+    ::Engine::Role(|::\w+) roles that used to be in Interface.pm are now
+    gone, as they are now redundant; the new ::Interface::\w+ are like what
+    they used to be.  The new Interface.pm do not declare constructor
+    interfaces, since users should now only be making objects indirectly by
+    way of methods of another class.  The ::HostGateVar class/role was
+    renamed to ::Var, the ::HostGateRtn was renamed to ::ProcBinding, and a
+    similar ::FuncBinding was added.  The ::(DBMS|Var|(Func|Proc)Binding)
+    roles were further substantially altered, with some methods renamed and
+    others added.  Perhaps the most substantial difference of the new API
+    for actual functionality is that there is no distinct "prepare" method
+    any more, rather all action methods are of the "execute" (now called
+    "call") variety.  How this works is you first call() a DDL routine, its
+    argument being the definition of the (now always named) user-defined
+    routine you want to compile; then you call() that newly created
+    routine.  In a related fashion, if you just want to invoke existing
+    system or (already loaded / in-mounted-database) user-defined routines,
+    you can just call() them like they were Perl routines, with no separate
+    DDL/prepare step.  The (Func|Proc)Binding roles aren't actually needed
+    for anything, as the DBMS role provides call_(func|proc) methods, which
+    in either case just alias to an already compiled routine, but the 2
+    Binding roles are provided for now in case they may add some efficiency
+    due to less repeated input validation or such.
+
+    * (Interface.pm)  Rewrote and/or added 90% of the INTERFACE pod; unlike
+    the old API which had practically no documentation, the new API is
+    fully documented.  Also added an initial SYNOPSIS documentation block,
+    which illustrates invoking the system-defined relational join operator,
+    where the arguments and result are Perl-lexical variables; this is the
+    first actual example code for using Muldis DB, however contrived.
+
     * (SeeAlso.pod)  Updated the PROSPECTIVE MULDIS DB EXTENSIONS section
     mainly to bring various names, terminology, and references up to date
     with design changes.  Any package names containing "Literal" now have
