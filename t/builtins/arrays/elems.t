@@ -26,6 +26,16 @@ plan 12;
 }
 
 {
+# (ryporter 2007-09-22): This test fails because a VInt is
+# being converted into an array in the final defintion of doArray
+# in AST/Internals.hs ("doArray val f").  When I tried replacing
+# "val" with "(VList x)", to accept fewer inputs, this test passed, 
+# but many others failed.
+#
+# Also relevant is the "(rw!Array)" declaration for List::elems
+# in Prim.hs.  Changing it to "(Array)", combined with the above
+# change, caused both this and the preceding test to succeed.
+#
   my $a = 42;
   dies_ok { $a.elems }, ".elems does not work on arbitrary scalars (2)";
 }
