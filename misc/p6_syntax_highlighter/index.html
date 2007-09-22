@@ -25,13 +25,18 @@
     function renderAjax() {
         var example = $('#examples').val();
         $("#status").html("<b>Loading remote " + example + " to your browser...</b>");
-        $.get(example, {},  function(data) {
-            //load example code...
-            $("#code").text(data);
-            $(".dp-highlighter").remove();
-            dp.SyntaxHighlighter.HighlightAll('code');
-            $("#status").html("<b>I am done... Thanks for waiting...</b>");
-        })
+        $.ajax({
+            url: example,
+            async: true,
+            cache: false,
+            success: function(data) {
+                //load example code...
+                $("#code").text(data);
+                $(".dp-highlighter").remove();
+                dp.SyntaxHighlighter.HighlightAll('code');
+                $("#status").html("<b>I am done... Thanks for waiting...</b>");
+            }
+        });
     }
     $(document).ready(function(){
         //Document is ready...
