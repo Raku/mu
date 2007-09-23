@@ -20,7 +20,7 @@ sub main (Str :$engine_name!, Any :$dbms_config!) {
     # Instantiate a Muldis DB DBMS / virtual machine.
     my Muldis::DB::Interface::DBMS $dbms = Muldis::DB::Interface::new_dbms(
         :engine_name($engine_name), :dbms_config($dbms_config) );
-    isa_ok( $dbms, 'Muldis::DB::Interface::DBMS' );
+    does_ok( $dbms, 'Muldis::DB::Interface::DBMS' );
 
     _scenario_foods_suppliers_shipments_v1( $dbms );
 
@@ -38,13 +38,13 @@ sub _scenario_foods_suppliers_shipments_v1
 
     my $src_suppliers
         = $dbms.new_var( :decl_type('sys.Core.Relation.Relation') );
-    isa_ok( $src_suppliers, 'Muldis::DB::Interface::Var' );
+    does_ok( $src_suppliers, 'Muldis::DB::Interface::Var' );
     my $src_foods
         = $dbms.new_var( :decl_type('sys.Core.Relation.Relation') );
-    isa_ok( $src_foods, 'Muldis::DB::Interface::Var' );
+    does_ok( $src_foods, 'Muldis::DB::Interface::Var' );
     my $src_shipments
         = $dbms.new_var( :decl_type('sys.Core.Relation.Relation') );
-    isa_ok( $src_shipments, 'Muldis::DB::Interface::Var' );
+    does_ok( $src_shipments, 'Muldis::DB::Interface::Var' );
 
     # Load our example literal source data sets into said Perl-lexicals.
 
@@ -137,7 +137,7 @@ sub _scenario_foods_suppliers_shipments_v1
     # data and see what suppliers there are for foods coloured 'orange'.
 
     my $desi_colour = $dbms.new_var( :decl_type('sys.Core.Text.Text') );
-    isa_ok( $desi_colour, 'Muldis::DB::Interface::Var' );
+    does_ok( $desi_colour, 'Muldis::DB::Interface::Var' );
     $desi_colour.store_ast( :ast([ 'NEText', 'orange' ]) );
     pass( 'no death from loading desired colour into VM' );
 
@@ -163,7 +163,7 @@ sub _scenario_foods_suppliers_shipments_v1
         }),
     );
     pass( 'no death from executing search query' );
-    isa_ok( $matched_suppl, 'Muldis::DB::Interface::Var' );
+    does_ok( $matched_suppl, 'Muldis::DB::Interface::Var' );
 
     my $matched_suppl_ast = $matched_suppl.fetch_ast();
     pass( 'no death from fetching search results from VM' );
@@ -182,9 +182,23 @@ sub _scenario_foods_suppliers_shipments_v1
     # ] ]
 
     say "# debug: orange food suppliers found:";
-    say "# " ~ $matched_suppl_ast.as_perl();
+    say "# " ~ $matched_suppl_ast.perl();
 
     return;
+}
+
+###########################################################################
+
+# Modified clone of isa_ok from ext/Test/lib/Test.pm,
+# since we actually want to test with does() rather than isa().
+
+sub does_ok (Any|Junction|Pair $ref is rw, Str $expected_type, Str $desc?,
+        :$todo, :$depends) returns Bool is export {
+    my $out
+        := defined($desc) ?? $desc !! "The object does '$expected_type'";
+    my $test := $ref.does($expected_type);
+    Test::proclaim(
+        $test, $out, $todo, ~($ref.WHAT), $expected_type, $depends );
 }
 
 ###########################################################################

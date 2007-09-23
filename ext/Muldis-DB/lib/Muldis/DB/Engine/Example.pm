@@ -110,7 +110,7 @@ method call_func of Muldis::DB::Interface::Var
 #        :dbms(self) );
 
     my $result = ::Muldis::DB::Engine::Example::Public::Var.new(
-        :dbms(self), 'sys.Core.Universal.Universal' );
+        :dbms(self), :decl_type('sys.Core.Universal.Universal') );
 
 #    $f.bind_func( :func_name($func_name) );
 #    $f.bind_result( :var($result) );
@@ -190,7 +190,8 @@ submethod BUILD (Muldis::DB::Engine::Example::Public::DBMS :$dbms!,
     # TODO: input checks.
 
     $!dbms = $dbms;
-    $dbms!assoc_vars.{self.WHERE} = self;
+#    $dbms!assoc_vars.{self.WHERE} = self;
+#    weaken $dbms!assoc_vars.{self.WHERE};
 
 #    $!var = ::Muldis::DB::Engine::Example::VM::Var.new(
 #        :decl_type($decl_type) ); # TODO; or some such
@@ -199,7 +200,7 @@ submethod BUILD (Muldis::DB::Engine::Example::Public::DBMS :$dbms!,
 }
 
 submethod DESTROY () {
-    $!dbms!assoc_vars.delete( self.WHERE );
+#    $!dbms!assoc_vars.delete( self.WHERE );
     return;
 }
 

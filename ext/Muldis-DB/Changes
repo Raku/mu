@@ -105,6 +105,13 @@
     additional version will be provided in a subsequent release that does.
     The SYNOPSIS, plus the MDB_50_Validate_Example.t, were minor updated.
 
+    * (Validator.pm)  Added a &does_ok to Validator.pm, which in the Perl 6
+    Validator.pm is a modified copy of the &isa_ok of Test.pm but it tests
+    with .does rather than .isa; in the Perl 5 Validator.pm, the new
+    &does_ok is just a symbolic alias for the Test::More &isa_ok; in any
+    event, the rest of both versions of Validator.pm now invokes &does_ok
+    rather than &isa_ok, to keep their code bases more similar.
+
     * (SeeAlso.pod)  Updated the PROSPECTIVE MULDIS DB EXTENSIONS section
     mainly to bring various names, terminology, and references up to date
     with design changes.  Any package names containing "Literal" now have
