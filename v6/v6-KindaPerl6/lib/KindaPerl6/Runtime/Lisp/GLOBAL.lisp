@@ -22,6 +22,7 @@ result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
 
 (flet ((call-kp6-function (name args)
 	 (kp6-apply-function (kp6-normalize-function-name name) args)))
+
   (define-kp6-function "elems" (array)
     (assert (typep array 'kp6-Array) (array))
     (length (kp6-value array)))
@@ -40,6 +41,20 @@ result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
     (let ((one (kp6-value (first strs)))
           (two (kp6-value (second strs))))
       (cl->perl (if (string= one two)
+                    'false
+                    'true))))
+
+  (define-kp6-function "infix:<==>" (&rest strs)
+    (let ((one (kp6-value (first strs)))
+          (two (kp6-value (second strs))))
+      (cl->perl (if (= one two)
+                    'true
+                    'false))))
+
+  (define-kp6-function "infix:<!=>" (&rest strs)
+    (let ((one (kp6-value (first strs)))
+          (two (kp6-value (second strs))))
+      (cl->perl (if (= one two)
                     'false
                     'true))))
 
