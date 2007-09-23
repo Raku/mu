@@ -3,7 +3,7 @@ use v6-alpha;
 ###########################################################################
 ###########################################################################
 
-package Muldis::DB-0.3.2 {
+package Muldis::DB-0.4.0 {
     # Note that Perl code only exists at all in this file in order to help
     # the CPAN indexer handle the distribution properly.
 } # package Muldis::DB
@@ -22,7 +22,7 @@ Full-featured truly relational DBMS in Perl
 
 =head1 VERSION
 
-This document is Muldis::DB version 0.3.2.
+This document is Muldis::DB version 0.4.0.
 
 =head1 DESCRIPTION
 

@@ -5,7 +5,7 @@ use lib '../..', '../../inc';
 use inc::Module::Install prefix => '../../inc';
 
 name       ('Muldis::DB');
-version    ('0.3.2');
+version    ('0.4.0');
 abstract   ('Full-featured truly relational DBMS in Perl');
 author     ('Darren Duncan <perl@DarrenDuncan.net>');
 license    ('lgpl');

@@ -3,7 +3,7 @@ use v6-alpha;
 ###########################################################################
 ###########################################################################
 
-module Muldis::DB::Interface-0.3.0 {
+module Muldis::DB::Interface-0.4.0 {
     # Note: This given version applies to all of this file's packages.
 
 ###########################################################################
@@ -224,7 +224,7 @@ Common public API for Muldis DB Engines
 
 =head1 VERSION
 
-This document describes Muldis::DB::Interface version 0.3.0 for Perl 6.
+This document describes Muldis::DB::Interface version 0.4.0 for Perl 6.
 
 It also describes the same-number versions for Perl 6 of
 Muldis::DB::Interface::DBMS ("DBMS"), Muldis::DB::Interface::Var ("Var"),
