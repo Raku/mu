@@ -50,3 +50,6 @@ result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
     (assert (>= actual-length offset))
     (assert (>= actual-length end))
     (subseq string offset end)))
+
+(define-kp6-function "infix:<~>" (&rest strs)
+  (format nil "~{~A~}" (mapcar #'perl->cl strs)))
