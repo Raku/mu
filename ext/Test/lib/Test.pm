@@ -110,7 +110,12 @@ sub cmp_ok (Str $got, Code &compare_func, Str $expected, Str $desc?, :$todo, :$d
 sub isa_ok (Any|Junction|Pair $ref is rw, Str $expected_type, Str $desc?, :$todo, :$depends) returns Bool is export {
     my $out := defined($desc) ?? $desc !! "The object is-a '$expected_type'";
     my $test := $ref.isa($expected_type);
-    Test::proclaim($test, $out, $todo, $ref.WHAT, $expected_type, $depends);
+    Test::proclaim($test, $out, $todo, ~($ref.WHAT), $expected_type, $depends);
+        # Note: the above $ref.WHAT is being cast to a Str because a .defined
+        # on the result of plain .WHAT would be false, which causes
+        # report_failure() to display "undef" for "Actual:" even when
+        # the "actual" contains a valid package name; the Str cast makes "Actual:" work.
+        # At least that .defined matter is the case with Pugs r18102.
 }
 
 ## use_ok
