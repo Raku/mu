@@ -142,7 +142,7 @@
                                                                         my $ret;
                                                                         $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                         BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block1_1e27531f690c449224fb59363b8eb474', $MATCH ) );
+                                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block1_14bd8863ae079037a3bb8f30fd874b81', $MATCH ) );
                                                                         do {
                                                                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_ne_62_, 'APPLY', $ret, ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) ), "true" ), "p5landish" ) ) {
                                                                                 {
@@ -211,7 +211,7 @@
                                                                                 my $ret;
                                                                                 $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                 BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block2_1e27531f690c449224fb59363b8eb474', $MATCH ) );
+                                                                                ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block2_14bd8863ae079037a3bb8f30fd874b81', $MATCH ) );
                                                                                 do {
                                                                                     if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_ne_62_, 'APPLY', $ret, ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) ), "true" ), "p5landish" ) ) {
                                                                                         {
@@ -308,7 +308,7 @@
                                                                                                     my $ret;
                                                                                                     $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                                     BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block3_1e27531f690c449224fb59363b8eb474', $MATCH ) );
+                                                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block3_14bd8863ae079037a3bb8f30fd874b81', $MATCH ) );
                                                                                                     do {
                                                                                                         if (::DISPATCH(
                                                                                                                 ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_ne_62_, 'APPLY', $ret, ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) ), "true" ),
@@ -590,7 +590,7 @@
                                                                                                                                                 $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                                                                                 BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
                                                                                                                                                 ::DISPATCH_VAR( $ret, 'STORE',
-                                                                                                                                                    ::DISPATCH( $self, '__rule_block4_1e27531f690c449224fb59363b8eb474', $MATCH ) );
+                                                                                                                                                    ::DISPATCH( $self, '__rule_block4_14bd8863ae079037a3bb8f30fd874b81', $MATCH ) );
                                                                                                                                                 do {
                                                                                                                                                     if (::DISPATCH(
                                                                                                                                                             ::DISPATCH(
@@ -907,7 +907,7 @@
                                                                                                                                                             unless defined $ret;
                                                                                                                                                         BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
                                                                                                                                                         ::DISPATCH_VAR( $ret, 'STORE',
-                                                                                                                                                            ::DISPATCH( $self, '__rule_block5_1e27531f690c449224fb59363b8eb474', $MATCH ) );
+                                                                                                                                                            ::DISPATCH( $self, '__rule_block5_14bd8863ae079037a3bb8f30fd874b81', $MATCH ) );
                                                                                                                                                         do {
                                                                                                                                                             if (::DISPATCH(
                                                                                                                                                                     ::DISPATCH(
@@ -1236,7 +1236,7 @@
                                                                                                                                                                     $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } );
                                                                                                                                                                 }
                                                                                                                                                                 ::DISPATCH_VAR( $ret, 'STORE',
-                                                                                                                                                                    ::DISPATCH( $self, '__rule_block6_1e27531f690c449224fb59363b8eb474', $MATCH ) );
+                                                                                                                                                                    ::DISPATCH( $self, '__rule_block6_14bd8863ae079037a3bb8f30fd874b81', $MATCH ) );
                                                                                                                                                                 do {
                                                                                                                                                                     if (::DISPATCH(
                                                                                                                                                                             ::DISPATCH(
@@ -1572,7 +1572,7 @@
                                                                                                                                                                                 { modified => $_MODIFIED, name => '$ret' } );
                                                                                                                                                                         }
                                                                                                                                                                         ::DISPATCH_VAR( $ret, 'STORE',
-                                                                                                                                                                            ::DISPATCH( $self, '__rule_block7_1e27531f690c449224fb59363b8eb474', $MATCH )
+                                                                                                                                                                            ::DISPATCH( $self, '__rule_block7_14bd8863ae079037a3bb8f30fd874b81', $MATCH )
                                                                                                                                                                         );
                                                                                                                                                                         do {
                                                                                                                                                                             if (::DISPATCH(
@@ -2020,7 +2020,7 @@
                                                                                                                                                                                                 $ret, 'STORE',
                                                                                                                                                                                                 ::DISPATCH(
                                                                                                                                                                                                     $self,
-                                                                                                                                                                                                    '__rule_block8_1e27531f690c449224fb59363b8eb474',
+                                                                                                                                                                                                    '__rule_block8_14bd8863ae079037a3bb8f30fd874b81',
                                                                                                                                                                                                     $MATCH
                                                                                                                                                                                                 )
                                                                                                                                                                                             );
@@ -2505,7 +2505,7 @@
                                                                                                                                                                                                         $ret, 'STORE',
                                                                                                                                                                                                         ::DISPATCH(
                                                                                                                                                                                                             $self,
-                                                                                                                                                                                                            '__rule_block9_1e27531f690c449224fb59363b8eb474',
+                                                                                                                                                                                                            '__rule_block9_14bd8863ae079037a3bb8f30fd874b81',
                                                                                                                                                                                                             $MATCH
                                                                                                                                                                                                         )
                                                                                                                                                                                                     );
@@ -2727,7 +2727,7 @@
                                                                                                                                                                 unless defined $ret;
                                                                                                                                                             BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
                                                                                                                                                             ::DISPATCH_VAR( $ret, 'STORE',
-                                                                                                                                                                ::DISPATCH( $self, '__rule_block10_1e27531f690c449224fb59363b8eb474', $MATCH ) );
+                                                                                                                                                                ::DISPATCH( $self, '__rule_block10_14bd8863ae079037a3bb8f30fd874b81', $MATCH ) );
                                                                                                                                                             do {
                                                                                                                                                                 if (::DISPATCH(
                                                                                                                                                                         ::DISPATCH(
@@ -3094,7 +3094,7 @@
                                                                                                                                                                                                 $ret, 'STORE',
                                                                                                                                                                                                 ::DISPATCH(
                                                                                                                                                                                                     $self,
-                                                                                                                                                                                                    '__rule_block11_1e27531f690c449224fb59363b8eb474',
+                                                                                                                                                                                                    '__rule_block11_14bd8863ae079037a3bb8f30fd874b81',
                                                                                                                                                                                                     $MATCH
                                                                                                                                                                                                 )
                                                                                                                                                                                             );
@@ -3465,7 +3465,7 @@
                                                                                                                                                                                                         $ret, 'STORE',
                                                                                                                                                                                                         ::DISPATCH(
                                                                                                                                                                                                             $self,
-                                                                                                                                                                                                            '__rule_block12_1e27531f690c449224fb59363b8eb474',
+                                                                                                                                                                                                            '__rule_block12_14bd8863ae079037a3bb8f30fd874b81',
                                                                                                                                                                                                             $MATCH
                                                                                                                                                                                                         )
                                                                                                                                                                                                     );
@@ -4522,7 +4522,7 @@
                                                                                                                                                                                                                                                     'STORE',
                                                                                                                                                                                                                                                     ::DISPATCH(
                                                                                                                                                                                                                                                         $self,
-                                                                                                                                                                                                                                                        '__rule_block13_1e27531f690c449224fb59363b8eb474',
+                                                                                                                                                                                                                                                        '__rule_block13_14bd8863ae079037a3bb8f30fd874b81',
                                                                                                                                                                                                                                                         $MATCH
                                                                                                                                                                                                                                                     )
                                                                                                                                                                                                                                                 );
@@ -4766,7 +4766,7 @@
                                                                                                                                                                                 ::DISPATCH_VAR(
                                                                                                                                                                                     $ret, 'STORE',
                                                                                                                                                                                     ::DISPATCH(
-                                                                                                                                                                                        $self, '__rule_block14_1e27531f690c449224fb59363b8eb474',
+                                                                                                                                                                                        $self, '__rule_block14_14bd8863ae079037a3bb8f30fd874b81',
                                                                                                                                                                                         $MATCH
                                                                                                                                                                                     )
                                                                                                                                                                                 );
@@ -4919,7 +4919,7 @@
                                                                                                                                                                                         ::DISPATCH_VAR(
                                                                                                                                                                                             $ret, 'STORE',
                                                                                                                                                                                             ::DISPATCH(
-                                                                                                                                                                                                $self, '__rule_block15_1e27531f690c449224fb59363b8eb474',
+                                                                                                                                                                                                $self, '__rule_block15_14bd8863ae079037a3bb8f30fd874b81',
                                                                                                                                                                                                 $MATCH
                                                                                                                                                                                             )
                                                                                                                                                                                         );
@@ -5084,7 +5084,7 @@
                                                                                                                                                                                                     $ret, 'STORE',
                                                                                                                                                                                                     ::DISPATCH(
                                                                                                                                                                                                         $self,
-                                                                                                                                                                                                        '__rule_block16_1e27531f690c449224fb59363b8eb474',
+                                                                                                                                                                                                        '__rule_block16_14bd8863ae079037a3bb8f30fd874b81',
                                                                                                                                                                                                         $MATCH
                                                                                                                                                                                                     )
                                                                                                                                                                                                 );
@@ -5263,7 +5263,7 @@
                                                                                                                                                                                                             $ret, 'STORE',
                                                                                                                                                                                                             ::DISPATCH(
                                                                                                                                                                                                                 $self,
-                                                                                                                                                                                                                '__rule_block17_1e27531f690c449224fb59363b8eb474',
+                                                                                                                                                                                                                '__rule_block17_14bd8863ae079037a3bb8f30fd874b81',
                                                                                                                                                                                                                 $MATCH
                                                                                                                                                                                                             )
                                                                                                                                                                                                         );
@@ -5462,7 +5462,7 @@
                                                                                                                                                                                                                     $ret, 'STORE',
                                                                                                                                                                                                                     ::DISPATCH(
                                                                                                                                                                                                                         $self,
-                                                                                                                                                                                                                        '__rule_block18_1e27531f690c449224fb59363b8eb474',
+                                                                                                                                                                                                                        '__rule_block18_14bd8863ae079037a3bb8f30fd874b81',
                                                                                                                                                                                                                         $MATCH
                                                                                                                                                                                                                     )
                                                                                                                                                                                                                 );
@@ -5686,7 +5686,7 @@
                                                                                                                                                                                                                             $ret, 'STORE',
                                                                                                                                                                                                                             ::DISPATCH(
                                                                                                                                                                                                                                 $self,
-                                                                                                                                                                                                                                '__rule_block19_1e27531f690c449224fb59363b8eb474',
+                                                                                                                                                                                                                                '__rule_block19_14bd8863ae079037a3bb8f30fd874b81',
                                                                                                                                                                                                                                 $MATCH
                                                                                                                                                                                                                             )
                                                                                                                                                                                                                         );
@@ -5938,7 +5938,7 @@
                                                                                                                                                                                                                                     $ret, 'STORE',
                                                                                                                                                                                                                                     ::DISPATCH(
                                                                                                                                                                                                                                         $self,
-                                                                                                                                                                                                                                        '__rule_block20_1e27531f690c449224fb59363b8eb474',
+                                                                                                                                                                                                                                        '__rule_block20_14bd8863ae079037a3bb8f30fd874b81',
                                                                                                                                                                                                                                         $MATCH
                                                                                                                                                                                                                                     )
                                                                                                                                                                                                                                 );
@@ -6213,7 +6213,7 @@
                                                                                                                                                                                                                                             'STORE',
                                                                                                                                                                                                                                             ::DISPATCH(
                                                                                                                                                                                                                                                 $self,
-                                                                                                                                                                                                                                                '__rule_block21_1e27531f690c449224fb59363b8eb474',
+                                                                                                                                                                                                                                                '__rule_block21_14bd8863ae079037a3bb8f30fd874b81',
                                                                                                                                                                                                                                                 $MATCH
                                                                                                                                                                                                                                             )
                                                                                                                                                                                                                                         );
@@ -6513,7 +6513,7 @@
                                                                                                                                                                                                                                                     'STORE',
                                                                                                                                                                                                                                                     ::DISPATCH(
                                                                                                                                                                                                                                                         $self,
-                                                                                                                                                                                                                                                        '__rule_block22_1e27531f690c449224fb59363b8eb474',
+                                                                                                                                                                                                                                                        '__rule_block22_14bd8863ae079037a3bb8f30fd874b81',
                                                                                                                                                                                                                                                         $MATCH
                                                                                                                                                                                                                                                     )
                                                                                                                                                                                                                                                 );
@@ -6840,7 +6840,7 @@
                                                                                                                                                                                                                                                             'STORE',
                                                                                                                                                                                                                                                             ::DISPATCH(
                                                                                                                                                                                                                                                                 $self,
-                                                                                                                                                                                                                                                                '__rule_block23_1e27531f690c449224fb59363b8eb474',
+                                                                                                                                                                                                                                                                '__rule_block23_14bd8863ae079037a3bb8f30fd874b81',
                                                                                                                                                                                                                                                                 $MATCH
                                                                                                                                                                                                                                                             )
                                                                                                                                                                                                                                                             )
@@ -7324,7 +7324,7 @@
                                                                                                                                                                                                                                                                                 'STORE',
                                                                                                                                                                                                                                                                                 ::DISPATCH(
                                                                                                                                                                                                                                                                                     $self,
-                                                                                                                                                                                                                                                                                    '__rule_block24_1e27531f690c449224fb59363b8eb474',
+                                                                                                                                                                                                                                                                                    '__rule_block24_14bd8863ae079037a3bb8f30fd874b81',
                                                                                                                                                                                                                                                                                     $MATCH
                                                                                                                                                                                                                                                                                 )
                                                                                                                                                                                                                                                                                 )
@@ -7833,7 +7833,7 @@
                                                                                                                                                                                                                                                                                         'STORE',
                                                                                                                                                                                                                                                                                         ::DISPATCH(
                                                                                                                                                                                                                                                                                             $self,
-                                                                                                                                                                                                                                                                                            '__rule_block25_1e27531f690c449224fb59363b8eb474',
+                                                                                                                                                                                                                                                                                            '__rule_block25_14bd8863ae079037a3bb8f30fd874b81',
                                                                                                                                                                                                                                                                                             $MATCH
                                                                                                                                                                                                                                                                                         )
                                                                                                                                                                                                                                                                                         )
@@ -8741,7 +8741,7 @@
                                                                                                                                                                                                                                                                                                                                     'STORE',
                                                                                                                                                                                                                                                                                                                                     ::DISPATCH(
                                                                                                                                                                                                                                                                                                                                         $self,
-                                                                                                                                                                                                                                                                                                                                        '__rule_block26_1e27531f690c449224fb59363b8eb474',
+                                                                                                                                                                                                                                                                                                                                        '__rule_block26_14bd8863ae079037a3bb8f30fd874b81',
                                                                                                                                                                                                                                                                                                                                         $MATCH
                                                                                                                                                                                                                                                                                                                                     )
                                                                                                                                                                                                                                                                                                                                     )
@@ -9173,7 +9173,7 @@
                                                                                                                                                                                                                                                                                             'STORE',
                                                                                                                                                                                                                                                                                             ::DISPATCH(
                                                                                                                                                                                                                                                                                                 $self,
-                                                                                                                                                                                                                                                                                                '__rule_block27_1e27531f690c449224fb59363b8eb474',
+                                                                                                                                                                                                                                                                                                '__rule_block27_14bd8863ae079037a3bb8f30fd874b81',
                                                                                                                                                                                                                                                                                                 $MATCH
                                                                                                                                                                                                                                                                                             )
                                                                                                                                                                                                                                                                                             )
@@ -9537,7 +9537,7 @@
                                                                                                                                                                                                                                                                                                     'STORE',
                                                                                                                                                                                                                                                                                                     ::DISPATCH(
                                                                                                                                                                                                                                                                                                         $self,
-                                                                                                                                                                                                                                                                                                        '__rule_block28_1e27531f690c449224fb59363b8eb474',
+                                                                                                                                                                                                                                                                                                        '__rule_block28_14bd8863ae079037a3bb8f30fd874b81',
                                                                                                                                                                                                                                                                                                         $MATCH
                                                                                                                                                                                                                                                                                                     )
                                                                                                                                                                                                                                                                                                     )
@@ -10325,7 +10325,7 @@
                                                                                                                                                                                                                                                                                                                                                 'STORE',
                                                                                                                                                                                                                                                                                                                                                 ::DISPATCH(
                                                                                                                                                                                                                                                                                                                                                     $self,
-                                                                                                                                                                                                                                                                                                                                                    '__rule_block29_1e27531f690c449224fb59363b8eb474',
+                                                                                                                                                                                                                                                                                                                                                    '__rule_block29_14bd8863ae079037a3bb8f30fd874b81',
                                                                                                                                                                                                                                                                                                                                                     $MATCH
                                                                                                                                                                                                                                                                                                                                                 )
                                                                                                                                                                                                                                                                                                                                                 )
@@ -11465,7 +11465,7 @@
                                                                                                                                                                                                                                                                                                                                                                                 'STORE',
                                                                                                                                                                                                                                                                                                                                                                                 ::DISPATCH(
                                                                                                                                                                                                                                                                                                                                                                                     $self,
-                                                                                                                                                                                                                                                                                                                                                                                    '__rule_block30_1e27531f690c449224fb59363b8eb474',
+                                                                                                                                                                                                                                                                                                                                                                                    '__rule_block30_14bd8863ae079037a3bb8f30fd874b81',
                                                                                                                                                                                                                                                                                                                                                                                     $MATCH
                                                                                                                                                                                                                                                                                                                                                                                 )
                                                                                                                                                                                                                                                                                                                                                                                 )
@@ -11919,7 +11919,7 @@
                                                                                                                                                                                                                                                                                                                             'STORE',
                                                                                                                                                                                                                                                                                                                             ::DISPATCH(
                                                                                                                                                                                                                                                                                                                                 $self,
-                                                                                                                                                                                                                                                                                                                                '__rule_block31_1e27531f690c449224fb59363b8eb474',
+                                                                                                                                                                                                                                                                                                                                '__rule_block31_14bd8863ae079037a3bb8f30fd874b81',
                                                                                                                                                                                                                                                                                                                                 $MATCH
                                                                                                                                                                                                                                                                                                                             )
                                                                                                                                                                                                                                                                                                                             )
@@ -12283,7 +12283,7 @@
                                                                                                                                                                                                                                                                                                                                     'STORE',
                                                                                                                                                                                                                                                                                                                                     ::DISPATCH(
                                                                                                                                                                                                                                                                                                                                         $self,
-                                                                                                                                                                                                                                                                                                                                        '__rule_block32_1e27531f690c449224fb59363b8eb474',
+                                                                                                                                                                                                                                                                                                                                        '__rule_block32_14bd8863ae079037a3bb8f30fd874b81',
                                                                                                                                                                                                                                                                                                                                         $MATCH
                                                                                                                                                                                                                                                                                                                                     )
                                                                                                                                                                                                                                                                                                                                     )
@@ -12939,7 +12939,7 @@
                                                                                                                                                                                                                                                                                                                                                             'STORE',
                                                                                                                                                                                                                                                                                                                                                             ::DISPATCH(
                                                                                                                                                                                                                                                                                                                                                                 $self,
-                                                                                                                                                                                                                                                                                                                                                                '__rule_block33_1e27531f690c449224fb59363b8eb474',
+                                                                                                                                                                                                                                                                                                                                                                '__rule_block33_14bd8863ae079037a3bb8f30fd874b81',
                                                                                                                                                                                                                                                                                                                                                                 $MATCH
                                                                                                                                                                                                                                                                                                                                                             )
                                                                                                                                                                                                                                                                                                                                                             )
@@ -13412,7 +13412,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block1_1e27531f690c449224fb59363b8eb474' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block1_14bd8863ae079037a3bb8f30fd874b81' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -13455,7 +13455,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block2_1e27531f690c449224fb59363b8eb474' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block2_14bd8863ae079037a3bb8f30fd874b81' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -13498,7 +13498,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block3_1e27531f690c449224fb59363b8eb474' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block3_14bd8863ae079037a3bb8f30fd874b81' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -13594,7 +13594,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block4_1e27531f690c449224fb59363b8eb474' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block4_14bd8863ae079037a3bb8f30fd874b81' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -13637,7 +13637,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block5_1e27531f690c449224fb59363b8eb474' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block5_14bd8863ae079037a3bb8f30fd874b81' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -13699,7 +13699,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block6_1e27531f690c449224fb59363b8eb474' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block6_14bd8863ae079037a3bb8f30fd874b81' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -13754,7 +13754,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block7_1e27531f690c449224fb59363b8eb474' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block7_14bd8863ae079037a3bb8f30fd874b81' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -13809,7 +13809,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block8_1e27531f690c449224fb59363b8eb474' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block8_14bd8863ae079037a3bb8f30fd874b81' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -13852,7 +13852,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block9_1e27531f690c449224fb59363b8eb474' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block9_14bd8863ae079037a3bb8f30fd874b81' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -13921,7 +13921,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block10_1e27531f690c449224fb59363b8eb474' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block10_14bd8863ae079037a3bb8f30fd874b81' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -13990,7 +13990,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block11_1e27531f690c449224fb59363b8eb474' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block11_14bd8863ae079037a3bb8f30fd874b81' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -14092,7 +14092,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block12_1e27531f690c449224fb59363b8eb474' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block12_14bd8863ae079037a3bb8f30fd874b81' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -14146,7 +14146,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block13_1e27531f690c449224fb59363b8eb474' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block13_14bd8863ae079037a3bb8f30fd874b81' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -14207,7 +14207,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block14_1e27531f690c449224fb59363b8eb474' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block14_14bd8863ae079037a3bb8f30fd874b81' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -14250,7 +14250,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block15_1e27531f690c449224fb59363b8eb474' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block15_14bd8863ae079037a3bb8f30fd874b81' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -14293,7 +14293,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block16_1e27531f690c449224fb59363b8eb474' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block16_14bd8863ae079037a3bb8f30fd874b81' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -14336,7 +14336,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block17_1e27531f690c449224fb59363b8eb474' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block17_14bd8863ae079037a3bb8f30fd874b81' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -14379,7 +14379,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block18_1e27531f690c449224fb59363b8eb474' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block18_14bd8863ae079037a3bb8f30fd874b81' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -14422,7 +14422,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block19_1e27531f690c449224fb59363b8eb474' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block19_14bd8863ae079037a3bb8f30fd874b81' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -14465,7 +14465,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block20_1e27531f690c449224fb59363b8eb474' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block20_14bd8863ae079037a3bb8f30fd874b81' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -14508,7 +14508,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block21_1e27531f690c449224fb59363b8eb474' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block21_14bd8863ae079037a3bb8f30fd874b81' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -14551,7 +14551,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block22_1e27531f690c449224fb59363b8eb474' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block22_14bd8863ae079037a3bb8f30fd874b81' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -14594,7 +14594,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block23_1e27531f690c449224fb59363b8eb474' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block23_14bd8863ae079037a3bb8f30fd874b81' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -14713,7 +14713,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block24_1e27531f690c449224fb59363b8eb474' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block24_14bd8863ae079037a3bb8f30fd874b81' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -14942,7 +14942,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25_1e27531f690c449224fb59363b8eb474' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block25_14bd8863ae079037a3bb8f30fd874b81' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -15171,7 +15171,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block26_1e27531f690c449224fb59363b8eb474' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block26_14bd8863ae079037a3bb8f30fd874b81' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -15345,7 +15345,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block27_1e27531f690c449224fb59363b8eb474' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block27_14bd8863ae079037a3bb8f30fd874b81' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -15388,7 +15388,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block28_1e27531f690c449224fb59363b8eb474' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block28_14bd8863ae079037a3bb8f30fd874b81' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -15431,7 +15431,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block29_1e27531f690c449224fb59363b8eb474' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block29_14bd8863ae079037a3bb8f30fd874b81' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -15474,7 +15474,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block30_1e27531f690c449224fb59363b8eb474' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block30_14bd8863ae079037a3bb8f30fd874b81' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -15517,7 +15517,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block31_1e27531f690c449224fb59363b8eb474' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block31_14bd8863ae079037a3bb8f30fd874b81' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -15560,7 +15560,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block32_1e27531f690c449224fb59363b8eb474' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block32_14bd8863ae079037a3bb8f30fd874b81' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -15603,7 +15603,7 @@
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block33_1e27531f690c449224fb59363b8eb474' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block33_14bd8863ae079037a3bb8f30fd874b81' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -15655,7 +15655,7 @@
                                                 $::NamedArgument,
                                                 "new",
                                                 {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'name' ),
-                                                    value           => ::DISPATCH( $::Str, 'new', 'prefix:<qw>' ),
+                                                    value           => ::DISPATCH( $::Str, 'new', 'qw' ),
                                                 }
                                             ),
                                             ::DISPATCH(

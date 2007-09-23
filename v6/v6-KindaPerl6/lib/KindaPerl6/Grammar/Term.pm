@@ -191,7 +191,7 @@ token term {
     | <apply>   { return $$<apply>  }  # self; print 1,2,3
     | \<  <angle_quoted>  \>
         { return ::Apply(
-            'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'prefix:<qw>', namespace => [ ] ),
+            'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'qw', namespace => [ ] ),
             'arguments' => [ ::Val::Buf( buf => ~$<angle_quoted> ) ],
           ) }
 
