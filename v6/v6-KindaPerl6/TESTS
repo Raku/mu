@@ -1,4 +1,6 @@
 01-sanity/01-tap.t
+01-sanity/03-equal.t
 01-sanity/04-if.t
+01-sanity/05-sub.t
 01-sanity/07-binding.t
 01-sanity/07-substr.t
