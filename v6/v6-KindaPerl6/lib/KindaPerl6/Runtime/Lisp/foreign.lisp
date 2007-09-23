@@ -50,3 +50,7 @@
 
 (defmethod perl->cl ((object kp6-Array) &key)
   (mapcar #'perl->cl (kp6-value object)))
+
+; A bit hackish
+(defmethod perl->cl ((object string) &key)
+  object)
