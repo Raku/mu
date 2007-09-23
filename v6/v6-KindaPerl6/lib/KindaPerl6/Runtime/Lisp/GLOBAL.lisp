@@ -28,7 +28,21 @@ result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
 
   (define-kp6-function "infix:<~>" (&rest strs)
     (cl->perl (format nil "~{~A~}" (mapcar #'perl->display strs))))
-  
+
+  (define-kp6-function "infix:<eq>" (&rest strs)
+    (let ((one (kp6-value (first strs)))
+          (two (kp6-value (second strs))))
+      (cl->perl (if (string= one two)
+                    'true
+                    'false))))
+
+  (define-kp6-function "infix:<ne>" (&rest strs)
+    (let ((one (kp6-value (first strs)))
+          (two (kp6-value (second strs))))
+      (cl->perl (if (string= one two)
+                    'false
+                    'true))))
+
   (define-kp6-function "infix:<&&>" (&rest operands)
     (if (null operands)
 	(cl->perl 'true)
