@@ -198,7 +198,7 @@ class Index {
 
 class Lookup {
     method emit_lisp {
-	'(kp6-lookup (perl->cl ' ~ $.obj.emit_lisp ~ ') (perl->cl ' ~ $.index.emit_lisp ~ '))'
+	'(kp6-lookup ' ~ $.obj.emit_lisp ~ ' ' ~ $.index.emit_lisp ~ ')'
     }
 }
 
@@ -257,6 +257,12 @@ class Var {
             '%' => 'kp6-Hash_',
             '&' => 'kp6-Code_',
         };
+
+        if $.name eq 'KP6' {
+            # XXX: hack to catch the C<obj => ::Var(> node in
+            # Namespace.pm, should it emit a Call?
+            return '(kp6-packages)';
+        }
         
         if $.twigil eq '.' {
             return '::DISPATCH( $self, "' ~ $.name ~ '" )'  ~ Main::newline()
@@ -358,12 +364,7 @@ class Apply {
             return '$self';
         }
 
-        # XXX: FIXME: ARGH: The AST or the Lisp runtime (probably the
-        # latter) needs to be fixed up. This is a shameless hack to
-        # make C<say "hello world"> work.
-        my $op := '"Code_say"';
-
-        #my $op := $.code.emit_lisp;
+        my $op := $.code.emit_lisp;
 
         # XXX short circuit ops
         # ||
