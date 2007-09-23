@@ -15,8 +15,10 @@ var fixedCharWidth;
 //for tutorials & school ;-)
 var tutorialMode = 0;
 var slide = 0;
+var FIRST_TUTORIAL_SLIDE = 2;
 var slides = new Array(
     'default_info.html',
+    '../p6_syntax_highlite/syntax_hilite.html',
     'tutorial/01_helloworld.html',
     'tutorial/02_vars.html',
     'tutorial/03_iteration_array.html',
@@ -163,6 +165,51 @@ function focusOnCmd(e) {
     $("#termwin").animate({ scrollTop: scrollHeight }, "fast");
 }
 
+//handle ENTER key
+function handleEnter() {
+    var sessCmds=document.terminal.cmd.value + cmd;
+    var tmpCmds=sessCmds.split(prompt);
+    var tmpCmd=tmpCmds[tmpCmds.length-1];
+    var trimTmpCmd = $.trim(tmpCmd);
+    if(trimTmpCmd != "") {
+        histlist.push(tmpCmd);
+    }
+
+    //for tutorial, back, next support
+    if(trimTmpCmd == ":tutorial") {
+        tutorialMode = !tutorialMode;
+        slide = (tutorialMode) ? FIRST_TUTORIAL_SLIDE : 0;
+        loadSlide();
+    } else if (trimTmpCmd == ":back" || trimTmpCmd == ":next") {
+        if(tutorialMode) {
+            if(trimTmpCmd == ":back") {
+                slide--;
+                if(slide < FIRST_TUTORIAL_SLIDE) {
+                    slide = FIRST_TUTORIAL_SLIDE;
+                }
+                loadSlide();
+            } else {
+                //next command
+                slide++;
+                if(slide >= slides.length) {
+                    slide--;
+                }
+                loadSlide();
+            }
+        }
+    } else if(trimTmpCmd == ":show") {
+        //alert('showing examples....');
+        slide = 1;
+        loadSlide();
+    }
+    if(debug) {
+        alert("data to be sent: " + sessCmds);
+    }
+    frames['scratch'].document.getElementById("cmd").value=sessCmds;
+    frames['scratch'].document.terminal.submit(); 
+    cmd = "";
+}
+
 //$.keydown
 function onKeyDown(event) {
     if(event.ctrlKey || event.altKey || event.shiftKey) {
@@ -176,44 +223,7 @@ function onKeyDown(event) {
     
     if(keyCode == 13) {
         //enter
-        var sessCmds=document.terminal.cmd.value + cmd;
-        var tmpCmds=sessCmds.split(prompt);
-        var tmpCmd=tmpCmds[tmpCmds.length-1];
-        var trimTmpCmd = $.trim(tmpCmd);
-        if(trimTmpCmd != "") {
-            histlist.push(tmpCmd);
-        }
-
-        //for tutorial, back, next support
-        if(trimTmpCmd == ":tutorial") {
-            tutorialMode = !tutorialMode;
-            slide = (tutorialMode) ? 1 : 0;
-            loadSlide();
-        }
-        if(trimTmpCmd == ":back" || trimTmpCmd == ":next") {
-            if(tutorialMode) {
-                if(trimTmpCmd == ":back") {
-                    slide--;
-                    if(slide < 1) {
-                        slide = 1;
-                    }
-                    loadSlide(slide);
-                } else {
-                    //next command
-                    slide++;
-                    if(slide >= slides.length) {
-                        slide--;
-                    }
-                    loadSlide(slide);
-                }
-            }
-        }
-        if(debug) {
-            alert("data to be sent: " + sessCmds);
-        }
-       	frames['scratch'].document.getElementById("cmd").value=sessCmds;
-        frames['scratch'].document.terminal.submit(); 
-        cmd = "";
+        handleEnter();
         return false;
         
     } else if(keyCode == 8) {

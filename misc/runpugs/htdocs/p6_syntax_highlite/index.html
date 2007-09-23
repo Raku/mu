@@ -1,0 +1,95 @@
+<html>
+<head>
+    <title>Test</title>
+    <link type="text/css" rel="stylesheet" href="SyntaxHighlighter.css"></link>
+    <script type="text/javascript" src="js/jquery-1.2.min.js"></script>
+    <script type="text/javascript" src="js/shCore.min.js"></script>
+    <script type="text/javascript" src="js/shBrushPerl6.min.js"></script>
+    <script type="text/javascript" src="js/pugs_examples.js"></script>
+    <style type="text/css">
+    body {font:14px arial,helvetica,clean,sans-serif;*font-size:small;*font:x-small;}
+    </style>
+</head>
+<body>
+<script language="javascript">
+    //examples json object is found in pugs_examples.js
+    
+    function highlightCode() {
+        $(".dp-highlighter").remove();
+        dp.SyntaxHighlighter.HighlightAll('code');
+        $("#status").html("I am done... Thanks for waiting...");
+    }
+    
+    function handleHighlight(data) {
+        var exampleUrl = (typeof data == 'string') ? data : $('#examples').val();
+        $("#status").html("Loading remote " + exampleUrl + " to your browser...");
+        $.ajax({
+            url: "/perl/pugs_example.pl?source=" + escape(exampleUrl),
+            async: true,
+            cache: false,
+            dataType:'json',
+            success: function(json) {
+                //load example code...
+                var rec = json;//.parseJSON();
+                if(rec.ok) {
+                    $("#code").text(rec.content);
+                    $("#status").html("Syntax highlighting " + exampleUrl);
+                    setTimeout("highlightCode()",200);
+                } else {
+                    $("#status").html("Error: " + rec.reason);
+                }
+            },
+            error: function() {
+                $("#code").text('');
+                $(".dp-highlighter").remove();
+                $("#status").html("An error has occured while loading document");
+            }
+        });
+    }
+    
+    $(document).ready(function(){
+        //Document is ready...
+        var exampleUrl = null;
+        for(example in examples) {
+            //need only first element...
+            exampleUrl = examples[example];
+            break;
+        }
+        var firstTime = true;
+        $.each(examples,function(i,n) {
+            var selected = (firstTime) ? 'selected="selected"' : "";
+            if(firstTime) {
+                //flip it...
+                firstTime = !firstTime;
+            }
+            if(typeof n == 'string') {
+                $("#examples").append(
+                    "<option value='" + n + "' " + selected + ">" + n + "</option>" );
+            }
+        });
+        
+        $("#examples").val(exampleUrl);
+       
+        //Render the example the first time...
+        dp.SyntaxHighlighter.ClipboardSwf = 'clipboard.swf';
+        
+        if(exampleUrl) {
+            handleHighlight(exampleUrl);
+        }
+            
+        $("#examples").change(handleHighlight);
+    });
+   
+</script>   
+
+<form id="m">
+    <select id="examples" class="dp-p6">
+    </select>
+    <div id="status">
+    </div>
+</form>
+<pre id="code" name="code" style="display:none;" class="perl6">
+</pre>
+
+</body>
+</html>

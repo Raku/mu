@@ -1,0 +1,16 @@
+NAME
+    Perl6 Syntax highlighter browser plugin
+    
+MAINTAINER
+    Ahmad M. Zawawi <ahmad.zawawi@gmail.com>
+
+INSTALLATION
+    Simply this directory index.html to your apache htdocs,
+    and you'll be able Perl6 syntax highlight on the browser (client-side).
+    
+    To re-use simply use index.html as a template (jquery is not needed).
+
+NOTES
+    This script is useful in blogs, tutorials, ..etc
+    Not recommended for 100+ lines scripts as Javascript RegExp is slow
+    Syntax will be improved along with upcoming misc/runpugs runscript enhancements
