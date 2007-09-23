@@ -261,11 +261,11 @@ class Var {
             '&' => 'kp6-Code_',
         };
 
-        if $.name eq 'KP6' {
+        #if $.name eq 'KP6' {
             # XXX: hack to catch the C<obj => ::Var(> node in
             # Namespace.pm, should it emit a Call?
-            return '*kp6-packages*';
-        }
+            #return '*kp6-packages*';
+        #}
         
         if $.twigil eq '.' {
             return '::DISPATCH( $self, "' ~ $.name ~ '" )'  ~ Main::newline()
@@ -274,8 +274,13 @@ class Var {
         if $.name eq '/' {
             return $table{$.sigil} ~ 'MATCH' 
         };
-        
-        return Main::mangle_name_lisp( $.sigil, $.twigil, $.name, $.namespace ); 
+
+	my $namespace := $.namespace;
+	if !(@($namespace)) {
+	    $namespace := [ 'GLOBAL' ];
+	}
+
+	return '(kp6-lookup (kp6-lookup *kp6-packages* "' ~ (join '::', @($namespace)) ~ '") (cons \'' ~ $.sigil ~ ' "' ~ $.name ~ '")';
     };
     method perl {
         # this is used by the signature emitter
