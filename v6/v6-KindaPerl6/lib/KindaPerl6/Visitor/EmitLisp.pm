@@ -198,7 +198,7 @@ class Index {
 
 class Lookup {
     method emit_lisp {
-	'(kp6-lookup ' ~ $.obj.emit_lisp ~ ' ' ~ $.index.emit_lisp ~ ')'
+	'(kp6-lookup (perl->cl ' ~ $.obj.emit_lisp ~ ') (perl->cl' ~ $.index.emit_lisp ~ '))'
     }
 }
 
@@ -261,7 +261,7 @@ class Var {
         if $.name eq 'KP6' {
             # XXX: hack to catch the C<obj => ::Var(> node in
             # Namespace.pm, should it emit a Call?
-            return '(kp6-packages)';
+            return '*kp6-packages*';
         }
         
         if $.twigil eq '.' {

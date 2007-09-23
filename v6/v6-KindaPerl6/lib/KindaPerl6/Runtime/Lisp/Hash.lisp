@@ -15,7 +15,7 @@
 (defmethod kp6-LOOKUP ((self kp6-Hash) key)
   "Looks up a value in the hash by key"
   (let* ((hash (kp6-value self))
-        (entry (gethash (perl->cl key) hash))) ; perl->cl here because this is also used for globs
+	 (entry (gethash key hash)))
     entry))
 
 (defmethod kp6-DELETE ((self kp6-Hash) key)

@@ -118,7 +118,7 @@ sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(kp6-index \'' 
 ;
 package Lookup;
 sub new { shift; bless { @_ }, "Lookup" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(kp6-lookup (perl->cl ' . ($self->{obj}->emit_lisp() . (') (perl->cl ' . ($self->{index}->emit_lisp() . '))')))) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(kp6-lookup (perl->cl ' . ($self->{obj}->emit_lisp() . (') (perl->cl' . ($self->{index}->emit_lisp() . '))')))) }
 
 
 ;
@@ -130,7 +130,7 @@ sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; my  $node = $self
 ;
 package Var;
 sub new { shift; bless { @_ }, "Var" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; my  $table = { '$' => 'kp6-','@' => 'kp6-List_','%' => 'kp6-Hash_','&' => 'kp6-Code_', }; do { if (($self->{twigil} eq '.')) { return(('::DISPATCH( $self, "' . ($self->{name} . ('" )' . Main::newline())))) } else {  } }; do { if (($self->{name} eq '/')) { return(($table->{$self->{sigil}} . 'MATCH')) } else {  } }; return(Main::mangle_name_lisp($self->{sigil}, $self->{twigil}, $self->{name}, $self->{namespace})) };
+sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; my  $table = { '$' => 'kp6-','@' => 'kp6-List_','%' => 'kp6-Hash_','&' => 'kp6-Code_', }; do { if (($self->{name} eq 'KP6')) { return('*kp6-packages*') } else {  } }; do { if (($self->{twigil} eq '.')) { return(('::DISPATCH( $self, "' . ($self->{name} . ('" )' . Main::newline())))) } else {  } }; do { if (($self->{name} eq '/')) { return(($table->{$self->{sigil}} . 'MATCH')) } else {  } }; return(Main::mangle_name_lisp($self->{sigil}, $self->{twigil}, $self->{name}, $self->{namespace})) };
 sub perl { my $self = shift; my $List__ = \@_; do { [] }; ('(kp6-new \'signature-item ' . ('sigil: \'' . ($self->{sigil} . ('\', ' . ('twigil: \'' . ($self->{twigil} . ('\', ' . ('name: \'' . ($self->{name} . ('\', ' . ('namespace: [ ], ' . (')' . Main::newline())))))))))))) }
 
 
@@ -155,7 +155,7 @@ sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; my  $invocant; do
 ;
 package Apply;
 sub new { shift; bless { @_ }, "Apply" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; do { if ((Main::isa($self->{code}, 'Var') && ($self->{code}->name() eq 'self'))) { return('$self') } else {  } }; my  $op = '"Code_say"'; do { if (($op eq '$GLOBAL::Code_infix_58__60__124__124__62_')) { return(('do { do { my $____some__weird___var____ = ' . ($self->{arguments}->[0]->emit_lisp() . ('; ' . ('::DISPATCH($____some__weird___var____,"true")->{_value} && $____some__weird___var____ ' . ('} ||' . ('do { my $____some__weird___var____ = ' . ($self->{arguments}->[1]->emit_lisp() . ('; ' . ('::DISPATCH($____some__weird___var____,"true")->{_value} && $____some__weird___var____ ' . ('} || ::DISPATCH( $::Bit, "new", 0 ) }' . Main::newline()))))))))))) } else {  } }; do { if (($op eq '$GLOBAL::Code_infix_58__60__38__38__62_')) { return(('do { ( ' . ('do { my $____some__weird___var____ = ' . ($self->{arguments}->[0]->emit_lisp() . ('; ' . ('::DISPATCH($____some__weird___var____,"true")->{_value} && $____some__weird___var____ ' . ('} &&' . ('do { my $____some__weird___var____ = ' . ($self->{arguments}->[1]->emit_lisp() . ('; ' . ('::DISPATCH($____some__weird___var____,"true")->{_value} && $____some__weird___var____ ' . ('}) || ::DISPATCH( $::Bit, "new", 0) }' . Main::newline())))))))))))) } else {  } }; return(('(kp6-apply-function ' . ($op . (' (mapcar #\'cl->perl (list ' . (Main::join([ map { $_->emit_lisp() } @{ $self->{arguments} } ], ' ') . (')))' . Main::newline())))))) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; do { if ((Main::isa($self->{code}, 'Var') && ($self->{code}->name() eq 'self'))) { return('$self') } else {  } }; my  $op = $self->{code}->emit_lisp(); do { if (($op eq '$GLOBAL::Code_infix_58__60__124__124__62_')) { return(('do { do { my $____some__weird___var____ = ' . ($self->{arguments}->[0]->emit_lisp() . ('; ' . ('::DISPATCH($____some__weird___var____,"true")->{_value} && $____some__weird___var____ ' . ('} ||' . ('do { my $____some__weird___var____ = ' . ($self->{arguments}->[1]->emit_lisp() . ('; ' . ('::DISPATCH($____some__weird___var____,"true")->{_value} && $____some__weird___var____ ' . ('} || ::DISPATCH( $::Bit, "new", 0 ) }' . Main::newline()))))))))))) } else {  } }; do { if (($op eq '$GLOBAL::Code_infix_58__60__38__38__62_')) { return(('do { ( ' . ('do { my $____some__weird___var____ = ' . ($self->{arguments}->[0]->emit_lisp() . ('; ' . ('::DISPATCH($____some__weird___var____,"true")->{_value} && $____some__weird___var____ ' . ('} &&' . ('do { my $____some__weird___var____ = ' . ($self->{arguments}->[1]->emit_lisp() . ('; ' . ('::DISPATCH($____some__weird___var____,"true")->{_value} && $____some__weird___var____ ' . ('}) || ::DISPATCH( $::Bit, "new", 0) }' . Main::newline())))))))))))) } else {  } }; return(('(kp6-apply-function ' . ($op . (' (mapcar #\'cl->perl (list ' . (Main::join([ map { $_->emit_lisp() } @{ $self->{arguments} } ], ' ') . (')))' . Main::newline())))))) }
 
 
 ;

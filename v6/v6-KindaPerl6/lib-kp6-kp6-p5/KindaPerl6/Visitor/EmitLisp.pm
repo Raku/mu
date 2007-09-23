@@ -2264,7 +2264,7 @@
                                 ::DISPATCH( ::DISPATCH( $self, "obj" ), 'emit_lisp', ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                    ::DISPATCH( $::Str, 'new', ') (perl->cl ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "index" ), 'emit_lisp', ), ::DISPATCH( $::Str, 'new', '))' ) )
+                                    ::DISPATCH( $::Str, 'new', ') (perl->cl' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "index" ), 'emit_lisp', ), ::DISPATCH( $::Str, 'new', '))' ) )
                                 )
                             )
                         );
@@ -2637,6 +2637,14 @@
                                     }
                                 }
                             );
+                        };
+                        do {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $self, "name" ), ::DISPATCH( $::Str, 'new', 'KP6' ) ), "true" ), "p5landish" ) ) {
+                                {
+                                    return ( ::DISPATCH( $::Str, 'new', '*kp6-packages*' ) )
+                                }
+                            }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $self, "twigil" ), ::DISPATCH( $::Str, 'new', '.' ) ), "true" ), "p5landish" ) ) {
@@ -3332,7 +3340,7 @@
                         };
                         do {
                             ::MODIFIED($op);
-                            $op = ::DISPATCH( $::Str, 'new', '"Code_say"' );
+                            $op = ::DISPATCH( ::DISPATCH( $self, "code" ), 'emit_lisp', );
                         };
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $op, ::DISPATCH( $::Str, 'new', '$GLOBAL::Code_infix_58__60__124__124__62_' ) ), "true" ), "p5landish" ) ) {
