@@ -40,12 +40,12 @@ result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
 		  'true)))
 
   (define-kp6-function "infix:<==>" (first second)
-    (cl->perl (if (eql (perl->cl first) (perl->cl second)) ; XXX broken for strings
+    (cl->perl (if (equal (perl->cl first) (perl->cl second)) ; XXX broken for strings
 		  'true
 		  'false)))
 
   (define-kp6-function "infix:<!=>" (first second)
-    (cl->perl (if (eql (perl->cl first) (perl->cl second)) ; XXX broken for strings
+    (cl->perl (if (equal (perl->cl first) (perl->cl second)) ; XXX broken for strings
 		  'false
 		  'true)))
 
