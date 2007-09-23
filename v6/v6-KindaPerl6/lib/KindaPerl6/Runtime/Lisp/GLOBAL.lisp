@@ -27,18 +27,18 @@ result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
     (length (kp6-value array)))
 
   (define-kp6-function "infix:<~>" (&rest strs)
-    (make-instance 'kp6-Str :value (format nil "~{~A~}" (mapcar #'perl->display strs))))
+    (cl->perl (format nil "~{~A~}" (mapcar #'perl->display strs))))
   
   (define-kp6-function "infix:<&&>" (&rest operands)
     (if (null operands)
-	t
+	(cl->perl 'true)
 	(if (kp6-bit (first operands))
 	    (call-kp6-function "infix:<&&>" (cdr operands))
-	    nil)))
+	    (cl->perl 'false))))
 
   (define-kp6-function "infix:<||>" (&rest operands)
     (if (null operands)
-	nil
+	(cl->perl 'false)
 	(let ((operand (first operands)))
 	  (if (kp6-bit operand)
 	      operand
