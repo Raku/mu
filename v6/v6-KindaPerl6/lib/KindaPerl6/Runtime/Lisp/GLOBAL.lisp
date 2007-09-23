@@ -22,7 +22,6 @@ result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
 
 (flet ((call-kp6-function (name args)
 	 (kp6-apply-function (kp6-normalize-function-name name) args)))
-
   (define-kp6-function "elems" (array)
     (assert (typep array 'kp6-Array) (array))
     (length (kp6-value array)))
@@ -30,33 +29,25 @@ result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
   (define-kp6-function "infix:<~>" (&rest strs)
     (cl->perl (format nil "~{~A~}" (mapcar #'perl->display strs))))
 
-  (define-kp6-function "infix:<eq>" (&rest strs)
-    (let ((one (kp6-value (first strs)))
-          (two (kp6-value (second strs))))
-      (cl->perl (if (string= one two)
-                    'true
-                    'false))))
+  (define-kp6-function "infix:<eq>" (first second)
+    (cl->perl (if (string= (perl->cl first) (perl->cl second))
+		  'true
+		  'false)))
 
-  (define-kp6-function "infix:<ne>" (&rest strs)
-    (let ((one (kp6-value (first strs)))
-          (two (kp6-value (second strs))))
-      (cl->perl (if (string= one two)
-                    'false
-                    'true))))
+  (define-kp6-function "infix:<ne>" (first second)
+    (cl->perl (if (string= (perl->cl first) (perl->cl second))
+		  'false
+		  'true)))
 
-  (define-kp6-function "infix:<==>" (&rest strs)
-    (let ((one (kp6-value (first strs)))
-          (two (kp6-value (second strs))))
-      (cl->perl (if (= one two)
-                    'true
-                    'false))))
+  (define-kp6-function "infix:<==>" (first second)
+    (cl->perl (if (eql (perl->cl first) (perl->cl second)) ; XXX broken for strings
+		  'true
+		  'false)))
 
-  (define-kp6-function "infix:<!=>" (&rest strs)
-    (let ((one (kp6-value (first strs)))
-          (two (kp6-value (second strs))))
-      (cl->perl (if (= one two)
-                    'false
-                    'true))))
+  (define-kp6-function "infix:<!=>" (first second)
+    (cl->perl (if (eql (perl->cl first) (perl->cl second)) ; XXX broken for strings
+		  'false
+		  'true)))
 
   (define-kp6-function "infix:<&&>" (&rest operands)
     (if (null operands)
