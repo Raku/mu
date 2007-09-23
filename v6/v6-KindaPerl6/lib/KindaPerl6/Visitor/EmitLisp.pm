@@ -198,7 +198,7 @@ class Index {
 
 class Lookup {
     method emit_lisp {
-	'(kp6-find-package ' ~ $.obj.emit_lisp ~ ' ' ~ $.index.emit_lisp ~ ')'
+	'(kp6-lookup (perl->cl ' ~ $.obj.emit_lisp ~ ') (perl->cl ' ~ $.index.emit_lisp ~ '))'
     }
 }
 

@@ -47,3 +47,6 @@
 
 (defmethod perl->cl ((object kp6-Container) &key)
   (kp6-value object))
+
+(defmethod perl->cl ((object kp6-Array) &key)
+  (mapcar #'perl->cl (kp6-value object)))
