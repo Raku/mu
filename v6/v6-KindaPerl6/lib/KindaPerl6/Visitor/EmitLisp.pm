@@ -198,7 +198,9 @@ class Index {
 
 class Lookup {
     method emit_lisp {
-	'(kp6-lookup (perl->cl ' ~ $.obj.emit_lisp ~ ') (perl->cl' ~ $.index.emit_lisp ~ '))'
+	# XXX since we don't have a proper ::Index object which takes care of PERL->CL, we have to do it ourselves
+	#'(kp6-lookup ' ~ $.obj.emit_lisp ~ ' ' ~ $.index.emit_lisp ~ ')'
+	'(kp6-lookup ' ~ $.obj.emit_lisp ~ ' (perl->cl ' ~ $.index.emit_lisp ~ '))'
     }
 }
 
@@ -387,7 +389,7 @@ class Apply {
                 '::DISPATCH($____some__weird___var____,"true")->{_value} && $____some__weird___var____ ' ~
              '}) || ::DISPATCH( $::Bit, "new", 0) }' ~ Main::newline();
         }
-        return  '(kp6-apply-function ' ~ $op ~ ' (mapcar #\'cl->perl (list ' ~ (@.arguments.>>emit_lisp).join(' ') ~ ')))' ~ Main::newline();
+        return  '(kp6-apply-function (perl->cl ' ~ $op ~ ') (mapcar #\'cl->perl (list ' ~ (@.arguments.>>emit_lisp).join(' ') ~ ')))' ~ Main::newline();
     }
 }
 
