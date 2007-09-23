@@ -167,7 +167,7 @@ sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; return(('return('
 ;
 package If;
 sub new { shift; bless { @_ }, "If" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(if (kp6-value ' . ($self->{cond}->emit_lisp() . (')' . (($self->{body} ? ('(progn ' . ($self->{body}->emit_lisp() . ') ')) : '(progn)') . (($self->{otherwise} ? (' (progn ' . ($self->{otherwise}->emit_lisp() . ' )')) : '(progn)') . (' )' . Main::newline())))))) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(if (kp6-bit ' . ($self->{cond}->emit_lisp() . (')' . (($self->{body} ? ('(progn ' . ($self->{body}->emit_lisp() . ') ')) : '(progn)') . (($self->{otherwise} ? (' (progn ' . ($self->{otherwise}->emit_lisp() . ' )')) : '(progn)') . (' )' . Main::newline())))))) }
 
 
 ;
