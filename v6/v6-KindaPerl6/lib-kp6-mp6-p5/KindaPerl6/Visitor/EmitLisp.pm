@@ -118,7 +118,7 @@ sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(kp6-index \'' 
 ;
 package Lookup;
 sub new { shift; bless { @_ }, "Lookup" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(kp6-find-package ' . ($self->{obj}->emit_lisp() . (' ' . ($self->{index}->emit_lisp() . ')')))) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(kp6-lookup (perl->cl ' . ($self->{obj}->emit_lisp() . (') (perl->cl ' . ($self->{index}->emit_lisp() . '))')))) }
 
 
 ;

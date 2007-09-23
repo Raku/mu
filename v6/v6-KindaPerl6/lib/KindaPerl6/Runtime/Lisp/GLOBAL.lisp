@@ -25,13 +25,13 @@ result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
   (length (kp6-value array)))
 
 (define-kp6-function ("print" :returns 'true) (&rest strs)
-  (format t "~{~A~}" (mapcar #'kp6-value strs)))
+  (format t "~{~A~}" (mapcar #'perl->cl strs)))
 
 (define-kp6-function ("say" :returns 'true) (&rest strs)
-  (format t "~{~A~}~%" (mapcar #'kp6-value strs)))
+  (format t "~{~A~}~%" (mapcar #'perl->cl strs)))
 
 (define-kp6-function ("warn" :returns 'true) (&rest strs)
-  (warn "~{~A~}" (mapcar #'kp6-value strs)))
+  (warn "~{~A~}" (mapcar #'perl->cl strs)))
 
 (define-kp6-function "defined" (object)
   (not (null (kp6-value object))))
