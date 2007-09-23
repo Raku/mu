@@ -2,7 +2,8 @@
 {
 	font-family: "Consolas", "Courier New", Courier, mono, serif;
 	font-size: 12px;
-	background-color: #E7E5DC;
+	/*background-color: #E7E5DC;*/
+	background-color:black;
 	width: 99%;
 	overflow: auto;
 	margin: 18px 0 18px 0 !important;
@@ -45,7 +46,8 @@
 	background-color: #fff;
 	margin: 0px 0px 1px 45px !important; /* 1px bottom margin seems to fix occasional Firefox scrolling */
 	padding: 0px;
-	color: #5C5C5C;
+	/*color: #5C5C5C;*/
+	color:white;
 }
 
 .dp-highlighter.nogutter ol,
@@ -61,8 +63,10 @@
 	list-style: decimal-leading-zero; /* better look for others, override cascade from OL */
 	list-style-position: outside !important;
 	border-left: 3px solid #6CE26C;
-	background-color: #F8F8F8;
-	color: #5C5C5C;
+	/*background-color: #F8F8F8;*/
+	/*color: #5C5C5C;*/
+	background-color: black;
+	color:white;
 	padding: 0 3px 0 10px !important;
 	margin: 0 !important;
 	line-height: 14px;
@@ -77,7 +81,8 @@
 .dp-highlighter .columns
 {
 	background-color: #F8F8F8;
-	color: gray;
+	/*color: gray;*/
+	color:white;
 	overflow: hidden;
 	width: 100%;
 }
@@ -89,13 +94,15 @@
 
 .dp-highlighter ol li.alt
 {
-	background-color: #FFF;
+	/*background-color: #FFF;*/
+	background-color: black;
 	color: inherit;
 }
 
 .dp-highlighter ol li span
 {
-	color: black;
+	/*color: black;*/
+	color: white;
 	background-color: inherit;
 }
 
@@ -134,8 +141,10 @@
 {
 	padding: 3px 8px 3px 10px;
 	font: 9px Verdana, Geneva, Arial, Helvetica, sans-serif;
-	color: silver;
-	background-color: #f8f8f8;
+	/*color: silver;
+	background-color: #f8f8f8;*/
+	color: white;
+	background-color: black;
 	padding-bottom: 10px;
 	border-left: 3px solid #6CE26C;
 }
@@ -179,7 +188,7 @@
 
 /* Language specific styles */
 
-.dp-highlighter .comment, .dp-highlighter .comments { color: #008200; background-color: inherit; }
+.dp-highlighter .comment, .dp-highlighter .comments { color: #00FF00; background-color: inherit; }
 .dp-highlighter .string { color: blue; background-color: inherit; }
-.dp-highlighter .keyword { color: #069; font-weight: bold; background-color: inherit; }
-.dp-highlighter .preprocessor { color: gray; background-color: inherit; }
+.dp-highlighter .keyword { color: orange; font-weight: bold; background-color: inherit; }
+.dp-highlighter .preprocessor { color: green; background-color: inherit; }

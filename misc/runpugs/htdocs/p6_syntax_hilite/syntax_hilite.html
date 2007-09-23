@@ -1,12 +1,8 @@
-<form id="hilite_form" action="">
-    <select id="hilite_examples" class="dp-p6"></select>
-    <div id="hilite_status"></div>
-</form>
+<select id="hilite_examples" class="dp-p6"></select>
+<div id="hilite_status"></div>
 <pre id="hilite_code" name="hilite_code" 
     style="display:none;" class="perl6"></pre>
-    
 <script language="javascript">
-
     function highliteCode() {
         $(".dp-highlighter").remove();
         dp.SyntaxHighlighter.HighlightAll('hilite_code');
@@ -67,17 +63,14 @@
         $("#hilite_examples").val(exampleUrl);
        
         //Render the example the first time...
-        dp.SyntaxHighlighter.ClipboardSwf = 'clipboard.swf';
+        dp.SyntaxHighlighter.ClipboardSwf = '../p6_syntax_hilite/clipboard.swf';
         
         if(exampleUrl) {
             handleHighlight(exampleUrl);
         }
 
-
         $("#hilite_examples").change(handleHighlight);
     }
     
     highliteInit();
-   
-</script>   
-
+</script>

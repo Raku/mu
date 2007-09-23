@@ -18,7 +18,7 @@ var slide = 0;
 var FIRST_TUTORIAL_SLIDE = 2;
 var slides = new Array(
     'default_info.html',
-    '../p6_syntax_highlite/syntax_hilite.html',
+    '../p6_syntax_hilite/syntax_hilite.html',
     'tutorial/01_helloworld.html',
     'tutorial/02_vars.html',
     'tutorial/03_iteration_array.html',

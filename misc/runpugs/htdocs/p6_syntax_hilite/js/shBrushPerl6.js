@@ -101,13 +101,11 @@ dp.sh.Brushes.p6 = function()
             regex: dp.sh.RegexLib.SingleLinePerlComments,							
             css: 'comment' 
         },		
-        /*
 		{ 
             // multiline comments
-            regex: dp.sh.RegexLib.MultiLineCComments,								
+            regex: new RegExp('=\\w[\\s\\S]+=cut', 'gmi'),
             css: 'comment' 
         },
-        */        
 		{ 
             // $global, @array, and %hash variables
             regex: new RegExp('(\\$|@|%)\\w+', 'g'),				
@@ -123,6 +121,11 @@ dp.sh.Brushes.p6 = function()
             regex: dp.sh.RegexLib.SingleQuotedString,								
             css: 'string' 
         },		
+/*		{ 
+            // multi-line strings
+            regex: new RegExp('"[\\s\\S]*"', 'gmi'),
+            css: 'string' 
+        },		*/
 		{ 
             // numbers
             regex: new RegExp('\\b([\\d]+(\\.[\\d]+)?|0x[a-f0-9]+)\\b', 'gi'),	
@@ -154,11 +157,11 @@ dp.sh.Brushes.p6 = function()
     ];
 
 	this.CssClass = 'dp-p6';
-	this.Style =	'.dp-p6 .builtin { color: #ff1493; }' +
-                    '.dp-p6 .symbol { color: #a70; }' +
+	this.Style =	'.dp-p6 .builtin { color: orange; }' +
+                    '.dp-p6 .symbol { color: yellow; }' +
 					'.dp-p6 .op { color: #808080; }' +
 					'.dp-p6 .number { color: #C00000; }' +
-                    '.dp-p6 .variable { color: #a70; font-weight: bold; }';
+                    '.dp-p6 .variable { color: yellow; font-weight: bold; }';
 }
 
 dp.sh.Brushes.p6.prototype	= new dp.sh.Highlighter();
