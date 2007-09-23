@@ -186,7 +186,7 @@ class Lit::Object {
         for @$fields -> $field { 
             $str := $str ~ ($field[0]).emit_lisp ~ ' => ' ~ ($field[1]).emit_lisp ~ ',';
         }; 
-        '::DISPATCH( $::' ~ $.class ~ ', \'new\', ' ~ $str ~ ' )' ~ Main::newline();
+        '(kp6-new \'kp6-' ~ $.class ~ ' ' ~ $str ~ ')' ~ Main::newline();
     }
 }
 
@@ -240,7 +240,7 @@ class Assign {
 
         };
 
-        '::DISPATCH_VAR( ' ~ $node.emit_lisp ~ ', \'STORE\', ' ~ $.arguments.emit_lisp ~ ' )' ~ Main::newline();
+        '(kp6-store \'' ~ $node.emit_lisp ~ ' ' ~ $.arguments.emit_lisp ~ ')' ~ Main::newline();
     }
 }
 
@@ -270,12 +270,12 @@ class Var {
     };
     method perl {
         # this is used by the signature emitter
-          '::DISPATCH( $::Signature::Item, "new", { ' 
-        ~     'sigil  => \'' ~ $.sigil  ~ '\', '
-        ~     'twigil => \'' ~ $.twigil ~ '\', '
-        ~     'name   => \'' ~ $.name   ~ '\', '
-        ~     'namespace => [ ], '
-        ~ '} )' ~ Main::newline()
+          '(kp6-new \'signature-item ' 
+        ~     'sigil: \'' ~ $.sigil  ~ '\', '
+        ~     'twigil: \'' ~ $.twigil ~ '\', '
+        ~     'name: \'' ~ $.name   ~ '\', '
+        ~     'namespace: [ ], '
+        ~ ')' ~ Main::newline()
     }
 }
 
@@ -294,7 +294,7 @@ class Bind {
             return ::Assign(parameters=>$.parameters,arguments=>$.arguments).emit_lisp;
         };
 
-        my $str := '::MODIFIED(' ~ $.parameters.emit_lisp ~ ');' ~ Main::newline();
+        my $str := '';  # '::MODIFIED(' ~ $.parameters.emit_lisp ~ ');' ~ Main::newline();
         $str := $str ~ $.parameters.emit_lisp ~ ' = ' ~ $.arguments.emit_lisp;
         return 'do {'~$str~'}';
     }
@@ -302,7 +302,7 @@ class Bind {
 
 class Proto {
     method emit_lisp {
-        return '$::'~$.name;
+        return '\''~$.name;   # ???
     }
 }
 
@@ -560,27 +560,27 @@ class Sig {
 
         my $named := '';  # TODO
 
-          '::DISPATCH( $::Signature, "new", { '
-        ~     'invocant => ' ~ $inv ~ ', '
-        ~     'array    => ::DISPATCH( $::Array, "new", { _array => [ ' ~ $pos   ~ ' ] } ), '
-        ~     'hash     => ::DISPATCH( $::Hash,  "new", { _hash  => { ' ~ $named ~ ' } } ), '
-        ~     'return   => $::Undef, '
-        ~ '} )'
+          '(kp6-new \'signature '
+        ~     'invocant: ' ~ $inv ~ ', '
+        ~     'array: ::DISPATCH( $::Array, "new", { _array => [ ' ~ $pos   ~ ' ] } ), '
+        ~     'hash: ::DISPATCH( $::Hash,  "new", { _hash  => { ' ~ $named ~ ' } } ), '
+        ~     'return: $::Undef, '
+        ~ ')'
         ~ Main::newline();
     };
 }
 
 class Capture {
     method emit_lisp {
-        my $s := '::DISPATCH( $::Capture, "new", { ';
+        my $s := '(kp6-new \'capture ';
         if defined $.invocant {
-           $s := $s ~ 'invocant => ' ~ $.invocant.emit_lisp ~ ', ';
+           $s := $s ~ 'invocant: ' ~ $.invocant.emit_lisp ~ ', ';
         }
         else {
-            $s := $s ~ 'invocant => $::Undef, '
+            $s := $s ~ 'invocant: $::Undef, '
         };
         if defined $.array {
-           $s := $s ~ 'array => ::DISPATCH( $::Array, "new", { _array => [ ';
+           $s := $s ~ 'array: ::DISPATCH( $::Array, "new", { _array => [ ';
                             my $item;
            for @.array -> $item { 
                 $s := $s ~ $item.emit_lisp ~ ', ';
@@ -588,57 +588,55 @@ class Capture {
             $s := $s ~ ' ] } ),';
         };
         if defined $.hash {
-           $s := $s ~ 'hash => ::DISPATCH( $::Hash, "new", { _hash => { ';
+           $s := $s ~ 'hash: ::DISPATCH( $::Hash, "new", { _hash => { ';
                            my $item;
            for @.hash -> $item { 
                 $s := $s ~ ($item[0]).emit_lisp ~ '->{_value} => ' ~ ($item[1]).emit_lisp ~ ', ';
             }
             $s := $s ~ ' } } ),';
         };
-        return $s ~ ' } )' ~ Main::newline();
+        return $s ~ ')' ~ Main::newline();
     };
 }
 
 class Subset {
     method emit_lisp {
-          '::DISPATCH( $::Subset, "new", { ' 
-        ~ 'base_class => ' ~ $.base_class.emit_lisp 
+          '(kp6-new \'subset ' 
+        ~ 'base_class: ' ~ $.base_class.emit_lisp 
         ~ ', '
-        ~ 'block => '    
+        ~ 'block: '    
         ~       'sub { local $_ = shift; ' ~ ($.block.block).emit_lisp ~ ' } '    # XXX
-        ~ ' } )' ~ Main::newline();
+        ~ ')' ~ Main::newline();
     }
 }
 
 class Method {
     method emit_lisp {
-          '::DISPATCH( $::Code, \'new\', { '
-        ~   'code => sub { '  
+          '(kp6-new \'code '
+        ~   'code: sub { '  
         ~     $.block.emit_declarations 
         ~     '$self = shift; ' 
         ~     $.block.emit_arguments 
         ~     $.block.emit_body
-        ~    ' }, '
-        ~   'signature => ' 
+        ~    ' '
+        ~   'signature: ' 
         ~       $.block.emit_signature
-        ~    ', '
-        ~ ' } )' 
+        ~ ')' 
         ~ Main::newline();
     }
 }
 
 class Sub {
     method emit_lisp {
-          '::DISPATCH( $::Code, \'new\', { '
-        ~   'code => sub { '  
+          '(kp6-new \'code '
+        ~   'code: sub { '  
         ~       $.block.emit_declarations 
         ~       $.block.emit_arguments 
         ~       $.block.emit_body
-        ~    ' }, '
-        ~   'signature => ' 
+        ~    ' } '
+        ~   'signature: ' 
         ~       $.block.emit_signature
-        ~    ', '
-        ~ ' } )' 
+        ~ ')' 
         ~ Main::newline();
     }
 }
@@ -675,11 +673,11 @@ class Use {
 
 =head1 NAME 
 
-KindaPerl6::Perl5::EmitPerl5 - Code generator for KindaPerl6-in-Perl5
+KindaPerl6::Perl5::Lisp - Code generator for KindaPerl6-in-Lisp
 
 =head1 DESCRIPTION
 
-This module generates Perl5 code for the KindaPerl6 compiler.
+This module generates Lisp code for the KindaPerl6 compiler.
 
 =head1 AUTHORS
 

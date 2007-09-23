@@ -2092,7 +2092,7 @@
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH( $::Str, 'new', '::DISPATCH( $::' ),
+                            ::DISPATCH( $::Str, 'new', '(kp6-new \\\'kp6-' ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
@@ -2100,8 +2100,8 @@
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
-                                    ::DISPATCH( $::Str, 'new', ', \\\'new\\\', ' ),
-                                    ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) ) )
+                                    ::DISPATCH( $::Str, 'new', ' ' ),
+                                    ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ')' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) ) )
                                 )
                             )
                         );
@@ -2541,7 +2541,7 @@
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH( $::Str, 'new', '::DISPATCH_VAR( ' ),
+                            ::DISPATCH( $::Str, 'new', '(kp6-store \\\'' ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
@@ -2549,10 +2549,10 @@
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
-                                    ::DISPATCH( $::Str, 'new', ', \\\'STORE\\\', ' ),
+                                    ::DISPATCH( $::Str, 'new', ' ' ),
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                        ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'emit_lisp', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                        ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'emit_lisp', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ')' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                                     )
                                 )
                             )
@@ -2705,11 +2705,11 @@
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH( $::Str, 'new', '::DISPATCH( $::Signature::Item, "new", { ' ),
+                            ::DISPATCH( $::Str, 'new', '(kp6-new \\\'signature-item ' ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH( $::Str, 'new', 'sigil  => \\\'' ),
+                                ::DISPATCH( $::Str, 'new', 'sigil: \\\'' ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
@@ -2721,7 +2721,7 @@
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY',
-                                            ::DISPATCH( $::Str, 'new', 'twigil => \\\'' ),
+                                            ::DISPATCH( $::Str, 'new', 'twigil: \\\'' ),
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
@@ -2733,7 +2733,7 @@
                                                     ::DISPATCH(
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
-                                                        ::DISPATCH( $::Str, 'new', 'name   => \\\'' ),
+                                                        ::DISPATCH( $::Str, 'new', 'name: \\\'' ),
                                                         ::DISPATCH(
                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                             'APPLY',
@@ -2745,8 +2745,8 @@
                                                                 ::DISPATCH(
                                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                                     'APPLY',
-                                                                    ::DISPATCH( $::Str, 'new', 'namespace => [ ], ' ),
-                                                                    ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '} )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                                                    ::DISPATCH( $::Str, 'new', 'namespace: [ ], ' ),
+                                                                    ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ')' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                                                                 )
                                                             )
                                                         )
@@ -2918,15 +2918,7 @@
                         };
                         do {
                             ::MODIFIED($str);
-                            $str = ::DISPATCH(
-                                $GLOBAL::Code_infix_58__60__126__62_,
-                                'APPLY',
-                                ::DISPATCH( $::Str, 'new', '::MODIFIED(' ),
-                                ::DISPATCH(
-                                    $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                    ::DISPATCH( ::DISPATCH( $self, "parameters" ), 'emit_lisp', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ');' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
-                                )
-                            );
+                            $str = ::DISPATCH( $::Str, 'new', '' );
                         };
                         do {
                             ::MODIFIED($str);
@@ -3007,7 +2999,7 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        return ( ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '$::' ), ::DISPATCH( $self, "name" ) ) );
+                        return ( ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '\\\'' ), ::DISPATCH( $self, "name" ) ) );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
@@ -4704,11 +4696,11 @@
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH( $::Str, 'new', '::DISPATCH( $::Signature, "new", { ' ),
+                            ::DISPATCH( $::Str, 'new', '(kp6-new \\\'signature ' ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH( $::Str, 'new', 'invocant => ' ),
+                                ::DISPATCH( $::Str, 'new', 'invocant: ' ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY', $inv,
@@ -4719,7 +4711,7 @@
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY',
-                                            ::DISPATCH( $::Str, 'new', 'array    => ::DISPATCH( $::Array, "new", { _array => [ ' ),
+                                            ::DISPATCH( $::Str, 'new', 'array: ::DISPATCH( $::Array, "new", { _array => [ ' ),
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY', $pos,
@@ -4730,7 +4722,7 @@
                                                     ::DISPATCH(
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
-                                                        ::DISPATCH( $::Str, 'new', 'hash     => ::DISPATCH( $::Hash,  "new", { _hash  => { ' ),
+                                                        ::DISPATCH( $::Str, 'new', 'hash: ::DISPATCH( $::Hash,  "new", { _hash  => { ' ),
                                                         ::DISPATCH(
                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                             'APPLY', $named,
@@ -4741,8 +4733,8 @@
                                                                 ::DISPATCH(
                                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                                     'APPLY',
-                                                                    ::DISPATCH( $::Str, 'new', 'return   => $::Undef, ' ),
-                                                                    ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '} )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                                                    ::DISPATCH( $::Str, 'new', 'return: $::Undef, ' ),
+                                                                    ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ')' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                                                                 )
                                                             )
                                                         )
@@ -4824,7 +4816,7 @@
                         };
                         do {
                             ::MODIFIED($s);
-                            $s = ::DISPATCH( $::Str, 'new', '::DISPATCH( $::Capture, "new", { ' );
+                            $s = ::DISPATCH( $::Str, 'new', '(kp6-new \\\'capture ' );
                         };
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', ::DISPATCH( $self, "invocant" ) ), "true" ), "p5landish" ) ) {
@@ -4835,10 +4827,8 @@
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY', $s,
                                             ::DISPATCH(
-                                                $GLOBAL::Code_infix_58__60__126__62_,
-                                                'APPLY',
-                                                ::DISPATCH( $::Str, 'new', 'invocant => ' ),
-                                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "invocant" ), 'emit_lisp', ), ::DISPATCH( $::Str, 'new', ', ' ) )
+                                                $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                                ::DISPATCH( $::Str, 'new', 'invocant: ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "invocant" ), 'emit_lisp', ), ::DISPATCH( $::Str, 'new', ', ' ) )
                                             )
                                         );
                                         }
@@ -4848,7 +4838,7 @@
                                 {
                                     do {
                                         ::MODIFIED($s);
-                                        $s = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $s, ::DISPATCH( $::Str, 'new', 'invocant => $::Undef, ' ) );
+                                        $s = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $s, ::DISPATCH( $::Str, 'new', 'invocant: $::Undef, ' ) );
                                         }
                                 }
                             }
@@ -4861,7 +4851,7 @@
                                     BEGIN { $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } ) }
                                     do {
                                         ::MODIFIED($s);
-                                        $s = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $s, ::DISPATCH( $::Str, 'new', 'array => ::DISPATCH( $::Array, "new", { _array => [ ' ) );
+                                        $s = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $s, ::DISPATCH( $::Str, 'new', 'array: ::DISPATCH( $::Array, "new", { _array => [ ' ) );
                                     };
                                     $item;
                                     {
@@ -4894,7 +4884,7 @@
                                     BEGIN { $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } ) }
                                     do {
                                         ::MODIFIED($s);
-                                        $s = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $s, ::DISPATCH( $::Str, 'new', 'hash => ::DISPATCH( $::Hash, "new", { _hash => { ' ) );
+                                        $s = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $s, ::DISPATCH( $::Str, 'new', 'hash: ::DISPATCH( $::Hash, "new", { _hash => { ' ) );
                                     };
                                     $item;
                                     {
@@ -4932,7 +4922,7 @@
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
-                        return ( ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $s, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' } )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) ) ) );
+                        return ( ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $s, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ')' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) ) ) );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
@@ -5001,11 +4991,11 @@
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH( $::Str, 'new', '::DISPATCH( $::Subset, "new", { ' ),
+                            ::DISPATCH( $::Str, 'new', '(kp6-new \\\'subset ' ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH( $::Str, 'new', 'base_class => ' ),
+                                ::DISPATCH( $::Str, 'new', 'base_class: ' ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
@@ -5017,7 +5007,7 @@
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY',
-                                            ::DISPATCH( $::Str, 'new', 'block => ' ),
+                                            ::DISPATCH( $::Str, 'new', 'block: ' ),
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
@@ -5028,7 +5018,7 @@
                                                     ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "block" ), 'block', ), 'emit_lisp', ),
                                                     ::DISPATCH(
                                                         $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                                        ::DISPATCH( $::Str, 'new', ' } ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' } )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                                        ::DISPATCH( $::Str, 'new', ' } ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ')' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                                                     )
                                                 )
                                             )
@@ -5105,11 +5095,11 @@
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH( $::Str, 'new', '::DISPATCH( $::Code, \\\'new\\\', { ' ),
+                            ::DISPATCH( $::Str, 'new', '(kp6-new \\\'code ' ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH( $::Str, 'new', 'code => sub { ' ),
+                                ::DISPATCH( $::Str, 'new', 'code: sub { ' ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
@@ -5129,19 +5119,16 @@
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
-                                                    ::DISPATCH( $::Str, 'new', ' }, ' ),
+                                                    ::DISPATCH( $::Str, 'new', ' ' ),
                                                     ::DISPATCH(
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
-                                                        ::DISPATCH( $::Str, 'new', 'signature => ' ),
+                                                        ::DISPATCH( $::Str, 'new', 'signature: ' ),
                                                         ::DISPATCH(
                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                             'APPLY',
                                                             ::DISPATCH( ::DISPATCH( $self, "block" ), 'emit_signature', ),
-                                                            ::DISPATCH(
-                                                                $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                                                ::DISPATCH( $::Str, 'new', ', ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' } )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
-                                                            )
+                                                            ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ')' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                                                         )
                                                     )
                                                 )
@@ -5219,11 +5206,11 @@
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH( $::Str, 'new', '::DISPATCH( $::Code, \\\'new\\\', { ' ),
+                            ::DISPATCH( $::Str, 'new', '(kp6-new \\\'code ' ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH( $::Str, 'new', 'code => sub { ' ),
+                                ::DISPATCH( $::Str, 'new', 'code: sub { ' ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
@@ -5239,19 +5226,16 @@
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
-                                                ::DISPATCH( $::Str, 'new', ' }, ' ),
+                                                ::DISPATCH( $::Str, 'new', ' } ' ),
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
-                                                    ::DISPATCH( $::Str, 'new', 'signature => ' ),
+                                                    ::DISPATCH( $::Str, 'new', 'signature: ' ),
                                                     ::DISPATCH(
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
                                                         ::DISPATCH( ::DISPATCH( $self, "block" ), 'emit_signature', ),
-                                                        ::DISPATCH(
-                                                            $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                                            ::DISPATCH( $::Str, 'new', ', ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' } )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
-                                                        )
+                                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ')' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                                                     )
                                                 )
                                             )

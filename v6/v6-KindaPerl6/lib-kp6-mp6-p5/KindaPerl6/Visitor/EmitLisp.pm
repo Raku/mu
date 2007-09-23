@@ -106,7 +106,7 @@ sub emit_arguments { my $self = shift; my $List__ = \@_; do { [] }; my  $array_ 
 ;
 package Lit::Object;
 sub new { shift; bless { @_ }, "Lit::Object" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; my  $fields = $self->{fields}; my  $str = ''; my  $field; do { for my $field ( @{$fields} ) { $str = ($str . ($field->[0]->emit_lisp() . (' => ' . ($field->[1]->emit_lisp() . ',')))) } }; ('::DISPATCH( $::' . ($self->{class} . (', \'new\', ' . ($str . (' )' . Main::newline()))))) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; my  $fields = $self->{fields}; my  $str = ''; my  $field; do { for my $field ( @{$fields} ) { $str = ($str . ($field->[0]->emit_lisp() . (' => ' . ($field->[1]->emit_lisp() . ',')))) } }; ('(kp6-new \'kp6-' . ($self->{class} . (' ' . ($str . (')' . Main::newline()))))) }
 
 
 ;
@@ -124,26 +124,26 @@ sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(kp6-find-packa
 ;
 package Assign;
 sub new { shift; bless { @_ }, "Assign" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; my  $node = $self->{parameters}; do { if ((Main::isa($node, 'Var') && @{$node->namespace()})) { $node = Apply->new( 'code' => Var->new( 'name' => 'ternary:<?? !!>','twigil' => '','sigil' => '&','namespace' => ['GLOBAL'], ),'arguments' => [Apply->new( 'arguments' => [$node],'code' => Var->new( 'name' => 'VAR_defined','twigil' => '','sigil' => '&','namespace' => ['GLOBAL'], ), ), $node, Bind->new( 'parameters' => $node,'arguments' => Call->new( 'invocant' => Var->new( 'name' => '::Scalar','twigil' => '','sigil' => '$','namespace' => [], ),'method' => 'new','hyper' => '', ), )], ) } else {  } }; ('::DISPATCH_VAR( ' . ($node->emit_lisp() . (', \'STORE\', ' . ($self->{arguments}->emit_lisp() . (' )' . Main::newline()))))) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; my  $node = $self->{parameters}; do { if ((Main::isa($node, 'Var') && @{$node->namespace()})) { $node = Apply->new( 'code' => Var->new( 'name' => 'ternary:<?? !!>','twigil' => '','sigil' => '&','namespace' => ['GLOBAL'], ),'arguments' => [Apply->new( 'arguments' => [$node],'code' => Var->new( 'name' => 'VAR_defined','twigil' => '','sigil' => '&','namespace' => ['GLOBAL'], ), ), $node, Bind->new( 'parameters' => $node,'arguments' => Call->new( 'invocant' => Var->new( 'name' => '::Scalar','twigil' => '','sigil' => '$','namespace' => [], ),'method' => 'new','hyper' => '', ), )], ) } else {  } }; ('(kp6-store \'' . ($node->emit_lisp() . (' ' . ($self->{arguments}->emit_lisp() . (')' . Main::newline()))))) }
 
 
 ;
 package Var;
 sub new { shift; bless { @_ }, "Var" }
 sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; my  $table = { '$' => 'kp6-','@' => 'kp6-List_','%' => 'kp6-Hash_','&' => 'kp6-Code_', }; do { if (($self->{twigil} eq '.')) { return(('::DISPATCH( $self, "' . ($self->{name} . ('" )' . Main::newline())))) } else {  } }; do { if (($self->{name} eq '/')) { return(($table->{$self->{sigil}} . 'MATCH')) } else {  } }; return(Main::mangle_name_lisp($self->{sigil}, $self->{twigil}, $self->{name}, $self->{namespace})) };
-sub perl { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( $::Signature::Item, "new", { ' . ('sigil  => \'' . ($self->{sigil} . ('\', ' . ('twigil => \'' . ($self->{twigil} . ('\', ' . ('name   => \'' . ($self->{name} . ('\', ' . ('namespace => [ ], ' . ('} )' . Main::newline())))))))))))) }
+sub perl { my $self = shift; my $List__ = \@_; do { [] }; ('(kp6-new \'signature-item ' . ('sigil: \'' . ($self->{sigil} . ('\', ' . ('twigil: \'' . ($self->{twigil} . ('\', ' . ('name: \'' . ($self->{name} . ('\', ' . ('namespace: [ ], ' . (')' . Main::newline())))))))))))) }
 
 
 ;
 package Bind;
 sub new { shift; bless { @_ }, "Bind" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; do { if (Main::isa($self->{parameters}, 'Call')) { return(Assign->new( 'parameters' => $self->{parameters},'arguments' => $self->{arguments}, )->emit_lisp()) } else {  } }; do { if (Main::isa($self->{parameters}, 'Lookup')) { return(Assign->new( 'parameters' => $self->{parameters},'arguments' => $self->{arguments}, )->emit_lisp()) } else {  } }; do { if (Main::isa($self->{parameters}, 'Index')) { return(Assign->new( 'parameters' => $self->{parameters},'arguments' => $self->{arguments}, )->emit_lisp()) } else {  } }; my  $str = ('::MODIFIED(' . ($self->{parameters}->emit_lisp() . (');' . Main::newline()))); $str = ($str . ($self->{parameters}->emit_lisp() . (' = ' . $self->{arguments}->emit_lisp()))); return(('do {' . ($str . '}'))) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; do { if (Main::isa($self->{parameters}, 'Call')) { return(Assign->new( 'parameters' => $self->{parameters},'arguments' => $self->{arguments}, )->emit_lisp()) } else {  } }; do { if (Main::isa($self->{parameters}, 'Lookup')) { return(Assign->new( 'parameters' => $self->{parameters},'arguments' => $self->{arguments}, )->emit_lisp()) } else {  } }; do { if (Main::isa($self->{parameters}, 'Index')) { return(Assign->new( 'parameters' => $self->{parameters},'arguments' => $self->{arguments}, )->emit_lisp()) } else {  } }; my  $str = ''; $str = ($str . ($self->{parameters}->emit_lisp() . (' = ' . $self->{arguments}->emit_lisp()))); return(('do {' . ($str . '}'))) }
 
 
 ;
 package Proto;
 sub new { shift; bless { @_ }, "Proto" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; return(('$::' . $self->{name})) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; return(('\'' . $self->{name})) }
 
 
 ;
@@ -191,31 +191,31 @@ sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; my  $decl = $self
 ;
 package Sig;
 sub new { shift; bless { @_ }, "Sig" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; my  $inv = '$::Undef'; do { if (Main::isa($self->{invocant}, 'Var')) { $inv = Main::perl($self->{invocant}, ) } else {  } }; my  $pos; my  $decl; do { for my $decl ( @{$self->{positional}} ) { $pos = ($pos . (Main::perl($decl, ) . ', ')) } }; my  $named = ''; ('::DISPATCH( $::Signature, "new", { ' . ('invocant => ' . ($inv . (', ' . ('array    => ::DISPATCH( $::Array, "new", { _array => [ ' . ($pos . (' ] } ), ' . ('hash     => ::DISPATCH( $::Hash,  "new", { _hash  => { ' . ($named . (' } } ), ' . ('return   => $::Undef, ' . ('} )' . Main::newline())))))))))))) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; my  $inv = '$::Undef'; do { if (Main::isa($self->{invocant}, 'Var')) { $inv = Main::perl($self->{invocant}, ) } else {  } }; my  $pos; my  $decl; do { for my $decl ( @{$self->{positional}} ) { $pos = ($pos . (Main::perl($decl, ) . ', ')) } }; my  $named = ''; ('(kp6-new \'signature ' . ('invocant: ' . ($inv . (', ' . ('array: ::DISPATCH( $::Array, "new", { _array => [ ' . ($pos . (' ] } ), ' . ('hash: ::DISPATCH( $::Hash,  "new", { _hash  => { ' . ($named . (' } } ), ' . ('return: $::Undef, ' . (')' . Main::newline())))))))))))) }
 
 
 ;
 package Capture;
 sub new { shift; bless { @_ }, "Capture" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; my  $s = '::DISPATCH( $::Capture, "new", { '; do { if (defined($self->{invocant})) { $s = ($s . ('invocant => ' . ($self->{invocant}->emit_lisp() . ', '))) } else { $s = ($s . 'invocant => $::Undef, ') } }; do { if (defined($self->{array})) { $s = ($s . 'array => ::DISPATCH( $::Array, "new", { _array => [ ');my  $item;do { for my $item ( @{$self->{array}} ) { $s = ($s . ($item->emit_lisp() . ', ')) } };$s = ($s . ' ] } ),') } else {  } }; do { if (defined($self->{hash})) { $s = ($s . 'hash => ::DISPATCH( $::Hash, "new", { _hash => { ');my  $item;do { for my $item ( @{$self->{hash}} ) { $s = ($s . ($item->[0]->emit_lisp() . ('->{_value} => ' . ($item->[1]->emit_lisp() . ', ')))) } };$s = ($s . ' } } ),') } else {  } }; return(($s . (' } )' . Main::newline()))) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; my  $s = '(kp6-new \'capture '; do { if (defined($self->{invocant})) { $s = ($s . ('invocant: ' . ($self->{invocant}->emit_lisp() . ', '))) } else { $s = ($s . 'invocant: $::Undef, ') } }; do { if (defined($self->{array})) { $s = ($s . 'array: ::DISPATCH( $::Array, "new", { _array => [ ');my  $item;do { for my $item ( @{$self->{array}} ) { $s = ($s . ($item->emit_lisp() . ', ')) } };$s = ($s . ' ] } ),') } else {  } }; do { if (defined($self->{hash})) { $s = ($s . 'hash: ::DISPATCH( $::Hash, "new", { _hash => { ');my  $item;do { for my $item ( @{$self->{hash}} ) { $s = ($s . ($item->[0]->emit_lisp() . ('->{_value} => ' . ($item->[1]->emit_lisp() . ', ')))) } };$s = ($s . ' } } ),') } else {  } }; return(($s . (')' . Main::newline()))) }
 
 
 ;
 package Subset;
 sub new { shift; bless { @_ }, "Subset" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( $::Subset, "new", { ' . ('base_class => ' . ($self->{base_class}->emit_lisp() . (', ' . ('block => ' . ('sub { local $_ = shift; ' . ($self->{block}->block()->emit_lisp() . (' } ' . (' } )' . Main::newline()))))))))) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(kp6-new \'subset ' . ('base_class: ' . ($self->{base_class}->emit_lisp() . (', ' . ('block: ' . ('sub { local $_ = shift; ' . ($self->{block}->block()->emit_lisp() . (' } ' . (')' . Main::newline()))))))))) }
 
 
 ;
 package Method;
 sub new { shift; bless { @_ }, "Method" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( $::Code, \'new\', { ' . ('code => sub { ' . ($self->{block}->emit_declarations() . ('$self = shift; ' . ($self->{block}->emit_arguments() . ($self->{block}->emit_body() . (' }, ' . ('signature => ' . ($self->{block}->emit_signature() . (', ' . (' } )' . Main::newline()))))))))))) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(kp6-new \'code ' . ('code: sub { ' . ($self->{block}->emit_declarations() . ('$self = shift; ' . ($self->{block}->emit_arguments() . ($self->{block}->emit_body() . (' ' . ('signature: ' . ($self->{block}->emit_signature() . (')' . Main::newline())))))))))) }
 
 
 ;
 package Sub;
 sub new { shift; bless { @_ }, "Sub" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( $::Code, \'new\', { ' . ('code => sub { ' . ($self->{block}->emit_declarations() . ($self->{block}->emit_arguments() . ($self->{block}->emit_body() . (' }, ' . ('signature => ' . ($self->{block}->emit_signature() . (', ' . (' } )' . Main::newline())))))))))) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; ('(kp6-new \'code ' . ('code: sub { ' . ($self->{block}->emit_declarations() . ($self->{block}->emit_arguments() . ($self->{block}->emit_body() . (' } ' . ('signature: ' . ($self->{block}->emit_signature() . (')' . Main::newline()))))))))) }
 
 
 ;
