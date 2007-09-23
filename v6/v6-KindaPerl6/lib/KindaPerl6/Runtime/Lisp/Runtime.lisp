@@ -6,7 +6,7 @@
 		"Hash" "Array"                 ; Containers
 		"Package"
 		"foreign" "packages"           ; Utilities
-		"display" "functions"          ; Utilities
+		"display" "functions" "coerce" ; Utilities
 		"GLOBAL"                       ; Functions
 		))
   (load (compile-file (format nil "lib/KindaPerl6/Runtime/Lisp/~A.lisp" file))))
