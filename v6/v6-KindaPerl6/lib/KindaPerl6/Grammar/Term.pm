@@ -189,5 +189,11 @@ token term {
 #   | <index>     # $obj[1, 2, 3]
 #   | <lookup>    # $obj{'1', '2', '3'}
     | <apply>   { return $$<apply>  }  # self; print 1,2,3
+    | \<  <angle_quoted>  \>
+        { return ::Apply(
+            'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'prefix:<qw>', namespace => [ ] ),
+            'arguments' => [ ::Val::Buf( buf => ~$<angle_quoted> ) ],
+          ) }
+
 };
 }
