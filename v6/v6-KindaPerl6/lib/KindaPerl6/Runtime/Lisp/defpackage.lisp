@@ -27,4 +27,4 @@
    #:perl->cl
 
    #:*kp6-packages*
-   ))
+   #:with-kp6-package))

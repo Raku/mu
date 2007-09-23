@@ -10,6 +10,9 @@
     (setf (gethash key hash) value)
     hash))
 
+(defmethod (setf kp6-lookup) (value (self kp6-Hash) key)
+  (kp6-store self key value))
+
 ; LOOKUP is what FETCH is in Perl 5, apperently FETCH now gets the
 ; whole hash object *shrug*
 (defmethod kp6-LOOKUP ((self kp6-Hash) key)

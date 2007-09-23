@@ -194,8 +194,18 @@
                                                                                             ::DISPATCH(
                                                                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                                                                 'APPLY',
-                                                                                                ::DISPATCH( ::DISPATCH( $self, "body" ), 'emit_lisp', ),
-                                                                                                ::DISPATCH( $Main::Code_newline, 'APPLY', )
+                                                                                                ::DISPATCH( $::Str, 'new', '(with-kp6-package "GLOBAL"' ),
+                                                                                                ::DISPATCH(
+                                                                                                    $GLOBAL::Code_infix_58__60__126__62_,
+                                                                                                    'APPLY',
+                                                                                                    ::DISPATCH( $Main::Code_newline, 'APPLY', ),
+                                                                                                    ::DISPATCH(
+                                                                                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                                                                                        'APPLY',
+                                                                                                        ::DISPATCH( ::DISPATCH( $self, "body" ), 'emit_lisp', ),
+                                                                                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ')' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                                                                                    )
+                                                                                                )
                                                                                             )
                                                                                         )
                                                                                     )
@@ -2531,19 +2541,14 @@
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH( $::Str, 'new', '(kp6-store \\\'' ),
+                            ::DISPATCH( $::Str, 'new', '(setf ' ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH( $node, 'emit_lisp', ),
+                                ::DISPATCH( ::DISPATCH( $self, "node" ), 'emit_lisp', ),
                                 ::DISPATCH(
-                                    $GLOBAL::Code_infix_58__60__126__62_,
-                                    'APPLY',
-                                    ::DISPATCH( $::Str, 'new', ' ' ),
-                                    ::DISPATCH(
-                                        $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                        ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'emit_lisp', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ')' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
-                                    )
+                                    $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                    ::DISPATCH( $::Str, 'new', ' ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'emit_lisp', ), ::DISPATCH( $::Str, 'new', ')' ) )
                                 )
                             )
                         );
@@ -2598,6 +2603,9 @@
                         my $table;
                         $table = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$table' } ) unless defined $table;
                         BEGIN { $table = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$table' } ) }
+                        my $namespace;
+                        $namespace = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$namespace' } ) unless defined $namespace;
+                        BEGIN { $namespace = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$namespace' } ) }
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
                         $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
@@ -2629,14 +2637,6 @@
                             );
                         };
                         do {
-                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $self, "name" ), ::DISPATCH( $::Str, 'new', 'KP6' ) ), "true" ), "p5landish" ) ) {
-                                {
-                                    return ( ::DISPATCH( $::Str, 'new', '*kp6-packages*' ) )
-                                }
-                            }
-                            else { ::DISPATCH( $::Bit, "new", 0 ) }
-                        };
-                        do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $self, "twigil" ), ::DISPATCH( $::Str, 'new', '.' ) ), "true" ), "p5landish" ) ) {
                                 {
                                     return (
@@ -2662,7 +2662,47 @@
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
-                        return ( ::DISPATCH( $Main::Code_mangle_name_lisp, 'APPLY', ::DISPATCH( $self, "sigil" ), ::DISPATCH( $self, "twigil" ), ::DISPATCH( $self, "name" ), ::DISPATCH( $self, "namespace" ) ) );
+                        do {
+                            ::MODIFIED($namespace);
+                            $namespace = ::DISPATCH( $self, "namespace" );
+                        };
+                        do {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $namespace ) ), "true" ), "p5landish" ) ) {
+                                {
+                                    do {
+                                        ::MODIFIED($namespace);
+                                        $namespace = ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Str, 'new', 'GLOBAL' ) ] } );
+                                        }
+                                }
+                            }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
+                        };
+                        return (
+                            ::DISPATCH(
+                                $GLOBAL::Code_infix_58__60__126__62_,
+                                'APPLY',
+                                ::DISPATCH( $::Str, 'new', '(kp6-lookup (kp6-lookup *kp6-packages* "' ),
+                                ::DISPATCH(
+                                    $GLOBAL::Code_infix_58__60__126__62_,
+                                    'APPLY',
+                                    ::DISPATCH( $GLOBAL::Code_join, 'APPLY', ::DISPATCH( $::Str, 'new', '::' ), ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $namespace ) ),
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                        'APPLY',
+                                        ::DISPATCH( $::Str, 'new', '") (cons \\\'' ),
+                                        ::DISPATCH(
+                                            $GLOBAL::Code_infix_58__60__126__62_,
+                                            'APPLY',
+                                            ::DISPATCH( $self, "sigil" ),
+                                            ::DISPATCH(
+                                                $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                                ::DISPATCH( $::Str, 'new', ' "' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $self, "name" ), ::DISPATCH( $::Str, 'new', '"))' ) )
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
@@ -4103,6 +4143,22 @@
                             ::MODIFIED($name);
                             $name = ::DISPATCH( ::DISPATCH( $self, "var" ), 'name', );
                         };
+                        return (
+                            ::DISPATCH(
+                                $GLOBAL::Code_infix_58__60__126__62_,
+                                'APPLY',
+                                ::DISPATCH( $::Str, 'new', '(define-variable (cons \\\'' ),
+                                ::DISPATCH(
+                                    $GLOBAL::Code_infix_58__60__126__62_,
+                                    'APPLY',
+                                    ::DISPATCH( ::DISPATCH( $self, "var" ), 'sigil', ),
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                        ::DISPATCH( $::Str, 'new', ' "' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "var" ), 'name', ), ::DISPATCH( $::Str, 'new', '") nil)' ) )
+                                    )
+                                )
+                            )
+                        );
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $decl, ::DISPATCH( $::Str, 'new', 'has' ) ), "true" ), "p5landish" ) ) {
                                 {

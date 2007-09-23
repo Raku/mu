@@ -12,3 +12,9 @@
 
   ;(defun kp6-remove-package (name)
   ;  (kp6-DELETE packages name)))
+
+(defmacro with-kp6-package (package &body body)
+  (let ((package-object (kp6-find-package package)))
+    `(flet ((define-variable (name type value)
+		(setf (kp6-lookup ,package-object ,name) ,value)))
+      ,@body)))

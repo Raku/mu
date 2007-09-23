@@ -1,7 +1,7 @@
 (in-package #:kp6-cl)
 
 (defun kp6-normalize-function-name (name)
-  (concatenate 'string "Code_" name))
+  (cons '& name))
 
 (defun kp6-find-function (name &optional (package "GLOBAL"))
   (let ((package-object (kp6-find-package package)))

@@ -28,7 +28,8 @@ class CompUnit {
         ~ '(defpackage #:' ~ $.name ~ Main::newline()
         ~ '  (:use #:cl #:kp6-cl))' ~ Main::newline()
         ~ '(in-package #:' ~ $.name ~ ')' ~ Main::newline()
-        ~ $.body.emit_lisp ~ Main::newline()
+	~ '(with-kp6-package "GLOBAL"' ~ Main::newline()
+        ~ $.body.emit_lisp ~ ")" ~ Main::newline()
     }
 }
 
@@ -243,7 +244,8 @@ class Assign {
 
         };
 
-        '(kp6-store \'' ~ $node.emit_lisp ~ ' ' ~ $.arguments.emit_lisp ~ ')' ~ Main::newline();
+	'(setf ' ~ $.node.emit_lisp ~ ' ' ~ $.arguments.emit_lisp ~ ')';
+        #'(kp6-store \'' ~ $node.emit_lisp ~ ' ' ~ $.arguments.emit_lisp ~ ')' ~ Main::newline();
     }
 }
 
@@ -280,7 +282,7 @@ class Var {
 	    $namespace := [ 'GLOBAL' ];
 	}
 
-	return '(kp6-lookup (kp6-lookup *kp6-packages* "' ~ (join '::', @($namespace)) ~ '") (cons \'' ~ $.sigil ~ ' "' ~ $.name ~ '")';
+	return '(kp6-lookup (kp6-lookup *kp6-packages* "' ~ (join '::', @($namespace)) ~ '") (cons \'' ~ $.sigil ~ ' "' ~ $.name ~ '"))';
     };
     method perl {
         # this is used by the signature emitter
@@ -464,6 +466,10 @@ class Decl {
     method emit_lisp {
         my $decl := $.decl;
         my $name := $.var.name;
+
+	# XXX hack: always defines a package variable
+	return '(define-variable (cons \'' ~ $.var.sigil ~ ' "' ~ $.var.name ~ '") nil)';
+
         if $decl eq 'has' {
             return 'sub ' ~ $name ~ ' { ' ~
             '@_ == 1 ' ~
