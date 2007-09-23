@@ -24,4 +24,6 @@
 
    ; foreign.lisp
    #:cl->perl
+
+   #:kp6-packages
    ))
