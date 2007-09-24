@@ -850,15 +850,15 @@ $::HashCell = make_class( proto => $::HashCell, name=>"HashCell",parent=>[$::met
             };
         },
     STORE=>sub {
-           $_[0]{_value}{cell}{ $_[0]{_value}{key} } = $_[1];
+           ${ $_[0]{_value}{cell} }{ $_[0]{_value}{key} } = $_[1];
         },
     FETCH=>sub {
-           exists $_[0]{_value}{cell}{ $_[0]{_value}{key} } 
-                ? $_[0]{_value}{cell}{ $_[0]{_value}{key} }
+           exists ${ $_[0]{_value}{cell} }{ $_[0]{_value}{key} } 
+                ? ${ $_[0]{_value}{cell} }{ $_[0]{_value}{key} }
                 : ::DISPATCH($::Undef,'new',0);
         },
     exists => sub {
-           ::DISPATCH( $::Bit, 'new', exists $_[0]{_value}{cell}{ $_[0]{_value}{key} } ? 1 : 0 )
+           ::DISPATCH( $::Bit, 'new', exists ${ $_[0]{_value}{cell} }{ $_[0]{_value}{key} } ? 1 : 0 )
         },
 });
 

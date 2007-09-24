@@ -26,6 +26,14 @@ class Array is Container {
         return @result;
     };
 
+    method uniq {
+        my %h;
+        for @(self) -> $v { 
+            %h{$v} = 1;
+        };
+        %h.keys;
+    };
+
     # XXX waits for infix <
 #    method min {
 #        my $res;
