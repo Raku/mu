@@ -4,7 +4,7 @@
 		"Undef"                        ; Undef
 		"Bit" "Num" "Int" "Str" "Code" ; Values
 		"Hash" "Array"                 ; Containers
-		"Package"
+		"Package" "Pad"
 		"foreign" "packages"           ; Utilities
 		"display" "functions" "coerce" ; Utilities
 		"GLOBAL"                       ; Functions

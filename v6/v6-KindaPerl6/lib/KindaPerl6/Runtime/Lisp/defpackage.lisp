@@ -27,4 +27,8 @@
    #:perl->cl
 
    #:*kp6-packages*
-   #:with-kp6-package))
+   #:with-kp6-package
+   #:kp6-define-package-variable
+   #:kp6-set-package-variable
+
+   #:kp6-generate-variable))

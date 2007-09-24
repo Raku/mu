@@ -244,7 +244,7 @@ class Assign {
 
         };
 
-	'(setf ' ~ $.node.emit_lisp ~ ' ' ~ $.arguments.emit_lisp ~ ')';
+	'(setf ' ~ $node.emit_lisp ~ ' ' ~ $.arguments.emit_lisp ~ ')';
         #'(kp6-store \'' ~ $node.emit_lisp ~ ' ' ~ $.arguments.emit_lisp ~ ')' ~ Main::newline();
     }
 }
@@ -279,10 +279,10 @@ class Var {
 
 	my $namespace := $.namespace;
 	if !(@($namespace)) {
-	    return '(kp6-lookup (kp6-lookup *kp6-packages* "GLOBAL") (cons (intern "' ~ $.sigil ~ '" (find-package \'kp6-cl)) ' ~ $.name ~ '))';
+	    return '(kp6-lookup (kp6-lookup *kp6-packages* "GLOBAL") (kp6-generate-variable "' ~ $.sigil ~ '" "' ~ $.name ~ '"))';
 	}
 
-	return '(kp6-lookup (kp6-lookup *kp6-packages* "' ~ (join '::', @($namespace)) ~ '") (cons (intern "' ~ $.sigil ~ '" (find-package \'kp6-cl)) "' ~ $.name ~ '"))';
+	return '(kp6-lookup (kp6-lookup *kp6-packages* "' ~ (join '::', @($namespace)) ~ '") (kp6-generate-variable "' ~ $.sigil ~ '" "' ~ $.name ~ '"))';
     };
     method perl {
         # this is used by the signature emitter
@@ -468,7 +468,7 @@ class Decl {
         my $name := $.var.name;
 
 	# XXX hack: always defines a package variable
-	return '(define-variable (cons \'' ~ $.var.sigil ~ ' "' ~ $.var.name ~ '") nil)';
+	return '(kp6-define-package-variable (kp6-generate-variable "' ~ $.var.sigil ~ '" "' ~ $.var.name ~ '"))';
 
         if $decl eq 'has' {
             return 'sub ' ~ $name ~ ' { ' ~

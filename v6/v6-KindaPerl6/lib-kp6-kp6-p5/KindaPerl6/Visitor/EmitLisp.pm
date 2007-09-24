@@ -2545,7 +2545,7 @@
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH( ::DISPATCH( $self, "node" ), 'emit_lisp', ),
+                                ::DISPATCH( $node, 'emit_lisp', ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
                                     ::DISPATCH( $::Str, 'new', ' ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'emit_lisp', ), ::DISPATCH( $::Str, 'new', ')' ) )
@@ -2673,14 +2673,14 @@
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY',
-                                            ::DISPATCH( $::Str, 'new', '(kp6-lookup (kp6-lookup *kp6-packages* "GLOBAL") (cons (intern "' ),
+                                            ::DISPATCH( $::Str, 'new', '(kp6-lookup (kp6-lookup *kp6-packages* "GLOBAL") (kp6-generate-variable "' ),
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
                                                 ::DISPATCH( $self, "sigil" ),
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                                    ::DISPATCH( $::Str, 'new', '" (find-package \\\'kp6-cl)) ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $self, "name" ), ::DISPATCH( $::Str, 'new', '))' ) )
+                                                    ::DISPATCH( $::Str, 'new', '" "' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $self, "name" ), ::DISPATCH( $::Str, 'new', '"))' ) )
                                                 )
                                             )
                                         )
@@ -2701,14 +2701,14 @@
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
-                                        ::DISPATCH( $::Str, 'new', '") (cons (intern "' ),
+                                        ::DISPATCH( $::Str, 'new', '") (kp6-generate-variable "' ),
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY',
                                             ::DISPATCH( $self, "sigil" ),
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                                ::DISPATCH( $::Str, 'new', '" (find-package \\\'kp6-cl)) "' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $self, "name" ), ::DISPATCH( $::Str, 'new', '"))' ) )
+                                                ::DISPATCH( $::Str, 'new', '" "' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $self, "name" ), ::DISPATCH( $::Str, 'new', '"))' ) )
                                             )
                                         )
                                     )
@@ -4159,14 +4159,14 @@
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH( $::Str, 'new', '(define-variable (cons \\\'' ),
+                                ::DISPATCH( $::Str, 'new', '(kp6-define-package-variable (kp6-generate-variable "' ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
                                     ::DISPATCH( ::DISPATCH( $self, "var" ), 'sigil', ),
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                        ::DISPATCH( $::Str, 'new', ' "' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "var" ), 'name', ), ::DISPATCH( $::Str, 'new', '") nil)' ) )
+                                        ::DISPATCH( $::Str, 'new', '" "' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "var" ), 'name', ), ::DISPATCH( $::Str, 'new', '"))' ) )
                                     )
                                 )
                             )
