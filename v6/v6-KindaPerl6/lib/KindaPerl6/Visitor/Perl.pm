@@ -22,9 +22,14 @@ class KindaPerl6::Visitor::Perl {
                         $result := $result ~ ' [ ... ], ';
                     }
                     else {
+                    if $subitem.isa('Str') {
+                        $result := $result ~ "\'" ~ $data{$item} ~ "\', ";
+                    }
+                    else {
                         if ($subitem) {
-                        $result := $result ~ $subitem.emit( self ) ~ ", ";
+                            $result := $result ~ $subitem.emit( self ) ~ ", ";
                         }
+                    };
                     };
                 };
                 $result := $result ~ " ], ";
