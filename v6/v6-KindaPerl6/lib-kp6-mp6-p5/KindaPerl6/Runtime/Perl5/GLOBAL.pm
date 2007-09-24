@@ -173,7 +173,6 @@ package GLOBAL;
     sub False    { ::DISPATCH( $::Bit, 'new',0 ) }  
     sub TODO     {confess("TODO");}
     sub qw {
-        #print "# QW qw/"._str($_[0])."/ \n";
         ::DISPATCH( $::Array, 'new', { 
                 _array => [ 
                     map {

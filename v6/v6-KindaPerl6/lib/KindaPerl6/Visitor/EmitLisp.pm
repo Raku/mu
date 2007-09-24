@@ -279,10 +279,10 @@ class Var {
 
 	my $namespace := $.namespace;
 	if !(@($namespace)) {
-	    $namespace := [ 'GLOBAL' ];
+	    return '(kp6-lookup (kp6-lookup *kp6-packages* "GLOBAL") (cons (intern "' ~ $.sigil ~ '" (find-package \'kp6-cl)) ' ~ $.name ~ '))';
 	}
 
-	return '(kp6-lookup (kp6-lookup *kp6-packages* "' ~ (join '::', @($namespace)) ~ '") (cons \'' ~ $.sigil ~ ' "' ~ $.name ~ '"))';
+	return '(kp6-lookup (kp6-lookup *kp6-packages* "' ~ (join '::', @($namespace)) ~ '") (cons (intern "' ~ $.sigil ~ '" (find-package \'kp6-cl)) "' ~ $.name ~ '"))';
     };
     method perl {
         # this is used by the signature emitter

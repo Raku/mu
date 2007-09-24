@@ -2669,10 +2669,22 @@
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $namespace ) ), "true" ), "p5landish" ) ) {
                                 {
-                                    do {
-                                        ::MODIFIED($namespace);
-                                        $namespace = ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Str, 'new', 'GLOBAL' ) ] } );
-                                        }
+                                    return (
+                                        ::DISPATCH(
+                                            $GLOBAL::Code_infix_58__60__126__62_,
+                                            'APPLY',
+                                            ::DISPATCH( $::Str, 'new', '(kp6-lookup (kp6-lookup *kp6-packages* "GLOBAL") (cons (intern "' ),
+                                            ::DISPATCH(
+                                                $GLOBAL::Code_infix_58__60__126__62_,
+                                                'APPLY',
+                                                ::DISPATCH( $self, "sigil" ),
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                                    ::DISPATCH( $::Str, 'new', '" (find-package \\\'kp6-cl)) ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $self, "name" ), ::DISPATCH( $::Str, 'new', '))' ) )
+                                                )
+                                            )
+                                        )
+                                        )
                                 }
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
@@ -2689,14 +2701,14 @@
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
-                                        ::DISPATCH( $::Str, 'new', '") (cons \\\'' ),
+                                        ::DISPATCH( $::Str, 'new', '") (cons (intern "' ),
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY',
                                             ::DISPATCH( $self, "sigil" ),
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                                ::DISPATCH( $::Str, 'new', ' "' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $self, "name" ), ::DISPATCH( $::Str, 'new', '"))' ) )
+                                                ::DISPATCH( $::Str, 'new', '" (find-package \\\'kp6-cl)) "' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $self, "name" ), ::DISPATCH( $::Str, 'new', '"))' ) )
                                             )
                                         )
                                     )
