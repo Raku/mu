@@ -59,8 +59,7 @@ class Val::Buf {
 
 class Val::Char {
     method emit_lisp { 
-        # XXX Char != Str
-        "(make-instance \'kp6-Str :value (code-char " ~ $.char ~ "))" ~ Main::newline();
+	'(make-instance \'kp6-Char :value (code-char ' ~ $.char ~ '))'
     }
 }
 
