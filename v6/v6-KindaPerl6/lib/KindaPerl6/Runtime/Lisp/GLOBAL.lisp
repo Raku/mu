@@ -13,7 +13,7 @@ result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
       (when (null (kp6-find-package ,package))
 	(kp6-create-package ,package))
       (kp6-store (kp6-find-package ,package)
-       ,(kp6-normalize-function-name name)
+       ',(kp6-normalize-function-name name)
        (make-instance 'kp6-Code
 	:value #'(lambda ,params
 		   ,@body
