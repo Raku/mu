@@ -55,7 +55,7 @@ class KindaPerl6::Traverse {
     }
 
     sub visit_subnode ( $visitor, $subnode, $path ) {
-        if (!($subnode)) {
+        if (!(defined $subnode)) {
             return;
         }
         if     $subnode.isa('Array') 
