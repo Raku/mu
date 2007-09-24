@@ -25,9 +25,12 @@ class CompUnit {
         # --- SETUP CLASS VARIABLES
 
             '.sub ' ~ Main::quote ~ '_class_vars_' ~ Main::quote ~ Main::newline();
-        for %.attributes.keys -> $item {
-            $s := $s ~ $item.emit_parrot;
-        };
+        
+        # unused - 'has' declarations instead
+        # for %.attributes.keys -> $item {
+        #    $s := $s ~ $item.emit_parrot;
+        # };
+
         $s := $s ~
             '.end' ~ Main::newline() ~ Main::newline();
         return $s;

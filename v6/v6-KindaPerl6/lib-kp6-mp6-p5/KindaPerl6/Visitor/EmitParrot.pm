@@ -16,7 +16,7 @@ sub attributes { @_ == 1 ? ( $_[0]->{attributes} ) : ( $_[0]->{attributes} = $_[
 sub methods { @_ == 1 ? ( $_[0]->{methods} ) : ( $_[0]->{methods} = $_[1] ) };
 sub traits { @_ == 1 ? ( $_[0]->{traits} ) : ( $_[0]->{traits} = $_[1] ) };
 sub body { @_ == 1 ? ( $_[0]->{body} ) : ( $_[0]->{body} = $_[1] ) };
-sub emit_parrot { my $self = shift; my $List__ = \@_; do { [] }; my  $s = ('.namespace [ ' . (Main::quote() . ($self->{name} . (Main::quote() . (' ] ' . (Main::newline() . ('.sub _ :main' . (Main::newline() . ('.end' . (Main::newline() . (Main::newline() . ('.sub ' . (Main::quote() . ('_class_vars_' . (Main::quote() . Main::newline()))))))))))))))); do { for my $item ( $self->{attributes}->keys() ) { $s = ($s . $item->emit_parrot()) } }; $s = ($s . ('.end' . (Main::newline() . Main::newline()))); return($s) }
+sub emit_parrot { my $self = shift; my $List__ = \@_; do { [] }; my  $s = ('.namespace [ ' . (Main::quote() . ($self->{name} . (Main::quote() . (' ] ' . (Main::newline() . ('.sub _ :main' . (Main::newline() . ('.end' . (Main::newline() . (Main::newline() . ('.sub ' . (Main::quote() . ('_class_vars_' . (Main::quote() . Main::newline()))))))))))))))); $s = ($s . ('.end' . (Main::newline() . Main::newline()))); return($s) }
 
 
 ;
