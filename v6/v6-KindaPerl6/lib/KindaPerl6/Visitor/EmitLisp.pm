@@ -85,7 +85,7 @@ class Native::Buf {
 
 class Lit::Seq {
     method emit_lisp {
-        '(' ~ (@.seq.>>emit_lisp).join(' ') ~ ')';
+        '(list ' ~ (@.seq.>>emit_lisp).join(' ') ~ ')';
     }
 }
 
