@@ -28,8 +28,9 @@ class CompUnit {
         ~ '(defpackage #:' ~ $.name ~ Main::newline()
         ~ '  (:use #:cl #:kp6-cl))' ~ Main::newline()
         ~ '(in-package #:' ~ $.name ~ ')' ~ Main::newline()
-	~ '(with-kp6-package "GLOBAL"' ~ Main::newline()
-        ~ $.body.emit_lisp ~ ")" ~ Main::newline()
+        ~ '(defun Main () (with-kp6-package "GLOBAL"' ~ Main::newline()
+        ~ $.body.emit_lisp ~ "))" ~ Main::newline()
+        ~ '(Main::Main)' ~ Main::newline()
     }
 }
 
