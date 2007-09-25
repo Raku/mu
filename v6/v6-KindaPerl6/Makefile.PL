@@ -82,10 +82,15 @@ sub top_targets
     # Add the kp6 targets
     $inherited =~ s/^(all .*)/$1 \$(kp6_mp6_OBJ) \$(kp6_kp6_OBJ) \$(kp6_mp6_modules_OBJ) \$(kp6_kp6_modules_OBJ) kp6-kp6.pl/m;
 
+    # Add kp6_mp6 only targets
+    $inherited .= "\nkp6-mp6: \$(kp6_mp6_OBJ) \$(kp6_mp6_modules_OBJ)\n\t\$(NOECHO) \$(NOOP)\n";
+
     return $inherited . "\n" .
 <<'END';
 # v6-KindaPerl6 specific targets:
 #all: $(kp6_mp6_OBJ) $(kp6_kp6_OBJ) $(kp6_mp6_modules_OBJ) $(kp6_kp6_modules_OBJ) kp6-kp6.pl
+#kp6-mp6: $(kp6_mp6_OBJ) $(kp6_mp6_modules_OBJ)
+
 
 lib-kp6-mp6-p5/KindaPerl6/Runtime/Perl6/%.pm: lib/KindaPerl6/Runtime/Perl6/%.pm
 	@echo COMPILE $< $@
