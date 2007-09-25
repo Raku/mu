@@ -12,16 +12,10 @@
     BEGIN { $_MODIFIED = {} }
     BEGIN { $_ = ::DISPATCH( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
     {
-        my $table;
-        $table = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$table' } ) unless defined $table;
-        BEGIN { $table = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$table' } ) }
         do {
             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::KindaPerl6::Visitor::Scope ), "true" ), "p5landish" ) ) { }
             else {
                 {
-                    my $table;
-                    $table = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$table' } ) unless defined $table;
-                    BEGIN { $table = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$table' } ) }
                     do {
                         ::MODIFIED($::KindaPerl6::Visitor::Scope);
                         $::KindaPerl6::Visitor::Scope = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'KindaPerl6::Visitor::Scope' ) ), 'PROTOTYPE', );
@@ -64,28 +58,48 @@
                             ::MODIFIED($node_name);
                             $node_name = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) );
                         };
-                        return ($::Undef);
                         do {
-                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $node_name, ::DISPATCH( $::Str, 'new', 'Var' ) ), "true" ), "p5landish" ) ) {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $node_name, ::DISPATCH( $::Str, 'new', 'Lit::Code' ) ), "true" ), "p5landish" ) ) {
                                 {
-                                    do {
-                                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $node, 'namespace', ) ), "true" ), "p5landish" ) ) {
-                                            {
-                                                return (
-                                                    ::DISPATCH(
-                                                        $::Lookup,
-                                                        'new',
-                                                        ::DISPATCH(
-                                                            $::NamedArgument,
-                                                            "new",
-                                                            {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'obj' ),
-                                                                value           => ::DISPATCH(
-                                                                    $::Lookup,
+                                    return (
+                                        ::DISPATCH(
+                                            $::Lit::Code,
+                                            'new',
+                                            ::DISPATCH(
+                                                $::NamedArgument,
+                                                "new",
+                                                {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'pad' ),
+                                                    value           => ::DISPATCH( $node,  'pad', ),
+                                                }
+                                            ),
+                                            ::DISPATCH(
+                                                $::NamedArgument,
+                                                "new",
+                                                {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'state' ),
+                                                    value           => ::DISPATCH( $node,  'state', ),
+                                                }
+                                            ),
+                                            ::DISPATCH(
+                                                $::NamedArgument,
+                                                "new",
+                                                {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'sig' ),
+                                                    value           => ::DISPATCH( $node,  'sig', ),
+                                                }
+                                            ),
+                                            ::DISPATCH(
+                                                $::NamedArgument,
+                                                "new",
+                                                {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'body' ),
+                                                    value           => ::DISPATCH(
+                                                        $::Array, "new",
+                                                        {   _array => [
+                                                                ::DISPATCH(
+                                                                    $::Assign,
                                                                     'new',
                                                                     ::DISPATCH(
                                                                         $::NamedArgument,
                                                                         "new",
-                                                                        {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'obj' ),
+                                                                        {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'parameters' ),
                                                                             value           => ::DISPATCH(
                                                                                 $::Var, 'new',
                                                                                 ::DISPATCH(
@@ -99,7 +113,7 @@
                                                                                     $::NamedArgument,
                                                                                     "new",
                                                                                     {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'name' ),
-                                                                                        value           => ::DISPATCH( $::Str, 'new', 'KP6' ),
+                                                                                        value           => ::DISPATCH( $::Str, 'new', 'MY' ),
                                                                                     }
                                                                                 ),
                                                                                 ::DISPATCH(
@@ -113,7 +127,7 @@
                                                                                     $::NamedArgument,
                                                                                     "new",
                                                                                     {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'sigil' ),
-                                                                                        value           => ::DISPATCH( $::Str, 'new', '%' ),
+                                                                                        value           => ::DISPATCH( $::Str, 'new', '$' ),
                                                                                     }
                                                                                 ),
                                                                             ),
@@ -122,46 +136,187 @@
                                                                     ::DISPATCH(
                                                                         $::NamedArgument,
                                                                         "new",
-                                                                        {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'index' ),
+                                                                        {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'arguments' ),
                                                                             value           => ::DISPATCH(
-                                                                                $::Val::Buf,
-                                                                                'new',
+                                                                                $::Call, 'new',
                                                                                 ::DISPATCH(
                                                                                     $::NamedArgument,
                                                                                     "new",
-                                                                                    {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'buf' ),
-                                                                                        value => ::DISPATCH( ::DISPATCH( $node, 'namespace', ), 'join', ::DISPATCH( $::Str, 'new', '::' ) ),
+                                                                                    {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'hyper' ),
+                                                                                        value           => $::Undef,
+                                                                                    }
+                                                                                ),
+                                                                                ::DISPATCH(
+                                                                                    $::NamedArgument,
+                                                                                    "new",
+                                                                                    {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'arguments' ),
+                                                                                        value           => $::Undef,
+                                                                                    }
+                                                                                ),
+                                                                                ::DISPATCH(
+                                                                                    $::NamedArgument,
+                                                                                    "new",
+                                                                                    {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'method' ),
+                                                                                        value           => ::DISPATCH( $::Str, 'new', 'inner' ),
+                                                                                    }
+                                                                                ),
+                                                                                ::DISPATCH(
+                                                                                    $::NamedArgument,
+                                                                                    "new",
+                                                                                    {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'invocant' ),
+                                                                                        value           => ::DISPATCH(
+                                                                                            $::Var, 'new',
+                                                                                            ::DISPATCH(
+                                                                                                $::NamedArgument,
+                                                                                                "new",
+                                                                                                {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'namespace' ),
+                                                                                                    value => ::DISPATCH( $::Array, "new", { _array => [] } ),
+                                                                                                }
+                                                                                            ),
+                                                                                            ::DISPATCH(
+                                                                                                $::NamedArgument,
+                                                                                                "new",
+                                                                                                {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'name' ),
+                                                                                                    value           => ::DISPATCH( $::Str, 'new', 'MY' ),
+                                                                                                }
+                                                                                            ),
+                                                                                            ::DISPATCH(
+                                                                                                $::NamedArgument,
+                                                                                                "new",
+                                                                                                {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'twigil' ),
+                                                                                                    value           => ::DISPATCH( $::Str, 'new', '' ),
+                                                                                                }
+                                                                                            ),
+                                                                                            ::DISPATCH(
+                                                                                                $::NamedArgument,
+                                                                                                "new",
+                                                                                                {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'sigil' ),
+                                                                                                    value           => ::DISPATCH( $::Str, 'new', '$' ),
+                                                                                                }
+                                                                                            ),
+                                                                                        ),
                                                                                     }
                                                                                 ),
                                                                             ),
                                                                         }
                                                                     ),
                                                                 ),
-                                                            }
-                                                        ),
-                                                        ::DISPATCH(
-                                                            $::NamedArgument,
-                                                            "new",
-                                                            {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'index' ),
-                                                                value           => ::DISPATCH(
-                                                                    $::Val::Buf,
+                                                                ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $node, 'body', ) ),
+                                                                ::DISPATCH(
+                                                                    $::Assign,
                                                                     'new',
                                                                     ::DISPATCH(
                                                                         $::NamedArgument,
                                                                         "new",
-                                                                        {   _argument_name_ => ::DISPATCH( $::Str,                               'new',   'buf' ),
-                                                                            value           => ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $table, 'LOOKUP', ::DISPATCH( $node, 'sigil', ) ), ::DISPATCH( $node, 'name', ) ),
+                                                                        {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'parameters' ),
+                                                                            value           => ::DISPATCH(
+                                                                                $::Var, 'new',
+                                                                                ::DISPATCH(
+                                                                                    $::NamedArgument,
+                                                                                    "new",
+                                                                                    {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'namespace' ),
+                                                                                        value => ::DISPATCH( $::Array, "new", { _array => [] } ),
+                                                                                    }
+                                                                                ),
+                                                                                ::DISPATCH(
+                                                                                    $::NamedArgument,
+                                                                                    "new",
+                                                                                    {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'name' ),
+                                                                                        value           => ::DISPATCH( $::Str, 'new', 'MY' ),
+                                                                                    }
+                                                                                ),
+                                                                                ::DISPATCH(
+                                                                                    $::NamedArgument,
+                                                                                    "new",
+                                                                                    {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'twigil' ),
+                                                                                        value           => ::DISPATCH( $::Str, 'new', '' ),
+                                                                                    }
+                                                                                ),
+                                                                                ::DISPATCH(
+                                                                                    $::NamedArgument,
+                                                                                    "new",
+                                                                                    {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'sigil' ),
+                                                                                        value           => ::DISPATCH( $::Str, 'new', '$' ),
+                                                                                    }
+                                                                                ),
+                                                                            ),
                                                                         }
                                                                     ),
-                                                                ),
-                                                            }
-                                                        ),
-                                                    )
-                                                    )
-                                            }
-                                        }
-                                        else { ::DISPATCH( $::Bit, "new", 0 ) }
-                                        }
+                                                                    ::DISPATCH(
+                                                                        $::NamedArgument,
+                                                                        "new",
+                                                                        {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'arguments' ),
+                                                                            value           => ::DISPATCH(
+                                                                                $::Call, 'new',
+                                                                                ::DISPATCH(
+                                                                                    $::NamedArgument,
+                                                                                    "new",
+                                                                                    {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'hyper' ),
+                                                                                        value           => $::Undef,
+                                                                                    }
+                                                                                ),
+                                                                                ::DISPATCH(
+                                                                                    $::NamedArgument,
+                                                                                    "new",
+                                                                                    {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'arguments' ),
+                                                                                        value           => $::Undef,
+                                                                                    }
+                                                                                ),
+                                                                                ::DISPATCH(
+                                                                                    $::NamedArgument,
+                                                                                    "new",
+                                                                                    {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'method' ),
+                                                                                        value           => ::DISPATCH( $::Str, 'new', 'outer' ),
+                                                                                    }
+                                                                                ),
+                                                                                ::DISPATCH(
+                                                                                    $::NamedArgument,
+                                                                                    "new",
+                                                                                    {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'invocant' ),
+                                                                                        value           => ::DISPATCH(
+                                                                                            $::Var, 'new',
+                                                                                            ::DISPATCH(
+                                                                                                $::NamedArgument,
+                                                                                                "new",
+                                                                                                {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'namespace' ),
+                                                                                                    value => ::DISPATCH( $::Array, "new", { _array => [] } ),
+                                                                                                }
+                                                                                            ),
+                                                                                            ::DISPATCH(
+                                                                                                $::NamedArgument,
+                                                                                                "new",
+                                                                                                {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'name' ),
+                                                                                                    value           => ::DISPATCH( $::Str, 'new', 'MY' ),
+                                                                                                }
+                                                                                            ),
+                                                                                            ::DISPATCH(
+                                                                                                $::NamedArgument,
+                                                                                                "new",
+                                                                                                {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'twigil' ),
+                                                                                                    value           => ::DISPATCH( $::Str, 'new', '' ),
+                                                                                                }
+                                                                                            ),
+                                                                                            ::DISPATCH(
+                                                                                                $::NamedArgument,
+                                                                                                "new",
+                                                                                                {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'sigil' ),
+                                                                                                    value           => ::DISPATCH( $::Str, 'new', '$' ),
+                                                                                                }
+                                                                                            ),
+                                                                                        ),
+                                                                                    }
+                                                                                ),
+                                                                            ),
+                                                                        }
+                                                                    ),
+                                                                )
+                                                            ]
+                                                        }
+                                                    ),
+                                                }
+                                            ),
+                                        )
+                                        )
                                 }
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
@@ -186,20 +341,7 @@
                     ),
                 }
             )
-        );
-        do {
-            ::MODIFIED($table);
-            $table = ::DISPATCH(
-                $::Hash, "new",
-                {   _hash => {
-                        ::DISPATCH( $::Str, 'new', '$' )->{_value} => ::DISPATCH( $::Str, 'new', 'Scalar_' ),
-                        ::DISPATCH( $::Str, 'new', '@' )->{_value} => ::DISPATCH( $::Str, 'new', 'List_' ),
-                        ::DISPATCH( $::Str, 'new', '%' )->{_value} => ::DISPATCH( $::Str, 'new', 'Hash_' ),
-                        ::DISPATCH( $::Str, 'new', '&' )->{_value} => ::DISPATCH( $::Str, 'new', 'Code_' ),
-                    }
-                }
-            );
-            }
+            )
     };
     1
 }

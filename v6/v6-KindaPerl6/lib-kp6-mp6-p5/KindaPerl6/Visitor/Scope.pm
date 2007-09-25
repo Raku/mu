@@ -5,8 +5,7 @@ use MiniPerl6::Perl5::Runtime;
 use MiniPerl6::Perl5::Match;
 package KindaPerl6::Visitor::Scope;
 sub new { shift; bless { @_ }, "KindaPerl6::Visitor::Scope" }
-my  $table = { '$' => 'Scalar_','@' => 'List_','%' => 'Hash_','&' => 'Code_', };
-sub visit { my $self = shift; my $List__ = \@_; my $node; my $node_name; do {  $node = $List__->[0];  $node_name = $List__->[1]; [$node, $node_name] }; return((undef)); do { if (($node_name eq 'Var')) { do { if (@{$node->namespace()}) { return(Lookup->new( 'obj' => Lookup->new( 'obj' => Var->new( 'namespace' => [],'name' => 'KP6','twigil' => '','sigil' => '%', ),'index' => Val::Buf->new( 'buf' => Main::join($node->namespace(), '::'), ), ),'index' => Val::Buf->new( 'buf' => ($table->{$node->sigil()} . $node->name()), ), )) } else {  } } } else {  } }; return((undef)) }
+sub visit { my $self = shift; my $List__ = \@_; my $node; my $node_name; do {  $node = $List__->[0];  $node_name = $List__->[1]; [$node, $node_name] }; do { if (($node_name eq 'Lit::Code')) { return(Lit::Code->new( 'pad' => $node->pad(),'state' => $node->state(),'sig' => $node->sig(),'body' => [Assign->new( 'parameters' => Var->new( 'namespace' => [],'name' => 'MY','twigil' => '','sigil' => '$', ),'arguments' => Call->new( 'hyper' => (undef),'arguments' => (undef),'method' => 'inner','invocant' => Var->new( 'namespace' => [],'name' => 'MY','twigil' => '','sigil' => '$', ), ), ), @{$node->body()}, Assign->new( 'parameters' => Var->new( 'namespace' => [],'name' => 'MY','twigil' => '','sigil' => '$', ),'arguments' => Call->new( 'hyper' => (undef),'arguments' => (undef),'method' => 'outer','invocant' => Var->new( 'namespace' => [],'name' => 'MY','twigil' => '','sigil' => '$', ), ), )], )) } else {  } }; return((undef)) }
 
 
 ;

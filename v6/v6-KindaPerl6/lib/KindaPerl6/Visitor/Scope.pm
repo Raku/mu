@@ -9,38 +9,65 @@ This visitor maps lexical variables into a Scope object (see Runtime::Perl6::Sco
 
 class KindaPerl6::Visitor::Scope {
 
-        my $table := {
-            '$' => 'Scalar_',
-            '@' => 'List_',
-            '%' => 'Hash_',
-            '&' => 'Code_',
-        };
-
     method visit ( $node, $node_name ) {
     
         # TODO !!!
         
-        return;
-    
-        if    ( $node_name eq 'Var' )
+        if    ( $node_name eq 'Lit::Code' )
         {
-            if @($node.namespace) {
-                #say "global ", $node.name;
-                # $X::Y::z -> %KP6<X::Y><Scalar_z>
-                return ::Lookup(
-                        obj => ::Lookup(
-                            obj => ::Var(
-                                namespace => [],
-                                name      => 'KP6',
-                                twigil    => '',
-                                sigil     => '%',
-                            ),
-                            index => ::Val::Buf( buf => ($node.namespace).join('::'), ),
+
+            return ::Lit::Code(
+                pad   => $node.pad,
+                state => $node.state,
+                sig   => $node.sig,
+                body  => [
+            
+                    # $MY = $MY.inner            
+                    ::Assign(
+                        parameters => ::Var(
+                            namespace => [],
+                            name      => 'MY',
+                            twigil    => '',
+                            sigil     => '$',
                         ),
-                        index => ::Val::Buf( buf => ($table{$node.sigil} ~ $node.name), ),
-                    );
-                
-            }
+                        arguments => ::Call(
+                            hyper     => undef,
+                            arguments => undef,
+                            method    => 'inner',
+                            invocant  => ::Var(
+                                namespace => [],
+                                name      => 'MY',
+                                twigil    => '',
+                                sigil     => '$',
+                            ),
+                        ),
+                    ),
+
+                    @($node.body),
+
+                    # $MY = $MY.outer            
+                    ::Assign(
+                        parameters => ::Var(
+                            namespace => [],
+                            name      => 'MY',
+                            twigil    => '',
+                            sigil     => '$',
+                        ),
+                        arguments => ::Call(
+                            hyper     => undef,
+                            arguments => undef,
+                            method    => 'outer',
+                            invocant  => ::Var(
+                                namespace => [],
+                                name      => 'MY',
+                                twigil    => '',
+                                sigil     => '$',
+                            ),
+                        ),
+                    ),
+
+                ] 
+            );  
         };
         return;
     };
