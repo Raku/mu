@@ -11,7 +11,7 @@
 (define-condition kp6-error (kp6-condition error)
   ()
   (:report (lambda (c s)
-	     (write-string (kp6-prefixed-error-message (c (format nil "Unhandled error ~S" c))) s))))
+	     (write-string (kp6-prefixed-error-message (c "Unhandled error")) s))))
 
 (macrolet ((define-kp6-error-function (name function type)
 	       (let ((interpreter (gensym))
@@ -24,5 +24,5 @@
   (define-kp6-error-function kp6-warn warn 'kp6-warning)
   (define-kp6-error-function kp6-error error 'kp6-error))
 
-(defun kp6-prefixed-error-message (condition message)
-  (format nil "In ~S: ~A" (kp6-interpreter condition) message))
+(defun kp6-prefixed-error-message (condition datum &rest arguments)
+  (format nil "In ~S: ~?" (kp6-interpreter condition) datum arguments))
