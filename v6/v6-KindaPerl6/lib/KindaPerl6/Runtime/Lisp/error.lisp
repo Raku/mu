@@ -11,7 +11,7 @@
 (define-condition kp6-error (kp6-condition error)
   ()
   (:report (lambda (c s)
-	     (write-string (kp6-prefixed-error-message (c (format nil "Unhandled error ~S" c)))))))
+	     (write-string (kp6-prefixed-error-message (c (format nil "Unhandled error ~S" c))) s))))
 
 (macrolet ((define-kp6-error-function (name function type)
 	       (let ((interpreter (gensym))
