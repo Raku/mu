@@ -1,18 +1,17 @@
 (in-package #:kp6-cl)
 
 (define-condition kp6-condition ()
-  ((interpreter :reader kp6-interpreter :initarg :interpreter)
-   (message :reader kp6-message :initarg :message)))
+  ((interpreter :reader kp6-interpreter :initarg :interpreter)))
 
 (define-condition kp6-warning (kp6-condition warning)
-  ()
+  ((message :reader kp6-message :initarg :message))
   (:report (lambda (c s)
-	     (format s "Warning signalled by ~S: ~S" (kp6-interpreter c) (kp6-message c)))))
+	     (write-string (kp6-prefixed-error-message (c (kp6-message c))) s))))
 
 (define-condition kp6-error (kp6-condition error)
   ()
   (:report (lambda (c s)
-	     (format s "Warning signalled by ~S: ~S" (kp6-interpreter c) (kp6-message c)))))
+	     (write-string (kp6-prefixed-error-message (c (format nil "Unhandled error ~S" c)))))))
 
 (macrolet ((define-kp6-error-function (name function type)
 	       (let ((interpreter (gensym))
@@ -24,3 +23,6 @@
   (define-kp6-error-function kp6-signal signal 'kp6-condition)
   (define-kp6-error-function kp6-warn warn 'kp6-warning)
   (define-kp6-error-function kp6-error error 'kp6-error))
+
+(defun kp6-prefixed-error-message (condition message)
+  (format nil "In ~S: ~A" (kp6-interpreter condition) message))
