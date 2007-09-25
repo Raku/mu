@@ -20,6 +20,7 @@ class CompUnit {
             #'.sub "__onload" :load' ~ Main::newline() ~
             #'.end'                ~ Main::newline() ~ Main::newline() ~
             '.sub _ :main'        ~ Main::newline() ~
+            $.body.emit_parrot ~ Main::newline() ~
             '.end'                ~ Main::newline() ~ Main::newline() ~
 
         # --- SETUP CLASS VARIABLES
@@ -102,7 +103,7 @@ class Val::Object {
     has $.class;
     has %.fields;
     method emit_parrot {
-        die 'Val::Object - not used yet';
+        #die 'Val::Object - not used yet';
         # 'bless(' ~ %.fields.perl ~ ', ' ~ $.class.perl ~ ')';
     }
 }
@@ -110,7 +111,7 @@ class Val::Object {
 class Lit::Seq {
     has @.seq;
     method emit_parrot {
-        die 'Lit::Seq - not used yet';
+        #die 'Lit::Seq - not used yet';
         # '(' ~ (@.seq.>>emit_parrot).join('') ~ ')';
     }
 }
@@ -162,7 +163,7 @@ class Lit::Hash {
 
 class Lit::Code {
     method emit_parrot {
-        die 'Lit::Code - not used yet';
+        #die 'Lit::Code - not used yet';
     }
 }
 
