@@ -31,4 +31,7 @@
    #:kp6-define-package-variable
    #:kp6-set-package-variable
 
-   #:kp6-generate-variable))
+   #:kp6-generate-variable
+   #:kp6-signal
+   #:kp6-warn
+   #:kp6-error))

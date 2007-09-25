@@ -1,0 +1,26 @@
+(in-package #:kp6-cl)
+
+(define-condition kp6-condition ()
+  ((interpreter :reader kp6-interpreter :initarg :interpreter)
+   (message :reader kp6-message :initarg :message)))
+
+(define-condition kp6-warning (kp6-condition warning)
+  ()
+  (:report (lambda (c s)
+	     (format s "Warning signalled by ~S: ~S" (kp6-interpreter c) (kp6-message c)))))
+
+(define-condition kp6-error (kp6-condition error)
+  ()
+  (:report (lambda (c s)
+	     (format s "Warning signalled by ~S: ~S" (kp6-interpreter c) (kp6-message c)))))
+
+(macrolet ((define-kp6-error-function (name function type)
+	       (let ((interpreter (gensym))
+		     (information (gensym)))
+		 `(defgeneric ,name (,interpreter &rest ,information)
+		   (:documentation ,(format nil "Call the builtin ~S function with a KP6-specific condition class and information." function))
+		   (:method ((,interpreter kp6-interpreter) &rest ,information)
+		     (apply #',(intern (symbol-name function) 'cl) ,type (append (list :interpreter ,interpreter) ,information)))))))
+  (define-kp6-error-function kp6-signal signal 'kp6-condition)
+  (define-kp6-error-function kp6-warn warn 'kp6-warning)
+  (define-kp6-error-function kp6-error error 'kp6-error))
