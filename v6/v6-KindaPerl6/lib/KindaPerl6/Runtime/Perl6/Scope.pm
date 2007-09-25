@@ -1,5 +1,5 @@
 use v6-alpha;
-class Scope is Container {
+class Scope is Hash {
 
     has $.vars;
     has $.outer;  # static or dynamic scope
@@ -14,12 +14,12 @@ class Scope is Container {
     method hash { self };  # Scope behaves like Hash
 
     method LOOKUP ( $key ) {
-        say "# lookup key $key in ", (self.vars).perl;
+        #say "# lookup key $key in ", (self.vars).perl;
         if exists( (self.vars){$key} ) {
-            say "# found key";
+            #say "# found key";
             return (self.vars){$key};
         };
-        say "# not found in current pad";
+        #say "# not found in current pad";
         if defined self.outer {
             return (self.outer).LOOKUP( $key );
         };
@@ -37,7 +37,7 @@ class Scope is Container {
     };
 
     method create ( $key ) {
-        say "# create key $key in ", (self.vars).perl;
+        #say "# create key $key in ", (self.vars).perl;
         if exists( (self.vars){$key} ) {
             return (self.vars){$key};
         };

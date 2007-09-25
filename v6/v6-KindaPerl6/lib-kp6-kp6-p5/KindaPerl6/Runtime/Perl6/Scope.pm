@@ -23,7 +23,7 @@
                 }
             }
         };
-        ::DISPATCH( ::DISPATCH( $::Scope, 'HOW', ), 'add_parent',    ::DISPATCH( $::Str, 'new', 'Container' ) );
+        ::DISPATCH( ::DISPATCH( $::Scope, 'HOW', ), 'add_parent',    ::DISPATCH( $::Str, 'new', 'Hash' ) );
         ::DISPATCH( ::DISPATCH( $::Scope, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'vars' ) );
         ::DISPATCH( ::DISPATCH( $::Scope, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'outer' ) );
         ::DISPATCH(
@@ -153,25 +153,14 @@
                             ::MODIFIED($key);
                             $key = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
-                        ::DISPATCH(
-                            $GLOBAL::Code_say,
-                            'APPLY',
-                            ::DISPATCH(
-                                $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                ::DISPATCH( $::Str, 'new', '# lookup key ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__126__62_, 'APPLY', $key ), ::DISPATCH( $::Str, 'new', ' in ' ) )
-                            ),
-                            ::DISPATCH( ::DISPATCH( $self, 'vars', ), 'perl', )
-                        );
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_exists, 'APPLY', ::DISPATCH( ::DISPATCH( $self, 'vars', ), 'LOOKUP', $key ) ), "true" ), "p5landish" ) ) {
                                 {
-                                    ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '# found key' ) );
                                     return ( ::DISPATCH( ::DISPATCH( $self, 'vars', ), 'LOOKUP', $key ) )
                                 }
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
-                        ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', '# not found in current pad' ) );
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', ::DISPATCH( $self, 'outer', ) ), "true" ), "p5landish" ) ) {
                                 {
@@ -238,7 +227,7 @@
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
-                        return ( ::DISPATCH( $::Bit, 'new', ) );
+                        return ( ::DISPATCH( $::Bit, 'new', 0 ) );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
@@ -280,15 +269,6 @@
                             ::MODIFIED($key);
                             $key = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
-                        ::DISPATCH(
-                            $GLOBAL::Code_say,
-                            'APPLY',
-                            ::DISPATCH(
-                                $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                ::DISPATCH( $::Str, 'new', '# create key ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__126__62_, 'APPLY', $key ), ::DISPATCH( $::Str, 'new', ' in ' ) )
-                            ),
-                            ::DISPATCH( ::DISPATCH( $self, 'vars', ), 'perl', )
-                        );
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_exists, 'APPLY', ::DISPATCH( ::DISPATCH( $self, 'vars', ), 'LOOKUP', $key ) ), "true" ), "p5landish" ) ) {
                                 {
@@ -648,7 +628,7 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        ::DISPATCH( $GLOBAL::Code_infix_58__60__33__61__62_, 'APPLY', ::DISPATCH( $self, 'elems', ), ::DISPATCH( $::Int, 'new', ) );
+                        ::DISPATCH( $GLOBAL::Code_infix_58__60__33__61__62_, 'APPLY', ::DISPATCH( $self, 'elems', ), ::DISPATCH( $::Int, 'new', 0 ) );
                     },
                     signature => ::DISPATCH(
                         $::Signature,

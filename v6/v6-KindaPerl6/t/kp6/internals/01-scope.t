@@ -5,7 +5,7 @@ say '1..4';
 
 my $s = Scope.new( vars => {} );
 
-say 'ok 1 # load Scope.pm';
+say 'ok 1 - load Scope.pm';
 
 $s.create( '$abc' );
 $s.create( '$def' );
