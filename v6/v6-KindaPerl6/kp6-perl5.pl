@@ -78,6 +78,7 @@ my @visitors;
 
     push @visitor_sequence, 'Perl' 
         unless $visitor_sequence[-1] eq 'Perl'
+            || $visitor_sequence[-1] eq 'TokenC'
             || $visitor_sequence[-1] =~ /^Emit/;
 
     for ( @visitor_sequence ) {
