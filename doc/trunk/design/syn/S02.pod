@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 14 Sep 2007
+  Last Modified: 26 Sep 2007
   Number: 2
-  Version: 118
+  Version: 119
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -2886,7 +2886,7 @@ containers.
 =item *
 
 Unlike in Perl 5, objects are no longer always considered true.
-It depends on the state of their C<.bit> property.  Classes get to decide
+It depends on the state of their C<.true> property.  Classes get to decide
 which of their values are true and which are false.  Individual objects
 can override the class definition:
 
