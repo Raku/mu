@@ -1,3 +1,6 @@
+token simple {
+    'simple'
+}
 token foo {
-    [foo|ba]baz
+    ['foo'|'ba']'baz'
 }

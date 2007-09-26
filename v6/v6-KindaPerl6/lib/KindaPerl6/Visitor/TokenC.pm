@@ -9,7 +9,7 @@ class KindaPerl6::Visitor::TokenC {
 }
 class Token {
     method emit_c {
-        return 'match ' ~ $.name ~ ' (char *str,int str_len,int pos) {(' ~ ($.regex).emit_c ~ ') || printf("token failed at %d\n",pos);printf("match ended at %d\n",pos);}';
+        return 'match ' ~ $.name ~ ' (char *str,int str_len,int pos) {match m;m.match_str = str;m.from=pos;m.boolean = (' ~ ($.regex).emit_c ~ ');m.to = pos;return m;}';
     }
 }
 class CompUnit {
@@ -34,7 +34,7 @@ class Rule::Concat {
 }
 class Rule::Constant {
     method emit_c {
-        return '(str_len >= pos + ' ~ length($.constant) ~ '&& strncmp("' ~ $.constant ~ '",str+pos,' ~ length($.constant) ~ ') == 0 && (pos += ' ~ length($.constant) ~ '))' ;
+        return '(str_len >= pos + ' ~ length($.constant) ~ '&& strncmp("' ~ $.constant ~ '",str+pos,' ~ length($.constant) ~ ') == 0 && (pos += ' ~ length($.constant) ~ '))';
     }
     method emit_perl5 {
           '{ ' 
