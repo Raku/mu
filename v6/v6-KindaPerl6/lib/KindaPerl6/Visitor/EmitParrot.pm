@@ -163,8 +163,58 @@ class Lit::Hash {
 
 class Lit::Code {
     method emit_parrot {
-        #die 'Lit::Code - not used yet';
-    }
+        self.emit_declarations ~ self.emit_body;
+    };
+    method emit_body {
+        (@.body.>>emit_parrot).join(' ');
+    };
+    method emit_signature {
+        $.sig.emit_parrot
+    };
+    method emit_declarations {
+        my $s;
+        my $name;
+        for @($.pad.variable_names) -> $name {
+            my $decl := ::Decl(
+                decl => 'my',
+                type => '',
+                var  => ::Var(
+                    sigil     => '',
+                    twigil    => '',
+                    name      => $name,
+                    namespace => [ ],
+                ),
+            );
+            $s := $s ~ $name.emit_parrot ~ ' ' ~ Main::newline();
+        };
+        return $s;
+    };
+    method emit_arguments {
+        my $array_  := ::Var( sigil => '@', twigil => '', name => '_',       namespace => [ ], );
+        my $hash_   := ::Var( sigil => '%', twigil => '', name => '_',       namespace => [ ], );
+        my $CAPTURE := ::Var( sigil => '$', twigil => '', name => 'CAPTURE', namespace => [ ],);
+        my $CAPTURE_decl := ::Decl(decl=>'my',type=>'',var=>$CAPTURE);
+        my $str := '';
+        $str := $str ~ $CAPTURE_decl.emit_parrot;
+        $str := $str ~ '::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));';
+
+        my $bind_ := ::Bind(parameters=>$array_,arguments=>::Call(invocant => $CAPTURE,method => 'array',arguments => []));
+        $str := $str ~ $bind_.emit_parrot ~ ' ';
+
+        my $bind_hash := 
+                     ::Bind(parameters=>$hash_, arguments=>::Call(invocant => $CAPTURE,method => 'hash', arguments => []));
+        $str := $str ~ $bind_hash.emit_parrot ~ ' ';
+
+        my $i := 0;
+        my $field;
+        for @($.sig.positional) -> $field { 
+            my $bind := ::Bind(parameters=>$field,arguments=>::Index(obj=> $array_ , 'index'=>::Val::Int(int=>$i)) );
+            $str := $str ~ $bind.emit_parrot ~ ' ';
+            $i := $i + 1;
+        };
+
+        return $str;
+    };
 }
 
 class Lit::Object {

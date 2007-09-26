@@ -16,7 +16,7 @@ sub attributes { @_ == 1 ? ( $_[0]->{attributes} ) : ( $_[0]->{attributes} = $_[
 sub methods { @_ == 1 ? ( $_[0]->{methods} ) : ( $_[0]->{methods} = $_[1] ) };
 sub traits { @_ == 1 ? ( $_[0]->{traits} ) : ( $_[0]->{traits} = $_[1] ) };
 sub body { @_ == 1 ? ( $_[0]->{body} ) : ( $_[0]->{body} = $_[1] ) };
-sub emit_parrot { my $self = shift; my $List__ = \@_; do { [] }; my  $s = ('.namespace [ ' . (Main::quote() . ($self->{name} . (Main::quote() . (' ] ' . (Main::newline() . ('.sub _ :main' . (Main::newline() . ('.end' . (Main::newline() . (Main::newline() . ('.sub ' . (Main::quote() . ('_class_vars_' . (Main::quote() . Main::newline()))))))))))))))); $s = ($s . ('.end' . (Main::newline() . Main::newline()))); return($s) }
+sub emit_parrot { my $self = shift; my $List__ = \@_; do { [] }; my  $s = ('.namespace [ ' . (Main::quote() . ($self->{name} . (Main::quote() . (' ] ' . (Main::newline() . ('.sub _ :main' . (Main::newline() . ($self->{body}->emit_parrot() . (Main::newline() . ('.end' . (Main::newline() . (Main::newline() . ('.sub ' . (Main::quote() . ('_class_vars_' . (Main::quote() . Main::newline()))))))))))))))))); $s = ($s . ('.end' . (Main::newline() . Main::newline()))); return($s) }
 
 
 ;
@@ -58,14 +58,14 @@ package Val::Object;
 sub new { shift; bless { @_ }, "Val::Object" }
 sub class { @_ == 1 ? ( $_[0]->{class} ) : ( $_[0]->{class} = $_[1] ) };
 sub fields { @_ == 1 ? ( $_[0]->{fields} ) : ( $_[0]->{fields} = $_[1] ) };
-sub emit_parrot { my $self = shift; my $List__ = \@_; do { [] }; die('Val::Object - not used yet') }
+sub emit_parrot { my $self = shift; my $List__ = \@_; do { [] };  }
 
 
 ;
 package Lit::Seq;
 sub new { shift; bless { @_ }, "Lit::Seq" }
 sub seq { @_ == 1 ? ( $_[0]->{seq} ) : ( $_[0]->{seq} = $_[1] ) };
-sub emit_parrot { my $self = shift; my $List__ = \@_; do { [] }; die('Lit::Seq - not used yet') }
+sub emit_parrot { my $self = shift; my $List__ = \@_; do { [] };  }
 
 
 ;
@@ -85,7 +85,11 @@ sub emit_parrot { my $self = shift; my $List__ = \@_; do { [] }; my  $a = $self-
 ;
 package Lit::Code;
 sub new { shift; bless { @_ }, "Lit::Code" }
-sub emit_parrot { my $self = shift; my $List__ = \@_; do { [] }; die('Lit::Code - not used yet') }
+sub emit_parrot { my $self = shift; my $List__ = \@_; do { [] }; ($self->emit_declarations() . $self->emit_body()) };
+sub emit_body { my $self = shift; my $List__ = \@_; do { [] }; Main::join([ map { $_->emit_parrot() } @{ $self->{body} } ], ' ') };
+sub emit_signature { my $self = shift; my $List__ = \@_; do { [] }; $self->{sig}->emit_parrot() };
+sub emit_declarations { my $self = shift; my $List__ = \@_; do { [] }; my  $s; my  $name; do { for my $name ( @{$self->{pad}->variable_names()} ) { my  $decl = Decl->new( 'decl' => 'my','type' => '','var' => Var->new( 'sigil' => '','twigil' => '','name' => $name,'namespace' => [], ), );$s = ($s . ($name->emit_parrot() . (' ' . Main::newline()))) } }; return($s) };
+sub emit_arguments { my $self = shift; my $List__ = \@_; do { [] }; my  $array_ = Var->new( 'sigil' => '@','twigil' => '','name' => '_','namespace' => [], ); my  $hash_ = Var->new( 'sigil' => '%','twigil' => '','name' => '_','namespace' => [], ); my  $CAPTURE = Var->new( 'sigil' => '$','twigil' => '','name' => 'CAPTURE','namespace' => [], ); my  $CAPTURE_decl = Decl->new( 'decl' => 'my','type' => '','var' => $CAPTURE, ); my  $str = ''; $str = ($str . $CAPTURE_decl->emit_parrot()); $str = ($str . '::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));'); my  $bind_ = Bind->new( 'parameters' => $array_,'arguments' => Call->new( 'invocant' => $CAPTURE,'method' => 'array','arguments' => [], ), ); $str = ($str . ($bind_->emit_parrot() . ' ')); my  $bind_hash = Bind->new( 'parameters' => $hash_,'arguments' => Call->new( 'invocant' => $CAPTURE,'method' => 'hash','arguments' => [], ), ); $str = ($str . ($bind_hash->emit_parrot() . ' ')); my  $i = 0; my  $field; do { for my $field ( @{$self->{sig}->positional()} ) { my  $bind = Bind->new( 'parameters' => $field,'arguments' => Index->new( 'obj' => $array_,'index' => Val::Int->new( 'int' => $i, ), ), );$str = ($str . ($bind->emit_parrot() . ' '));$i = ($i + 1) } }; return($str) }
 
 
 ;
