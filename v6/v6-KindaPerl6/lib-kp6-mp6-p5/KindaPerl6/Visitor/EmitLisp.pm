@@ -137,7 +137,7 @@ sub perl { my $self = shift; my $List__ = \@_; do { [] }; ('(kp6-new \'signature
 ;
 package Bind;
 sub new { shift; bless { @_ }, "Bind" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; do { if (Main::isa($self->{parameters}, 'Call')) { return(Assign->new( 'parameters' => $self->{parameters},'arguments' => $self->{arguments}, )->emit_lisp()) } else {  } }; do { if (Main::isa($self->{parameters}, 'Lookup')) { return(Assign->new( 'parameters' => $self->{parameters},'arguments' => $self->{arguments}, )->emit_lisp()) } else {  } }; do { if (Main::isa($self->{parameters}, 'Index')) { return(Assign->new( 'parameters' => $self->{parameters},'arguments' => $self->{arguments}, )->emit_lisp()) } else {  } }; my  $str = ''; $str = ($str . ($self->{parameters}->emit_lisp() . (' = ' . $self->{arguments}->emit_lisp()))); return(('do {' . ($str . '}'))) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; do { [] }; do { if (Main::isa($self->{parameters}, 'Call')) { return(Assign->new( 'parameters' => $self->{parameters},'arguments' => $self->{arguments}, )->emit_lisp()) } else {  } }; do { if (Main::isa($self->{parameters}, 'Lookup')) { return(Assign->new( 'parameters' => $self->{parameters},'arguments' => $self->{arguments}, )->emit_lisp()) } else {  } }; do { if (Main::isa($self->{parameters}, 'Index')) { return(Assign->new( 'parameters' => $self->{parameters},'arguments' => $self->{arguments}, )->emit_lisp()) } else {  } }; my  $str = ''; $str = ($str . ('(setf ' . ($self->{parameters}->emit_lisp() . (' ' . ($self->{arguments}->emit_lisp() . ')'))))); return($str) }
 
 
 ;

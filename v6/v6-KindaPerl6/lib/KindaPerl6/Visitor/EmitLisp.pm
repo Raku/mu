@@ -311,8 +311,8 @@ class Bind {
         };
 
         my $str := '';  # '::MODIFIED(' ~ $.parameters.emit_lisp ~ ');' ~ Main::newline();
-        $str := $str ~ $.parameters.emit_lisp ~ ' = ' ~ $.arguments.emit_lisp;
-        return 'do {'~$str~'}';
+        $str := $str ~ '(setf ' ~ $.parameters.emit_lisp ~ ' ' ~ $.arguments.emit_lisp ~ ')';
+        return $str;
     }
 }
 
