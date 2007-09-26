@@ -13,4 +13,4 @@
   (format nil "~A" (kp6-value object)))
 
 (defmethod perl->display ((object kp6-Bit) &key)
-  (if (= (kp6-value object) 0) "Bool::False" "Bool::True"))
+  (if (eql (kp6-value object) nil) "Bool::False" "Bool::True"))
