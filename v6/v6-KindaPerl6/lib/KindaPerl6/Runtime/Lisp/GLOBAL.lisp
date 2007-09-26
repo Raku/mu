@@ -31,74 +31,74 @@ result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
   ;;; versa for the numeric functions
 
   (define-kp6-function "infix:<eq>" (first second)
-    (cl->perl (if (string= (perl->cl first) (perl->cl second))
+    (cl->perl (if (string= (perl->cl (kp6-str first)) (perl->cl (kp6-str second)))
 		  'true
 		  'false)))
 
   (define-kp6-function "infix:<ne>" (first second)
-    (cl->perl (if (string= (perl->cl first) (perl->cl second))
+    (cl->perl (if (string= (perl->cl (kp6-str first)) (perl->cl (kp6-str second)))
 		  'false
 		  'true)))
 
   (define-kp6-function "infix:<==>" (first second)
-    (cl->perl (if (equal (perl->cl first) (perl->cl second))
+    (cl->perl (if (equal (perl->cl (kp6-num first)) (perl->cl (kp6-num second)))
 		  'true
 		  'false)))
 
   (define-kp6-function "infix:<!=>" (first second)
-    (cl->perl (if (equal (perl->cl first) (perl->cl second))
+    (cl->perl (if (equal (perl->cl (kp6-num first)) (perl->cl (kp6-num second)))
 		  'false
 		  'true)))
 
   (define-kp6-function "infix:<<>" (first second)
-    (cl->perl (< (perl->cl first) (perl->cl second))))
+    (cl->perl (< (perl->cl (kp6-num first)) (perl->cl (kp6-num second)))))
 
   (define-kp6-function "infix:<>>" (first second)
-    (cl->perl (> (perl->cl first) (perl->cl second))))
+    (cl->perl (> (perl->cl (kp6-num first)) (perl->cl (kp6-num second)))))
 
 
   (define-kp6-function "infix:<<=>" (first second)
-    (cl->perl (<= (perl->cl first) (perl->cl second))))
+    (cl->perl (<= (perl->cl (kp6-num first)) (perl->cl (kp6-num second)))))
 
   (define-kp6-function "infix:<>=>" (first second)
-    (cl->perl (>= (perl->cl first) (perl->cl second))))
+    (cl->perl (>= (perl->cl (kp6-num first)) (perl->cl (kp6-num second)))))
 
   (define-kp6-function "infix:<<=>>" (first second)
     ; (defun <=> (a b) (signum (- a b)))
-    (cl->perl (signum (- (perl->cl first) (perl->cl second)))))
+    (cl->perl (signum (- (perl->cl (kp6-num first)) (perl->cl (kp6-num second))))))
 
   (define-kp6-function "infix:<+>" (first second)
-    (cl->perl (+ (perl->cl first) (perl->cl second))))
+    (cl->perl (+ (perl->cl (kp6-num first)) (perl->cl (kp6-num second)))))
 
   (define-kp6-function "infix:<->" (first second)
-    (cl->perl (- (perl->cl first) (perl->cl second))))
+    (cl->perl (- (perl->cl (kp6-num first)) (perl->cl (kp6-num second)))))
 
   (define-kp6-function "infix:<*>" (first second)
-    (cl->perl (* (perl->cl first) (perl->cl second))))
+    (cl->perl (* (perl->cl (kp6-num first)) (perl->cl (kp6-num second)))))
 
   (define-kp6-function "infix:</>" (first second)
-    (cl->perl (/ (perl->cl first) (perl->cl second))))
+    (cl->perl (/ (perl->cl (kp6-num first)) (perl->cl (kp6-num second)))))
 
   (define-kp6-function "infix:<~>" (&rest strs)
     (cl->perl (format nil "~{~A~}" (mapcar #'perl->display strs))))
 
   (define-kp6-function "length" (&rest strs)
-    (cl->perl (length (perl->cl (first strs)))))
+    (cl->perl (length (perl->cl (kp6-str (first strs))))))
 
   (define-kp6-function "infix:<&&>" (&rest operands)
     (if (null operands)
-	(cl->perl 'true)
-	(if (kp6-bit (first operands))
-	    (call-kp6-function "infix:<&&>" (cdr operands))
-	    (cl->perl 'false))))
+        (cl->perl 'true)
+        (if (kp6-bit (first operands))
+            (call-kp6-function "infix:<&&>" (cdr operands))
+            (cl->perl 'false))))
 
   (define-kp6-function "infix:<||>" (&rest operands)
     (if (null operands)
-	(cl->perl 'false)
-	(let ((operand (first operands)))
-	  (if (kp6-bit operand)
-	      operand
-	      (call-kp6-function "infix:<||>" (cdr operands))))))
+        (cl->perl 'false)
+        (let ((operand (first operands)))
+          (if (kp6-bit operand)
+              operand
+              (call-kp6-function "infix:<||>" (cdr operands))))))
 
   (define-kp6-function ("print" :returns 'true) (&rest strs)
     (format t "~{~A~}" (mapcar #'perl->display strs)))

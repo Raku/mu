@@ -3,7 +3,9 @@
 (defclass kp6-Str (kp6-Value)
   ())
 
-(defgeneric str (self)
-  (:documentation "Stringify the string object, just fetch the boxed value (is this even needed?)")
-  (:method ((self kp6-Str))
-    self))
+(defmethod kp6-Num ((self kp6-Str))
+  "Numify the Str object"
+  (let* ((values (multiple-value-list (parse-integer (kp6-value self) :junk-allowed t)))
+         (int (first values))
+         (pos (second values)))
+    (cl->perl (if int int 0))))
