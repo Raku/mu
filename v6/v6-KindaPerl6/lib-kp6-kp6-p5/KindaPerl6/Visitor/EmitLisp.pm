@@ -3672,7 +3672,7 @@
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH( $::Str, 'new', '(if (kp6-bit ' ),
+                            ::DISPATCH( $::Str, 'new', '(if (kp6-true ' ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',

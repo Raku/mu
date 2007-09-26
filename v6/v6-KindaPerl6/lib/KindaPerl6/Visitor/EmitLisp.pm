@@ -415,7 +415,7 @@ class If {
     method emit_lisp ($interpreter) {
         #'do { if (::DISPATCH(::DISPATCH(' ~ $.cond.emit_lisp ~ ',"true"),"p5landish") ) ' 
         # XXX: Cast the value to a true/false in lisp
-        '(if (kp6-bit ' ~ $.cond.emit_lisp($interpreter) ~ ')'
+        '(if (kp6-true ' ~ $.cond.emit_lisp($interpreter) ~ ')'
         ~ ( $.body 
             ?? '(progn ' ~ $.body.emit_lisp($interpreter) ~ ') '
             !! '(progn)'
