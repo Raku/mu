@@ -107,7 +107,7 @@ result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
     (define-kp6-function "infix:<&&>" (interpreter &rest operands)
       (if (null operands)
 	  (cl->perl 'true)
-	  (if (kp6-bit (first operands))
+	  (if (kp6-true (first operands))
 	      (call-kp6-function interpreter "infix:<&&>" (cdr operands))
 	      (cl->perl 'false))))
 
@@ -115,7 +115,7 @@ result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
       (if (null operands)
 	  (cl->perl 'false)
 	  (let ((operand (first operands)))
-	    (if (kp6-bit operand)
+	    (if (kp6-true operand)
 		operand
 		(call-kp6-function interpreter "infix:<||>" (cdr operands))))))
 
