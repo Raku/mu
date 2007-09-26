@@ -1,6 +1,6 @@
 cd ~/p6/v6/v6-KindaPerl6
-make lib-kp6-mp6-p5/KindaPerl6/Visitor/TokenC.pm
-perl kp6-perl5.pl --do TokenC examples/tokenc.p6 | indent -kr > examples/tokenc-rules.c
+make lib-kp6-mp6-p5/KindaPerl6/Visitor/EmitTokenC.pm
+perl kp6-perl5.pl --do EmitTokenC examples/tokenc.p6 | indent -kr > examples/tokenc-rules.c
 cat examples/tokenc-rules.c
 gcc examples/tokenc.c -o tokenc.out
 ./tokenc.out

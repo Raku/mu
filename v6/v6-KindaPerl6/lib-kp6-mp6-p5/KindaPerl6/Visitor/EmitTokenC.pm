@@ -3,8 +3,8 @@ use v5;
 use strict;
 use MiniPerl6::Perl5::Runtime;
 use MiniPerl6::Perl5::Match;
-package KindaPerl6::Visitor::TokenC;
-sub new { shift; bless { @_ }, "KindaPerl6::Visitor::TokenC" }
+package KindaPerl6::Visitor::EmitTokenC;
+sub new { shift; bless { @_ }, "KindaPerl6::Visitor::EmitTokenC" }
 sub visit { my $self = shift; my $List__ = \@_; my $node; my $node_name; do {  $node = $List__->[0];  $node_name = $List__->[1]; [$node, $node_name] }; $node->emit_c() }
 
 

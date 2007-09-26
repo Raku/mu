@@ -1,6 +1,6 @@
 use v6-alpha;
 
-class KindaPerl6::Visitor::TokenC {
+class KindaPerl6::Visitor::EmitTokenC {
 
     method visit ( $node, $node_name ) {
         $node.emit_c;
