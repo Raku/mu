@@ -5,7 +5,7 @@ use File::Temp qw/ tempfile /;
 
 # Create a t-lisp-exe with just the dirs
 system "cp -Rvp t t-lisp-exe";
-system "find t-lisp-exe -type f -exec rm -v {} \\;";
+system "find t-lisp-exe -type f -exec rm -f {} \\;";
 
 # Compile the t files to .lisp
 open my $cmd, "find t -type f |" or die $!;
