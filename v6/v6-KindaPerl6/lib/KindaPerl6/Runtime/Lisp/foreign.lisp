@@ -19,10 +19,10 @@
   (make-instance 'kp6-Num :value object))
 
 (defmethod cl->perl ((object (eql 'true)) &key)
-  (make-instance 'kp6-Bit :value 1))
+  (make-instance 'kp6-Bit :value t))
 
 (defmethod cl->perl ((object (eql 'false)) &key)
-  (make-instance 'kp6-Bit :value 0))
+  (make-instance 'kp6-Bit :value nil))
 
 (defmethod cl->perl ((object (eql 'undefined)) &key)
   (make-instance 'kp6-Undef))
