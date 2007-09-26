@@ -30,10 +30,14 @@ class CompUnit {
         ~ '(defpackage #:' ~ $.name ~ Main::newline()
         ~ '  (:use #:cl #:kp6-cl))' ~ Main::newline()
         ~ '(in-package #:' ~ $.name ~ ')' ~ Main::newline()
-      
+        ~ '(defun Main () ; ' ~ Main::newline()
         ~ '(with-kp6-interpreter (' ~ $interpreter ~')' ~ Main::newline()
         ~ ' (with-kp6-package (' ~ $interpreter ~ ' "GLOBAL")' ~ Main::newline()
         ~ $.body.emit_lisp($interpreter) ~ '))'
+        ~ ')' ~ Main::newline()
+        # This is a function so (sb-ext:save-lisp-and-die) has
+        # something to call into
+        ~ '(Main::Main)' ~ Main::newline()
     }
 }
 
