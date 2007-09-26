@@ -470,7 +470,7 @@ class Decl {
         my $name := $.var.name;
 
 	# XXX hack: always defines a package variable
-	return '(kp6-define-package-variable (kp6-generate-variable "' ~ $.var.sigil ~ '" "' ~ $.var.name ~ '"))';
+	return '(kp6-define-package-variable ' ~ $interpreter ~ ' (kp6-generate-variable "' ~ $.var.sigil ~ '" "' ~ $.var.name ~ '"))';
 
         if $decl eq 'has' {
             return 'sub ' ~ $name ~ ' { ' ~

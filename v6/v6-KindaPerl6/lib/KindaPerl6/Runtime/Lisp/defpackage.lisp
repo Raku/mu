@@ -30,5 +30,7 @@
    #:kp6-warn
    #:kp6-error
 
+   #:kp6-define-package-variable
+   #:kp6-set-package-variable
    #:with-kp6-package
    #:with-kp6-interpreter))

@@ -44,6 +44,9 @@
 	   (,old (when (slot-boundp ,interpreter-var 'current-package) (kp6-current-package ,interpreter-var))))
       (setf (kp6-current-package ,interpreter-var) (or (kp6-find-package ,interpreter-var ,package-var) (kp6-error ,interpreter-var 'kp6-package-not-found :package ,package-var)))
       (if ,old
-	  (unwind-protect ,@body
+	  (unwind-protect
+	       (progn
+		 ,@body)
 	    (setf (kp6-current-package ,interpreter-var) ,old))
-	  ,@body))))
+	  (progn
+	    ,@body)))))

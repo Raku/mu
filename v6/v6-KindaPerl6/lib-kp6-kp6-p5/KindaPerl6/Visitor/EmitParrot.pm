@@ -162,7 +162,7 @@
                                                             ::DISPATCH(
                                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                                 'APPLY',
-                                                                ::DISPATCH( $::Str, 'new', '.end' ),
+                                                                ::DISPATCH( ::DISPATCH( $self, "body" ), 'emit_parrot', ),
                                                                 ::DISPATCH(
                                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                                     'APPLY',
@@ -170,20 +170,30 @@
                                                                     ::DISPATCH(
                                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                                         'APPLY',
-                                                                        ::DISPATCH( $Main::Code_newline, 'APPLY', ),
+                                                                        ::DISPATCH( $::Str, 'new', '.end' ),
                                                                         ::DISPATCH(
                                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                                             'APPLY',
-                                                                            ::DISPATCH( $::Str, 'new', '.sub ' ),
+                                                                            ::DISPATCH( $Main::Code_newline, 'APPLY', ),
                                                                             ::DISPATCH(
                                                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                                                 'APPLY',
-                                                                                ::DISPATCH( $Main::Code_quote, 'APPLY', ),
+                                                                                ::DISPATCH( $Main::Code_newline, 'APPLY', ),
                                                                                 ::DISPATCH(
                                                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                                                     'APPLY',
-                                                                                    ::DISPATCH( $::Str, 'new', '_class_vars_' ),
-                                                                                    ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $Main::Code_quote, 'APPLY', ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                                                                    ::DISPATCH( $::Str, 'new', '.sub ' ),
+                                                                                    ::DISPATCH(
+                                                                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                                                                        'APPLY',
+                                                                                        ::DISPATCH( $Main::Code_quote, 'APPLY', ),
+                                                                                        ::DISPATCH(
+                                                                                            $GLOBAL::Code_infix_58__60__126__62_,
+                                                                                            'APPLY',
+                                                                                            ::DISPATCH( $::Str, 'new', '_class_vars_' ),
+                                                                                            ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $Main::Code_quote, 'APPLY', ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                                                                        )
+                                                                                    )
                                                                                 )
                                                                             )
                                                                         )
@@ -674,7 +684,6 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        ::DISPATCH( $GLOBAL::Code_die, 'APPLY', ::DISPATCH( $::Str, 'new', 'Val::Object - not used yet' ) );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
@@ -741,7 +750,6 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        ::DISPATCH( $GLOBAL::Code_die, 'APPLY', ::DISPATCH( $::Str, 'new', 'Lit::Seq - not used yet' ) );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
@@ -981,7 +989,7 @@
                                 {
                                     do {
                                         ::MODIFIED($s);
-                                        $s = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $s, ::DISPATCH( ::DISPATCH( $item, 'INDEX', ::DISPATCH( $::Int, 'new', ) ), 'emit_parrot', ) );
+                                        $s = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $s, ::DISPATCH( ::DISPATCH( $item, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_parrot', ) );
                                     };
                                     do {
                                         ::MODIFIED($s);
@@ -1091,7 +1099,580 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        ::DISPATCH( $GLOBAL::Code_die, 'APPLY', ::DISPATCH( $::Str, 'new', 'Lit::Code - not used yet' ) );
+                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $self, 'emit_declarations', ), ::DISPATCH( $self, 'emit_body', ) );
+                    },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
+                }
+            )
+        );
+        ::DISPATCH(
+            ::DISPATCH( $::Lit::Code, 'HOW', ),
+            'add_method',
+            ::DISPATCH( $::Str, 'new', 'emit_body' ),
+            ::DISPATCH(
+                $::Code, 'new',
+                {   code => sub {
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $self;
+                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
+                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        $self = shift;
+                        my $CAPTURE;
+                        $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
+                        BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+                        ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                        do {
+                            ::MODIFIED($List__);
+                            $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                        };
+                        do {
+                            ::MODIFIED($Hash__);
+                            $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        ::DISPATCH( [ map { $_->emit_parrot() } @{ ::DISPATCH( $self, "body" ) } ], 'join', ::DISPATCH( $::Str, 'new', ' ' ) );
+                    },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
+                }
+            )
+        );
+        ::DISPATCH(
+            ::DISPATCH( $::Lit::Code, 'HOW', ),
+            'add_method',
+            ::DISPATCH( $::Str, 'new', 'emit_signature' ),
+            ::DISPATCH(
+                $::Code, 'new',
+                {   code => sub {
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $self;
+                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
+                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        $self = shift;
+                        my $CAPTURE;
+                        $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
+                        BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+                        ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                        do {
+                            ::MODIFIED($List__);
+                            $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                        };
+                        do {
+                            ::MODIFIED($Hash__);
+                            $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        ::DISPATCH( ::DISPATCH( $self, "sig" ), 'emit_parrot', );
+                    },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
+                }
+            )
+        );
+        ::DISPATCH(
+            ::DISPATCH( $::Lit::Code, 'HOW', ),
+            'add_method',
+            ::DISPATCH( $::Str, 'new', 'emit_declarations' ),
+            ::DISPATCH(
+                $::Code, 'new',
+                {   code => sub {
+                        my $s;
+                        $s = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$s' } ) unless defined $s;
+                        BEGIN { $s = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$s' } ) }
+                        my $name;
+                        $name = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$name' } ) unless defined $name;
+                        BEGIN { $name = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$name' } ) }
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $self;
+                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
+                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        $self = shift;
+                        my $CAPTURE;
+                        $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
+                        BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+                        ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                        do {
+                            ::MODIFIED($List__);
+                            $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                        };
+                        do {
+                            ::MODIFIED($Hash__);
+                            $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        $s;
+                        $name;
+                        {
+                            my $name;
+                            $name = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$name' } ) unless defined $name;
+                            BEGIN { $name = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$name' } ) }
+                            for $name ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "pad" ), 'variable_names', ) ) )->{_value}{_array} } ) {
+                                {
+                                    my $decl;
+                                    $decl = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$decl' } ) unless defined $decl;
+                                    BEGIN { $decl = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$decl' } ) }
+                                    do {
+                                        ::MODIFIED($decl);
+                                        $decl = ::DISPATCH(
+                                            $::Decl, 'new',
+                                            ::DISPATCH(
+                                                $::NamedArgument,
+                                                "new",
+                                                {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'decl' ),
+                                                    value           => ::DISPATCH( $::Str, 'new', 'my' ),
+                                                }
+                                            ),
+                                            ::DISPATCH(
+                                                $::NamedArgument,
+                                                "new",
+                                                {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'type' ),
+                                                    value           => ::DISPATCH( $::Str, 'new', '' ),
+                                                }
+                                            ),
+                                            ::DISPATCH(
+                                                $::NamedArgument,
+                                                "new",
+                                                {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'var' ),
+                                                    value           => ::DISPATCH(
+                                                        $::Var, 'new',
+                                                        ::DISPATCH(
+                                                            $::NamedArgument,
+                                                            "new",
+                                                            {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'sigil' ),
+                                                                value           => ::DISPATCH( $::Str, 'new', '' ),
+                                                            }
+                                                        ),
+                                                        ::DISPATCH(
+                                                            $::NamedArgument,
+                                                            "new",
+                                                            {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'twigil' ),
+                                                                value           => ::DISPATCH( $::Str, 'new', '' ),
+                                                            }
+                                                        ),
+                                                        ::DISPATCH(
+                                                            $::NamedArgument,
+                                                            "new",
+                                                            {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'name' ),
+                                                                value           => $name,
+                                                            }
+                                                        ),
+                                                        ::DISPATCH(
+                                                            $::NamedArgument,
+                                                            "new",
+                                                            {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'namespace' ),
+                                                                value => ::DISPATCH( $::Array, "new", { _array => [] } ),
+                                                            }
+                                                        ),
+                                                    ),
+                                                }
+                                            ),
+                                        );
+                                    };
+                                    do {
+                                        ::MODIFIED($s);
+                                        $s = ::DISPATCH(
+                                            $GLOBAL::Code_infix_58__60__126__62_,
+                                            'APPLY', $s,
+                                            ::DISPATCH(
+                                                $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                                ::DISPATCH( $name, 'emit_parrot', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' ' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                            )
+                                        );
+                                        }
+                                }
+                            }
+                        };
+                        return ($s);
+                    },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
+                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
+                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
+                            return   => $::Undef,
+                        }
+                    ),
+                }
+            )
+        );
+        ::DISPATCH(
+            ::DISPATCH( $::Lit::Code, 'HOW', ),
+            'add_method',
+            ::DISPATCH( $::Str, 'new', 'emit_arguments' ),
+            ::DISPATCH(
+                $::Code, 'new',
+                {   code => sub {
+                        my $array_;
+                        $array_ = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$array_' } ) unless defined $array_;
+                        BEGIN { $array_ = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$array_' } ) }
+                        my $hash_;
+                        $hash_ = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$hash_' } ) unless defined $hash_;
+                        BEGIN { $hash_ = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$hash_' } ) }
+                        my $CAPTURE;
+                        $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
+                        BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+                        my $CAPTURE_decl;
+                        $CAPTURE_decl = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE_decl' } ) unless defined $CAPTURE_decl;
+                        BEGIN { $CAPTURE_decl = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE_decl' } ) }
+                        my $str;
+                        $str = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$str' } ) unless defined $str;
+                        BEGIN { $str = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$str' } ) }
+                        my $bind_;
+                        $bind_ = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$bind_' } ) unless defined $bind_;
+                        BEGIN { $bind_ = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$bind_' } ) }
+                        my $bind_hash;
+                        $bind_hash = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$bind_hash' } ) unless defined $bind_hash;
+                        BEGIN { $bind_hash = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$bind_hash' } ) }
+                        my $i;
+                        $i = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$i' } ) unless defined $i;
+                        BEGIN { $i = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$i' } ) }
+                        my $field;
+                        $field = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$field' } ) unless defined $field;
+                        BEGIN { $field = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$field' } ) }
+                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $self;
+                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
+                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        $self = shift;
+                        my $CAPTURE;
+                        $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
+                        BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+                        ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                        do {
+                            ::MODIFIED($List__);
+                            $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                        };
+                        do {
+                            ::MODIFIED($Hash__);
+                            $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
+                            ::MODIFIED($array_);
+                            $array_ = ::DISPATCH(
+                                $::Var, 'new',
+                                ::DISPATCH(
+                                    $::NamedArgument,
+                                    "new",
+                                    {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'sigil' ),
+                                        value           => ::DISPATCH( $::Str, 'new', '@' ),
+                                    }
+                                ),
+                                ::DISPATCH(
+                                    $::NamedArgument,
+                                    "new",
+                                    {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'twigil' ),
+                                        value           => ::DISPATCH( $::Str, 'new', '' ),
+                                    }
+                                ),
+                                ::DISPATCH(
+                                    $::NamedArgument,
+                                    "new",
+                                    {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'name' ),
+                                        value           => ::DISPATCH( $::Str, 'new', '_' ),
+                                    }
+                                ),
+                                ::DISPATCH(
+                                    $::NamedArgument,
+                                    "new",
+                                    {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'namespace' ),
+                                        value => ::DISPATCH( $::Array, "new", { _array => [] } ),
+                                    }
+                                ),
+                            );
+                        };
+                        do {
+                            ::MODIFIED($hash_);
+                            $hash_ = ::DISPATCH(
+                                $::Var, 'new',
+                                ::DISPATCH(
+                                    $::NamedArgument,
+                                    "new",
+                                    {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'sigil' ),
+                                        value           => ::DISPATCH( $::Str, 'new', '%' ),
+                                    }
+                                ),
+                                ::DISPATCH(
+                                    $::NamedArgument,
+                                    "new",
+                                    {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'twigil' ),
+                                        value           => ::DISPATCH( $::Str, 'new', '' ),
+                                    }
+                                ),
+                                ::DISPATCH(
+                                    $::NamedArgument,
+                                    "new",
+                                    {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'name' ),
+                                        value           => ::DISPATCH( $::Str, 'new', '_' ),
+                                    }
+                                ),
+                                ::DISPATCH(
+                                    $::NamedArgument,
+                                    "new",
+                                    {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'namespace' ),
+                                        value => ::DISPATCH( $::Array, "new", { _array => [] } ),
+                                    }
+                                ),
+                            );
+                        };
+                        do {
+                            ::MODIFIED($CAPTURE);
+                            $CAPTURE = ::DISPATCH(
+                                $::Var, 'new',
+                                ::DISPATCH(
+                                    $::NamedArgument,
+                                    "new",
+                                    {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'sigil' ),
+                                        value           => ::DISPATCH( $::Str, 'new', '$' ),
+                                    }
+                                ),
+                                ::DISPATCH(
+                                    $::NamedArgument,
+                                    "new",
+                                    {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'twigil' ),
+                                        value           => ::DISPATCH( $::Str, 'new', '' ),
+                                    }
+                                ),
+                                ::DISPATCH(
+                                    $::NamedArgument,
+                                    "new",
+                                    {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'name' ),
+                                        value           => ::DISPATCH( $::Str, 'new', 'CAPTURE' ),
+                                    }
+                                ),
+                                ::DISPATCH(
+                                    $::NamedArgument,
+                                    "new",
+                                    {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'namespace' ),
+                                        value => ::DISPATCH( $::Array, "new", { _array => [] } ),
+                                    }
+                                ),
+                            );
+                        };
+                        do {
+                            ::MODIFIED($CAPTURE_decl);
+                            $CAPTURE_decl = ::DISPATCH(
+                                $::Decl, 'new',
+                                ::DISPATCH(
+                                    $::NamedArgument,
+                                    "new",
+                                    {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'decl' ),
+                                        value           => ::DISPATCH( $::Str, 'new', 'my' ),
+                                    }
+                                ),
+                                ::DISPATCH(
+                                    $::NamedArgument,
+                                    "new",
+                                    {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'type' ),
+                                        value           => ::DISPATCH( $::Str, 'new', '' ),
+                                    }
+                                ),
+                                ::DISPATCH(
+                                    $::NamedArgument,
+                                    "new",
+                                    {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'var' ),
+                                        value           => $CAPTURE,
+                                    }
+                                ),
+                            );
+                        };
+                        do {
+                            ::MODIFIED($str);
+                            $str = ::DISPATCH( $::Str, 'new', '' );
+                        };
+                        do {
+                            ::MODIFIED($str);
+                            $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $CAPTURE_decl, 'emit_parrot', ) );
+                        };
+                        do {
+                            ::MODIFIED($str);
+                            $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $::Str, 'new', '::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\\@_));' ) );
+                        };
+                        do {
+                            ::MODIFIED($bind_);
+                            $bind_ = ::DISPATCH(
+                                $::Bind, 'new',
+                                ::DISPATCH(
+                                    $::NamedArgument,
+                                    "new",
+                                    {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'parameters' ),
+                                        value           => $array_,
+                                    }
+                                ),
+                                ::DISPATCH(
+                                    $::NamedArgument,
+                                    "new",
+                                    {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'arguments' ),
+                                        value           => ::DISPATCH(
+                                            $::Call, 'new',
+                                            ::DISPATCH(
+                                                $::NamedArgument,
+                                                "new",
+                                                {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'invocant' ),
+                                                    value           => $CAPTURE,
+                                                }
+                                            ),
+                                            ::DISPATCH(
+                                                $::NamedArgument,
+                                                "new",
+                                                {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'method' ),
+                                                    value           => ::DISPATCH( $::Str, 'new', 'array' ),
+                                                }
+                                            ),
+                                            ::DISPATCH(
+                                                $::NamedArgument,
+                                                "new",
+                                                {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'arguments' ),
+                                                    value => ::DISPATCH( $::Array, "new", { _array => [] } ),
+                                                }
+                                            ),
+                                        ),
+                                    }
+                                ),
+                            );
+                        };
+                        do {
+                            ::MODIFIED($str);
+                            $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $bind_, 'emit_parrot', ), ::DISPATCH( $::Str, 'new', ' ' ) ) );
+                        };
+                        do {
+                            ::MODIFIED($bind_hash);
+                            $bind_hash = ::DISPATCH(
+                                $::Bind, 'new',
+                                ::DISPATCH(
+                                    $::NamedArgument,
+                                    "new",
+                                    {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'parameters' ),
+                                        value           => $hash_,
+                                    }
+                                ),
+                                ::DISPATCH(
+                                    $::NamedArgument,
+                                    "new",
+                                    {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'arguments' ),
+                                        value           => ::DISPATCH(
+                                            $::Call, 'new',
+                                            ::DISPATCH(
+                                                $::NamedArgument,
+                                                "new",
+                                                {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'invocant' ),
+                                                    value           => $CAPTURE,
+                                                }
+                                            ),
+                                            ::DISPATCH(
+                                                $::NamedArgument,
+                                                "new",
+                                                {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'method' ),
+                                                    value           => ::DISPATCH( $::Str, 'new', 'hash' ),
+                                                }
+                                            ),
+                                            ::DISPATCH(
+                                                $::NamedArgument,
+                                                "new",
+                                                {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'arguments' ),
+                                                    value => ::DISPATCH( $::Array, "new", { _array => [] } ),
+                                                }
+                                            ),
+                                        ),
+                                    }
+                                ),
+                            );
+                        };
+                        do {
+                            ::MODIFIED($str);
+                            $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $bind_hash, 'emit_parrot', ), ::DISPATCH( $::Str, 'new', ' ' ) ) );
+                        };
+                        do {
+                            ::MODIFIED($i);
+                            $i = ::DISPATCH( $::Int, 'new', 0 );
+                        };
+                        $field;
+                        {
+                            my $field;
+                            $field = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$field' } ) unless defined $field;
+                            BEGIN { $field = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$field' } ) }
+                            for $field ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "sig" ), 'positional', ) ) )->{_value}{_array} } ) {
+                                {
+                                    my $bind;
+                                    $bind = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$bind' } ) unless defined $bind;
+                                    BEGIN { $bind = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$bind' } ) }
+                                    do {
+                                        ::MODIFIED($bind);
+                                        $bind = ::DISPATCH(
+                                            $::Bind, 'new',
+                                            ::DISPATCH(
+                                                $::NamedArgument,
+                                                "new",
+                                                {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'parameters' ),
+                                                    value           => $field,
+                                                }
+                                            ),
+                                            ::DISPATCH(
+                                                $::NamedArgument,
+                                                "new",
+                                                {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'arguments' ),
+                                                    value           => ::DISPATCH(
+                                                        $::Index, 'new',
+                                                        ::DISPATCH(
+                                                            $::NamedArgument,
+                                                            "new",
+                                                            {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'obj' ),
+                                                                value           => $array_,
+                                                            }
+                                                        ),
+                                                        ::DISPATCH(
+                                                            $::NamedArgument,
+                                                            "new",
+                                                            {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'index' ),
+                                                                value           => ::DISPATCH(
+                                                                    $::Val::Int,
+                                                                    'new',
+                                                                    ::DISPATCH(
+                                                                        $::NamedArgument,
+                                                                        "new",
+                                                                        {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'int' ),
+                                                                            value           => $i,
+                                                                        }
+                                                                    ),
+                                                                ),
+                                                            }
+                                                        ),
+                                                    ),
+                                                }
+                                            ),
+                                        );
+                                    };
+                                    do {
+                                        ::MODIFIED($str);
+                                        $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $bind, 'emit_parrot', ), ::DISPATCH( $::Str, 'new', ' ' ) ) );
+                                    };
+                                    do {
+                                        ::MODIFIED($i);
+                                        $i = ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $i, ::DISPATCH( $::Int, 'new', 1 ) );
+                                        }
+                                }
+                            }
+                        };
+                        return ($str);
                     },
                     signature => ::DISPATCH(
                         $::Signature,
@@ -1224,7 +1805,7 @@
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
-                                                ::DISPATCH( ::DISPATCH( $field, 'INDEX', ::DISPATCH( $::Int, 'new', ) ), 'emit_parrot', ),
+                                                ::DISPATCH( ::DISPATCH( $field, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_parrot', ),
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
@@ -1755,7 +2336,7 @@
                                     };
                                     do {
                                         ::MODIFIED($i);
-                                        $i = ::DISPATCH( $::Int, 'new', );
+                                        $i = ::DISPATCH( $::Int, 'new', 0 );
                                     };
                                     {
                                         my $var;
@@ -1834,7 +2415,7 @@
                                     };
                                     do {
                                         ::MODIFIED($i);
-                                        $i = ::DISPATCH( $::Int, 'new', );
+                                        $i = ::DISPATCH( $::Int, 'new', 0 );
                                     };
                                     $arg;
                                     {
@@ -1861,7 +2442,7 @@
                                                                         ::DISPATCH(
                                                                             ::DISPATCH(
                                                                                 $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY',
-                                                                                ::DISPATCH( ::DISPATCH( $var2, 'INDEX', ::DISPATCH( $::Int, 'new', ) ), 'buf', ), ::DISPATCH( ::DISPATCH( $var, 'INDEX', ::DISPATCH( $::Int, 'new', ) ), 'buf', )
+                                                                                ::DISPATCH( ::DISPATCH( $var2, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'buf', ), ::DISPATCH( ::DISPATCH( $var, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'buf', )
                                                                             ),
                                                                             "true"
                                                                         ),
@@ -1985,7 +2566,7 @@
                                                                         $::NamedArgument,
                                                                         "new",
                                                                         {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'method' ),
-                                                                            value => ::DISPATCH( ::DISPATCH( $var, 'INDEX', ::DISPATCH( $::Int, 'new', ) ), 'buf', ),
+                                                                            value => ::DISPATCH( ::DISPATCH( $var, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'buf', ),
                                                                         }
                                                                     ),
                                                                     ::DISPATCH(
@@ -1999,7 +2580,7 @@
                                                                         $::NamedArgument,
                                                                         "new",
                                                                         {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'hyper' ),
-                                                                            value           => ::DISPATCH( $::Int, 'new', ),
+                                                                            value           => ::DISPATCH( $::Int, 'new', 0 ),
                                                                         }
                                                                     ),
                                                                 ),
@@ -2764,7 +3345,7 @@
                         };
                         do {
                             ::MODIFIED($i);
-                            $i = ::DISPATCH( $::Int, 'new', );
+                            $i = ::DISPATCH( $::Int, 'new', 0 );
                         };
                         $List_p;
                         {
@@ -3058,7 +3639,7 @@
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY',
-                                            ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', ) ), 'emit_parrot', ),
+                                            ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_parrot', ),
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
@@ -3085,7 +3666,7 @@
                                                     $::NamedArgument,
                                                     "new",
                                                     {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'cond' ),
-                                                        value => ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', ) ),
+                                                        value => ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ),
                                                     }
                                                 ),
                                                 ::DISPATCH(
@@ -3102,7 +3683,7 @@
                                                                             $::NamedArgument,
                                                                             "new",
                                                                             {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'bit' ),
-                                                                                value           => ::DISPATCH( $::Int, 'new', ),
+                                                                                value           => ::DISPATCH( $::Int, 'new', 0 ),
                                                                             }
                                                                         ),
                                                                     )
@@ -3153,7 +3734,7 @@
                                                     $::NamedArgument,
                                                     "new",
                                                     {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'cond' ),
-                                                        value => ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', ) ),
+                                                        value => ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ),
                                                     }
                                                 ),
                                                 ::DISPATCH(
@@ -3193,7 +3774,7 @@
                                                                             $::NamedArgument,
                                                                             "new",
                                                                             {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'bit' ),
-                                                                                value           => ::DISPATCH( $::Int, 'new', ),
+                                                                                value           => ::DISPATCH( $::Int, 'new', 0 ),
                                                                             }
                                                                         ),
                                                                     )
@@ -3241,7 +3822,7 @@
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY',
-                                            ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', ) ), 'emit_parrot', ),
+                                            ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_parrot', ),
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
@@ -3319,7 +3900,7 @@
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
-                                                    ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', ) ), 'emit_parrot', ),
+                                                    ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_parrot', ),
                                                     ::DISPATCH(
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
@@ -3369,7 +3950,7 @@
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
-                                                    ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', ) ), 'emit_parrot', ),
+                                                    ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_parrot', ),
                                                     ::DISPATCH(
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
@@ -3415,7 +3996,7 @@
                                                     $::NamedArgument,
                                                     "new",
                                                     {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'cond' ),
-                                                        value => ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', ) ),
+                                                        value => ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ),
                                                     }
                                                 ),
                                                 ::DISPATCH(
@@ -3451,7 +4032,7 @@
                                                     $::NamedArgument,
                                                     "new",
                                                     {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'cond' ),
-                                                        value => ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', ) ),
+                                                        value => ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ),
                                                     }
                                                 ),
                                                 ::DISPATCH(
@@ -3494,7 +4075,7 @@
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY',
-                                            ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', ) ), 'emit_parrot', ),
+                                            ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_parrot', ),
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
@@ -3644,7 +4225,7 @@
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY',
-                                            ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', ) ), 'emit_parrot', ),
+                                            ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_parrot', ),
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
@@ -3802,7 +4383,7 @@
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
-                                                    ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', ) ), 'emit_parrot', ),
+                                                    ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_parrot', ),
                                                     ::DISPATCH(
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
@@ -3942,7 +4523,7 @@
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
-                                                    ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', ) ), 'emit_parrot', ),
+                                                    ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_parrot', ),
                                                     ::DISPATCH(
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
@@ -4067,7 +4648,7 @@
                                                     $::NamedArgument,
                                                     "new",
                                                     {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'cond' ),
-                                                        value => ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', ) ),
+                                                        value => ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ),
                                                     }
                                                 ),
                                                 ::DISPATCH(
@@ -4099,7 +4680,7 @@
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY',
-                                            ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', ) ), 'emit_parrot', ),
+                                            ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_parrot', ),
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
@@ -4122,7 +4703,7 @@
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY',
-                                            ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', ) ), 'emit_parrot', ),
+                                            ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_parrot', ),
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
@@ -4311,7 +4892,7 @@
                         };
                         do {
                             ::MODIFIED($i);
-                            $i = ::DISPATCH( $::Int, 'new', );
+                            $i = ::DISPATCH( $::Int, 'new', 0 );
                         };
                         $List_p;
                         {
@@ -5291,7 +5872,7 @@
                         };
                         do {
                             ::MODIFIED($i);
-                            $i = ::DISPATCH( $::Int, 'new', );
+                            $i = ::DISPATCH( $::Int, 'new', 0 );
                         };
                         $field;
                         {
@@ -5550,7 +6131,7 @@
                         };
                         do {
                             ::MODIFIED($i);
-                            $i = ::DISPATCH( $::Int, 'new', );
+                            $i = ::DISPATCH( $::Int, 'new', 0 );
                         };
                         $field;
                         {

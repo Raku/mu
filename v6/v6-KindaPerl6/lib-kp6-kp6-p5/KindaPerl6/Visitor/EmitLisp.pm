@@ -102,6 +102,9 @@
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $args_secure;
                         $args_secure = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$args_secure' } ) unless defined $args_secure;
@@ -122,6 +125,11 @@
                         do {
                             ::MODIFIED($args_secure);
                             $args_secure = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '|' ),
+                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $self, "name" ), ::DISPATCH( $::Str, 'new', '|' ) ) );
                         };
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
@@ -150,7 +158,7 @@
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
-                                                    ::DISPATCH( $::Str, 'new', '(load (compile-file "lib/KindaPerl6/Runtime/Lisp/Runtime.lisp"))' ),
+                                                    ::DISPATCH( $::Str, 'new', '(load "lib/KindaPerl6/Runtime/Lisp/Runtime.lisp")' ),
                                                     ::DISPATCH(
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
@@ -194,26 +202,41 @@
                                                                                             ::DISPATCH(
                                                                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                                                                 'APPLY',
-                                                                                                ::DISPATCH( $::Str, 'new', '(defun Main () (with-kp6-package "GLOBAL"' ),
+                                                                                                ::DISPATCH( $::Str, 'new', '(with-kp6-interpreter (' ),
                                                                                                 ::DISPATCH(
                                                                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                                                                     'APPLY',
-                                                                                                    ::DISPATCH( $Main::Code_newline, 'APPLY', ),
+                                                                                                    $interpreter,
                                                                                                     ::DISPATCH(
                                                                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                                                                         'APPLY',
-                                                                                                        ::DISPATCH( ::DISPATCH( $self, "body" ), 'emit_lisp', ),
+                                                                                                        ::DISPATCH( $::Str, 'new', ')' ),
                                                                                                         ::DISPATCH(
                                                                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                                                                             'APPLY',
-                                                                                                            ::DISPATCH( $::Str, 'new', '))' ),
+                                                                                                            ::DISPATCH( $Main::Code_newline, 'APPLY', ),
                                                                                                             ::DISPATCH(
                                                                                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                                                                                 'APPLY',
-                                                                                                                ::DISPATCH( $Main::Code_newline, 'APPLY', ),
+                                                                                                                ::DISPATCH( $::Str, 'new', ' (with-kp6-package (' ),
                                                                                                                 ::DISPATCH(
-                                                                                                                    $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                                                                                                    ::DISPATCH( $::Str, 'new', '(Main::Main)' ), ::DISPATCH( $Main::Code_newline, 'APPLY', )
+                                                                                                                    $GLOBAL::Code_infix_58__60__126__62_,
+                                                                                                                    'APPLY',
+                                                                                                                    $interpreter,
+                                                                                                                    ::DISPATCH(
+                                                                                                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                                                                                                        'APPLY',
+                                                                                                                        ::DISPATCH( $::Str, 'new', ' "GLOBAL")' ),
+                                                                                                                        ::DISPATCH(
+                                                                                                                            $GLOBAL::Code_infix_58__60__126__62_,
+                                                                                                                            'APPLY',
+                                                                                                                            ::DISPATCH( $Main::Code_newline, 'APPLY', ),
+                                                                                                                            ::DISPATCH(
+                                                                                                                                $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                                                                                                                ::DISPATCH( ::DISPATCH( $self, "body" ), 'emit_lisp', $interpreter ), ::DISPATCH( $::Str, 'new', '))' )
+                                                                                                                            )
+                                                                                                                        )
+                                                                                                                    )
                                                                                                                 )
                                                                                                             )
                                                                                                         )
@@ -340,9 +363,9 @@
                 $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -355,6 +378,10 @@
                         do {
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
@@ -374,10 +401,10 @@
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -419,9 +446,9 @@
                 $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -434,6 +461,10 @@
                         do {
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
@@ -453,10 +484,10 @@
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -498,9 +529,9 @@
                 $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -513,6 +544,10 @@
                         do {
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
@@ -532,10 +567,10 @@
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -577,9 +612,9 @@
                 $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -592,6 +627,10 @@
                         do {
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
@@ -619,10 +658,10 @@
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -664,9 +703,9 @@
                 $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -680,6 +719,10 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
@@ -690,10 +733,10 @@
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -735,9 +778,9 @@
                 $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -750,6 +793,10 @@
                         do {
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
@@ -764,10 +811,10 @@
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -809,9 +856,9 @@
                 $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -825,15 +872,19 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
                         ::DISPATCH( $GLOBAL::Code_die, 'APPLY', ::DISPATCH( $::Str, 'new', 'Emitting of Val::Object not implemented' ) );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -875,9 +926,9 @@
                 $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -891,15 +942,19 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
                         ::DISPATCH( $GLOBAL::Code_die, 'APPLY', ::DISPATCH( $::Str, 'new', 'Emitting of Native::Buf not implemented' ) );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -941,9 +996,9 @@
                 $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -957,20 +1012,26 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH( $::Str,                               'new',   '(list ' ),
-                            ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( [ map { $_->emit_lisp() } @{ ::DISPATCH( $self, "seq" ) } ], 'join', ::DISPATCH( $::Str, 'new', ' ' ) ), ::DISPATCH( $::Str, 'new', ')' ) )
+                            ::DISPATCH( $::Str, 'new', '(list ' ),
+                            ::DISPATCH(
+                                $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( [ map { $_->emit_lisp($interpreter) } @{ ::DISPATCH( $self, "seq" ) } ], 'join', ::DISPATCH( $::Str, 'new', ' ' ) ), ::DISPATCH( $::Str, 'new', ')' )
+                            )
                         );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -1012,9 +1073,9 @@
                 $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -1028,6 +1089,10 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
@@ -1038,7 +1103,7 @@
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH( [ map { $_->emit_lisp() } @{ ::DISPATCH( $self, "array" ) } ], 'join', ::DISPATCH( $::Str, 'new', ' ' ) ),
+                                ::DISPATCH( [ map { $_->emit_lisp($interpreter) } @{ ::DISPATCH( $self, "array" ) } ], 'join', ::DISPATCH( $::Str, 'new', ' ' ) ),
                                 ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '))' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                             )
                         );
@@ -1046,10 +1111,10 @@
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -1100,9 +1165,9 @@
                         $field = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$field' } ) unless defined $field;
                         BEGIN { $field = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$field' } ) }
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -1115,6 +1180,10 @@
                         do {
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         do {
                             ::MODIFIED($fields);
@@ -1143,7 +1212,7 @@
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
-                                                    ::DISPATCH( ::DISPATCH( $field, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_lisp', ),
+                                                    ::DISPATCH( ::DISPATCH( $field, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_lisp', $interpreter ),
                                                     ::DISPATCH(
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
@@ -1151,7 +1220,7 @@
                                                         ::DISPATCH(
                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                             'APPLY',
-                                                            ::DISPATCH( ::DISPATCH( $field, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) ), 'emit_lisp', ),
+                                                            ::DISPATCH( ::DISPATCH( $field, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) ), 'emit_lisp', $interpreter ),
                                                             ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ')' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                                                         )
                                                     )
@@ -1177,10 +1246,10 @@
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -1222,9 +1291,9 @@
                 $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -1238,6 +1307,10 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
@@ -1248,14 +1321,16 @@
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH( ::DISPATCH( $self, "key" ), 'emit_lisp', ),
+                                ::DISPATCH( ::DISPATCH( $self, "key" ), 'emit_lisp', $interpreter ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
                                     ::DISPATCH( $::Str, 'new', ' :value ' ),
                                     ::DISPATCH(
-                                        $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                        ::DISPATCH( ::DISPATCH( $self, "value" ), 'emit_lisp', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ')' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                        'APPLY',
+                                        ::DISPATCH( ::DISPATCH( $self, "value" ), 'emit_lisp', $interpreter ),
+                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ')' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                                     )
                                 )
                             )
@@ -1264,10 +1339,10 @@
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -1309,9 +1384,9 @@
                 $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -1325,6 +1400,10 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
@@ -1335,14 +1414,16 @@
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH( ::DISPATCH( $self, "key" ), 'emit_lisp', ),
+                                ::DISPATCH( ::DISPATCH( $self, "key" ), 'emit_lisp', $interpreter ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
                                     ::DISPATCH( $::Str, 'new', ' :value ' ),
                                     ::DISPATCH(
-                                        $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                        ::DISPATCH( ::DISPATCH( $self, "value" ), 'emit_lisp', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ')' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                        'APPLY',
+                                        ::DISPATCH( ::DISPATCH( $self, "value" ), 'emit_lisp', $interpreter ),
+                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ')' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                                     )
                                 )
                             )
@@ -1351,10 +1432,10 @@
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -1396,9 +1477,9 @@
                 $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -1412,15 +1493,19 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $self, 'emit_declarations', ), ::DISPATCH( $self, 'emit_body', ) );
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
+                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $self, 'emit_declarations', $interpreter ), ::DISPATCH( $self, 'emit_body', $interpreter ) );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -1434,9 +1519,9 @@
                 $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -1450,15 +1535,19 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        ::DISPATCH( [ map { $_->emit_lisp() } @{ ::DISPATCH( $self, "body" ) } ], 'join', ::DISPATCH( $::Str, 'new', ' ' ) );
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
+                        ::DISPATCH( [ map { $_->emit_lisp($interpreter) } @{ ::DISPATCH( $self, "body" ) } ], 'join', ::DISPATCH( $::Str, 'new', ' ' ) );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -1472,9 +1561,9 @@
                 $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -1488,15 +1577,19 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        ::DISPATCH( ::DISPATCH( $self, "sig" ), 'emit_lisp', );
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
+                        ::DISPATCH( ::DISPATCH( $self, "sig" ), 'emit_lisp', $interpreter );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -1516,9 +1609,9 @@
                         $name = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$name' } ) unless defined $name;
                         BEGIN { $name = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$name' } ) }
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -1531,6 +1624,10 @@
                         do {
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         $s;
                         $name;
@@ -1607,7 +1704,7 @@
                                             'APPLY', $s,
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                                ::DISPATCH( $name, 'emit_lisp', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' ' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                                ::DISPATCH( $name, 'emit_lisp', $interpreter ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' ' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                                             )
                                         );
                                         }
@@ -1619,10 +1716,10 @@
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -1663,9 +1760,9 @@
                         $field = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$field' } ) unless defined $field;
                         BEGIN { $field = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$field' } ) }
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -1678,6 +1775,10 @@
                         do {
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         do {
                             ::MODIFIED($array_);
@@ -1814,7 +1915,7 @@
                         };
                         do {
                             ::MODIFIED($str);
-                            $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $CAPTURE_decl, 'emit_lisp', ) );
+                            $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $CAPTURE_decl, 'emit_lisp', $interpreter ) );
                         };
                         do {
                             ::MODIFIED($str);
@@ -1865,7 +1966,7 @@
                         };
                         do {
                             ::MODIFIED($str);
-                            $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $bind_, 'emit_lisp', ), ::DISPATCH( $::Str, 'new', ' ' ) ) );
+                            $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $bind_, 'emit_lisp', $interpreter ), ::DISPATCH( $::Str, 'new', ' ' ) ) );
                         };
                         do {
                             ::MODIFIED($bind_hash);
@@ -1912,7 +2013,7 @@
                         };
                         do {
                             ::MODIFIED($str);
-                            $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $bind_hash, 'emit_lisp', ), ::DISPATCH( $::Str, 'new', ' ' ) ) );
+                            $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $bind_hash, 'emit_lisp', $interpreter ), ::DISPATCH( $::Str, 'new', ' ' ) ) );
                         };
                         do {
                             ::MODIFIED($i);
@@ -1976,7 +2077,8 @@
                                     };
                                     do {
                                         ::MODIFIED($str);
-                                        $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $bind, 'emit_lisp', ), ::DISPATCH( $::Str, 'new', ' ' ) ) );
+                                        $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_,
+                                            'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $bind, 'emit_lisp', $interpreter ), ::DISPATCH( $::Str, 'new', ' ' ) ) );
                                     };
                                     do {
                                         ::MODIFIED($i);
@@ -1990,10 +2092,10 @@
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -2044,9 +2146,9 @@
                         $field = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$field' } ) unless defined $field;
                         BEGIN { $field = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$field' } ) }
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -2059,6 +2161,10 @@
                         do {
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         do {
                             ::MODIFIED($fields);
@@ -2083,12 +2189,12 @@
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
-                                                ::DISPATCH( ::DISPATCH( $field, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_lisp', ),
+                                                ::DISPATCH( ::DISPATCH( $field, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_lisp', $interpreter ),
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
                                                     ::DISPATCH( $::Str, 'new', ' => ' ),
-                                                    ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $field, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) ), 'emit_lisp', ), ::DISPATCH( $::Str, 'new', ',' ) )
+                                                    ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $field, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) ), 'emit_lisp', $interpreter ), ::DISPATCH( $::Str, 'new', ',' ) )
                                                 )
                                             )
                                         );
@@ -2116,10 +2222,10 @@
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -2161,9 +2267,9 @@
                 $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -2177,6 +2283,10 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
@@ -2184,14 +2294,16 @@
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH( ::DISPATCH( $self, "obj" ), 'emit_lisp', ),
+                                ::DISPATCH( ::DISPATCH( $self, "obj" ), 'emit_lisp', $interpreter ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
                                     ::DISPATCH( $::Str, 'new', ' ' ),
                                     ::DISPATCH(
-                                        $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                        ::DISPATCH( ::DISPATCH( $self, "index" ), 'emit_lisp', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ')' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                        'APPLY',
+                                        ::DISPATCH( ::DISPATCH( $self, "index" ), 'emit_lisp', $interpreter ),
+                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ')' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                                     )
                                 )
                             )
@@ -2200,10 +2312,10 @@
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -2245,9 +2357,9 @@
                 $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -2261,6 +2373,10 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
@@ -2268,10 +2384,10 @@
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH( ::DISPATCH( $self, "obj" ), 'emit_lisp', ),
+                                ::DISPATCH( ::DISPATCH( $self, "obj" ), 'emit_lisp', $interpreter ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                    ::DISPATCH( $::Str, 'new', ' (perl->cl ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "index" ), 'emit_lisp', ), ::DISPATCH( $::Str, 'new', '))' ) )
+                                    ::DISPATCH( $::Str, 'new', ' (perl->cl ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "index" ), 'emit_lisp', $interpreter ), ::DISPATCH( $::Str, 'new', '))' ) )
                                 )
                             )
                         );
@@ -2279,10 +2395,10 @@
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -2327,9 +2443,9 @@
                         $node = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$node' } ) unless defined $node;
                         BEGIN { $node = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$node' } ) }
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -2342,6 +2458,10 @@
                         do {
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         do {
                             ::MODIFIED($node);
@@ -2552,10 +2672,10 @@
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH( $node, 'emit_lisp', ),
+                                ::DISPATCH( $node, 'emit_lisp', $interpreter ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                    ::DISPATCH( $::Str, 'new', ' ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'emit_lisp', ), ::DISPATCH( $::Str, 'new', ')' ) )
+                                    ::DISPATCH( $::Str, 'new', ' ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'emit_lisp', $interpreter ), ::DISPATCH( $::Str, 'new', ')' ) )
                                 )
                             )
                         );
@@ -2563,10 +2683,10 @@
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -2614,9 +2734,9 @@
                         $namespace = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$namespace' } ) unless defined $namespace;
                         BEGIN { $namespace = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$namespace' } ) }
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -2629,6 +2749,10 @@
                         do {
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         do {
                             ::MODIFIED($table);
@@ -2680,14 +2804,24 @@
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY',
-                                            ::DISPATCH( $::Str, 'new', '(kp6-lookup (kp6-lookup *kp6-packages* "GLOBAL") (kp6-generate-variable "' ),
+                                            ::DISPATCH( $::Str, 'new', '(kp6-lookup (kp6-lookup (kp6-packages ' ),
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
-                                                ::DISPATCH( $self, "sigil" ),
+                                                $interpreter,
                                                 ::DISPATCH(
-                                                    $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                                    ::DISPATCH( $::Str, 'new', '" "' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $self, "name" ), ::DISPATCH( $::Str, 'new', '"))' ) )
+                                                    $GLOBAL::Code_infix_58__60__126__62_,
+                                                    'APPLY',
+                                                    ::DISPATCH( $::Str, 'new', ') "GLOBAL") (kp6-generate-variable "' ),
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                                        'APPLY',
+                                                        ::DISPATCH( $self, "sigil" ),
+                                                        ::DISPATCH(
+                                                            $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                                            ::DISPATCH( $::Str, 'new', '" "' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $self, "name" ), ::DISPATCH( $::Str, 'new', '"))' ) )
+                                                        )
+                                                    )
                                                 )
                                             )
                                         )
@@ -2700,22 +2834,32 @@
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH( $::Str, 'new', '(kp6-lookup (kp6-lookup *kp6-packages* "' ),
+                                ::DISPATCH( $::Str, 'new', '(kp6-lookup (kp6-lookup (kp6-packages ' ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
-                                    ::DISPATCH( $GLOBAL::Code_join, 'APPLY', ::DISPATCH( $::Str, 'new', '::' ), ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $namespace ) ),
+                                    $interpreter,
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
-                                        ::DISPATCH( $::Str, 'new', '") (kp6-generate-variable "' ),
+                                        ::DISPATCH( $::Str, 'new', ') "' ),
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY',
-                                            ::DISPATCH( $self, "sigil" ),
+                                            ::DISPATCH( $GLOBAL::Code_join, 'APPLY', ::DISPATCH( $::Str, 'new', '::' ), ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $namespace ) ),
                                             ::DISPATCH(
-                                                $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                                ::DISPATCH( $::Str, 'new', '" "' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $self, "name" ), ::DISPATCH( $::Str, 'new', '"))' ) )
+                                                $GLOBAL::Code_infix_58__60__126__62_,
+                                                'APPLY',
+                                                ::DISPATCH( $::Str, 'new', '") (kp6-generate-variable "' ),
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_infix_58__60__126__62_,
+                                                    'APPLY',
+                                                    ::DISPATCH( $self, "sigil" ),
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', '" "' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $self, "name" ), ::DISPATCH( $::Str, 'new', '"))' ) )
+                                                    )
+                                                )
                                             )
                                         )
                                     )
@@ -2726,10 +2870,10 @@
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -2867,9 +3011,9 @@
                         $str = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$str' } ) unless defined $str;
                         BEGIN { $str = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$str' } ) }
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -2882,6 +3026,10 @@
                         do {
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "parameters" ), 'isa', ::DISPATCH( $::Str, 'new', 'Call' ) ), "true" ), "p5landish" ) ) {
@@ -2907,6 +3055,7 @@
                                                 ),
                                             ),
                                             'emit_lisp',
+                                            $interpreter
                                         )
                                         )
                                 }
@@ -2937,6 +3086,7 @@
                                                 ),
                                             ),
                                             'emit_lisp',
+                                            $interpreter
                                         )
                                         )
                                 }
@@ -2967,6 +3117,7 @@
                                                 ),
                                             ),
                                             'emit_lisp',
+                                            $interpreter
                                         )
                                         )
                                 }
@@ -2985,20 +3136,30 @@
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
-                                    ::DISPATCH( ::DISPATCH( $self, "parameters" ), 'emit_lisp', ),
-                                    ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' = ' ), ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'emit_lisp', ) )
+                                    ::DISPATCH( $::Str, 'new', '(setf ' ),
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                        'APPLY',
+                                        ::DISPATCH( ::DISPATCH( $self, "parameters" ), 'emit_lisp', $interpreter ),
+                                        ::DISPATCH(
+                                            $GLOBAL::Code_infix_58__60__126__62_,
+                                            'APPLY',
+                                            ::DISPATCH( $::Str, 'new', ' ' ),
+                                            ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'emit_lisp', $interpreter ), ::DISPATCH( $::Str, 'new', ')' ) )
+                                        )
+                                    )
                                 )
                             );
                         };
-                        return ( ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', 'do {' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $::Str, 'new', '}' ) ) ) );
+                        return ($str);
                     },
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -3040,9 +3201,9 @@
                 $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -3056,15 +3217,19 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
                         return ( ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '\\\'' ), ::DISPATCH( $self, "name" ) ) );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -3115,9 +3280,9 @@
                         $call = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$call' } ) unless defined $call;
                         BEGIN { $call = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$call' } ) }
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -3130,6 +3295,10 @@
                         do {
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         $invocant;
                         do {
@@ -3148,7 +3317,7 @@
                                             {
                                                 do {
                                                     ::MODIFIED($invocant);
-                                                    $invocant = ::DISPATCH( ::DISPATCH( $self, "invocant" ), 'emit_lisp', );
+                                                    $invocant = ::DISPATCH( ::DISPATCH( $self, "invocant" ), 'emit_lisp', $interpreter );
                                                     }
                                             }
                                         }
@@ -3159,7 +3328,7 @@
                                 {
                                     do {
                                         ::MODIFIED($invocant);
-                                        $invocant = ::DISPATCH( ::DISPATCH( $self, "invocant" ), 'emit_lisp', );
+                                        $invocant = ::DISPATCH( ::DISPATCH( $self, "invocant" ), 'emit_lisp', $interpreter );
                                         }
                                 }
                             }
@@ -3192,7 +3361,7 @@
                         };
                         do {
                             ::MODIFIED($call);
-                            $call = ::DISPATCH( [ map { $_->emit_lisp() } @{ ::DISPATCH( $self, "arguments" ) } ], 'join', ::DISPATCH( $::Str, 'new', ' ' ) );
+                            $call = ::DISPATCH( [ map { $_->emit_lisp($interpreter) } @{ ::DISPATCH( $self, "arguments" ) } ], 'join', ::DISPATCH( $::Str, 'new', ' ' ) );
                         };
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "hyper" ), "true" ), "p5landish" ) ) {
@@ -3297,10 +3466,10 @@
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -3345,9 +3514,9 @@
                         $op = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$op' } ) unless defined $op;
                         BEGIN { $op = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$op' } ) }
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -3360,6 +3529,10 @@
                         do {
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         do {
                             if (::DISPATCH(
@@ -3389,7 +3562,7 @@
                         };
                         do {
                             ::MODIFIED($op);
-                            $op = ::DISPATCH( ::DISPATCH( $self, "code" ), 'emit_lisp', );
+                            $op = ::DISPATCH( ::DISPATCH( $self, "code" ), 'emit_lisp', $interpreter );
                         };
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $op, ::DISPATCH( $::Str, 'new', '$GLOBAL::Code_infix_58__60__124__124__62_' ) ), "true" ), "p5landish" ) ) {
@@ -3402,7 +3575,7 @@
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
-                                                ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_lisp', ),
+                                                ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_lisp', $interpreter ),
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
@@ -3422,7 +3595,7 @@
                                                                 ::DISPATCH(
                                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                                     'APPLY',
-                                                                    ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) ), 'emit_lisp', ),
+                                                                    ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) ), 'emit_lisp', $interpreter ),
                                                                     ::DISPATCH(
                                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                                         'APPLY',
@@ -3463,7 +3636,7 @@
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
-                                                    ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_lisp', ),
+                                                    ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_lisp', $interpreter ),
                                                     ::DISPATCH(
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
@@ -3483,7 +3656,7 @@
                                                                     ::DISPATCH(
                                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                                         'APPLY',
-                                                                        ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) ), 'emit_lisp', ),
+                                                                        ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) ), 'emit_lisp', $interpreter ),
                                                                         ::DISPATCH(
                                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                                             'APPLY',
@@ -3517,19 +3690,29 @@
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH( $::Str, 'new', '(kp6-apply-function (perl->cl ' ),
+                                ::DISPATCH( $::Str, 'new', '(kp6-apply-function ' ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
-                                    'APPLY', $op,
+                                    'APPLY',
+                                    $interpreter,
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
-                                        ::DISPATCH( $::Str, 'new', ') (mapcar #\\\'cl->perl (list ' ),
+                                        ::DISPATCH( $::Str, 'new', ' (perl->cl ' ),
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
-                                            'APPLY',
-                                            ::DISPATCH( [ map { $_->emit_lisp() } @{ ::DISPATCH( $self, "arguments" ) } ], 'join', ::DISPATCH( $::Str, 'new', ' ' ) ),
-                                            ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ')))' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                            'APPLY', $op,
+                                            ::DISPATCH(
+                                                $GLOBAL::Code_infix_58__60__126__62_,
+                                                'APPLY',
+                                                ::DISPATCH( $::Str, 'new', ') (mapcar #\\\'cl->perl (list ' ),
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_infix_58__60__126__62_,
+                                                    'APPLY',
+                                                    ::DISPATCH( [ map { $_->emit_lisp($interpreter) } @{ ::DISPATCH( $self, "arguments" ) } ], 'join', ::DISPATCH( $::Str, 'new', ' ' ) ),
+                                                    ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ')))' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                                )
+                                            )
                                         )
                                     )
                                 )
@@ -3539,10 +3722,10 @@
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -3584,9 +3767,9 @@
                 $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -3600,6 +3783,10 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
                         return (
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
@@ -3607,7 +3794,7 @@
                                 ::DISPATCH( $::Str, 'new', 'return(' ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                    ::DISPATCH( ::DISPATCH( $self, "result" ), 'emit_lisp', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ')' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                    ::DISPATCH( ::DISPATCH( $self, "result" ), 'emit_lisp', $interpreter ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ')' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                                 )
                             )
                         );
@@ -3615,10 +3802,10 @@
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -3660,9 +3847,9 @@
                 $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -3676,6 +3863,10 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
@@ -3683,7 +3874,7 @@
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH( ::DISPATCH( $self, "cond" ), 'emit_lisp', ),
+                                ::DISPATCH( ::DISPATCH( $self, "cond" ), 'emit_lisp', $interpreter ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
@@ -3696,8 +3887,10 @@
                                             'APPLY',
                                             ::DISPATCH( $self, "body" ),
                                             ::DISPATCH(
-                                                $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                                ::DISPATCH( $::Str, 'new', '(progn ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "body" ), 'emit_lisp', ), ::DISPATCH( $::Str, 'new', ') ' ) )
+                                                $GLOBAL::Code_infix_58__60__126__62_,
+                                                'APPLY',
+                                                ::DISPATCH( $::Str, 'new', '(progn ' ),
+                                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "body" ), 'emit_lisp', $interpreter ), ::DISPATCH( $::Str, 'new', ') ' ) )
                                             ),
                                             ::DISPATCH( $::Str, 'new', '(progn)' )
                                         ),
@@ -3712,7 +3905,7 @@
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
                                                     ::DISPATCH( $::Str, 'new', ' (progn ' ),
-                                                    ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "otherwise" ), 'emit_lisp', ), ::DISPATCH( $::Str, 'new', ' )' ) )
+                                                    ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "otherwise" ), 'emit_lisp', $interpreter ), ::DISPATCH( $::Str, 'new', ' )' ) )
                                                 ),
                                                 ::DISPATCH( $::Str, 'new', '(progn)' )
                                             ),
@@ -3726,10 +3919,10 @@
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -3774,9 +3967,9 @@
                         $cond = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$cond' } ) unless defined $cond;
                         BEGIN { $cond = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$cond' } ) }
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -3789,6 +3982,10 @@
                         do {
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         do {
                             ::MODIFIED($cond);
@@ -3878,7 +4075,7 @@
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH( ::DISPATCH( $self, "topic" ), 'emit_lisp', ),
+                                ::DISPATCH( ::DISPATCH( $self, "topic" ), 'emit_lisp', $interpreter ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
@@ -3886,7 +4083,7 @@
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
-                                        ::DISPATCH( $cond, 'emit_lisp', ),
+                                        ::DISPATCH( $cond, 'emit_lisp', $interpreter ),
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY',
@@ -3898,7 +4095,7 @@
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
-                                                    ::DISPATCH( ::DISPATCH( $self, "body" ), 'emit_lisp', ),
+                                                    ::DISPATCH( ::DISPATCH( $self, "body" ), 'emit_lisp', $interpreter ),
                                                     ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' } ' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                                                 )
                                             )
@@ -3911,10 +4108,10 @@
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -3959,9 +4156,9 @@
                         $cond = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$cond' } ) unless defined $cond;
                         BEGIN { $cond = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$cond' } ) }
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -3974,6 +4171,10 @@
                         do {
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         do {
                             ::MODIFIED($cond);
@@ -4063,7 +4264,7 @@
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH( ::DISPATCH( $self, "cond" ), 'emit_lisp', ),
+                                ::DISPATCH( ::DISPATCH( $self, "cond" ), 'emit_lisp', $interpreter ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
@@ -4073,8 +4274,10 @@
                                         'APPLY',
                                         ::DISPATCH( $::Str, 'new', ' { ' ),
                                         ::DISPATCH(
-                                            $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                            ::DISPATCH( ::DISPATCH( $self, "body" ), 'emit_lisp', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' } }' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                            $GLOBAL::Code_infix_58__60__126__62_,
+                                            'APPLY',
+                                            ::DISPATCH( ::DISPATCH( $self, "body" ), 'emit_lisp', $interpreter ),
+                                            ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' } }' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                                         )
                                     )
                                 )
@@ -4084,10 +4287,10 @@
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -4138,9 +4341,9 @@
                         $create = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$create' } ) unless defined $create;
                         BEGIN { $create = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$create' } ) }
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -4155,6 +4358,10 @@
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
+                        do {
                             ::MODIFIED($decl);
                             $decl = ::DISPATCH( $self, "decl" );
                         };
@@ -4166,14 +4373,24 @@
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH( $::Str, 'new', '(kp6-define-package-variable (kp6-generate-variable "' ),
+                                ::DISPATCH( $::Str, 'new', '(kp6-define-package-variable ' ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
-                                    ::DISPATCH( ::DISPATCH( $self, "var" ), 'sigil', ),
+                                    $interpreter,
                                     ::DISPATCH(
-                                        $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                        ::DISPATCH( $::Str, 'new', '" "' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "var" ), 'name', ), ::DISPATCH( $::Str, 'new', '"))' ) )
+                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                        'APPLY',
+                                        ::DISPATCH( $::Str, 'new', ' (kp6-generate-variable "' ),
+                                        ::DISPATCH(
+                                            $GLOBAL::Code_infix_58__60__126__62_,
+                                            'APPLY',
+                                            ::DISPATCH( ::DISPATCH( $self, "var" ), 'sigil', ),
+                                            ::DISPATCH(
+                                                $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                                ::DISPATCH( $::Str, 'new', '" "' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "var" ), 'name', ), ::DISPATCH( $::Str, 'new', '"))' ) )
+                                            )
+                                        )
                                     )
                                 )
                             )
@@ -4235,7 +4452,7 @@
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
                                 ::DISPATCH( $::Str, 'new', ', \\\'new\\\', { modified => $_MODIFIED, name => \\\'' ),
-                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ), ::DISPATCH( $::Str, 'new', '\\\' } ) ' ) )
+                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', $interpreter ), ::DISPATCH( $::Str, 'new', '\\\' } ) ' ) )
                             );
                         };
                         do {
@@ -4259,7 +4476,7 @@
                                                         ::DISPATCH(
                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                             'APPLY',
-                                                            ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ),
+                                                            ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', $interpreter ),
                                                             ::DISPATCH(
                                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                                 'APPLY',
@@ -4274,7 +4491,7 @@
                                                                         ::DISPATCH(
                                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                                             'APPLY',
-                                                                            ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ),
+                                                                            ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', $interpreter ),
                                                                             ::DISPATCH(
                                                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                                                 'APPLY',
@@ -4286,7 +4503,7 @@
                                                                                     ::DISPATCH(
                                                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                                                         'APPLY',
-                                                                                        ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ),
+                                                                                        ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', $interpreter ),
                                                                                         ::DISPATCH(
                                                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                                                             'APPLY',
@@ -4301,7 +4518,7 @@
                                                                                                     ::DISPATCH(
                                                                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                                                                         'APPLY',
-                                                                                                        ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ),
+                                                                                                        ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', $interpreter ),
                                                                                                         ::DISPATCH(
                                                                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                                                                             'APPLY',
@@ -4336,7 +4553,7 @@
                                                         ::DISPATCH(
                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                             'APPLY',
-                                                            ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ),
+                                                            ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', $interpreter ),
                                                             ::DISPATCH(
                                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                                 'APPLY',
@@ -4363,7 +4580,7 @@
                                                         ::DISPATCH(
                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                             'APPLY',
-                                                            ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ),
+                                                            ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', $interpreter ),
                                                             ::DISPATCH(
                                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                                 'APPLY',
@@ -4390,7 +4607,7 @@
                                                         ::DISPATCH(
                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                             'APPLY',
-                                                            ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ),
+                                                            ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', $interpreter ),
                                                             ::DISPATCH(
                                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                                 'APPLY',
@@ -4410,7 +4627,7 @@
                                     return (
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
-                                            'APPLY', $s, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                            'APPLY', $s, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', $interpreter ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                                         )
                                         )
                                 }
@@ -4432,7 +4649,7 @@
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
-                                                    ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ),
+                                                    ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', $interpreter ),
                                                     ::DISPATCH(
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
@@ -4440,7 +4657,7 @@
                                                         ::DISPATCH(
                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                             'APPLY',
-                                                            ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ),
+                                                            ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', $interpreter ),
                                                             ::DISPATCH(
                                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                                 'APPLY',
@@ -4455,7 +4672,7 @@
                                                                         ::DISPATCH(
                                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                                             'APPLY',
-                                                                            ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ),
+                                                                            ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', $interpreter ),
                                                                             ::DISPATCH(
                                                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                                                 'APPLY',
@@ -4467,7 +4684,7 @@
                                                                                     ::DISPATCH(
                                                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                                                         'APPLY',
-                                                                                        ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ),
+                                                                                        ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', $interpreter ),
                                                                                         ::DISPATCH(
                                                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                                                             'APPLY',
@@ -4510,7 +4727,7 @@
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
-                                                    ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ),
+                                                    ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', $interpreter ),
                                                     ::DISPATCH(
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
@@ -4518,7 +4735,7 @@
                                                         ::DISPATCH(
                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                             'APPLY',
-                                                            ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ),
+                                                            ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', $interpreter ),
                                                             ::DISPATCH(
                                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                                 'APPLY',
@@ -4533,7 +4750,7 @@
                                                                         ::DISPATCH(
                                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                                             'APPLY',
-                                                                            ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ),
+                                                                            ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', $interpreter ),
                                                                             ::DISPATCH(
                                                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                                                 'APPLY',
@@ -4545,7 +4762,7 @@
                                                                                     ::DISPATCH(
                                                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                                                         'APPLY',
-                                                                                        ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ),
+                                                                                        ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', $interpreter ),
                                                                                         ::DISPATCH(
                                                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                                                             'APPLY',
@@ -4592,7 +4809,7 @@
                                                     ::DISPATCH(
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
-                                                        ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ),
+                                                        ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', $interpreter ),
                                                         ::DISPATCH(
                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                             'APPLY',
@@ -4630,7 +4847,7 @@
                                                     ::DISPATCH(
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
-                                                        ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ),
+                                                        ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', $interpreter ),
                                                         ::DISPATCH(
                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                             'APPLY',
@@ -4651,18 +4868,20 @@
                         };
                         return (
                             ::DISPATCH(
-                                $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                ::DISPATCH( $self, "decl" ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' ' ), ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', ) )
+                                $GLOBAL::Code_infix_58__60__126__62_,
+                                'APPLY',
+                                ::DISPATCH( $self, "decl" ),
+                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' ' ), ::DISPATCH( ::DISPATCH( $self, "var" ), 'emit_lisp', $interpreter ) )
                             )
                         );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -4716,9 +4935,9 @@
                         $named = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$named' } ) unless defined $named;
                         BEGIN { $named = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$named' } ) }
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -4731,6 +4950,10 @@
                         do {
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         do {
                             ::MODIFIED($inv);
@@ -4823,10 +5046,10 @@
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -4871,9 +5094,9 @@
                         $s = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$s' } ) unless defined $s;
                         BEGIN { $s = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$s' } ) }
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -4888,6 +5111,10 @@
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
+                        do {
                             ::MODIFIED($s);
                             $s = ::DISPATCH( $::Str, 'new', '(kp6-new \\\'capture ' );
                         };
@@ -4900,8 +5127,10 @@
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY', $s,
                                             ::DISPATCH(
-                                                $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                                ::DISPATCH( $::Str, 'new', 'invocant: ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "invocant" ), 'emit_lisp', ), ::DISPATCH( $::Str, 'new', ', ' ) )
+                                                $GLOBAL::Code_infix_58__60__126__62_,
+                                                'APPLY',
+                                                ::DISPATCH( $::Str, 'new', 'invocant: ' ),
+                                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "invocant" ), 'emit_lisp', $interpreter ), ::DISPATCH( $::Str, 'new', ', ' ) )
                                             )
                                         );
                                         }
@@ -4935,8 +5164,8 @@
                                             {
                                                 do {
                                                     ::MODIFIED($s);
-                                                    $s = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $s,
-                                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $item, 'emit_lisp', ), ::DISPATCH( $::Str, 'new', ', ' ) ) );
+                                                    $s = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_,
+                                                        'APPLY', $s, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $item, 'emit_lisp', $interpreter ), ::DISPATCH( $::Str, 'new', ', ' ) ) );
                                                     }
                                             }
                                         }
@@ -4974,12 +5203,15 @@
                                                         ::DISPATCH(
                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                             'APPLY',
-                                                            ::DISPATCH( ::DISPATCH( $item, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_lisp', ),
+                                                            ::DISPATCH( ::DISPATCH( $item, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_lisp', $interpreter ),
                                                             ::DISPATCH(
                                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                                 'APPLY',
                                                                 ::DISPATCH( $::Str, 'new', '->{_value} => ' ),
-                                                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $item, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) ), 'emit_lisp', ), ::DISPATCH( $::Str, 'new', ', ' ) )
+                                                                ::DISPATCH(
+                                                                    $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                                                    ::DISPATCH( ::DISPATCH( $item, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) ), 'emit_lisp', $interpreter ), ::DISPATCH( $::Str, 'new', ', ' )
+                                                                )
                                                             )
                                                         )
                                                     );
@@ -5000,10 +5232,10 @@
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -5045,9 +5277,9 @@
                 $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -5061,6 +5293,10 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
@@ -5072,7 +5308,7 @@
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
-                                    ::DISPATCH( ::DISPATCH( $self, "base_class" ), 'emit_lisp', ),
+                                    ::DISPATCH( ::DISPATCH( $self, "base_class" ), 'emit_lisp', $interpreter ),
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
@@ -5088,7 +5324,7 @@
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
-                                                    ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "block" ), 'block', ), 'emit_lisp', ),
+                                                    ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "block" ), 'block', ), 'emit_lisp', $interpreter ),
                                                     ::DISPATCH(
                                                         $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
                                                         ::DISPATCH( $::Str, 'new', ' } ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ')' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
@@ -5104,10 +5340,10 @@
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -5149,9 +5385,9 @@
                 $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -5165,6 +5401,10 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
@@ -5176,7 +5416,7 @@
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
-                                    ::DISPATCH( ::DISPATCH( $self, "block" ), 'emit_declarations', ),
+                                    ::DISPATCH( ::DISPATCH( $self, "block" ), 'emit_declarations', $interpreter ),
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
@@ -5184,11 +5424,11 @@
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY',
-                                            ::DISPATCH( ::DISPATCH( $self, "block" ), 'emit_arguments', ),
+                                            ::DISPATCH( ::DISPATCH( $self, "block" ), 'emit_arguments', $interpreter ),
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
-                                                ::DISPATCH( ::DISPATCH( $self, "block" ), 'emit_body', ),
+                                                ::DISPATCH( ::DISPATCH( $self, "block" ), 'emit_body', $interpreter ),
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
@@ -5200,7 +5440,7 @@
                                                         ::DISPATCH(
                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                             'APPLY',
-                                                            ::DISPATCH( ::DISPATCH( $self, "block" ), 'emit_signature', ),
+                                                            ::DISPATCH( ::DISPATCH( $self, "block" ), 'emit_signature', $interpreter ),
                                                             ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ')' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                                                         )
                                                     )
@@ -5215,10 +5455,10 @@
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -5260,9 +5500,9 @@
                 $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -5276,6 +5516,10 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
@@ -5287,15 +5531,15 @@
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
-                                    ::DISPATCH( ::DISPATCH( $self, "block" ), 'emit_declarations', ),
+                                    ::DISPATCH( ::DISPATCH( $self, "block" ), 'emit_declarations', $interpreter ),
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
-                                        ::DISPATCH( ::DISPATCH( $self, "block" ), 'emit_arguments', ),
+                                        ::DISPATCH( ::DISPATCH( $self, "block" ), 'emit_arguments', $interpreter ),
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY',
-                                            ::DISPATCH( ::DISPATCH( $self, "block" ), 'emit_body', ),
+                                            ::DISPATCH( ::DISPATCH( $self, "block" ), 'emit_body', $interpreter ),
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
@@ -5307,7 +5551,7 @@
                                                     ::DISPATCH(
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
-                                                        ::DISPATCH( ::DISPATCH( $self, "block" ), 'emit_signature', ),
+                                                        ::DISPATCH( ::DISPATCH( $self, "block" ), 'emit_signature', $interpreter ),
                                                         ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ')' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                                                     )
                                                 )
@@ -5321,10 +5565,10 @@
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -5366,9 +5610,9 @@
                 $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -5382,15 +5626,19 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "block" ), 'emit_lisp', ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) );
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
+                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "block" ), 'emit_lisp', $interpreter ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -5432,9 +5680,9 @@
                 $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -5448,20 +5696,24 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
                             ::DISPATCH( $::Str, 'new', 'BEGIN { ' ),
-                            ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "block" ), 'emit_lisp', ), ::DISPATCH( $::Str, 'new', ' }' ) )
+                            ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "block" ), 'emit_lisp', $interpreter ), ::DISPATCH( $::Str, 'new', ' }' ) )
                         );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -5503,9 +5755,9 @@
                 $::Code, 'new',
                 {   code => sub {
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                        my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        my $interpreter;
+                        $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) unless defined $interpreter;
+                        BEGIN { $interpreter = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$interpreter' } ) }
                         $self = shift;
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -5518,6 +5770,10 @@
                         do {
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
+                            ::MODIFIED($interpreter);
+                            $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $self, "mod" ), ::DISPATCH( $::Str, 'new', 'v6' ) ), "true" ), "p5landish" ) ) {
@@ -5575,10 +5831,10 @@
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {   invocant => $::Undef,
+                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'interpreter', namespace => [], } ), ] } ),
+                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
                         }
                     ),
                 }
