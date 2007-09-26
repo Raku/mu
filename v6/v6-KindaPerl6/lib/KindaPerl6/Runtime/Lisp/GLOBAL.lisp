@@ -26,8 +26,9 @@ result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
     (assert (typep array 'kp6-Array) (array))
     (length (kp6-value array)))
 
-  (define-kp6-function "infix:<~>" (&rest strs)
-    (cl->perl (format nil "~{~A~}" (mapcar #'perl->display strs))))
+  ;;; TODO: All these functions need to _num or _str their arguments,
+  ;;; the string functions currently die on numeric arguments and vice
+  ;;; versa for the numeric functions
 
   (define-kp6-function "infix:<eq>" (first second)
     (cl->perl (if (string= (perl->cl first) (perl->cl second))
@@ -40,14 +41,49 @@ result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
 		  'true)))
 
   (define-kp6-function "infix:<==>" (first second)
-    (cl->perl (if (equal (perl->cl first) (perl->cl second)) ; XXX broken for strings
+    (cl->perl (if (equal (perl->cl first) (perl->cl second))
 		  'true
 		  'false)))
 
   (define-kp6-function "infix:<!=>" (first second)
-    (cl->perl (if (equal (perl->cl first) (perl->cl second)) ; XXX broken for strings
+    (cl->perl (if (equal (perl->cl first) (perl->cl second))
 		  'false
 		  'true)))
+
+  (define-kp6-function "infix:<<>" (first second)
+    (cl->perl (< (perl->cl first) (perl->cl second))))
+
+  (define-kp6-function "infix:<>>" (first second)
+    (cl->perl (> (perl->cl first) (perl->cl second))))
+
+
+  (define-kp6-function "infix:<<=>" (first second)
+    (cl->perl (<= (perl->cl first) (perl->cl second))))
+
+  (define-kp6-function "infix:<>=>" (first second)
+    (cl->perl (>= (perl->cl first) (perl->cl second))))
+
+  (define-kp6-function "infix:<<=>>" (first second)
+    ; (defun <=> (a b) (signum (- a b)))
+    (cl->perl (signum (- (perl->cl first) (perl->cl second)))))
+
+  (define-kp6-function "infix:<+>" (first second)
+    (cl->perl (+ (perl->cl first) (perl->cl second))))
+
+  (define-kp6-function "infix:<->" (first second)
+    (cl->perl (- (perl->cl first) (perl->cl second))))
+
+  (define-kp6-function "infix:<*>" (first second)
+    (cl->perl (* (perl->cl first) (perl->cl second))))
+
+  (define-kp6-function "infix:</>" (first second)
+    (cl->perl (/ (perl->cl first) (perl->cl second))))
+
+  (define-kp6-function "infix:<~>" (&rest strs)
+    (cl->perl (format nil "~{~A~}" (mapcar #'perl->display strs))))
+
+  (define-kp6-function "length" (&rest strs)
+    (cl->perl (length (perl->cl (first strs)))))
 
   (define-kp6-function "infix:<&&>" (&rest operands)
     (if (null operands)
