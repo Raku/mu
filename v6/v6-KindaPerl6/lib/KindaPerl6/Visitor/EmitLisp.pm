@@ -30,9 +30,10 @@ class CompUnit {
         ~ '(defpackage #:' ~ $.name ~ Main::newline()
         ~ '  (:use #:cl #:kp6-cl))' ~ Main::newline()
         ~ '(in-package #:' ~ $.name ~ ')' ~ Main::newline()
-	~ '(with-kp6-interpreter (' ~ $interpreter ~')' ~ Main::newline()
-	~ ' (with-kp6-package (' ~ $interpreter ~ ' "GLOBAL")' ~ Main::newline()
-	~ $.body.emit_lisp($interpreter) ~ '))'
+      
+        ~ '(with-kp6-interpreter (' ~ $interpreter ~')' ~ Main::newline()
+        ~ ' (with-kp6-package (' ~ $interpreter ~ ' "GLOBAL")' ~ Main::newline()
+        ~ $.body.emit_lisp($interpreter) ~ '))'
     }
 }
 
@@ -62,7 +63,7 @@ class Val::Buf {
 
 class Val::Char {
     method emit_lisp ($interpreter) { 
-	'(make-instance \'kp6-Char :value (code-char ' ~ $.char ~ '))'
+        '(make-instance \'kp6-Char :value (code-char ' ~ $.char ~ '))'
     }
 }
 
