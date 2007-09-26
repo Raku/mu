@@ -214,37 +214,37 @@ class Assign {
         
         my $node := $.parameters;
         
-        if $node.isa( 'Var' ) && @($node.namespace)     
-        {
-            # it's a global, 
-            # and it should be autovivified
+#         if $node.isa( 'Var' ) && @($node.namespace)     
+#         {
+#             # it's a global, 
+#             # and it should be autovivified
 
-            $node :=
-                ::Apply(
-                    code => ::Var(
-                        name      => 'ternary:<?? !!>',
-                        twigil    => '',
-                        sigil     => '&',
-                        namespace => [ 'GLOBAL' ],
-                    ),
-                    arguments => [
-                       ::Apply(
-                            arguments => [ $node ],
-                            code => ::Var( name => 'VAR_defined', twigil => '', sigil => '&', namespace => [ 'GLOBAL' ] ),
-                        ),
-                        $node,
-                        ::Bind(
-                            'parameters' => $node,  
-                            'arguments'  => ::Call(
-                                'invocant' => ::Var( name => '::Scalar', twigil => '', sigil => '$', namespace => [ ] ),  
-                                'method'   => 'new',
-                                'hyper'    => '',
-                            ),
-                        )
-                    ],
-                );
+#             $node :=
+#                 ::Apply(
+#                     code => ::Var(
+#                         name      => 'ternary:<?? !!>',
+#                         twigil    => '',
+#                         sigil     => '&',
+#                         namespace => [ 'GLOBAL' ],
+#                     ),
+#                     arguments => [
+#                        ::Apply(
+#                             arguments => [ $node ],
+#                             code => ::Var( name => 'VAR_defined', twigil => '', sigil => '&', namespace => [ 'GLOBAL' ] ),
+#                         ),
+#                         $node,
+#                         ::Bind(
+#                             'parameters' => $node,  
+#                             'arguments'  => ::Call(
+#                                 'invocant' => ::Var( name => '::Scalar', twigil => '', sigil => '$', namespace => [ ] ),  
+#                                 'method'   => 'new',
+#                                 'hyper'    => '',
+#                             ),
+#                         )
+#                     ],
+#                 );
 
-        };
+#         };
 
 	'(setf ' ~ $node.emit_lisp($interpreter) ~ ' ' ~ $.arguments.emit_lisp($interpreter) ~ ')';
         #'(kp6-store \'' ~ $node.emit_lisp ~ ' ' ~ $.arguments.emit_lisp ~ ')' ~ Main::newline();

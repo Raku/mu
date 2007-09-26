@@ -124,7 +124,7 @@ sub emit_lisp { my $self = shift; my $List__ = \@_; my $interpreter; do {  $inte
 ;
 package Assign;
 sub new { shift; bless { @_ }, "Assign" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; my $interpreter; do {  $interpreter = $List__->[0]; [$interpreter] }; my  $node = $self->{parameters}; do { if ((Main::isa($node, 'Var') && @{$node->namespace()})) { $node = Apply->new( 'code' => Var->new( 'name' => 'ternary:<?? !!>','twigil' => '','sigil' => '&','namespace' => ['GLOBAL'], ),'arguments' => [Apply->new( 'arguments' => [$node],'code' => Var->new( 'name' => 'VAR_defined','twigil' => '','sigil' => '&','namespace' => ['GLOBAL'], ), ), $node, Bind->new( 'parameters' => $node,'arguments' => Call->new( 'invocant' => Var->new( 'name' => '::Scalar','twigil' => '','sigil' => '$','namespace' => [], ),'method' => 'new','hyper' => '', ), )], ) } else {  } }; ('(setf ' . ($node->emit_lisp($interpreter) . (' ' . ($self->{arguments}->emit_lisp($interpreter) . ')')))) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; my $interpreter; do {  $interpreter = $List__->[0]; [$interpreter] }; my  $node = $self->{parameters}; ('(setf ' . ($node->emit_lisp($interpreter) . (' ' . ($self->{arguments}->emit_lisp($interpreter) . ')')))) }
 
 
 ;
