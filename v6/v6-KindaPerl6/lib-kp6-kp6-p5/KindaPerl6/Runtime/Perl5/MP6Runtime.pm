@@ -302,4 +302,10 @@ package Main;
         $ENV{KP6_TARGET_RUNTIME} || "KindaPerl6::Runtime::Perl5::Runtime";
     }
 
+    sub expand_macro {
+        # XXX TODO
+        #print "# HERE! @_ \n";
+        #GLOBAL::say( ::DISPATCH( $_[0], 'WHAT' ) );
+    }
+
 1;

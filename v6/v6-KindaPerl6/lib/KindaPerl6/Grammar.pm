@@ -218,10 +218,24 @@ token exp {
           <?opt_ws>  <'!!'>
           <?opt_ws>
           <exp2>
-          { return ::Apply(
-            'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'ternary:<?? !!>', namespace => [ ] ),
-            'arguments' => [ $$<term_meth>, $$<exp>, $$<exp2> ],
-          ) }
+          { 
+          
+            # XXX TODO - expand macro
+            # is &ternary:<?? !!> a macro?
+            my $macro_ast := ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'ternary:<?? !!>', namespace => [ ] );
+            my $macro := COMPILER::get_var( $macro_ast );
+            if defined($macro) {
+                # fetch the macro 
+                my $sub := ( @COMPILER::PAD[0] ).eval_ast( $macro_ast );
+                Main::expand_macro( $sub, $$<term_meth>, $$<exp>, $$<exp2> );
+                # say "# ternary macro = ", $sub.perl;
+            }
+            
+            return ::Apply(
+                'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'ternary:<?? !!>', namespace => [ ] ),
+                'arguments' => [ $$<term_meth>, $$<exp>, $$<exp2> ],
+            ); 
+          }
         | { say '*** Syntax error in ternary operation' }
         ]
     |
