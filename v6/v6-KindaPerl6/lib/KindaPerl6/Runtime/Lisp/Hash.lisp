@@ -4,18 +4,13 @@
   ((value
     :initform (make-hash-table :test #'equal))))
 
-(defmethod kp6-STORE ((self kp6-Hash) key value)
+(defmethod kp6-STORE ((self kp6-Hash) key value &key)
   "Stores a key-value pair in the hash"
   (let ((hash (slot-value self 'value)))
     (setf (gethash key hash) value)
     hash))
 
-(defmethod (setf kp6-lookup) (value (self kp6-Hash) key)
-  (kp6-store self key value))
-
-; LOOKUP is what FETCH is in Perl 5, apperently FETCH now gets the
-; whole hash object *shrug*
-(defmethod kp6-LOOKUP ((self kp6-Hash) key)
+(defmethod kp6-LOOKUP ((self kp6-Hash) key &key)
   "Looks up a value in the hash by key"
   (let* ((hash (kp6-value self))
 	 (entry (gethash key hash)))

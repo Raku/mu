@@ -35,7 +35,7 @@
 
 (defgeneric kp6-set-package-variable (interpreter name value)
   (:method ((interpreter kp6-interpreter) name value)
-    (kp6-store (kp6-current-package interpreter) value)))
+    (kp6-store (kp6-current-package interpreter) name value)))
 
 (defmacro with-kp6-package ((interpreter package) &body body)
   (with-unique-names (interpreter-var package-var old)

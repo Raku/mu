@@ -112,7 +112,7 @@ sub emit_lisp { my $self = shift; my $List__ = \@_; my $interpreter; do {  $inte
 ;
 package Index;
 sub new { shift; bless { @_ }, "Index" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; my $interpreter; do {  $interpreter = $List__->[0]; [$interpreter] }; ('(kp6-index \'' . ($self->{obj}->emit_lisp($interpreter) . (' ' . ($self->{index}->emit_lisp($interpreter) . (')' . Main::newline()))))) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; my $interpreter; do {  $interpreter = $List__->[0]; [$interpreter] }; ('(kp6-lookup ' . ($self->{obj}->emit_lisp($interpreter) . (' (perl->cl ' . ($self->{index}->emit_lisp($interpreter) . ('))' . Main::newline()))))) }
 
 
 ;

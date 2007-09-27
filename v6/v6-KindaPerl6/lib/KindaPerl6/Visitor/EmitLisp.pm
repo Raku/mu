@@ -201,7 +201,7 @@ class Lit::Object {
 
 class Index {
     method emit_lisp ($interpreter) {
-        '(kp6-index \'' ~ $.obj.emit_lisp($interpreter) ~ ' ' ~ $.index.emit_lisp($interpreter) ~ ')' ~ Main::newline()
+        '(kp6-lookup ' ~ $.obj.emit_lisp($interpreter) ~ ' (perl->cl ' ~ $.index.emit_lisp($interpreter) ~ '))' ~ Main::newline()
     }
 }
 

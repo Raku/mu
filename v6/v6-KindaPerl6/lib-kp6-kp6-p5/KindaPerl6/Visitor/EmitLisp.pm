@@ -2320,7 +2320,7 @@
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH( $::Str, 'new', '(kp6-index \\\'' ),
+                            ::DISPATCH( $::Str, 'new', '(kp6-lookup ' ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
