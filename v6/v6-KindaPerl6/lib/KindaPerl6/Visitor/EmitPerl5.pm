@@ -667,6 +667,22 @@ class Sub {
     }
 }
 
+class Macro {
+    method emit_perl5 {
+          '::DISPATCH( $::Macro, \'new\', { '
+        ~   'code => sub { '  
+        ~       $.block.emit_declarations 
+        ~       $.block.emit_arguments 
+        ~       $.block.emit_body
+        ~    ' }, '
+        ~   'signature => ' 
+        ~       $.block.emit_signature
+        ~    ', '
+        ~ ' } )' 
+        ~ Main::newline();
+    }
+}
+
 class Do {
     method emit_perl5 {
         'do { ' ~ 

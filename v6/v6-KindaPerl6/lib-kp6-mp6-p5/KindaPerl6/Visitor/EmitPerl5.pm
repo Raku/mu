@@ -220,6 +220,12 @@ sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( $:
 
 
 ;
+package Macro;
+sub new { shift; bless { @_ }, "Macro" }
+sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( $::Macro, \'new\', { ' . ('code => sub { ' . ($self->{block}->emit_declarations() . ($self->{block}->emit_arguments() . ($self->{block}->emit_body() . (' }, ' . ('signature => ' . ($self->{block}->emit_signature() . (', ' . (' } )' . Main::newline())))))))))) }
+
+
+;
 package Do;
 sub new { shift; bless { @_ }, "Do" }
 sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('do { ' . ($self->{block}->emit_perl5() . (' }' . Main::newline()))) }
