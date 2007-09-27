@@ -139,7 +139,7 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        ::DISPATCH( $GLOBAL::Code_infix_58__60__33__61__62_, 'APPLY', ::DISPATCH( $self, 'elems', ), ::DISPATCH( $::Int, 'new', ) );
+                        ::DISPATCH( $GLOBAL::Code_infix_58__60__33__61__62_, 'APPLY', ::DISPATCH( $self, 'elems', ), ::DISPATCH( $::Int, 'new', 0 ) );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
@@ -301,8 +301,9 @@
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
-                        my $Hash_h = ::DISPATCH( $::Hash,  'new', { modified => $_MODIFIED, name => '$Hash_h' } );
-                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        my $Hash_h   = ::DISPATCH( $::Hash,  'new', { modified => $_MODIFIED, name => '$Hash_h' } );
+                        my $List_res = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List_res' } );
+                        my $List__   = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
                         $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
                         BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
@@ -320,17 +321,26 @@
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         $Hash_h;
+                        $List_res;
                         {
                             my $v;
                             $v = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$v' } ) unless defined $v;
                             BEGIN { $v = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$v' } ) }
                             for $v ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $self ) )->{_value}{_array} } ) {
                                 {
+                                    do {
+                                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $Hash_h, 'LOOKUP', $v ) ), "true" ), "p5landish" ) ) {
+                                            {
+                                                ::DISPATCH( $List_res, 'push', $v )
+                                            }
+                                        }
+                                        else { ::DISPATCH( $::Bit, "new", 0 ) }
+                                    };
                                     ::DISPATCH_VAR( ::DISPATCH( $Hash_h, 'LOOKUP', $v ), 'STORE', ::DISPATCH( $::Int, 'new', 1 ) )
                                 }
                             }
                         };
-                        ::DISPATCH( $Hash_h, 'keys', );
+                        $List_res;
                     },
                     signature => ::DISPATCH(
                         $::Signature,

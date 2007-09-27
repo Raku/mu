@@ -28,10 +28,14 @@ class Array is Container {
 
     method uniq {
         my %h;
+        my @res;
         for @(self) -> $v { 
+            if !(%h{$v}) {
+                @res.push($v);
+            };
             %h{$v} = 1;
         };
-        %h.keys;
+        @res;
     };
 
     # XXX waits for infix <
