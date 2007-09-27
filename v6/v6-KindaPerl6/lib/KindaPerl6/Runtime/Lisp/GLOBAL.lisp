@@ -26,10 +26,8 @@ result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
 
   (labels ((call-kp6-function (interpreter name args)
 	     (kp6-apply-function interpreter (kp6-normalize-function-name name) args))
-	   (str (object) (kp6-coerce object 'kp6-Str))
-	   (perl-str->cl (object) (perl->cl (str object)))
-	   (perl-string= (first second) (string= (perl-str->cl first) (perl-str->cl second)))
-	   (num (object) (kp6-coerce object 'kp6-Num)))
+	   (str* (object) (kp6-coerce object 'string))
+	   (num* (object) (kp6-coerce object 'number)))
     (define-kp6-function "elems" (interpreter array)
       (declare (ignore interpreter))
       (assert (typep array 'kp6-Array) (array))
@@ -37,64 +35,64 @@ result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
 
     (define-kp6-function "infix:<eq>" (interpreter first second)
       (declare (ignore interpreter))
-      (cl->perl (if (perl-string= first second)
+      (cl->perl (if (string= (str* first) (str* second))
 		    'true
 		    'false)))
 
     (define-kp6-function "infix:<ne>" (interpreter first second)
       (declare (ignore interpreter))
-      (cl->perl (if (perl-string= first second)
+      (cl->perl (if (string= (str* first) (str* second))
 		    'false
 		    'true)))
 
     (define-kp6-function "infix:<==>" (interpreter first second)
       (declare (ignore interpreter))
-      (cl->perl (if (equal (perl->cl (num first)) (perl->cl (num second)))
+      (cl->perl (if (equal (num* first) (num* second))
 		    'true
 		    'false)))
 
     (define-kp6-function "infix:<!=>" (interpreter first second)
       (declare (ignore interpreter))
-      (cl->perl (if (equal (perl->cl (num first)) (perl->cl (num second)))
+      (cl->perl (if (equal (num* first) (num* second))
 		    'false
 		    'true)))
 
     (define-kp6-function "infix:<<>" (interpreter first second)
       (declare (ignore interpreter))
-      (cl->perl (< (num (perl->cl first)) (num (perl->cl second)))))
+      (cl->perl (< (num* first) (num* second))))
 
     (define-kp6-function "infix:<>>" (interpreter first second)
       (declare (ignore interpreter))
-      (cl->perl (> (num (perl->cl first)) (num (perl->cl second)))))
+      (cl->perl (> (num* first) (num* second))))
 
 
     (define-kp6-function "infix:<<=>" (interpreter first second)
       (declare (ignore interpreter))
-      (cl->perl (<= (num (perl->cl first)) (num (perl->cl second)))))
+      (cl->perl (<= (num* first) (num* second))))
 
     (define-kp6-function "infix:<>=>" (interpreter first second)
       (declare (ignore interpreter))
-      (cl->perl (>= (num (perl->cl first)) (num (perl->cl second)))))
+      (cl->perl (>= (num* first) (num* second))))
 
     (define-kp6-function "infix:<<=>>" (interpreter first second)
       (declare (ignore interpreter))
-      (cl->perl (signum (- (num (perl->cl first)) (num (perl->cl second))))))
+      (cl->perl (signum (- (num* first) (num* second)))))
 
     (define-kp6-function "infix:<+>" (interpreter first second)
       (declare (ignore interpreter))
-      (cl->perl (+ (num (perl->cl first)) (num (perl->cl second)))))
+      (cl->perl (+ (num* first) (num* second))))
 
     (define-kp6-function "infix:<->" (interpreter first second)
       (declare (ignore interpreter))
-      (cl->perl (- (num (perl->cl first)) (num (perl->cl second)))))
+      (cl->perl (- (num* first) (num* second))))
 
     (define-kp6-function "infix:<*>" (interpreter first second)
       (declare (ignore interpreter))
-      (cl->perl (* (num (perl->cl first)) (num (perl->cl second)))))
+      (cl->perl (* (num* first) (num* second))))
 
     (define-kp6-function "infix:</>" (interpreter first second)
       (declare (ignore interpreter))
-      (cl->perl (/ (num (perl->cl first)) (num (perl->cl second)))))
+      (cl->perl (/ (num* first) (num* second))))
 
     (define-kp6-function "infix:<~>" (interpreter &rest strs)
       (declare (ignore interpreter))
