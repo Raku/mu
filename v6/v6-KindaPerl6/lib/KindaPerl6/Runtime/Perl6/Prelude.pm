@@ -1,27 +1,15 @@
 class GLOBAL {
     sub all {
-        my $junc = Junction.new;
-        $junc.things = @_;
-        $junc.type = 'all';
-        $junc;
+        Junction.new( things => @_, type => 'all' );
     };
     sub any {
-        my $junc = Junction.new;
-        $junc.things = @_;
-        $junc.type = 'any';
-        $junc;
+        Junction.new( things => @_, type => 'any' );
     };
     sub none {
-        my $junc = Junction.new;
-        $junc.things = @_;
-        $junc.type = 'none';
-        $junc;
+        Junction.new( things => @_, type => 'none' );
     };
     sub one {
-        my $junc = Junction.new;
-        $junc.things = @_;
-        $junc.type = 'one';
-        $junc;
+        Junction.new( things => @_, type => 'one' );
     };
     sub infix:<|>($a,$b) {
         any($a,$b);
@@ -33,14 +21,14 @@ class GLOBAL {
         one($a,$b);
     };
     sub infix:<..>($a,$b) {
-        my $r = Range.new(); $r.start = $a; $r.end = $b;
-        $r;
+        Range.new( start => $a, end => $b );
     };
     sub Inf { Math.Inf };
     sub NaN { Math.NaN };
     sub mkdir { IO.mkdir( @_ ) };
     sub rmdir { IO.rmdir( @_ ) };
-    sub p5token($regex) {
+    
+    sub p5token($regex) { # XXX - this belongs to Runtime::Perl5
         #say 'p5token';
         sub ( $self, $str, $pos ) { 
             #say 'sub returned by p5token';

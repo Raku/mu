@@ -54,9 +54,6 @@
             $Code_all = ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
-                        my $junc;
-                        $junc = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$junc' } ) unless defined $junc;
-                        BEGIN { $junc = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$junc' } ) }
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -70,10 +67,24 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        ::DISPATCH_VAR( $junc, 'STORE', ::DISPATCH( $::Junction, 'new', ) );
-                        ::DISPATCH_VAR( ::DISPATCH( $junc, 'things', ), 'STORE', $List__ );
-                        ::DISPATCH_VAR( ::DISPATCH( $junc, 'type', ), 'STORE', ::DISPATCH( $::Str, 'new', 'all' ) );
-                        $junc;
+                        ::DISPATCH(
+                            $::Junction,
+                            'new',
+                            ::DISPATCH(
+                                $::NamedArgument,
+                                'new',
+                                {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'things' ),
+                                    value           => $List__
+                                }
+                            ),
+                            ::DISPATCH(
+                                $::NamedArgument,
+                                'new',
+                                {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'type' ),
+                                    value           => ::DISPATCH( $::Str, 'new', 'all' )
+                                }
+                            )
+                        );
                     },
                     signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
                 }
@@ -84,9 +95,6 @@
             $Code_any = ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
-                        my $junc;
-                        $junc = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$junc' } ) unless defined $junc;
-                        BEGIN { $junc = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$junc' } ) }
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -100,10 +108,24 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        ::DISPATCH_VAR( $junc, 'STORE', ::DISPATCH( $::Junction, 'new', ) );
-                        ::DISPATCH_VAR( ::DISPATCH( $junc, 'things', ), 'STORE', $List__ );
-                        ::DISPATCH_VAR( ::DISPATCH( $junc, 'type', ), 'STORE', ::DISPATCH( $::Str, 'new', 'any' ) );
-                        $junc;
+                        ::DISPATCH(
+                            $::Junction,
+                            'new',
+                            ::DISPATCH(
+                                $::NamedArgument,
+                                'new',
+                                {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'things' ),
+                                    value           => $List__
+                                }
+                            ),
+                            ::DISPATCH(
+                                $::NamedArgument,
+                                'new',
+                                {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'type' ),
+                                    value           => ::DISPATCH( $::Str, 'new', 'any' )
+                                }
+                            )
+                        );
                     },
                     signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
                 }
@@ -114,9 +136,6 @@
             $Code_none = ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
-                        my $junc;
-                        $junc = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$junc' } ) unless defined $junc;
-                        BEGIN { $junc = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$junc' } ) }
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -130,10 +149,24 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        ::DISPATCH_VAR( $junc, 'STORE', ::DISPATCH( $::Junction, 'new', ) );
-                        ::DISPATCH_VAR( ::DISPATCH( $junc, 'things', ), 'STORE', $List__ );
-                        ::DISPATCH_VAR( ::DISPATCH( $junc, 'type', ), 'STORE', ::DISPATCH( $::Str, 'new', 'none' ) );
-                        $junc;
+                        ::DISPATCH(
+                            $::Junction,
+                            'new',
+                            ::DISPATCH(
+                                $::NamedArgument,
+                                'new',
+                                {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'things' ),
+                                    value           => $List__
+                                }
+                            ),
+                            ::DISPATCH(
+                                $::NamedArgument,
+                                'new',
+                                {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'type' ),
+                                    value           => ::DISPATCH( $::Str, 'new', 'none' )
+                                }
+                            )
+                        );
                     },
                     signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
                 }
@@ -144,9 +177,6 @@
             $Code_one = ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
-                        my $junc;
-                        $junc = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$junc' } ) unless defined $junc;
-                        BEGIN { $junc = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$junc' } ) }
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
@@ -160,10 +190,24 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        ::DISPATCH_VAR( $junc, 'STORE', ::DISPATCH( $::Junction, 'new', ) );
-                        ::DISPATCH_VAR( ::DISPATCH( $junc, 'things', ), 'STORE', $List__ );
-                        ::DISPATCH_VAR( ::DISPATCH( $junc, 'type', ), 'STORE', ::DISPATCH( $::Str, 'new', 'one' ) );
-                        $junc;
+                        ::DISPATCH(
+                            $::Junction,
+                            'new',
+                            ::DISPATCH(
+                                $::NamedArgument,
+                                'new',
+                                {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'things' ),
+                                    value           => $List__
+                                }
+                            ),
+                            ::DISPATCH(
+                                $::NamedArgument,
+                                'new',
+                                {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'type' ),
+                                    value           => ::DISPATCH( $::Str, 'new', 'one' )
+                                }
+                            )
+                        );
                     },
                     signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
                 }
@@ -333,9 +377,6 @@
             $Code_infix_58__60__46__46__62_ = ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
-                        my $r;
-                        $r = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$r' } ) unless defined $r;
-                        BEGIN { $r = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$r' } ) }
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $a;
                         $a = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$a' } ) unless defined $a;
@@ -363,10 +404,23 @@
                             ::MODIFIED($b);
                             $b = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) );
                         };
-                        ::DISPATCH_VAR( $r, 'STORE', ::DISPATCH( $::Range, 'new', ) );
-                        ::DISPATCH_VAR( ::DISPATCH( $r, 'start', ), 'STORE', $a );
-                        ::DISPATCH_VAR( ::DISPATCH( $r, 'end', ),   'STORE', $b );
-                        $r;
+                        ::DISPATCH(
+                            $::Range, 'new',
+                            ::DISPATCH(
+                                $::NamedArgument,
+                                'new',
+                                {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'start' ),
+                                    value           => $a
+                                }
+                            ),
+                            ::DISPATCH(
+                                $::NamedArgument,
+                                'new',
+                                {   _argument_name_ => ::DISPATCH( $::Str, 'new', 'end' ),
+                                    value           => $b
+                                }
+                            )
+                        );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
