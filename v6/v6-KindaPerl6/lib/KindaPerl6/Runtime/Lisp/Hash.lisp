@@ -16,6 +16,10 @@
 	 (entry (gethash key hash)))
     entry))
 
+(defmethod kp6-exists ((self kp6-Hash) key &key)
+  "Test whether there exists an entry in SELF with key KEY."
+  (nth-value 1 (gethash key (kp6-value self))))
+
 (defmethod kp6-DELETE ((self kp6-Hash) key)
   "Deletes a key-value pair from the hash given a key"
   (make-instance 'kp6-Bit :value
