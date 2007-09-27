@@ -252,38 +252,11 @@ class Assign {
 #         };
 
 	'(setf ' ~ $node.emit_lisp($interpreter) ~ ' ' ~ $.arguments.emit_lisp($interpreter) ~ ')';
-        #'(kp6-store \'' ~ $node.emit_lisp ~ ' ' ~ $.arguments.emit_lisp ~ ')' ~ Main::newline();
     }
 }
 
 class Var {
     method emit_lisp ($interpreter) {
-        # Normalize the sigil here into $
-        # $x    => $x
-        # @x    => $List_x
-        # %x    => $Hash_x
-        # &x    => $Code_x
-        my $table := {
-            '$' => 'kp6-',
-            '@' => 'kp6-List_',
-            '%' => 'kp6-Hash_',
-            '&' => 'kp6-Code_',
-        };
-
-        #if $.name eq 'KP6' {
-            # XXX: hack to catch the C<obj => ::Var(> node in
-            # Namespace.pm, should it emit a Call?
-            #return '*kp6-packages*';
-        #}
-        
-        if $.twigil eq '.' {
-            return '::DISPATCH( $self, "' ~ $.name ~ '" )'  ~ Main::newline()
-        };
-        
-        if $.name eq '/' {
-            return $table{$.sigil} ~ 'MATCH' 
-        };
-
 	my $namespace := $.namespace;
 	if !(@($namespace)) {
 	    return '(kp6-lookup (kp6-lookup (kp6-packages ' ~ $interpreter ~ ') "GLOBAL") (kp6-generate-variable "' ~ $.sigil ~ '" "' ~ $.name ~ '"))';
@@ -291,6 +264,7 @@ class Var {
 
 	return '(kp6-lookup (kp6-lookup (kp6-packages ' ~ $interpreter ~ ') "' ~ (join '::', @($namespace)) ~ '") (kp6-generate-variable "' ~ $.sigil ~ '" "' ~ $.name ~ '"))';
     };
+
     method perl {
         # this is used by the signature emitter
           '(kp6-new \'signature-item ' 
@@ -317,8 +291,8 @@ class Bind {
             return ::Assign(parameters=>$.parameters,arguments=>$.arguments).emit_lisp($interpreter);
         };
 
-        my $str := '';  # '::MODIFIED(' ~ $.parameters.emit_lisp ~ ');' ~ Main::newline();
-	$str := $str ~ '(setf ' ~ $.parameters.emit_lisp($interpreter) ~ ' ' ~ $.arguments.emit_lisp($interpreter) ~ ')';
+        my $str := '';
+        $str := $str ~ '(setf ' ~ $.parameters.emit_lisp($interpreter) ~ ' ' ~ $.arguments.emit_lisp($interpreter) ~ ')';
         return $str;
     }
 }
@@ -381,29 +355,22 @@ class Apply {
             return '$self';
         }
 
+	my $name := $.code.name;
+
+	if ($name eq 'infix:<&&>') {
+	    return '(and (perl->cl ' ~ (@.arguments.>>emit_lisp($interpreter)).join(') (perl->cl ') ~ '))';
+	}
+
+	if ($name eq 'infix:<||>') {
+	    return '(or (perl->cl ' ~ (@.arguments.>>emit_lisp($interpreter)).join(') (perl->cl ') ~ '))';
+	}
+
+	if ($name eq 'ternary:<?? !!>') {
+	    return '(if (kp6-true ' ~ (@.arguments[0]).emit_lisp($interpreter) ~ ') (progn ' ~ (@.arguments[1]).emit_lisp($interpreter) ~ ') (progn ' ~ (@.arguments[2]).emit_lisp($interpreter) ~ '))';
+	}
+
         my $op := $.code.emit_lisp($interpreter);
 
-        # XXX short circuit ops
-        # ||
-        if $op eq '$GLOBAL::Code_infix_58__60__124__124__62_' {
-             return
-             'do { do { my $____some__weird___var____ = ' ~ (@.arguments[0]).emit_lisp($interpreter) ~ '; ' ~
-                '::DISPATCH($____some__weird___var____,"true")->{_value} && $____some__weird___var____ ' ~
-             '} ||' ~
-             'do { my $____some__weird___var____ = ' ~ (@.arguments[1]).emit_lisp($interpreter) ~ '; ' ~
-                '::DISPATCH($____some__weird___var____,"true")->{_value} && $____some__weird___var____ ' ~
-             '} || ::DISPATCH( $::Bit, "new", 0 ) }' ~ Main::newline();
-        }
-        # ||
-        if $op eq '$GLOBAL::Code_infix_58__60__38__38__62_' {
-             return 'do { ( ' ~
-             'do { my $____some__weird___var____ = ' ~ (@.arguments[0]).emit_lisp($interpreter) ~ '; ' ~
-                '::DISPATCH($____some__weird___var____,"true")->{_value} && $____some__weird___var____ ' ~
-             '} &&' ~
-             'do { my $____some__weird___var____ = ' ~ (@.arguments[1]).emit_lisp($interpreter) ~ '; ' ~
-                '::DISPATCH($____some__weird___var____,"true")->{_value} && $____some__weird___var____ ' ~
-             '}) || ::DISPATCH( $::Bit, "new", 0) }' ~ Main::newline();
-        }
         return  '(kp6-apply-function ' ~ $interpreter ~ ' (perl->cl ' ~ $op ~ ') (mapcar #\'cl->perl (list ' ~ (@.arguments.>>emit_lisp($interpreter)).join(' ') ~ ')))' ~ Main::newline();
     }
 }

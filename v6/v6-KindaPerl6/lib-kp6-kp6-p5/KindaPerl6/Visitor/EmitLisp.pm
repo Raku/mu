@@ -2559,9 +2559,6 @@
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
-                        my $table;
-                        $table = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$table' } ) unless defined $table;
-                        BEGIN { $table = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$table' } ) }
                         my $namespace;
                         $namespace = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$namespace' } ) unless defined $namespace;
                         BEGIN { $namespace = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$namespace' } ) }
@@ -2585,45 +2582,6 @@
                         do {
                             ::MODIFIED($interpreter);
                             $interpreter = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
-                        };
-                        do {
-                            ::MODIFIED($table);
-                            $table = ::DISPATCH(
-                                $::Hash, "new",
-                                {   _hash => {
-                                        ::DISPATCH( $::Str, 'new', '$' )->{_value} => ::DISPATCH( $::Str, 'new', 'kp6-' ),
-                                        ::DISPATCH( $::Str, 'new', '@' )->{_value} => ::DISPATCH( $::Str, 'new', 'kp6-List_' ),
-                                        ::DISPATCH( $::Str, 'new', '%' )->{_value} => ::DISPATCH( $::Str, 'new', 'kp6-Hash_' ),
-                                        ::DISPATCH( $::Str, 'new', '&' )->{_value} => ::DISPATCH( $::Str, 'new', 'kp6-Code_' ),
-                                    }
-                                }
-                            );
-                        };
-                        do {
-                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $self, "twigil" ), ::DISPATCH( $::Str, 'new', '.' ) ), "true" ), "p5landish" ) ) {
-                                {
-                                    return (
-                                        ::DISPATCH(
-                                            $GLOBAL::Code_infix_58__60__126__62_,
-                                            'APPLY',
-                                            ::DISPATCH( $::Str, 'new', '::DISPATCH( $self, "' ),
-                                            ::DISPATCH(
-                                                $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                                ::DISPATCH( $self, "name" ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '" )' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
-                                            )
-                                        )
-                                        )
-                                }
-                            }
-                            else { ::DISPATCH( $::Bit, "new", 0 ) }
-                        };
-                        do {
-                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $self, "name" ), ::DISPATCH( $::Str, 'new', '/' ) ), "true" ), "p5landish" ) ) {
-                                {
-                                    return ( ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $table, 'LOOKUP', ::DISPATCH( $self, "sigil" ) ), ::DISPATCH( $::Str, 'new', 'MATCH' ) ) )
-                                }
-                            }
-                            else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
                             ::MODIFIED($namespace);
@@ -3342,6 +3300,9 @@
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
+                        my $name;
+                        $name = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$name' } ) unless defined $name;
+                        BEGIN { $name = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$name' } ) }
                         my $op;
                         $op = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$op' } ) unless defined $op;
                         BEGIN { $op = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$op' } ) }
@@ -3393,17 +3354,53 @@
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
-                            ::MODIFIED($op);
-                            $op = ::DISPATCH( ::DISPATCH( $self, "code" ), 'emit_lisp', $interpreter );
+                            ::MODIFIED($name);
+                            $name = ::DISPATCH( ::DISPATCH( $self, "code" ), 'name', );
                         };
                         do {
-                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $op, ::DISPATCH( $::Str, 'new', '$GLOBAL::Code_infix_58__60__124__124__62_' ) ), "true" ), "p5landish" ) ) {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $name, ::DISPATCH( $::Str, 'new', 'infix:<&&>' ) ), "true" ), "p5landish" ) ) {
                                 {
                                     return (
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY',
-                                            ::DISPATCH( $::Str, 'new', 'do { do { my $____some__weird___var____ = ' ),
+                                            ::DISPATCH( $::Str, 'new', '(and (perl->cl ' ),
+                                            ::DISPATCH(
+                                                $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                                ::DISPATCH( [ map { $_->emit_lisp($interpreter) } @{ ::DISPATCH( $self, "arguments" ) } ], 'join', ::DISPATCH( $::Str, 'new', ') (perl->cl ' ) ), ::DISPATCH( $::Str, 'new', '))' )
+                                            )
+                                        )
+                                        )
+                                }
+                            }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
+                        };
+                        do {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $name, ::DISPATCH( $::Str, 'new', 'infix:<||>' ) ), "true" ), "p5landish" ) ) {
+                                {
+                                    return (
+                                        ::DISPATCH(
+                                            $GLOBAL::Code_infix_58__60__126__62_,
+                                            'APPLY',
+                                            ::DISPATCH( $::Str, 'new', '(or (perl->cl ' ),
+                                            ::DISPATCH(
+                                                $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                                ::DISPATCH( [ map { $_->emit_lisp($interpreter) } @{ ::DISPATCH( $self, "arguments" ) } ], 'join', ::DISPATCH( $::Str, 'new', ') (perl->cl ' ) ), ::DISPATCH( $::Str, 'new', '))' )
+                                            )
+                                        )
+                                        )
+                                }
+                            }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
+                        };
+                        do {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $name, ::DISPATCH( $::Str, 'new', 'ternary:<?? !!>' ) ), "true" ), "p5landish" ) ) {
+                                {
+                                    return (
+                                        ::DISPATCH(
+                                            $GLOBAL::Code_infix_58__60__126__62_,
+                                            'APPLY',
+                                            ::DISPATCH( $::Str, 'new', '(if (kp6-true ' ),
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
@@ -3411,37 +3408,18 @@
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
-                                                    ::DISPATCH( $::Str, 'new', '; ' ),
+                                                    ::DISPATCH( $::Str, 'new', ') (progn ' ),
                                                     ::DISPATCH(
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
-                                                        ::DISPATCH( $::Str, 'new', '::DISPATCH($____some__weird___var____,"true")->{_value} && $____some__weird___var____ ' ),
+                                                        ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) ), 'emit_lisp', $interpreter ),
                                                         ::DISPATCH(
                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                             'APPLY',
-                                                            ::DISPATCH( $::Str, 'new', '} ||' ),
+                                                            ::DISPATCH( $::Str, 'new', ') (progn ' ),
                                                             ::DISPATCH(
-                                                                $GLOBAL::Code_infix_58__60__126__62_,
-                                                                'APPLY',
-                                                                ::DISPATCH( $::Str, 'new', 'do { my $____some__weird___var____ = ' ),
-                                                                ::DISPATCH(
-                                                                    $GLOBAL::Code_infix_58__60__126__62_,
-                                                                    'APPLY',
-                                                                    ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) ), 'emit_lisp', $interpreter ),
-                                                                    ::DISPATCH(
-                                                                        $GLOBAL::Code_infix_58__60__126__62_,
-                                                                        'APPLY',
-                                                                        ::DISPATCH( $::Str, 'new', '; ' ),
-                                                                        ::DISPATCH(
-                                                                            $GLOBAL::Code_infix_58__60__126__62_,
-                                                                            'APPLY',
-                                                                            ::DISPATCH( $::Str, 'new', '::DISPATCH($____some__weird___var____,"true")->{_value} && $____some__weird___var____ ' ),
-                                                                            ::DISPATCH(
-                                                                                $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '} || ::DISPATCH( $::Bit, "new", 0 ) }' ), ::DISPATCH( $Main::Code_newline, 'APPLY', )
-                                                                            )
-                                                                        )
-                                                                    )
-                                                                )
+                                                                $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                                                ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 2 ) ), 'emit_lisp', $interpreter ), ::DISPATCH( $::Str, 'new', '))' )
                                                             )
                                                         )
                                                     )
@@ -3454,69 +3432,8 @@
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
-                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $op, ::DISPATCH( $::Str, 'new', '$GLOBAL::Code_infix_58__60__38__38__62_' ) ), "true" ), "p5landish" ) ) {
-                                {
-                                    return (
-                                        ::DISPATCH(
-                                            $GLOBAL::Code_infix_58__60__126__62_,
-                                            'APPLY',
-                                            ::DISPATCH( $::Str, 'new', 'do { ( ' ),
-                                            ::DISPATCH(
-                                                $GLOBAL::Code_infix_58__60__126__62_,
-                                                'APPLY',
-                                                ::DISPATCH( $::Str, 'new', 'do { my $____some__weird___var____ = ' ),
-                                                ::DISPATCH(
-                                                    $GLOBAL::Code_infix_58__60__126__62_,
-                                                    'APPLY',
-                                                    ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ), 'emit_lisp', $interpreter ),
-                                                    ::DISPATCH(
-                                                        $GLOBAL::Code_infix_58__60__126__62_,
-                                                        'APPLY',
-                                                        ::DISPATCH( $::Str, 'new', '; ' ),
-                                                        ::DISPATCH(
-                                                            $GLOBAL::Code_infix_58__60__126__62_,
-                                                            'APPLY',
-                                                            ::DISPATCH( $::Str, 'new', '::DISPATCH($____some__weird___var____,"true")->{_value} && $____some__weird___var____ ' ),
-                                                            ::DISPATCH(
-                                                                $GLOBAL::Code_infix_58__60__126__62_,
-                                                                'APPLY',
-                                                                ::DISPATCH( $::Str, 'new', '} &&' ),
-                                                                ::DISPATCH(
-                                                                    $GLOBAL::Code_infix_58__60__126__62_,
-                                                                    'APPLY',
-                                                                    ::DISPATCH( $::Str, 'new', 'do { my $____some__weird___var____ = ' ),
-                                                                    ::DISPATCH(
-                                                                        $GLOBAL::Code_infix_58__60__126__62_,
-                                                                        'APPLY',
-                                                                        ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "arguments" ), 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) ), 'emit_lisp', $interpreter ),
-                                                                        ::DISPATCH(
-                                                                            $GLOBAL::Code_infix_58__60__126__62_,
-                                                                            'APPLY',
-                                                                            ::DISPATCH( $::Str, 'new', '; ' ),
-                                                                            ::DISPATCH(
-                                                                                $GLOBAL::Code_infix_58__60__126__62_,
-                                                                                'APPLY',
-                                                                                ::DISPATCH( $::Str, 'new', '::DISPATCH($____some__weird___var____,"true")->{_value} && $____some__weird___var____ ' ),
-                                                                                ::DISPATCH(
-                                                                                    $GLOBAL::Code_infix_58__60__126__62_,
-                                                                                    'APPLY',
-                                                                                    ::DISPATCH( $::Str,              'new', '}) || ::DISPATCH( $::Bit, "new", 0) }' ),
-                                                                                    ::DISPATCH( $Main::Code_newline, 'APPLY', )
-                                                                                )
-                                                                            )
-                                                                        )
-                                                                    )
-                                                                )
-                                                            )
-                                                        )
-                                                    )
-                                                )
-                                            )
-                                        )
-                                        )
-                                }
-                            }
-                            else { ::DISPATCH( $::Bit, "new", 0 ) }
+                            ::MODIFIED($op);
+                            $op = ::DISPATCH( ::DISPATCH( $self, "code" ), 'emit_lisp', $interpreter );
                         };
                         return (
                             ::DISPATCH(
