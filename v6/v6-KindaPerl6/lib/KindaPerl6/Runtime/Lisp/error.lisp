@@ -16,7 +16,7 @@
 (define-condition kp6-not-implemented (kp6-error)
   ((feature :reader kp6-feature :initarg :feature))
   (:report (lambda (c s)
-	     (write-string (kp6-prefixed-error-message c "Feature not implemented: ~A" feature)))))
+	     (write-string (kp6-prefixed-error-message c "Feature not implemented: ~A" (kp6-feature c)) s))))
 
 (macrolet ((define-kp6-error-function (name function type)
 	       (let ((interpreter (gensym))
