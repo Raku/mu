@@ -7,13 +7,13 @@
   (parse-integer object :start start :end end :radix radix :junk-allowed junk-allowed))
 
 (defmethod kp6-coerce ((object kp6-Num) (class (eql 'kp6-Str)) &key)
-  (cl->perl (format nil "~d" (kp6-value object))))
+  (cl->perl (format nil "~d" (perl->cl object))))
 
 (defmethod kp6-coerce ((object kp6-Num) (class (eql 'kp6-Num)) &key)
   object)
 
 (defmethod kp6-coerce ((object kp6-Str) (class (eql 'kp6-Num)) &key)
-  (cl->perl (or (parse-integer (kp6-value object) :junk-allowed t) 0)))
+  (cl->perl (or (parse-integer (perl->cl object) :junk-allowed t) 0)))
 
 (defmethod kp6-coerce ((object kp6-Str) (class (eql 'kp6-Str)) &key)
   object)
