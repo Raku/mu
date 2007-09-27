@@ -46,7 +46,7 @@
     `(let* ((,interpreter-var ,interpreter)
 	    (,package-var (kp6-lookup (kp6-packages ,interpreter-var) ,package)))
       (flet ,(kp6-with-package-functions package-var interpreter-var)
-	(declare (ignorable ,@(mapcar #'(lambda (name) `#',(interned-symbol name)) '(enclosing-package outer-package define-package-variable set-package-variable lookup-package-variable lookup-package-variable/p))))
+	(declare (ignorable ,@(mapcar #'(lambda (name) `#',(interned-symbol name)) '(enclosing-package outer-package define-package-variable set-package-variable lookup-package-variable))))
 	(with-kp6-pad (,interpreter-var)
 	  ,@body)))))
 
@@ -54,7 +54,7 @@
   (mapcar
    #'(lambda (func) `(,(interned-symbol (car func)) ,@(cdr func)))
    `((enclosing-package () ,package-var)
-     (outer-package () (when (fboundp ',(interned-symbol 'enclosing-package)) (funcall #',(interned-symbol 'enclosing-package))))
+     (outer-package () (when (fboundp ',(interned-symbol 'enclosing-package)) (funcall (fdefinition ',(interned-symbol 'enclosing-package)))))
      (define-package-variable (name &optional (package ,package-var) type)
 	 (kp6-define-package-variable ,interpreter-var package name type))
      (set-package-variable (name value &optional (package ,package-var))
