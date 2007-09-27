@@ -43,7 +43,7 @@
   (kp6-value object))
 
 (defmethod perl->cl ((object kp6-Bit) &key)
-  (not (= (kp6-value object) 0)))
+  (not (eql (kp6-value object) nil)))
 
 (defmethod perl->cl ((object kp6-Container) &key)
   (kp6-value object))
