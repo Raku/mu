@@ -90,7 +90,6 @@ lib-kp6-kp6-p5/KindaPerl6/Visitor/EmitPerl6.pm
 lib-kp6-kp6-p5/KindaPerl6/Visitor/ExtractRuleBlock.pm
 lib-kp6-kp6-p5/KindaPerl6/Visitor/Global.pm
 lib-kp6-kp6-p5/KindaPerl6/Visitor/Hyper.pm
-lib-kp6-kp6-p5/KindaPerl6/Visitor/LexicalSub.pm
 lib-kp6-kp6-p5/KindaPerl6/Visitor/MetaClass.pm
 lib-kp6-kp6-p5/KindaPerl6/Visitor/Perl.pm
 lib-kp6-kp6-p5/KindaPerl6/Visitor/RegexCapture.pm
@@ -149,7 +148,6 @@ lib-kp6-mp6-p5/KindaPerl6/Visitor/EmitPerl6.pm
 lib-kp6-mp6-p5/KindaPerl6/Visitor/ExtractRuleBlock.pm
 lib-kp6-mp6-p5/KindaPerl6/Visitor/Global.pm
 lib-kp6-mp6-p5/KindaPerl6/Visitor/Hyper.pm
-lib-kp6-mp6-p5/KindaPerl6/Visitor/LexicalSub.pm
 lib-kp6-mp6-p5/KindaPerl6/Visitor/MetaClass.pm
 lib-kp6-mp6-p5/KindaPerl6/Visitor/Perl.pm
 lib-kp6-mp6-p5/KindaPerl6/Visitor/RegexCapture.pm
@@ -211,7 +209,6 @@ lib/KindaPerl6/Visitor/EmitPerl6.pm
 lib/KindaPerl6/Visitor/ExtractRuleBlock.pm
 lib/KindaPerl6/Visitor/Global.pm
 lib/KindaPerl6/Visitor/Hyper.pm
-lib/KindaPerl6/Visitor/LexicalSub.pm
 lib/KindaPerl6/Visitor/MetaClass.pm
 lib/KindaPerl6/Visitor/Perl.pm
 lib/KindaPerl6/Visitor/RegexCapture.pm
