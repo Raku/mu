@@ -40,6 +40,13 @@
    #'(lambda (func) `(,(interned-symbol (car func)) ,@(cdr func)))
    `((enclosing-pad () ,pad)
      (outer-pad () (kp6-parent ,pad))
+     (lexical-variable-exists (name) (kp6-exists ,pad name))
+     (lexical-variable-exists/p (name)
+      (if (kp6-exists ,pad name)
+	  t
+	  (if (fboundp ',(interned-symbol 'lexical-variable-exists/p))
+	      (,(interned-symbol 'lexical-variable-exists/p) name)
+	      nil)))
      (define-lexical-variable (name &optional value type)
 	 "Create a new lexical variable."
        (declare (ignore type))
@@ -50,6 +57,12 @@
       "Set the value of a lexical variable."
       (unless (kp6-lookup ,pad name)
 	(kp6-warn ,interpreter-var 'kp6-variable-not-found :name name)))
+     (set-lexical-variable/p (name value)
+      (if (kp6-exists ,pad name)
+	  (setf (kp6-lookup ,pad name) value)
+	  (if (and (fboundp ',(interned-symbol 'lexical-variable-exists)) (,(interned-symbol 'lexical-variable-exists) name))
+	      (set-lexical-variable/p name value)
+	      (kp6-error ,interpreter-var 'kp6-variable-not-found :name name))))
      (lookup-lexical-variable (name)
       "Get the value of NAME in *this* pad."
       (unless (kp6-exists ,pad name)
@@ -60,5 +73,8 @@
       (if (kp6-exists ,pad name)
 	  (kp6-lookup ,pad name)
 	  (if (slot-boundp ,pad 'parent)
-	      (,(interned-symbol 'lookup-lexical-variable) name)
-	      (kp6-error ,interpreter-var 'kp6-variable-not-found :name name)))))))
+	      (,(interned-symbol 'lookup-lexical-variable/p) name)
+	      (kp6-error ,interpreter-var 'kp6-variable-not-found :name name))))
+     (define-our-variable (name &optional value type)
+	 (declare (ignore type))
+       (kp6-error ,interpreter-var 'kp6-not-implemented :feature "binding")))))

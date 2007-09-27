@@ -34,8 +34,7 @@ class CompUnit {
         ~ '(defun Main ()' ~ Main::newline()
         ~ ' (with-kp6-interpreter (' ~ $interpreter ~')' ~ Main::newline()
         ~ '  (with-kp6-package (' ~ $interpreter ~ ' "GLOBAL")' ~ Main::newline()
-	~ '   (with-kp6-pad (' ~ $interpreter ~ ')' ~ Main::newline()
-        ~ $.body.emit_lisp($interpreter) ~ '))))' ~ Main::newline()
+        ~ $.body.emit_lisp($interpreter) ~ ')))' ~ Main::newline()
         # This is a function so (sb-ext:save-lisp-and-die) has
         # something to call into
         ~ '(Main::Main)' ~ Main::newline()
@@ -132,7 +131,7 @@ class Lit::NamedArgument {
 
 class Lit::Code {
     method emit_lisp ($interpreter) {
-        self.emit_declarations($interpreter) ~ self.emit_body($interpreter);
+        '(with-kp6-pad (' ~ $interpreter ~ ')' ~ Main::newline() ~ self.emit_declarations($interpreter) ~ self.emit_body($interpreter) ~ ')';
     };
     method emit_body ($interpreter) {
         (@.body.>>emit_lisp($interpreter)).join(' ');
@@ -220,39 +219,16 @@ class Assign {
         
         my $node := $.parameters;
         
-#         if $node.isa( 'Var' ) && @($node.namespace)     
-#         {
-#             # it's a global, 
-#             # and it should be autovivified
+	if ($node.isa('Var')) {
+	    if (@($node.namespace)) {
+		print "; namespace: " ~ $node.namespace ~ Main::newline();
+		return '(set-package-variable (kp6-generate-variable "' ~ $node.sigil ~ '" "' ~ $node.name ~ '") ' ~ $.arguments.emit_lisp($interpreter) ~ ' "' ~ $node.namespace.join('::') ~ '")';
+	    }
+	    
+	    return '(set-lexical-variable/p (kp6-generate-variable "' ~ $node.sigil ~ '" "' ~ $node.name ~ '") ' ~ $.arguments.emit_lisp($interpreter) ~ ')';
+	}
 
-#             $node :=
-#                 ::Apply(
-#                     code => ::Var(
-#                         name      => 'ternary:<?? !!>',
-#                         twigil    => '',
-#                         sigil     => '&',
-#                         namespace => [ 'GLOBAL' ],
-#                     ),
-#                     arguments => [
-#                        ::Apply(
-#                             arguments => [ $node ],
-#                             code => ::Var( name => 'VAR_defined', twigil => '', sigil => '&', namespace => [ 'GLOBAL' ] ),
-#                         ),
-#                         $node,
-#                         ::Bind(
-#                             'parameters' => $node,  
-#                             'arguments'  => ::Call(
-#                                 'invocant' => ::Var( name => '::Scalar', twigil => '', sigil => '$', namespace => [ ] ),  
-#                                 'method'   => 'new',
-#                                 'hyper'    => '',
-#                             ),
-#                         )
-#                     ],
-#                 );
-
-#         };
-
-	'(setf ' ~ $node.emit_lisp($interpreter) ~ ' ' ~ $.arguments.emit_lisp($interpreter) ~ ')';
+	'(kp6-error ' ~ $interpreter ~ ' \'kp6-not-implemented :feature "assigning to anything other than variables")';
     }
 }
 
@@ -260,7 +236,7 @@ class Var {
     method emit_lisp ($interpreter) {
 	my $namespace := $.namespace;
 	if !(@($namespace)) {
-	    return '(kp6-lookup (kp6-lookup (kp6-packages ' ~ $interpreter ~ ') "GLOBAL") (kp6-generate-variable "' ~ $.sigil ~ '" "' ~ $.name ~ '"))';
+	    return '(lookup-lexical-variable/p (kp6-generate-variable "' ~ $.sigil ~ '" "' ~ $.name ~ '"))';
 	}
 
 	return '(kp6-lookup (kp6-lookup (kp6-packages ' ~ $interpreter ~ ') "' ~ (join '::', @($namespace)) ~ '") (kp6-generate-variable "' ~ $.sigil ~ '" "' ~ $.name ~ '"))';
@@ -443,7 +419,7 @@ class Decl {
         my $name := $.var.name;
 
 	if $decl eq 'our' {
-	    return '(define-package-variable (kp6-generate-variable "' ~ $.var.sigil ~ '" "' ~ $name ~ '"))';
+	    '(define-our-variable (kp6-generate-variable "' ~ $.var.sigil ~ '" "' ~ $name ~ '"))';
 	}
 	if $decl eq 'my' {
 	    return '(define-lexical-variable (kp6-generate-variable "' ~ $.var.sigil ~ '" "' ~ $name ~ '"))';
