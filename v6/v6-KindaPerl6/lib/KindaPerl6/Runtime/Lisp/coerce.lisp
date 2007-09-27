@@ -13,13 +13,13 @@
   object)
 
 (defmethod kp6-coerce ((object kp6-Str) (class (eql 'kp6-Num)) &key)
-  (cl->perl (or (parse-integer object :junk-allowed t) 0)))
+  (cl->perl (or (parse-integer (kp6-value object) :junk-allowed t) 0)))
 
 (defmethod kp6-coerce ((object kp6-Str) (class (eql 'kp6-Str)) &key)
   object)
 
 (defmethod kp6-coerce ((object kp6-Bit) (class (eql 'kp6-Num)) &key)
-  (cl->perl (if (kp6-bit object) 1 0)))
+  (cl->perl (if (kp6-true object) 1 0)))
 
 (defmethod kp6-coerce ((object kp6-Bit) (class (eql 'kp6-Str)) &key)
-  (cl->perl (if (kp6-bit object) "Bool::True" "Bool::False")))
+  (cl->perl (if (kp6-true object) "Bool::True" "Bool::False")))
