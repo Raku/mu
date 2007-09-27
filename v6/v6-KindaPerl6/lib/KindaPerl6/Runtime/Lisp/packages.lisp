@@ -31,7 +31,7 @@
 (defgeneric kp6-define-package-variable (interpreter name &optional value type)
   (:method ((interpreter kp6-interpreter) name &optional value type)
     (declare (ignore type))
-    (kp6-store (kp6-current-package interpreter) name (or value (make-instance 'kp6-Undef)))))
+    (kp6-store (kp6-current-package interpreter) name (or value (kp6-default (car name))))))
 
 (defgeneric kp6-set-package-variable (interpreter name value)
   (:method ((interpreter kp6-interpreter) name value)

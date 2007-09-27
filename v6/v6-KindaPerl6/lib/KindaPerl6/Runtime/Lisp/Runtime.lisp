@@ -1,6 +1,6 @@
 (with-compilation-unit ()
   (dolist (file '("defpackage"
-		  "util"
+		  "util" "var"
 		  "Interpreter"
 		  "error"
 		  "Object"
