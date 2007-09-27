@@ -27,8 +27,11 @@
 
    #:kp6-generate-variable
    #:kp6-signal
+   #:kp6-condition
    #:kp6-warn
+   #:kp6-warning
    #:kp6-error
+   #:kp6-not-implemented
 
    #:kp6-define-package-variable
    #:kp6-set-package-variable
