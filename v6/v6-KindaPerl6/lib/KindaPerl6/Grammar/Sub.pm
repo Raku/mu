@@ -355,4 +355,39 @@ token token_sym {
     }
 };
 
+
+token macro {
+    macro
+    <?ws>  <opt_name>  <?opt_ws> 
+    <sub_sig>
+    <?opt_ws> \{ 
+        <?opt_ws>  
+        { 
+            COMPILER::add_pad();
+        }
+        <exp_stmts> 
+        <?opt_ws> 
+    [   \}     | { say '*** Syntax Error in macro \'', $$<name>, '\''; die 'error in Block'; } ]
+    { 
+        my $env := @COMPILER::PAD[0];
+        COMPILER::drop_pad();
+        my $block := $$<exp_stmts>;
+        KindaPerl6::Grammar::declare_parameters(
+            $env,
+            $block,
+            $$<sub_sig>,
+        );    
+        return ::Macro( 
+            'name'  => $$<opt_name>, 
+            'block' => ::Lit::Code(
+                pad   => $env,
+                state => { },
+                sig   => $$<sub_sig>,
+                body  => $block,
+            ),
+        );
+    }
+};
+
+
 };

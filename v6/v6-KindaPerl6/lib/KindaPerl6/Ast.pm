@@ -661,6 +661,25 @@ class Sub {
     };
 }
 
+class Macro {
+    has $.name;
+    has @.block;
+    method emit( $visitor, $path ) {
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
+            self,
+            'Macro',
+            $path,
+        );
+    };
+    method attribs {
+            { 
+                name    => $.name,
+                block   => $.block,
+            }
+    };
+}
+
 class Coro {
     has $.name;
     has @.block;

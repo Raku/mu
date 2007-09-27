@@ -115,6 +115,47 @@ token term {
             return $bind;                         # :=    run-time
         }  
 
+    | <opt_declarator> <macro>               # my? macro xxx? { code... }
+        { 
+            if ($$<macro>).name eq '' {
+                if ($$<opt_declarator>) eq '' {
+                    return $$<macro>;
+                } else {
+                    print "Error: macros with declarators should have a name";
+                    die "Error: macros with declarators should have a name";
+                };
+            };
+            my $decl;
+            if ($$<opt_declarator>) eq '' {
+                $decl := 'our';
+            } else {
+                $decl := $$<opt_declarator>;
+            };
+            (@COMPILER::PAD[0]).add_lexicals( [
+                ::Decl(  
+                    decl  => $decl,  
+                    var   => ::Var(  
+                        name   => ($$<macro>).name,  
+                        twigil => '',  
+                        sigil  => '&', 
+                        namespace => [ ],
+                    ),  
+                    type  => '', 
+                ),
+            ] );
+            my $bind := ::Bind(  
+                parameters => ::Var(  
+                    name   => ($$<macro>).name,  
+                    twigil => '',  
+                    sigil  => '&', 
+                    namespace => [ ],
+                ),  
+                arguments => $$<macro>
+            );
+            #COMPILER::begin_block( $bind );   # ::=   compile-time
+            return $bind;                         # :=    run-time
+        }  
+
     | <opt_declarator> <coro>               # my? coro xxx? { code... }
         { 
             if ($$<coro>).name eq '' {
