@@ -1,5 +1,8 @@
 (in-package #:kp6-cl)
 
+(defun interned-symbol (name)
+  (intern (symbol-name name)))
+
 (defmacro with-unique-names (vars &body body)
   `(let ,(mapcar #'(lambda (var) `(,var (gensym))) vars)
     ,@body))

@@ -19,9 +19,9 @@
   (:documentation "Create a new Perl 6 package.")
   (:method ((interpreter kp6-interpreter) name)
     (with-accessors ((packages kp6-packages)) interpreter
-      (when (kp6-lookup packages name)
-	(kp6-warn interpreter 'kp6-package-exists :package name))
-      (kp6-store packages name (make-instance 'kp6-Package)))))
+		    (when (kp6-lookup packages name)
+		      (kp6-warn interpreter 'kp6-package-exists :package name))
+		    (kp6-store packages name (make-instance 'kp6-Package)))))
 
 (defgeneric kp6-find-package (interpreter name)
   (:documentation "Find a Perl 6 package.  Returns NIL if not found.")
@@ -38,15 +38,34 @@
     (kp6-store (kp6-current-package interpreter) name value)))
 
 (defmacro with-kp6-package ((interpreter package) &body body)
-  (with-unique-names (interpreter-var package-var old)
+  (with-unique-names (interpreter-var package-var)
     `(let* ((,interpreter-var ,interpreter)
-	   (,package-var ,package)
-	   (,old (when (slot-boundp ,interpreter-var 'current-package) (kp6-current-package ,interpreter-var))))
-      (setf (kp6-current-package ,interpreter-var) (or (kp6-find-package ,interpreter-var ,package-var) (kp6-error ,interpreter-var 'kp6-package-not-found :package ,package-var)))
-      (if ,old
-	  (unwind-protect
-	       (progn
-		 ,@body)
-	    (setf (kp6-current-package ,interpreter-var) ,old))
-	  (progn
-	    ,@body)))))
+	    (,package-var (kp6-lookup (kp6-packages ,interpreter-var) ,package)))
+      (flet ,(kp6-with-package-functions package-var interpreter-var)
+	(declare (ignorable ,@(mapcar #'(lambda (name) `#',(interned-symbol name)) '(enclosing-package outer-package define-package-variable set-package-variable lookup-package-variable lookup-package-variable/p))))
+	,@body))))
+
+(defun kp6-with-package-functions (package-var interpreter-var)
+  (mapcar
+   #'(lambda (func) `(,(interned-symbol (car func)) ,@(cdr func)))
+   `((enclosing-package () ,package-var)
+     (outer-package () (when (fboundp ',(interned-symbol 'enclosing-package)) (funcall #',(interned-symbol 'enclosing-package))))
+     (define-package-variable (name &optional value type)
+	 (declare (ignore type))
+       (when (kp6-exists ,package-var name)
+	 (kp6-error ,interpreter-var 'kp6-variable-exists :name name))
+       (setf (kp6-lookup ,package-var name) (or value (kp6-default (car name)))))
+     (set-package-variable (name value)
+      (unless (kp6-exists ,package-var name)
+	(kp6-error ,interpreter-var 'kp6-variable-not-found :name name))
+      (setf (kp6-lookup ,package-var name) value))
+     (lookup-package-variable (name)
+      (unless (kp6-exists ,package-var name)
+	(kp6-error ,interpreter-var 'kp6-variable-not-found :name name))
+      (kp6-lookup ,package-var name))
+     (lookup-package-variable/p (name)
+      (if (kp6-exists ,package-var name)
+	  (kp6-lookup ,package-var name)
+	  (if (fboundp ',(interned-symbol 'lookup-package-variable))
+	      (funcall #',(interned-symbol 'lookup-package-variable) name)
+	      (kp6-error ,interpreter-var 'kp6-variable-not-found :name name)))))))

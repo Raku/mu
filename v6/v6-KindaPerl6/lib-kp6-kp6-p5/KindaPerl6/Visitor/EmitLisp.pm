@@ -2328,12 +2328,12 @@
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
-                                    ::DISPATCH( $::Str, 'new', ' ' ),
+                                    ::DISPATCH( $::Str, 'new', ' (perl->cl ' ),
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
                                         ::DISPATCH( ::DISPATCH( $self, "index" ), 'emit_lisp', $interpreter ),
-                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ')' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
+                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '))' ), ::DISPATCH( $Main::Code_newline, 'APPLY', ) )
                                     )
                                 )
                             )

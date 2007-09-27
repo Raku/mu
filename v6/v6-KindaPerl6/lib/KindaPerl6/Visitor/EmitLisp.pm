@@ -32,10 +32,10 @@ class CompUnit {
         ~ '  (:use #:cl #:kp6-cl))' ~ Main::newline()
         ~ '(in-package #:' ~ $.name ~ ')' ~ Main::newline()
         ~ '(defun Main ()' ~ Main::newline()
-        ~ '(with-kp6-interpreter (' ~ $interpreter ~')' ~ Main::newline()
-        ~ ' (with-kp6-package (' ~ $interpreter ~ ' "GLOBAL")' ~ Main::newline()
-        ~ $.body.emit_lisp($interpreter) ~ '))'
-        ~ ')' ~ Main::newline()
+        ~ ' (with-kp6-interpreter (' ~ $interpreter ~')' ~ Main::newline()
+        ~ '  (with-kp6-package (' ~ $interpreter ~ ' "GLOBAL")' ~ Main::newline()
+	~ '   (with-kp6-pad (' ~ $interpreter ~ ')' ~ Main::newline()
+        ~ $.body.emit_lisp($interpreter) ~ '))))' ~ Main::newline()
         # This is a function so (sb-ext:save-lisp-and-die) has
         # something to call into
         ~ '(Main::Main)' ~ Main::newline()
@@ -442,8 +442,14 @@ class Decl {
         my $decl := $.decl;
         my $name := $.var.name;
 
-	# XXX hack: always defines a package variable
-	return '(kp6-define-package-variable ' ~ $interpreter ~ ' (kp6-generate-variable "' ~ $.var.sigil ~ '" "' ~ $.var.name ~ '"))';
+	if $decl eq 'our' {
+	    return '(define-package-variable (kp6-generate-variable "' ~ $.var.sigil ~ '" "' ~ $name ~ '"))';
+	}
+	if $decl eq 'my' {
+	    return '(define-lexical-variable (kp6-generate-variable "' ~ $.var.sigil ~ '" "' ~ $name ~ '"))';
+	}
+
+	return '(kp6-error ' ~ $interpreter ~ ' \'kp6-not-implemented :feature "\\"' ~ $decl ~ '\\" variables")';
 
         if $decl eq 'has' {
             return 'sub ' ~ $name ~ ' { ' ~
