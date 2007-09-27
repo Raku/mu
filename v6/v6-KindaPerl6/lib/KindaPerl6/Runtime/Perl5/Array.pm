@@ -45,26 +45,6 @@ $::Array = KindaPerl6::Runtime::Perl5::MOP::make_class(
             my $self = shift;
             ::DISPATCH($::Int, 'new', unshift @{ $self->{_value}{_array} }, @_);
         },
-
-    join =>sub {
-            ::DISPATCH($::Str, "new", join( 
-                ::DISPATCH(::DISPATCH($_[1],"str"),"p5landish"), 
-                map {
-                        ::DISPATCH(::DISPATCH($_,"str"),"p5landish")
-                    }
-                    @{ $_[0]{_value}{_array} } 
-            ) );
-        },
-    map =>sub {
-            ::DISPATCH( $::Array, 'new', 
-                    { _array => [
-                            map {
-                                ::DISPATCH($_[1],"APPLY",$_)
-                            } @{$_[0]{_value}{_array}}
-                        ],
-                    }
-            );
-        },
     sort =>sub {
             my $sub = $_[1];
             ::DISPATCH( $::Array, 'new', 
