@@ -79,7 +79,7 @@
       (kp6-error ,interpreter-var 'kp6-not-implemented :feature "binding"))))
 
 (macrolet ((define-stub-function (name)
-	       `(defun ,name (&rest rest) (declare (ignore rest)) (error "~S is just a stub function!~%" ',name))))
+	       `(defun ,name (&rest rest) (declare (ignore rest)) (error "~S is just a stub function!" ',name))))
   (define-stub-function enclosing-pad)
   (define-stub-function outer-pad)
   (define-stub-function lexical-variable-exists)

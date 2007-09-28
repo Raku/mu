@@ -56,3 +56,9 @@
      (kp6-set-package-variable ,interpreter-var package name value))
     (lookup-package-variable (name &optional (package ,package-var))
      (kp6-get-package-variable ,interpreter-var package name))))
+
+(macrolet ((define-stub-function (name)
+	       `(defun ,name (&rest rest) (declare (ignore rest)) (error "~S is just a stub function!" ',name))))
+  (define-stub-function define-package-variable)
+  (define-stub-function set-package-variable)
+  (define-stub-function lookup-package-variable))
