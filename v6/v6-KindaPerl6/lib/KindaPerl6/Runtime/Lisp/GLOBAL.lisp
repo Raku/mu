@@ -15,14 +15,19 @@
 RETURNS may be specified to unconditionally return a value \(it will
 be passed through CL->PERL first; for example, :RETURNS 'TRUE will
 result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
-	     (destructuring-bind (name &key returns) (if (listp name-and-options) name-and-options (list name-and-options))
-	       `(push
-		 (cons
-		  ',(kp6-normalize-function-name name)
-		  (make-instance
-		   'kp6-Code
-		   :value #'(lambda ,params ,@body ,@(when (defined returns) (list `(cl->perl ,returns))))))
-		 *kp6-global-functions*))))
+	     (destructuring-bind (name &key coerce returns) (if (listp name-and-options) name-and-options (list name-and-options))
+	       (let ((declaration (list))
+		     (body (copy-list body)))
+		 (when (eql (caar body) 'declare)
+		   (setf declaration (car body))
+		   (setf body (remove declaration body)))
+		 `(push
+		   (cons
+		    ',(kp6-normalize-function-name name)
+		    (make-instance
+		     'kp6-Code
+		     :value #'(lambda ,params ,@(when declaration `(,declaration)) ,@(if coerce `((kp6-coerce (progn ,@body) ,coerce)) body) ,@(when (defined returns) (list `(cl->perl ,returns))))))
+		   *kp6-global-functions*)))))
 
   (labels ((call-kp6-function (interpreter name args)
 	     (kp6-apply-function interpreter (kp6-normalize-function-name name) args))
@@ -33,50 +38,41 @@ result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
       (assert (typep array 'kp6-Array) (array))
       (length (kp6-value array)))
 
-    (define-kp6-function "infix:<eq>" (interpreter first second)
+    (define-kp6-function ("infix:<eq>" :coerce 'kp6-Bit) (interpreter first second)
       (declare (ignore interpreter))
-      (cl->perl (if (string= (str* first) (str* second))
-		    'true
-		    'false)))
+      (string= (str* first) (str* second)))
 
-    (define-kp6-function "infix:<ne>" (interpreter first second)
+    (define-kp6-function ("infix:<ne>" :coerce 'kp6-Bit) (interpreter first second)
       (declare (ignore interpreter))
-      (cl->perl (if (string= (str* first) (str* second))
-		    'false
-		    'true)))
+      (string= (str* first) (str* second)))
 
-    (define-kp6-function "infix:<==>" (interpreter first second)
+    (define-kp6-function ("infix:<==>" :coerce 'kp6-Bit) (interpreter first second)
       (declare (ignore interpreter))
-      (cl->perl (if (equal (num* first) (num* second))
-		    'true
-		    'false)))
+      (equal (num* first) (num* second)))
 
-    (define-kp6-function "infix:<!=>" (interpreter first second)
+    (define-kp6-function ("infix:<!=>" :coerce 'kp6-Bit) (interpreter first second)
       (declare (ignore interpreter))
-      (cl->perl (if (equal (num* first) (num* second))
-		    'false
-		    'true)))
+      (equal (num* first) (num* second)))
 
-    (define-kp6-function "infix:<<>" (interpreter first second)
+    (define-kp6-function ("infix:<<>" :coerce 'kp6-Bit) (interpreter first second)
       (declare (ignore interpreter))
-      (cl->perl (< (num* first) (num* second))))
+      (< (num* first) (num* second)))
 
-    (define-kp6-function "infix:<>>" (interpreter first second)
+    (define-kp6-function ("infix:<>>" :coerce 'kp6-Bit) (interpreter first second)
       (declare (ignore interpreter))
-      (cl->perl (> (num* first) (num* second))))
+      (> (num* first) (num* second)))
 
-
-    (define-kp6-function "infix:<<=>" (interpreter first second)
+    (define-kp6-function ("infix:<<=>" :coerce 'kp6-Bit) (interpreter first second)
       (declare (ignore interpreter))
-      (cl->perl (<= (num* first) (num* second))))
+      (<= (num* first) (num* second)))
 
-    (define-kp6-function "infix:<>=>" (interpreter first second)
+    (define-kp6-function ("infix:<>=>" :coerce 'kp6-Bit) (interpreter first second)
       (declare (ignore interpreter))
-      (cl->perl (>= (num* first) (num* second))))
+      (>= (num* first) (num* second)))
 
     (define-kp6-function "infix:<<=>>" (interpreter first second)
       (declare (ignore interpreter))
-      (cl->perl (signum (- (num* first) (num* second)))))
+      (signum (- (num* first) (num* second))))
 
     (define-kp6-function "infix:<+>" (interpreter first second)
       (declare (ignore interpreter))

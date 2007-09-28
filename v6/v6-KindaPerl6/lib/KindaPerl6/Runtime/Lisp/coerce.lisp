@@ -59,3 +59,9 @@
 
 (defmethod kp6-coerce ((object kp6-Bit) (class (eql 'kp6-Str)) &key)
   (cl->perl (if (kp6-true object) "Bool::True" "Bool::False")))
+
+(defmethod kp6-coerce ((object (eql t)) (class (eql 'kp6-Bit)) &key)
+  (cl->perl 'true))
+
+(defmethod kp6-coerce ((object (eql nil)) (class (eql 'kp6-Bit)) &key)
+  (cl->perl 'false))

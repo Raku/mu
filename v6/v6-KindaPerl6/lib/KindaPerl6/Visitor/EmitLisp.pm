@@ -349,7 +349,7 @@ class Apply {
 
         my $op := $.code.emit_lisp($interpreter, $indent);
 
-        return  '(kp6-apply-function ' ~ $interpreter ~ ' (perl->cl ' ~ $op ~ ') (mapcar #\'cl->perl (list ' ~ (@.arguments.>>emit_lisp($interpreter, $indent)).join(' ') ~ ')))'
+        return  '(kp6-apply-function ' ~ $interpreter ~ ' (perl->cl ' ~ $op ~ ') (list ' ~ (@.arguments.>>emit_lisp($interpreter, $indent)).join(' ') ~ '))'
     }
 }
 
