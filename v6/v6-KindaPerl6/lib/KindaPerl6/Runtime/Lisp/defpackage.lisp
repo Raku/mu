@@ -35,6 +35,23 @@
    #:kp6-error
    #:kp6-not-implemented
 
-   #:with-kp6-package
+   #:enclosing-pad
+   #:outer-pad
+   #:lexical-variable-exists
+   #:lexical-variable-exists/p
+   #:define-lexical-variable
+   #:set-lexical-variable
+   #:set-lexical-variable/p
+   #:lookup-lexical-variable
+   #:lookup-lexical-variable/p
+   #:define-our-variable
+
+   #:enclosing-package
+   #:outer-package
+   #:define-package-variable
+   #:set-package-variable
+   #:lookup-package-variable
+
+   #:with-kp6-package   
    #:with-kp6-pad
    #:with-kp6-interpreter))

@@ -33,7 +33,7 @@ class CompUnit {
         ~ '(in-package #:' ~ $.name ~ ')' ~ Main::newline()
         ~ '(defun Main ()' ~ Main::newline()
         ~ ' (with-kp6-interpreter (' ~ $interpreter ~')' ~ Main::newline()
-        ~ '  (with-kp6-package (' ~ $interpreter ~ ' "GLOBAL")' ~ Main::newline()
+        ~ '  (with-kp6-package (' ~ $interpreter ~ ' "GLOBAL" kp6-pad)' ~ Main::newline()
         ~ $.body.emit_lisp($interpreter) ~ ')))' ~ Main::newline()
         # This is a function so (sb-ext:save-lisp-and-die) has
         # something to call into
@@ -131,7 +131,7 @@ class Lit::NamedArgument {
 
 class Lit::Code {
     method emit_lisp ($interpreter) {
-        '(with-kp6-pad (' ~ $interpreter ~ ')' ~ Main::newline() ~ self.emit_declarations($interpreter) ~ self.emit_body($interpreter) ~ ')';
+        '(with-kp6-pad (' ~ $interpreter ~ ' kp6-pad :parent kp6-pad)' ~ Main::newline() ~ self.emit_declarations($interpreter) ~ self.emit_body($interpreter) ~ ')';
     };
     method emit_body ($interpreter) {
         (@.body.>>emit_lisp($interpreter)).join(' ');
