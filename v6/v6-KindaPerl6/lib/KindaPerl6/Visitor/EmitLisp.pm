@@ -34,113 +34,112 @@ class CompUnit {
         ~ '(defun Main ()' ~ Main::newline()
         ~ ' (with-kp6-interpreter (' ~ $interpreter ~')' ~ Main::newline()
         ~ '  (with-kp6-package (' ~ $interpreter ~ ' "GLOBAL" kp6-pad)' ~ Main::newline()
-        ~ $.body.emit_lisp($interpreter) ~ ')))' ~ Main::newline()
+        ~ $.body.emit_lisp($interpreter, 3) ~ ')))' ~ Main::newline()
         # This is a function so (sb-ext:save-lisp-and-die) has
         # something to call into
-        ~ '(Main::Main)' ~ Main::newline()
+        ~ '(Main::Main)';
     }
 }
 
 class Val::Int {
-    method emit_lisp ($interpreter) { 
-        "(make-instance \'kp6-Int :value " ~ $.int ~ ")" ~ Main::newline();
+    method emit_lisp ($interpreter, $indent) { 
+        "(make-instance \'kp6-Int :value " ~ $.int ~ ")";
     }
 }
 
 class Val::Bit {
-    method emit_lisp ($interpreter) { 
-        "(make-instance \'kp6-Bit :value " ~ $.bit ~ ")" ~ Main::newline();
+    method emit_lisp ($interpreter, $indent) { 
+        "(make-instance \'kp6-Bit :value " ~ $.bit ~ ")";
     }
 }
 
 class Val::Num {
-    method emit_lisp ($interpreter) { 
-        "(make-instance \'kp6-Num :value " ~ $.num ~ ")" ~ Main::newline();
+    method emit_lisp ($interpreter, $indent) { 
+        "(make-instance \'kp6-Num :value " ~ $.num ~ ")";
     }
 }
 
 class Val::Buf {
-    method emit_lisp ($interpreter) { 
-        "(make-instance \'kp6-Str :value " ~ '"' ~ Main::mangle_string( $.buf ) ~ '"' ~ ")" ~ Main::newline();
+    method emit_lisp ($interpreter, $indent) { 
+        "(make-instance \'kp6-Str :value " ~ '"' ~ Main::mangle_string( $.buf ) ~ '"' ~ ")";
     }
 }
 
 class Val::Char {
-    method emit_lisp ($interpreter) { 
+    method emit_lisp ($interpreter, $indent) { 
         '(make-instance \'kp6-Char :value (code-char ' ~ $.char ~ '))'
     }
 }
 
 class Val::Undef {
-    method emit_lisp ($interpreter) { 
-        "(make-instance \'kp6-Undef)" ~ Main::newline();
+    method emit_lisp ($interpreter, $indent) { 
+        "(make-instance \'kp6-Undef)";
     }
 }
 
 class Val::Object {
-    method emit_lisp ($interpreter) {
+    method emit_lisp ($interpreter, $indent) {
         die 'Emitting of Val::Object not implemented';
         # 'bless(' ~ %.fields.perl ~ ', ' ~ $.class.perl ~ ')';
     }
 }
 
 class Native::Buf {
-    method emit_lisp ($interpreter) { 
+    method emit_lisp ($interpreter, $indent) { 
         die 'Emitting of Native::Buf not implemented';
         # '\'' ~ $.buf ~ '\''
     }
 }
 
 class Lit::Seq {
-    method emit_lisp ($interpreter) {
-        '(list ' ~ (@.seq.>>emit_lisp($interpreter)).join(' ') ~ ')';
+    method emit_lisp ($interpreter, $indent) {
+        '(list ' ~ (@.seq.>>emit_lisp($interpreter, $indent)).join(' ') ~ ')';
     }
 }
 
 class Lit::Array {
-    method emit_lisp ($interpreter) {
-        "(make-instance \'kp6-Array :value (list " ~ (@.array.>>emit_lisp($interpreter)).join(' ') ~ "))" ~ Main::newline();
+    method emit_lisp ($interpreter, $indent) {
+        "(make-instance \'kp6-Array :value (list " ~ (@.array.>>emit_lisp($interpreter, $indent)).join(' ') ~ "))";
     }
 }
 
 class Lit::Hash {
-    method emit_lisp ($interpreter) {
+    method emit_lisp ($interpreter, $indent) {
         my $fields := @.hash;
-        my $str := '';
+        my $str := ''; # XXX (' ' x ($indent + 1))
         my $field;
         for @$fields -> $field { 
-            $str := $str ~ '  (kp6-STORE hash ' ~ ($field[0]).emit_lisp($interpreter) ~ ' ' ~ ($field[1]).emit_lisp($interpreter) ~ ')' ~ Main::newline();
+            $str := $str ~ '(kp6-store hash ' ~ ($field[0]).emit_lisp($interpreter, $indent) ~ ' ' ~ ($field[1]).emit_lisp($interpreter, $indent) ~ ')' ~ Main::newline(); # XXX (' ' x ($indent + 1))
         }; 
-          '(let ((hash (make-instance \'kp6-Hash)))' ~ Main::newline()
-        ~ $str ~ ' hash)'
-        ~ Main::newline();
+  
+	'(let ((hash (make-instance \'kp6-Hash)))' ~ Main::newline() ~ $str ~ ' hash)';
     }
 }
 
 class Lit::Pair {
-    method emit_lisp ($interpreter) {
-        "(make-instance \'kp6-pair :key " ~ $.key.emit_lisp($interpreter) ~ " :value " ~ $.value.emit_lisp($interpreter) ~ ")" ~ Main::newline();
+    method emit_lisp ($interpreter, $indent) {
+        "(make-instance \'kp6-pair :key " ~ $.key.emit_lisp($interpreter, $indent) ~ " :value " ~ $.value.emit_lisp($interpreter, $indent) ~ ")";
     }
 }
 
 class Lit::NamedArgument {
-    method emit_lisp ($interpreter) {
-        "(make-instance \'kp6-named-argument :_argument_name_ " ~ $.key.emit_lisp($interpreter) ~ " :value " ~ $.value.emit_lisp($interpreter) ~ ")" ~ Main::newline();
+    method emit_lisp ($interpreter, $indent) {
+        "(make-instance \'kp6-named-argument :_argument_name_ " ~ $.key.emit_lisp($interpreter, $indent) ~ " :value " ~ $.value.emit_lisp($interpreter, $indent) ~ ")";
     }
 }
 
 class Lit::Code {
-    method emit_lisp ($interpreter) {
-        '(with-kp6-pad (' ~ $interpreter ~ ' kp6-pad :parent kp6-pad)' ~ Main::newline() ~ self.emit_declarations($interpreter) ~ self.emit_body($interpreter) ~ ')';
+    method emit_lisp ($interpreter, $indent) {
+        '(with-kp6-pad (' ~ $interpreter ~ ' kp6-pad :parent kp6-pad)' ~ Main::newline() ~ self.emit_declarations($interpreter, $indent) ~ self.emit_body($interpreter, $indent) ~ ')';
     };
-    method emit_body ($interpreter) {
-        (@.body.>>emit_lisp($interpreter)).join(' ');
+    method emit_body ($interpreter, $indent) {
+        (@.body.>>emit_lisp($interpreter, $indent)).join(Main::newline());
     };
-    method emit_signature ($interpreter) {
-        $.sig.emit_lisp($interpreter)
+    method emit_signature ($interpreter, $indent) {
+        $.sig.emit_lisp($interpreter, $indent)
     };
-    method emit_declarations ($interpreter) {
-        my $s;
+    method emit_declarations ($interpreter, $indent) {
+        my $s := '';
         my $name;
         for @($.pad.variable_names) -> $name {
             my $decl := ::Decl(
@@ -153,31 +152,36 @@ class Lit::Code {
                     namespace => [ ],
                 ),
             );
-            $s := $s ~ $name.emit_lisp($interpreter) ~ ' ' ~ Main::newline();
+
+	    if $s ne '' {
+		$s := $s ~ Main::newline();
+	    }
+
+            $s := $s ~ $name.emit_lisp($interpreter, $indent); # XXX ~ (' ' x $indent)
         };
         return $s;
     };
-    method emit_arguments ($interpreter) {
+    method emit_arguments ($interpreter, $indent) {
         my $array_  := ::Var( sigil => '@', twigil => '', name => '_',       namespace => [ ], );
         my $hash_   := ::Var( sigil => '%', twigil => '', name => '_',       namespace => [ ], );
         my $CAPTURE := ::Var( sigil => '$', twigil => '', name => 'CAPTURE', namespace => [ ],);
         my $CAPTURE_decl := ::Decl(decl=>'my',type=>'',var=>$CAPTURE);
         my $str := '';
-        $str := $str ~ $CAPTURE_decl.emit_lisp($interpreter);
+        $str := $str ~ $CAPTURE_decl.emit_lisp($interpreter, $indent);
         $str := $str ~ '::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));';
 
         my $bind_ := ::Bind(parameters=>$array_,arguments=>::Call(invocant => $CAPTURE,method => 'array',arguments => []));
-        $str := $str ~ $bind_.emit_lisp($interpreter) ~ ' ';
+        $str := $str ~ $bind_.emit_lisp($interpreter, $indent) ~ ' ';
 
         my $bind_hash := 
                      ::Bind(parameters=>$hash_, arguments=>::Call(invocant => $CAPTURE,method => 'hash', arguments => []));
-        $str := $str ~ $bind_hash.emit_lisp($interpreter) ~ ' ';
+        $str := $str ~ $bind_hash.emit_lisp($interpreter, $indent) ~ ' ';
 
         my $i := 0;
         my $field;
         for @($.sig.positional) -> $field { 
             my $bind := ::Bind(parameters=>$field,arguments=>::Index(obj=> $array_ , 'index'=>::Val::Int(int=>$i)) );
-            $str := $str ~ $bind.emit_lisp($interpreter) ~ ' ';
+            $str := $str ~ $bind.emit_lisp($interpreter, $indent) ~ ' ';
             $i := $i + 1;
         };
 
@@ -186,46 +190,45 @@ class Lit::Code {
 }
 
 class Lit::Object {
-    method emit_lisp ($interpreter) {
+    method emit_lisp ($interpreter, $indent) {
         # $.class ~ '->new( ' ~ @.fields.>>emit_lisp.join(', ') ~ ' )';
         my $fields := @.fields;
         my $str := '';
         # say @fields.map(sub { $_[0].emit_lisp ~ ' => ' ~ $_[1].emit_lisp}).join(', ') ~ ')';
         my $field;
         for @$fields -> $field { 
-            $str := $str ~ ($field[0]).emit_lisp($interpreter) ~ ' => ' ~ ($field[1]).emit_lisp($interpreter) ~ ',';
+            $str := $str ~ ($field[0]).emit_lisp($interpreter, $indent) ~ ' => ' ~ ($field[1]).emit_lisp($interpreter, $indent) ~ ',';
         }; 
-        '(kp6-new \'kp6-' ~ $.class ~ ' ' ~ $str ~ ')' ~ Main::newline();
+        '(kp6-new \'kp6-' ~ $.class ~ ' ' ~ $str ~ ')';
     }
 }
 
 class Index {
-    method emit_lisp ($interpreter) {
-        '(kp6-lookup ' ~ $.obj.emit_lisp($interpreter) ~ ' (perl->cl ' ~ $.index.emit_lisp($interpreter) ~ '))' ~ Main::newline()
+    method emit_lisp ($interpreter, $indent) {
+        '(kp6-lookup ' ~ $.obj.emit_lisp($interpreter, $indent) ~ ' (perl->cl ' ~ $.index.emit_lisp($interpreter, $indent) ~ '))'
     }
 }
 
 class Lookup {
-    method emit_lisp ($interpreter) {
+    method emit_lisp ($interpreter, $indent) {
 	# XXX since we don't have a proper ::Index object which takes care of PERL->CL, we have to do it ourselves
 	#'(kp6-lookup ' ~ $.obj.emit_lisp ~ ' ' ~ $.index.emit_lisp ~ ')'
-        '(kp6-lookup ' ~ $.obj.emit_lisp($interpreter) ~ ' (perl->cl ' ~ $.index.emit_lisp($interpreter) ~ '))'
+        '(kp6-lookup ' ~ $.obj.emit_lisp($interpreter, $indent) ~ ' (perl->cl ' ~ $.index.emit_lisp($interpreter, $indent) ~ '))'
     }
 }
 
 class Assign {
-    method emit_lisp ($interpreter) {
+    method emit_lisp ($interpreter, $indent) {
         # TODO - same as ::Bind
         
         my $node := $.parameters;
         
 	if ($node.isa('Var')) {
 	    if (@($node.namespace)) {
-		print "; namespace: " ~ $node.namespace ~ Main::newline();
-		return '(set-package-variable (kp6-generate-variable "' ~ $node.sigil ~ '" "' ~ $node.name ~ '") ' ~ $.arguments.emit_lisp($interpreter) ~ ' "' ~ $node.namespace.join('::') ~ '")';
+		return '(set-package-variable (kp6-generate-variable "' ~ $node.sigil ~ '" "' ~ $node.name ~ '") ' ~ $.arguments.emit_lisp($interpreter, $indent) ~ ' "' ~ $node.namespace.join('::') ~ '")';
 	    }
 	    
-	    return '(set-lexical-variable/p (kp6-generate-variable "' ~ $node.sigil ~ '" "' ~ $node.name ~ '") ' ~ $.arguments.emit_lisp($interpreter) ~ ')';
+	    return '(set-lexical-variable/p (kp6-generate-variable "' ~ $node.sigil ~ '" "' ~ $node.name ~ '") ' ~ $.arguments.emit_lisp($interpreter, $indent) ~ ')';
 	}
 
 	'(kp6-error ' ~ $interpreter ~ ' \'kp6-not-implemented :feature "assigning to anything other than variables")';
@@ -233,7 +236,7 @@ class Assign {
 }
 
 class Var {
-    method emit_lisp ($interpreter) {
+    method emit_lisp ($interpreter, $indent) {
 	my $namespace := $.namespace;
 	if !(@($namespace)) {
 	    return '(lookup-lexical-variable/p (kp6-generate-variable "' ~ $.sigil ~ '" "' ~ $.name ~ '"))';
@@ -249,39 +252,43 @@ class Var {
         ~     'twigil: \'' ~ $.twigil ~ '\', '
         ~     'name: \'' ~ $.name   ~ '\', '
         ~     'namespace: [ ], '
-        ~ ')' ~ Main::newline()
+        ~ ')'
     }
 }
 
 class Bind {
-    method emit_lisp ($interpreter) {
-    
+    method emit_lisp ($interpreter, $indent) {
+	#return '(setf ' ~ $.parameters.emit_lisp($interpreter, $indent) ~ ' ' ~ $.arguments.emit_lisp($interpreter) ~')';
+	if $.parameters.isa('Var') {
+	    return ::Assign(parameters=>$.parameters,arguments=>$.arguments).emit_lisp($interpreter, $indent);
+	}
+
         # XXX - replace Bind with Assign
         if $.parameters.isa('Call') 
         {
-            return ::Assign(parameters=>$.parameters,arguments=>$.arguments).emit_lisp($interpreter);
+            return ::Assign(parameters=>$.parameters,arguments=>$.arguments).emit_lisp($interpreter, $indent);
         };
         if $.parameters.isa('Lookup') {
-            return ::Assign(parameters=>$.parameters,arguments=>$.arguments).emit_lisp($interpreter);
+            return ::Assign(parameters=>$.parameters,arguments=>$.arguments).emit_lisp($interpreter, $indent);
         };
         if $.parameters.isa('Index') {
-            return ::Assign(parameters=>$.parameters,arguments=>$.arguments).emit_lisp($interpreter);
+            return ::Assign(parameters=>$.parameters,arguments=>$.arguments).emit_lisp($interpreter, $indent);
         };
 
         my $str := '';
-        $str := $str ~ '(setf ' ~ $.parameters.emit_lisp($interpreter) ~ ' ' ~ $.arguments.emit_lisp($interpreter) ~ ')';
+        $str := $str ~ '(setf ' ~ $.parameters.emit_lisp($interpreter, $indent) ~ ' ' ~ $.arguments.emit_lisp($interpreter, $indent) ~ ')';
         return $str;
     }
 }
 
 class Proto {
-    method emit_lisp ($interpreter) {
+    method emit_lisp ($interpreter, $indent) {
         return '\''~$.name;   # ???
     }
 }
 
 class Call {
-    method emit_lisp ($interpreter) {
+    method emit_lisp ($interpreter, $indent) {
         my $invocant;
         if $.invocant.isa( 'Proto' ) {
 
@@ -289,12 +296,12 @@ class Call {
                 $invocant := '$self';
             }
             else {
-                $invocant := $.invocant.emit_lisp($interpreter);
+                $invocant := $.invocant.emit_lisp($interpreter, $indent);
             }
             
         }
         else {
-            $invocant := $.invocant.emit_lisp($interpreter);
+            $invocant := $.invocant.emit_lisp($interpreter, $indent);
         };
         if $invocant eq 'self' {
             $invocant := '$self';
@@ -305,18 +312,18 @@ class Call {
              $meth := '';  
         };
         
-        my $call := (@.arguments.>>emit_lisp($interpreter)).join(' ');
+        my $call := (@.arguments.>>emit_lisp($interpreter, $indent)).join(' ');
         if ($.hyper) {
             # TODO - hyper + role
-            '[ map { $_' ~ '->' ~ $meth ~ '(' ~ $call ~ ') } @{ ' ~ $invocant ~ ' } ]' ~ Main::newline();
+            '[ map { $_' ~ '->' ~ $meth ~ '(' ~ $call ~ ') } @{ ' ~ $invocant ~ ' } ]'
         }
         else {
             if ( $meth eq '' ) {
                 # $var.()
-                '(kp6-APPLY \'' ~ $invocant ~ ' (list ' ~ $call ~ '))' ~ Main::newline()
+                '(kp6-APPLY \'' ~ $invocant ~ ' (list ' ~ $call ~ '))'
             }
             else {
-                '(' ~ $meth ~ ' \'' ~ $invocant ~ ' (list ' ~ $call ~ '))' ~ Main::newline()
+                '(' ~ $meth ~ ' \'' ~ $invocant ~ ' (list ' ~ $call ~ '))'
             };
         };
         
@@ -325,7 +332,7 @@ class Call {
 }
 
 class Apply {
-    method emit_lisp ($interpreter) {
+    method emit_lisp ($interpreter, $indent) {
         if     ( $.code.isa( 'Var' ) && $.code.name eq 'self' )
             # && ( @.arguments.elems == 0 )
         {
@@ -335,50 +342,50 @@ class Apply {
 	my $name := $.code.name;
 
 	if ($name eq 'infix:<&&>') {
-	    return '(and (perl->cl ' ~ (@.arguments.>>emit_lisp($interpreter)).join(') (perl->cl ') ~ '))';
+	    return '(and (perl->cl ' ~ (@.arguments.>>emit_lisp($interpreter, $indent)).join(') (perl->cl ') ~ '))';
 	}
 
 	if ($name eq 'infix:<||>') {
-	    return '(or (perl->cl ' ~ (@.arguments.>>emit_lisp($interpreter)).join(') (perl->cl ') ~ '))';
+	    return '(or (perl->cl ' ~ (@.arguments.>>emit_lisp($interpreter, $indent)).join(') (perl->cl ') ~ '))';
 	}
 
 	if ($name eq 'ternary:<?? !!>') {
-	    return '(if (kp6-true ' ~ (@.arguments[0]).emit_lisp($interpreter) ~ ') (progn ' ~ (@.arguments[1]).emit_lisp($interpreter) ~ ') (progn ' ~ (@.arguments[2]).emit_lisp($interpreter) ~ '))';
+	    return '(if (kp6-true ' ~ (@.arguments[0]).emit_lisp($interpreter, $indent) ~ ') (progn ' ~ (@.arguments[1]).emit_lisp($interpreter, $indent) ~ ') (progn ' ~ (@.arguments[2]).emit_lisp($interpreter, $indent) ~ '))';
 	}
 
-        my $op := $.code.emit_lisp($interpreter);
+        my $op := $.code.emit_lisp($interpreter, $indent);
 
-        return  '(kp6-apply-function ' ~ $interpreter ~ ' (perl->cl ' ~ $op ~ ') (mapcar #\'cl->perl (list ' ~ (@.arguments.>>emit_lisp($interpreter)).join(' ') ~ ')))' ~ Main::newline();
+        return  '(kp6-apply-function ' ~ $interpreter ~ ' (perl->cl ' ~ $op ~ ') (mapcar #\'cl->perl (list ' ~ (@.arguments.>>emit_lisp($interpreter, $indent)).join(' ') ~ ')))'
     }
 }
 
 class Return {
-    method emit_lisp ($interpreter) {
+    method emit_lisp ($interpreter, $indent) {
         return
         #'do { print Main::perl(caller(),' ~ $.result.emit_lisp ~ '); return(' ~ $.result.emit_lisp ~ ') }';
-        'return(' ~ $.result.emit_lisp($interpreter) ~ ')' ~ Main::newline();
+        'return(' ~ $.result.emit_lisp($interpreter, $indent) ~ ')';
     }
 }
 
 class If {
-    method emit_lisp ($interpreter) {
+    method emit_lisp ($interpreter, $indent) {
         #'do { if (::DISPATCH(::DISPATCH(' ~ $.cond.emit_lisp ~ ',"true"),"p5landish") ) ' 
         # XXX: Cast the value to a true/false in lisp
-        '(if (kp6-true ' ~ $.cond.emit_lisp($interpreter) ~ ')'
+        '(if (kp6-true ' ~ $.cond.emit_lisp($interpreter, $indent) ~ ')'
         ~ ( $.body 
-            ?? '(progn ' ~ $.body.emit_lisp($interpreter) ~ ') '
+            ?? '(progn ' ~ $.body.emit_lisp($interpreter, $indent) ~ ') '
             !! '(progn)'
           )
         ~ ( $.otherwise 
-            ?? ' (progn ' ~ $.otherwise.emit_lisp($interpreter) ~ ' )' 
+            ?? ' (progn ' ~ $.otherwise.emit_lisp($interpreter, $indent) ~ ' )' 
             !! '(progn)' 
           )
-        ~ ' )' ~ Main::newline();
+        ~ ' )';
     }
 }
 
 class For {
-    method emit_lisp ($interpreter) {
+    method emit_lisp ($interpreter, $indent) {
         my $cond := $.cond;
         if   $cond.isa( 'Var' ) 
           && $cond.sigil eq '@' 
@@ -387,17 +394,16 @@ class For {
             $cond := ::Apply( code => ::Var(sigil=>'&',twigil=>'',name=>'prefix:<@>',namespace => [ 'GLOBAL' ],), arguments => [$cond] );
         }
         'for ' 
-        ~   $.topic.emit_lisp($interpreter) 
-        ~ ' ( @{ ' ~ $cond.emit_lisp($interpreter) ~ '->{_value}{_array} } )'
+        ~   $.topic.emit_lisp($interpreter, $indent) 
+        ~ ' ( @{ ' ~ $cond.emit_lisp($interpreter, $indent) ~ '->{_value}{_array} } )'
         ~ ' { ' 
-        ~     $.body.emit_lisp($interpreter) 
-        ~ ' } '
-        ~ Main::newline();
+        ~     $.body.emit_lisp($interpreter, $indent) 
+        ~ ' } ';
     }
 }
 
 class While {
-    method emit_lisp ($interpreter) {
+    method emit_lisp ($interpreter, $indent) {
         my $cond := $.cond;
         if   $cond.isa( 'Var' ) 
           && $cond.sigil eq '@' 
@@ -405,16 +411,15 @@ class While {
         } else {
             $cond := ::Apply( code => ::Var(sigil=>'&',twigil=>'',name=>'prefix:<@>',namespace => [ 'GLOBAL' ],), arguments => [$cond] );
         }
-        'do { while (::DISPATCH(::DISPATCH(' ~ $.cond.emit_lisp($interpreter) ~ ',"true"),"p5landish") ) ' 
+        'do { while (::DISPATCH(::DISPATCH(' ~ $.cond.emit_lisp($interpreter, $indent) ~ ',"true"),"p5landish") ) ' 
         ~ ' { ' 
-        ~     $.body.emit_lisp($interpreter) 
+        ~     $.body.emit_lisp($interpreter, $indent) 
         ~ ' } }'
-        ~ Main::newline();
     }
 }
 
 class Decl {
-    method emit_lisp ($interpreter) {
+    method emit_lisp ($interpreter, $indent) {
         my $decl := $.decl;
         my $name := $.var.name;
 
@@ -434,7 +439,7 @@ class Decl {
                 ': ( $_[0]->{' ~ $name ~ '} = $_[1] ) ' ~
             '}';
         };
-        my $create := ', \'new\', { modified => $_MODIFIED, name => \'' ~ $.var.emit_lisp($interpreter) ~ '\' } ) ';
+        my $create := ', \'new\', { modified => $_MODIFIED, name => \'' ~ $.var.emit_lisp($interpreter, $indent) ~ '\' } ) ';
         if $decl eq 'our' {
             my $s;
             # ??? use vars --> because compile-time scope is too tricky to use 'our'
@@ -443,82 +448,76 @@ class Decl {
 
             if ($.var).sigil eq '$' {
                 return $s 
-                    ~ $.var.emit_lisp($interpreter)
+                    ~ $.var.emit_lisp($interpreter, $indent)
                     ~ ' = ::DISPATCH( $::Scalar' ~ $create
-                    ~ ' unless defined ' ~ $.var.emit_lisp($interpreter) ~ '; '
+                    ~ ' unless defined ' ~ $.var.emit_lisp($interpreter, $indent) ~ '; '
                     ~ 'BEGIN { '
-                    ~     $.var.emit_lisp($interpreter)
+                    ~     $.var.emit_lisp($interpreter, $indent)
                     ~     ' = ::DISPATCH( $::Scalar' ~ $create
-                    ~     ' unless defined ' ~ $.var.emit_lisp($interpreter) ~ '; '
-                    ~ '}' ~ Main::newline()
+                    ~     ' unless defined ' ~ $.var.emit_lisp($interpreter, $indent) ~ '; '
+                    ~ '}'
             };
             if ($.var).sigil eq '&' {
                 return $s 
-                    ~ $.var.emit_lisp($interpreter)
-                    ~ ' = ::DISPATCH( $::Routine' ~ $create ~ ';' ~ Main::newline();
+                    ~ $.var.emit_lisp($interpreter, $indent)
+                    ~ ' = ::DISPATCH( $::Routine' ~ $create ~ ';'
             };
             if ($.var).sigil eq '%' {
-                return $s ~ $.var.emit_lisp($interpreter)
-                    ~ ' = ::DISPATCH( $::Hash' ~ $create ~ ';' ~ Main::newline();
+                return $s ~ $.var.emit_lisp($interpreter, $indent)
+                    ~ ' = ::DISPATCH( $::Hash' ~ $create ~ ';'
             };
             if ($.var).sigil eq '@' {
-                return $s ~ $.var.emit_lisp($interpreter)
-                    ~ ' = ::DISPATCH( $::Array' ~ $create ~ ';' ~ Main::newline();
+                return $s ~ $.var.emit_lisp($interpreter, $indent)
+                    ~ ' = ::DISPATCH( $::Array' ~ $create ~ ';'
             };
-            return $s ~ $.var.emit_lisp($interpreter) ~ Main::newline();
+            return $s ~ $.var.emit_lisp($interpreter, $indent)
         };
         if ($.var).sigil eq '$' {
             return 
                   $.decl ~ ' ' 
                 # ~ $.type ~ ' ' 
-                ~ $.var.emit_lisp($interpreter) ~ '; '
-                ~ $.var.emit_lisp($interpreter)
+                ~ $.var.emit_lisp($interpreter, $indent) ~ '; '
+                ~ $.var.emit_lisp($interpreter, $indent)
                 ~ ' = ::DISPATCH( $::Scalar' ~ $create
-                ~ ' unless defined ' ~ $.var.emit_lisp($interpreter) ~ '; '
+                ~ ' unless defined ' ~ $.var.emit_lisp($interpreter, $indent) ~ '; '
                 ~ 'BEGIN { '
-                ~     $.var.emit_lisp($interpreter)
+                ~     $.var.emit_lisp($interpreter, $indent)
                 ~     ' = ::DISPATCH( $::Scalar' ~ $create
                 ~ '}'
-                ~ Main::newline()
-                ;
         };
         if ($.var).sigil eq '&' {
             return 
                   $.decl ~ ' ' 
                 # ~ $.type ~ ' ' 
-                ~ $.var.emit_lisp($interpreter) ~ '; '
-                ~ $.var.emit_lisp($interpreter)
+                ~ $.var.emit_lisp($interpreter, $indent) ~ '; '
+                ~ $.var.emit_lisp($interpreter, $indent)
                 ~ ' = ::DISPATCH( $::Routine' ~ $create
-                ~ ' unless defined ' ~ $.var.emit_lisp($interpreter) ~ '; '
+                ~ ' unless defined ' ~ $.var.emit_lisp($interpreter, $indent) ~ '; '
                 ~ 'BEGIN { '
-                ~     $.var.emit_lisp($interpreter)
+                ~     $.var.emit_lisp($interpreter, $indent)
                 ~     ' = ::DISPATCH( $::Routine' ~ $create
                 ~ '}'
-                ~ Main::newline()
-                ;
         };
         if ($.var).sigil eq '%' {
             return $.decl ~ ' ' 
                 # ~ $.type 
-                ~ ' ' ~ $.var.emit_lisp($interpreter)
+                ~ ' ' ~ $.var.emit_lisp($interpreter, $indent)
                 ~ ' = ::DISPATCH( $::Hash' ~ $create ~ '; '
-                ~ Main::newline();
         };
         if ($.var).sigil eq '@' {
             return $.decl ~ ' ' 
                 # ~ $.type 
-                ~ ' ' ~ $.var.emit_lisp($interpreter)
+                ~ ' ' ~ $.var.emit_lisp($interpreter, $indent)
                 ~ ' = ::DISPATCH( $::Array' ~ $create ~ '; '
-                ~ Main::newline();
         };
         return $.decl ~ ' ' 
             # ~ $.type ~ ' ' 
-            ~ $.var.emit_lisp($interpreter);
+            ~ $.var.emit_lisp($interpreter, $indent);
     }
 }
 
 class Sig {
-    method emit_lisp ($interpreter) {
+    method emit_lisp ($interpreter, $indent) {
         my $inv := '$::Undef';
         if $.invocant.isa( 'Var' ) {
             $inv := $.invocant.perl;
@@ -538,15 +537,14 @@ class Sig {
         ~     'hash: ::DISPATCH( $::Hash,  "new", { _hash  => { ' ~ $named ~ ' } } ), '
         ~     'return: $::Undef, '
         ~ ')'
-        ~ Main::newline();
     };
 }
 
 class Capture {
-    method emit_lisp ($interpreter) {
+    method emit_lisp ($interpreter, $indent) {
         my $s := '(kp6-new \'capture ';
         if defined $.invocant {
-           $s := $s ~ 'invocant: ' ~ $.invocant.emit_lisp($interpreter) ~ ', ';
+           $s := $s ~ 'invocant: ' ~ $.invocant.emit_lisp($interpreter, $indent) ~ ', ';
         }
         else {
             $s := $s ~ 'invocant: $::Undef, '
@@ -555,7 +553,7 @@ class Capture {
            $s := $s ~ 'array: ::DISPATCH( $::Array, "new", { _array => [ ';
                             my $item;
            for @.array -> $item { 
-                $s := $s ~ $item.emit_lisp($interpreter) ~ ', ';
+                $s := $s ~ $item.emit_lisp($interpreter, $indent) ~ ', ';
             }
             $s := $s ~ ' ] } ),';
         };
@@ -563,73 +561,71 @@ class Capture {
            $s := $s ~ 'hash: ::DISPATCH( $::Hash, "new", { _hash => { ';
                            my $item;
            for @.hash -> $item { 
-                $s := $s ~ ($item[0]).emit_lisp($interpreter) ~ '->{_value} => ' ~ ($item[1]).emit_lisp($interpreter) ~ ', ';
+                $s := $s ~ ($item[0]).emit_lisp($interpreter, $indent) ~ '->{_value} => ' ~ ($item[1]).emit_lisp($interpreter) ~ ', ';
             }
             $s := $s ~ ' } } ),';
         };
-        return $s ~ ')' ~ Main::newline();
+        return $s ~ ')';
     };
 }
 
 class Subset {
-    method emit_lisp ($interpreter) {
+    method emit_lisp ($interpreter, $indent) {
           '(kp6-new \'subset ' 
-        ~ 'base_class: ' ~ $.base_class.emit_lisp($interpreter) 
+        ~ 'base_class: ' ~ $.base_class.emit_lisp($interpreter, $indent) 
         ~ ', '
         ~ 'block: '    
-        ~       'sub { local $_ = shift; ' ~ ($.block.block).emit_lisp($interpreter) ~ ' } '    # XXX
-        ~ ')' ~ Main::newline();
+        ~       'sub { local $_ = shift; ' ~ ($.block.block).emit_lisp($interpreter, $indent) ~ ' } '    # XXX
+        ~ ')';
     }
 }
 
 class Method {
-    method emit_lisp ($interpreter) {
+    method emit_lisp ($interpreter, $indent) {
           '(kp6-new \'code '
         ~   'code: sub { '  
-        ~     $.block.emit_declarations($interpreter) 
+        ~     $.block.emit_declarations($interpreter, $indent) 
         ~     '$self = shift; ' 
-        ~     $.block.emit_arguments($interpreter) 
-        ~     $.block.emit_body($interpreter)
+        ~     $.block.emit_arguments($interpreter, $indent) 
+        ~     $.block.emit_body($interpreter, $indent)
         ~    ' '
         ~   'signature: ' 
-        ~       $.block.emit_signature($interpreter)
-        ~ ')' 
-        ~ Main::newline();
+        ~       $.block.emit_signature($interpreter, $indent)
+        ~ ')';
     }
 }
 
 class Sub {
-    method emit_lisp ($interpreter) {
+    method emit_lisp ($interpreter, $indent) {
           '(kp6-new \'code '
         ~   'code: sub { '  
-        ~       $.block.emit_declarations($interpreter) 
-        ~       $.block.emit_arguments($interpreter) 
-        ~       $.block.emit_body($interpreter)
+        ~       $.block.emit_declarations($interpreter, $indent) 
+        ~       $.block.emit_arguments($interpreter, $indent) 
+        ~       $.block.emit_body($interpreter, $indent)
         ~    ' } '
         ~   'signature: ' 
-        ~       $.block.emit_signature($interpreter)
-        ~ ')' 
-        ~ Main::newline();
+        ~       $.block.emit_signature($interpreter, $indent)
+        ~ ')'
     }
 }
 
 class Do {
     # Everything's an expression in lisp so do {} is implicit:)
-    method emit_lisp ($interpreter) {
-        $.block.emit_lisp($interpreter) ~ Main::newline();
+    method emit_lisp ($interpreter, $indent) {
+        $.block.emit_lisp($interpreter, $indent);
     }
 }
 
 class BEGIN {
-    method emit_lisp ($interpreter) {
+    method emit_lisp ($interpreter, $indent) {
         'BEGIN { ' ~ 
-          $.block.emit_lisp($interpreter) ~ 
+          $.block.emit_lisp($interpreter, $indent) ~ 
         ' }'
     }
 }
 
 class Use {
-    method emit_lisp ($interpreter) {
+    method emit_lisp ($interpreter, $indent) {
         if ($.mod eq 'v6') {
             return Main::newline() ~ '#use v6' ~ Main::newline();
         }
