@@ -14,5 +14,5 @@ typedef struct {
     char *match_str;
 } match;
 void dump_match(match* m) {
-    printf("bool = %d,from %d to %d on %s\n",m->boolean,m->from,m->to,m->match_str);
+    printf("boolean = %d,from %d to %d on %s\n",m->boolean,m->from,m->to,m->match_str);
 }
