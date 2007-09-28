@@ -9,7 +9,7 @@ class KindaPerl6::Visitor::EmitTokenC {
 }
 class Token {
     method emit_c {
-        return 'match ' ~ $.name ~ ' (char *str,int str_len,int pos) {match m;m.match_str = str;m.from=pos;m.boolean = (' ~ ($.regex).emit_c ~ ');m.to = pos;return m;}';
+        'match* ' ~ $.name ~ ' (char *str,int pos) {match* m = malloc(sizeof(match));m->match_str = str;m->from=pos;m->boolean = (' ~ ($.regex).emit_c ~ ');m->to = pos;return m;}' ~ Main::newline();
     }
 }
 class CompUnit {
@@ -19,26 +19,32 @@ class CompUnit {
 }
 class Lit::Code {
     method emit_c {
-        (@.body.>>emit_c).join('');
+        my $source := '';
+        for @.body -> $node {
+            if ($node.isa('Token')) {
+                $source := $source ~ $node.emit_c;
+            }
+        }
+        $source;
     };
 }
 class Rule::Or {
     method emit_c {
-        return '({int saved_pos=pos;' ~ (@.or.>>emit_c).join('||') ~ '|| (pos=saved_pos,0);})';
+        '({int saved_pos=pos;' ~ (@.or.>>emit_c).join('||') ~ '|| (pos=saved_pos,0);})';
     }
 }
 class Rule::Concat {
     method emit_c {
-        return '(' ~ (@.concat.>>emit_c).join('&&') ~ ')';
+        '(' ~ (@.concat.>>emit_c).join('&&') ~ ')';
     }
 }
 class Rule::Constant {
     method emit_c {
-        return '(str_len >= pos + ' ~ length($.constant) ~ '&& strncmp("' ~ $.constant ~ '",str+pos,' ~ length($.constant) ~ ') == 0 && (pos += ' ~ length($.constant) ~ '))';
+        '(strncmp("' ~ $.constant ~ '",str+pos,' ~ length($.constant) ~ ') == 0 && (pos += ' ~ length($.constant) ~ '))';
     }
-    method emit_perl5 {
-          '{ ' 
-        ~ self.emit_declarations ~ self.emit_body
-        ~ ' }';
-    };
+}
+class Rule::Subrule {
+    method emit_c {
+        '({match* submatch='~$.metasyntax~'(str,pos);pos = submatch->to;int boolean = submatch->boolean;free(submatch);boolean;})';
+    }
 }

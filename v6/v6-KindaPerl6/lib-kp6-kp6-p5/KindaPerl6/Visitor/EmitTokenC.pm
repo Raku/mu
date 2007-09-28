@@ -131,21 +131,19 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        return (
+                        ::DISPATCH(
+                            $GLOBAL::Code_infix_58__60__126__62_,
+                            'APPLY',
+                            ::DISPATCH( $::Str, 'new', 'match ' ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH( $::Str, 'new', 'match ' ),
+                                ::DISPATCH( $self, "name" ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
-                                    ::DISPATCH( $self, "name" ),
-                                    ::DISPATCH(
-                                        $GLOBAL::Code_infix_58__60__126__62_,
-                                        'APPLY',
-                                        ::DISPATCH( $::Str, 'new', ' (char *str,int str_len,int pos) {match m;m.match_str = str;m.from=pos;m.boolean = (' ),
-                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "regex" ), 'emit_c', ), ::DISPATCH( $::Str, 'new', ');m.to = pos;return m;}' ) )
-                                    )
+                                    ::DISPATCH( $::Str, 'new', ' (char *str,int pos) {match m;m.match_str = str;m.from=pos;m.boolean = (' ),
+                                    ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "regex" ), 'emit_c', ), ::DISPATCH( $::Str, 'new', ');m.to = pos;return m;}' ) )
                                 )
                             )
                         );
@@ -214,7 +212,12 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        ::DISPATCH( ::DISPATCH( $self, "body" ), 'emit_c', );
+                        ::DISPATCH(
+                            $GLOBAL::Code_infix_58__60__126__62_,
+                            'APPLY',
+                            ::DISPATCH( $::Str, 'new', '#include "lib/KindaPerl6/Runtime/C/match.h"' ),
+                            ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $Main::Code_newline, 'APPLY', ), ::DISPATCH( ::DISPATCH( $self, "body" ), 'emit_c', ) )
+                        );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
@@ -263,6 +266,9 @@
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
+                        my $source;
+                        $source = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$source' } ) unless defined $source;
+                        BEGIN { $source = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$source' } ) }
                         my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
                         $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
@@ -280,7 +286,30 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        ::DISPATCH( [ map { $_->emit_c() } @{ ::DISPATCH( $self, "body" ) } ], 'join', ::DISPATCH( $::Str, 'new', '' ) );
+                        do {
+                            ::MODIFIED($source);
+                            $source = ::DISPATCH( $::Str, 'new', '' );
+                        };
+                        {
+                            my $node;
+                            $node = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$node' } ) unless defined $node;
+                            BEGIN { $node = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$node' } ) }
+                            for $node ( @{ ::DISPATCH( $self, "body" )->{_value}{_array} } ) {
+                                {
+                                    do {
+                                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $node, 'isa', ::DISPATCH( $::Str, 'new', 'Token' ) ), "true" ), "p5landish" ) ) {
+                                            {
+                                                do {
+                                                    ::MODIFIED($source);
+                                                    $source = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $source, ::DISPATCH( $node, 'emit_c', ) );
+                                                    }
+                                            }
+                                        }
+                                        else { ::DISPATCH( $::Bit, "new", 0 ) }
+                                        }
+                                }
+                            }
+                        }
                     },
                     signature => ::DISPATCH(
                         $::Signature,
@@ -346,15 +375,13 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        return (
+                        ::DISPATCH(
+                            $GLOBAL::Code_infix_58__60__126__62_,
+                            'APPLY',
+                            ::DISPATCH( $::Str, 'new', '({int saved_pos=pos;' ),
                             ::DISPATCH(
-                                $GLOBAL::Code_infix_58__60__126__62_,
-                                'APPLY',
-                                ::DISPATCH( $::Str, 'new', '({int saved_pos=pos;' ),
-                                ::DISPATCH(
-                                    $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                    ::DISPATCH( [ map { $_->emit_c() } @{ ::DISPATCH( $self, "or" ) } ], 'join', ::DISPATCH( $::Str, 'new', '||' ) ), ::DISPATCH( $::Str, 'new', '|| (pos=saved_pos,0);})' )
-                                )
+                                $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
+                                ::DISPATCH( [ map { $_->emit_c() } @{ ::DISPATCH( $self, "or" ) } ], 'join', ::DISPATCH( $::Str, 'new', '||' ) ), ::DISPATCH( $::Str, 'new', '|| (pos=saved_pos,0);})' )
                             )
                         );
                     },
@@ -422,13 +449,11 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        return (
-                            ::DISPATCH(
-                                $GLOBAL::Code_infix_58__60__126__62_,
-                                'APPLY',
-                                ::DISPATCH( $::Str,                               'new',   '(' ),
-                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( [ map { $_->emit_c() } @{ ::DISPATCH( $self, "concat" ) } ], 'join', ::DISPATCH( $::Str, 'new', '&&' ) ), ::DISPATCH( $::Str, 'new', ')' ) )
-                            )
+                        ::DISPATCH(
+                            $GLOBAL::Code_infix_58__60__126__62_,
+                            'APPLY',
+                            ::DISPATCH( $::Str,                               'new',   '(' ),
+                            ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( [ map { $_->emit_c() } @{ ::DISPATCH( $self, "concat" ) } ], 'join', ::DISPATCH( $::Str, 'new', '&&' ) ), ::DISPATCH( $::Str, 'new', ')' ) )
                         );
                     },
                     signature => ::DISPATCH(
@@ -495,39 +520,27 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        return (
+                        ::DISPATCH(
+                            $GLOBAL::Code_infix_58__60__126__62_,
+                            'APPLY',
+                            ::DISPATCH( $::Str, 'new', '(strncmp("' ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH( $::Str, 'new', '(str_len >= pos + ' ),
+                                ::DISPATCH( $self, "constant" ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
-                                    ::DISPATCH( $GLOBAL::Code_length, 'APPLY', ::DISPATCH( $self, "constant" ) ),
+                                    ::DISPATCH( $::Str, 'new', '",str+pos,' ),
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
-                                        ::DISPATCH( $::Str, 'new', '&& strncmp("' ),
+                                        ::DISPATCH( $GLOBAL::Code_length, 'APPLY', ::DISPATCH( $self, "constant" ) ),
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY',
-                                            ::DISPATCH( $self, "constant" ),
-                                            ::DISPATCH(
-                                                $GLOBAL::Code_infix_58__60__126__62_,
-                                                'APPLY',
-                                                ::DISPATCH( $::Str, 'new', '",str+pos,' ),
-                                                ::DISPATCH(
-                                                    $GLOBAL::Code_infix_58__60__126__62_,
-                                                    'APPLY',
-                                                    ::DISPATCH( $GLOBAL::Code_length, 'APPLY', ::DISPATCH( $self, "constant" ) ),
-                                                    ::DISPATCH(
-                                                        $GLOBAL::Code_infix_58__60__126__62_,
-                                                        'APPLY',
-                                                        ::DISPATCH( $::Str, 'new', ') == 0 && (pos += ' ),
-                                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_length, 'APPLY', ::DISPATCH( $self, "constant" ) ), ::DISPATCH( $::Str, 'new', '))' ) )
-                                                    )
-                                                )
-                                            )
+                                            ::DISPATCH( $::Str, 'new', ') == 0 && (pos += ' ),
+                                            ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_length, 'APPLY', ::DISPATCH( $self, "constant" ) ), ::DISPATCH( $::Str, 'new', '))' ) )
                                         )
                                     )
                                 )
@@ -545,11 +558,39 @@
                     ),
                 }
             )
-        );
+            )
+    };
+    1
+}
+{
+
+    package Rule::Subrule;
+
+    # Do not edit this file - Perl 5 generated by KindaPerl6
+    use v5;
+    use strict;
+    no strict "vars";
+    use constant KP6_DISABLE_INSECURE_CODE => 0;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
+    my $_MODIFIED;
+    BEGIN { $_MODIFIED = {} }
+    BEGIN { $_ = ::DISPATCH( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
+    {
+        do {
+            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Rule::Subrule ), "true" ), "p5landish" ) ) { }
+            else {
+                {
+                    do {
+                        ::MODIFIED($::Rule::Subrule);
+                        $::Rule::Subrule = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Rule::Subrule' ) ), 'PROTOTYPE', );
+                        }
+                }
+            }
+        };
         ::DISPATCH(
-            ::DISPATCH( $::Rule::Constant, 'HOW', ),
+            ::DISPATCH( $::Rule::Subrule, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'emit_perl5' ),
+            ::DISPATCH( $::Str, 'new', 'emit_c' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -573,11 +614,8 @@
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH( $::Str, 'new', '{ ' ),
-                            ::DISPATCH(
-                                $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                ::DISPATCH( $self, 'emit_declarations', ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $self, 'emit_body', ), ::DISPATCH( $::Str, 'new', ' }' ) )
-                            )
+                            ::DISPATCH( $::Str, 'new', '({match submatch=' ),
+                            ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $self, "metasyntax" ), ::DISPATCH( $::Str, 'new', '(str,pos);pos = submatch.to;submatch.boolean;})' ) )
                         );
                     },
                     signature => ::DISPATCH(

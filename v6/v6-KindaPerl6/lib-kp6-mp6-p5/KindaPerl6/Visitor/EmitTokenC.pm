@@ -11,7 +11,7 @@ sub visit { my $self = shift; my $List__ = \@_; my $node; my $node_name; do {  $
 ;
 package Token;
 sub new { shift; bless { @_ }, "Token" }
-sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; return(('match ' . ($self->{name} . (' (char *str,int str_len,int pos) {match m;m.match_str = str;m.from=pos;m.boolean = (' . ($self->{regex}->emit_c() . ');m.to = pos;return m;}'))))) }
+sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; ('match* ' . ($self->{name} . (' (char *str,int pos) {match* m = malloc(sizeof(match));m->match_str = str;m->from=pos;m->boolean = (' . ($self->{regex}->emit_c() . (');m->to = pos;return m;}' . Main::newline()))))) }
 
 
 ;
@@ -23,26 +23,31 @@ sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; $self->{body}->emit_
 ;
 package Lit::Code;
 sub new { shift; bless { @_ }, "Lit::Code" }
-sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; Main::join([ map { $_->emit_c() } @{ $self->{body} } ], '') }
+sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; my  $source = ''; do { for my $node ( @{$self->{body}} ) { do { if (Main::isa($node, 'Token')) { $source = ($source . $node->emit_c()) } else {  } } } }; $source }
 
 
 ;
 package Rule::Or;
 sub new { shift; bless { @_ }, "Rule::Or" }
-sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; return(('({int saved_pos=pos;' . (Main::join([ map { $_->emit_c() } @{ $self->{or} } ], '||') . '|| (pos=saved_pos,0);})'))) }
+sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; ('({int saved_pos=pos;' . (Main::join([ map { $_->emit_c() } @{ $self->{or} } ], '||') . '|| (pos=saved_pos,0);})')) }
 
 
 ;
 package Rule::Concat;
 sub new { shift; bless { @_ }, "Rule::Concat" }
-sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; return(('(' . (Main::join([ map { $_->emit_c() } @{ $self->{concat} } ], '&&') . ')'))) }
+sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; ('(' . (Main::join([ map { $_->emit_c() } @{ $self->{concat} } ], '&&') . ')')) }
 
 
 ;
 package Rule::Constant;
 sub new { shift; bless { @_ }, "Rule::Constant" }
-sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; return(('(str_len >= pos + ' . (length($self->{constant}) . ('&& strncmp("' . ($self->{constant} . ('",str+pos,' . (length($self->{constant}) . (') == 0 && (pos += ' . (length($self->{constant}) . '))'))))))))) };
-sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('{ ' . ($self->emit_declarations() . ($self->emit_body() . ' }'))) }
+sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; ('(strncmp("' . ($self->{constant} . ('",str+pos,' . (length($self->{constant}) . (') == 0 && (pos += ' . (length($self->{constant}) . '))')))))) }
+
+
+;
+package Rule::Subrule;
+sub new { shift; bless { @_ }, "Rule::Subrule" }
+sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; ('({match* submatch=' . ($self->{metasyntax} . '(str,pos);pos = submatch->to;int boolean = submatch->boolean;free(submatch);boolean;})')) }
 
 
 ;

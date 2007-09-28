@@ -128,6 +128,10 @@
                             $args_secure = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         do {
+                            ::MODIFIED($KindaPerl6::Visitor::EmitPerl5::current_compunit);
+                            $KindaPerl6::Visitor::EmitPerl5::current_compunit = ::DISPATCH( $self, "name" );
+                        };
+                        do {
                             ::MODIFIED($source);
                             $source = ::DISPATCH( $::Str, 'new', '' );
                         };
