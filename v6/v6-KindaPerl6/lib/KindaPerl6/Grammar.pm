@@ -22,9 +22,8 @@ token ident_digit {
 };
 
 token ident {
-    | <'infix:<'> <infix_op> <'>'>
-    | <'prefix:<'> <prefix_op> <'>'>
     | [ <!before \d> <?word> | _ ] <?ident_digit>
+        [ ':<'   <angle_quoted> '>' | '' ]
     | ¢
 };
 
