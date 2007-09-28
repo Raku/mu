@@ -11,7 +11,7 @@ sub visit { my $self = shift; my $List__ = \@_; my $node; my $node_name; do {  $
 ;
 package Token;
 sub new { shift; bless { @_ }, "Token" }
-sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; ('match* ' . ($self->{name} . (' (char *str,int pos) {match* m = malloc(sizeof(match));m->match_str = str;m->from=pos;m->boolean = (' . ($self->{regex}->emit_c() . (');m->to = pos;return m;}' . Main::newline()))))) }
+sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; ('match* ' . (Main::mangle_ident(($KindaPerl6::Visitor::EmitPerl5::current_compunit . $self->{name})) . (' (char *str,int pos) {match* m = malloc(sizeof(match));m->match_str = str;m->from=pos;m->boolean = (' . ($self->{regex}->emit_c() . (');m->to = pos;return m;}' . Main::newline()))))) }
 
 
 ;
@@ -45,9 +45,39 @@ sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; ('(strncmp("' . ($se
 
 
 ;
+package Rule::Block;
+sub new { shift; bless { @_ }, "Rule::Block" }
+sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; ('printf("' . ($self->{closure} . '")')) }
+
+
+;
 package Rule::Subrule;
 sub new { shift; bless { @_ }, "Rule::Subrule" }
-sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; ('({match* submatch=' . ($self->{metasyntax} . '(str,pos);pos = submatch->to;int boolean = submatch->boolean;free(submatch);boolean;})')) }
+sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; ('({match* submatch=' . (Main::mangle_ident($self->{metasyntax}) . '(str,pos);pos = submatch->to;int boolean = submatch->boolean;free(submatch);boolean;})')) }
+
+
+;
+package Rule::SubruleNoCapture;
+sub new { shift; bless { @_ }, "Rule::SubruleNoCapture" }
+sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; ('({match* submatch=' . (Main::mangle_ident($self->{metasyntax}) . '(str,pos);pos = submatch->to;int boolean = submatch->boolean;free(submatch);boolean;})')) }
+
+
+;
+package Rule::Dot;
+sub new { shift; bless { @_ }, "Rule::Dot" }
+sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; 'printf("Rule::Dot stub")' }
+
+
+;
+package Rule::SpecialChar;
+sub new { shift; bless { @_ }, "Rule::SpecialChar" }
+sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; 'printf("Rule::SpecialChar stub")' }
+
+
+;
+package Rule::Before;
+sub new { shift; bless { @_ }, "Rule::Before" }
+sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; 'printf("Rule::Before stub")' }
 
 
 ;
