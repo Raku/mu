@@ -9,7 +9,7 @@
 		  "Bit" "Num" "Int" "Str" "Code" ; Values
 		  "Hash" "Array"	; Containers
 		  "Package" "Pad"
-		  "foreign" "packages"	; Utilities
+		  "foreign"             ; Utilities
 		  "display" "functions" "coerce" ; Utilities
 		  "GLOBAL"		; Functions
 		  ))
