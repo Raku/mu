@@ -405,10 +405,11 @@ class While {
         } else {
             $cond := ::Apply( code => ::Var(sigil=>'&',twigil=>'',name=>'prefix:<@>',namespace => [ 'GLOBAL' ],), arguments => [$cond] );
         }
-        'do { while (::DISPATCH(::DISPATCH(' ~ $.cond.emit_lisp($interpreter, $indent) ~ ',"true"),"p5landish") ) ' 
-        ~ ' { ' 
-        ~     $.body.emit_lisp($interpreter, $indent) 
-        ~ ' } }'
+        '(loop :while (kp6-true ' ~ $.cond.emit_lisp($interpreter, $indent) ~ ')' ~ Main::newline()
+        ~ ' :do '
+        ~     $.body.emit_lisp($interpreter, $indent)
+        ~ ')'
+        ~ Main::newline()
     }
 }
 
