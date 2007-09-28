@@ -44,7 +44,7 @@ result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
 
     (define-kp6-function ("infix:<ne>" :coerce 'kp6-Bit) (interpreter first second)
       (declare (ignore interpreter))
-      (string= (str* first) (str* second)))
+      (not (string= (str* first) (str* second))))
 
     (define-kp6-function ("infix:<==>" :coerce 'kp6-Bit) (interpreter first second)
       (declare (ignore interpreter))
@@ -52,7 +52,7 @@ result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
 
     (define-kp6-function ("infix:<!=>" :coerce 'kp6-Bit) (interpreter first second)
       (declare (ignore interpreter))
-      (equal (num* first) (num* second)))
+      (not (equal (num* first) (num* second))))
 
     (define-kp6-function ("infix:<<>" :coerce 'kp6-Bit) (interpreter first second)
       (declare (ignore interpreter))
