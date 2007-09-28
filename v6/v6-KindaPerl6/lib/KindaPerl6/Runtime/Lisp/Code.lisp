@@ -10,7 +10,7 @@
   ((function :reader kp6-function :initarg :function)
    (package :reader kp6-package :initarg :package))
   (:report (lambda (c s)
-	     (write-string (kp6-prefixed-error-message "Function ~A not found in package ~A." (kp6-function c) (kp6-package c)) s))))
+	     (write-string (kp6-prefixed-error-message c "Function ~A not found in package ~A." (kp6-function c) (kp6-package c)) s))))
 
 (defun kp6-normalize-function-name (name)
   (cons '& name))
@@ -28,5 +28,5 @@
 	  (apply obj interpreter args)
 	  (let ((function (kp6-find-function interpreter obj package)))
 	    (unless (is-kp6-code function)
-	      (kp6-error interpreter 'kp6-function-not-found :package package :name obj))
+	      (kp6-error interpreter 'kp6-function-not-found :package package :function obj))
 	    (apply (kp6-value function) interpreter args)))))
