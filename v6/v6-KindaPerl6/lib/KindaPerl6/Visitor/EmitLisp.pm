@@ -333,12 +333,6 @@ class Call {
 
 class Apply {
     method emit_lisp ($interpreter, $indent) {
-        if     ( $.code.isa( 'Var' ) && $.code.name eq 'self' )
-            # && ( @.arguments.elems == 0 )
-        {
-            return '$self';
-        }
-
 	my $name := $.code.name;
 
 	if ($name eq 'infix:<&&>') {
@@ -377,10 +371,10 @@ class If {
             !! '(progn)'
           )
         ~ ( $.otherwise 
-            ?? ' (progn ' ~ $.otherwise.emit_lisp($interpreter, $indent) ~ ' )' 
-            !! '(progn)' 
+            ?? ' (progn ' ~ $.otherwise.emit_lisp($interpreter, $indent) ~ ')' 
+            !! ''
           )
-        ~ ' )';
+        ~ ')';
     }
 }
 
