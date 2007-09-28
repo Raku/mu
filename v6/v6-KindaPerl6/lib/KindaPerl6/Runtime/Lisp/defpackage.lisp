@@ -10,6 +10,7 @@
    
    ;; Accessors
    #:kp6-value
+   #:kp6-pad
 
    ; Hash.lisp
    #:kp6-STORE
