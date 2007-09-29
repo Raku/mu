@@ -225,7 +225,7 @@ class Assign {
         
 	if ($node.isa('Var')) {
 	    if (@($node.namespace)) {
-		return '(set-package-variable (kp6-generate-variable "' ~ $node.sigil ~ '" "' ~ $node.name ~ '") ' ~ $.arguments.emit_lisp($interpreter, $indent) ~ ' "' ~ $node.namespace.join('::') ~ '")';
+		return '(set-package-variable ' ~ $node.emit_lisp_name ~ ' ' ~ $.arguments.emit_lisp($interpreter, $indent) ~ ' ' ~ $node.emit_lisp_namespace ~ ')';
 	    }
 	    
 	    return '(set-lexical-variable (kp6-generate-variable "' ~ $node.sigil ~ '" "' ~ $node.name ~ '") ' ~ $.arguments.emit_lisp($interpreter, $indent) ~ ')';
@@ -238,12 +238,21 @@ class Assign {
 class Var {
     method emit_lisp ($interpreter, $indent) {
 	my $namespace := $.namespace;
-	if !(@($namespace)) {
-	    return '(lookup-lexical-variable (kp6-generate-variable "' ~ $.sigil ~ '" "' ~ $.name ~ '"))';
+
+	if @($namespace) {
+	    return '(lookup-package-variable ' ~ self.emit_lisp_name ~ ' ' ~ self.emit_lisp_namespace ~ ')';
 	}
 
-	return '(kp6-lookup (kp6-lookup (kp6-packages ' ~ $interpreter ~ ') "' ~ (join '::', @($namespace)) ~ '") (kp6-generate-variable "' ~ $.sigil ~ '" "' ~ $.name ~ '"))';
+	return '(lookup-lexical-variable ' ~ self.emit_lisp_name ~ ')';
     };
+
+    method emit_lisp_name {
+	'(kp6-generate-variable "' ~ $.sigil ~ '" "' ~ $.name ~ '")'
+    }
+
+    method emit_lisp_namespace {
+	'"' ~ $.namespace.join('::') ~ '"';
+    }
 
     method perl {
         # this is used by the signature emitter
@@ -258,8 +267,9 @@ class Var {
 
 class Bind {
     method emit_lisp ($interpreter, $indent) {
-	#return '(setf ' ~ $.parameters.emit_lisp($interpreter, $indent) ~ ' ' ~ $.arguments.emit_lisp($interpreter) ~')';
-	return '(set-lexical-variable/c (kp6-generate-variable "' ~ $.parameters.sigil ~ '" "' ~ $.parameters.name ~ '") (lookup-lexical-variable/c (kp6-generate-variable "' ~ $.arguments.sigil ~ '" "' ~ $.arguments.name ~ '")))';
+	if $.arguments.isa('Var') && !(@($.arguments.namespace)) {
+	    return '(set-lexical-variable/c ' ~ $.parameters.emit_lisp_name ~ ' (lookup-lexical-variable/c ' ~ $.arguments.emit_lisp_name ~ '))';
+	}
 
         # XXX - replace Bind with Assign
         if $.parameters.isa('Call') 
@@ -417,10 +427,10 @@ class Decl {
         my $name := $.var.name;
 
 	if $decl eq 'our' {
-	    '(define-our-variable (kp6-generate-variable "' ~ $.var.sigil ~ '" "' ~ $name ~ '"))';
+	    '(define-our-variable ' ~ $.var.emit_lisp_name ~ ')';
 	}
 	if $decl eq 'my' {
-	    return '(define-lexical-variable (kp6-generate-variable "' ~ $.var.sigil ~ '" "' ~ $name ~ '"))';
+	    return '(define-lexical-variable ' ~ $.var.emit_lisp_name ~ ')';
 	}
 
 	return '(kp6-error ' ~ $interpreter ~ ' \'kp6-not-implemented :feature "\\"' ~ $decl ~ '\\" variables")';
