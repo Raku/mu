@@ -1,0 +1,4 @@
+cd ~/p6/v6/v6-KindaPerl6
+make kp6_mp6
+perl kp6-perl5.pl --do MetaClass,ExtractRuleBlock,Global,EmitPerl5InlineToken examples/simple_grammar.p6 > tokenc.inline.pl
+perl -I lib-kp6-mp6-p5 tokenc.inline.pl

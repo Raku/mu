@@ -9,11 +9,12 @@ class KindaPerl6::Visitor::EmitTokenC {
 }
 class Token {
     method emit_c {
-        'match* ' ~ Main::mangle_ident($KindaPerl6::Visitor::EmitPerl5::current_compunit~$.name) ~ ' (char *str,int pos) {match* m = malloc(sizeof(match));m->match_str = str;m->from=pos;m->boolean = (' ~ ($.regex).emit_c ~ ');m->to = pos;return m;}' ~ Main::newline();
+        'match* ' ~ Main::mangle_ident($KindaPerl6::Visitor::EmitPerl5::current_compunit~'::'~$.name) ~ ' (char *str,int pos) {match* m = new_match(str,pos);m->boolean = (' ~ ($.regex).emit_c ~ ');m->to = pos;return m;}' ~ Main::newline();
     }
 }
 class CompUnit {
     method emit_c {
+        $KindaPerl6::Visitor::EmitPerl5::current_compunit := $.name;
         $.body.emit_c;
     }
 }
@@ -45,27 +46,27 @@ class Rule::Constant {
 }
 class Rule::Block {
     method emit_c {
-        'printf("'~$.closure~'")';
+        'printf("Rule::Block stub:'~$.closure~'\n")';
     }
 }
 class Rule::Subrule {
     method emit_c {
-        '({match* submatch='~Main::mangle_ident($.metasyntax)~'(str,pos);pos = submatch->to;int boolean = submatch->boolean;free(submatch);boolean;})';
+        '({match* submatch='~Main::mangle_ident($KindaPerl6::Visitor::EmitPerl5::current_compunit~'::'~$.metasyntax)~'(str,pos);pos = submatch->to;int boolean = submatch->boolean;free(submatch);boolean;})';
     }
 }
 class Rule::SubruleNoCapture {
     method emit_c {
-        '({match* submatch='~Main::mangle_ident($.metasyntax)~'(str,pos);pos = submatch->to;int boolean = submatch->boolean;free(submatch);boolean;})';
+        '({match* submatch='~Main::mangle_ident($KindaPerl6::Visitor::EmitPerl5::current_compunit~'::'~$.metasyntax)~'(str,pos);pos = submatch->to;int boolean = submatch->boolean;free(submatch);boolean;})';
     }
 }
 class Rule::Dot {
     method emit_c {
-        'printf("Rule::Dot stub")'
+        'printf("Rule::Dot stub\n")'
     }
 }
 class Rule::SpecialChar {
     method emit_c {
-        'printf("Rule::SpecialChar stub")';
+        'printf("Rule::SpecialChar stub\n")';
     }
 }
 class Rule::Before {

@@ -11,13 +11,13 @@ sub visit { my $self = shift; my $List__ = \@_; my $node; my $node_name; do {  $
 ;
 package Token;
 sub new { shift; bless { @_ }, "Token" }
-sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; ('match* ' . (Main::mangle_ident(($KindaPerl6::Visitor::EmitPerl5::current_compunit . $self->{name})) . (' (char *str,int pos) {match* m = malloc(sizeof(match));m->match_str = str;m->from=pos;m->boolean = (' . ($self->{regex}->emit_c() . (');m->to = pos;return m;}' . Main::newline()))))) }
+sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; ('match* ' . (Main::mangle_ident(($KindaPerl6::Visitor::EmitPerl5::current_compunit . ('::' . $self->{name}))) . (' (char *str,int pos) {match* m = new_match(str,pos);m->boolean = (' . ($self->{regex}->emit_c() . (');m->to = pos;return m;}' . Main::newline()))))) }
 
 
 ;
 package CompUnit;
 sub new { shift; bless { @_ }, "CompUnit" }
-sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; $self->{body}->emit_c() }
+sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; $KindaPerl6::Visitor::EmitPerl5::current_compunit = $self->{name}; $self->{body}->emit_c() }
 
 
 ;
@@ -47,31 +47,31 @@ sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; ('(strncmp("' . ($se
 ;
 package Rule::Block;
 sub new { shift; bless { @_ }, "Rule::Block" }
-sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; ('printf("' . ($self->{closure} . '")')) }
+sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; ('printf("Rule::Block stub:' . ($self->{closure} . '\n")')) }
 
 
 ;
 package Rule::Subrule;
 sub new { shift; bless { @_ }, "Rule::Subrule" }
-sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; ('({match* submatch=' . (Main::mangle_ident($self->{metasyntax}) . '(str,pos);pos = submatch->to;int boolean = submatch->boolean;free(submatch);boolean;})')) }
+sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; ('({match* submatch=' . (Main::mangle_ident(($KindaPerl6::Visitor::EmitPerl5::current_compunit . ('::' . $self->{metasyntax}))) . '(str,pos);pos = submatch->to;int boolean = submatch->boolean;free(submatch);boolean;})')) }
 
 
 ;
 package Rule::SubruleNoCapture;
 sub new { shift; bless { @_ }, "Rule::SubruleNoCapture" }
-sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; ('({match* submatch=' . (Main::mangle_ident($self->{metasyntax}) . '(str,pos);pos = submatch->to;int boolean = submatch->boolean;free(submatch);boolean;})')) }
+sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; ('({match* submatch=' . (Main::mangle_ident(($KindaPerl6::Visitor::EmitPerl5::current_compunit . ('::' . $self->{metasyntax}))) . '(str,pos);pos = submatch->to;int boolean = submatch->boolean;free(submatch);boolean;})')) }
 
 
 ;
 package Rule::Dot;
 sub new { shift; bless { @_ }, "Rule::Dot" }
-sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; 'printf("Rule::Dot stub")' }
+sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; 'printf("Rule::Dot stub\n")' }
 
 
 ;
 package Rule::SpecialChar;
 sub new { shift; bless { @_ }, "Rule::SpecialChar" }
-sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; 'printf("Rule::SpecialChar stub")' }
+sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; 'printf("Rule::SpecialChar stub\n")' }
 
 
 ;
