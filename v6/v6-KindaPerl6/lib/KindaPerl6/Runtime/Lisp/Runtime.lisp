@@ -3,7 +3,7 @@
 		  "util" "var"
 		  "Interpreter"
 		  "error"
-		  "Object"
+		  "Object" "Cell"
 		  "Value" "Container"	; Base classes
 		  "Undef"		; Undef
 		  "Bit" "Num" "Int" "Str" "Code" ; Values

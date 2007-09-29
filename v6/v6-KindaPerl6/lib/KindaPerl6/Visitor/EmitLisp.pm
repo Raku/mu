@@ -228,7 +228,7 @@ class Assign {
 		return '(set-package-variable (kp6-generate-variable "' ~ $node.sigil ~ '" "' ~ $node.name ~ '") ' ~ $.arguments.emit_lisp($interpreter, $indent) ~ ' "' ~ $node.namespace.join('::') ~ '")';
 	    }
 	    
-	    return '(set-lexical-variable/p (kp6-generate-variable "' ~ $node.sigil ~ '" "' ~ $node.name ~ '") ' ~ $.arguments.emit_lisp($interpreter, $indent) ~ ')';
+	    return '(set-lexical-variable (kp6-generate-variable "' ~ $node.sigil ~ '" "' ~ $node.name ~ '") ' ~ $.arguments.emit_lisp($interpreter, $indent) ~ ')';
 	}
 
 	'(kp6-error ' ~ $interpreter ~ ' \'kp6-not-implemented :feature "assigning to anything other than variables")';
@@ -239,7 +239,7 @@ class Var {
     method emit_lisp ($interpreter, $indent) {
 	my $namespace := $.namespace;
 	if !(@($namespace)) {
-	    return '(lookup-lexical-variable/p (kp6-generate-variable "' ~ $.sigil ~ '" "' ~ $.name ~ '"))';
+	    return '(lookup-lexical-variable (kp6-generate-variable "' ~ $.sigil ~ '" "' ~ $.name ~ '"))';
 	}
 
 	return '(kp6-lookup (kp6-lookup (kp6-packages ' ~ $interpreter ~ ') "' ~ (join '::', @($namespace)) ~ '") (kp6-generate-variable "' ~ $.sigil ~ '" "' ~ $.name ~ '"))';
@@ -259,9 +259,7 @@ class Var {
 class Bind {
     method emit_lisp ($interpreter, $indent) {
 	#return '(setf ' ~ $.parameters.emit_lisp($interpreter, $indent) ~ ' ' ~ $.arguments.emit_lisp($interpreter) ~')';
-	if $.parameters.isa('Var') {
-	    return ::Assign(parameters=>$.parameters,arguments=>$.arguments).emit_lisp($interpreter, $indent);
-	}
+	return '(set-lexical-variable/c (kp6-generate-variable "' ~ $.parameters.sigil ~ '" "' ~ $.parameters.name ~ '") (lookup-lexical-variable/c (kp6-generate-variable "' ~ $.arguments.sigil ~ '" "' ~ $.arguments.name ~ '")))';
 
         # XXX - replace Bind with Assign
         if $.parameters.isa('Call') 

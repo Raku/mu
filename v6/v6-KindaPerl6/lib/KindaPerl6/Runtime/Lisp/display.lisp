@@ -14,3 +14,6 @@
 
 (defmethod perl->display ((object kp6-Bit) &key)
   (if (eql (kp6-value object) nil) "Bool::False" "Bool::True"))
+
+(defmethod perl->display ((object kp6-Undef) &key)
+  "")

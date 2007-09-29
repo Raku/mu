@@ -39,12 +39,11 @@
    #:enclosing-pad
    #:outer-pad
    #:lexical-variable-exists
-   #:lexical-variable-exists/p
    #:define-lexical-variable
    #:set-lexical-variable
-   #:set-lexical-variable/p
+   #:set-lexical-variable/c
    #:lookup-lexical-variable
-   #:lookup-lexical-variable/p
+   #:lookup-lexical-variable/c
    #:define-our-variable
 
    #:enclosing-package
@@ -52,7 +51,7 @@
    #:define-package-variable
    #:set-package-variable
    #:lookup-package-variable
-
+   
    #:with-kp6-package   
    #:with-kp6-pad
    #:with-kp6-interpreter))
