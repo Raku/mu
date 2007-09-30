@@ -221,12 +221,12 @@ class Assign {
         
         my $node := $.parameters;
         
-	if ($node.isa('Var')) {
-	    if (@($node.namespace)) {
-		return '(set-package-variable ' ~ $node.emit_lisp_name ~ ' ' ~ $.arguments.emit_lisp($interpreter, $indent) ~ ' ' ~ $node.emit_lisp_namespace ~ ')';
-	    }
-	    
-	    return '(set-lexical-variable (kp6-generate-variable "' ~ $node.sigil ~ '" "' ~ $node.name ~ '") ' ~ $.arguments.emit_lisp($interpreter, $indent) ~ ')';
+	if $node.isa('Var') {
+	    return $node.emit_lisp_assignment($.arguments.emit_lisp($interpreter, $indent));
+	}
+
+	if ($node.isa('Lookup') || $node.isa('Index')) && ($node.obj).isa('Var') {
+	    return '(kp6-store ' ~ ($node.obj).emit_lisp ~ ' (perl->cl ' ~ ($node.index).emit_lisp ~ ') ' ~ $.arguments.emit_lisp($interpreter, $indent) ~ ')';
 	}
 
 	'(kp6-error ' ~ $interpreter ~ ' \'kp6-not-implemented :feature "assigning to anything other than variables")';
@@ -283,7 +283,7 @@ class Bind {
 	    return $.parameters.emit_lisp_assignment($.arguments.emit_lisp_lookup(1), 1);
 	}
 
-	return '(kp6-error ' ~ $interpreter ~ ' \'kp6-not-implemented :feature "binding to anything other than variables")';
+	return '(kp6-error ' ~ $interpreter ~ ' \'kp6-not-implemented :feature "binding anything other than variables")';
 
         # XXX - replace Bind with Assign
         if $.parameters.isa('Call') 

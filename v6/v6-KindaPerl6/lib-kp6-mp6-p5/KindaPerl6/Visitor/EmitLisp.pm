@@ -124,7 +124,7 @@ sub emit_lisp { my $self = shift; my $List__ = \@_; my $interpreter; my $indent;
 ;
 package Assign;
 sub new { shift; bless { @_ }, "Assign" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; my $interpreter; my $indent; do {  $interpreter = $List__->[0];  $indent = $List__->[1]; [$interpreter, $indent] }; my  $node = $self->{parameters}; do { if (Main::isa($node, 'Var')) { do { if (@{$node->namespace()}) { return(('(set-package-variable ' . ($node->emit_lisp_name() . (' ' . ($self->{arguments}->emit_lisp($interpreter, $indent) . (' ' . ($node->emit_lisp_namespace() . ')'))))))) } else {  } };return(('(set-lexical-variable (kp6-generate-variable "' . ($node->sigil() . ('" "' . ($node->name() . ('") ' . ($self->{arguments}->emit_lisp($interpreter, $indent) . ')'))))))) } else {  } }; ('(kp6-error ' . ($interpreter . ' \'kp6-not-implemented :feature "assigning to anything other than variables")')) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; my $interpreter; my $indent; do {  $interpreter = $List__->[0];  $indent = $List__->[1]; [$interpreter, $indent] }; my  $node = $self->{parameters}; do { if (Main::isa($node, 'Var')) { return($node->emit_lisp_assignment($self->{arguments}->emit_lisp($interpreter, $indent))) } else {  } }; do { if (((Main::isa($node, 'Lookup') || Main::isa($node, 'Index')) && Main::isa($node->obj(), 'Var'))) { return(('(kp6-store ' . ($node->obj()->emit_lisp() . (' (perl->cl ' . ($node->index()->emit_lisp() . (') ' . ($self->{arguments}->emit_lisp($interpreter, $indent) . ')'))))))) } else {  } }; ('(kp6-error ' . ($interpreter . ' \'kp6-not-implemented :feature "assigning to anything other than variables")')) }
 
 
 ;
