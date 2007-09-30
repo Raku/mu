@@ -19,3 +19,18 @@
   (:documentation "Store VALUE in OBJECT at INDEX.")
   (:method (value (object kp6-Container) index &key)
     (kp6-store object index value)))
+
+(defgeneric kp6-exists (object index &key &allow-other-keys)
+  (:documentation "Check whether INDEX exists in OBJECT."))
+
+(defgeneric kp6-delete (object index &key &allow-other-keys)
+  (:documentation "Delete value of INDEX from OBJECT."))
+
+(defgeneric kp6-clear (object &key &allow-other-keys)
+  (:documentation "Empty OBJECT."))
+
+(defgeneric kp6-pairs (object &key &allow-other-keys)
+  (:documentation "List KEY/VALUE pairs in OBJECT."))
+
+(defgeneric kp6-elems (object &key &allow-other-keys)
+  (:documentation "Count elements in OBJECT."))

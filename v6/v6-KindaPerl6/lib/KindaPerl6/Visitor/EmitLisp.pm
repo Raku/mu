@@ -79,15 +79,13 @@ class Val::Undef {
 
 class Val::Object {
     method emit_lisp ($interpreter, $indent) {
-        die 'Emitting of Val::Object not implemented';
-        # 'bless(' ~ %.fields.perl ~ ', ' ~ $.class.perl ~ ')';
+	'(kp6-error ' ~ $interpreter ~ ' \'kp6-not-implemented :feature "literal objects")';
     }
 }
 
 class Native::Buf {
     method emit_lisp ($interpreter, $indent) { 
-        die 'Emitting of Native::Buf not implemented';
-        # '\'' ~ $.buf ~ '\''
+	'(kp6-error ' ~ $interpreter ~ ' \'kp6-not-implemented :feature "Native::Buf objects")';
     }
 }
 
@@ -284,6 +282,8 @@ class Bind {
 	if $.arguments.isa('Var') {
 	    return $.parameters.emit_lisp_assignment($.arguments.emit_lisp_lookup(1), 1);
 	}
+
+	return '(kp6-error ' ~ $interpreter ~ ' \'kp6-not-implemented :feature "binding to anything other than variables")';
 
         # XXX - replace Bind with Assign
         if $.parameters.isa('Call') 

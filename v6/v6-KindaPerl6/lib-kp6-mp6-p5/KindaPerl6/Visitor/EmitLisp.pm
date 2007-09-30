@@ -54,13 +54,13 @@ sub emit_lisp { my $self = shift; my $List__ = \@_; my $interpreter; my $indent;
 ;
 package Val::Object;
 sub new { shift; bless { @_ }, "Val::Object" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; my $interpreter; my $indent; do {  $interpreter = $List__->[0];  $indent = $List__->[1]; [$interpreter, $indent] }; die('Emitting of Val::Object not implemented') }
+sub emit_lisp { my $self = shift; my $List__ = \@_; my $interpreter; my $indent; do {  $interpreter = $List__->[0];  $indent = $List__->[1]; [$interpreter, $indent] }; ('(kp6-error ' . ($interpreter . ' \'kp6-not-implemented :feature "literal objects")')) }
 
 
 ;
 package Native::Buf;
 sub new { shift; bless { @_ }, "Native::Buf" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; my $interpreter; my $indent; do {  $interpreter = $List__->[0];  $indent = $List__->[1]; [$interpreter, $indent] }; die('Emitting of Native::Buf not implemented') }
+sub emit_lisp { my $self = shift; my $List__ = \@_; my $interpreter; my $indent; do {  $interpreter = $List__->[0];  $indent = $List__->[1]; [$interpreter, $indent] }; ('(kp6-error ' . ($interpreter . ' \'kp6-not-implemented :feature "Native::Buf objects")')) }
 
 
 ;
@@ -130,7 +130,7 @@ sub emit_lisp { my $self = shift; my $List__ = \@_; my $interpreter; my $indent;
 ;
 package Var;
 sub new { shift; bless { @_ }, "Var" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; my $interpreter; my $indent; do {  $interpreter = $List__->[0];  $indent = $List__->[1]; [$interpreter, $indent] }; do { if (@{$self->{namespace}}) { return(('(lookup-package-variable ' . ($self->emit_lisp_name() . (' ' . ($self->emit_lisp_namespace() . ')'))))) } else {  } }; return(('(lookup-lexical-variable ' . ($self->emit_lisp_name() . ')'))) };
+sub emit_lisp { my $self = shift; my $List__ = \@_; my $interpreter; my $indent; do {  $interpreter = $List__->[0];  $indent = $List__->[1]; [$interpreter, $indent] }; return($self->emit_lisp_lookup(0)) };
 sub emit_lisp_name { my $self = shift; my $List__ = \@_; do { [] }; ('(kp6-generate-variable "' . ($self->{sigil} . ('" "' . ($self->{name} . '")')))) };
 sub emit_lisp_namespace { my $self = shift; my $List__ = \@_; do { [] }; ('"' . (Main::join($self->{namespace}, '::') . '"')) };
 sub emit_lisp_lookup { my $self = shift; my $List__ = \@_; my $cell; do {  $cell = $List__->[0]; [$cell] }; my  $variant = ($cell ? '/c' : ''); do { if (@{$self->{namespace}}) { return(('(lookup-package-variable' . ($variant . (' ' . ($self->emit_lisp_name() . (' ' . ($self->emit_lisp_namespace() . ')'))))))) } else { return(('(lookup-lexical-variable' . ($variant . (' ' . ($self->emit_lisp_name() . ')'))))) } } };
@@ -141,7 +141,7 @@ sub perl { my $self = shift; my $List__ = \@_; do { [] }; ('(kp6-new \'signature
 ;
 package Bind;
 sub new { shift; bless { @_ }, "Bind" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; my $interpreter; my $indent; do {  $interpreter = $List__->[0];  $indent = $List__->[1]; [$interpreter, $indent] }; do { if (Main::isa($self->{arguments}, 'Var')) { return($self->{parameters}->emit_lisp_assignment($self->{arguments}->emit_lisp_lookup(1), 1)) } else {  } }; do { if (Main::isa($self->{parameters}, 'Call')) { return(Assign->new( 'parameters' => $self->{parameters},'arguments' => $self->{arguments}, )->emit_lisp($interpreter, $indent)) } else {  } }; do { if (Main::isa($self->{parameters}, 'Lookup')) { return(Assign->new( 'parameters' => $self->{parameters},'arguments' => $self->{arguments}, )->emit_lisp($interpreter, $indent)) } else {  } }; do { if (Main::isa($self->{parameters}, 'Index')) { return(Assign->new( 'parameters' => $self->{parameters},'arguments' => $self->{arguments}, )->emit_lisp($interpreter, $indent)) } else {  } }; my  $str = ''; $str = ($str . ('(setf ' . ($self->{parameters}->emit_lisp($interpreter, $indent) . (' ' . ($self->{arguments}->emit_lisp($interpreter, $indent) . ')'))))); return($str) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; my $interpreter; my $indent; do {  $interpreter = $List__->[0];  $indent = $List__->[1]; [$interpreter, $indent] }; do { if (Main::isa($self->{arguments}, 'Var')) { return($self->{parameters}->emit_lisp_assignment($self->{arguments}->emit_lisp_lookup(1), 1)) } else {  } }; return(('(kp6-error ' . ($interpreter . ' \'kp6-not-implemented :feature "binding to anything other than variables")'))); do { if (Main::isa($self->{parameters}, 'Call')) { return(Assign->new( 'parameters' => $self->{parameters},'arguments' => $self->{arguments}, )->emit_lisp($interpreter, $indent)) } else {  } }; do { if (Main::isa($self->{parameters}, 'Lookup')) { return(Assign->new( 'parameters' => $self->{parameters},'arguments' => $self->{arguments}, )->emit_lisp($interpreter, $indent)) } else {  } }; do { if (Main::isa($self->{parameters}, 'Index')) { return(Assign->new( 'parameters' => $self->{parameters},'arguments' => $self->{arguments}, )->emit_lisp($interpreter, $indent)) } else {  } }; my  $str = ''; $str = ($str . ('(setf ' . ($self->{parameters}->emit_lisp($interpreter, $indent) . (' ' . ($self->{arguments}->emit_lisp($interpreter, $indent) . ')'))))); return($str) }
 
 
 ;
