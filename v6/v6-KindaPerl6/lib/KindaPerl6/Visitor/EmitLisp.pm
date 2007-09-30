@@ -37,7 +37,7 @@ class CompUnit {
         ~ $.body.emit_lisp($interpreter, 3) ~ ')))' ~ Main::newline()
         # This is a function so (sb-ext:save-lisp-and-die) has
         # something to call into
-        ~ '(Main::Main)';
+        ~ '(Main::Main)' ~ Main::newline()
     }
 }
 
