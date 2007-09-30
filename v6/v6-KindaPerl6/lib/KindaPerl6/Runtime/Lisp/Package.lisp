@@ -21,6 +21,12 @@
   (:report (lambda (c s)
 	     (write-string (kp6-prefixed-error-message c "Package ~A does not exist." (kp6-package c)) s))))
 
+(define-condition kp6-package-variable-not-found (kp6-warning)
+  ((name :accessor kp6-name :initarg :name)
+   (package :accessor kp6-package :initarg :package))
+  (:report (lambda (c s)
+	     (write-string (kp6-prefixed-error-message c "Variable ~A not found in package ~A." (kp6-name c) (kp6-package c)) s))))
+
 (defgeneric kp6-create-package (interpreter name)
   (:documentation "Create a new Perl 6 package.")
   (:method ((interpreter kp6-interpreter) name)
@@ -34,19 +40,6 @@
   (:method ((interpreter kp6-interpreter) name)
     (kp6-lookup (kp6-packages interpreter) name)))
 
-(defgeneric kp6-define-package-variable (interpreter package name &optional type)
-  (:method ((interpreter kp6-interpreter) package name &optional type)
-    (declare (ignore type))
-    (kp6-store (kp6-find-package interpreter package) name (kp6-default (car name)))))
-
-(defgeneric kp6-set-package-variable (interpreter package name value)
-  (:method ((interpreter kp6-interpreter) package name value)
-    (kp6-store (kp6-find-package interpreter package) name value)))
-
-(defgeneric kp6-get-package-variable (interpreter package name)
-  (:method ((interpreter kp6-interpreter) package name)
-    (kp6-lookup (kp6-find-package interpreter package) name)))
-
 (defmacro with-kp6-package ((interpreter package pad &optional parent-pad) &body body)
   (with-unique-names (interpreter-var package-var)
     `(let* ((,interpreter-var ,interpreter)
@@ -57,14 +50,34 @@
 
 (defun kp6-with-package-functions (package-var interpreter-var)
   `((define-package-variable (name &optional (package ,package-var) type)
-	(kp6-define-package-variable ,interpreter-var package name type))
-    (set-package-variable (name value &optional (package ,package-var))
-     (kp6-set-package-variable ,interpreter-var package name value))
+	(declare (ignore type))
+      (let ((package-object (kp6-find-package ,interpreter-var package)))
+	(when (kp6-exists package-object name)
+	  (kp6-error ,interpreter-var 'kp6-variable-exists :name name))
+	(setf (kp6-lookup package-object name) (make-kp6-cell (kp6-default (car name))))))
     (lookup-package-variable (name &optional (package ,package-var))
-     (kp6-get-package-variable ,interpreter-var package name))))
+     (let ((value (kp6-lookup (kp6-find-package ,interpreter-var package) name)))
+       (cond
+	 (value (kp6-cell-value value))
+	 (t
+	  (kp6-warn 'kp6-package-variable-not-found :name name :package package)
+	  (kp6-default (car name))))))
+    (lookup-package-variable/c (name &optional (package ,package-var))
+     (let ((value (kp6-lookup (kp6-find-package ,interpreter-var package) name)))
+       (cond
+	 (value value)
+	 (t
+	  (kp6-warn 'kp6-package-variable-not-found :name name :package package)
+	  (make-kp6-cell (kp6-default (car name)))))))
+    (set-package-variable (name value &optional (package ,package-var))
+     (setf (kp6-lookup (kp6-find-package ,interpreter-var package) name) (make-kp6-cell value)))
+    (set-package-variable/c (name value &optional (package ,package-var))
+     (setf (kp6-lookup (kp6-find-package ,interpreter-var package) name) value))))
 
 (macrolet ((define-stub-function (name)
 	       `(defun ,name (&rest rest) (declare (ignore rest)) (error "~S is just a stub function!" ',name))))
   (define-stub-function define-package-variable)
   (define-stub-function set-package-variable)
-  (define-stub-function lookup-package-variable))
+  (define-stub-function set-package-variable/c)
+  (define-stub-function lookup-package-variable)
+  (define-stub-function lookup-package-variable/c))

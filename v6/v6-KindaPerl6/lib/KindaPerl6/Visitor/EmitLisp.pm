@@ -237,13 +237,7 @@ class Assign {
 
 class Var {
     method emit_lisp ($interpreter, $indent) {
-	my $namespace := $.namespace;
-
-	if @($namespace) {
-	    return '(lookup-package-variable ' ~ self.emit_lisp_name ~ ' ' ~ self.emit_lisp_namespace ~ ')';
-	}
-
-	return '(lookup-lexical-variable ' ~ self.emit_lisp_name ~ ')';
+	return self.emit_lisp_lookup(0)
     };
 
     method emit_lisp_name {
@@ -252,6 +246,26 @@ class Var {
 
     method emit_lisp_namespace {
 	'"' ~ $.namespace.join('::') ~ '"';
+    }
+
+    method emit_lisp_lookup ($cell) {
+	my $variant := $cell ?? '/c' !! '';
+
+	if @($.namespace) {
+	    return '(lookup-package-variable' ~ $variant ~ ' ' ~ self.emit_lisp_name ~ ' ' ~ self.emit_lisp_namespace ~ ')';
+	} else {
+	    return '(lookup-lexical-variable' ~ $variant ~ ' ' ~ self.emit_lisp_name ~ ')';
+	}
+    }
+
+    method emit_lisp_assignment ($value, $cell) {
+	my $variant := $cell ?? '/c' !! '';
+
+	if @($.namespace) {
+	    return '(set-package-variable' ~ $variant ~ ' ' ~ self.emit_lisp_name ~ ' ' ~ $value ~ ' ' ~ self.emit_lisp_namespace ~ ')';
+	} else {
+	    return '(set-lexical-variable' ~ $variant ~ ' ' ~ self.emit_lisp_name ~ ' ' ~ $value ~ ')';
+	}
     }
 
     method perl {
@@ -267,8 +281,8 @@ class Var {
 
 class Bind {
     method emit_lisp ($interpreter, $indent) {
-	if $.arguments.isa('Var') && !(@($.arguments.namespace)) {
-	    return '(set-lexical-variable/c ' ~ $.parameters.emit_lisp_name ~ ' (lookup-lexical-variable/c ' ~ $.arguments.emit_lisp_name ~ '))';
+	if $.arguments.isa('Var') {
+	    return $.parameters.emit_lisp_assignment($.arguments.emit_lisp_lookup(1), 1);
 	}
 
         # XXX - replace Bind with Assign

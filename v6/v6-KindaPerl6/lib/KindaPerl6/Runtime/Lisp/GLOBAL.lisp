@@ -7,7 +7,7 @@
     (declare (ignore rest))
     (let ((global (kp6-find-package interpreter "GLOBAL")))
       (dolist (function *kp6-global-functions*)
-	(kp6-store global (car function) (cdr function))))
+	(kp6-store global (car function) (make-kp6-cell (cdr function)))))
     (setf (kp6-current-package interpreter) (or (kp6-find-package interpreter package) (kp6-create-package interpreter package)))))
 
 (macrolet ((define-kp6-function (name-and-options params &body body)

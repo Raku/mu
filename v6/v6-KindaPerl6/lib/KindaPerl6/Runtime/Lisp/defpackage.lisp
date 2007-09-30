@@ -46,11 +46,11 @@
    #:lookup-lexical-variable/c
    #:define-our-variable
 
-   #:enclosing-package
-   #:outer-package
    #:define-package-variable
    #:set-package-variable
+   #:set-package-variable/c
    #:lookup-package-variable
+   #:lookup-package-variable/c
    
    #:with-kp6-package   
    #:with-kp6-pad
