@@ -385,18 +385,12 @@ class Return {
 
 class If {
     method emit_lisp ($interpreter, $indent) {
-        #'do { if (::DISPATCH(::DISPATCH(' ~ $.cond.emit_lisp ~ ',"true"),"p5landish") ) ' 
-        # XXX: Cast the value to a true/false in lisp
-        '(if (kp6-true ' ~ $.cond.emit_lisp($interpreter, $indent) ~ ')'
-        ~ ( $.body 
-            ?? '(progn ' ~ $.body.emit_lisp($interpreter, $indent) ~ ') '
-            !! '(progn)'
-          )
-        ~ ( $.otherwise 
-            ?? ' (progn ' ~ $.otherwise.emit_lisp($interpreter, $indent) ~ ')' 
-            !! ''
-          )
-        ~ ')';
+	my $cond := '(kp6-true ' ~ $.cond.emit_lisp($interpreter, $indent) ~ ')';
+
+	return '(cond ' ~ Main::newline()
+	     ~ '(' ~ $cond ~ ' ' ~ ($.body ?? $.body.emit_lisp($interpreter, $indent) !! 'nil') ~ ')'
+	     ~ ($.otherwise ?? Main::newline() ~ '(t ' ~ $.otherwise.emit_lisp($interpreter, $indent) ~ ')' !! '') 
+	     ~ ')';
     }
 }
 
