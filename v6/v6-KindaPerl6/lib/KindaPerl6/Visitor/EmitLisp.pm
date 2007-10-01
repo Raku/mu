@@ -31,13 +31,13 @@ class CompUnit {
         ~ '(defpackage #:' ~ $.name ~ Main::newline()
         ~ '  (:use #:cl #:kp6-cl))' ~ Main::newline()
         ~ '(in-package #:' ~ $.name ~ ')' ~ Main::newline()
-        ~ '(defun Main ()' ~ Main::newline()
+        ~ '(defun main ()' ~ Main::newline()
         ~ ' (with-kp6-interpreter (' ~ $interpreter ~')' ~ Main::newline()
         ~ '  (with-kp6-package (' ~ $interpreter ~ ' "GLOBAL" kp6-pad)' ~ Main::newline()
         ~ $.body.emit_lisp($interpreter, 3) ~ ')))' ~ Main::newline()
         # This is a function so (sb-ext:save-lisp-and-die) has
         # something to call into
-        ~ '(Main::Main)' ~ Main::newline()
+        ~ '(main)' ~ Main::newline()
     }
 }
 
@@ -435,7 +435,9 @@ class Decl {
         my $name := $.var.name;
 
 	if $decl eq 'our' {
-	    '(define-our-variable ' ~ $.var.emit_lisp_name ~ ')';
+	    return '(define-package-variable ' ~ $.var.emit_lisp_name ~ ' (enclosing-package))' ~ Main::newline()
+		 ~ '(define-lexical-variable ' ~ $.var.emit_lisp_name ~ ')' ~ Main::newline()
+		 ~ '(set-lexical-variable/c ' ~ $.var.emit_lisp_name ~ ' (lookup-package-variable/c ' ~ $.var.emit_lisp_name ~ ' (enclosing-package)))';
 	}
 	if $decl eq 'my' {
 	    return '(define-lexical-variable ' ~ $.var.emit_lisp_name ~ ')';

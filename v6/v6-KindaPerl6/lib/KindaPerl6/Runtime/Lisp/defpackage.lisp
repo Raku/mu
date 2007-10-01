@@ -46,6 +46,7 @@
    #:lookup-lexical-variable/c
    #:define-our-variable
 
+   #:enclosing-package
    #:define-package-variable
    #:set-package-variable
    #:set-package-variable/c

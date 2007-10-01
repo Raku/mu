@@ -1,3 +1,4 @@
+
 (in-package #:kp6-cl)
 
 (defconstant +kp6-default-package+ "GLOBAL")
@@ -44,12 +45,13 @@
   (with-unique-names (interpreter-var package-var)
     `(let* ((,interpreter-var ,interpreter)
 	    (,package-var (kp6-lookup (kp6-packages ,interpreter-var) ,package)))
-      (flet ,(kp6-with-package-functions package-var interpreter-var)
+      (flet ,(kp6-with-package-functions package-var interpreter-var package)
 	(with-kp6-pad (,interpreter-var ,pad ,@(when parent-pad `(:parent ,parent-pad)))
 	  ,@body)))))
 
-(defun kp6-with-package-functions (package-var interpreter-var)
-  `((define-package-variable (name &optional (package ,package-var) type)
+(defun kp6-with-package-functions (package-var interpreter-var package-name)
+  `((enclosing-package () ,package-name)
+    (define-package-variable (name &optional (package ,package-var) type)
 	(declare (ignore type))
       (let ((package-object (kp6-find-package ,interpreter-var package)))
 	(when (kp6-exists package-object name)
@@ -76,6 +78,7 @@
 
 (macrolet ((define-stub-function (name)
 	       `(defun ,name (&rest rest) (declare (ignore rest)) (error "~S is just a stub function!" ',name))))
+  (define-stub-function enclosing-package)
   (define-stub-function define-package-variable)
   (define-stub-function set-package-variable)
   (define-stub-function set-package-variable/c)
