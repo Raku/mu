@@ -29,12 +29,13 @@
 
 (defmacro with-kp6-pad ((interpreter pad &key parent) &body body)
   (with-unique-names (interpreter-var parent-var)
-    `(let ((,interpreter-var ,interpreter)
-	   (,parent-var ,parent))
-      (let ((,pad (make-instance 'kp6-Pad :parent ,parent-var)))
-	(flet ,(kp6-with-pad-functions pad interpreter-var parent-var)
-	  (declare (ignorable ,@(mapcar #'(lambda (x) `#',x) '(enclosing-pad outer-pad lexical-variable-exists lexical-variable-exists define-lexical-variable set-lexical-variable set-lexical-variable/c lookup-lexical-variable lookup-lexical-variable/c define-our-variable))))
-	  ,@body)))))
+    (let ((functions (kp6-with-pad-functions pad interpreter-var parent-var)))
+      `(let ((,interpreter-var ,interpreter)
+	     (,parent-var ,parent))
+	(let ((,pad (make-instance 'kp6-Pad :parent ,parent-var)))
+	  (flet ,functions
+	    (declare (ignorable ,@(mapcar #'(lambda (func) `#',(car func)) functions)))
+	    ,@body))))))
 
 (defun kp6-with-pad-functions (pad interpreter-var parent-var)
   `((enclosing-pad () ,pad)
