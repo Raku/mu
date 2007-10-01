@@ -19,7 +19,10 @@ sub main (Str :$engine_name!, Any :$dbms_config!) {
 
     # Instantiate a Muldis DB DBMS / virtual machine.
     my Muldis::DB::Interface::DBMS $dbms = Muldis::DB::Interface::new_dbms(
-        :engine_name($engine_name), :dbms_config($dbms_config) );
+        :engine_name($engine_name),
+        :exp_ast_lang([ 'MuldisD', 'cpan:DUNCAND', '0.8.1' ]),
+        :dbms_config($dbms_config),
+    );
     does_ok( $dbms, 'Muldis::DB::Interface::DBMS' );
 
     _scenario_foods_suppliers_shipments_v1( $dbms );

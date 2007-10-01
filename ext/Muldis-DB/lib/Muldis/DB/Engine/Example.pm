@@ -12,9 +12,9 @@ module Muldis::DB::Engine::Example-0.4.0 {
 ###########################################################################
 
 sub new_dbms of Muldis::DB::Engine::Example::Public::DBMS
-        (Any :$dbms_config!) {
+        (Array :$exp_ast_lang!, Any :$dbms_config!) {
     return ::Muldis::DB::Engine::Example::Public::DBMS.new(
-        :dbms_config($dbms_config) );
+        :exp_ast_lang($exp_ast_lang), :dbms_config($dbms_config) );
 }
 
 ###########################################################################
@@ -35,6 +35,7 @@ class Muldis::DB::Engine::Example::Public::DBMS {
     # User-supplied config data for this DBMS object / virtual machine.
     # For the moment, the Example Engine doesn't actually have anything
     # that can be configured in this way, so input $dbms_config is ignored.
+    has Any $!exp_ast_lang;
     has Any $!dbms_config;
 
     # Lists of user-held objects associated with parts of this DBMS.
@@ -50,9 +51,11 @@ class Muldis::DB::Engine::Example::Public::DBMS {
 
 ###########################################################################
 
-submethod BUILD (Any :$dbms_config!) {
+submethod BUILD (Array :$exp_ast_lang!, Any :$dbms_config!) {
 
-    $!dbms_config = $dbms_config;
+    # TODO: input checks.
+    $!exp_ast_lang = [$exp_ast_lang.values];
+    $!dbms_config  = $dbms_config;
 
     $!assoc_vars          = {};
     $!assoc_func_bindings = {};
@@ -66,6 +69,18 @@ submethod BUILD (Any :$dbms_config!) {
 submethod DESTROY () {
     # TODO: check for active trans and rollback ... or member VM does it.
     # Likewise with closing open files or whatever.
+    return;
+}
+
+###########################################################################
+
+method fetch_exp_ast_lang of Array () {
+    return [$!exp_ast_lang.values];
+}
+
+method store_exp_ast_lang (Array :$lang!) {
+    # TODO: input checks.
+    $!exp_ast_lang = [$lang.values];
     return;
 }
 
@@ -209,8 +224,6 @@ submethod DESTROY () {
 method fetch_ast of Array () {
 #    return $!var.as_phmd(); # TODO; or some such
 }
-
-###########################################################################
 
 method store_ast (Array :$ast!) {
     # TODO: input checks.
