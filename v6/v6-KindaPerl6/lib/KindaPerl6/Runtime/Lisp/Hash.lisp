@@ -48,3 +48,6 @@
   "Returns the number of elements in the hash"
   (make-instance 'kp6-Int :value 
     (hash-table-count (kp6-value self))))
+
+(defmethod kp6-true ((self kp6-Hash))
+  (plusp (hash-table-count (kp6-value self))))
