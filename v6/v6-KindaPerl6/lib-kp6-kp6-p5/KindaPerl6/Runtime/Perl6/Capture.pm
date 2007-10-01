@@ -23,7 +23,7 @@
                 }
             }
         };
-        ::DISPATCH( ::DISPATCH( $::Capture, 'HOW', ), 'add_parent',    ::DISPATCH( $::Str, 'new', 'Value' ) );
+        ::DISPATCH( ::DISPATCH( $::Capture, 'HOW', ), 'add_parent',    $::Value );
         ::DISPATCH( ::DISPATCH( $::Capture, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'invocant' ) );
         ::DISPATCH( ::DISPATCH( $::Capture, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'array' ) );
         ::DISPATCH( ::DISPATCH( $::Capture, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'hash' ) );

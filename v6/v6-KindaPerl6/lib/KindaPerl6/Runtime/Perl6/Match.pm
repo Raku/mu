@@ -1,13 +1,11 @@
 use v6-alpha;
 
-class Match {
+class Match is Capture {
     has $.from;
     has $.to;
     has $.result;
     has $.bool;
     has $.match_str;
-    has $.array;
-    has $.hash;
 
     method str {
         if ($.result) {

@@ -23,13 +23,12 @@
                 }
             }
         };
+        ::DISPATCH( ::DISPATCH( $::Match, 'HOW', ), 'add_parent',    $::Capture );
         ::DISPATCH( ::DISPATCH( $::Match, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'from' ) );
         ::DISPATCH( ::DISPATCH( $::Match, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'to' ) );
         ::DISPATCH( ::DISPATCH( $::Match, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'result' ) );
         ::DISPATCH( ::DISPATCH( $::Match, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'bool' ) );
         ::DISPATCH( ::DISPATCH( $::Match, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'match_str' ) );
-        ::DISPATCH( ::DISPATCH( $::Match, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'array' ) );
-        ::DISPATCH( ::DISPATCH( $::Match, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'hash' ) );
         ::DISPATCH(
             ::DISPATCH( $::Match, 'HOW', ),
             'add_method',
@@ -195,7 +194,7 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        ::DISPATCH_VAR( ::DISPATCH( $self, "from" ), 'STORE', ::DISPATCH( $_, 'INDEX', ::DISPATCH( $::Int, 'new', ) ) );
+                        ::DISPATCH_VAR( ::DISPATCH( $self, "from" ), 'STORE', ::DISPATCH( $_, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ) );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
@@ -233,7 +232,7 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        ::DISPATCH_VAR( ::DISPATCH( $self, "to" ), 'STORE', ::DISPATCH( $_, 'INDEX', ::DISPATCH( $::Int, 'new', ) ) );
+                        ::DISPATCH_VAR( ::DISPATCH( $self, "to" ), 'STORE', ::DISPATCH( $_, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ) );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
@@ -271,7 +270,7 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        ::DISPATCH_VAR( ::DISPATCH( $self, "bool" ), 'STORE', ::DISPATCH( $_, 'INDEX', ::DISPATCH( $::Int, 'new', ) ) );
+                        ::DISPATCH_VAR( ::DISPATCH( $self, "bool" ), 'STORE', ::DISPATCH( $_, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ) );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
@@ -309,7 +308,7 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        ::DISPATCH_VAR( ::DISPATCH( $self, "match_str" ), 'STORE', ::DISPATCH( $_, 'INDEX', ::DISPATCH( $::Int, 'new', ) ) );
+                        ::DISPATCH_VAR( ::DISPATCH( $self, "match_str" ), 'STORE', ::DISPATCH( $_, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ) );
                     },
                     signature => ::DISPATCH(
                         $::Signature,

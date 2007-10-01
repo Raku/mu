@@ -42,13 +42,11 @@ class Token {
             # create the method, using the OO metamodel
             # OUTER::<$_> := string to match
             # OUTER::<$/> := match result
-            
-            ~ '$::X->{_dispatch}( $::X, "HOW", )->{_dispatch}( '
-            ~   '$::X->{_dispatch}( $::X, "HOW", ), '
+            '::DISPATCH(::DISPATCH($::' ~ $KindaPerl6::Visitor::EmitPerl5::current_compunit ~ ',"HOW")'         
                 ~ '"add_method", '
-                ~ '$::Str->{_dispatch}( $::Str, "new", "' ~ $.name ~ '" ), '
+                ~ '::DISPATCH( $::Str, "new", "' ~ $.name ~ '" ), '
 
-                ~ '$::Method->{_dispatch}( $::Method, "new", '
+                ~ '::DISPATCH( $::Method, "new", '
                     ~ 'sub { '
                     ~    'local $GLOBAL::_Class = shift; '
                     ~    'undef $GLOBAL::_M2; '

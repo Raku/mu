@@ -111,7 +111,14 @@ class KindaPerl6::Visitor::MetaClass {
                     push @$module, ::Call(
                         'hyper'     => '',
                         'arguments' => [
-                            ::Val::Buf( buf => $trait[1] ), 
+                            ::Call(
+                                'hyper'     => '',
+                                'arguments' => [ ],
+                                'method'    => 'HOW',
+                                'invocant'  => ::Proto(
+                                    name => $trait[1]
+                                )
+                            ),
                         ],
                         'method'    => 'add_parent',
                         'invocant'  => ::Call(
