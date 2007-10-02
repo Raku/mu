@@ -5,7 +5,7 @@ kp6-roadmap - The "KindaPerl6" Project Roadmap
 
 =head1 DESCRIPTION
 
-This document describes the current status of the "KindaPerl6" development project.
+This document describes the current status and roadmap of the "KindaPerl6" project.
 
 The document "POD" source can be found at:
 L<http://svn.pugscode.org/pugs/v6/docs/kp6-roadmap.pod>
@@ -15,7 +15,7 @@ L<http://moritz.faui2k3.org/pugs/v6/docs/kp6-roadmap.pod.html>
 
 =head1 OBJECTIVE
 
-KindaPerl6 ("kp6") aims for a "Perl 6 in Perl 6" design and implementation.
+KindaPerl6 ("kp6") aims for a "Perl 6 in Perl 6" compiler design and implementation.
 
 
 
@@ -332,7 +332,7 @@ under implementation.
 
 =item * Signature and Capture
 
-* Status: implemented
+* Status: partially implemented
 
 =item * dispatching algorithm 
 
@@ -421,8 +421,12 @@ These tasks are not required for the successful completion of this phase.
 
 =item * Junction dispatching
 
-* Status: implemented; needs grammar support for infix:<|>, infix:<&>
-  but all(), any() work.
+* Status: implemented; 
+
+- added grammar support for infix:<|>, infix:<&>, all(), any().
+
+- method .APPLY() on Junction objects needs more work. Some tests fail because the runtime can't tell
+if it should call a method on the Junction object or on the Junction elements.
 
 =item * default (Main) namespace, nested namespaces
 
@@ -433,11 +437,42 @@ These tasks are not required for the successful completion of this phase.
 
 =item * gather / take
 
+* Status: studying and testing lots of thread implementations.
+
+- TimToady and ruoso asked to avoid using Perl 5 threads.
+
+- Lisp style call/cc is implementable in Perl 5. The AST transformation would take a while to implement.
+
+- Perl 6 on Parrot would be nice to have.
+
 =item * given / when
 
 =item * IO
 
 * Status: implemented mkdir(), rmdir(); implemented the 'unsafe' flag
+
+=item * Macros
+
+* Status: added basic support in the grammar and AST.
+
+- macro implementation is blocking, because mixing MP6 and KP6 runtimes makes the compiler environment unusable.
+
+- it would be nice to have MP6 to emit KP6-runtime code.
+
+=item * Bootstrapping on Perl 5
+
+* Status: KP6 can compile itself, but the regex runtime still have problems.
+
+=item * Lisp backend
+
+* Status: some tests pass.
+
+- Lisp can "dump" a compiled program. This can be a solution for collecting BEGIN-time side-effects, which
+is difficult to do in Perl 5.
+
+=item * Parrot backend
+
+* Status: idle.
 
 =back
 
