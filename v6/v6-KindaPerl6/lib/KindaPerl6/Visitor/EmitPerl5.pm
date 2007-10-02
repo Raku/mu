@@ -722,7 +722,9 @@ KindaPerl6::Perl5::EmitPerl5 - Code generator for KindaPerl6-in-Perl5
 
 =head1 DESCRIPTION
 
-This module generates Perl5 code for the KindaPerl6 compiler.
+This module generates Perl 5 code for the KindaPerl6 compiler. This is
+currently the primary and the most complete emitter. The runtime is
+located in F<lib/KindaPerl6/Runtime/Perl5/>.
 
 =head1 AUTHORS
 
