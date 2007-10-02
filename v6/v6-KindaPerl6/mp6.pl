@@ -1,6 +1,6 @@
 package main;
 
-use lib '../v6-MiniPerl6/lib5';
+use lib 'inc/v6-MiniPerl6-lib5';
 use strict;
 
 BEGIN {

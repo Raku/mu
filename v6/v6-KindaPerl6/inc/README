@@ -1,0 +1,3 @@
+v6-KindaPerl6-lib5 is a verbatim copy of ../v6-MiniPerl6/lib5. Copied
+to inc so that KindaPerl6 can be shipped in a self-contained tarball
+outside of the pugs tree.
