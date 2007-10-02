@@ -126,7 +126,8 @@ result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
 
     (define-kp6-function "defined" (interpreter object)
       (declare (ignore interpreter))
-      (not (null (kp6-value object))))
+      ; XXX: cl->perl doesn't like nil/t
+      (make-instance 'kp6-Bit :value (not (null (kp6-value object)))))
 
     (define-kp6-function "substr" (interpreter string offset &optional length)
       (declare (ignore interpreter))
@@ -142,4 +143,4 @@ result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
 		    (t actual-length))))
 	(assert (>= actual-length offset))
 	(assert (>= actual-length end))
-	(subseq string offset end)))))
+	(cl->perl (subseq string offset end))))))
