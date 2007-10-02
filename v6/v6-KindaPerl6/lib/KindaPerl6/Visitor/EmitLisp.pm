@@ -366,11 +366,11 @@ class Apply {
 	my $name := $.code.name;
 
 	if ($name eq 'infix:<&&>') {
-	    return '(and (perl->cl ' ~ (@.arguments.>>emit_lisp($interpreter, $indent)).join(') (perl->cl ') ~ '))';
+	    return '(and (kp6-true ' ~ (@.arguments.>>emit_lisp($interpreter, $indent)).join(') (kp6-true ') ~ '))';
 	}
 
 	if ($name eq 'infix:<||>') {
-	    return '(or (perl->cl ' ~ (@.arguments.>>emit_lisp($interpreter, $indent)).join(') (perl->cl ') ~ '))';
+	    return '(or (kp6-true ' ~ (@.arguments.>>emit_lisp($interpreter, $indent)).join(') (kp6-true ') ~ '))';
 	}
 
 	if ($name eq 'ternary:<?? !!>') {
