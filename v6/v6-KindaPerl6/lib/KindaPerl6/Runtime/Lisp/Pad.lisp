@@ -21,12 +21,6 @@
   (:method ((pad kp6-Pad))
     (slot-boundp pad 'parent)))
 
-(defun kp6-generate-variable (sigil name)
-  (cons (find-symbol sigil 'kp6-cl) name))
-
-(dolist (sigil '($ @ % & |::|))
-  (intern (string sigil) 'kp6-cl))
-
 (defmacro with-kp6-pad ((interpreter pad &key parent) &body body)
   (with-unique-names (interpreter-var parent-var)
     (let ((functions (kp6-with-pad-functions pad interpreter-var parent-var)))

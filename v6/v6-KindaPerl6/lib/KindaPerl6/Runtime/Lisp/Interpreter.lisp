@@ -1,8 +1,7 @@
 (in-package #:kp6-cl)
 
 (defclass kp6-interpreter ()
-  ((current-package :accessor kp6-current-package :initarg :current-package)
-   (packages :accessor kp6-packages :initarg :packages :initform (make-instance 'kp6-Hash))))
+  ((packages :accessor kp6-packages :initarg :packages :initform (make-instance 'kp6-Hash))))
 
 (defmethod initialize-instance :after ((interpreter kp6-interpreter) &rest initargs)
   (declare (ignore initargs))

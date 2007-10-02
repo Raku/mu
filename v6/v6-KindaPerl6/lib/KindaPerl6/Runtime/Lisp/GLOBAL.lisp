@@ -2,13 +2,11 @@
 
 (defvar *kp6-global-functions* (list))
 
-(defgeneric kp6-initialize-interpreter (interpreter &optional package &rest rest)
-  (:method ((interpreter kp6-interpreter) &optional (package "GLOBAL") &rest rest)
-    (declare (ignore rest))
+(defgeneric kp6-initialize-interpreter (interpreter &key &allow-other-keys)
+  (:method ((interpreter kp6-interpreter) &key)
     (let ((global (kp6-find-package interpreter "GLOBAL")))
       (dolist (function *kp6-global-functions*)
-	(kp6-store global (car function) (make-kp6-cell (cdr function)))))
-    (setf (kp6-current-package interpreter) (or (kp6-find-package interpreter package) (kp6-create-package interpreter package)))))
+	(kp6-store global (car function) (make-kp6-cell (cdr function)))))))
 
 (macrolet ((define-kp6-function (name-and-options params &body body)
 	       "Define a new function in Perl 6 land, within the given package.
