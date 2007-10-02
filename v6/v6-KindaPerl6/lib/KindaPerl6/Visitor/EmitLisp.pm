@@ -285,14 +285,16 @@ class Var {
 
 class Bind {
     method emit_lisp ($interpreter, $indent) {
-	if $.arguments.isa('Var') {
-	    return $.parameters.emit_lisp_assignment($.arguments.emit_lisp_lookup(1), 1);
-	}
 
-	return '(kp6-error ' ~ $interpreter ~ ' \'kp6-not-implemented :feature "binding anything other than variables")';
+        if $.arguments.isa('Var') {
+            return $.parameters.emit_lisp_assignment($.arguments.emit_lisp_lookup(1), 1);
+        }
+
+        # XXX: TODO
+        return '(kp6-error ' ~ $interpreter ~ ' \'kp6-not-implemented :feature "binding anything other than variables")';
 
         # XXX - replace Bind with Assign
-        if $.parameters.isa('Call') 
+        if $.parameters.isa('Call')
         {
             return ::Assign(parameters=>$.parameters,arguments=>$.arguments).emit_lisp($interpreter, $indent);
         };
