@@ -666,7 +666,13 @@ KindaPerl6::Perl5::Lisp - Code generator for KindaPerl6-in-Lisp
 
 =head1 DESCRIPTION
 
-This module generates Lisp code for the KindaPerl6 compiler.
+This module generates Common Lisp code for the KindaPerl6
+compiler. The runtime is located in F<lib/KindaPerl6/Runtime/Lisp/>.
+
+=head1 CONFORMANCE
+
+sbcl is currently the primary runtime being used to develop this,
+clisp is also tested occasionally.
 
 =head1 AUTHORS
 
