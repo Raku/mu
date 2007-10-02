@@ -1,0 +1,40 @@
+From an ad hoc conversation on IRC about the architecture of kp6-lisp:
+
+<Aankhen``> A ::CompUnit creates a new package for the code (which doesn't make much sense, actually, since we'll have to implement Perl 6 packages ourselves; the CL package system is very different) and pulls in Runtime.lisp, which pulls in the entire Lisp runtime.
+<Aankhen``> util.lisp contains a few Lisp-side utility functions and macros, nothing complicated.
+<Aankhen``> var.lisp only contains, at this point, KP6-DEFAULT, which takes a sigil and returns the default value for an uninitialized variable which has that sigil.
+<Aankhen``> Next, a KP6-INTERPRETER is basically a self-contained P6 world.
+<Aankhen``> Initialization of the interpreter creates the GLOBAL package.  It'll probably need to create a few other packages as well later on.
+<Aankhen``> Interpreter.lisp also contains the first of the three major macros used in generated code: WITH-KP6-INTERPRETER.  All this one does is to wrap the body with a LET that puts a new KP6-INTERPRETER in the given variable.
+<Aankhen``> After that, it loads error.lisp, which contains derivatives of the CL functions SIGNAL, WARN and ERROR.  The derivatives (formed simply by prefixing "KP6-") are mostly intended to add information about the particular interpreter in which the error occurred.
+<Aankhen``> error.lisp also contains the KP6-NOT-IMPLEMENTED error class, which we're having a lot of fun with. :-P
+<Aankhen``> Object.lisp defines the KP6-OBJECT class which all Perl-land objects derive from.  It also defines the KP6-TRUE generic function with a base case for the KP6-OBJECT class.
+<Aankhen``> Cell.lisp defines the simple KP6-CELL class (cells <=> containers) and a wrapper function to create new KP6-CELL instances.
+<avar> cell instaces?
+<Aankhen``> Yessir.
+<Aankhen``> Variables are stored in hashes keyed by the name, with the value being a cell.
+<avar> any reason not to call (make-instance) directly instead of stuff like (defun make-kp6-cell (value) (make-instance 'kp6-cell :value value)) ?:)
+<Aankhen``> No, it's just a convenience function.
+<avar> ah, this is required for bindings I take it?
+<Aankhen``> You could substitute (make-instance 'kp6-cell :value value) everywhere you have (make-kp6-cell value).
+<Aankhen``> You have the rather uninteresting KP6-VALUE class with a single VALUE slot in Value.lisp…
+<Aankhen``> Container.lisp has the KP6-CONTAINER class along with a KP6-BAD-INDEX error class and a bunch of generic function definitions.  (SETF KP6-LOOKUP) is the only one with a method defined since it's simply a wrapper around KP6-STORE.
+<Aankhen``> After that you have all the various value types and container types, which I'll pass over to avoid redundancy…
+<Aankhen``> Ah, now we come to Package.lisp.
+<Aankhen``> Hmm, we should probably swap Package and Pad, since Package builds on Pad.
+<Aankhen``> I'll talk about Pad first.  KP6-PAD derives from KP6-HASH.  A pad is simply a hash whose keys are variable names and values are cells.
+<Aankhen``> The WITH-KP6-PAD macro is the major point of interest here.  It takes an interpreter, a name for the pad, and an optional parent pad.
+<Aankhen``> What it does is to create a new pad and wrap the body you provided in a bunch of lexical functions which manipulate that particular pad.
+<Aankhen``> So you have DEFINE-LEXICAL-VARIABLE, SET-L-V, LOOKUP-L-V and DEFINE-OUR-V, which only operate on that particular pad.  This means the generated code need not keep track of anything; it can simply call the functions with the name (and value, as appropriate) and they'll do the right thing.
+<Aankhen``> S-L-V and L-L-V operate on the value of the variable cell; they also have /C variants that operate on the cell itself.
+<Aankhen``> So to simply assign a new value to a variable, you'd use SET-LEXICAL-VARIABLE.  In order to bind the variable to another value, you'd use SET-LEXICAL-VARIABLE/C and supply a KP6-CELL instance.
+<Aankhen``> Ah, packages.
+<Aankhen``> Packages are also pads, funnily enough.
+<Aankhen``> WITH-KP6-PACKAGE follows the same pattern as WITH-KP6-PAD, except that it obviously defines functions for manipulating package variables.
+<Aankhen``> They're not strictly needed, they just obviate the need for specifying the interpreter everywhere.
+<Aankhen``> WITH-KP6-PACKAGE additionally wraps its body in a WITH-KP6-PAD.
+<Aankhen``> Aaaand that's it for Package.lisp, I guess.
+<Aankhen``> I believe you're quite familiar with foreign.lisp and GLOBAL.lisp already.
+<Aankhen``> coerce.lisp is what it says on the tin: a KP6-COERCE function for converting values between types.
+<Aankhen``> display.lisp defines PERL->DISPLAY for use in &infix:<~> and &print, mostly.
+<Aankhen``> That's it for the individual overviews, I think.
