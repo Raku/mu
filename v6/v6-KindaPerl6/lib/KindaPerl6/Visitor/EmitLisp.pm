@@ -128,7 +128,13 @@ class Lit::NamedArgument {
 
 class Lit::Code {
     method emit_lisp ($interpreter, $indent) {
-        '(with-kp6-pad (' ~ $interpreter ~ ' kp6-pad :parent kp6-pad)' ~ Main::newline() ~ self.emit_declarations($interpreter, $indent) ~ self.emit_body($interpreter, $indent) ~ ')';
+          '(with-kp6-pad ('
+        ~ $interpreter
+        ~ ' kp6-pad :parent kp6-pad)'
+        ~ Main::newline()
+        ~ self.emit_declarations($interpreter, $indent)
+        ~ self.emit_body($interpreter, $indent)
+        ~ ')';
     };
     method emit_body ($interpreter, $indent) {
         (@.body.>>emit_lisp($interpreter, $indent)).join(Main::newline());
@@ -151,9 +157,9 @@ class Lit::Code {
                 ),
             );
 
-	    if $s ne '' {
-		$s := $s ~ Main::newline();
-	    }
+            if $s ne '' {
+                $s := $s ~ Main::newline();
+            }
 
             $s := $s ~ $name.emit_lisp($interpreter, $indent); # XXX ~ (' ' x $indent)
         };
