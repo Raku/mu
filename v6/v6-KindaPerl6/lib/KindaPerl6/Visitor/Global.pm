@@ -1,11 +1,4 @@
-
 use v6-alpha;
-
-=begin
-
-This visitor looks up lexical variables, and adds a GLOBAL lookup if needed.
-
-=end
 
 class KindaPerl6::Visitor::Global {
 
@@ -66,3 +59,35 @@ class KindaPerl6::Visitor::Global {
     };
 
 }
+
+=begin
+
+=head1 NAME 
+
+KindaPerl6::Visitor::Global - Look up lexicals and add a C<GLOBAL::> lookup if needed
+
+=head1 DESCRIPTION
+
+This visitor looks up lexical variables like C<$/>, C<$_> and C<@_>
+and adds a GLOBAL:: namespace quantifier to them.
+
+=head1 AUTHORS
+
+The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
+
+=head1 SEE ALSO
+
+The Perl 6 homepage at L<http://dev.perl.org/perl6>.
+
+The Pugs homepage at L<http://pugscode.org/>.
+
+=head1 COPYRIGHT
+
+Copyright 2007 by Flavio Soibelmann Glock and others.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
+
+=end
