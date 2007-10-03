@@ -217,7 +217,7 @@ my @visitors;
             unless @visitor_sequence && $visitor_sequence[-1] eq 'EmitParrot';
     }
     elsif ( $lisp ) {
-        push @visitor_sequence, qw( EmitLisp )
+        push @visitor_sequence, qw( Global EmitLisp )
             unless @visitor_sequence && $visitor_sequence[-1] eq 'EmitLisp';
     }
     elsif ( $perl5rx ) {
