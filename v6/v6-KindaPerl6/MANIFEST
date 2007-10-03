@@ -292,7 +292,6 @@ Makefile.PL
 MANIFEST			This list of files
 MANIFEST.SKIP
 mp6.pl
-pm_to_blib
 README
 run_kp6_kp6_perl5.pl
 run_kp6_mp6_perl5.pl
