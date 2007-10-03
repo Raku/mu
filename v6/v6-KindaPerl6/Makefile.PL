@@ -7,23 +7,33 @@ use strict;
 use ExtUtils::MakeMaker;
 
 WriteMakefile(
-    NAME     => 'v6-KindaPerl6',
-    AUTHOR   => 'The Pugs Team <perl6-compiler@perl.org>',
-    ABSTRACT => 'A bootstrapping Perl 6 compiler with multiple emitter backends',
-    VERSION  => '0.01',
-    LICENSE  => 'perl',
+    NAME          => 'KindaPerl6',
+    AUTHOR        => 'The Pugs Team <perl6-compiler@perl.org>',
+    ABSTRACT      => 'A bootstrapping Perl 6 compiler with multiple emitter backends',
+    VERSION_FROM  => 'lib/KindaPerl6.pm',
+    LICENSE       => 'perl',
 
     PREREQ_FATAL => 0,
-    PREREQ_PM    => { qw(
-        Carp                  0
-        Exporter              0
-        Data::Dump::Streamer  0
-        Data::Dumper          0
-        Perl::Tidy            0
-    ) },
+    PREREQ_PM    => {
+        # lib/
+        qw(
+              Carp                  0
+              Exporter              0
+              Data::Dump::Streamer  0
+              Data::Dumper          0
+              Perl::Tidy            0
+        ),
+        # script/kp6
+        qw(
+            Getopt::Long   0
+            Pod::Usage     0
+            Digest         0
+            Digest::MD5    0
+        )
+    },
 );
 
-# Voodoo magic specific to building v6-KindaPerl6:
+# Voodoo magic specific to building KindaPerl6:
 package MY;
 
 sub test
@@ -33,19 +43,19 @@ sub test
 
 <<'END';
 test: all
-	$(PERL) run_tests_kp6_kp6.pl
+	$(PERL) run_tests_kp6_mp6.pl
 
 test_grammar: all
-	$(PERL) run_tests_kp6_kp6.pl --section=grammar
+	$(PERL) run_tests_kp6_mp6.pl --section=grammar
 
 test_io: all
-	$(PERL) run_tests_kp6_kp6.pl --section=io
+	$(PERL) run_tests_kp6_mp6.pl --section=io
 
 test_math: all
-	$(PERL) run_tests_kp6_kp6.pl --section=math
+	$(PERL) run_tests_kp6_mp6.pl --section=math
 
 test_base: all
-	$(PERL) run_tests_kp6_kp6.pl --section=''
+	$(PERL) run_tests_kp6_mp6.pl --section=''
 END
 }
 
