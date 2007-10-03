@@ -1,0 +1,7 @@
+^t-lisp-exe
+\.svn
+\.bak$
+\.old$
+^Makefile$
+^KindaPerl6-\d+\.\d+\/
+^blib
