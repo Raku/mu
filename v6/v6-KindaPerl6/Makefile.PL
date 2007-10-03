@@ -6,11 +6,58 @@
 use strict;
 use ExtUtils::MakeMaker;
 
+my %PM;
+
+for my $lib (qw(mp6 kp6)) {
+    my @lib_pm = glob "lib-kp6-$lib-p5/KindaPerl6/*.pm lib-kp6-$lib-p5/KindaPerl6/*/*.pm lib-kp6-$lib-p5/KindaPerl6/*/*/*.pm";
+
+    for my $key (@lib_pm) {
+        my $value = $key;
+
+        $value =~ s[^lib-kp6-$lib-p5/KindaPerl6/][\$\(INST_LIBDIR\)/KindaPerl6/kp6-$lib-p5/lib/KindaPerl6/];
+
+        $PM{$key} = $value;
+    }
+
+    my @mod_pm = glob "lib-modules-kp6-$lib-p5/*.pm lib-modules-kp6-$lib-p5/*/*.pm lib-modules-kp6-$lib-p5/*/*/*.pm";
+
+    for my $key (@mod_pm) {
+        my $value = $key;
+
+        $value =~ s[^lib-modules-kp6-$lib-p5/][\$\(INST_LIBDIR\)/KindaPerl6/kp6-$lib-p5/mod/];
+
+        $PM{$key} = $value;
+    }
+}
+
+$PM{"lib/KindaPerl6.pm"} = '$(INST_LIBDIR)/KindaPerl6.pm';
+
+my %MAN3POD;
+
+{
+    my $str = join(' ', map @$_, map { [ "lib/*.$_", "lib/*/*.$_", "lib/*/*/*.$_", "lib/*/*/*/*.$_" ] } qw(pm));
+    my @man = glob $str;
+
+    for my $key (@man) {
+        my $value = $key;
+
+        my ($value) = $key =~ m[^lib/(.*)];
+        my $name = join '::', split m[/], $value;
+        #$value =~ s[^lib/][\$\(INST_MAN3DIR\)];
+        $name =~ s/\.pm/\.3pm/;
+
+        $MAN3POD{$key} = '$(INST_MAN3DIR)/' . $name;
+    }
+}
+
 WriteMakefile(
     NAME          => 'KindaPerl6',
     AUTHOR        => 'The Pugs Team <perl6-compiler@perl.org>',
     ABSTRACT      => 'A bootstrapping Perl 6 compiler with multiple emitter backends',
     VERSION_FROM  => 'lib/KindaPerl6.pm',
+    EXE_FILES     => [ glob "script/*" ],
+    PM            => \%PM,
+    MAN3PODS      => \%MAN3POD,
     LICENSE       => 'perl',
 
     PREREQ_FATAL => 0,
@@ -104,7 +151,7 @@ sub top_targets
 
 lib-kp6-mp6-p5/KindaPerl6/Runtime/Perl6/%.pm: lib/KindaPerl6/Runtime/Perl6/%.pm
 	@echo COMPILE $< $@
-	@$(PERL) kp6-mp6-perl5.pl < $< | perltidy -pro=util/perltidyrc > $@.temp ; \
+	@$(PERL) script/kp6 < $< | perltidy -pro=util/perltidyrc > $@.temp ; \
 		res=$$? ; \
 		if [ $$res = 0 -a -s $@.temp ] ; then \
 			mv $@.temp $@ ; \
@@ -114,7 +161,7 @@ lib-kp6-mp6-p5/KindaPerl6/Runtime/Perl6/%.pm: lib/KindaPerl6/Runtime/Perl6/%.pm
 		fi
 lib-modules-kp6-mp6-p5/%.pm: lib-modules/%.pm
 	@echo COMPILE $< $@
-	@$(PERL) kp6-mp6-perl5.pl < $< | perltidy -pro=util/perltidyrc > $@.temp ; \
+	@$(PERL) script/kp6 < $< | perltidy -pro=util/perltidyrc > $@.temp ; \
 		res=$$? ; \
 		if [ $$res = 0 -a -s $@.temp ] ; then \
 			mv $@.temp $@ ; \
@@ -125,7 +172,7 @@ lib-modules-kp6-mp6-p5/%.pm: lib-modules/%.pm
 
 lib-modules-kp6-kp6-p5/%.pm: lib-modules/%.pm
 	@echo COMPILE $< $@
-	@KP6_TARGET_RUNTIME='KindaPerl6::Runtime::Perl5::KP6Runtime' $(PERL) kp6-mp6-perl5.pl < $< | perltidy -pro=util/perltidyrc > $@.temp ; \
+	@$(PERL) script/kp6 -r kp6 < $< | perltidy -pro=util/perltidyrc > $@.temp ; \
 		res=$$? ; \
 		if [ $$res = 0 -a -s $@.temp ] ; then \
 			mv $@.temp $@ ; \
@@ -136,7 +183,7 @@ lib-modules-kp6-kp6-p5/%.pm: lib-modules/%.pm
 
 
 lib-kp6-kp6-p5/KindaPerl6/Runtime/Perl6/%.pm: lib/KindaPerl6/Runtime/Perl6/%.pm
-	KP6_TARGET_RUNTIME='KindaPerl6::Runtime::Perl5::KP6Runtime' $(PERL) kp6-mp6-perl5.pl < $< | perltidy -pro=util/perltidyrc > $@
+	$(PERL) script/kp6 -r kp6 < $< | perltidy -pro=util/perltidyrc > $@
 
 
 lib-kp6-mp6-p5/KindaPerl6/Runtime/Perl5/%.pm: lib/KindaPerl6/Runtime/Perl5/%.pm
@@ -149,10 +196,10 @@ lib-kp6-mp6-p5/%.pm: lib/%.pm
 	$(PERL) mp6.pl < $< > $@
 
 lib-kp6-kp6-p5/%.pm: lib/%.pm
-	KP6_TARGET_RUNTIME='KindaPerl6::Runtime::Perl5::KP6Runtime' $(PERL) kp6-mp6-perl5.pl < $< | perltidy -pro=util/perltidyrc > $@
+	$(PERL) script/kp6 -r kp6 < $< | perltidy -pro=util/perltidyrc > $@
 
 kp6-kp6.pl: kp6.p6
-	KP6_TARGET_RUNTIME='KindaPerl6::Runtime::Perl5::KP6Runtime' $(PERL) kp6-kp6-perl5.pl < $< | perltidy -pro=util/perltidyrc > temp.pl ; \
+	$(PERL) script/kp6 -r kp6 < $< | perltidy -pro=util/perltidyrc > temp.pl ; \
 		res=$$? ; \
 		if [ $$res = 0 -a -s temp.pl ] ; then \
 			cp temp.pl $@ ; \
@@ -167,15 +214,6 @@ forcerecompile:
 
 # end v6-KindaPerl6 specific targets
 END
-}
-
-sub install
-{
-    my $self = shift;
-    my $inherited = $self->SUPER::install(@_);
-
-    $inherited =~ s/(install.*?NOOP\))/install ::\n\t\@echo "make install does not work yet"\n\tfalse\n/s;
-    $inherited;
 }
 
 __END__
