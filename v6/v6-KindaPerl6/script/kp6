@@ -15,13 +15,10 @@ kp6 - Frontend to the L<KindaPerl6> Perl 6 in Perl 6 compiler
 
 =head1 SYNOPSIS
 
-    kp6 [OPTIONS] < source.p6
-    kp6 [OPTIONS] source.p6
+    kp6 [OPTIONS] < source.p6 > out.pl
+    kp6 [OPTIONS] source.p6 > out.pl
 
-    # process the ast by expanding 'token' into plain Perl;
-    # then replace method calls with MO calls;
-    # then emit Perl 5 code
-    kp6 --do Token,MetaClass,EmitPerl5 < examples/token.pl | perltidy
+    PERL5LIB=$(kp6 -lib) perl out.pl
 
 =head1 OPTIONS
 
@@ -35,6 +32,17 @@ Print a usage message listing all available options
 
 Print the version number, then exit successfully.
 
+=item -r, --runtime
+
+The runtime to use, defaults to mp6 but kp6 can also be selected. This
+option will go away when the compiler has been bootstraped to kp6.
+
+=item --lib
+
+Print the library path for the current runtime, this is mostly a hack
+at the moment until we have a decent interface to also execute code
+directly with the current backend, not just emit it.
+
 =item --secure
 
 Tell the emitter L<KindaPerl6::Visitor::Emit*> emitter being used to
@@ -44,6 +52,13 @@ disable any unsafe features (e.g. C<system>).
 
 A comma seperated list of L<KindaPerl6::Visitor>s to use, some
 pre-made sequences (listed below) are also availible.
+
+Example:
+
+    # process the ast by expanding 'token' into plain Perl;
+    # then replace method calls with MO calls;
+    # then emit Perl 5 code
+    kp6 --do Token,MetaClass,EmitPerl5 < examples/token.pl | perltidy
 
 =item --ast
 
@@ -91,6 +106,9 @@ Getopt::Long::Parser->new(
 )->getoptions(
     'h|help'    => \my $help,
     'v|version' => \my $version,
+
+    # Dump out the library path
+    'lib'    => \my $lib,
 
     # Use the mp6 or kp6 backend? This'll go away in the future
     'r|runtime=s' => \(my $runtime = 'mp6'), # or 'kp6'
@@ -141,6 +159,10 @@ version(exitval => 0)
         # the developers don't have to `make all install' for every little
         # change.
         unshift @INC, $dir;
+        if ($lib) {
+            print $dir, "\n";
+            exit 0;
+        }
     } else {
         my $path            = $INC{"KindaPerl6.pm"};
         my ($kp_path)       = $path =~ m/(.*)\.pm$/;
@@ -149,6 +171,10 @@ version(exitval => 0)
         my $runtime_dir_mod = catdir($runtime_dir, "mod");
 
         unshift @INC, $runtime_dir_lib;
+        if ($lib) {
+            print $runtime_dir_lib, "\n";
+            exit 0;
+        }
     }
 
     require KindaPerl6::Runtime::Perl5::Runtime;
