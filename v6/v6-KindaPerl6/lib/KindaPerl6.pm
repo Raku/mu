@@ -1,6 +1,6 @@
 package KindaPerl6;
 
-our $VERSION = '0.01';
+our $VERSION = '0.001';
 
 # This is a Perl 5 .pm file because:
 #
