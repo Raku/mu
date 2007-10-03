@@ -41,14 +41,14 @@
   (:method ((interpreter kp6-interpreter) name)
     (kp6-lookup (kp6-packages interpreter) name)))
 
-(defmacro with-kp6-package ((interpreter package pad &optional parent-pad) &body body)
+(defmacro with-kp6-package ((interpreter package) &body body)
   (with-unique-names (interpreter-var package-var)
     (let ((functions (kp6-with-package-functions package-var interpreter-var package)))
       `(let* ((,interpreter-var ,interpreter)
 	      (,package-var (kp6-lookup (kp6-packages ,interpreter-var) ,package)))
 	(flet ,functions
 	  (declare (ignorable ,@(mapcar #'(lambda (func) `#',(car func)) functions)))
-	  (with-kp6-pad (,interpreter-var ,pad ,@(when parent-pad `(:parent ,parent-pad)))
+	  (with-kp6-pad (,interpreter-var)
 	    ,@body))))))
 
 (defun kp6-with-package-functions (package-var interpreter-var package-name)

@@ -16,16 +16,13 @@
   (:report (lambda (c s)
 	     (write-string (kp6-prefixed-error-message c "Variable ~A does not exist." (kp6-name c)) s))))
 
-(defgeneric kp6-pad-has-parent (pad)
-  (:documentation "Test whether PAD has a parent pad.")
-  (:method ((pad kp6-Pad))
-    (slot-boundp pad 'parent)))
+(defun enclosing-pad () nil)
 
-(defmacro with-kp6-pad ((interpreter pad &key parent) &body body)
-  (with-unique-names (interpreter-var parent-var)
+(defmacro with-kp6-pad ((interpreter) &body body)
+  (with-unique-names (pad interpreter-var parent-var)
     (let ((functions (kp6-with-pad-functions pad interpreter-var parent-var)))
       `(let ((,interpreter-var ,interpreter)
-	     (,parent-var ,parent))
+	     (,parent-var (enclosing-pad)))
 	(let ((,pad (make-instance 'kp6-Pad :parent ,parent-var)))
 	  (flet ,functions
 	    (declare (ignorable ,@(mapcar #'(lambda (func) `#',(car func)) functions)))
@@ -74,7 +71,6 @@
 
 (macrolet ((define-stub-function (name)
 	       `(defun ,name (&rest rest) (declare (ignore rest)) (error "~S is just a stub function!" ',name))))
-  (define-stub-function enclosing-pad)
   (define-stub-function outer-pad)
   (define-stub-function lexical-variable-exists)
   (define-stub-function define-lexical-variable)
