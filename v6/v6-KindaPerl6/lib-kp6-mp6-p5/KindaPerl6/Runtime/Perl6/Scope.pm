@@ -23,9 +23,9 @@
                 }
             }
         };
-        ::DISPATCH( ::DISPATCH( $::Scope, 'HOW', ), 'add_parent',    ::DISPATCH( $::Str, 'new', 'Hash' ) );
-        ::DISPATCH( ::DISPATCH( $::Scope, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'vars' ) );
-        ::DISPATCH( ::DISPATCH( $::Scope, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'outer' ) );
+        ::DISPATCH( ::DISPATCH( $::Scope, 'HOW', ), 'add_parent',    ::DISPATCH( $::Hash, 'HOW', ) );
+        ::DISPATCH( ::DISPATCH( $::Scope, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str,  'new', 'vars' ) );
+        ::DISPATCH( ::DISPATCH( $::Scope, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str,  'new', 'outer' ) );
         ::DISPATCH(
             ::DISPATCH( $::Scope, 'HOW', ),
             'add_method',

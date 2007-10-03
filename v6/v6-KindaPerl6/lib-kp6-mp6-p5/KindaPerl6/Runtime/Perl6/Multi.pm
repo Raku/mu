@@ -23,9 +23,9 @@
                 }
             }
         };
-        ::DISPATCH( ::DISPATCH( $::Multi, 'HOW', ), 'add_parent',    ::DISPATCH( $::Str, 'new', 'Code' ) );
-        ::DISPATCH( ::DISPATCH( $::Multi, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'long_names' ) );
-        ::DISPATCH( ::DISPATCH( $::Multi, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'token_length' ) );
+        ::DISPATCH( ::DISPATCH( $::Multi, 'HOW', ), 'add_parent',    ::DISPATCH( $::Code, 'HOW', ) );
+        ::DISPATCH( ::DISPATCH( $::Multi, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str,  'new', 'long_names' ) );
+        ::DISPATCH( ::DISPATCH( $::Multi, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str,  'new', 'token_length' ) );
         ::DISPATCH(
             ::DISPATCH( $::Multi, 'HOW', ),
             'add_method',
@@ -239,7 +239,8 @@
                                                             ::MODIFIED($Hash__);
                                                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                                                         };
-                                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__60__61__62__62_, 'APPLY', ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) ), ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', ) ) );
+                                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__60__61__62__62_, 'APPLY', ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 ) ),
+                                                            ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ) );
                                                     },
                                                     signature =>
                                                         ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
@@ -260,7 +261,7 @@
                                                             $s = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$s' } ) unless defined $s;
                                                             BEGIN { $s = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$s' } ) }
                                                             my $Hash_syms = ::DISPATCH( $::Hash, 'new', { modified => $_MODIFIED, name => '$Hash_syms' } );
-                                                            ::DISPATCH_VAR( $s, 'STORE', ::DISPATCH( $GLOBAL::Code_substr, 'APPLY', $_, ::DISPATCH( $::Int, 'new', ), $len ) );
+                                                            ::DISPATCH_VAR( $s, 'STORE', ::DISPATCH( $GLOBAL::Code_substr, 'APPLY', $_, ::DISPATCH( $::Int, 'new', 0 ), $len ) );
                                                             ::DISPATCH_VAR( $Hash_syms, 'STORE', ::DISPATCH( ::DISPATCH( $self, 'token_length', ), 'LOOKUP', $len ) );
                                                             {
                                                                 my $sym;
@@ -327,7 +328,7 @@
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60__61__61__62_, 'APPLY', ::DISPATCH( $List_candidates, 'elems', ), ::DISPATCH( $::Int, 'new', 1 ) ), "true" ), "p5landish" ) ) {
                                 {
-                                    return ( ::DISPATCH( $List_candidates, 'INDEX', ::DISPATCH( $::Int, 'new', ) ) )
+                                    return ( ::DISPATCH( $List_candidates, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ) )
                                 }
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }

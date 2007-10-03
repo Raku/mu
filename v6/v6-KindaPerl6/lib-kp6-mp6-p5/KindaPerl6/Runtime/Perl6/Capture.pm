@@ -23,10 +23,10 @@
                 }
             }
         };
-        ::DISPATCH( ::DISPATCH( $::Capture, 'HOW', ), 'add_parent',    ::DISPATCH( $::Str, 'new', 'Value' ) );
-        ::DISPATCH( ::DISPATCH( $::Capture, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'invocant' ) );
-        ::DISPATCH( ::DISPATCH( $::Capture, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'array' ) );
-        ::DISPATCH( ::DISPATCH( $::Capture, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'hash' ) );
+        ::DISPATCH( ::DISPATCH( $::Capture, 'HOW', ), 'add_parent',    ::DISPATCH( $::Value, 'HOW', ) );
+        ::DISPATCH( ::DISPATCH( $::Capture, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str,   'new', 'invocant' ) );
+        ::DISPATCH( ::DISPATCH( $::Capture, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str,   'new', 'array' ) );
+        ::DISPATCH( ::DISPATCH( $::Capture, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str,   'new', 'hash' ) );
         ::DISPATCH(
             ::DISPATCH( $::Capture, 'HOW', ),
             'add_method',

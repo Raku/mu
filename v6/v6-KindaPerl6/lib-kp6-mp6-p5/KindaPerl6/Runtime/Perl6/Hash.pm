@@ -23,7 +23,7 @@
                 }
             }
         };
-        ::DISPATCH( ::DISPATCH( $::Hash, 'HOW', ), 'add_parent', ::DISPATCH( $::Str, 'new', 'Container' ) );
+        ::DISPATCH( ::DISPATCH( $::Hash, 'HOW', ), 'add_parent', ::DISPATCH( $::Container, 'HOW', ) );
         ::DISPATCH(
             ::DISPATCH( $::Hash, 'HOW', ),
             'add_method',
@@ -361,7 +361,7 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        ::DISPATCH( $GLOBAL::Code_infix_58__60__33__61__62_, 'APPLY', ::DISPATCH( $self, 'elems', ), ::DISPATCH( $::Int, 'new', ) );
+                        ::DISPATCH( $GLOBAL::Code_infix_58__60__33__61__62_, 'APPLY', ::DISPATCH( $self, 'elems', ), ::DISPATCH( $::Int, 'new', 0 ) );
                     },
                     signature => ::DISPATCH(
                         $::Signature,

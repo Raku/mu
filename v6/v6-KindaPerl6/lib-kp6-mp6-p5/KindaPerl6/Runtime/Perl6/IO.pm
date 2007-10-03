@@ -23,7 +23,7 @@
                 }
             }
         };
-        ::DISPATCH( ::DISPATCH( $::IO, 'HOW', ), 'add_parent',    ::DISPATCH( $::Str, 'new', 'Value' ) );
+        ::DISPATCH( ::DISPATCH( $::IO, 'HOW', ), 'add_parent', ::DISPATCH( $::Value, 'HOW', ) );
         ::DISPATCH( ::DISPATCH( $::IO, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'xxx' ) );
         ::DISPATCH(
             ::DISPATCH( $::IO, 'HOW', ),

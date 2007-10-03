@@ -23,7 +23,7 @@
                 }
             }
         };
-        ::DISPATCH( ::DISPATCH( $::Array, 'HOW', ), 'add_parent', ::DISPATCH( $::Str, 'new', 'Container' ) );
+        ::DISPATCH( ::DISPATCH( $::Array, 'HOW', ), 'add_parent', ::DISPATCH( $::Container, 'HOW', ) );
         ::DISPATCH(
             ::DISPATCH( $::Array, 'HOW', ),
             'add_method',

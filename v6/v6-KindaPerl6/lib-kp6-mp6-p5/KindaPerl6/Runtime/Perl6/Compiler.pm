@@ -164,7 +164,7 @@
                             $namespace = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         ::DISPATCH_VAR( $pad, 'STORE', ::DISPATCH( $::Pad, 'new', ) );
-                        ::DISPATCH_VAR( ::DISPATCH( $pad, 'outer', ), 'STORE', ::DISPATCH( $COMPILER::List_PAD, 'INDEX', ::DISPATCH( $::Int, 'new', ) ) );
+                        ::DISPATCH_VAR( ::DISPATCH( $pad, 'outer', ), 'STORE', ::DISPATCH( $COMPILER::List_PAD, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ) );
                         ::DISPATCH_VAR( ::DISPATCH( $pad, 'lexicals', ), 'STORE', ::DISPATCH( $::Array, "new", { _array => [] } ) );
                         ::DISPATCH_VAR( ::DISPATCH( $pad, 'namespace', ), 'STORE', $namespace );
                         ::DISPATCH( $COMPILER::List_PAD, 'unshift', $pad );
@@ -262,7 +262,7 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        return ( ::DISPATCH( $COMPILER::List_PAD, 'INDEX', ::DISPATCH( $::Int, 'new', ) ) );
+                        return ( ::DISPATCH( $COMPILER::List_PAD, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ) );
                     },
                     signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
                 }
@@ -335,7 +335,7 @@
                             ::MODIFIED($ast);
                             $ast = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
                         };
-                        ::DISPATCH_VAR( $pad, 'STORE', ::DISPATCH( $COMPILER::PAD, 'INDEX', ::DISPATCH( $::Int, 'new', ) ) );
+                        ::DISPATCH_VAR( $pad, 'STORE', ::DISPATCH( $COMPILER::PAD, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ) );
                         ::DISPATCH( $GLOBAL::Code_push, 'APPLY', $COMPILER::List_CHECK, ::DISPATCH( $::Array, "new", { _array => [ $ast, $pad ] } ) );
                         return ( ::DISPATCH( $::Val::Undef, 'new', ) );
                     },
@@ -400,7 +400,7 @@
                         ::DISPATCH_VAR( ::DISPATCH( $var, 'sigil', ),  'STORE', $sigil );
                         ::DISPATCH_VAR( ::DISPATCH( $var, 'twigil', ), 'STORE', $twigil );
                         ::DISPATCH_VAR( ::DISPATCH( $var, 'name', ),   'STORE', $name );
-                        ::DISPATCH_VAR( $pad, 'STORE', ::DISPATCH( $COMPILER::List_PAD, 'INDEX', ::DISPATCH( $::Int, 'new', ) ) );
+                        ::DISPATCH_VAR( $pad, 'STORE', ::DISPATCH( $COMPILER::List_PAD, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ) );
                         return ($var);
                     },
                     signature => ::DISPATCH(

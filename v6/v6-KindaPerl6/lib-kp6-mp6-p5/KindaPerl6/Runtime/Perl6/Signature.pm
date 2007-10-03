@@ -92,11 +92,11 @@
                 }
             }
         };
-        ::DISPATCH( ::DISPATCH( $::Signature, 'HOW', ), 'add_parent',    ::DISPATCH( $::Str, 'new', 'Value' ) );
-        ::DISPATCH( ::DISPATCH( $::Signature, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'invocant' ) );
-        ::DISPATCH( ::DISPATCH( $::Signature, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'array' ) );
-        ::DISPATCH( ::DISPATCH( $::Signature, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'hash' ) );
-        ::DISPATCH( ::DISPATCH( $::Signature, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'return' ) );
+        ::DISPATCH( ::DISPATCH( $::Signature, 'HOW', ), 'add_parent',    ::DISPATCH( $::Value, 'HOW', ) );
+        ::DISPATCH( ::DISPATCH( $::Signature, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str,   'new', 'invocant' ) );
+        ::DISPATCH( ::DISPATCH( $::Signature, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str,   'new', 'array' ) );
+        ::DISPATCH( ::DISPATCH( $::Signature, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str,   'new', 'hash' ) );
+        ::DISPATCH( ::DISPATCH( $::Signature, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str,   'new', 'return' ) );
         ::DISPATCH(
             ::DISPATCH( $::Signature, 'HOW', ),
             'add_method',

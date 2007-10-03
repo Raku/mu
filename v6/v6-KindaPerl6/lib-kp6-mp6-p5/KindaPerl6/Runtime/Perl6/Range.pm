@@ -23,9 +23,9 @@
                 }
             }
         };
-        ::DISPATCH( ::DISPATCH( $::Range, 'HOW', ), 'add_parent',    ::DISPATCH( $::Str, 'new', 'Value' ) );
-        ::DISPATCH( ::DISPATCH( $::Range, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'start' ) );
-        ::DISPATCH( ::DISPATCH( $::Range, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'end' ) );
+        ::DISPATCH( ::DISPATCH( $::Range, 'HOW', ), 'add_parent',    ::DISPATCH( $::Value, 'HOW', ) );
+        ::DISPATCH( ::DISPATCH( $::Range, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str,   'new', 'start' ) );
+        ::DISPATCH( ::DISPATCH( $::Range, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str,   'new', 'end' ) );
         ::DISPATCH(
             ::DISPATCH( $::Range, 'HOW', ),
             'add_method',
