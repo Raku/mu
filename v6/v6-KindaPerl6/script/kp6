@@ -1,0 +1,333 @@
+#!/usr/bin/env perl
+package kp6;
+use strict;
+
+use Digest ();
+use Pod::Usage ();
+use Getopt::Long ();
+use File::Spec::Functions qw(catdir);
+
+=begin
+
+=head1 NAME
+
+kp6 - Frontend to the L<KindaPerl6> Perl 6 in Perl 6 compiler
+
+=head1 SYNOPSIS
+
+    kp6 [OPTIONS] < source.p6
+    kp6 [OPTIONS] source.p6
+
+    # process the ast by expanding 'token' into plain Perl;
+    # then replace method calls with MO calls;
+    # then emit Perl 5 code
+    kp6 --do Token,MetaClass,EmitPerl5 < examples/token.pl | perltidy
+
+=head1 OPTIONS
+
+=over
+
+=item -h, --help
+
+Print a usage message listing all available options
+
+=item -v, --version
+
+Print the version number, then exit successfully.
+
+=item --secure
+
+Tell the emitter L<KindaPerl6::Visitor::Emit*> emitter being used to
+disable any unsafe features (e.g. C<system>).
+
+=item --do
+
+A comma seperated list of L<KindaPerl6::Visitor>s to use, some
+pre-made sequences (listed below) are also availible.
+
+=item --ast
+
+Dump the Abstract Syntax Tree of the program, see L<KindaPerl::Ast>
+and L<KindaPerl::Visitor::Perl>.
+
+=item --perl5
+
+Emit Perl 5 code via L<KindaPerl::Visitor::EmitPerl5>, this is not the
+same thing as the default Perl 5 sequence which has more visitors.
+
+=item --perl5rx
+
+Use the L<KindaPerl6::Visitor::EmitPerl5Regex> Perl 6 to Perl 5 regex emitter.
+
+=item --perl6
+
+Emit Perl 6 via L<KindaPerl6::Visitor::EmitPerl6>.
+
+=item --parrot
+
+Emit PIR via L<KindaPerl6::Visitor::Parrot>, currently broken.
+
+=item --lisp
+
+Emit Common Lisp via L<KindaPerl6::Visitor::Lisp>.
+
+=back
+
+=cut
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
+=cut
+
+#
+# Get command line options
+#
+
+Getopt::Long::Parser->new(
+    config => [ qw( no_bundling no_ignore_case require_order ) ],
+)->getoptions(
+    'h|help'    => \my $help,
+    'v|version' => \my $version,
+
+    # Use the mp6 or kp6 backend? This'll go away in the future
+    'r|runtime=s' => \(my $runtime = 'mp6'), # or 'kp6'
+
+    # the visitor sequence to use
+    'do=s'      => \my $visitor_sequence,
+
+    # pre-made visitor sequences
+    'ast'	    => \my $dumpast,
+    'perl5'	    => \my $perl5,
+    'perl5rx'   => \my $perl5rx,
+    'perl6'	    => \my $perl6,
+    'parrot'    => \my $parrot,
+    'lisp'      => \my $lisp,
+
+    # emitter options
+    'secure'    => \my $secure,
+) or help();
+
+#
+# Deal with --help, --version
+#
+
+help(verbose => 1, exitval => 0)
+    if $help;
+
+# Display version if requested
+version(exitval => 0)
+    if $version;
+
+
+#
+# Get the required runtime files for the backend we're using
+#
+
+{
+    if (-d (my $dir = "lib")) {
+        unshift @INC, $dir;
+    }
+
+    require KindaPerl6;
+
+    $Main::_V6_COMPILER_NAME    = 'KindaPerl6';
+    $Main::_V6_COMPILER_VERSION = $KindaPerl6::VERSION;
+
+    if (-d (my $dir = "lib-kp6-$runtime-p5")) {
+        # If we're in the kp6 directory use the lib-kp6-* libs there so
+        # the developers don't have to `make all install' for every little
+        # change.
+        unshift @INC, $dir;
+    } else {
+        my $path            = $INC{"KindaPerl6.pm"};
+        my ($kp_path)       = $path =~ m/(.*)\.pm$/;
+        my $runtime_dir     = catdir($kp_path, "kp6-$runtime-p5");
+        my $runtime_dir_lib = catdir($runtime_dir, "lib");
+        my $runtime_dir_mod = catdir($runtime_dir, "mod");
+
+        unshift @INC, $runtime_dir_lib;
+    }
+
+    require KindaPerl6::Runtime::Perl5::Runtime;
+    require KindaPerl6::Grammar;
+    require KindaPerl6::Traverse;
+    require KindaPerl6::Ast;
+    require KindaPerl6::Grammar::Regex;
+    require KindaPerl6::Runtime::Perl5::Compiler;
+
+    if ($runtime eq 'kp6') {
+        $ENV{KP6_TARGET_RUNTIME} = 'KindaPerl6::Runtime::Perl5::KP6Runtime';
+    }
+}
+
+#
+# Construct the visitor sequence from the command line options
+#
+
+my @visitor_sequence;
+my @visitors;
+{
+    my %visitor_args = ( secure => $secure );
+    if ($visitor_sequence) {
+        push @visitor_sequence,split(',',$visitor_sequence);
+    }
+    if ( $perl6 ) {
+        push @visitor_sequence, qw( EmitPerl6 )
+            unless @visitor_sequence && $visitor_sequence[-1] eq 'EmitPerl6';
+    }
+    elsif ( $dumpast ) {
+        push @visitor_sequence, qw( Perl )
+            unless @visitor_sequence && $visitor_sequence[-1] eq 'Perl';
+    }
+    elsif ( $perl5 ) {
+        push @visitor_sequence, qw( EmitPerl5 )
+            unless @visitor_sequence && $visitor_sequence[-1] eq 'EmitPerl5';
+    }
+    elsif ( $parrot ) {
+        push @visitor_sequence, qw( EmitParrot )
+            unless @visitor_sequence && $visitor_sequence[-1] eq 'EmitParrot';
+    }
+    elsif ( $lisp ) {
+        push @visitor_sequence, qw( EmitLisp )
+            unless @visitor_sequence && $visitor_sequence[-1] eq 'EmitLisp';
+    }
+    elsif ( $perl5rx ) {
+        push @visitor_sequence, qw( RegexCapture MetaClass Global EmitPerl5Regex )
+            unless @visitor_sequence && $visitor_sequence[-1] eq 'EmitPerl5Regex';
+    }
+    elsif ( ! @visitor_sequence ) {
+        # this is the default sequence
+        push @visitor_sequence, qw( ExtractRuleBlock Token MetaClass Global EmitPerl5 )
+    }
+
+    push @visitor_sequence, 'Perl' 
+        unless $visitor_sequence[-1] eq 'Perl'
+            || $visitor_sequence[-1] =~ /^Emit/;
+
+    for ( @visitor_sequence ) {
+        my $module_name = 'KindaPerl6::Visitor::' . $_;
+        eval "require $module_name";
+        die "Can't load $_ plugin: $@" if $@;
+        push @visitors, $module_name->new( visitor_args => \%visitor_args );
+    }
+}
+
+#
+# Get the Perl 6 source
+#
+
+my $source;
+
+if (-t STDIN) {
+    # STDIN is open to a terminal, i.e. we're being run as `kp6
+    # file.p6'. slurp the file
+    my ($file, @args) = @ARGV;
+    $source = $file ? slurp($file) : '';
+} else {
+    # Called as `kp6 < file.p6', get it from STDIN
+    local $/;
+    $source = <>;
+}
+
+$COMPILER::source_md5 = Digest->new("MD5")->add($source)->hexdigest;
+
+#
+# Good to go, pass the source through the selected visitors
+#
+
+my $pos = 0;
+COMPILER::env_init();
+while ($pos < length($source)) {
+    #say( "Source code:", $source );
+    my $p = KindaPerl6::Grammar->comp_unit($source, $pos);
+    #say( Main::perl( $$p ) );
+    my $ast = $$p;
+    #print Dump( $ast );
+    unless (ref $ast && $ast->isa("CompUnit")) {
+        # Compilation failed, show the user where
+        die report_error(\$source, $pos);
+    }
+    $ast = $ast->emit( $_ ) for @visitors;
+    print $ast;
+    $pos = $p->to;
+}
+# emit CHECK blocks
+for ( @COMPILER::CHECK ) { 
+    my ( $ast, $pad ) = @$_;
+    unshift @COMPILER::PAD, $pad;
+    my $ast = COMPILER::begin_block( $ast );
+    $ast = $ast->emit( $_ ) for @visitors;
+    print $ast;
+    shift @COMPILER::PAD;
+}
+
+#
+# Utility functions
+#
+
+# Eat that File::Slurp!
+sub slurp
+{
+    do {
+        local (@ARGV, $/) = $_[0];
+        scalar <>;
+    };
+}
+
+# Helper sub to show the user where the parser bailed out.
+sub report_error
+{
+    my ($source, $pos) = @_;
+
+    # Is this the first line? We'll have to special case if it is
+    my $first_line = 0;
+
+    # So we died, find out what line we were on
+    my $source_uptohere = substr $$source, 0, $pos;
+
+    # Find how many lines we've been through
+    my $lines = ($source_uptohere =~ tr/\n//) + 1;
+
+    # The column is distance from the last newline to $pos :)
+    my $last_n_pos = rindex $source_uptohere, "\n";
+
+    if ($last_n_pos == -1) {
+        # No previous newline, this is the first line
+        $first_line = 1;
+        $last_n_pos = 0;
+    }
+
+    my $column = $pos - $last_n_pos;
+
+    # Print out the offending newline
+    my $next_n_pos = index $$source, "\n", $last_n_pos + 1;
+    my $line_length = $next_n_pos - $last_n_pos;
+    my $line = substr $$source, $last_n_pos, $line_length;
+
+    # print out an arrow pointing to the column
+    my $whitespace = " " x $column;
+
+    "syntax error at position $pos, line $lines column $column:"
+    . ($first_line ? "\n" : "")
+    . $line . "\n"
+    . $whitespace . "^ HERE\n";
+}
+
+sub help
+{
+    my %arg = @_;
+
+    Pod::Usage::pod2usage(
+        -verbose => $arg{ verbose },
+        -exitval => $arg{ exitval } || 0,
+    );
+}
+
+sub version
+{
+    printf "kp6 %s\n", $KindaPerl6::VERSION;
+    exit 0;
+}
