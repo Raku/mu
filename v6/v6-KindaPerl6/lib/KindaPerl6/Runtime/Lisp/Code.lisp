@@ -9,11 +9,11 @@
   (:report (lambda (c s)
 	     (write-string (kp6-prefixed-error-message c "Bad arguments.  Expected: ~A~%Got: ~A" (kp6-signature c) (kp6-arguments c)) s))))
 
-(defmacro make-kp6-sub ((interpreter signature) &body body)
+(defmacro make-kp6-sub ((signature &key (interpreter (gensym))) &body body)
   (with-unique-names (rest)
     `(make-instance
       'kp6-code
-      :value #'(lambda (&rest ,rest)
+      :value #'(lambda (,interpreter &rest ,rest)
 		 (with-kp6-arguments (,interpreter ,signature ,rest)
 		   ,@body))
       :signature ,signature)))
@@ -29,7 +29,6 @@
 	 :for ,argument :in ,arguments
 	 :do (kp6-check-parameter ,interpreter ,item ,argument)
 	 :do (define-lexical-variable (cdr ,item))
-	 :unless (typep ,argument 'kp6-interpreter)
 	 :do (set-lexical-variable (cdr ,item) ,argument))
 	,@body))))
 

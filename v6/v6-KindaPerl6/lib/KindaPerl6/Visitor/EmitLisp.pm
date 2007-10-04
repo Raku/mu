@@ -645,7 +645,7 @@ class Method {
 
 class Sub {
     method emit_lisp ($interpreter, $indent) {
-	return '(make-kp6-sub (' ~ $interpreter ~ ' ' ~ $.block.emit_signature($interpreter, $indent) ~ ')' ~ Main::newline() ~ $.block.emit_body($interpreter, $indent) ~ ')';
+	return '(make-kp6-sub (' ~ $.block.emit_signature($interpreter, $indent) ~ ')' ~ Main::newline() ~ $.block.emit_body($interpreter, $indent) ~ ')';
     }
 }
 

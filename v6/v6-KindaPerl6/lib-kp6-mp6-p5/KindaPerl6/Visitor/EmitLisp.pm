@@ -219,7 +219,7 @@ sub emit_lisp { my $self = shift; my $List__ = \@_; my $interpreter; my $indent;
 ;
 package Sub;
 sub new { shift; bless { @_ }, "Sub" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; my $interpreter; my $indent; do {  $interpreter = $List__->[0];  $indent = $List__->[1]; [$interpreter, $indent] }; return(('(make-kp6-sub (' . ($interpreter . (' ' . ($self->{block}->emit_signature($interpreter, $indent) . (')' . (Main::newline() . ($self->{block}->emit_body($interpreter, $indent) . ')')))))))) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; my $interpreter; my $indent; do {  $interpreter = $List__->[0];  $indent = $List__->[1]; [$interpreter, $indent] }; return(('(make-kp6-sub (' . ($self->{block}->emit_signature($interpreter, $indent) . (')' . (Main::newline() . ($self->{block}->emit_body($interpreter, $indent) . ')')))))) }
 
 
 ;
