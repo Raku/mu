@@ -3,12 +3,38 @@
 (defclass kp6-Code (kp6-Value)
   ((signature :accessor kp6-signature :initarg :signature)))
 
+(define-condition kp6-bad-arguments (kp6-error)
+  ((signature :accessor kp6-signature :initarg :signature)
+   (arguments :accessor kp6-arguments :initarg :arguments))
+  (:report (lambda (c s)
+	     (write-string (kp6-prefixed-error-message c "Bad arguments.  Expected: ~A~%Got: ~A" (kp6-signature c) (kp6-arguments c)) s))))
+
 (defmacro make-kp6-sub ((interpreter signature) &body body)
   (with-unique-names (rest)
-    `(make-instance 'kp6-code :value #'(lambda (&rest ,rest) (kp6-check-arguments ,interpreter ,signature ,rest) ,@body) :signature ,signature)))
+    `(make-instance
+      'kp6-code
+      :value #'(lambda (&rest ,rest)
+		 (with-kp6-arguments (,interpreter ,signature ,rest)
+		   ,@body))
+      :signature ,signature)))
 
-(defgeneric kp6-check-arguments (interpreter signature arguments &key &allow-other-keys)
-  (:method ((interpreter kp6-interpreter) signature arguments &key)
+(defmacro with-kp6-arguments ((interpreter signature arguments) &body body)
+  (with-unique-names (value item argument)
+    `(with-kp6-pad (,interpreter)
+      (let ((,value (kp6-value ,signature)))
+	(unless (= (length ,value) (length ,arguments))
+	  (kp6-error ,interpreter 'kp6-bad-arguments :signature ,value :arguments ,arguments))
+	(loop
+	 :for ,item :in ,value
+	 :for ,argument :in ,arguments
+	 :do (kp6-check-parameter ,interpreter ,item ,argument)
+	 :do (define-lexical-variable (cdr ,item))
+	 :unless (typep ,argument 'kp6-interpreter)
+	 :do (set-lexical-variable (cdr ,item) ,argument))
+	,@body))))
+
+(defgeneric kp6-check-parameter (interpreter parameter argument &key &allow-other-keys)
+  (:method ((interpreter kp6-interpreter) parameter argument &key)
     t))
 
 (defun is-kp6-code (object)

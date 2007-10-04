@@ -554,10 +554,10 @@ class Sig {
 	    $str := $str ~ ' :invocant ' ~ $.invocant.emit_lisp($interpreter, $indent);
 	}
 
-	$str := $str ~ ' :array (list';
+	$str := $str ~ ' :value (list';
 
 	for @($.positional) -> $decl {
-	    $str := $str ~ ' ' ~ $decl.emit_lisp_name($interpreter, $indent);
+	    $str := $str ~ ' (kp6-sig-item \'positional ' ~ $decl.emit_lisp_name($interpreter, $indent) ~ ')';
 	}
 
 	$str := $str ~ ')';
@@ -645,7 +645,7 @@ class Method {
 
 class Sub {
     method emit_lisp ($interpreter, $indent) {
-	return '(make-kp6-sub (' ~ $interpreter ~ ' ' ~ $.block.emit_signature($interpreter, $indent) ~ ')' ~ Main::newline() ~ $.block.emit_lisp($interpreter, $indent) ~ ')';
+	return '(make-kp6-sub (' ~ $interpreter ~ ' ' ~ $.block.emit_signature($interpreter, $indent) ~ ')' ~ Main::newline() ~ $.block.emit_body($interpreter, $indent) ~ ')';
     }
 }
 
