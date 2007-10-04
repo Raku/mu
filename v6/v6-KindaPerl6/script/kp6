@@ -84,7 +84,7 @@ Emit PIR via L<KindaPerl6::Visitor::Parrot>, currently broken.
 
 =item --lisp
 
-Emit Common Lisp via L<KindaPerl6::Visitor::Lisp>.
+Emit Common Lisp via L<KindaPerl6::Visitor::EmitLisp>.
 
 =back
 
