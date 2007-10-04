@@ -133,6 +133,7 @@ class Lit::Code {
 	~ ')'
         ~ Main::newline()
         ~ self.emit_declarations($interpreter, $indent)
+	~ Main::newline()
         ~ self.emit_body($interpreter, $indent)
         ~ ')';
     };
@@ -285,10 +286,13 @@ class Var {
 
 class Bind {
     method emit_lisp ($interpreter, $indent) {
-
         if $.arguments.isa('Var') {
             return $.parameters.emit_lisp_assignment($.arguments.emit_lisp_lookup(1), 1);
         }
+
+	if $.arguments.isa('Sub') {
+	    return $.parameters.emit_lisp_assignment($.arguments.emit_lisp($interpreter, $indent));
+	}
 
         # XXX: TODO
         return '(kp6-error ' ~ $interpreter ~ ' \'kp6-not-implemented :feature "binding anything other than variables")';
@@ -539,6 +543,24 @@ class Decl {
 
 class Sig {
     method emit_lisp ($interpreter, $indent) {
+	my $str := '(make-instance \'kp6-signature';
+
+	if $.invocant {
+	    $str := $str ~ ' :invocant ' ~ $.invocant.emit_lisp($interpreter, $indent);
+	}
+
+	$str := $str ~ ' :array (list';
+
+	for @($.positional) -> $decl {
+	    $str := $str ~ ' ' ~ $decl.emit_lisp_name($interpreter, $indent);
+	}
+
+	$str := $str ~ ')';
+
+	$str := $str ~ ')';
+
+	return $str;
+
         my $inv := '$::Undef';
         if $.invocant.isa( 'Var' ) {
             $inv := $.invocant.perl;
@@ -618,15 +640,7 @@ class Method {
 
 class Sub {
     method emit_lisp ($interpreter, $indent) {
-          '(kp6-new \'code '
-        ~   'code: sub { '  
-        ~       $.block.emit_declarations($interpreter, $indent) 
-        ~       $.block.emit_arguments($interpreter, $indent) 
-        ~       $.block.emit_body($interpreter, $indent)
-        ~    ' } '
-        ~   'signature: ' 
-        ~       $.block.emit_signature($interpreter, $indent)
-        ~ ')'
+	return '(make-kp6-sub ' ~ $.block.emit_lisp($interpreter, $indent) ~ ' :signature ' ~ $.block.emit_signature($interpreter, $indent) ~ ')';
     }
 }
 

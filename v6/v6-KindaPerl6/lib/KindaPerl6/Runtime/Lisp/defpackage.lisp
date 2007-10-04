@@ -4,8 +4,10 @@
   (:use #:cl)
   (:export
    ;; Classes (types)
-   #:kp6-Array #:kp6-Bit #:kp6-Code #:kp6-Hash #:kp6-Int #:kp6-Str #:kp6-Package #:kp6-Object #:kp6-Value #:kp6-Num #:kp6-Container #:kp6-Undef #:kp6-Char #:kp6-Pad #:kp6-Interpreter
+   #:kp6-Array #:kp6-Bit #:kp6-Code #:kp6-Hash #:kp6-Int #:kp6-Str #:kp6-Package #:kp6-Object #:kp6-Value #:kp6-Num #:kp6-Container #:kp6-Undef #:kp6-Char #:kp6-Pad #:kp6-Interpreter #:kp6-signature
 
+   #:make-kp6-sub
+   
    #:kp6-true
    
    ;; Accessors

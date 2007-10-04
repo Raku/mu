@@ -1,7 +1,11 @@
 (in-package #:kp6-cl)
 
 (defclass kp6-Code (kp6-Value)
-  ((pad :initarg :pad :accessor kp6-pad)))
+  ((signature :accessor kp6-signature :initarg :signature)))
+
+(defun make-kp6-sub (object &key signature)
+  (assert (defined signature))
+  (make-instance 'kp6-code :value object :signature signature))
 
 (defun is-kp6-code (object)
   (typep object 'kp6-Code))
