@@ -57,4 +57,5 @@
    
    #:with-kp6-package   
    #:with-kp6-pad
-   #:with-kp6-interpreter))
+   #:with-kp6-interpreter
+   #:kp6-for-->-single))

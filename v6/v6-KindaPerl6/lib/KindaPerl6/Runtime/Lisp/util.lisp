@@ -1,5 +1,4 @@
 (in-package #:kp6-cl)
-
 (defmacro with-unique-names (vars &body body)
   `(let ,(mapcar #'(lambda (var) `(,var (gensym))) vars)
     ,@body))

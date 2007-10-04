@@ -177,7 +177,7 @@ sub emit_lisp { my $self = shift; my $List__ = \@_; my $interpreter; my $indent;
 ;
 package For;
 sub new { shift; bless { @_ }, "For" }
-sub emit_lisp { my $self = shift; my $List__ = \@_; my $interpreter; my $indent; do {  $interpreter = $List__->[0];  $indent = $List__->[1]; [$interpreter, $indent] }; my  $cond = $self->{cond}; do { if ((Main::isa($cond, 'Var') && ($cond->sigil() eq '@'))) {  } else { $cond = Apply->new( 'code' => Var->new( 'sigil' => '&','twigil' => '','name' => 'prefix:<@>','namespace' => ['GLOBAL'], ),'arguments' => [$cond], ) } }; ('for ' . ($self->{topic}->emit_lisp($interpreter, $indent) . (' ( @{ ' . ($cond->emit_lisp($interpreter, $indent) . ('->{_value}{_array} } )' . (' { ' . ($self->{body}->emit_lisp($interpreter, $indent) . ' } '))))))) }
+sub emit_lisp { my $self = shift; my $List__ = \@_; my $interpreter; my $indent; do {  $interpreter = $List__->[0];  $indent = $List__->[1]; [$interpreter, $indent] }; my  $cond = $self->{cond}; do { if ((Main::isa($cond, 'Var') && ($cond->sigil() eq '@'))) {  } else { $cond = Apply->new( 'code' => Var->new( 'sigil' => '&','twigil' => '','name' => 'prefix:<@>','namespace' => ['GLOBAL'], ),'arguments' => [$cond], ) } }; ('(kp6-for-->-single' . ('  ' . ($self->{topic}->emit_lisp_name() . ('  ' . ($cond->emit_lisp($interpreter, $indent) . ('  ' . ($self->{body}->emit_lisp($interpreter, $indent) . ')'))))))) }
 
 
 ;

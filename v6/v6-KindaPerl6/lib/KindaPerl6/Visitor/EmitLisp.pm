@@ -415,12 +415,17 @@ class For {
         } else {
             $cond := ::Apply( code => ::Var(sigil=>'&',twigil=>'',name=>'prefix:<@>',namespace => [ 'GLOBAL' ],), arguments => [$cond] );
         }
-        'for ' 
-        ~   $.topic.emit_lisp($interpreter, $indent) 
-        ~ ' ( @{ ' ~ $cond.emit_lisp($interpreter, $indent) ~ '->{_value}{_array} } )'
-        ~ ' { ' 
-        ~     $.body.emit_lisp($interpreter, $indent) 
-        ~ ' } ';
+#        'for ' 
+#        ~   $.topic.emit_lisp($interpreter, $indent) 
+#        ~ ' ( @{ ' ~ $cond.emit_lisp($interpreter, $indent) ~ '->{_value}{_array} } )'
+#        ~ ' { ' 
+#        ~     $.body.emit_lisp($interpreter, $indent) 
+#        ~ ' } ';
+        '(kp6-for-->-single'
+        ~ '  ' ~ $.topic.emit_lisp_name()
+        ~ '  ' ~ $cond.emit_lisp($interpreter, $indent)
+        ~ '  ' ~ $.body.emit_lisp($interpreter, $indent) 
+        ~ ')';
     }
 }
 
