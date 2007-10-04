@@ -3,9 +3,13 @@
 (defclass kp6-Code (kp6-Value)
   ((signature :accessor kp6-signature :initarg :signature)))
 
-(defun make-kp6-sub (object &key signature)
-  (assert (defined signature))
-  (make-instance 'kp6-code :value object :signature signature))
+(defmacro make-kp6-sub ((interpreter signature) &body body)
+  (with-unique-names (rest)
+    `(make-instance 'kp6-code :value #'(lambda (&rest ,rest) (kp6-check-arguments ,interpreter ,signature ,rest) ,@body) :signature ,signature)))
+
+(defgeneric kp6-check-arguments (interpreter signature arguments &key &allow-other-keys)
+  (:method ((interpreter kp6-interpreter) signature arguments &key)
+    t))
 
 (defun is-kp6-code (object)
   (typep object 'kp6-Code))
