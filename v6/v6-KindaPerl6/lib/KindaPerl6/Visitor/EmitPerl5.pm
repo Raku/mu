@@ -414,6 +414,18 @@ class Apply {
                 '::DISPATCH($____some__weird___var____,"true")->{_value} && $____some__weird___var____ ' ~
              '}) || ::DISPATCH( $::Bit, "new", 0) }' ~ Main::newline();
         }
+        # // - XXX: doesn't work, I'm screwing this up somehow -avar
+#
+#        if $op eq '$GLOBAL::Code_infix_58__60__47__47__62_' {
+#             return 'do { ( ' ~
+#             'do { my $____some__weird___var____ = ' ~ (@.arguments[0]).emit_perl5 ~ '; ' ~
+#                '::DISPATCH(::DISPATCH(::DISPATCH($GLOBAL::Code_defined, \'APPLY\', $____some__weird___var____), "true"), "p5landish") && $____some__weird___var____ ' ~
+#             '} &&' ~
+#             'do { my $____some__weird___var____ = ' ~ (@.arguments[1]).emit_perl5 ~ '; ' ~
+#                '::DISPATCH(::DISPATCH(::DISPATCH($GLOBAL::Code_defined, \'APPLY\', $____some__weird___var____), "true"), "p5landish") && $____some__weird___var____ ' ~
+#             '}) || ::DISPATCH( $::Bit, "new", 0) }' ~ Main::newline();
+#        }
+#
         return  '::DISPATCH( ' ~ $op ~ ', \'APPLY\', ' ~ (@.arguments.>>emit_perl5).join(', ') ~ ' )' ~ Main::newline();
     }
 }
