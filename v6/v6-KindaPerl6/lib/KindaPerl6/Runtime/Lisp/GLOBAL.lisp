@@ -13,7 +13,7 @@
 RETURNS may be specified to unconditionally return a value \(it will
 be passed through CL->PERL first; for example, :RETURNS 'TRUE will
 result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
-	     (destructuring-bind (name &key coerce returns) (if (listp name-and-options) name-and-options (list name-and-options))
+	     (destructuring-bind (name &key coerce returns (interpreter (gensym))) (if (listp name-and-options) name-and-options (list name-and-options))
 	       (let ((declaration (list))
 		     (body (copy-list body)))
 		 (when (eql (caar body) 'declare)
@@ -22,123 +22,80 @@ result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
 		 `(push
 		   (cons
 		    ',(kp6-normalize-function-name name)
-		    (make-instance
-		     'kp6-Code
-		     :value #'(lambda ,params ,@(when declaration `(,declaration)) ,@(if coerce `((kp6-coerce (progn ,@body) ,coerce)) body) ,@(when (defined returns) (list `(cl->perl ,returns))))))
-		   *kp6-global-functions*)))))
+		    (make-kp6-sub
+			((make-instance 'kp6-signature
+					:value (list
+						,@(mapcar
+						   #'(lambda (param)
+						       `(kp6-sig-item 'positional
+							 (kp6-generate-variable
+							  ',(symbol-name (first param)) ,
+							  (symbol-name (second param)))))
+						   params)))
+			 :interpreter ,interpreter)
+		      ,@(if coerce
+			    `((kp6-coerce (progn ,@body) ,coerce))
+			    body)
+		      ,@(when (defined returns) (list `(cl->perl ,returns)))))
+		   *kp6-global-functions*))))
+	   (VAR (sigil name)
+	     `(lookup-lexical-variable (cons ',sigil ,(symbol-name name)))))
+  (flet ((call-kp6-function (interpreter name args)
+	   (kp6-apply-function interpreter (kp6-normalize-function-name name) args))
+	 (str* (object) (kp6-coerce object 'string))
+	 (num* (object) (kp6-coerce object 'number)))
+    (declare (ignorable #'call-kp6-function #'str* #'num*))
+    (define-kp6-function ("infix:<eq>" :coerce 'kp6-Bit) (($ first) ($ second))
+      (string= (str* (VAR $ first)) (str* (VAR $ second))))
 
-  (labels ((call-kp6-function (interpreter name args)
-	     (kp6-apply-function interpreter (kp6-normalize-function-name name) args))
-	   (str* (object) (kp6-coerce object 'string))
-	   (num* (object) (kp6-coerce object 'number)))
-    (define-kp6-function "elems" (interpreter array)
-      (declare (ignore interpreter))
-      (assert (typep array 'kp6-Array) (array))
-      (length (kp6-value array)))
+    (define-kp6-function ("infix:<ne>" :coerce 'kp6-Bit) (($ first) ($ second))
+      (not (string= (str* (VAR $ first)) (str* (VAR $ second)))))
 
-    (define-kp6-function ("infix:<eq>" :coerce 'kp6-Bit) (interpreter first second)
-      (declare (ignore interpreter))
-      (string= (str* first) (str* second)))
+    (define-kp6-function ("infix:<==>" :coerce 'kp6-Bit) (($ first) ($ second))
+      (equal (num* (VAR $ first)) (num* (VAR $ second))))
 
-    (define-kp6-function ("infix:<ne>" :coerce 'kp6-Bit) (interpreter first second)
-      (declare (ignore interpreter))
-      (not (string= (str* first) (str* second))))
+    (define-kp6-function ("infix:<!=>" :coerce 'kp6-Bit) (($ first) ($ second))
+      (not (equal (num* (VAR $ first)) (num* (VAR $ second)))))
 
-    (define-kp6-function ("infix:<==>" :coerce 'kp6-Bit) (interpreter first second)
-      (declare (ignore interpreter))
-      (equal (num* first) (num* second)))
+    (define-kp6-function ("infix:<<>" :coerce 'kp6-Bit) (($ first) ($ second))
+      (< (num* (VAR $ first)) (num* (VAR $ second))))
 
-    (define-kp6-function ("infix:<!=>" :coerce 'kp6-Bit) (interpreter first second)
-      (declare (ignore interpreter))
-      (not (equal (num* first) (num* second))))
+    (define-kp6-function ("infix:<>>" :coerce 'kp6-Bit) (($ first) ($ second))
+      (> (num* (VAR $ first)) (num* (VAR $ second))))
 
-    (define-kp6-function ("infix:<<>" :coerce 'kp6-Bit) (interpreter first second)
-      (declare (ignore interpreter))
-      (< (num* first) (num* second)))
+    (define-kp6-function ("infix:<<=>" :coerce 'kp6-Bit) (($ first) ($ second))
+      (<= (num* (VAR $ first)) (num* (VAR $ second))))
 
-    (define-kp6-function ("infix:<>>" :coerce 'kp6-Bit) (interpreter first second)
-      (declare (ignore interpreter))
-      (> (num* first) (num* second)))
+    (define-kp6-function ("infix:<>=>" :coerce 'kp6-Bit) (($ first) ($ second))
+      (>= (num* (VAR $ first)) (num* (VAR $ second))))
 
-    (define-kp6-function ("infix:<<=>" :coerce 'kp6-Bit) (interpreter first second)
-      (declare (ignore interpreter))
-      (<= (num* first) (num* second)))
+    (define-kp6-function "infix:<<=>>" (($ first) ($ second))
+      (signum (- (num* (VAR $ first)) (num* (VAR $ second)))))
 
-    (define-kp6-function ("infix:<>=>" :coerce 'kp6-Bit) (interpreter first second)
-      (declare (ignore interpreter))
-      (>= (num* first) (num* second)))
+    (define-kp6-function "infix:<+>" (($ first) ($ second))
+      (cl->perl (+ (num* (VAR $ first)) (num* (VAR $ second)))))
 
-    (define-kp6-function "infix:<<=>>" (interpreter first second)
-      (declare (ignore interpreter))
-      (signum (- (num* first) (num* second))))
+    (define-kp6-function "infix:<->" (($ first) ($ second))
+      (cl->perl (- (num* (VAR $ first)) (num* (VAR $ second)))))
 
-    (define-kp6-function "infix:<+>" (interpreter first second)
-      (declare (ignore interpreter))
-      (cl->perl (+ (num* first) (num* second))))
+    (define-kp6-function "infix:<*>" (($ first) ($ second))
+      (cl->perl (* (num* (VAR $ first)) (num* (VAR $ second)))))
 
-    (define-kp6-function "infix:<->" (interpreter first second)
-      (declare (ignore interpreter))
-      (cl->perl (- (num* first) (num* second))))
+    (define-kp6-function "infix:</>" (($ first) ($ second))
+      (cl->perl (/ (num* (VAR $ first)) (num* (VAR $ second)))))
 
-    (define-kp6-function "infix:<*>" (interpreter first second)
-      (declare (ignore interpreter))
-      (cl->perl (* (num* first) (num* second))))
+    (define-kp6-function "infix:<~>" (($ first) ($ second))
+      (cl->perl (concatenate 'string (str* (VAR $ first)) (str* (VAR $ second)))))
 
-    (define-kp6-function "infix:</>" (interpreter first second)
-      (declare (ignore interpreter))
-      (cl->perl (/ (num* first) (num* second))))
+    (define-kp6-function ("print" :returns 'true) (($ string))
+      (format t "~A" (perl->display (VAR $ string))))
 
-    (define-kp6-function "infix:<~>" (interpreter &rest strs)
-      (declare (ignore interpreter))
-      (cl->perl (format nil "~{~A~}" (mapcar #'perl->display strs))))
-
-    (define-kp6-function "length" (interpreter &rest strs)
-      (declare (ignore interpreter))
-      (cl->perl (length (perl->cl (first strs)))))
-
-    (define-kp6-function "infix:<&&>" (interpreter &rest operands)
-      (if (null operands)
-	  (cl->perl 'true)
-	  (if (kp6-true (first operands))
-	      (call-kp6-function interpreter "infix:<&&>" (cdr operands))
-	      (cl->perl 'false))))
-
-    (define-kp6-function "infix:<||>" (interpreter &rest operands)
-      (if (null operands)
-	  (cl->perl 'false)
-	  (let ((operand (first operands)))
-	    (if (kp6-true operand)
-		operand
-		(call-kp6-function interpreter "infix:<||>" (cdr operands))))))
-
-    (define-kp6-function ("print" :returns 'true) (interpreter &rest strs)
-      (declare (ignore interpreter))
-      (format t "~{~A~}" (mapcar #'perl->display strs)))
-
-    (define-kp6-function ("say" :returns 'true) (interpreter &rest strs)
-      (call-kp6-function interpreter "print" strs)
+    (define-kp6-function ("say" :returns 'true :interpreter interpreter) (($ string))
+      (call-kp6-function interpreter "print" (VAR $ string))
       (terpri))
 
-    (define-kp6-function ("warn" :returns 'true) (interpreter &rest strs)
-      (warn "~A" (call-kp6-function interpreter "infix:<~>" strs)))
+    (define-kp6-function ("warn" :returns 'true :interpreter interpreter) (($ string))
+      (warn "~A" (VAR $ string)))
 
-    (define-kp6-function "defined" (interpreter object)
-      (declare (ignore interpreter))
-      ; XXX: cl->perl doesn't like nil/t
-      (make-instance 'kp6-Bit :value (not (null (kp6-value object)))))
-
-    (define-kp6-function "substr" (interpreter string offset &optional length)
-      (declare (ignore interpreter))
-      (assert (typep string 'kp6-Str))
-      (assert (typep offset 'kp6-Int))
-      (let* ((string (kp6-value string))
-	     (offset (kp6-value offset))
-	     (actual-length (length string))
-	     (end (cond
-		    (length
-		     (assert (typep length 'kp6-Int))
-		     (+ offset (kp6-value length)))
-		    (t actual-length))))
-	(assert (>= actual-length offset))
-	(assert (>= actual-length end))
-	(cl->perl (subseq string offset end))))))
+    (define-kp6-function ("defined" :coerce 'kp6-Bit) (($ object))
+      (not (null (kp6-value (VAR $ object)))))))

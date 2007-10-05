@@ -14,6 +14,7 @@
     `(make-instance
       'kp6-code
       :value #'(lambda (,interpreter &rest ,rest)
+		 (declare (ignorable ,interpreter))
 		 (with-kp6-arguments (,interpreter ,signature ,rest)
 		   ,@body))
       :signature ,signature)))
@@ -57,10 +58,11 @@
 
 (defgeneric kp6-apply-function (interpreter obj args &optional package)
   (:method ((interpreter kp6-interpreter) obj args &optional (package "GLOBAL"))
+    (let ((args (ensure-list args)))
       (if (typep obj 'function)
 	  (apply obj interpreter args)
 	  (let* ((function (kp6-find-function interpreter obj package))
 		 (function-object (when (typep function 'kp6-cell) (kp6-cell-value function))))
 	    (unless (is-kp6-code function-object)
 	      (kp6-error interpreter 'kp6-function-not-found :package package :function obj))
-	    (apply (kp6-value function-object) interpreter args)))))
+	    (apply (kp6-value function-object) interpreter args))))))

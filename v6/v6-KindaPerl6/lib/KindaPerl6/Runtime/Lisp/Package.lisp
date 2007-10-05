@@ -1,4 +1,3 @@
-
 (in-package #:kp6-cl)
 
 (defconstant +kp6-default-package+ "GLOBAL")

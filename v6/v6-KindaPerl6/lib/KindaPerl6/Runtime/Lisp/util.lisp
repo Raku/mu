@@ -7,3 +7,6 @@
 (defun defined (object)
   "Test OBJECT for definedness.  Returns T if OBJECT is non-NIL, NIL otherwise."
   (not (null object)))
+
+(defun ensure-list (object)
+  (if (listp object) object (list object)))
