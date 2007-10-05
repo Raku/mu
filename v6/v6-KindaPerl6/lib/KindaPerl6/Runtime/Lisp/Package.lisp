@@ -64,14 +64,14 @@
        (cond
 	 (value (kp6-cell-value value))
 	 (t
-	  (kp6-warn 'kp6-package-variable-not-found :name name :package package)
+	  (kp6-warn ,interpreter-var 'kp6-package-variable-not-found :name name :package package)
 	  (kp6-default (car name))))))
     (lookup-package-variable/c (name &optional (package ,package-var))
      (let ((value (kp6-lookup (kp6-find-package ,interpreter-var package) name)))
        (cond
 	 (value value)
 	 (t
-	  (kp6-warn 'kp6-package-variable-not-found :name name :package package)
+	  (kp6-warn ,interpreter-var 'kp6-package-variable-not-found :name name :package package)
 	  (make-kp6-cell (kp6-default (car name)))))))
     (set-package-variable (name value &optional (package ,package-var))
      (setf (kp6-lookup (kp6-find-package ,interpreter-var package) name) (make-kp6-cell value)))
