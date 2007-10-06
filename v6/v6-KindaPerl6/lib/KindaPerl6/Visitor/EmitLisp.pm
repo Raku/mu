@@ -122,7 +122,7 @@ class Lit::Pair {
 
 class Lit::NamedArgument {
     method emit_lisp ($interpreter, $indent) {
-        "(make-instance \'kp6-named-argument :_argument_name_ " ~ $.key.emit_lisp($interpreter, $indent) ~ " :value " ~ $.value.emit_lisp($interpreter, $indent) ~ ")";
+	'(make-kp6-argument \'named (make-instance \'kp6-pair :key ' ~ $.key.emit_lisp($interpreter, $indent) ~ ' :value ' ~ $.value.emit_lisp($interpreter, $indent) ~ '))';
     }
 }
 
@@ -392,7 +392,22 @@ class Apply {
 
         my $op := $.code.emit_lisp($interpreter, $indent);
 
-        return  '(kp6-apply-function ' ~ $interpreter ~ ' (perl->cl ' ~ $op ~ ') (list ' ~ (@.arguments.>>emit_lisp($interpreter, $indent)).join(' ') ~ '))'
+        my $str := '(kp6-apply-function ' ~ $interpreter ~ ' (perl->cl ' ~ $op ~ ') (list';
+	
+	for @.arguments -> $arg {
+	    $str := $str ~ ' (make-kp6-argument \'positional ';
+
+	    if $arg.isa('Var') {
+		$str := $str ~ $arg.emit_lisp_lookup(1);
+	    } else {
+		$str := $str ~ '(make-kp6-cell ' ~ $arg.emit_lisp($interpreter, $indent) ~ ')';
+	    }
+
+	    $str := $str ~ ')'
+	}
+
+	$str := $str ~ '))';
+	return $str;
     }
 }
 
@@ -563,10 +578,10 @@ class Sig {
 	    $str := $str ~ ' :invocant ' ~ $.invocant.emit_lisp($interpreter, $indent);
 	}
 
-	$str := $str ~ ' :value (list';
+	$str := $str ~ ' :positional (list';
 
 	for @($.positional) -> $decl {
-	    $str := $str ~ ' (kp6-sig-item \'positional ' ~ $decl.emit_lisp_name($interpreter, $indent) ~ ')';
+	    $str := $str ~ ' (kp6-sig-item ' ~ $decl.emit_lisp_name($interpreter, $indent) ~ ')';
 	}
 
 	$str := $str ~ ')';
@@ -574,26 +589,6 @@ class Sig {
 	$str := $str ~ ')';
 
 	return $str;
-
-        my $inv := '$::Undef';
-        if $.invocant.isa( 'Var' ) {
-            $inv := $.invocant.perl;
-        }
-            
-        my $pos;
-        my $decl;
-        for @($.positional) -> $decl {
-            $pos := $pos ~ $decl.perl ~ ', ';
-        };
-
-        my $named := '';  # TODO
-
-          '(kp6-new \'signature '
-        ~     'invocant: ' ~ $inv ~ ', '
-        ~     'array: ::DISPATCH( $::Array, "new", { _array => [ ' ~ $pos   ~ ' ] } ), '
-        ~     'hash: ::DISPATCH( $::Hash,  "new", { _hash  => { ' ~ $named ~ ' } } ), '
-        ~     'return: $::Undef, '
-        ~ ')'
     };
 }
 

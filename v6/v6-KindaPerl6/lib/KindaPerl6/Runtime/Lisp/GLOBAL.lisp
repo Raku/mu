@@ -24,14 +24,17 @@ result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
 		    ',(kp6-normalize-function-name name)
 		    (make-kp6-sub
 			((make-instance 'kp6-signature
-					:value (list
-						,@(mapcar
-						   #'(lambda (param)
-						       `(kp6-sig-item 'positional
-							 (kp6-generate-variable
-							  ',(symbol-name (first param)) ,
-							  (symbol-name (second param)))))
-						   params)))
+					:positional (list
+						     ,@(mapcar
+							#'(lambda (param)
+							    `(kp6-sig-item
+							      (kp6-generate-variable
+							       ,(symbol-name (first param)) ,
+							       (symbol-name (second param)))))
+							(remove-if #'(lambda (x) (eql (car x) '@@)) params)))
+					,@(let ((slurpy-array (find '@@ params :key #'car)))
+					       (when slurpy-array
+						 `(:slurpy-array (cons '@ ,(symbol-name (second slurpy-array)))))))
 			 :interpreter ,interpreter)
 		      ,@(if coerce
 			    `((kp6-coerce (progn ,@body) ,coerce))
@@ -40,14 +43,17 @@ result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
 		   *kp6-global-functions*))))
 	   (VAR (sigil name)
 	     `(lookup-lexical-variable (cons ',sigil ,(symbol-name name)))))
-  (flet ((call-kp6-function (interpreter name args)
-	   (kp6-apply-function interpreter (kp6-normalize-function-name name) args))
+
+  (flet ((call-kp6-function (interpreter name &key positional named block)
+	   (declare (ignore block))
+	   (kp6-apply-function interpreter (kp6-normalize-function-name name) (append (mapcar #'(lambda (x) (make-kp6-argument 'positional x)) (mapcar #'make-kp6-cell positional)) (mapcar #'(lambda (x) (make-kp6-argument 'named x)) (mapcar #'make-kp6-cell named)))))
 	 (str* (object) (kp6-coerce object 'string))
 	 (num* (object) (kp6-coerce object 'number)))
     (declare (ignorable #'call-kp6-function #'str* #'num*))
+
     (define-kp6-function ("infix:<eq>" :coerce 'kp6-Bit) (($ first) ($ second))
       (string= (str* (VAR $ first)) (str* (VAR $ second))))
-
+    
     (define-kp6-function ("infix:<ne>" :coerce 'kp6-Bit) (($ first) ($ second))
       (not (string= (str* (VAR $ first)) (str* (VAR $ second)))))
 
@@ -87,11 +93,11 @@ result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
     (define-kp6-function "infix:<~>" (($ first) ($ second))
       (cl->perl (concatenate 'string (str* (VAR $ first)) (str* (VAR $ second)))))
 
-    (define-kp6-function ("print" :returns 'true) (($ string))
-      (format t "~A" (perl->display (VAR $ string))))
+    (define-kp6-function ("print" :returns 'true) ((@@ string))
+      (format t "~A" (perl->display (VAR @ string))))
 
-    (define-kp6-function ("say" :returns 'true :interpreter interpreter) (($ string))
-      (call-kp6-function interpreter "print" (VAR $ string))
+    (define-kp6-function ("say" :returns 'true :interpreter interpreter) ((@@ string))
+      (call-kp6-function interpreter "print" :positional (list (VAR @ string)))
       (terpri))
 
     (define-kp6-function ("warn" :returns 'true :interpreter interpreter) (($ string))
