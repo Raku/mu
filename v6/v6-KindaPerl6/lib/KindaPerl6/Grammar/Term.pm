@@ -30,9 +30,11 @@ token term {
         { return ::Capture( 'invocant' => undef, 'array' => [ $$<var> ], 'hash' => [ ] ); }
 
     | \$ \< <sub_or_method_name> \>
-        { return ::Lookup( 
-            'obj'   => ::Var( 'sigil' => '$', 'twigil' => '', 'name' => '/', namespace => [ ] ), 
-            'index' => ::Val::Buf( 'buf' => $$<sub_or_method_name> ) 
+        { return ::Call( 
+            'invocant'   => ::Var( 'sigil' => '$', 'twigil' => '', 'name' => '/', namespace => [ ] ), 
+            'hyper' => '',
+            'method' => 'LOOKUP',
+            'arguments' => [::Val::Buf( 'buf' => $$<sub_or_method_name> )] 
         ) }   # $<ident>
     | do <?opt_ws> <block1>
         # block1 is defined in the Grammar::Control module

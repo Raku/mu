@@ -135,24 +135,6 @@ sub attribs { my $self = shift; my $List__ = \@_; do { [] }; { 'class' => $self-
 
 
 ;
-package Index;
-sub new { shift; bless { @_ }, "Index" }
-sub obj { @_ == 1 ? ( $_[0]->{obj} ) : ( $_[0]->{obj} = $_[1] ) };
-sub index { @_ == 1 ? ( $_[0]->{index} ) : ( $_[0]->{index} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; my $visitor; my $path; do {  $visitor = $List__->[0];  $path = $List__->[1]; [$visitor, $path] }; KindaPerl6::Traverse::visit($visitor, $self, 'Index', $path) };
-sub attribs { my $self = shift; my $List__ = \@_; do { [] }; { 'obj' => $self->{obj},'index' => $self->{index}, } }
-
-
-;
-package Lookup;
-sub new { shift; bless { @_ }, "Lookup" }
-sub obj { @_ == 1 ? ( $_[0]->{obj} ) : ( $_[0]->{obj} = $_[1] ) };
-sub index { @_ == 1 ? ( $_[0]->{index} ) : ( $_[0]->{index} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; my $visitor; my $path; do {  $visitor = $List__->[0];  $path = $List__->[1]; [$visitor, $path] }; KindaPerl6::Traverse::visit($visitor, $self, 'Lookup', $path) };
-sub attribs { my $self = shift; my $List__ = \@_; do { [] }; { 'obj' => $self->{obj},'index' => $self->{index}, } }
-
-
-;
 package Var;
 sub new { shift; bless { @_ }, "Var" }
 sub sigil { @_ == 1 ? ( $_[0]->{sigil} ) : ( $_[0]->{sigil} = $_[1] ) };

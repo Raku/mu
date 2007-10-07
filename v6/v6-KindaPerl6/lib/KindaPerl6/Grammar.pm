@@ -320,16 +320,30 @@ token term_meth {
                     'hyper'     => $$<hyper_op>,
                 )
             }
-    | \[ <?opt_ws> <exp> <?opt_ws> \]
-         { return ::Index(  'obj' => $$<term>, 'index' => $$<exp> ) }   # $a[exp]
-    | \{ <?opt_ws> <exp> <?opt_ws> \}
-         { return ::Lookup( 'obj' => $$<term>, 'index' => $$<exp> ) }   # $a{exp}
-    | \< <angle_quoted> \>
-         { return ::Lookup( 
-                'obj' => $$<term>, 
-                'index' => ::Val::Buf( 'buf' => ~$<angle_quoted> ),
-            ) 
-         }   # $a<lit>
+    | \[ <?opt_ws> <exp> <?opt_ws> \]   # $a[exp]
+         { return ::Call(
+                 'invocant' => $$<term>,
+                 'arguments' => [$$<exp>],
+                 'method' => 'INDEX',
+                 'hyper' => '' 
+           )
+         }
+    | \{ <?opt_ws> <exp> <?opt_ws> \}   # $a{exp}
+         { return ::Call(
+                 'invocant' => $$<term>,
+                 'arguments' => [$$<exp>],
+                 'method' => 'LOOKUP',
+                 'hyper' => ''
+           )
+         }
+    | \< <angle_quoted> \>   # $a{exp}
+         { return ::Call(
+                 'invocant' => $$<term>,
+                 'arguments' => [::Val::Buf( 'buf' => ~$<angle_quoted> )],
+                 'method' => 'LOOKUP',
+                 'hyper' => ''
+           )
+         }
     |    { return $$<term> }
     ]
 };

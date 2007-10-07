@@ -101,25 +101,13 @@ sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('{ ' . ($self->
 sub emit_body { my $self = shift; my $List__ = \@_; do { [] }; Main::join([ map { $_->emit_perl5() } @{ $self->{body} } ], '; ') };
 sub emit_signature { my $self = shift; my $List__ = \@_; do { [] }; $self->{sig}->emit_perl5() };
 sub emit_declarations { my $self = shift; my $List__ = \@_; do { [] }; my  $s; my  $name; do { for my $name ( @{$self->{pad}->variable_names()} ) { my  $decl = Decl->new( 'decl' => 'my','type' => '','var' => Var->new( 'sigil' => '','twigil' => '','name' => $name,'namespace' => [], ), );$s = ($s . ($name->emit_perl5() . (';' . Main::newline()))) } }; return($s) };
-sub emit_arguments { my $self = shift; my $List__ = \@_; do { [] }; my  $array_ = Var->new( 'sigil' => '@','twigil' => '','name' => '_','namespace' => [], ); my  $hash_ = Var->new( 'sigil' => '%','twigil' => '','name' => '_','namespace' => [], ); my  $CAPTURE = Var->new( 'sigil' => '$','twigil' => '','name' => 'CAPTURE','namespace' => [], ); my  $CAPTURE_decl = Decl->new( 'decl' => 'my','type' => '','var' => $CAPTURE, ); my  $str = ''; $str = ($str . $CAPTURE_decl->emit_perl5()); $str = ($str . '::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));'); my  $bind_ = Bind->new( 'parameters' => $array_,'arguments' => Call->new( 'invocant' => $CAPTURE,'method' => 'array','arguments' => [], ), ); $str = ($str . ($bind_->emit_perl5() . ';')); my  $bind_hash = Bind->new( 'parameters' => $hash_,'arguments' => Call->new( 'invocant' => $CAPTURE,'method' => 'hash','arguments' => [], ), ); $str = ($str . ($bind_hash->emit_perl5() . ';')); my  $i = 0; my  $field; do { for my $field ( @{$self->{sig}->positional()} ) { my  $bind = Bind->new( 'parameters' => $field,'arguments' => Index->new( 'obj' => $array_,'index' => Val::Int->new( 'int' => $i, ), ), );$str = ($str . ($bind->emit_perl5() . ';'));$i = ($i + 1) } }; return($str) }
+sub emit_arguments { my $self = shift; my $List__ = \@_; do { [] }; my  $array_ = Var->new( 'sigil' => '@','twigil' => '','name' => '_','namespace' => [], ); my  $hash_ = Var->new( 'sigil' => '%','twigil' => '','name' => '_','namespace' => [], ); my  $CAPTURE = Var->new( 'sigil' => '$','twigil' => '','name' => 'CAPTURE','namespace' => [], ); my  $CAPTURE_decl = Decl->new( 'decl' => 'my','type' => '','var' => $CAPTURE, ); my  $str = ''; $str = ($str . $CAPTURE_decl->emit_perl5()); $str = ($str . '::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));'); my  $bind_ = Bind->new( 'parameters' => $array_,'arguments' => Call->new( 'invocant' => $CAPTURE,'method' => 'array','arguments' => [], ), ); $str = ($str . ($bind_->emit_perl5() . ';')); my  $bind_hash = Bind->new( 'parameters' => $hash_,'arguments' => Call->new( 'invocant' => $CAPTURE,'method' => 'hash','arguments' => [], ), ); $str = ($str . ($bind_hash->emit_perl5() . ';')); my  $i = 0; my  $field; do { for my $field ( @{$self->{sig}->positional()} ) { my  $bind = Bind->new( 'parameters' => $field,'arguments' => Call->new( 'invocant' => $array_,'arguments' => [Val::Int->new( 'int' => $i, )],'method' => 'INDEX', ), );$str = ($str . ($bind->emit_perl5() . ';'));$i = ($i + 1) } }; return($str) }
 
 
 ;
 package Lit::Object;
 sub new { shift; bless { @_ }, "Lit::Object" }
 sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $fields = $self->{fields}; my  $str = ''; my  $field; do { for my $field ( @{$fields} ) { $str = ($str . ('::DISPATCH( $::NamedArgument, "new", ' . ('{ ' . ('_argument_name_ => ' . ($field->[0]->emit_perl5() . (', ' . ('value           => ' . ($field->[1]->emit_perl5() . (', ' . ' } ), '))))))))) } }; ('::DISPATCH( $::' . ($self->{class} . (', \'new\', ' . ($str . (' )' . Main::newline()))))) }
-
-
-;
-package Index;
-sub new { shift; bless { @_ }, "Index" }
-sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( ' . ($self->{obj}->emit_perl5() . (', \'INDEX\', ' . ($self->{index}->emit_perl5() . (' )' . Main::newline()))))) }
-
-
-;
-package Lookup;
-sub new { shift; bless { @_ }, "Lookup" }
-sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( ' . ($self->{obj}->emit_perl5() . (', \'LOOKUP\', ' . ($self->{index}->emit_perl5() . (' )' . Main::newline()))))) }
 
 
 ;
@@ -138,7 +126,7 @@ sub perl { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( $::Signa
 ;
 package Bind;
 sub new { shift; bless { @_ }, "Bind" }
-sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; do { if (Main::isa($self->{parameters}, 'Call')) { return(Assign->new( 'parameters' => $self->{parameters},'arguments' => $self->{arguments}, )->emit_perl5()) } else {  } }; do { if (Main::isa($self->{parameters}, 'Lookup')) { return(Assign->new( 'parameters' => $self->{parameters},'arguments' => $self->{arguments}, )->emit_perl5()) } else {  } }; do { if (Main::isa($self->{parameters}, 'Index')) { return(Assign->new( 'parameters' => $self->{parameters},'arguments' => $self->{arguments}, )->emit_perl5()) } else {  } }; my  $str = ('::MODIFIED(' . ($self->{parameters}->emit_perl5() . (');' . Main::newline()))); $str = ($str . ($self->{parameters}->emit_perl5() . (' = ' . $self->{arguments}->emit_perl5()))); return(('do {' . ($str . '}'))) }
+sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; do { if (Main::isa($self->{parameters}, 'Call')) { return(Assign->new( 'parameters' => $self->{parameters},'arguments' => $self->{arguments}, )->emit_perl5()) } else {  } }; my  $str = ('::MODIFIED(' . ($self->{parameters}->emit_perl5() . (');' . Main::newline()))); $str = ($str . ($self->{parameters}->emit_perl5() . (' = ' . $self->{arguments}->emit_perl5()))); return(('do {' . ($str . '}'))) }
 
 
 ;

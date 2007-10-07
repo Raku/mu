@@ -298,44 +298,6 @@ class Lit::Object {
     };
 }
 
-class Index {
-    has $.obj;
-    has $.index;
-    method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
-            $visitor, 
-            self,
-            'Index',
-            $path,
-        );
-    };
-    method attribs {
-            { 
-                obj   => $.obj,
-                index => $.index,
-            }
-    };
-}
-
-class Lookup {
-    has $.obj;
-    has $.index;
-    method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
-            $visitor, 
-            self,
-            'Lookup',
-            $path,
-        );
-    };
-    method attribs {
-            { 
-                obj   => $.obj,
-                index => $.index,
-            }
-    };
-}
-
 class Var {
     has $.sigil;
     has $.twigil;
@@ -1170,8 +1132,6 @@ C<KindaPerl6::Visitor::Emit*>.
         ( Var       # $variable
         | Val       # "value"
         | Lit       # [literal construct]
-        | Index     # $obj[1, 2, 3]
-        | Lookup    # $obj{'1', '2', '3'}
         | Control   # Various control structures.  Does _not_ appear in binding LHS
         );
 

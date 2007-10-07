@@ -190,7 +190,7 @@ class Lit::Code {
         my $i := 0;
         my $field;
         for @($.sig.positional) -> $field { 
-            my $bind := ::Bind(parameters=>$field,arguments=>::Index(obj=> $array_ , 'index'=>::Val::Int(int=>$i)) );
+            my $bind := ::Bind(parameters=>$field,arguments=>::Call(invocant => $array_ , arguments=>[::Val::Int(int=>$i)],method=>'INDEX') );
             $str := $str ~ $bind.emit_perl5 ~ ';';
             $i := $i + 1;
         };
@@ -219,17 +219,6 @@ class Lit::Object {
     }
 }
 
-class Index {
-    method emit_perl5 {
-        '::DISPATCH( ' ~ $.obj.emit_perl5 ~ ', \'INDEX\', ' ~ $.index.emit_perl5 ~ ' )' ~ Main::newline();
-    }
-}
-
-class Lookup {
-    method emit_perl5 {
-        '::DISPATCH( ' ~ $.obj.emit_perl5 ~ ', \'LOOKUP\', ' ~ $.index.emit_perl5 ~ ' )' ~ Main::newline();
-    }
-}
 
 class Assign {
     method emit_perl5 {
@@ -314,12 +303,6 @@ class Bind {
         # XXX - replace Bind with Assign
         if $.parameters.isa('Call') 
         {
-            return ::Assign(parameters=>$.parameters,arguments=>$.arguments).emit_perl5;
-        };
-        if $.parameters.isa('Lookup') {
-            return ::Assign(parameters=>$.parameters,arguments=>$.arguments).emit_perl5;
-        };
-        if $.parameters.isa('Index') {
             return ::Assign(parameters=>$.parameters,arguments=>$.arguments).emit_perl5;
         };
 
