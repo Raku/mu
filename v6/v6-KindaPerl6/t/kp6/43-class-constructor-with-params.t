@@ -6,8 +6,7 @@ class MyClass {
 };
 module Main {
     my $a;
-    #$a  = MyClass.new( some_attribute => 'ok 1' );
+    $a  = MyClass.new( some_attribute => 'ok 1' );
     say '1..1';
-    #say $a.get_attribute();
-    say 'not ok 1 # TODO - grammar still not parsing new with arguments';
+    say $a.get_attribute();
 };

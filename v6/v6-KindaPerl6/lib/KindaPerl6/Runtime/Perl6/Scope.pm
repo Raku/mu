@@ -1,5 +1,5 @@
 use v6-alpha;
-class Scope is Hash {
+class Scope is Value {
 
     has $.vars;
     has $.outer;  # static or dynamic scope
