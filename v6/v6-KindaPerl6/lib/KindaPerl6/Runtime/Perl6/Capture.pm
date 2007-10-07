@@ -30,6 +30,12 @@ class Capture is Value {
     method str {
         self.perl;
     };
+    method LOOKUP($key) {
+        if (!(defined($.hash))) {
+            $.hash = {};
+        };
+        return $.hash{$key};
+    };
     #method true { self.elems != 0 };
     #method int  { self.elems };
 }

@@ -15,7 +15,6 @@ token code_block {
     foo{return 0}
 }
 }
-say \(1:2,3,4).perl
 say (Match.new()).isa('Capture');
 say (Foo.simple("xsimple",1)).perl;
 say (Foo.simple("complex",0)).perl;

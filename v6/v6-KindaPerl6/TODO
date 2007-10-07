@@ -166,11 +166,6 @@ Visitor modules:
   - add class variables
   - test bootstrap
   - roles
-  - alias Class::MOP's 'meta' to 'HOW'
-    ---
-    package Class::MOP::Class;
-    sub meta { Class::MOP::Class->initialize(blessed($_[0]) || $_[0]) }  
-    ---
   - create BUILD, BUILDALL
 
 Other:

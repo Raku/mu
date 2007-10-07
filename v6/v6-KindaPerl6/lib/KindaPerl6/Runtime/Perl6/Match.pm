@@ -43,11 +43,5 @@ class Match is Capture {
     method set_match_str {
         $.match_str = $_[0];
     };
-    method LOOKUP($key) {
-        if (!(defined($.hash))) {
-            $.hash = {};
-        };
-        return $.hash{$key};
-    };
 }
 
