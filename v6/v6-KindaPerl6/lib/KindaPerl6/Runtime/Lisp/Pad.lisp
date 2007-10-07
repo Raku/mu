@@ -22,7 +22,7 @@
   (with-unique-names (pad interpreter-var parent-var)
     (let ((functions (kp6-with-pad-functions pad interpreter-var parent-var)))
       `(let ((,interpreter-var ,interpreter)
-	     (,parent-var (enclosing-pad)))
+	     (,parent-var (ignore-errors (enclosing-pad))))
 	(let ((,pad (make-instance 'kp6-Pad :parent ,parent-var)))
 	  (flet ,functions
 	    (declare (ignorable ,@(mapcar #'(lambda (func) `#',(car func)) functions)))

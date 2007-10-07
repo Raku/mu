@@ -18,6 +18,11 @@
   (:report (lambda (c s)
 	     (write-string (kp6-prefixed-error-message c "Feature not implemented: ~A" (kp6-feature c)) s))))
 
+(define-condition kp6-stub-function (kp6-error)
+  ((name :reader kp6-name :initarg :name))
+  (:report (lambda (c s)
+	     (write-string (kp6-prefixed-error-message c "~A is just a stub function." (kp6-name c)) s))))
+
 (macrolet ((define-kp6-error-function (name function type)
 	       (let ((interpreter (gensym))
 		     (information (gensym))

@@ -395,7 +395,7 @@ class Apply {
         my $str := '(kp6-apply-function ' ~ $interpreter ~ ' (perl->cl ' ~ $op ~ ') (list';
 	
 	for @.arguments -> $arg {
-	    $str := $str ~ ' (make-kp6-argument \'positional ';
+	    $str := $str ~ ' (make-instance \'kp6-positional-parameter :value ';
 
 	    if $arg.isa('Var') {
 		$str := $str ~ $arg.emit_lisp_lookup(1);
@@ -581,7 +581,7 @@ class Sig {
 	$str := $str ~ ' :positional (list';
 
 	for @($.positional) -> $decl {
-	    $str := $str ~ ' (kp6-sig-item ' ~ $decl.emit_lisp_name($interpreter, $indent) ~ ')';
+	    $str := $str ~ ' (make-instance \'kp6-named-parameter :name ' ~ $decl.emit_lisp_name($interpreter, $indent) ~ ')';
 	}
 
 	$str := $str ~ ')';

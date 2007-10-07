@@ -23,18 +23,19 @@ result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
 		   (cons
 		    ',(kp6-normalize-function-name name)
 		    (make-kp6-sub
-			((make-instance 'kp6-signature
-					:positional (list
-						     ,@(mapcar
-							#'(lambda (param)
-							    `(kp6-sig-item
-							      (kp6-generate-variable
-							       ,(symbol-name (first param)) ,
-							       (symbol-name (second param)))))
-							(remove-if #'(lambda (x) (eql (car x) '@@)) params)))
-					,@(let ((slurpy-array (find '@@ params :key #'car)))
-					       (when slurpy-array
-						 `(:slurpy-array (cons '@ ,(symbol-name (second slurpy-array)))))))
+			((make-instance
+			  'kp6-signature
+			  :positional (list
+				       ,@(mapcar
+					  #'(lambda (param)
+					      `(make-instance 'kp6-named-parameter
+						:name (kp6-generate-variable
+						       ,(symbol-name (first param)) ,
+						       (symbol-name (second param)))))
+					  (remove-if #'(lambda (x) (eql (car x) '@@)) params)))
+			  ,@(let ((slurpy-array (find '@@ params :key #'car)))
+				 (when slurpy-array
+				   `(:slurpy-array (make-instance 'kp6-named-parameter :name (cons '@ ,(symbol-name (second slurpy-array))))))))
 			 :interpreter ,interpreter)
 		      ,@(if coerce
 			    `((kp6-coerce (progn ,@body) ,coerce))
@@ -45,8 +46,13 @@ result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
 	     `(lookup-lexical-variable (cons ',sigil ,(symbol-name name)))))
 
   (flet ((call-kp6-function (interpreter name &key positional named block)
-	   (declare (ignore block))
-	   (kp6-apply-function interpreter (kp6-normalize-function-name name) (append (mapcar #'(lambda (x) (make-kp6-argument 'positional x)) (mapcar #'make-kp6-cell positional)) (mapcar #'(lambda (x) (make-kp6-argument 'named x)) (mapcar #'make-kp6-cell named)))))
+	   (declare (ignore block named))
+	   (kp6-apply-function interpreter
+			       (kp6-normalize-function-name name)
+			       (append
+				(mapcar #'(lambda (x)
+					    (make-instance 'kp6-positional-parameter :value x))
+					(mapcar #'make-kp6-cell positional)))))
 	 (str* (object) (kp6-coerce object 'string))
 	 (num* (object) (kp6-coerce object 'number)))
     (declare (ignorable #'call-kp6-function #'str* #'num*))
