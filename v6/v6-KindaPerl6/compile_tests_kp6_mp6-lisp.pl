@@ -24,11 +24,23 @@ while (my $file = <$cmd>) {
     my $cmd = qq[sbcl --noinform --disable-debugger --noprint --eval '(declaim (sb-ext:muffle-conditions sb-ext:compiler-note warning style-warning))' --load $tmp --eval '(sb-ext:save-lisp-and-die "t-lisp-exe/$rel.exe" :toplevel (lambda () (kp6-lisp-user::main) 0) :executable t)' --no-linedit];
     system $cmd;
 
-    next unless -f "t-lisp-exe/$rel.exe";
+    my $prog = "t-lisp-exe/$rel.exe";
+    next unless -f $prog;
 
     open my $fh, ">t-lisp-exe/$rel" or die $!;
-    print $fh 'system "./$0.exe"' . "\n";
-    
+
+    my $out = qx/$prog 2>&1/;
+    if ($? != 0) {
+        my @out = split /^/, $out;
+        my @want = @out[1..$#out]; # Chop out first line
+        my $print = join " ", map { chomp; $_ } @want;
+        $print =~ s/\s+/ /g;
+
+        print $fh 'print qq[1..1\n];' . "\n";
+        print $fh 'print qq[not ok # ' . quotemeta($print) . "\\n];\n";
+    } else {
+        print $fh 'system "./$0.exe"' . "\n";
+    }
 }
 
 
