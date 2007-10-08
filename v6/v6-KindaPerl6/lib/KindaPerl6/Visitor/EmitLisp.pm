@@ -166,45 +166,11 @@ class Lit::Code {
         };
         return $s;
     };
-    method emit_arguments ($interpreter, $indent) {
-        my $array_  := ::Var( sigil => '@', twigil => '', name => '_',       namespace => [ ], );
-        my $hash_   := ::Var( sigil => '%', twigil => '', name => '_',       namespace => [ ], );
-        my $CAPTURE := ::Var( sigil => '$', twigil => '', name => 'CAPTURE', namespace => [ ],);
-        my $CAPTURE_decl := ::Decl(decl=>'my',type=>'',var=>$CAPTURE);
-        my $str := '';
-        $str := $str ~ $CAPTURE_decl.emit_lisp($interpreter, $indent);
-        $str := $str ~ '::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));';
-
-        my $bind_ := ::Bind(parameters=>$array_,arguments=>::Call(invocant => $CAPTURE,method => 'array',arguments => []));
-        $str := $str ~ $bind_.emit_lisp($interpreter, $indent) ~ ' ';
-
-        my $bind_hash := 
-                     ::Bind(parameters=>$hash_, arguments=>::Call(invocant => $CAPTURE,method => 'hash', arguments => []));
-        $str := $str ~ $bind_hash.emit_lisp($interpreter, $indent) ~ ' ';
-
-        my $i := 0;
-        my $field;
-        for @($.sig.positional) -> $field { 
-            my $bind := ::Bind(parameters=>$field,arguments=>::Index(obj=> $array_ , 'index'=>::Val::Int(int=>$i)) );
-            $str := $str ~ $bind.emit_lisp($interpreter, $indent) ~ ' ';
-            $i := $i + 1;
-        };
-
-        return $str;
-    };
 }
 
 class Lit::Object {
     method emit_lisp ($interpreter, $indent) {
-        # $.class ~ '->new( ' ~ @.fields.>>emit_lisp.join(', ') ~ ' )';
-        my $fields := @.fields;
-        my $str := '';
-        # say @fields.map(sub { $_[0].emit_lisp ~ ' => ' ~ $_[1].emit_lisp}).join(', ') ~ ')';
-        my $field;
-        for @$fields -> $field { 
-            $str := $str ~ ($field[0]).emit_lisp($interpreter, $indent) ~ ' => ' ~ ($field[1]).emit_lisp($interpreter, $indent) ~ ',';
-        }; 
-        '(kp6-new \'kp6-' ~ $.class ~ ' ' ~ $str ~ ')';
+	return '(kp6-error ' ~ $interpreter ~ ' \'kp6-not-implemented :feature "literal objects")';
     }
 }
 
@@ -216,16 +182,12 @@ class Index {
 
 class Lookup {
     method emit_lisp ($interpreter, $indent) {
-	# XXX since we don't have a proper ::Index object which takes care of PERL->CL, we have to do it ourselves
-	#'(kp6-lookup ' ~ $.obj.emit_lisp ~ ' ' ~ $.index.emit_lisp ~ ')'
         '(kp6-lookup ' ~ $.obj.emit_lisp($interpreter, $indent) ~ ' (perl->cl ' ~ $.index.emit_lisp($interpreter, $indent) ~ '))'
     }
 }
 
 class Assign {
     method emit_lisp ($interpreter, $indent) {
-        # TODO - same as ::Bind
-        
         my $node := $.parameters;
         
 	if $node.isa('Var') {
@@ -272,16 +234,6 @@ class Var {
 	    return '(set-lexical-variable' ~ $variant ~ ' ' ~ self.emit_lisp_name ~ ' ' ~ $value ~ ')';
 	}
     }
-
-    method perl {
-        # this is used by the signature emitter
-          '(kp6-new \'signature-item ' 
-        ~     'sigil: \'' ~ $.sigil  ~ '\', '
-        ~     'twigil: \'' ~ $.twigil ~ '\', '
-        ~     'name: \'' ~ $.name   ~ '\', '
-        ~     'namespace: [ ], '
-        ~ ')'
-    }
 }
 
 class Bind {
@@ -296,28 +248,12 @@ class Bind {
 
         # XXX: TODO
         return '(kp6-error ' ~ $interpreter ~ ' \'kp6-not-implemented :feature "binding anything other than variables")';
-
-        # XXX - replace Bind with Assign
-        if $.parameters.isa('Call')
-        {
-            return ::Assign(parameters=>$.parameters,arguments=>$.arguments).emit_lisp($interpreter, $indent);
-        };
-        if $.parameters.isa('Lookup') {
-            return ::Assign(parameters=>$.parameters,arguments=>$.arguments).emit_lisp($interpreter, $indent);
-        };
-        if $.parameters.isa('Index') {
-            return ::Assign(parameters=>$.parameters,arguments=>$.arguments).emit_lisp($interpreter, $indent);
-        };
-
-        my $str := '';
-        $str := $str ~ '(setf ' ~ $.parameters.emit_lisp($interpreter, $indent) ~ ' ' ~ $.arguments.emit_lisp($interpreter, $indent) ~ ')';
-        return $str;
     }
 }
 
 class Proto {
     method emit_lisp ($interpreter, $indent) {
-        return '\''~$.name;   # ???
+	return '(kp6-error ' ~ $interpreter ~ ' \'kp6-not-implemented :feature "proto-objects")';
     }
 }
 
@@ -449,88 +385,6 @@ class Decl {
 	}
 
 	return '(kp6-error ' ~ $interpreter ~ ' \'kp6-not-implemented :feature "\\"' ~ $decl ~ '\\" variables")';
-
-        if $decl eq 'has' {
-            return 'sub ' ~ $name ~ ' { ' ~
-            '@_ == 1 ' ~
-                '? ( $_[0]->{' ~ $name ~ '} ) ' ~
-                ': ( $_[0]->{' ~ $name ~ '} = $_[1] ) ' ~
-            '}';
-        };
-        my $create := ', \'new\', { modified => $_MODIFIED, name => \'' ~ $.var.emit_lisp($interpreter, $indent) ~ '\' } ) ';
-        if $decl eq 'our' {
-            my $s;
-            # ??? use vars --> because compile-time scope is too tricky to use 'our'
-            # ??? $s := 'use vars \'' ~ $.var.emit_lisp ~ '\'; ';  
-            $s := 'our ';
-
-            if ($.var).sigil eq '$' {
-                return $s 
-                    ~ $.var.emit_lisp($interpreter, $indent)
-                    ~ ' = ::DISPATCH( $::Scalar' ~ $create
-                    ~ ' unless defined ' ~ $.var.emit_lisp($interpreter, $indent) ~ '; '
-                    ~ 'BEGIN { '
-                    ~     $.var.emit_lisp($interpreter, $indent)
-                    ~     ' = ::DISPATCH( $::Scalar' ~ $create
-                    ~     ' unless defined ' ~ $.var.emit_lisp($interpreter, $indent) ~ '; '
-                    ~ '}'
-            };
-            if ($.var).sigil eq '&' {
-                return $s 
-                    ~ $.var.emit_lisp($interpreter, $indent)
-                    ~ ' = ::DISPATCH( $::Routine' ~ $create ~ ';'
-            };
-            if ($.var).sigil eq '%' {
-                return $s ~ $.var.emit_lisp($interpreter, $indent)
-                    ~ ' = ::DISPATCH( $::Hash' ~ $create ~ ';'
-            };
-            if ($.var).sigil eq '@' {
-                return $s ~ $.var.emit_lisp($interpreter, $indent)
-                    ~ ' = ::DISPATCH( $::Array' ~ $create ~ ';'
-            };
-            return $s ~ $.var.emit_lisp($interpreter, $indent)
-        };
-        if ($.var).sigil eq '$' {
-            return 
-                  $.decl ~ ' ' 
-                # ~ $.type ~ ' ' 
-                ~ $.var.emit_lisp($interpreter, $indent) ~ '; '
-                ~ $.var.emit_lisp($interpreter, $indent)
-                ~ ' = ::DISPATCH( $::Scalar' ~ $create
-                ~ ' unless defined ' ~ $.var.emit_lisp($interpreter, $indent) ~ '; '
-                ~ 'BEGIN { '
-                ~     $.var.emit_lisp($interpreter, $indent)
-                ~     ' = ::DISPATCH( $::Scalar' ~ $create
-                ~ '}'
-        };
-        if ($.var).sigil eq '&' {
-            return 
-                  $.decl ~ ' ' 
-                # ~ $.type ~ ' ' 
-                ~ $.var.emit_lisp($interpreter, $indent) ~ '; '
-                ~ $.var.emit_lisp($interpreter, $indent)
-                ~ ' = ::DISPATCH( $::Routine' ~ $create
-                ~ ' unless defined ' ~ $.var.emit_lisp($interpreter, $indent) ~ '; '
-                ~ 'BEGIN { '
-                ~     $.var.emit_lisp($interpreter, $indent)
-                ~     ' = ::DISPATCH( $::Routine' ~ $create
-                ~ '}'
-        };
-        if ($.var).sigil eq '%' {
-            return $.decl ~ ' ' 
-                # ~ $.type 
-                ~ ' ' ~ $.var.emit_lisp($interpreter, $indent)
-                ~ ' = ::DISPATCH( $::Hash' ~ $create ~ '; '
-        };
-        if ($.var).sigil eq '@' {
-            return $.decl ~ ' ' 
-                # ~ $.type 
-                ~ ' ' ~ $.var.emit_lisp($interpreter, $indent)
-                ~ ' = ::DISPATCH( $::Array' ~ $create ~ '; '
-        };
-        return $.decl ~ ' ' 
-            # ~ $.type ~ ' ' 
-            ~ $.var.emit_lisp($interpreter, $indent);
     }
 }
 
@@ -587,27 +441,13 @@ class Capture {
 
 class Subset {
     method emit_lisp ($interpreter, $indent) {
-          '(kp6-new \'subset ' 
-        ~ 'base_class: ' ~ $.base_class.emit_lisp($interpreter, $indent) 
-        ~ ', '
-        ~ 'block: '    
-        ~       'sub { local $_ = shift; ' ~ ($.block.block).emit_lisp($interpreter, $indent) ~ ' } '    # XXX
-        ~ ')';
+	return '(kp6-error ' ~ $interpreter ~ ' \'kp6-not-implemented :feature "subsets")';
     }
 }
 
 class Method {
     method emit_lisp ($interpreter, $indent) {
-          '(kp6-new \'code '
-        ~   'code: sub { '  
-        ~     $.block.emit_declarations($interpreter, $indent) 
-        ~     '$self = shift; ' 
-        ~     $.block.emit_arguments($interpreter, $indent) 
-        ~     $.block.emit_body($interpreter, $indent)
-        ~    ' '
-        ~   'signature: ' 
-        ~       $.block.emit_signature($interpreter, $indent)
-        ~ ')';
+	return '(kp6-error ' ~ $interpreter ~ ' \'kp6-not-implemented :feature "methods")';
     }
 }
 
@@ -626,22 +466,17 @@ class Do {
 
 class BEGIN {
     method emit_lisp ($interpreter, $indent) {
-        'BEGIN { ' ~ 
-          $.block.emit_lisp($interpreter, $indent) ~ 
-        ' }'
+	return '(kp6-error ' ~ $interpreter ~ ' \'kp6-not-implemented :feature "BEGIN blocks")';
     }
 }
 
 class Use {
     method emit_lisp ($interpreter, $indent) {
         if ($.mod eq 'v6') {
-            return Main::newline() ~ '#use v6' ~ Main::newline();
+	    return;
         }
-        if ( $.perl5 ) {
-            return 'use ' ~ $.mod ~ ';$::' ~ $.mod ~ '= KindaPerl6::Runtime::Perl5::Wrap::use5(\'' ~ $.mod ~ '\')';
-        } else {
-            return 'use ' ~ $.mod;
-        }
+
+	return '(kp6-error ' ~ $interpreter ~ ' \'kp6-not-implemented :feature "importing modules")';
     }
 }
 
