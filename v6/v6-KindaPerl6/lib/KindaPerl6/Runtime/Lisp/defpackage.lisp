@@ -62,3 +62,6 @@
    #:with-kp6-pad
    #:with-kp6-interpreter
    #:kp6-for-->-single))
+
+(defpackage #:kp6-lisp-user
+  (:use #:cl #:kp6-lisp))
