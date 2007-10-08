@@ -1,13 +1,21 @@
 #!/usr/bin/perl
-use strict;use warnings;
 package KindaPerl6::Runtime::Perl5::Wrap;
-use Exporter 'import';
-our @EXPORT=qw(use5);
+use strict;
+use warnings;
+
+sub import {
+    my $caller = caller;
+
+    no strict 'refs';
+    *{"$caller\::use5"} = \&use5;
+}
+
 sub to5 {
     return map {
         $_->{_dispatch}($_,'p5landish');
     } @_;
 }
+
 sub to6 {
     return map {
         if (ref) {
@@ -24,6 +32,7 @@ sub to6 {
         }
     } @_;
 }
+
 sub use5 {
     my ($name,) = @_;
     {_dispatch=>sub {
