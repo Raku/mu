@@ -99,6 +99,9 @@ result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
     (define-kp6-function "infix:<~>" (($ first) ($ second))
       (cl->perl (concatenate 'string (str* (VAR $ first)) (str* (VAR $ second)))))
 
+    (define-kp6-function "prefix:<~>" (($ first))
+      (cl->perl (str* (VAR $ first))))
+
     (define-kp6-function ("print" :returns 'true) ((@@ string))
       (format t "~A" (perl->display (VAR @ string))))
 
