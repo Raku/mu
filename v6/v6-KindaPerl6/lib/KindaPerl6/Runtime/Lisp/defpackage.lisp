@@ -61,7 +61,12 @@
    #:with-kp6-package   
    #:with-kp6-pad
    #:with-kp6-interpreter
-   #:kp6-for-->-single))
+   #:kp6-for-->-single
+
+   #:kp6-check-implementation-compatibility
+   #:kp6-quit
+
+   #:kp6-initialize-interpreter))
 
 (defpackage #:kp6-lisp-user
   (:use #:cl #:kp6-lisp))

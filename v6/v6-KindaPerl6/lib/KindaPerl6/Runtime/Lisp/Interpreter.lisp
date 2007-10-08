@@ -7,17 +7,15 @@
   (declare (ignore initargs))
   (kp6-create-package interpreter "GLOBAL"))
 
-(defmacro with-kp6-interpreter ((name &rest args) &body body)
+(defmacro with-kp6-interpreter ((interpreter) &body body)
   (let ((functions (mapcar
-		    #'(lambda (func) `(,func (&rest rest)
-				       (declare (ignore rest))
-				       (kp6-error ,name 'kp6-stub-function :name ',func)))
-		    '(enclosing-pad outer-pad lexical-variable-exists define-lexical-variable set-lexical-variable set-lexical-variable/c lookup-lexical-variable lookup-lexical-variable/c define-our-variable))))
-    `(let ((,name (make-instance 'kp6-interpreter ,@args)))
-      (flet ,functions
-	(declare (ignorable ,@(mapcar #'(lambda (x) `#',(first x)) functions)))
-	(kp6-initialize-interpreter ,name)
-	,@body))))
+                    #'(lambda (func) `(,func (&rest rest)
+                                       (declare (ignore rest))
+                                       (kp6-error ,interpreter 'kp6-stub-function :name ',func)))
+                    '(enclosing-pad outer-pad lexical-variable-exists define-lexical-variable set-lexical-variable set-lexical-variable/c lookup-lexical-variable lookup-lexical-variable/c define-our-variable))))
+    `(flet ,functions
+      (declare (ignorable ,@(mapcar #'(lambda (x) `#',(first x)) functions)))
+      ,@body)))
 
 (defmacro kp6-for-->-single (loop-variable array &body body)
   (with-unique-names (array-index)

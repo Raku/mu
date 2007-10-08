@@ -33,10 +33,9 @@ class CompUnit {
         ~ '(defpackage #:' ~ $.name ~ Main::newline()
         ~ '  (:use #:cl #:kp6-lisp))' ~ Main::newline()
         ~ '(in-package #:kp6-lisp-user)' ~ Main::newline()
-        ~ '(kp6-add-program' ~ Main::newline()
-        ~ ' (with-kp6-interpreter (' ~ $interpreter ~')' ~ Main::newline()
-        ~ '  (with-kp6-package (' ~ $interpreter ~ ' "GLOBAL")' ~ Main::newline()
-        ~ $.body.emit_lisp($interpreter, 3) ~ ')))' ~ Main::newline()
+        ~ '(kp6-add-program (' ~ $interpreter ~ ')' ~ Main::newline()
+        ~ ' (with-kp6-package (' ~ $interpreter ~ ' "GLOBAL")' ~ Main::newline()
+        ~ $.body.emit_lisp($interpreter, 3) ~ '))' ~ Main::newline()
         ~ '(main)' ~ Main::newline();
     }
 }
