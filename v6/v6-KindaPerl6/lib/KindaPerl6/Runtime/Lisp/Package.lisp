@@ -40,6 +40,10 @@
   (:method ((interpreter kp6-interpreter) name)
     (kp6-lookup (kp6-packages interpreter) name)))
 
+(defgeneric kp6-ensure-package (interpreter name)
+  (:method ((interpreter kp6-interpreter) name)
+    (or (kp6-find-package interpreter name) (kp6-create-package interpreter name))))
+
 (defmacro with-kp6-package ((interpreter package) &body body)
   (with-unique-names (interpreter-var package-var)
     (let ((functions (kp6-with-package-functions package-var interpreter-var package)))

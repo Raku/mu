@@ -2,19 +2,18 @@
 
 (defvar *kp6-programs* nil "List of programs to execute.")
 
-(defmacro kp6-add-program ((interpreter) program)
+(defmacro kp6-add-program ((interpreter) &body body)
   `(push
     #'(lambda (,interpreter)
         (with-kp6-interpreter (,interpreter)
-          ,program))
+          ,@body))
     *kp6-programs*))
   
-(defun main ()
+(defun main (&key (interpreter (make-instance 'kp6-interpreter)) (standalone t))
   (kp6-check-implementation-compatibility)
-  (let ((interpreter (make-instance 'kp6-interpreter)))
-    (kp6-initialize-interpreter interpreter)
-    (handler-case (dolist (program (reverse *kp6-programs*))
-                    (funcall program interpreter))
-      (error (e)
-        (kp6-quit interpreter :message (format nil "Error: ~A~%" e) :code 1)))
-    (kp6-quit interpreter)))
+  (kp6-initialize-interpreter interpreter)
+  (handler-case (dolist (program (reverse *kp6-programs*))
+                  (funcall program interpreter))
+    (error (e)
+      (when standalone (kp6-quit interpreter :message (format nil "Error: ~A~%" e) :code 1))))
+  (when standalone (kp6-quit interpreter)))

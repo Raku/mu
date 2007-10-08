@@ -32,6 +32,7 @@
    #:perl->cl
 
    #:kp6-packages
+   #:kp6-ensure-package
 
    #:kp6-generate-variable
    #:kp6-signal

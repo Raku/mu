@@ -1,4 +1,3 @@
-
 use v6-alpha;
 
 class KindaPerl6::Visitor::EmitLisp {
@@ -29,11 +28,10 @@ class CompUnit {
         ~ '  (when (null (find-package \'kp6-lisp))' ~ Main::newline()
         ~ '   ' ~ set_secure_mode($args_secure)
         ~ '   (load "lib/KindaPerl6/Runtime/Lisp/Runtime.lisp")))' ~ Main::newline()
-        ~ '(defpackage #:' ~ $.name ~ Main::newline()
-        ~ '  (:use #:cl #:kp6-lisp))' ~ Main::newline()
         ~ '(in-package #:kp6-lisp-user)' ~ Main::newline()
         ~ '(kp6-add-program (' ~ $interpreter ~ ')' ~ Main::newline()
-        ~ ' (with-kp6-package (' ~ $interpreter ~ ' "GLOBAL")' ~ Main::newline()
+        ~ ' (kp6-ensure-package ' ~ $interpreter ~ ' "' ~ $.name ~ '")' ~ Main::newline()
+        ~ ' (with-kp6-package (' ~ $interpreter ~ ' "' ~ $.name ~ '")' ~ Main::newline()
         ~ $.body.emit_lisp($interpreter, 3) ~ '))' ~ Main::newline()
     }
 }
