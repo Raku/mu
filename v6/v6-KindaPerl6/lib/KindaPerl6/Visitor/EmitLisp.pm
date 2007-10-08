@@ -323,45 +323,9 @@ class Proto {
 
 class Call {
     method emit_lisp ($interpreter, $indent) {
-        my $invocant;
-        if $.invocant.isa( 'Proto' ) {
-
-            if $.invocant.name eq 'self' {
-                $invocant := '$self';
-            }
-            else {
-                $invocant := $.invocant.emit_lisp($interpreter, $indent);
-            }
-            
-        }
-        else {
-            $invocant := $.invocant.emit_lisp($interpreter, $indent);
-        };
-        if $invocant eq 'self' {
-            $invocant := '$self';
-        };
-        
-        my $meth := $.method;
-        if  $meth eq 'postcircumfix:<( )>'  {
-             $meth := '';  
-        };
-        
-        my $call := (@.arguments.>>emit_lisp($interpreter, $indent)).join(' ');
-        if ($.hyper) {
-            # TODO - hyper + role
-            '[ map { $_' ~ '->' ~ $meth ~ '(' ~ $call ~ ') } @{ ' ~ $invocant ~ ' } ]'
-        }
-        else {
-            if ( $meth eq '' ) {
-                # $var.()
-                '(kp6-APPLY \'' ~ $invocant ~ ' (list ' ~ $call ~ '))'
-            }
-            else {
-                '(' ~ $meth ~ ' \'' ~ $invocant ~ ' (list ' ~ $call ~ '))'
-            };
-        };
-        
-
+	if $.invocant.isa('Var') && (($.method eq 'LOOKUP') || ($.method eq 'INDEX')) {
+	    return '(kp6-lookup ' ~ $.invocant.emit_lisp($interpreter, $indent) ~ ' (perl->cl ' ~ (($.arguments)[0]).emit_lisp($interpreter, $indent) ~ '))';
+	}
     }
 }
 
