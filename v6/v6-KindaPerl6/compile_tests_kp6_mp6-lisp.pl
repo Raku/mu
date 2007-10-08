@@ -21,7 +21,7 @@ while (my $file = <$cmd>) {
     print "Compiling $file\n";
     system "perl script/kp6 --lisp > $tmp < $file";
 
-    my $cmd = qq[sbcl --disable-debugger --load $tmp --eval '(sb-ext:save-lisp-and-die "t-lisp-exe/$rel.exe" :toplevel (lambda () (Main::Main) 0) :executable t)'];
+    my $cmd = qq[sbcl --disable-debugger --load $tmp --eval '(sb-ext:save-lisp-and-die "t-lisp-exe/$rel.exe" :toplevel (lambda () (kp6-lisp-user::main) 0) :executable t)'];
     system $cmd;
 
     next unless -f "t-lisp-exe/$rel.exe";
