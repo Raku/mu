@@ -126,6 +126,8 @@ Getopt::Long::Parser->new(
 
     # emitter options
     'secure'    => \my $secure,
+
+    'no-autoexecute' => \my $no_autoexecute,
 ) or help();
 
 #
@@ -288,6 +290,10 @@ for ( @COMPILER::CHECK ) {
     $ast = $ast->emit( $_ ) for @visitors;
     print $ast;
     shift @COMPILER::PAD;
+}
+
+if ($lisp && !$no_autoexecute) {
+    print "\n(main)\n";
 }
 
 #
