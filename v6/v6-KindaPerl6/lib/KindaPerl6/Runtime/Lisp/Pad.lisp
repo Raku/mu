@@ -1,4 +1,4 @@
-(in-package #:kp6-cl)
+(in-package #:kp6-lisp)
 
 (defclass kp6-Pad (kp6-Hash)
   ((parent :accessor kp6-parent :initarg :parent)))

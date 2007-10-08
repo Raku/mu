@@ -1,4 +1,4 @@
-(in-package #:kp6-cl)
+(in-package #:kp6-lisp)
 
 (defgeneric kp6-coerce (object class &key &allow-other-keys)
   (:documentation "Convert a Lisp object from one class to another."))

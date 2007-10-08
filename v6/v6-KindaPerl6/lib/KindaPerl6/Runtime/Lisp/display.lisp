@@ -1,4 +1,4 @@
-(in-package #:kp6-cl)
+(in-package #:kp6-lisp)
 
 (defgeneric perl->display (object &key &allow-other-keys)
   (:documentation "Format a Perl 6 object for display."))

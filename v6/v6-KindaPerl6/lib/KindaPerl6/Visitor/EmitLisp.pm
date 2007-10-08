@@ -15,7 +15,7 @@ class KindaPerl6::Visitor::EmitLisp {
 class CompUnit {
     sub set_secure_mode( $args_secure ) {
         if ($args_secure != 0) {
-            return '(pushnew :kp6-cl-secure *features*)' ~ Main::newline();
+            return '(pushnew :kp6-lisp-secure *features*)' ~ Main::newline();
         } else {
             return '';
         }
@@ -29,7 +29,7 @@ class CompUnit {
         ~ set_secure_mode($args_secure)
         ~ '(load "lib/KindaPerl6/Runtime/Lisp/Runtime.lisp")' ~ Main::newline()
         ~ '(defpackage #:' ~ $.name ~ Main::newline()
-        ~ '  (:use #:cl #:kp6-cl))' ~ Main::newline()
+        ~ '  (:use #:cl #:kp6-lisp))' ~ Main::newline()
         ~ '(in-package #:' ~ $.name ~ ')' ~ Main::newline()
         ~ '(defun main ()' ~ Main::newline()
         ~ ' (with-kp6-interpreter (' ~ $interpreter ~')' ~ Main::newline()

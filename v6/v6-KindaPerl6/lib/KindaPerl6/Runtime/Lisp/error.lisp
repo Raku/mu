@@ -1,4 +1,4 @@
-(in-package #:kp6-cl)
+(in-package #:kp6-lisp)
 
 (define-condition kp6-condition ()
   ((interpreter :reader kp6-interpreter :initarg :interpreter)))

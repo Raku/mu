@@ -1,6 +1,6 @@
 (in-package #:cl-user)
 
-(defpackage #:kp6-cl
+(defpackage #:kp6-lisp
   (:use #:cl)
   (:export
    ;; Classes (types)

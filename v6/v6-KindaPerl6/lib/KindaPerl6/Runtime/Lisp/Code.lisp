@@ -1,4 +1,4 @@
-(in-package #:kp6-cl)
+(in-package #:kp6-lisp)
 
 (defclass kp6-Code (kp6-Value)
   ((signature :accessor kp6-signature :initarg :signature)))

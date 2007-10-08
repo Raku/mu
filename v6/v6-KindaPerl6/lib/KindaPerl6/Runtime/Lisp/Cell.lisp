@@ -1,4 +1,4 @@
-(in-package #:kp6-cl)
+(in-package #:kp6-lisp)
 
 (defclass kp6-cell ()
   ((value :initarg :value :accessor kp6-cell-value)))

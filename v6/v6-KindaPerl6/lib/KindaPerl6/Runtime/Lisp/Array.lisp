@@ -1,4 +1,4 @@
-(in-package #:kp6-cl)
+(in-package #:kp6-lisp)
 
 (defclass kp6-Array (kp6-Container)
   ((value :initform (make-array 1 :adjustable t))))

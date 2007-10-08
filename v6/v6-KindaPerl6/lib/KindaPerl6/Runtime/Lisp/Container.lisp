@@ -1,4 +1,4 @@
-(in-package #:kp6-cl)
+(in-package #:kp6-lisp)
 
 (defclass kp6-Container (kp6-Object)
   ((value :initarg :value :accessor kp6-value)))

@@ -1,4 +1,4 @@
-(in-package #:kp6-cl)
+(in-package #:kp6-lisp)
 
 (defclass kp6-interpreter ()
   ((packages :accessor kp6-packages :initarg :packages :initform (make-instance 'kp6-Hash))))

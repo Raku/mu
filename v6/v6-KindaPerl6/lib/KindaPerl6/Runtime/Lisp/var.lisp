@@ -1,10 +1,10 @@
-(in-package #:kp6-cl)
+(in-package #:kp6-lisp)
 
 (defun kp6-generate-variable (sigil name)
-  (cons (find-symbol sigil 'kp6-cl) name))
+  (cons (find-symbol sigil 'kp6-lisp) name))
 
 (dolist (sigil '($ @ % & |::|))
-  (intern (string sigil) 'kp6-cl))
+  (intern (string sigil) 'kp6-lisp))
 
 (defgeneric kp6-default (sigil)
   (:documentation "Generates a default value for the given sigil."))

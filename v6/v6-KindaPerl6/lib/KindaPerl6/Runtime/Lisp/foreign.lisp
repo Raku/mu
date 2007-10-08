@@ -1,4 +1,4 @@
-(in-package #:kp6-cl)
+(in-package #:kp6-lisp)
 
 (defgeneric cl->perl (object &key &allow-other-keys)
   (:documentation "Convert a Lisp object into a Perl 6 object."))
