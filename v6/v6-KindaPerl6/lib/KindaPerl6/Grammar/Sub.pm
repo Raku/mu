@@ -133,6 +133,46 @@ token arrow_sub {
     }
 };
 
+token sub_block {
+    # used by gather { ... }
+    \{ 
+        <?opt_ws>  
+        { 
+            COMPILER::add_pad();
+        }
+        <exp_stmts> 
+        <?opt_ws> 
+    [   \}     | { say '*** Syntax Error in sub '; die 'error in Block'; } ]
+    { 
+        my $env := @COMPILER::PAD[0];
+        COMPILER::drop_pad();
+        my $block := $$<exp_stmts>;
+        KindaPerl6::Grammar::declare_parameters(
+            $env,
+            $block,
+            ::Sig( 
+                'invocant' => undef, 
+                'positional' => [ ], 
+                'named' => { } 
+            ),
+        );    
+        return ::Sub( 
+            'name'  => undef, 
+            'block' => ::Lit::Code(
+                pad   => $env,
+                state => { },
+                sig   =>
+                    ::Sig( 
+                        'invocant' => undef, 
+                        'positional' => [ ], 
+                        'named' => { } 
+                    ),
+                body  => $block,
+            ),
+        );
+    }
+};
+
 token proto {
     proto <?ws> [ [ method | token | rule | sub ] <?ws> | '' ] 
         <namespace> <ident> <?ws> '{' <?opt_ws> '}'    

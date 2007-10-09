@@ -222,6 +222,11 @@ token term {
                 { return $$<begin_block> }  # BEGIN { code... }
     | <check_block> 
                 { return $$<check_block> }  # CHECK { code... }
+    | gather <?ws> <sub_block>              # gather { code... }
+                { 
+                    say "gather not implemented yet !!! ";
+                    return $$<sub_block>;
+                } 
 
     | is <?ws> <full_ident> 
         { die "<is> not implemented" }
