@@ -14,8 +14,12 @@ class Gather is Array {
         self._more;
         return $.buf.true; 
     };
-    method int  { 
-        # TODO
+    method eager  { 
+        while !$.finished { self._more };
+        self.buf;
+    };
+    method elems  { 
+        (self.eager).elems;
     };
     method hash {
         # TODO
