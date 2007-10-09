@@ -921,6 +921,12 @@ $::Multi = make_class( proto => $::Multi, name=>"Multi",parent=>[$meta_Code],met
         },
 });
 
+# try to load gather/take (depends on 'Coro')
+eval {
+    require KindaPerl6::Runtime::Perl6::Gather;
+    require KindaPerl6::Runtime::Perl5::Gather;
+};
+
 # load the runtime
 
 my $libpath  = $FindBin::Bin."/lib";

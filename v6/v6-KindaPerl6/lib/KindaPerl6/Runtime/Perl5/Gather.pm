@@ -14,9 +14,7 @@ $::Gather = KindaPerl6::Runtime::Perl5::MOP::make_class(
 
             my $gather_finished; 
             my $gather_coro = Coro::async {
-               sub {
-                    # ...
-               }->();
+               ::DISPATCH( $_[1], "APPLY" );
                # cleanup the pointer to the lazy buffer
                delete $::GATHER{ Scalar::Util::refaddr( $Coro::current ) };
                $gather_finished = 1;
@@ -26,25 +24,22 @@ $::Gather = KindaPerl6::Runtime::Perl5::MOP::make_class(
             $::GATHER{ Scalar::Util::refaddr( $gather_coro ) } = [];
             #return ( $::GATHER{ Scalar::Util::refaddr( $gather_coro ) }, \$gather_finished );
 
-            # TODO
-
             my $v = {
                 %{ $_[0] },
-                _value => ( $_[1] || { _array => [] } ),  
-                _dispatch_VAR => $::dispatch_VAR,
+                _value => {
+                        _array    => $::GATHER{ Scalar::Util::refaddr( $gather_coro ) },
+                        _finished => \$gather_finished,
+                    },  
             };
         },
     INDEX=>sub {
             # TODO
+            Coro::cede();  # XXX
             my $key = ::DISPATCH(::DISPATCH($_[1],"int"),"p5landish");
             return ::DISPATCH($::Cell,"new",{cell=>\$_[0]{_value}{_array}[$key]});
         },
     STORE=>sub {
-            # TODO
-            $_[0]{_value}{_array} = [ 
-                @{ ::DISPATCH($_[1],"array")->{_value}{_array} }
-            ];
-            $_[0];
+            die "can't STORE to a gather/take";
         },
 }, );
 
