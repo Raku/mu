@@ -17,7 +17,7 @@ struct YAP6__CORE__ScalarDispatcher; typedef struct YAP6__CORE__ScalarDispatcher
  * have a dispatcher. If it doesn't, it is considered itself as one.
  */
 struct YAP6__CORE__Value {
-  pthread_mutex_t* mutex; int ref_cnt;
+  pthread_rwlock_t* rwlock; int ref_cnt;
   YAP6__CORE__Dispatcher* dispatcher;
 };
 
@@ -29,7 +29,7 @@ struct YAP6__CORE__Value {
  * dispatcher.
  */
 struct YAP6__CORE__Dispatcher {
-  pthread_mutex_t* mutex; int ref_cnt;
+  pthread_rwlock_t* rwlock; int ref_cnt;
   YAP6__CORE__Dispatcher* dispatcher;
   YAP6__CORE__Value* (*APPLY)(YAP6__CORE__Value* self,
                                YAP6__CORE__Value* value, 
@@ -45,19 +45,19 @@ struct YAP6__CORE__Dispatcher {
 };
 
 typedef struct YAP6__CORE__int {
-  pthread_mutex_t* mutex; int ref_cnt;
+  pthread_rwlock_t* rwlock; int ref_cnt;
   YAP6__CORE__Dispatcher* dispatcher;
   int value;  
 } YAP6__CORE__int;
 
 typedef struct YAP6__CORE__double {
-  pthread_mutex_t* mutex; int ref_cnt;
+  pthread_rwlock_t* rwlock; int ref_cnt;
   YAP6__CORE__Dispatcher* dispatcher;
   double value;  
 } YAP6__CORE__double;
 
 typedef struct YAP6__CORE__string {
-  pthread_mutex_t* mutex; int ref_cnt;
+  pthread_rwlock_t* rwlock; int ref_cnt;
   YAP6__CORE__Dispatcher* dispatcher;
   char encoding[16];
   int byte_length;
@@ -65,7 +65,7 @@ typedef struct YAP6__CORE__string {
 } YAP6__CORE__String;
 
 typedef struct YAP6__CORE__blob {
-  pthread_mutex_t* mutex; int ref_cnt;
+  pthread_rwlock_t* rwlock; int ref_cnt;
   YAP6__CORE__Dispatcher* dispatcher;
   int byte_length;
   char content[];
@@ -76,7 +76,7 @@ typedef struct YAP6__CORE__blob {
  * it. Its dispatcher must be a YAP6__CORE__ContainerDispatcher. 
  */
 struct YAP6__CORE__Scalar {
-  pthread_mutex_t* mutex; int ref_cnt;
+  pthread_rwlock_t* rwlock; int ref_cnt;
   YAP6__CORE__ScalarDispatcher* dispatcher;
   YAP6__CORE__Value* cell;
 };
@@ -86,7 +86,7 @@ struct YAP6__CORE__Scalar {
  * also implements the FETCH and STORE methods.
  */
 struct YAP6__CORE__ScalarDispatcher {
-  pthread_mutex_t* mutex; int ref_cnt;
+  pthread_rwlock_t* rwlock; int ref_cnt;
   YAP6__CORE__Dispatcher* dispatcher;
   YAP6__CORE__Value* (*APPLY)(YAP6__CORE__Value* self,
                                YAP6__CORE__Value* value, 
@@ -111,7 +111,7 @@ struct YAP6__CORE__ScalarDispatcher {
 
 
 typedef struct YAP6__CORE__ListDispatcher {
-  pthread_mutex_t* mutex; int ref_cnt;
+  pthread_rwlock_t* rwlock; int ref_cnt;
   YAP6__CORE__Dispatcher* dispatcher;
   YAP6__CORE__Value* (*APPLY)(YAP6__CORE__Value* self,
                                YAP6__CORE__Value* value, 
@@ -143,21 +143,21 @@ typedef struct YAP6__CORE__ListDispatcher {
 } YAP6__CORE__ListDispatcher;
 
 typedef struct YAP6__CORE__List {
-  pthread_mutex_t* mutex; int ref_cnt;
+  pthread_rwlock_t* rwlock; int ref_cnt;
   YAP6__CORE__ListDispatcher* dispatcher;
   int length;
   YAP6__CORE__Value** items;
 } YAP6__CORE__List;
 
 typedef struct YAP6__CORE__Pair {
-  pthread_mutex_t* mutex; int ref_cnt;
+  pthread_rwlock_t* rwlock; int ref_cnt;
   YAP6__CORE__ListDispatcher* dispatcher;
   YAP6__CORE__Value* key;
   YAP6__CORE__Value* value;
 } YAP6__CORE__Pair;
 
 typedef struct YAP6__CORE__HashDispatcher {
-  pthread_mutex_t* mutex; int ref_cnt;
+  pthread_rwlock_t* rwlock; int ref_cnt;
   YAP6__CORE__Dispatcher* dispatcher;
   YAP6__CORE__Value* (*APPLY)(YAP6__CORE__Value* self,
                                YAP6__CORE__Value* value, 
@@ -189,7 +189,7 @@ typedef struct YAP6__CORE__HashDispatcher {
 } YAP6__CORE__HashDispatcher;
 
 typedef struct YAP6__CORE__Hash {
-  pthread_mutex_t* mutex; int ref_cnt;
+  pthread_rwlock_t* rwlock; int ref_cnt;
   YAP6__CORE__HashDispatcher* dispatcher;
   int length;
   YAP6__CORE__Pair** pairs;
@@ -205,5 +205,27 @@ extern YAP6__CORE__Value* yap6_const_undef;
 extern YAP6__CORE__Value* yap6_const_true;
 extern YAP6__CORE__Value* yap6_const_false;
 extern void yap6_const_init();
+
+// basic object management
+/* This function is the place from where every allocation should
+   happen. For now, it just mallocs with zeros, set refcnt to 1 and
+   initialize the rwlock. But it is subject to change, so, keep
+   calling it. */
+extern YAPC__CORE__Value* yapc6_value_alloc(int size);
+/* This function increments the reference count of a value, it
+   should be called whenever the value is referenced by another
+   value */
+extern void yap6_value_refcnt_inc(YAPC__CORE__Value* value);
+/* This functions decrements the reference count of a value, it should
+   be called whenever one reference to this value is destroied. It
+   will call DESTR in the dispatcher and free() the pointer when
+   appropriate. */
+extern void yap6_value_refcnt_dec(YAPC__CORE__Value* value);
+/* This functions synchronizes the access to this value. It should be
+   called whenever some pointer in the low-level details (some
+   non-core-value member of the struct) will be accessed. */
+extern void yap6_value_rdlock(YAPC__CORE__Value* value);
+extern void yap6_value_wrlock(YAPC__CORE__Value* value);
+extern void yap6_value_unlock(YAPC__CORE__Value* value);
 
 #endif
