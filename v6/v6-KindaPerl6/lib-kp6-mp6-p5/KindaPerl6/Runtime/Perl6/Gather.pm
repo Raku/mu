@@ -52,7 +52,7 @@
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH( $::Str, 'new', 'gather( ' ),
+                            ::DISPATCH( $::Str, 'new', '( gather ' ),
                             ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "code" ), 'perl', ), ::DISPATCH( $::Str, 'new', ' )' ) )
                         );
                     },

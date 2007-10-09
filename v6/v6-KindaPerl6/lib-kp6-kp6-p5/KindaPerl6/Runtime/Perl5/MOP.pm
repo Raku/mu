@@ -607,7 +607,10 @@ my $meta_Code = ::DISPATCH( $::Class, 'new', "Code");
 $::Code = $meta_Code->PROTOTYPE();
 $meta_Code->add_parent($meta_Value);
 $meta_Code->add_method( 'perl',
-    ::DISPATCH( $::Method, 'new',  sub { my $v = $::Str->new( $_[0]{_value}{src} ) } ) );
+    ::DISPATCH( $::Method, 'new',  sub { 
+        my $v = $::Str->new( $_[0]{_value}{src} );  # XXX ugh - src is gone???
+        return $::Str->new( '{ ... }' );
+    } ) );
 my $_apply;
 $meta_Code->add_method( 'APPLY',
     ::DISPATCH( $::Method, 'new',  
