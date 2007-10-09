@@ -20,6 +20,7 @@ $::Gather = KindaPerl6::Runtime::Perl5::MOP::make_class(
                $gather_finished->{_value} = 1;
                return;
              };
+            #print "# Coro started at ", Scalar::Util::refaddr( $gather_coro ), "\n";
             my $buf = ::DISPATCH( $::Array, 'new' );
             $::GATHER{ Scalar::Util::refaddr( $gather_coro ) } = $buf->{_value}{_array};
             my $v = {
@@ -28,9 +29,20 @@ $::Gather = KindaPerl6::Runtime::Perl5::MOP::make_class(
                         code      => $code,   # used by .perl
                         buf       => $buf,
                         finished  => $gather_finished,
+                        _coro     => Scalar::Util::refaddr( $gather_coro ),
                     },  
             };
         },
     _more => sub { Coro::cede() },
+    _take => sub {
+        Coro::cede();
+        # XXX avoid nested coro bug ???
+        #print "using ", $_[0]{_value}{_coro}, "\n";
+        #$_[0]{_value}{buf}{_value}{_array} = $::GATHER{ $_[0]{_value}{_coro} };
+        
+        push @{ $::GATHER{ $_[0]{_value}{_coro} } }, 
+            ::DISPATCH( $_[1], 'FETCH' );
+        return $_[1];
+    }
 }, );
 

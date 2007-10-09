@@ -30,33 +30,38 @@ class Gather is Array {
         self
     };
     method INDEX ($ix) {
-            while !$.finished { 
-                if $ix < (self.buf).elems 
+        my $obj = self;
+        my $i = $ix + 0;
+        #say "index $ix on ",$obj.buf;
+        while !$obj.finished { 
+                if $i < ($obj.buf).elems 
                 {
-                    return (self.buf)[$ix];
+                    return ($obj.buf)[$i];
                 };
-                self._more; 
-            };
-            return (self.buf)[$ix];
+                $obj._more; 
+        };
+        return ($obj.buf)[$i];
     };
     method map (&code) {
         my $obj = self;
-        gather {
+        my $a;
+        $a = Gather.new( sub {
             my $i = 0;
             while !$obj.finished { 
                     my $r = $obj[$i];
                     $r = code( $r );
-                    say "take $r";
-                    take $r; 
+                    #say "take $r";
+                    $a._take( $r ); 
                     $i = $i + 1;
             };
             while $i < ($obj.buf).elems { 
                     my $r = $obj[$i];
                     $r = code( $r );
-                    say "take $r";
-                    take $r; 
+                    #say "take $r";
+                    $a._take( $r ); 
                     $i = $i + 1;
             };
-        };
+        } );
+        return $a;
     };
 }
