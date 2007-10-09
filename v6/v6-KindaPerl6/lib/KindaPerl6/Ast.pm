@@ -1094,9 +1094,6 @@ class Rule::Capture {
     };
 }
 
-
-
-
 =begin
 
 =head1 NAME 
