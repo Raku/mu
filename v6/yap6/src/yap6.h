@@ -10,10 +10,6 @@ struct YAP6__CORE__Scalar; typedef struct YAP6__CORE__Scalar YAP6__CORE__Scalar;
 struct YAP6__CORE__Dispatcher; typedef struct YAP6__CORE__Dispatcher YAP6__CORE__Dispatcher;
 struct YAP6__CORE__ScalarDispatcher; typedef struct YAP6__CORE__ScalarDispatcher YAP6__CORE__ScalarDispatcher;
 
-extern YAP6__CORE__Value* yap6_const_undef;
-extern YAP6__CORE__Value* yap6_const_true;
-extern YAP6__CORE__Value* yap6_const_false;
-
 /*
  * The YAP6__CORE__Oject struct represents any object in the YAP6 runtime.
  * The data of this object should be opaque for the users, the only
@@ -199,5 +195,15 @@ typedef struct YAP6__CORE__Hash {
   YAP6__CORE__Pair* pairs[];
 } YAP6__CORE__Hash;
 
+
+// ident_dispatcher
+extern YAP6__CORE__Dispatcher* yap6_const_ident_dispatcher;
+extern void yap6_ident_dispatcher_init();
+
+// const values
+extern YAP6__CORE__Value* yap6_const_undef;
+extern YAP6__CORE__Value* yap6_const_true;
+extern YAP6__CORE__Value* yap6_const_false;
+extern void yap6_const_init();
 
 #endif
