@@ -29,17 +29,24 @@ class Gather is Array {
     method array {
         self
     };
+    method INDEX ($ix) {
+            while !$.finished { 
+                if $ix < (self.buf).elems 
+                {
+                    return (self.buf)[$ix];
+                };
+                self._more; 
+            };
+            return (self.buf)[$ix];
+    };
     method map (&code) {
         gather {
             my $i = 0;
             while !$.finished { 
-                self._more; 
-                if !$.finished {
                     my $r = (self)[$i];
                     $r = code( $r );
                     take $r; 
                     $i = $i + 1;
-                };
             };
             while $i < (self.buf).elems { 
                     my $r = (self)[$i];

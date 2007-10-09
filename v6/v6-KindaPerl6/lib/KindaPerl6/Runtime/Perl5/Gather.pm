@@ -32,15 +32,5 @@ $::Gather = KindaPerl6::Runtime::Perl5::MOP::make_class(
             };
         },
     _more => sub { Coro::cede() },
-    INDEX=>sub {
-            my $key = ::DISPATCH(::DISPATCH($_[1],"int"),"p5landish");
-            while ( ! $_[0]{_value}{finished}{_value} 
-                &&  $key > $#{ $_[0]{_value}{buf}{_value}{_array} } 
-               )
-            {
-                Coro::cede();  
-            };
-            return ::DISPATCH($::Cell,"new",{cell=>\($_[0]{_value}{buf}{_value}{_array}[$key])});
-        },
 }, );
 
