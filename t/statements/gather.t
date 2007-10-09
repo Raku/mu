@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 11;
+plan 12;
 
 # L<S04/The gather statement/"A variant of do is gather">
 
@@ -96,4 +96,17 @@ plan 11;
     };
 
     is ~@out, "1 2 3 4 5", "gather as a statement_prefix";
+}
+
+# lazy gather
+{
+    my $count = 0;
+    my @list = gather {
+        for 1 .. 10 -> $a {
+            take $a;
+            $count++
+        }
+    };
+    my $result = @list[2];
+    is($count, 2, "gather is lazy", :todo<unspecced>);	
 }
