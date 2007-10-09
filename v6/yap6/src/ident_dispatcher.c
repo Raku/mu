@@ -31,8 +31,7 @@ static int ident_dispatcher_COMPR(YAP6__CORE__Value* self,
 YAP6__CORE__Dispatcher* yap6_const_ident_dispatcher;
 
 void yap6_ident_dispatcher_init() {
-  yap6_const_ident_dispatcher = calloc(1,sizeof(YAP6__CORE__Dispatcher));
-  assert(yap6_const_ident_dispatcher);
+  yap6_const_ident_dispatcher = (YAP6__CORE__Dispatcher*)yap6_value_alloc(sizeof(YAP6__CORE__Dispatcher));
   yap6_const_ident_dispatcher->APPLY = &ident_dispatcher_APPLY;
   yap6_const_ident_dispatcher->DESTR = &ident_dispatcher_DESTR;
   yap6_const_ident_dispatcher->COMPR = &ident_dispatcher_COMPR;

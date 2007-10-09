@@ -7,6 +7,9 @@ CHANGELOG
 0.0.1 - The initial revision, definining the basic data structures to
 be used.
 
+0.0.2 - Basic memory management, values are alloc'ed and basic
+refcount garbage collection is implemented.
+
 ROADMAP
 
 0.0.2 - Implement the basic types
