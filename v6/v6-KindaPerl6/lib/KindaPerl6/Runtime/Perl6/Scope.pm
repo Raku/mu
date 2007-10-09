@@ -67,3 +67,16 @@ class Scope is Value {
     method true { self.elems != 0 };
     method int  { self.elems };
 }
+
+=begin
+
+=head1 NAME
+
+KindaPerl6::Runtime::Perl6::Scope - Lexical scope emulation
+
+=head1 DESCRIPTION
+
+This changes the AST to use lexical scope emulation for languages that
+don't have such niceties natively.
+
+=end
