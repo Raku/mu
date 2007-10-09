@@ -11,6 +11,8 @@ ROADMAP
 
 0.0.2 - Implement the basic types
 
+0.0.2.5 - Implement namespace as globally accessible
+
 0.0.3 - Implement the MOP in a Perl 6 strict subset that can be
 compiled to C using this runtime, implement the compilation itself and
 generate the code to be used inside yap6. - This is supposed to be

@@ -146,7 +146,7 @@ typedef struct YAP6__CORE__List {
   pthread_mutex_t* mutex; int ref_cnt;
   YAP6__CORE__ListDispatcher* dispatcher;
   int length;
-  YAP6__CORE__Value* items[];
+  YAP6__CORE__Value** items;
 } YAP6__CORE__List;
 
 typedef struct YAP6__CORE__Pair {
@@ -192,7 +192,7 @@ typedef struct YAP6__CORE__Hash {
   pthread_mutex_t* mutex; int ref_cnt;
   YAP6__CORE__HashDispatcher* dispatcher;
   int length;
-  YAP6__CORE__Pair* pairs[];
+  YAP6__CORE__Pair** pairs;
 } YAP6__CORE__Hash;
 
 
