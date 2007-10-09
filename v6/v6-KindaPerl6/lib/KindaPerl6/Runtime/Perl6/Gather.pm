@@ -1,6 +1,8 @@
 use v6-alpha;
 class Gather is Array {
     has $.code;
+    has $.buf;
+    has $.finished;
     method perl {
         '( gather ' ~ $.code.perl ~ ' )' 
     };
@@ -9,7 +11,8 @@ class Gather is Array {
         '[ ... ]';   
     };
     method true {
-        # TODO
+        self._more;
+        return $.buf.true; 
     };
     method int  { 
         # TODO
