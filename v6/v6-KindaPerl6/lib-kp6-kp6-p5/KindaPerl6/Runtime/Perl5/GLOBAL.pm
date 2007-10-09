@@ -22,7 +22,7 @@ package GLOBAL;
         True
         False
         substr
-        length
+        chars
         match_p5rx
         require
         slurp
@@ -281,7 +281,7 @@ package GLOBAL;
         die "Not enough arguments for substr";
     }
 
-    sub length {
+    sub chars {
         ::DISPATCH( $::Int, 'new', length(_str( $_[0] )) );
     }
 

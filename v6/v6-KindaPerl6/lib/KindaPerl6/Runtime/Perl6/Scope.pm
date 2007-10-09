@@ -66,5 +66,4 @@ class Scope is Value {
     };
     method true { self.elems != 0 };
     method int  { self.elems };
-    method hash { self };
 }

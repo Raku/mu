@@ -102,7 +102,7 @@ result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
     (define-kp6-function "prefix:<~>" (($ first))
       (cl->perl (perl->display (VAR $ first))))
 
-    (define-kp6-function "length" (($ first))
+    (define-kp6-function "chars" (($ first))
       (cl->perl (length (str* (VAR $ first)))))
 
     (define-kp6-function ("print" :returns 'true) ((@@ string))

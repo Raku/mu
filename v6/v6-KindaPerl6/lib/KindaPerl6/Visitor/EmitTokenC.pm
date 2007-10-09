@@ -41,7 +41,7 @@ class Rule::Concat {
 }
 class Rule::Constant {
     method emit_c {
-        '(strncmp("' ~ $.constant ~ '",str+pos,' ~ length($.constant) ~ ') == 0 && (pos += ' ~ length($.constant) ~ '))';
+        '(strncmp("' ~ $.constant ~ '",str+pos,' ~ chars($.constant) ~ ') == 0 && (pos += ' ~ chars($.constant) ~ '))';
     }
 }
 class Rule::Block {

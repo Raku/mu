@@ -41,7 +41,7 @@ sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; ('(' . (Main::join([
 ;
 package Rule::Constant;
 sub new { shift; bless { @_ }, "Rule::Constant" }
-sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; ('(strncmp("' . ($self->{constant} . ('",str+pos,' . (length($self->{constant}) . (') == 0 && (pos += ' . (length($self->{constant}) . '))')))))) }
+sub emit_c { my $self = shift; my $List__ = \@_; do { [] }; ('(strncmp("' . ($self->{constant} . ('",str+pos,' . (chars($self->{constant}) . (') == 0 && (pos += ' . (chars($self->{constant}) . '))')))))) }
 
 
 ;

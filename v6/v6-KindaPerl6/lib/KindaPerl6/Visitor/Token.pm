@@ -65,7 +65,7 @@ class Rule {
                 $str := Main::backslash() ~ Main::singlequote();
             };
             if ( $len ) {
-                'do {if (length($str) <  ' ~ $len ~ ') {(0)} else { if (' ~
+                'do {if (chars($str) <  ' ~ $len ~ ') {(0)} else { if (' ~
                 Main::singlequote() ~ $str ~ Main::singlequote() ~ ' eq substr($str, $MATCH.to, ' ~ $len ~ ')) {' ~
                 '$MATCH.to = (' ~ $len ~ ' + $MATCH.to);  1;} else {(0)}}}';
             }
