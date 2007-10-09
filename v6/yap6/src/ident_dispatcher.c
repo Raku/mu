@@ -2,14 +2,14 @@
 #include <assert.h>
 #include <stdlib.h>
 
-static YAP6__CORE__Value* ident_dispatcher_APPLY(YAP6__CORE__Value* self,
+static YAP6__CORE__Value* ident_dispatcher_APPLY(YAP6__CORE__Dispatcher* self,
                                           YAP6__CORE__Value* value,
                                           YAP6__CORE__Value* arguments,
                                           YAP6__CORE__Value* wants) {
   return value;
 }
 
-static YAP6__CORE__Value* ident_dispatcher_DESTR(YAP6__CORE__Value* self,
+static YAP6__CORE__Value* ident_dispatcher_DESTR(YAP6__CORE__Dispatcher* self,
                                           YAP6__CORE__Value* value,
                                           YAP6__CORE__Value* arguments,
                                           YAP6__CORE__Value* wants) {
@@ -17,12 +17,12 @@ static YAP6__CORE__Value* ident_dispatcher_DESTR(YAP6__CORE__Value* self,
   return NULL;
 }
 
-static int ident_dispatcher_COMPR(YAP6__CORE__Value* self,
+static int ident_dispatcher_COMPR(YAP6__CORE__Dispatcher* self,
                                           YAP6__CORE__Value* value,
                                           YAP6__CORE__Value* arguments) {
-  if ((int)value < (int)arguments)
+  if ((int)value < (int)YAP6_APPLY(arguments,NULL,value))
     return -1;
-  else if ((int)value == (int)arguments)
+  else if ((int)value == (int)YAP6_APPLY(arguments,NULL,value))
     return 0;
   else
     return 1;

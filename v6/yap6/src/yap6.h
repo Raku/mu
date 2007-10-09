@@ -31,15 +31,15 @@ struct YAP6__CORE__Value {
 struct YAP6__CORE__Dispatcher {
   pthread_rwlock_t* rwlock; int ref_cnt;
   YAP6__CORE__Dispatcher* dispatcher;
-  YAP6__CORE__Value* (*APPLY)(YAP6__CORE__Value* self,
+  YAP6__CORE__Value* (*APPLY)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__Value* arguments,
                                YAP6__CORE__Value* wants);
-  YAP6__CORE__Value* (*DESTR)(YAP6__CORE__Value* self,
+  YAP6__CORE__Value* (*DESTR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__Value* arguments,
                                YAP6__CORE__Value* wants);
-  int                (*COMPR)(YAP6__CORE__Value* self,
+  int                (*COMPR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__Value* arguments);
 };
@@ -88,22 +88,22 @@ struct YAP6__CORE__Scalar {
 struct YAP6__CORE__ScalarDispatcher {
   pthread_rwlock_t* rwlock; int ref_cnt;
   YAP6__CORE__Dispatcher* dispatcher;
-  YAP6__CORE__Value* (*APPLY)(YAP6__CORE__Value* self,
+  YAP6__CORE__Value* (*APPLY)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__Value* arguments,
                                YAP6__CORE__Value* wants);
-  YAP6__CORE__Value* (*DESTR)(YAP6__CORE__Value* self,
+  YAP6__CORE__Value* (*DESTR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__Value* arguments,
                                YAP6__CORE__Value* wants);
-  int                (*COMPR)(YAP6__CORE__Value* self,
+  int                (*COMPR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__Value* arguments);
-  YAP6__CORE__Value* (*FETCH)(YAP6__CORE__Value* self,
+  YAP6__CORE__Value* (*FETCH)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__Value* arguments,
                                YAP6__CORE__Value* wants);
-  YAP6__CORE__Value* (*STORE)(YAP6__CORE__Value* self,
+  YAP6__CORE__Value* (*STORE)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__Value* arguments,
                                YAP6__CORE__Value* wants);
@@ -113,30 +113,30 @@ struct YAP6__CORE__ScalarDispatcher {
 typedef struct YAP6__CORE__ListDispatcher {
   pthread_rwlock_t* rwlock; int ref_cnt;
   YAP6__CORE__Dispatcher* dispatcher;
-  YAP6__CORE__Value* (*APPLY)(YAP6__CORE__Value* self,
+  YAP6__CORE__Value* (*APPLY)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__Value* arguments,
                                YAP6__CORE__Value* wants);
-  YAP6__CORE__Value* (*DESTR)(YAP6__CORE__Value* self,
+  YAP6__CORE__Value* (*DESTR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__Value* arguments,
                                YAP6__CORE__Value* wants);
-  int                (*COMPR)(YAP6__CORE__Value* self,
+  int                (*COMPR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__Value* arguments);
   // Lookup returns the value or the proxy value
-  YAP6__CORE__Value* (*LOOKP)(YAP6__CORE__Value* self,
+  YAP6__CORE__Value* (*LOOKP)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__int* index,
                                YAP6__CORE__Value* wants);
   // Exists doesn't vivifies and returns only if it exists,
   // else return NULL
-  YAP6__CORE__Value* (*EXIST)(YAP6__CORE__Value* self,
+  YAP6__CORE__Value* (*EXIST)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__int* index,
                                YAP6__CORE__Value* wants);
   // Delete removes the key and returns it.
-  YAP6__CORE__Value* (*DELET)(YAP6__CORE__Value* self,
+  YAP6__CORE__Value* (*DELET)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__int* index,
                                YAP6__CORE__Value* wants);
@@ -159,30 +159,30 @@ typedef struct YAP6__CORE__Pair {
 typedef struct YAP6__CORE__HashDispatcher {
   pthread_rwlock_t* rwlock; int ref_cnt;
   YAP6__CORE__Dispatcher* dispatcher;
-  YAP6__CORE__Value* (*APPLY)(YAP6__CORE__Value* self,
+  YAP6__CORE__Value* (*APPLY)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__Value* arguments,
                                YAP6__CORE__Value* wants);
-  YAP6__CORE__Value* (*DESTR)(YAP6__CORE__Value* self,
+  YAP6__CORE__Value* (*DESTR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__Value* arguments,
                                YAP6__CORE__Value* wants);
-  int                (*COMPR)(YAP6__CORE__Value* self,
+  int                (*COMPR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__Value* arguments);
   // Lookup returns the value or the proxy value
-  YAP6__CORE__Value* (*LOOKP)(YAP6__CORE__Value* self,
+  YAP6__CORE__Value* (*LOOKP)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__Value* key,
                                YAP6__CORE__Value* wants);
   // Exists doesn't vivifies and returns only if it exists,
   // else return NULL
-  YAP6__CORE__Value* (*EXIST)(YAP6__CORE__Value* self,
+  YAP6__CORE__Value* (*EXIST)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__Value* key,
                                YAP6__CORE__Value* wants);
   // Delete removes the key and returns it.
-  YAP6__CORE__Value* (*DELET)(YAP6__CORE__Value* self,
+  YAP6__CORE__Value* (*DELET)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__Value* key,
                                YAP6__CORE__Value* wants);
@@ -227,5 +227,20 @@ extern void yap6_value_refcnt_dec(YAP6__CORE__Value* value);
 extern void yap6_value_rdlock(YAP6__CORE__Value* value);
 extern void yap6_value_wrlock(YAP6__CORE__Value* value);
 extern void yap6_value_unlock(YAP6__CORE__Value* value);
+
+/* Dispatching mechanism... This can be rewritten in the future,
+   but for now, it's as simple as it gets */
+#define YAP6_APPLY(value,arguments,wants) (value->dispatcher?\
+                                           value->dispatcher->APPLY(\
+                                              value->dispatcher,\
+                                              (YAP6__CORE__Value*)value,\
+                                              (YAP6__CORE__Value*)arguments,\
+                                              (YAP6__CORE__Value*)wants\
+                                           ):\
+                                           ((YAP6__CORE__Dispatcher*)value)->APPLY(\
+                                              (YAP6__CORE__Dispatcher*)value,\
+                                              (YAP6__CORE__Value*)value,\
+                                              (YAP6__CORE__Value*)arguments,\
+                                              (YAP6__CORE__Value*)wants))
 
 #endif
