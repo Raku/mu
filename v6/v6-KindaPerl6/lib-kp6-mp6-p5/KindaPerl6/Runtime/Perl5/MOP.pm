@@ -298,7 +298,7 @@ $meta_Class->add_method(
             $_[0]->add_method( 
                 $meth_name, 
                 ::DISPATCH( $::Method, 'new',  
-                    { code => sub { 
+                    { code => sub :lvalue {
                         # : lvalue is not needed, because we use .STORE() instead
                         
                         #print "# accessing attribute $meth_name\n";

@@ -279,6 +279,9 @@ class Var {
         if $.twigil eq '.' {
             return '::DISPATCH( $self, "' ~ $.name ~ '" )'  ~ Main::newline()
         };
+        if $.twigil eq '!' {
+            return '$self->{_value}{"' ~ $.name ~ '"}'  ~ Main::newline()
+        };
         
         if $.name eq '/' {
             return $table{$.sigil} ~ 'MATCH' 

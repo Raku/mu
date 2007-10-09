@@ -119,7 +119,7 @@ sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $node = $sel
 ;
 package Var;
 sub new { shift; bless { @_ }, "Var" }
-sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $table = { '$' => '$','@' => '$List_','%' => '$Hash_','&' => '$Code_', }; do { if (($self->{twigil} eq '.')) { return(('::DISPATCH( $self, "' . ($self->{name} . ('" )' . Main::newline())))) } else {  } }; do { if (($self->{name} eq '/')) { return(($table->{$self->{sigil}} . 'MATCH')) } else {  } }; return(Main::mangle_name($self->{sigil}, $self->{twigil}, $self->{name}, $self->{namespace})) };
+sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $table = { '$' => '$','@' => '$List_','%' => '$Hash_','&' => '$Code_', }; do { if (($self->{twigil} eq '.')) { return(('::DISPATCH( $self, "' . ($self->{name} . ('" )' . Main::newline())))) } else {  } }; do { if (($self->{twigil} eq '!')) { return(('$self->{_value}{"' . ($self->{name} . ('"}' . Main::newline())))) } else {  } }; do { if (($self->{name} eq '/')) { return(($table->{$self->{sigil}} . 'MATCH')) } else {  } }; return(Main::mangle_name($self->{sigil}, $self->{twigil}, $self->{name}, $self->{namespace})) };
 sub perl { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( $::Signature::Item, "new", { ' . ('sigil  => \'' . ($self->{sigil} . ('\', ' . ('twigil => \'' . ($self->{twigil} . ('\', ' . ('name   => \'' . ($self->{name} . ('\', ' . ('namespace => [ ], ' . ('} )' . Main::newline())))))))))))) }
 
 
