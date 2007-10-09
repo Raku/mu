@@ -17,13 +17,38 @@ class Gather is Array {
         while !$.finished { self._more };
         self.buf;
     };
+    method lazy {
+        self
+    };
     method elems  { 
         (self.eager).elems;
     };
     method hash {
-        # TODO
+        (self.eager).hash;
     };
     method array {
-        # TODO
+        self
+    };
+    method map (&code) {
+        gather {
+            my $i = 0;
+            while !$.finished { 
+                say "a $i code ",&code;
+                self._more; 
+                if !$.finished {
+                    my $r = (self)[$i];
+                    say "got $r";
+                    $r = code( $r );
+                    say "got() $r";
+                    take $r; 
+                    $i = $i + 1;
+                };
+            };
+            while $i <= (self.buf).elems { 
+                say "b $i";
+                take code( (self)[$i] ); 
+                $i = $i + 1;
+            };
+        };
     };
 }
