@@ -13,7 +13,6 @@ static YAP6__CORE__Value* ident_dispatcher_DESTR(YAP6__CORE__Dispatcher* self,
                                           YAP6__CORE__Value* value,
                                           YAP6__CORE__Value* arguments,
                                           YAP6__CORE__Value* wants) {
-  free(value);
   return NULL;
 }
 

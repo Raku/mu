@@ -4,6 +4,7 @@ AC_INIT(configure.ac)
 
 AM_CONFIG_HEADER(config.h)
 AM_INIT_AUTOMAKE(yap6, 0.0.1.3)
+AC_PROG_CC
 AC_LANG_C
 AC_HEADER_STDC
 AC_CHECK_HEADERS([stdlib.h])
