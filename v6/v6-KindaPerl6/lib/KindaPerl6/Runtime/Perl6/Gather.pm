@@ -33,21 +33,19 @@ class Gather is Array {
         gather {
             my $i = 0;
             while !$.finished { 
-                say "a $i code ",&code;
                 self._more; 
                 if !$.finished {
                     my $r = (self)[$i];
-                    say "got $r";
                     $r = code( $r );
-                    say "got() $r";
                     take $r; 
                     $i = $i + 1;
                 };
             };
-            while $i <= (self.buf).elems { 
-                say "b $i";
-                take code( (self)[$i] ); 
-                $i = $i + 1;
+            while $i < (self.buf).elems { 
+                    my $r = (self)[$i];
+                    $r = code( $r );
+                    take $r; 
+                    $i = $i + 1;
             };
         };
     };

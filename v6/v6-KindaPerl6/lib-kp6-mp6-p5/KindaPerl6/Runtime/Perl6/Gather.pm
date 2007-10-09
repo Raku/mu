@@ -398,17 +398,6 @@
                                         do {
                                             while ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $self, "finished" ) ), "true" ), "p5landish" ) ) {
                                                 {
-                                                    ::DISPATCH(
-                                                        $GLOBAL::Code_say,
-                                                        'APPLY',
-                                                        ::DISPATCH(
-                                                            $GLOBAL::Code_infix_58__60__126__62_,
-                                                            'APPLY',
-                                                            ::DISPATCH( $::Str, 'new', 'a ' ),
-                                                            ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__126__62_, 'APPLY', $i ), ::DISPATCH( $::Str, 'new', ' code ' ) )
-                                                        ),
-                                                        $Code_code
-                                                    );
                                                     ::DISPATCH( $self, '_more', );
                                                     do {
                                                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $self, "finished" ) ), "true" ), "p5landish" ) ) {
@@ -416,12 +405,8 @@
                                                                 my $r;
                                                                 $r = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$r' } ) unless defined $r;
                                                                 BEGIN { $r = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$r' } ) }
-                                                                ::DISPATCH_VAR( $r, 'STORE', ::DISPATCH( $self, 'INDEX', $i ) );
-                                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY',
-                                                                    ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', 'got ' ), ::DISPATCH( $GLOBAL::Code_prefix_58__60__126__62_, 'APPLY', $r ) ) );
+                                                                ::DISPATCH_VAR( $r, 'STORE', ::DISPATCH( $self,      'INDEX', $i ) );
                                                                 ::DISPATCH_VAR( $r, 'STORE', ::DISPATCH( $Code_code, 'APPLY', $r ) );
-                                                                ::DISPATCH( $GLOBAL::Code_say, 'APPLY',
-                                                                    ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', 'got() ' ), ::DISPATCH( $GLOBAL::Code_prefix_58__60__126__62_, 'APPLY', $r ) ) );
                                                                 ::DISPATCH( $GLOBAL::Code_take, 'APPLY', $r );
                                                                 ::DISPATCH_VAR( $i, 'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $i, ::DISPATCH( $::Int, 'new', 1 ) ) )
                                                             }
@@ -432,11 +417,14 @@
                                             }
                                         };
                                         do {
-                                            while ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60__60__61__62_, 'APPLY', $i, ::DISPATCH( ::DISPATCH( $self, 'buf', ), 'elems', ) ), "true" ), "p5landish" ) ) {
+                                            while ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60__60__62_, 'APPLY', $i, ::DISPATCH( ::DISPATCH( $self, 'buf', ), 'elems', ) ), "true" ), "p5landish" ) ) {
                                                 {
-                                                    ::DISPATCH( $GLOBAL::Code_say, 'APPLY',
-                                                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', 'b ' ), ::DISPATCH( $GLOBAL::Code_prefix_58__60__126__62_, 'APPLY', $i ) ) );
-                                                    ::DISPATCH( $GLOBAL::Code_take, 'APPLY', ::DISPATCH( $Code_code, 'APPLY', ::DISPATCH( $self, 'INDEX', $i ) ) );
+                                                    my $r;
+                                                    $r = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$r' } ) unless defined $r;
+                                                    BEGIN { $r = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$r' } ) }
+                                                    ::DISPATCH_VAR( $r, 'STORE', ::DISPATCH( $self,      'INDEX', $i ) );
+                                                    ::DISPATCH_VAR( $r, 'STORE', ::DISPATCH( $Code_code, 'APPLY', $r ) );
+                                                    ::DISPATCH( $GLOBAL::Code_take, 'APPLY', $r );
                                                     ::DISPATCH_VAR( $i, 'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $i, ::DISPATCH( $::Int, 'new', 1 ) ) )
                                                 }
                                             }
