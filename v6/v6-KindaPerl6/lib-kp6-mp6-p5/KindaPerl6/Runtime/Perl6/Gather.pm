@@ -24,6 +24,7 @@
             }
         };
         ::DISPATCH( ::DISPATCH( $::Gather, 'HOW', ), 'add_parent', ::DISPATCH( $::Array, 'HOW', ) );
+        ::DISPATCH( ::DISPATCH( $::Gather, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'code' ) );
         ::DISPATCH(
             ::DISPATCH( $::Gather, 'HOW', ),
             'add_method',
@@ -91,6 +92,7 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        ::DISPATCH( $::Str, 'new', '[ ... ]' );
                     },
                     signature => ::DISPATCH(
                         $::Signature,

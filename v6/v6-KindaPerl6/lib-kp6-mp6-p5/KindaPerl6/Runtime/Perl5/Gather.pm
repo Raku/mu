@@ -27,6 +27,7 @@ $::Gather = KindaPerl6::Runtime::Perl5::MOP::make_class(
             my $v = {
                 %{ $_[0] },
                 _value => {
+                        code      => $code,   # used by .perl
                         _array    => $::GATHER{ Scalar::Util::refaddr( $gather_coro ) },
                         _finished => \$gather_finished,
                     },  
