@@ -22,7 +22,7 @@ defined fields:
 
 For those wondering: why do reference counting when all the cool guys
 are using trace garbage collection? Well, you just can say I am
-silly... but, at first, refcount is simpler to implement, and I,
+silly... but, firstly refcount is simpler to implement, and I,
 personally, dislike trace garbage collecting because it simply isn't
 deterministic. I don't like the idea of eventually the program getting
 stalled because an alloc operation needs to call the GC, which takes
