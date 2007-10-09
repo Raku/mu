@@ -1,7 +1,14 @@
-use warnings;use strict;
 package KindaPerl6::Runtime::Perl5::DispatchSugar;
-use Exporter "import";
-our @EXPORT = qw(sugar);
+use strict;
+use warnings;
+
+sub import {
+    my $caller = caller;
+
+    no strict 'refs';
+    *{"$caller\::sugar"} = \&sugar;
+}
+
 sub sugar($) {
     my $ref = shift;
     bless($ref,"KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch");
@@ -22,3 +29,5 @@ sub AUTOLOAD {
 }
 sub DESTROY {
 }
+
+1;

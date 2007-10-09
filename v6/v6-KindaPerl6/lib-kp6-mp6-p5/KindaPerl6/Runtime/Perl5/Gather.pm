@@ -11,10 +11,10 @@ $::Gather = KindaPerl6::Runtime::Perl5::MOP::make_class(
     {
     
     new => sub {
-
+            my $code = $_[1];
             my $gather_finished; 
             my $gather_coro = Coro::async {
-               ::DISPATCH( $_[1], "APPLY" );
+               ::DISPATCH( $code, "APPLY" );
                # cleanup the pointer to the lazy buffer
                delete $::GATHER{ Scalar::Util::refaddr( $Coro::current ) };
                $gather_finished = 1;
@@ -34,8 +34,13 @@ $::Gather = KindaPerl6::Runtime::Perl5::MOP::make_class(
         },
     INDEX=>sub {
             # TODO
-            Coro::cede();  # XXX
             my $key = ::DISPATCH(::DISPATCH($_[1],"int"),"p5landish");
+            while ( ! ${ $_[0]{_value}{_finished} }
+                &&  $key > $#{ $_[0]{_value}{_array} } 
+               )
+            {
+                Coro::cede();  
+            };
             return ::DISPATCH($::Cell,"new",{cell=>\$_[0]{_value}{_array}[$key]});
         },
     STORE=>sub {
