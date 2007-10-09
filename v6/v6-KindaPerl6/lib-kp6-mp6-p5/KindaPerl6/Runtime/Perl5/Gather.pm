@@ -34,15 +34,5 @@ $::Gather = KindaPerl6::Runtime::Perl5::MOP::make_class(
             };
         },
     _more => sub { Coro::cede() },
-    _take => sub {
-        Coro::cede();
-        # XXX avoid nested coro bug ???
-        #print "using ", $_[0]{_value}{_coro}, "\n";
-        #$_[0]{_value}{buf}{_value}{_array} = $::GATHER{ $_[0]{_value}{_coro} };
-        
-        push @{ $::GATHER{ $_[0]{_value}{_coro} } }, 
-            ::DISPATCH( $_[1], 'FETCH' );
-        return $_[1];
-    }
 }, );
 
