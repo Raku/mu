@@ -1,11 +1,12 @@
 use strict;
 use Coro;
+use Scalar::Util; 
 
 my %GATHER;  # holds the inside-out-ish lazy list instances
 
 sub take {
   #print " current $Coro::current \n";
-  push @{ $GATHER{ $Coro::current } }, $_[0];
+  push @{ $GATHER{ Scalar::Util::refaddr( $Coro::current ) } }, $_[0];
 }
 
 sub push_one { 
@@ -23,13 +24,14 @@ sub gather_taker {
      push_one;
    };
    }->();
-   delete $GATHER{ $Coro::current };   # cleanup the pointer to the lazy buffer
+   # cleanup the pointer to the lazy buffer
+   delete $GATHER{ Scalar::Util::refaddr( $Coro::current ) };
    $gather_finished = 1;
    return;
  };
  #print "Coro: $gather_coro \n";
- $GATHER{ $gather_coro } = [];
- return ( $GATHER{ $gather_coro }, \$gather_finished );
+ $GATHER{ Scalar::Util::refaddr( $gather_coro ) } = [];
+ return ( $GATHER{ Scalar::Util::refaddr( $gather_coro ) }, \$gather_finished );
 }
  
 my ( $gather, $gather_finished ) = gather_taker();

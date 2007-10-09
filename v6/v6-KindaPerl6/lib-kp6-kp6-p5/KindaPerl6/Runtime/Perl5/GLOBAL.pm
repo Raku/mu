@@ -29,6 +29,7 @@ package GLOBAL;
         keys
         push
         qw
+        take
 
         print_backtrace
 
@@ -182,6 +183,13 @@ package GLOBAL;
                 ] 
             } )
     }
+    sub take {
+        # this assumes 'Coro' and 'Scalar::Util' are already loaded
+        push @{ $::GATHER{ Scalar::Util::refaddr( $Coro::current ) } }, $_[0];
+        Coro::cede();
+        return $_[0];
+    }
+
 
     # TODO - macro
     #  ternary:<?? !!>
