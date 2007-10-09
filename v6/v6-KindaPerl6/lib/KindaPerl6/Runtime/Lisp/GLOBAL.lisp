@@ -100,7 +100,7 @@ result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
       (cl->perl (concatenate 'string (str* (VAR $ first)) (str* (VAR $ second)))))
 
     (define-kp6-function "prefix:<~>" (($ first))
-      (cl->perl (str* (VAR $ first))))
+      (cl->perl (perl->display (VAR $ first))))
 
     (define-kp6-function "length" (($ first))
       (cl->perl (length (str* (VAR $ first)))))
