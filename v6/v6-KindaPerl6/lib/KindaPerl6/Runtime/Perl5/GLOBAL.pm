@@ -185,7 +185,8 @@ package GLOBAL;
     }
     sub take {
         # this assumes 'Coro' and 'Scalar::Util' are already loaded
-        push @{ $::GATHER{ Scalar::Util::refaddr( $Coro::current ) } }, $_[0];
+        push @{ $::GATHER{ Scalar::Util::refaddr( $Coro::current ) } }, 
+            ::DISPATCH( $_[0], 'FETCH' );
         Coro::cede();
         return $_[0];
     }

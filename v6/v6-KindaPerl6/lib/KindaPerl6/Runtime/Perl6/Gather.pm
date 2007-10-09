@@ -40,17 +40,20 @@ class Gather is Array {
             return (self.buf)[$ix];
     };
     method map (&code) {
+        my $obj = self;
         gather {
             my $i = 0;
-            while !$.finished { 
-                    my $r = (self)[$i];
+            while !$obj.finished { 
+                    my $r = $obj[$i];
                     $r = code( $r );
+                    say "take $r";
                     take $r; 
                     $i = $i + 1;
             };
-            while $i < (self.buf).elems { 
-                    my $r = (self)[$i];
+            while $i < ($obj.buf).elems { 
+                    my $r = $obj[$i];
                     $r = code( $r );
+                    say "take $r";
                     take $r; 
                     $i = $i + 1;
             };
