@@ -7,8 +7,7 @@ class Gather is Array {
         '( gather ' ~ $.code.perl ~ ' )' 
     };
     method str {
-        # TODO
-        '[ ... ]';   
+        (self.eager).str;
     };
     method true {
         self._more;

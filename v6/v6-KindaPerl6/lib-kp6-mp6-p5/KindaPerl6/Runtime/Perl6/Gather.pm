@@ -94,7 +94,7 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        ::DISPATCH( $::Str, 'new', '[ ... ]' );
+                        ::DISPATCH( ::DISPATCH( $self, 'eager', ), 'str', );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
