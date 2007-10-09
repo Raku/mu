@@ -1,1 +1,38 @@
-This is yap6, a prospective runtime for kp6
+This is yap6, a prospective runtime for kp6...
+
+There follows the ROADMAP mixed with the changelog
+
+CHANGELOG
+
+0.0.1 - The initial revision, definining the basic data structures to
+be used.
+
+ROADMAP
+
+0.0.2 - Implement the basic types
+
+0.0.3 - Implement the MOP in a Perl 6 strict subset that can be
+compiled to C using this runtime, implement the compilation itself and
+generate the code to be used inside yap6. - This is supposed to be
+done inside KP6, only the result of that will be kept here.
+
+0.1.0 - Working MOP - Note that this depends on the KP6 Runtime
+counting less and less in the p5 runtime.
+
+0.2.0 - KP6 Rules compiled to YAP6 Runtime
+
+0.3.0 - YAP6 can compile "say 'Hello'"
+
+0.4.0 - YAP6 can compile KP6 (this doesn't means it work :)
+
+0.5.0 - YAP6 bootstrap - This means YAP6 doesn't need KP6 anymore.
+
+0.6.0 - YAP6 interpreter - The code is executed inside YAP6 as an
+interpreter. A DUMP of the runtime environment is available after
+the compile phase. This dump can be loaded by YAP6 as a "bytecode".
+
+0.7.0 - YAP6 uses a subset of the STD grammar. This subset needs to be
+big enough so it can be used then to generate a new stage of YAP6
+itself.
+
+1.0.0 - YAP6 uses completeSTD grammar.
