@@ -1,5 +1,5 @@
 
-say '1..2';
+say '1..4';
 
 my $s = Gather.new( sub { take 42 } );
 
@@ -23,5 +23,13 @@ if ( $s[5] == 5 ) {
 }
 else {
   say 'not ok 3';
+};
+
+$s = gather { take 42 };
+if ( $s[0] == 42 ) {
+  say 'ok 4 - gather syntax works';
+}
+else {
+  say 'not ok 4';
 };
 

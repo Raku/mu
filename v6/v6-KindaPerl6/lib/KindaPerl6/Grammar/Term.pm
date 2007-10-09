@@ -223,11 +223,14 @@ token term {
     | <check_block> 
                 { return $$<check_block> }  # CHECK { code... }
     | gather <?ws> <sub_block>              # gather { code... }
-                { 
-                    say "gather not implemented yet !!! ";
-                    return $$<sub_block>;
-                } 
-
+        { return
+            ::Call(
+                hyper     => '',
+                arguments => [ $$<sub_block> ],
+                method   => 'new',
+                invocant => ::Proto( name => 'Gather', ),
+            );
+        } 
     | is <?ws> <full_ident> 
         { die "<is> not implemented" }
     | does <?ws> <full_ident> 
