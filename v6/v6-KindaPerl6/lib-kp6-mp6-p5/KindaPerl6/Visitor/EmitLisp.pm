@@ -542,13 +542,21 @@ sub emit_lisp {
     };
     do {
         if ( ( $name eq 'infix:<&&>' ) ) {
-            return ( ( '(make-instance \'kp6-Bit :value (and (kp6-true ' . ( Main::join( [ map { $_->emit_lisp( $interpreter, $indent ) } @{ $self->{arguments} } ], ') (kp6-true ' ) . ')))' ) ) );
+            return (
+                (   '(make-instance \'kp6-Bit :value (and (kp6-dispatch (kp6-dispatch '
+                        . ( Main::join( [ map { $_->emit_lisp( $interpreter, $indent ) } @{ $self->{arguments} } ], ' :true) :cl-landish) (kp6-dispatch (kp6-dispatch ' ) . ' :true) :cl-landish)))' )
+                )
+            );
         }
         else { }
     };
     do {
         if ( ( $name eq 'infix:<||>' ) ) {
-            return ( ( '(make-instance \'kp6-Bit :value (or (kp6-true ' . ( Main::join( [ map { $_->emit_lisp( $interpreter, $indent ) } @{ $self->{arguments} } ], ') (kp6-true ' ) . ')))' ) ) );
+            return (
+                (   '(make-instance \'kp6-Bit :value (or (kp6-dispatch (kp6-dispatch '
+                        . ( Main::join( [ map { $_->emit_lisp( $interpreter, $indent ) } @{ $self->{arguments} } ], ' :true) :cl-landish) (kp6-dispatch (kp6-dispatch ' ) . ' :true) :cl-landish)))' )
+                )
+            );
         }
         else { }
     };

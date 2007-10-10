@@ -328,11 +328,11 @@ class Apply {
         }
 
         if ($name eq 'infix:<&&>') {
-            return '(make-instance \'kp6-Bit :value (and (kp6-true ' ~ (@.arguments.>>emit_lisp($interpreter, $indent)).join(') (kp6-true ') ~ ')))';
+            return '(make-instance \'kp6-Bit :value (and (kp6-dispatch (kp6-dispatch ' ~ (@.arguments.>>emit_lisp($interpreter, $indent)).join(' :true) :cl-landish) (kp6-dispatch (kp6-dispatch ') ~ ' :true) :cl-landish)))';
         }
 
         if ($name eq 'infix:<||>') {
-            return '(make-instance \'kp6-Bit :value (or (kp6-true ' ~ (@.arguments.>>emit_lisp($interpreter, $indent)).join(') (kp6-true ') ~ ')))';
+            return '(make-instance \'kp6-Bit :value (or (kp6-dispatch (kp6-dispatch ' ~ (@.arguments.>>emit_lisp($interpreter, $indent)).join(' :true) :cl-landish) (kp6-dispatch (kp6-dispatch ') ~ ' :true) :cl-landish)))';
         }
 
         if ($name eq 'ternary:<?? !!>') {
