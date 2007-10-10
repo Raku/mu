@@ -139,8 +139,8 @@ sub top_targets
     # Add the kp6 targets
     $inherited =~ s/^(all (.*))/$1 \$(kp6_mp6_OBJ) \$(kp6_kp6_OBJ) \$(kp6_mp6_modules_OBJ) \$(kp6_kp6_modules_OBJ) kp6-kp6.pl/m;
 
-    # Add kp6_mp6 only targets
-    $inherited .= "\nkp6_mp6 $2 \$(kp6_mp6_OBJ) \$(kp6_mp6_modules_OBJ)\n\t\$(NOECHO) \$(NOOP)\n";
+    # Add kp6_mp6 only targets, not pure_all or manifypods
+    $inherited .= "\nkp6_mp6 :: \$(kp6_mp6_OBJ) \$(kp6_mp6_modules_OBJ)\n\t\$(NOECHO) \$(NOOP)\n";
 
     return $inherited . "\n" .
 <<'END';
