@@ -77,3 +77,15 @@
   (declare (ignore parameters))
   (make-instance 'kp6-Int
      :value (hash-table-count (kp6-value invocant))))
+
+(defmethod kp6-dispatch ((invocant kp6-Hash) (method (eql :keys)) &rest parameters)
+  "Returns a list of keys in the hash in `maphash' order"
+  (declare (ignore parameters))
+  (make-instance 'kp6-Array :value 
+    (let ((hash (slot-value invocant 'value))
+          (values))
+      (maphash #'(lambda (key val)
+                   (declare (ignore val))
+                   (push (make-instance 'kp6-Str :value key) values))
+               hash)
+      values)))
