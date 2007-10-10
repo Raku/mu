@@ -5,3 +5,7 @@
 
 (defmethod kp6-true ((object kp6-Bit))
   (not (null (kp6-value object))))
+
+(defmethod kp6-dispatch ((invocant kp6-Bit) (method (eql :cl-landish)) &rest parameters)
+  (declare (ignore parameters))
+  (not (null (kp6-value invocant))))

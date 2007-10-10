@@ -602,26 +602,24 @@ sub emit_lisp {
     my $interpreter;
     my $indent;
     do { $interpreter = $List__->[0]; $indent = $List__->[1]; [ $interpreter, $indent ] };
-    my $cond = ( '(kp6-true ' . ( $self->{cond}->emit_lisp( $interpreter, $indent ) . ')' ) );
-    return (
-        (   '(cond '
+    my $cond = ( '(kp6-dispatch (kp6-dispatch ' . ( $self->{cond}->emit_lisp( $interpreter, $indent ) . ' :true) :cl-landish)' ) );
+    (   '(cond '
+            . (
+            Main::newline()
                 . (
-                Main::newline()
+                '('
                     . (
-                    '('
+                    $cond
                         . (
-                        $cond
+                        ' '
                             . (
-                            ' '
-                                . (
-                                  ( $self->{body} ? $self->{body}->emit_lisp( $interpreter, $indent ) : 'nil' )
-                                . ( ')' . ( ( $self->{otherwise} ? ( Main::newline() . ( '(t ' . ( $self->{otherwise}->emit_lisp( $interpreter, $indent ) . ')' ) ) ) : '' ) . ')' ) )
-                                )
+                              ( $self->{body} ? $self->{body}->emit_lisp( $interpreter, $indent ) : 'nil' )
+                            . ( ')' . ( ( $self->{otherwise} ? ( Main::newline() . ( '(t ' . ( $self->{otherwise}->emit_lisp( $interpreter, $indent ) . ')' ) ) ) : '' ) . ')' ) )
                             )
                         )
                     )
                 )
-        )
+            )
     );
 }
 

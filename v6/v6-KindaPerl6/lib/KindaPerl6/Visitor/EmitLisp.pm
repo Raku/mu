@@ -370,12 +370,12 @@ class Return {
 
 class If {
     method emit_lisp ($interpreter, $indent) {
-	my $cond := '(kp6-true ' ~ $.cond.emit_lisp($interpreter, $indent) ~ ')';
+        my $cond := '(kp6-dispatch (kp6-dispatch ' ~ $.cond.emit_lisp($interpreter, $indent) ~ ' :true) :cl-landish)';
 
-	return '(cond ' ~ Main::newline()
-	     ~ '(' ~ $cond ~ ' ' ~ ($.body ?? $.body.emit_lisp($interpreter, $indent) !! 'nil') ~ ')'
-	     ~ ($.otherwise ?? Main::newline() ~ '(t ' ~ $.otherwise.emit_lisp($interpreter, $indent) ~ ')' !! '') 
-	     ~ ')';
+        '(cond ' ~ Main::newline()
+          ~ '(' ~ $cond ~ ' ' ~ ($.body ?? $.body.emit_lisp($interpreter, $indent) !! 'nil') ~ ')'
+          ~ ($.otherwise ?? Main::newline() ~ '(t ' ~ $.otherwise.emit_lisp($interpreter, $indent) ~ ')' !! '') 
+          ~ ')';
     }
 }
 
