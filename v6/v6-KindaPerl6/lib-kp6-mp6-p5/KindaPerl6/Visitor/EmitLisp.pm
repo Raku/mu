@@ -381,6 +381,16 @@ sub emit_lisp {
         }
         else { }
     };
+    do {
+        if ( ( Main::isa( $node, 'Call' ) && ( Main::isa( $node->invocant(), 'Var' ) && ( $node->method() eq 'INDEX' ) ) ) ) {
+            return (
+                (   '(kp6-dispatch '
+                        . ( $node->invocant()->emit_lisp( $interpreter, $indent ) . ( ' :store ' . ( $node->arguments()->[0]->emit_lisp( $interpreter, $indent ) . ( ' ' . ( $self->{arguments}->emit_lisp( $interpreter, $indent ) . ')' ) ) ) ) )
+                )
+            );
+        }
+        else { }
+    };
     ( '(kp6-error ' . ( $interpreter . ' \'kp6-not-implemented :feature "assigning to anything other than variables")' ) );
 }
 
