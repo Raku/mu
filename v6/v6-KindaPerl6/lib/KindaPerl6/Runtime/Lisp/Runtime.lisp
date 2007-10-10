@@ -8,7 +8,7 @@
               ,(format nil "compat/~A"
                        #+:sbcl "sbcl"
                        #-:sbcl "other")
-	      "MOP"
+              "MOP"
               "Object" "Cell" "Signature"
               "Value" "Container"       ; Base classes
               "Undef"                   ; Undef
