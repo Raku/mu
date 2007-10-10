@@ -102,7 +102,7 @@ class Lit::Hash {
         my $str := ''; # XXX (' ' x ($indent + 1))
         my $field;
         for @$fields -> $field { 
-            $str := $str ~ '(kp6-store hash ' ~ ($field[0]).emit_lisp($interpreter, $indent) ~ ' ' ~ ($field[1]).emit_lisp($interpreter, $indent) ~ ')' ~ Main::newline(); # XXX (' ' x ($indent + 1))
+            $str := $str ~ '(kp6-dispatch hash :store ' ~ ($field[0]).emit_lisp($interpreter, $indent) ~ ' ' ~ ($field[1]).emit_lisp($interpreter, $indent) ~ ')' ~ Main::newline(); # XXX (' ' x ($indent + 1))
         }; 
   
 	'(let ((hash (make-instance \'kp6-Hash)))' ~ Main::newline() ~ $str ~ ' hash)';

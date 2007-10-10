@@ -244,7 +244,7 @@ sub emit_lisp {
     my $str    = '';
     my $field;
     do {
-        for my $field ( @{$fields} ) { $str = ( $str . ( '(kp6-store hash ' . ( $field->[0]->emit_lisp( $interpreter, $indent ) . ( ' ' . ( $field->[1]->emit_lisp( $interpreter, $indent ) . ( ')' . Main::newline() ) ) ) ) ) ) }
+        for my $field ( @{$fields} ) { $str = ( $str . ( '(kp6-dispatch hash :store ' . ( $field->[0]->emit_lisp( $interpreter, $indent ) . ( ' ' . ( $field->[1]->emit_lisp( $interpreter, $indent ) . ( ')' . Main::newline() ) ) ) ) ) ) }
     };
     ( '(let ((hash (make-instance \'kp6-Hash)))' . ( Main::newline() . ( $str . ' hash)' ) ) );
 }
