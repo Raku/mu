@@ -8,7 +8,7 @@
 
 (defmethod kp6-dispatch ((invocant kp6-Bit) (method (eql :true)) &rest parameters)
   (declare (ignore parameters))
-  (make-instance 'kp6-Bit :value (kp6-value invocant)))
+  (make-instance 'kp6-Bit :value (not (null (kp6-value invocant)))))
 
 (defmethod kp6-dispatch ((invocant kp6-Bit) (method (eql :cl-landish)) &rest parameters)
   (declare (ignore parameters))
