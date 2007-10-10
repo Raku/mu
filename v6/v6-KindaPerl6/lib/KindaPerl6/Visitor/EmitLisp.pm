@@ -290,9 +290,9 @@ class Call {
         if  $meth eq 'postcircumfix:<( )>'  {
              $meth := '';  
         };
-
-        my $call := (@.arguments.>>emit_lisp($interpreter, $indent)).join(' ');
-
+	
+	my $call := (@.arguments.>>emit_lisp($interpreter, $indent)).join(' ');
+	
         if ($.hyper) {
             return 'XXX: Hyper';
         }
@@ -304,7 +304,7 @@ class Call {
             else {
                   '(kp6-dispatch '
                 ~ $invocant ~ ' '
-                ~ '"' ~ $meth ~ '"'
+                ~ ':' ~ $meth ~ ' '
                 ~ $call
                 ~ ')'
                 ~ Main::newline()

@@ -517,7 +517,7 @@ sub emit_lisp {
         else {
             do {
                 if ( ( $meth eq '' ) ) { ( '::DISPATCH( ' . ( $invocant . ( ', \'APPLY\', ' . ( $call . ( ' )' . Main::newline() ) ) ) ) ) }
-                else                   { ( '(kp6-dispatch ' . ( $invocant . ( ' ' . ( '"' . ( $meth . ( '"' . ( $call . ( ')' . Main::newline() ) ) ) ) ) ) ) ) }
+                else                   { ( '(kp6-dispatch ' . ( $invocant . ( ' ' . ( ':' . ( $meth . ( ' ' . ( $call . ( ')' . Main::newline() ) ) ) ) ) ) ) ) }
                 }
         }
         }
