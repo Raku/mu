@@ -1,8 +1,21 @@
 (in-package #:kp6-lisp)
 
+;; The test function is #'equal which works because we only support
+;; string keys at the moment. (Does p6 even support complex types as
+;; keys?)
+;;
+;; Due to this hack .pairs, .keys and other methods that return keys
+;; need to construct a kp6-Str object again
+
 (defclass kp6-Hash (kp6-Container)
   ((value
     :initform (make-hash-table :test #'equal))))
+
+;; XXX: Everything below which is not (defmethod kp6-dispatch) is
+;; *only used internally*. Internals (like Pad) should probably be
+;; rewritten to use the new stuff or we should move this somewhere
+;; else if we don't want to constantly convert back-and-forth between
+;; cl and perl in the internals.
 
 (defmethod kp6-store ((self kp6-Hash) key value &key)
   "Stores a key-value pair in the hash"
@@ -43,7 +56,7 @@
                    (push key values))
                hash)
       values)))
-                 
+
 (defmethod kp6-elems ((self kp6-Hash) &key)
   "Returns the number of elements in the hash"
   (make-instance 'kp6-Int :value 
@@ -80,7 +93,7 @@
   "Returns the number of elements in the hash"
   (declare (ignore parameters))
   (make-instance 'kp6-Int
-     :value (hash-table-count (kp6-value invocant))))
+     :value (hash-table-count (slot-value invocant 'value))))
 
 (defmethod kp6-dispatch ((invocant kp6-Hash) (method (eql :keys)) &rest parameters)
   "Returns a list of keys in the hash in `maphash' order"
@@ -103,3 +116,34 @@
 		 (kp6-dispatch values :push val))
 	     hash)
     values))
+
+(defmethod kp6-dispatch ((invocant kp6-Hash) (method (eql :exists)) &rest parameters)
+  "Test whether an entry exists"
+  (let ((key (perl->cl (elt parameters 0))))
+    (make-instance 'kp6-Bit :value
+                   (not (null (nth-value 1 (gethash key (slot-value invocant 'value))))))))
+
+(defmethod kp6-dispatch ((invocant kp6-Hash) (method (eql :delete)) &rest parameters)
+  "Deletes a key-value pair from the hash given a key"
+  (let ((hash (slot-value invocant 'value))
+        (key (perl->cl (elt parameters 0))))
+    (make-instance 'kp6-Bit :value (remhash key hash))))
+
+(defmethod kp6-dispatch ((invocant kp6-Hash) (method (eql :clear)) &rest parameters)
+  "Empties the hash"
+  (declare (ignore parameters))
+  (clrhash (slot-value invocant 'value))
+  ;; XXX: Always return true?
+  (make-instance 'kp6-Bit :value t))
+
+(defmethod kp6-dispatch ((invocant kp6-Hash) (method (eql :pairs)) &rest parameters)
+  "Returns an Array of key-value pairs in the hash in `maphash' order"
+  (declare (ignore parameters))
+  (make-instance 'kp6-Array :value 
+    (let ((hash (slot-value invocant 'value))
+          (values))
+      (maphash #'(lambda (key val)
+                   (push val values)
+                   (push (make-instance 'kp6-Str :value key) values))
+               hash)
+      values)))
