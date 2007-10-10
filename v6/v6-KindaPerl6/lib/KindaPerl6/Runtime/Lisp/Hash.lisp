@@ -49,11 +49,15 @@
   (make-instance 'kp6-Int :value 
     (hash-table-count (kp6-value self))))
 
-(defmethod kp6-true ((self kp6-Hash))
-  (plusp (hash-table-count (kp6-value self))))
+(defmethod kp6-dispatch ((invocant kp6-Hash) (method (eql :true)) &rest parameters)
+  "A hash is true if it contains nonzero entries"
+  (declare (ignore parameters))
+  (make-instance 'kp6-Bit :value (plusp (hash-table-count (kp6-dispatch invocant :cl-landish)))))
 
-
-
+(defmethod kp6-dispatch ((invocant kp6-Hash) (method (eql :cl-landish)) &rest parameters)
+  "Return a lisp object for the Hash"
+  (declare (ignore parameters))
+  (slot-value invocant 'value))
 
 (defmethod kp6-dispatch ((invocant kp6-Hash) (method (eql :store)) &rest parameters)
   "Stores a key-value pair in the hash"
