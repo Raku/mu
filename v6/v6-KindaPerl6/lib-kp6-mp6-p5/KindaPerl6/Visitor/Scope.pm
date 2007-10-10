@@ -3,10 +3,40 @@ use v5;
 use strict;
 use MiniPerl6::Perl5::Runtime;
 use MiniPerl6::Perl5::Match;
+
 package KindaPerl6::Visitor::Scope;
-sub new { shift; bless { @_ }, "KindaPerl6::Visitor::Scope" }
-sub visit { my $self = shift; my $List__ = \@_; my $node; my $node_name; do {  $node = $List__->[0];  $node_name = $List__->[1]; [$node, $node_name] }; do { if (($node_name eq 'Lit::Code')) { return(Lit::Code->new( 'pad' => $node->pad(),'state' => $node->state(),'sig' => $node->sig(),'body' => [Assign->new( 'parameters' => Var->new( 'namespace' => [],'name' => 'MY','twigil' => '','sigil' => '$', ),'arguments' => Call->new( 'hyper' => (undef),'arguments' => (undef),'method' => 'inner','invocant' => Var->new( 'namespace' => [],'name' => 'MY','twigil' => '','sigil' => '$', ), ), ), @{$node->body()}, Assign->new( 'parameters' => Var->new( 'namespace' => [],'name' => 'MY','twigil' => '','sigil' => '$', ),'arguments' => Call->new( 'hyper' => (undef),'arguments' => (undef),'method' => 'outer','invocant' => Var->new( 'namespace' => [],'name' => 'MY','twigil' => '','sigil' => '$', ), ), )], )) } else {  } }; return((undef)) }
+sub new { shift; bless {@_}, "KindaPerl6::Visitor::Scope" }
 
+sub visit {
+    my $self   = shift;
+    my $List__ = \@_;
+    my $node;
+    my $node_name;
+    do { $node = $List__->[0]; $node_name = $List__->[1]; [ $node, $node_name ] };
+    do {
+        if ( ( $node_name eq 'Lit::Code' ) ) {
+            return (
+                Lit::Code->new(
+                    'pad'   => $node->pad(),
+                    'state' => $node->state(),
+                    'sig'   => $node->sig(),
+                    'body'  => [
+                        Assign->new(
+                            'parameters' => Var->new( 'namespace' => [], 'name' => 'MY', 'twigil' => '', 'sigil' => '$', ),
+                            'arguments' => Call->new( 'hyper' => (undef), 'arguments' => (undef), 'method' => 'inner', 'invocant' => Var->new( 'namespace' => [], 'name' => 'MY', 'twigil' => '', 'sigil' => '$', ), ),
+                        ),
+                        @{ $node->body() },
+                        Assign->new(
+                            'parameters' => Var->new( 'namespace' => [], 'name' => 'MY', 'twigil' => '', 'sigil' => '$', ),
+                            'arguments' => Call->new( 'hyper' => (undef), 'arguments' => (undef), 'method' => 'outer', 'invocant' => Var->new( 'namespace' => [], 'name' => 'MY', 'twigil' => '', 'sigil' => '$', ), ),
+                        )
+                    ],
+                )
+            );
+        }
+        else { }
+    };
+    return ( (undef) );
+}
 
-;
 1;

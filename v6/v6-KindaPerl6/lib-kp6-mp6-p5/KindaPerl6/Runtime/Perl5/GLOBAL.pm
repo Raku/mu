@@ -73,6 +73,16 @@ package GLOBAL;
             }
         } );
 
+    # @*ARGS
+    $GLOBAL::List_ARGS =
+        ::DISPATCH( $::Array, 'new', {
+            _array => [
+                map {
+                    ::DISPATCH( $::Str, 'new', $_ )
+                } @ARGV
+            ]
+        } );
+
 =pod 
     # XXX - hash key autovivification is not rw! please fix in MOP.pm
        

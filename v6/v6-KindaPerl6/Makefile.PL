@@ -193,7 +193,7 @@ lib-kp6-kp6-p5/KindaPerl6/Runtime/Perl5/%.pm: lib/KindaPerl6/Runtime/Perl5/%.pm
 	$(CP) $< $@
 
 lib-kp6-mp6-p5/%.pm: lib/%.pm
-	$(PERL) mp6.pl < $< > $@
+	$(PERL) mp6.pl < $< | perltidy -pro=util/perltidyrc > $@
 
 lib-kp6-kp6-p5/%.pm: lib/%.pm
 	$(PERL) script/kp6 -r kp6 < $< | perltidy -pro=util/perltidyrc > $@
