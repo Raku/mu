@@ -139,11 +139,10 @@
 (defmethod kp6-dispatch ((invocant kp6-Hash) (method (eql :pairs)) &rest parameters)
   "Returns an Array of key-value pairs in the hash in `maphash' order"
   (declare (ignore parameters))
-  (make-instance 'kp6-Array :value 
-    (let ((hash (slot-value invocant 'value))
-          (values))
-      (maphash #'(lambda (key val)
-                   (push val values)
-                   (push (make-instance 'kp6-Str :value key) values))
-               hash)
-      values)))
+  (let ((hash (slot-value invocant 'value))
+	(values (make-instance 'kp6-array)))
+    (maphash #'(lambda (key val)
+		 (kp6-dispatch values :push val)
+		 (kp6-dispatch values :push (make-instance 'kp6-str :value key)))
+	     hash)
+    values))
