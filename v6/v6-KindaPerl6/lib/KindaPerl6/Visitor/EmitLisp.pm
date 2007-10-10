@@ -388,7 +388,7 @@ class For {
         } else {
             $cond := ::Apply( code => ::Var(sigil=>'&',twigil=>'',name=>'prefix:<@>',namespace => [ 'GLOBAL' ],), arguments => [$cond] );
         }
-        '(kp6-for-->-single'
+        '(kp6-for-loop-structure'
         ~ ' ' ~ $.topic.emit_lisp_name()
         ~ ' ' ~ $cond.emit_lisp($interpreter, $indent)
         ~ ' ' ~ $.body.emit_lisp($interpreter, $indent) 

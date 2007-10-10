@@ -17,7 +17,7 @@
       (declare (ignorable ,@(mapcar #'(lambda (x) `#',(first x)) functions)))
       ,@body)))
 
-(defmacro kp6-for-->-single (loop-variable array &body body)
+(defmacro kp6-for-loop-structure (loop-variable array &body body)
   (with-unique-names (array-index array-value)
     `(let ((,array-value ,array))
        (dotimes (,array-index (perl->cl (kp6-dispatch ,array-value :elems)))

@@ -88,3 +88,14 @@
 		 (kp6-dispatch values :push (make-instance 'kp6-Str :value key)))
 	     hash)
     values))
+
+(defmethod kp6-dispatch ((invocant kp6-Hash) (method (eql :values)) &rest parameters)
+  "Returns a list of values in the hash in `maphash' order"
+  (declare (ignore parameters))
+  (let ((hash (slot-value invocant 'value))
+	(values (make-instance 'kp6-array)))
+    (maphash #'(lambda (key val)
+		 (declare (ignore key))
+		 (kp6-dispatch values :push val))
+	     hash)
+    values))
