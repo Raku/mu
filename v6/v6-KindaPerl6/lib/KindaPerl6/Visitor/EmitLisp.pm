@@ -193,6 +193,16 @@ class Assign {
 	    return '(kp6-store ' ~ ($node.obj).emit_lisp ~ ' (perl->cl ' ~ ($node.index).emit_lisp ~ ') ' ~ $.arguments.emit_lisp($interpreter, $indent) ~ ')';
 	}
 
+	if $node.isa('Call') && ($node.invocant).isa('Var') && ($node.method) eq 'INDEX' {
+	    return '(kp6-dispatch '
+		~ ($node.invocant).emit_lisp($interpreter, $indent)
+		~ ' :store '
+		~ (($node.arguments)[0]).emit_lisp($interpreter, $indent)
+		~ ' '
+		~ $.arguments.emit_lisp($interpreter, $indent)
+		~ ')';
+	}
+	
 	'(kp6-error ' ~ $interpreter ~ ' \'kp6-not-implemented :feature "assigning to anything other than variables")';
     }
 }

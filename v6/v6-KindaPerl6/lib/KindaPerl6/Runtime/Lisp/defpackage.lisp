@@ -12,6 +12,9 @@
    #:make-kp6-argument
    
    #:kp6-true
+
+   ;; MOP
+   #:kp6-dispatch
    
    ;; Accessors
    #:kp6-value

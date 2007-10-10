@@ -51,3 +51,28 @@
 
 (defmethod kp6-true ((self kp6-Hash))
   (plusp (hash-table-count (kp6-value self))))
+
+
+
+
+(defmethod kp6-dispatch ((invocant kp6-Hash) (method (eql :store)) &rest parameters)
+  "Stores a key-value pair in the hash"
+  (assert (= 2 (length parameters)))
+  (let ((key (elt parameters 0))
+	(value (elt parameters 1)))
+    (let ((hash (slot-value invocant 'value)))
+      (setf (gethash key hash) value)
+      hash)))
+
+(defmethod kp6-dispatch ((invocant kp6-Hash) (method (eql :lookup)) &rest parameters)
+  "Looks up a value in the hash by key"
+  (assert (= 1 (length parameters)))
+  (let ((key (elt parameters 0)))
+    (let ((hash (slot-value invocant 'value)))
+      (gethash key hash))))
+
+(defmethod kp6-dispatch ((invocant kp6-Hash) (method (eql :elems)) &rest parameters)
+  "Returns the number of elements in the hash"
+  (declare (ignore parameters))
+  (make-instance 'kp6-Int
+     :value (hash-table-count (kp6-value invocant))))
