@@ -382,7 +382,7 @@ sub emit_lisp {
         else { }
     };
     do {
-        if ( ( Main::isa( $node, 'Call' ) && ( Main::isa( $node->invocant(), 'Var' ) && ( $node->method() eq 'INDEX' ) ) ) ) {
+        if ( ( Main::isa( $node, 'Call' ) && ( Main::isa( $node->invocant(), 'Var' ) && ( ( $node->method() eq 'INDEX' ) || ( $node->method() eq 'LOOKUP' ) ) ) ) ) {
             return (
                 (   '(kp6-dispatch '
                         . ( $node->invocant()->emit_lisp( $interpreter, $indent ) . ( ' :store ' . ( $node->arguments()->[0]->emit_lisp( $interpreter, $indent ) . ( ' ' . ( $self->{arguments}->emit_lisp( $interpreter, $indent ) . ')' ) ) ) ) )
@@ -488,7 +488,7 @@ sub emit_lisp {
     do { $interpreter = $List__->[0]; $indent = $List__->[1]; [ $interpreter, $indent ] };
     do {
         if ( ( Main::isa( $self->{invocant}, 'Var' ) && ( ( $self->{method} eq 'LOOKUP' ) || ( $self->{method} eq 'INDEX' ) ) ) ) {
-            return ( ( '(kp6-lookup ' . ( $self->{invocant}->emit_lisp( $interpreter, $indent ) . ( ' (perl->cl ' . ( $self->{arguments}->[0]->emit_lisp( $interpreter, $indent ) . '))' ) ) ) ) );
+            return ( ( '(kp6-dispatch ' . ( $self->{invocant}->emit_lisp( $interpreter, $indent ) . ( ' :lookup ' . ( $self->{arguments}->[0]->emit_lisp( $interpreter, $indent ) . ')' ) ) ) ) );
         }
         else { }
     };

@@ -20,13 +20,13 @@
 (defmethod kp6-dispatch ((invocant kp6-Array) (method (eql :lookup)) &rest parameters)
   "Retrieve a value from the array"
   (assert (= 1 (length parameters)))
-  (let ((index (kp6-value (elt parameters 0))))
+  (let ((index (perl->cl (elt parameters 0))))
     (elt (kp6-value invocant) index)))
 
 (defmethod kp6-dispatch ((invocant kp6-Array) (method (eql :store)) &rest parameters)
   "Stores a value in the index of the array"
   (assert (= 2 (length parameters)))
-  (let ((index (kp6-value (elt parameters 0)))
+  (let ((index (perl->cl (elt parameters 0)))
 	(value (elt parameters 1)))
     (when (<= index (array-dimension (kp6-value invocant) 0))
       (adjust-array (kp6-value invocant) (1+ index)))

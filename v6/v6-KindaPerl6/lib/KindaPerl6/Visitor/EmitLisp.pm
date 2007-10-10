@@ -193,7 +193,8 @@ class Assign {
 	    return '(kp6-store ' ~ ($node.obj).emit_lisp ~ ' (perl->cl ' ~ ($node.index).emit_lisp ~ ') ' ~ $.arguments.emit_lisp($interpreter, $indent) ~ ')';
 	}
 
-	if $node.isa('Call') && ($node.invocant).isa('Var') && ($node.method) eq 'INDEX' {
+	if $node.isa('Call') && ($node.invocant).isa('Var')
+	    && ((($node.method) eq 'INDEX') || (($node.method) eq 'LOOKUP')) {
 	    return '(kp6-dispatch '
 		~ ($node.invocant).emit_lisp($interpreter, $indent)
 		~ ' :store '
@@ -265,7 +266,7 @@ class Proto {
 class Call {
     method emit_lisp ($interpreter, $indent) {
         if $.invocant.isa('Var') && (($.method eq 'LOOKUP') || ($.method eq 'INDEX')) {
-            return '(kp6-lookup ' ~ $.invocant.emit_lisp($interpreter, $indent) ~ ' (perl->cl ' ~ (($.arguments)[0]).emit_lisp($interpreter, $indent) ~ '))';
+            return '(kp6-dispatch ' ~ $.invocant.emit_lisp($interpreter, $indent) ~ ' :lookup ' ~ (($.arguments)[0]).emit_lisp($interpreter, $indent) ~ ')';
         }
 
         my $invocant;

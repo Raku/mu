@@ -58,7 +58,7 @@
 (defmethod kp6-dispatch ((invocant kp6-Hash) (method (eql :store)) &rest parameters)
   "Stores a key-value pair in the hash"
   (assert (= 2 (length parameters)))
-  (let ((key (elt parameters 0))
+  (let ((key (perl->cl (elt parameters 0)))
 	(value (elt parameters 1)))
     (let ((hash (slot-value invocant 'value)))
       (setf (gethash key hash) value)
@@ -67,9 +67,10 @@
 (defmethod kp6-dispatch ((invocant kp6-Hash) (method (eql :lookup)) &rest parameters)
   "Looks up a value in the hash by key"
   (assert (= 1 (length parameters)))
-  (let ((key (elt parameters 0)))
-    (let ((hash (slot-value invocant 'value)))
-      (gethash key hash))))
+  (let ((key (perl->cl (elt parameters 0)))
+	(hash (slot-value invocant 'value)))
+    (let ((value (gethash key hash)))
+      (if value value (make-instance 'kp6-Undef)))))
 
 (defmethod kp6-dispatch ((invocant kp6-Hash) (method (eql :elems)) &rest parameters)
   "Returns the number of elements in the hash"
