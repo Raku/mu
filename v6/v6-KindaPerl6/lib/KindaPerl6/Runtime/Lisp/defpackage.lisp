@@ -11,8 +11,6 @@
    #:make-kp6-cell
    #:make-kp6-argument
    
-   #:kp6-true
-
    ;; MOP
    #:kp6-dispatch
    
