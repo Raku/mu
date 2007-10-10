@@ -1,7 +1,7 @@
 (in-package #:kp6-lisp)
 
 (defclass kp6-Array (kp6-Container)
-  ((value :initform (make-array 1 :adjustable t))))
+  ((value :initform (make-array 0 :adjustable t))))
 
 
 (defmethod kp6-lookup ((self kp6-Array) index &key)
@@ -30,6 +30,14 @@
 	(value (elt parameters 1)))
     (when (<= index (array-dimension (kp6-value invocant) 0))
       (adjust-array (kp6-value invocant) (1+ index)))
+    (setf (elt (kp6-value invocant) index) value)))
+
+(defmethod kp6-dispatch ((invocant kp6-Array) (method (eql :push)) &rest parameters)
+  "Stores a value in the index of the array"
+  (assert (= 1 (length parameters)))
+  (let ((index (array-dimension (kp6-value invocant) 0))
+	(value (elt parameters 0)))
+    (adjust-array (kp6-value invocant) (1+ index))
     (setf (elt (kp6-value invocant) index) value)))
 
 (defmethod kp6-dispatch ((invocant kp6-Array) (method (eql :elems)) &rest parameters)

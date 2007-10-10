@@ -639,7 +639,7 @@ sub emit_lisp {
         if   ( ( Main::isa( $cond, 'Var' ) && ( $cond->sigil() eq '@' ) ) ) { }
         else                                                                { $cond = Apply->new( 'code' => Var->new( 'sigil' => '&', 'twigil' => '', 'name' => 'prefix:<@>', 'namespace' => ['GLOBAL'], ), 'arguments' => [$cond], ) }
     };
-    ( '(kp6-for-->-single' . ( '  ' . ( $self->{topic}->emit_lisp_name() . ( '  ' . ( $cond->emit_lisp( $interpreter, $indent ) . ( '  ' . ( $self->{body}->emit_lisp( $interpreter, $indent ) . ')' ) ) ) ) ) ) );
+    ( '(kp6-for-->-single' . ( ' ' . ( $self->{topic}->emit_lisp_name() . ( ' ' . ( $cond->emit_lisp( $interpreter, $indent ) . ( ' ' . ( $self->{body}->emit_lisp( $interpreter, $indent ) . ')' ) ) ) ) ) ) );
 }
 
 package While;

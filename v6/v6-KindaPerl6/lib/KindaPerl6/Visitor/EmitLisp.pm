@@ -383,21 +383,15 @@ class For {
     method emit_lisp ($interpreter, $indent) {
         my $cond := $.cond;
         if   $cond.isa( 'Var' ) 
-          && $cond.sigil eq '@' 
+          && ($cond.sigil eq '@')
         {
         } else {
             $cond := ::Apply( code => ::Var(sigil=>'&',twigil=>'',name=>'prefix:<@>',namespace => [ 'GLOBAL' ],), arguments => [$cond] );
         }
-#        'for ' 
-#        ~   $.topic.emit_lisp($interpreter, $indent) 
-#        ~ ' ( @{ ' ~ $cond.emit_lisp($interpreter, $indent) ~ '->{_value}{_array} } )'
-#        ~ ' { ' 
-#        ~     $.body.emit_lisp($interpreter, $indent) 
-#        ~ ' } ';
         '(kp6-for-->-single'
-        ~ '  ' ~ $.topic.emit_lisp_name()
-        ~ '  ' ~ $cond.emit_lisp($interpreter, $indent)
-        ~ '  ' ~ $.body.emit_lisp($interpreter, $indent) 
+        ~ ' ' ~ $.topic.emit_lisp_name()
+        ~ ' ' ~ $cond.emit_lisp($interpreter, $indent)
+        ~ ' ' ~ $.body.emit_lisp($interpreter, $indent) 
         ~ ')';
     }
 }

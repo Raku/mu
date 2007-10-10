@@ -18,7 +18,10 @@
       ,@body)))
 
 (defmacro kp6-for-->-single (loop-variable array &body body)
-  (with-unique-names (array-index)
-    `(dotimes (,array-index (array-dimension (kp6-value ,array) 0))
-       (set-lexical-variable ,loop-variable (kp6-lookup ,array ,array-index))
-       ,@body)))
+  (with-unique-names (array-index array-value)
+    `(let ((,array-value ,array))
+       (dotimes (,array-index (perl->cl (kp6-dispatch ,array-value :elems)))
+	 (set-lexical-variable ,loop-variable
+			       (kp6-dispatch ,array-value :lookup
+					     (make-instance 'kp6-Int :value ,array-index)))
+	 ,@body))))

@@ -7,7 +7,7 @@
   (perl->display (kp6-cell-value object)))
 
 (defmethod perl->display ((object kp6-Array) &key)
-  (format nil "~{~A~^ ~}" (mapcar #'perl->display (kp6-value object))))
+  (format nil "~{~A~^ ~}" (map 'list #'perl->display (kp6-value object))))
 
 (defmethod perl->display ((object kp6-Str) &key)
   (format nil "~A" (kp6-value object)))
