@@ -3,5 +3,6 @@
 (defclass kp6-Undef (kp6-Value)
   ((value :initform nil)))
 
-(defmethod kp6-true ((object kp6-Undef))
-  nil)
+(defmethod kp6-dispatch ((invocant kp6-Undef) (method (eql :true)) &rest parameters)
+  (declare (ignore parameters))
+  (make-instance 'kp6-Bit :value nil))
