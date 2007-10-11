@@ -6,6 +6,36 @@
 use strict;
 use ExtUtils::MakeMaker;
 
+
+# Makefile.PL needs to be rerun with a different KP6_TARGET in order to build kp6-mp6, kp6-kp6, or kp6-lisp
+my $KP6_TARGET = $ENV{KP6_TARGET} || "KP6-MP6";
+if ( $KP6_TARGET eq "KP6-MP6" ) {
+    my %Kp6Build = (
+        lib         => "compiled/perl5/lib",
+        module_lib  => "lib-modules-kp6-mp6-p5",
+        run_test    => "script/run_tests_kp6_mp6.pl",
+    );
+}
+elsif ( $KP6_TARGET eq "KP6-KP6" ) {
+    my %Kp6Build = (
+        lib         => "lib-kp6-kp6-p5",
+        module_lib  => "lib-modules-kp6-kp6-p5",
+        run_test    => "script/run_tests_kp6_kp6.pl",
+    );
+}
+elsif ( $KP6_TARGET eq "KP6-LISP" ) {
+    die "not yet implemented KP6_TARGET '$KP6_TARGET', can't continue";
+    #my %Kp6Build = (
+    #    lib         => "lib-kp6-kp6-p5",
+    #    module_lib  => "lib-modules-kp6-kp6-p5",
+    #    run_test    => "script/run_tests_kp6_kp6.pl",
+    #);
+}
+else {
+    die "unknown KP6_TARGET '$KP6_TARGET', can't continue";
+}
+
+
 my %PM;
 
 for my $lib (qw(mp6 kp6)) {
