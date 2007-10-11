@@ -157,7 +157,7 @@ sub install_dir {
 }
 
 {
-    if (-d (my $dir = "lib")) {
+    if (-d (my $dir = runtime_dir() )) {
         unshift @INC, $dir;
     }
 

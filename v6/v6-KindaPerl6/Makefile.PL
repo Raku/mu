@@ -147,7 +147,7 @@ sub constants
 $inherited . "\n" .
 <<"END"
 # Custom v6-KindaPerl6 constants:
-kp6_mp6_OBJ = \$(patsubst src/%,$Kp6Build{lib}/%,\$(wildcard src/KindaPerl6/Grammar/*.pm src/KindaPerl6/Grammar.pm src/KindaPerl6/Traverse.pm src/KindaPerl6/Ast.pm src/KindaPerl6/Visitor/*.pm src/KindaPerl6/Runtime/Perl5/*.pm src/KindaPerl6/Runtime/Perl6/*.pm src/KindaPerl6/Test/*.pm ))
+kp6_mp6_OBJ = \$(patsubst src/%,$Kp6Build{lib}/%,\$(wildcard src/*.pm src/KindaPerl6/Grammar/*.pm src/KindaPerl6/Grammar.pm src/KindaPerl6/Traverse.pm src/KindaPerl6/Ast.pm src/KindaPerl6/Visitor/*.pm src/KindaPerl6/Runtime/Perl5/*.pm src/KindaPerl6/Runtime/Perl6/*.pm src/KindaPerl6/Test/*.pm ))
 
 kp6_mp6_modules_OBJ = \$(patsubst src-modules/%,$Kp6Build{module_lib}/%,\$(wildcard src-modules/*.pm))
 
@@ -222,7 +222,8 @@ lib-kp6-kp6-p5/KindaPerl6/Runtime/Perl5/%.pm: src/KindaPerl6/Runtime/Perl5/%.pm
 	$(CP) $< $@
 
 compiled/perl5/lib/%.pm: src/%.pm
-	$(PERL) script/mp6.pl < $< | perltidy -pro=util/perltidyrc > $@
+	$(CP) $< $@
+	# $(PERL) script/mp6.pl < $< | perltidy -pro=util/perltidyrc > $@
 
 lib-kp6-kp6-p5/%.pm: src/%.pm
 	$(PERL) script/kp6 -r kp6 < $< | perltidy -pro=util/perltidyrc > $@
