@@ -146,6 +146,16 @@ version(exitval => 0)
 # Get the required runtime files for the backend we're using
 #
 
+sub runtime_dir {
+    return "lib-kp6-kp6-p5"     if $runtime eq "kp6";
+    return "compiled/perl5/lib" if $runtime eq "mp6";
+}
+
+sub install_dir {
+    return "kp6-kp6-p5"         if $runtime eq "kp6";
+    return "kp6-mp6-p5"         if $runtime eq "mp6";
+}
+
 {
     if (-d (my $dir = "lib")) {
         unshift @INC, $dir;
@@ -156,7 +166,7 @@ version(exitval => 0)
     $Main::_V6_COMPILER_NAME    = 'KindaPerl6';
     $Main::_V6_COMPILER_VERSION = $KindaPerl6::VERSION;
 
-    if (-d (my $dir = "lib-kp6-$runtime-p5")) {
+    if (-d (my $dir = runtime_dir() )) {
         # If we're in the kp6 directory use the lib-kp6-* libs there so
         # the developers don't have to `make all install' for every little
         # change.
@@ -168,7 +178,7 @@ version(exitval => 0)
     } else {
         my $path            = $INC{"KindaPerl6.pm"};
         my ($kp_path)       = $path =~ m/(.*)\.pm$/;
-        my $runtime_dir     = catdir($kp_path, "kp6-$runtime-p5");
+        my $runtime_dir     = catdir($kp_path, install_dir() );
         my $runtime_dir_lib = catdir($runtime_dir, "lib");
         my $runtime_dir_mod = catdir($runtime_dir, "mod");
 

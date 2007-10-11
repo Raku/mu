@@ -115,7 +115,7 @@ sub constants
 $inherited . "\n" .
 <<'END'
 # Custom v6-KindaPerl6 constants:
-kp6_mp6_OBJ = $(patsubst lib/%,lib-kp6-mp6-p5/%,$(wildcard lib/KindaPerl6/Grammar/*.pm lib/KindaPerl6/Grammar.pm lib/KindaPerl6/Traverse.pm lib/KindaPerl6/Ast.pm lib/KindaPerl6/Visitor/*.pm lib/KindaPerl6/Runtime/Perl5/*.pm lib/KindaPerl6/Runtime/Perl6/*.pm lib/KindaPerl6/Test/*.pm ))
+kp6_mp6_OBJ = $(patsubst lib/%,compiled/perl5/lib/%,$(wildcard lib/KindaPerl6/Grammar/*.pm lib/KindaPerl6/Grammar.pm lib/KindaPerl6/Traverse.pm lib/KindaPerl6/Ast.pm lib/KindaPerl6/Visitor/*.pm lib/KindaPerl6/Runtime/Perl5/*.pm lib/KindaPerl6/Runtime/Perl6/*.pm lib/KindaPerl6/Test/*.pm ))
 
 kp6_kp6_OBJ = $(patsubst lib/%,lib-kp6-kp6-p5/%,$(wildcard lib/KindaPerl6/Grammar/*.pm lib/KindaPerl6/Grammar.pm lib/KindaPerl6/Traverse.pm lib/KindaPerl6/Ast.pm lib/KindaPerl6/Visitor/*.pm lib/KindaPerl6/Runtime/Perl5/*.pm lib/KindaPerl6/Runtime/Perl6/*.pm lib/KindaPerl6/Test/*.pm ))
 
@@ -149,7 +149,7 @@ sub top_targets
 #kp6_mp6: $(kp6_mp6_OBJ) $(kp6_mp6_modules_OBJ)
 
 
-lib-kp6-mp6-p5/KindaPerl6/Runtime/Perl6/%.pm: lib/KindaPerl6/Runtime/Perl6/%.pm
+compiled/perl5/lib/KindaPerl6/Runtime/Perl6/%.pm: lib/KindaPerl6/Runtime/Perl6/%.pm
 	@echo COMPILE $< $@
 	@$(PERL) script/kp6 < $< | perltidy -pro=util/perltidyrc > $@.temp ; \
 		res=$$? ; \
@@ -186,13 +186,13 @@ lib-kp6-kp6-p5/KindaPerl6/Runtime/Perl6/%.pm: lib/KindaPerl6/Runtime/Perl6/%.pm
 	$(PERL) script/kp6 -r kp6 < $< | perltidy -pro=util/perltidyrc > $@
 
 
-lib-kp6-mp6-p5/KindaPerl6/Runtime/Perl5/%.pm: lib/KindaPerl6/Runtime/Perl5/%.pm
+compiled/perl5/lib/KindaPerl6/Runtime/Perl5/%.pm: lib/KindaPerl6/Runtime/Perl5/%.pm
 	$(CP) $< $@
 
 lib-kp6-kp6-p5/KindaPerl6/Runtime/Perl5/%.pm: lib/KindaPerl6/Runtime/Perl5/%.pm
 	$(CP) $< $@
 
-lib-kp6-mp6-p5/%.pm: lib/%.pm
+compiled/perl5/lib/%.pm: lib/%.pm
 	$(PERL) mp6.pl < $< | perltidy -pro=util/perltidyrc > $@
 
 lib-kp6-kp6-p5/%.pm: lib/%.pm

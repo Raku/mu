@@ -2,7 +2,7 @@
 # perl kp6-perl5.pl --perl5rx < examples/token-test.pl | perltidy 
 
 # run with:
-# perl -I lib5regex -I lib-kp6-mp6-p5
+# perl -I lib5regex -I compiled/perl5/lib
 
 class X {
   my $zzz;
