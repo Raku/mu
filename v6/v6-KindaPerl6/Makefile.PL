@@ -55,7 +55,7 @@ WriteMakefile(
     AUTHOR        => 'The Pugs Team <perl6-compiler@perl.org>',
     ABSTRACT      => 'A bootstrapping Perl 6 compiler with multiple emitter backends',
     VERSION_FROM  => 'src/KindaPerl6.pm',
-    EXE_FILES     => [ glob "script/*" ],
+    EXE_FILES     => [ "script/kp6" ],
     PM            => \%PM,
     MAN3PODS      => \%MAN3POD,
     LICENSE       => 'perl',
