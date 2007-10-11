@@ -28,6 +28,9 @@
     exp_ast_lang, which will be maintained in future releases at the latest
     official Muldis D version number known to work at the time.
 
+    * Fleshed out the tail of this Changes file with a summary pre-release
+    (rel. 2007 June) history of Muldis DB; going from mid-2002 to mid-2007.
+
 2007-09-22   Darren Duncan <perl@DarrenDuncan.net>
 
     * Muldis DB version 0.4.0 for Perl 5 is released on CPAN as
@@ -421,3 +424,178 @@
 
     Muldis::
     ::DB         cmpOg Full-featured truly relational DBMS in Perl  DUNCAND
+
+2006-09-15 thru 2007-06-02
+
+    * Started rewriting Rosetta again, but with a name change, since
+    "Rosetta" was no longer appropriate for various reasons.  This rewrite
+    took the intentionally bad and temporary name QDRDBMS, to be renamed
+    again (to Muldis DB) later on.  With the name change allowed for the
+    previous version numbering of Rosetta to be dropped, and this rewrite
+    would eventually be first released as version zero.
+
+    * Unlike both Rosetta incarnations, QDRDBMS started off explicitly
+    having no external dependencies at all save Perl 5 or Perl 6 itself
+    (and what they bundle), so this made it simpler yet in design, and in
+    particular made it very easy to install (no dependency tree).
+
+    * QDRDBMS was started in the wake of having had a lot more experience
+    in reading up on the truly relational model of data, and was now
+    designed fundamentally to be the design and implementation of a new
+    turing complete programming language for working with relational
+    databases, now called "QDRDBMS D".
+
+    * QDRDBMS actually had a lot of code written for it this time, with the
+    focus initially being to code first and document later, to experiment
+    with what might work out.
+
+    * Made an experimental CPAN release of QDRDBMS version 0.0.0 on
+    2007-05-31, which specifically was a quick branch that stripped out all
+    the code and just contained the documentation.  This was the only CPAN
+    release of the (partial) project under the QDRDBMS name.
+
+    * Shortly after this, QDRDBMS was renamed to its presumably final name
+    of "Muldis DB", and its command language to "Muldis D".
+
+2006-04-14 thru 2006-11-22
+
+    * Started a complementary Perl 6 project named "Relation" which was
+    intended to provide native tuple and relation data types for ordinary
+    use in Perl 6 programs like other built-in collection types.  The first
+    commit was Pugs SVN rev 9938, on 2006-04-14, and Pugs 6.2.12
+    (2006-06-26) included it.
+
+    * On 2006-07-04, renamed this project to "Set-Relation", which it
+    remains to this day.  Pugs 6.2.13 and later included this.
+
+    * Set-Relation received various small updates thru 2007-02-03, but is
+    now stagnant; it will likely get un-stuck after Muldis DB sets an
+    example for it.
+
+2006-02-01 thru 2006-04-13
+
+    * The first simultaneous releases of the Perl 5 and 6 versions of
+    Rosetta's rewrite occurred on 2006-02-01; they were also the first CPAN
+    releases of either version.  The Perl 6 one was Pugs release 6.2.11
+    (SVN rev 8934).
+
+    * On 2006-02-23 was the first (Perl 5) CPAN release of Rosetta where
+    the project was then officially an implementation of "The Third
+    Manifesto", the central work of Darwen and Date's DBMS proposal;
+    moreover, Rosetta's command language was named "Rosetta D", to be a "D"
+    language by the terms of said proposal.
+
+    * On 2006-03-20 was the (Perl 5) release that declared Rosetta was to
+    be fundamentally a self-contained relational DBMS (and the core
+    distribution would bundle such an implementation of its API) rather
+    than "just" a DBMS wrapper; though extensions could still chose to
+    operate as wrappers over other DBMSs.
+
+    * On 2006-04-13 was the last CPAN release of the Perl 5 Rosetta, and
+    Pugs 6.2.12 (SVN rev 10930), on 2006-06-26, had the corresponding Perl
+    6 version; Pugs 6.2.13 (SVN rev 11402), on 2006-10-27, had the last
+    CPAN release of Perl 6 Rosetta, with trivial Perl 6 only updates.
+    After this, Pugs would have a Muldis DB instead.
+
+    * This time period also saw very little code, and almost entirely
+    documentation updates.
+
+    * However, the code that did exist at this time was trying so hard to
+    be alike between Perl 5 and Perl 6 that the Perl 5 version had external
+    dependencies on a half-dozen CPAN distros that provided features like
+    Perl 6 builtins, but said features were largely trivial.  Both versions
+    also went to trouble to make their user text (support) multi-lingual.
+
+2005-12-06 thru 2006-01-31
+
+    * Rosetta started to evolve so that its API and design was based on
+    relational algebra, which is a lot of smaller generic constructs that
+    can easily be arranged into queries; this is in contrast to the
+    previous design based around monolithic and unwieldy SQL "select"
+    queries.  Generally speaking, there was increasing influence on the
+    design by Hugh Darwen's and Chris Date's proposals on how a truly
+    relational DBMS should work.  This time period also saw very little
+    code, and almost entirely documentation updates.
+
+2005-12-05
+
+    * Darren Duncan is introduced by David Wheeler to the truly relational
+    model of data, in a posting on the Bricolage development list in the
+    "Re: [6977] New branch for maintenance of Bricolage 1.10.x." thread.
+
+    * David said that Darren's expressed thought, that compound data types
+    in table fields was a violation of first normal form, was in fact a
+    misconception about the relational model.  David then referenced a
+    recent interview with C. J. Date.
+
+    * This set off a chain of events which was the largest paradigm shift
+    to ever affect the Rosetta project.  While the continuing goal of
+    Rosetta remained largely the same, the way this was to be accomplished
+    would become quite different, and the project would gain a new goal, to
+    help improve the design of relational DBMSs themselves.
+
+2005-09-30 thru 2005-12-04
+
+    * Started a full rewrite of Rosetta, with the intent of avoiding being
+    over-engineered, and cutting corners in the short term so to get
+    something useable at all sooner.  The idea was to focus on vertical
+    development first, so that at least a subset of features work earlier,
+    taking the development strategy of Perl6-Pugs itself as an example;
+    this is in contrast to the more horizontal development strategy of the
+    first Rosetta implementation.
+
+    * Moreover, this rewrite was being done simultaneously in both Perl 5
+    and Perl 6; each language had its own independent but synchronized
+    version, with the Perl 6 one intended to be the main future one that
+    guided design decisions, and the Perl 5 one intended to be the one
+    production-ready first, to be used until Perl 6 itself was production
+    ready.  That co-development was maintained afterwards, and happens with
+    the Muldis DB core.
+
+    * There was practically no code produced at this time, mainly just
+    design documentation.
+
+    * This Rosetta rewrite retained the version numbering of the previous
+    line, and its numbers were a bit awkward as a result.
+
+2002-11-12 thru 2005-09-28, plus 2006-01-13
+
+    * Developed and released on CPAN the Rosetta DBMS framework, whose
+    intended purpose was to provide rigorous portability of database
+    schemas and database-using applications between different SQL DBMS
+    products.  A lot of design documentation was produced, as well as some
+    code and tests, but while a significant amount of executing code was
+    produced, no solution emerged that was actually useable for real work;
+    what did get produced was also unnecessarily complicated.
+
+    * Throughout the life of that project, these various module namespaces
+    were used for CPAN distributions of parts of the framework:
+
+        - DBIx-Portable (2003-01-05)
+        - Rosetta (2003-01-21 thru 2005-09-28, plus 2006-01-13)
+        - SQL::ObjectModel (2003-06-11 thru 2003-09-16)
+        - SQL::SyntaxModel (2003-09-26 thru 2004-09-13)
+        - SQL::Routine (2004-10-04 thru 2005-09-28)
+
+    * The "Rosetta" and "SQL-Routine" names were also registered with "The
+    Perl 5 Module List", on 2003-01-21 and 2004-10-04, respectively.  Later
+    on, the "SQL-Routine" registration was deleted on 2006-01-07, and the
+    "Rosetta" registration on 2007-04-24.
+
+    * A translation of some parts of Rosetta into Perl 6 was made, under
+    the auspices of the Perl6-Pugs project, between 2005-03-25 (Pugs SVN
+    rev 1194) and 2005-04-02 (Pugs SVN rev 1463); Pugs release 6.0.13
+    (2005-03-26) included a version, but Pugs 6.0.14 (2005-04-04) did not;
+    the Perl 6 versions didn't work, however, which is why they were soon
+    excised from the Pugs VC (to P6PAN, which didn't go anywhere).
+
+    * A Lightning Talk was also given introducing Rosetta at OSCON 2005;
+    but it is Muldis DB instead that will fulfill the promises made in it.
+
+2002-06-07
+
+    * Started writing self-contained code components that were explicitly
+    designed to enable external code that used them to work seamlessly on
+    multiple database products.  Some of this work was reused later in the
+    Rosetta DBMS framework et al, and hence 2002 is the start of the
+    declared copyright date range for Muldis DB.

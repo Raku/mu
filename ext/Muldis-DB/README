@@ -9,17 +9,6 @@ This distribution features the Perl 5 or 6 (depending on which copy of this
 README file you are reading) module named "Muldis::DB" (Full-featured truly
 relational DBMS in Perl) and its support structure.
 
-Muldis DB is the successor of the now-defunct Rosetta DBMS framework,
-which it is heavily based on and has learned from, though for all practical
-purposes, Muldis DB is a complete rewrite with significant changes.  (Note
-that Muldis DB was temporarily named QDRDBMS during its pre-release
-development phase.)  Given the magnitude of the differences, the actual
-change history of Rosetta itself is not relevant, and so Muldis DB does
-not continue its version numbering or maintain the older change log.  The
-first Muldis DB release on CPAN was version 0.0.0, and that was released
-2007.06.20.  But Muldis DB does still declare copyright of 2002-present,
-incorporating the Rosetta development/release time-period.
-
 Muldis DB has 2 co-developed versions, which are written in native Perl 5
 and Perl 6 respectively, and which are distributed separately from each
 other.  But while the 2 versions would be similar, they are explicitly not
@@ -69,10 +58,7 @@ repositories. The Perl 5 Muldis DB project is in a Git repository whose
 Git read-access url is "git://utsl.gen.nz/Muldis-DB" and whose Gitweb
 information url is at "http://utsl.gen.nz/gitweb/?p=Muldis-DB".  The Perl 6
 Muldis DB project is in a Subversion repository at
-"http://svn.pugscode.org/pugs/ext/Muldis-DB/".  The last version of Rosetta
-which was the closest to being functional, created between late 2002 and
-late 2005, is in a Subversion repository at
-"http://svn.utsl.gen.nz/trunk/Rosetta-old/".
+"http://svn.pugscode.org/pugs/ext/Muldis-DB/".
 
 You can download slightly older versions of all of my modules from the
 public CPAN archives at "http://www.cpan.org/authors/id/D/DU/DUNCAND/", or
