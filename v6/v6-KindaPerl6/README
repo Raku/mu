@@ -1,6 +1,6 @@
 At this moment, there are two source trees in this project:
 
- * lib-kp6-mp6: This is the version that uses the mp6 compiler for  
+ * src: This is the version that uses the mp6 compiler for  
     some files and that mixes kp6 and mp6 runtime.
 
  * lib-kp6-kp6: This is a pure-kp6 version of the above tree. Some
@@ -19,7 +19,7 @@ to a simple "lib" and "lib5" again.
 ==================================
 
 
-The differences between lib-kp6-mp6 and lib-kp6-kp6 currently are:
+The differences between src and lib-kp6-kp6 currently are:
 
 * KindaPerl6::Runtime::Perl5::Grammar
   was moved to

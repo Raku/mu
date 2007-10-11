@@ -27,7 +27,7 @@ class CompUnit {
         ~ '(eval-when (:compile-toplevel :load-toplevel :execute)' ~ Main::newline()
         ~ '  (when (null (find-package \'kp6-lisp))' ~ Main::newline()
         ~ '   ' ~ set_secure_mode($args_secure)
-        ~ '   (load "lib/KindaPerl6/Runtime/Lisp/Runtime.lisp")))' ~ Main::newline()
+        ~ '   (load "src/KindaPerl6/Runtime/Lisp/Runtime.lisp")))' ~ Main::newline()
         ~ '(in-package #:kp6-lisp-user)' ~ Main::newline()
         ~ '(kp6-add-program (' ~ $interpreter ~ ')' ~ Main::newline()
         ~ ' (kp6-ensure-package ' ~ $interpreter ~ ' "' ~ $.name ~ '")' ~ Main::newline()
@@ -532,7 +532,7 @@ KindaPerl6::Perl5::Lisp - Code generator for KindaPerl6-in-Lisp
 =head1 DESCRIPTION
 
 This module generates Common Lisp code for the KindaPerl6
-compiler. The runtime is located in F<lib/KindaPerl6/Runtime/Lisp/>.
+compiler. The runtime is located in F<src/KindaPerl6/Runtime/Lisp/>.
 
 =head1 CONFORMANCE
 

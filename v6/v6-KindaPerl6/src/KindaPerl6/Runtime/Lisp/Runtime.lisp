@@ -19,4 +19,4 @@
               "display" "coerce"        ; Utilities
               "GLOBAL"                  ; Functions
               ))
-    (load (format nil "lib/KindaPerl6/Runtime/Lisp/~A.lisp" file))))
+    (load (format nil "src/KindaPerl6/Runtime/Lisp/~A.lisp" file))))

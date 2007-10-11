@@ -52,7 +52,7 @@ sub emit_lisp {
                                         . (
                                         set_secure_mode($args_secure)
                                             . (
-                                            '   (load "lib/KindaPerl6/Runtime/Lisp/Runtime.lisp")))'
+                                            '   (load "src/KindaPerl6/Runtime/Lisp/Runtime.lisp")))'
                                                 . (
                                                 Main::newline()
                                                     . (
