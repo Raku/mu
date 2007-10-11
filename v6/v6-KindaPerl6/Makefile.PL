@@ -9,15 +9,16 @@ use ExtUtils::MakeMaker;
 
 # Makefile.PL needs to be rerun with a different KP6_TARGET in order to build kp6-mp6, kp6-kp6, or kp6-lisp
 my $KP6_TARGET = $ENV{KP6_TARGET} || "KP6-MP6";
+my %Kp6Build;
 if ( $KP6_TARGET eq "KP6-MP6" ) {
-    my %Kp6Build = (
+    %Kp6Build = (
         lib         => "compiled/perl5/lib",
         module_lib  => "lib-modules-kp6-mp6-p5",
         run_test    => "script/run_tests_kp6_mp6.pl",
     );
 }
 elsif ( $KP6_TARGET eq "KP6-KP6" ) {
-    my %Kp6Build = (
+    %Kp6Build = (
         lib         => "lib-kp6-kp6-p5",
         module_lib  => "lib-modules-kp6-kp6-p5",
         run_test    => "script/run_tests_kp6_kp6.pl",
@@ -25,7 +26,7 @@ elsif ( $KP6_TARGET eq "KP6-KP6" ) {
 }
 elsif ( $KP6_TARGET eq "KP6-LISP" ) {
     die "not yet implemented KP6_TARGET '$KP6_TARGET', can't continue";
-    #my %Kp6Build = (
+    # %Kp6Build = (
     #    lib         => "lib-kp6-kp6-p5",
     #    module_lib  => "lib-modules-kp6-kp6-p5",
     #    run_test    => "script/run_tests_kp6_kp6.pl",
@@ -38,23 +39,24 @@ else {
 
 my %PM;
 
-for my $lib (qw(mp6 kp6)) {
-    my @lib_pm = glob "lib-kp6-$lib-p5/KindaPerl6/*.pm lib-kp6-$lib-p5/KindaPerl6/*/*.pm lib-kp6-$lib-p5/KindaPerl6/*/*/*.pm";
+#for my $lib (qw(mp6 kp6)) 
+{
+    my @lib_pm = glob "$Kp6Build{lib}/KindaPerl6/*.pm $Kp6Build{lib}/KindaPerl6/*/*.pm $Kp6Build{lib}/KindaPerl6/*/*/*.pm";
 
     for my $key (@lib_pm) {
         my $value = $key;
 
-        $value =~ s[^lib-kp6-$lib-p5/KindaPerl6/][\$\(INST_LIBDIR\)/KindaPerl6/kp6-$lib-p5/lib/KindaPerl6/];
+        $value =~ s[^$Kp6Build{lib}/KindaPerl6/][\$\(INST_LIBDIR\)/KindaPerl6/$Kp6Build{lib}/lib/KindaPerl6/];
 
         $PM{$key} = $value;
     }
 
-    my @mod_pm = glob "lib-modules-kp6-$lib-p5/*.pm lib-modules-kp6-$lib-p5/*/*.pm lib-modules-kp6-$lib-p5/*/*/*.pm";
+    my @mod_pm = glob "$Kp6Build{module_lib}/*.pm $Kp6Build{module_lib}/*/*.pm $Kp6Build{module_lib}/*/*/*.pm";
 
     for my $key (@mod_pm) {
         my $value = $key;
 
-        $value =~ s[^lib-modules-kp6-$lib-p5/][\$\(INST_LIBDIR\)/KindaPerl6/kp6-$lib-p5/mod/];
+        $value =~ s[^$Kp6Build{module_lib}/][\$\(INST_LIBDIR\)/KindaPerl6/$Kp6Build{module_lib}/mod/];
 
         $PM{$key} = $value;
     }
@@ -118,21 +120,21 @@ sub test
     #my $self = shift;
     #my $inherited = $self->SUPER::test(@_);
 
-<<'END';
+<<"END";
 test: all
-	$(PERL) script/run_tests_kp6_mp6.pl
+	\$(PERL) $Kp6Build{run_test}
 
 test_grammar: all
-	$(PERL) script/run_tests_kp6_mp6.pl --section=grammar
+	\$(PERL) $Kp6Build{run_test} --section=grammar
 
 test_io: all
-	$(PERL) script/run_tests_kp6_mp6.pl --section=io
+	\$(PERL) $Kp6Build{run_test} --section=io
 
 test_math: all
-	$(PERL) script/run_tests_kp6_mp6.pl --section=math
+	\$(PERL) $Kp6Build{run_test} --section=math
 
 test_base: all
-	$(PERL) script/run_tests_kp6_mp6.pl --section=''
+	\$(PERL) $Kp6Build{run_test} --section=''
 END
 }
 
@@ -143,15 +145,12 @@ sub constants
     my $inherited = $self->SUPER::constants(@_);
 
 $inherited . "\n" .
-<<'END'
+<<"END"
 # Custom v6-KindaPerl6 constants:
-kp6_mp6_OBJ = $(patsubst src/%,compiled/perl5/lib/%,$(wildcard src/KindaPerl6/Grammar/*.pm src/KindaPerl6/Grammar.pm src/KindaPerl6/Traverse.pm src/KindaPerl6/Ast.pm src/KindaPerl6/Visitor/*.pm src/KindaPerl6/Runtime/Perl5/*.pm src/KindaPerl6/Runtime/Perl6/*.pm src/KindaPerl6/Test/*.pm ))
+kp6_mp6_OBJ = \$(patsubst src/%,$Kp6Build{lib}/%,\$(wildcard src/KindaPerl6/Grammar/*.pm src/KindaPerl6/Grammar.pm src/KindaPerl6/Traverse.pm src/KindaPerl6/Ast.pm src/KindaPerl6/Visitor/*.pm src/KindaPerl6/Runtime/Perl5/*.pm src/KindaPerl6/Runtime/Perl6/*.pm src/KindaPerl6/Test/*.pm ))
 
-kp6_kp6_OBJ = $(patsubst src/%,lib-kp6-kp6-p5/%,$(wildcard src/KindaPerl6/Grammar/*.pm src/KindaPerl6/Grammar.pm src/KindaPerl6/Traverse.pm src/KindaPerl6/Ast.pm src/KindaPerl6/Visitor/*.pm src/KindaPerl6/Runtime/Perl5/*.pm src/KindaPerl6/Runtime/Perl6/*.pm src/KindaPerl6/Test/*.pm ))
+kp6_mp6_modules_OBJ = \$(patsubst src-modules/%,$Kp6Build{module_lib}/%,\$(wildcard src-modules/*.pm))
 
-kp6_mp6_modules_OBJ = $(patsubst src-modules/%,lib-modules-kp6-mp6-p5/%,$(wildcard src-modules/*.pm))
-
-kp6_kp6_modules_OBJ = $(patsubst src-modules/%,lib-modules-kp6-kp6-p5/%,$(wildcard src-modules/*.pm))
 # End custom v6-KindaPerl6 constants
 END
 }
@@ -167,7 +166,7 @@ sub top_targets
     $inherited =~ s/perldoc ExtUtils::MakeMaker/perldoc Makefile.PL/;
 
     # Add the kp6 targets
-    $inherited =~ s/^(all (.*))/$1 \$(kp6_mp6_OBJ) \$(kp6_kp6_OBJ) \$(kp6_mp6_modules_OBJ) \$(kp6_kp6_modules_OBJ) kp6-kp6.pl/m;
+    $inherited =~ s/^(all (.*))/$1 \$(kp6_mp6_OBJ) \$(kp6_mp6_modules_OBJ) kp6-kp6.pl/m;
 
     # Add kp6_mp6 only targets, not pure_all or manifypods
     $inherited .= "\nkp6_mp6 :: \$(kp6_mp6_OBJ) \$(kp6_mp6_modules_OBJ)\n\t\$(NOECHO) \$(NOOP)\n";
@@ -271,6 +270,8 @@ on the next I<make all>.
 =item kp6_mp6
 
 Compile only kp6-mp6 stuff, leave out kp6-kp6, much faster for development
+
+UPDATE: set $ENV{KP6_TARGET}=KP6-KP6 before running Makefile.PL, in order to build kp6-kp6
 
 =item test_grammar
 
