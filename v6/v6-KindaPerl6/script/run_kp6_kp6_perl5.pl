@@ -8,7 +8,7 @@ use warnings;
 
 if (0) {
   local $" = ':';
-  print STDERR "run_kp6_perl5.pl: got @ARGV\n";
+  print STDERR "script/run_kp6_perl5.pl: got @ARGV\n";
 }
 
 # This is a poor heuristic
@@ -30,5 +30,5 @@ for my $i (0..$#args) {
 }
 
 my $cmd = "$^X script/kp6 -r kp6 <$prog | $^X @args";
-#print STDERR "run_kp6_perl5.pl: running: $cmd\n";
+#print STDERR "script/run_kp6_perl5.pl: running: $cmd\n";
 system $cmd;

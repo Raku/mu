@@ -9,7 +9,7 @@ use warnings;
 
 if (0) {
   local $" = ':';
-  print STDERR "run_kp6_perl5.pl: got @ARGV\n";
+  print STDERR "script/run_kp6_perl5.pl: got @ARGV\n";
 }
 
 # This is a poor heuristic
@@ -37,5 +37,5 @@ if (defined $prog && length $prog){
 	$cmd = "$^X script/kp6 -r mp6 | $^X @args";
 }
 
-#print STDERR "run_kp6_perl5.pl: running: $cmd\n";
+#print STDERR "script/run_kp6_perl5.pl: running: $cmd\n";
 system $cmd;

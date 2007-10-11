@@ -30,20 +30,20 @@ for my $lib (qw(mp6 kp6)) {
     }
 }
 
-$PM{"lib/KindaPerl6.pm"} = '$(INST_LIBDIR)/KindaPerl6.pm';
+$PM{"src/KindaPerl6.pm"} = '$(INST_LIBDIR)/KindaPerl6.pm';
 
 my %MAN3POD;
 
 {
-    my $str = join(' ', map @$_, map { [ "lib/*.$_", "lib/*/*.$_", "lib/*/*/*.$_", "lib/*/*/*/*.$_" ] } qw(pm));
+    my $str = join(' ', map @$_, map { [ "src/*.$_", "src/*/*.$_", "src/*/*/*.$_", "src/*/*/*/*.$_" ] } qw(pm));
     my @man = glob $str;
 
     for my $key (@man) {
         my $value = $key;
 
-        my ($value) = $key =~ m[^lib/(.*)];
+        my ($value) = $key =~ m[^src/(.*)];
         my $name = join '::', split m[/], $value;
-        #$value =~ s[^lib/][\$\(INST_MAN3DIR\)];
+        #$value =~ s[^src/][\$\(INST_MAN3DIR\)];
         $name =~ s/\.pm/\.3pm/;
 
         $MAN3POD{$key} = '$(INST_MAN3DIR)/' . $name;
@@ -54,7 +54,7 @@ WriteMakefile(
     NAME          => 'KindaPerl6',
     AUTHOR        => 'The Pugs Team <perl6-compiler@perl.org>',
     ABSTRACT      => 'A bootstrapping Perl 6 compiler with multiple emitter backends',
-    VERSION_FROM  => 'lib/KindaPerl6.pm',
+    VERSION_FROM  => 'src/KindaPerl6.pm',
     EXE_FILES     => [ glob "script/*" ],
     PM            => \%PM,
     MAN3PODS      => \%MAN3POD,
@@ -62,7 +62,7 @@ WriteMakefile(
 
     PREREQ_FATAL => 0,
     PREREQ_PM    => {
-        # lib/
+        # src/
         qw(
               Carp                  0
               Exporter              0
@@ -90,19 +90,19 @@ sub test
 
 <<'END';
 test: all
-	$(PERL) run_tests_kp6_mp6.pl
+	$(PERL) script/run_tests_kp6_mp6.pl
 
 test_grammar: all
-	$(PERL) run_tests_kp6_mp6.pl --section=grammar
+	$(PERL) script/run_tests_kp6_mp6.pl --section=grammar
 
 test_io: all
-	$(PERL) run_tests_kp6_mp6.pl --section=io
+	$(PERL) script/run_tests_kp6_mp6.pl --section=io
 
 test_math: all
-	$(PERL) run_tests_kp6_mp6.pl --section=math
+	$(PERL) script/run_tests_kp6_mp6.pl --section=math
 
 test_base: all
-	$(PERL) run_tests_kp6_mp6.pl --section=''
+	$(PERL) script/run_tests_kp6_mp6.pl --section=''
 END
 }
 
@@ -115,9 +115,9 @@ sub constants
 $inherited . "\n" .
 <<'END'
 # Custom v6-KindaPerl6 constants:
-kp6_mp6_OBJ = $(patsubst lib/%,compiled/perl5/lib/%,$(wildcard lib/KindaPerl6/Grammar/*.pm lib/KindaPerl6/Grammar.pm lib/KindaPerl6/Traverse.pm lib/KindaPerl6/Ast.pm lib/KindaPerl6/Visitor/*.pm lib/KindaPerl6/Runtime/Perl5/*.pm lib/KindaPerl6/Runtime/Perl6/*.pm lib/KindaPerl6/Test/*.pm ))
+kp6_mp6_OBJ = $(patsubst src/%,compiled/perl5/lib/%,$(wildcard src/KindaPerl6/Grammar/*.pm src/KindaPerl6/Grammar.pm src/KindaPerl6/Traverse.pm src/KindaPerl6/Ast.pm src/KindaPerl6/Visitor/*.pm src/KindaPerl6/Runtime/Perl5/*.pm src/KindaPerl6/Runtime/Perl6/*.pm src/KindaPerl6/Test/*.pm ))
 
-kp6_kp6_OBJ = $(patsubst lib/%,lib-kp6-kp6-p5/%,$(wildcard lib/KindaPerl6/Grammar/*.pm lib/KindaPerl6/Grammar.pm lib/KindaPerl6/Traverse.pm lib/KindaPerl6/Ast.pm lib/KindaPerl6/Visitor/*.pm lib/KindaPerl6/Runtime/Perl5/*.pm lib/KindaPerl6/Runtime/Perl6/*.pm lib/KindaPerl6/Test/*.pm ))
+kp6_kp6_OBJ = $(patsubst src/%,lib-kp6-kp6-p5/%,$(wildcard src/KindaPerl6/Grammar/*.pm src/KindaPerl6/Grammar.pm src/KindaPerl6/Traverse.pm src/KindaPerl6/Ast.pm src/KindaPerl6/Visitor/*.pm src/KindaPerl6/Runtime/Perl5/*.pm src/KindaPerl6/Runtime/Perl6/*.pm src/KindaPerl6/Test/*.pm ))
 
 kp6_mp6_modules_OBJ = $(patsubst lib-modules/%,lib-modules-kp6-mp6-p5/%,$(wildcard lib-modules/*.pm))
 
@@ -149,7 +149,7 @@ sub top_targets
 #kp6_mp6: $(kp6_mp6_OBJ) $(kp6_mp6_modules_OBJ)
 
 
-compiled/perl5/lib/KindaPerl6/Runtime/Perl6/%.pm: lib/KindaPerl6/Runtime/Perl6/%.pm
+compiled/perl5/lib/KindaPerl6/Runtime/Perl6/%.pm: src/KindaPerl6/Runtime/Perl6/%.pm
 	@echo COMPILE $< $@
 	@$(PERL) script/kp6 < $< | perltidy -pro=util/perltidyrc > $@.temp ; \
 		res=$$? ; \
@@ -182,20 +182,20 @@ lib-modules-kp6-kp6-p5/%.pm: lib-modules/%.pm
 		fi
 
 
-lib-kp6-kp6-p5/KindaPerl6/Runtime/Perl6/%.pm: lib/KindaPerl6/Runtime/Perl6/%.pm
+lib-kp6-kp6-p5/KindaPerl6/Runtime/Perl6/%.pm: src/KindaPerl6/Runtime/Perl6/%.pm
 	$(PERL) script/kp6 -r kp6 < $< | perltidy -pro=util/perltidyrc > $@
 
 
-compiled/perl5/lib/KindaPerl6/Runtime/Perl5/%.pm: lib/KindaPerl6/Runtime/Perl5/%.pm
+compiled/perl5/lib/KindaPerl6/Runtime/Perl5/%.pm: src/KindaPerl6/Runtime/Perl5/%.pm
 	$(CP) $< $@
 
-lib-kp6-kp6-p5/KindaPerl6/Runtime/Perl5/%.pm: lib/KindaPerl6/Runtime/Perl5/%.pm
+lib-kp6-kp6-p5/KindaPerl6/Runtime/Perl5/%.pm: src/KindaPerl6/Runtime/Perl5/%.pm
 	$(CP) $< $@
 
-compiled/perl5/lib/%.pm: lib/%.pm
+compiled/perl5/lib/%.pm: src/%.pm
 	$(PERL) mp6.pl < $< | perltidy -pro=util/perltidyrc > $@
 
-lib-kp6-kp6-p5/%.pm: lib/%.pm
+lib-kp6-kp6-p5/%.pm: src/%.pm
 	$(PERL) script/kp6 -r kp6 < $< | perltidy -pro=util/perltidyrc > $@
 
 kp6-kp6.pl: kp6.p6
@@ -210,7 +210,7 @@ kp6-kp6.pl: kp6.p6
 	    rm temp.pl
 
 forcerecompile:
-	find lib/KindaPerl6/ -name "*.pm" | grep -v \.svn | xargs touch
+	find src/KindaPerl6/ -name "*.pm" | grep -v \.svn | xargs touch
 
 # end v6-KindaPerl6 specific targets
 END
@@ -235,7 +235,7 @@ ExtUtils::MakeMaker targets.
 
 =item forcerecompile
 
-touches all the .pm files in lib/KindaPerl6, this forces recompilation
+touches all the .pm files in src/KindaPerl6, this forces recompilation
 on the next I<make all>.
 
 =item kp6_mp6
