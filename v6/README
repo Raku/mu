@@ -2,12 +2,15 @@
 
 This is not the perl5 v6-alpha, see perl5/Pugs-Compiler-Perl6 for that.
 
-There are 3 subprojects:
 
-v6.pm is a plain translation of the perl5 v6.pm compiler, such that the modules could be interchangeable.
+There are currently 3 active subprojects:
 
-v6-Compiler is meant as a more advanced compiler, but it is also more difficult to bootstrap because it needs a more complete Perl 6 compiler.
+- v6-MiniPerl6 is a subset of Perl 6 used to bootstrap the full Perl 6.
 
-v6-MiniPerl6 is a subset of Perl 6 used to bootstrap the full Perl 6.
+- v6-KindaPerl6 is a full Perl 6 implementation, currently written mostly in MiniPerl6
 
-v6-Python is a compiler for MiniPerl6 in Python.
+- yap6 is a C implementation of the Perl 6 runtime
+
+
+Inactive projects are under misc/
+
