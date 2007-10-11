@@ -119,9 +119,9 @@ kp6_mp6_OBJ = $(patsubst src/%,compiled/perl5/lib/%,$(wildcard src/KindaPerl6/Gr
 
 kp6_kp6_OBJ = $(patsubst src/%,lib-kp6-kp6-p5/%,$(wildcard src/KindaPerl6/Grammar/*.pm src/KindaPerl6/Grammar.pm src/KindaPerl6/Traverse.pm src/KindaPerl6/Ast.pm src/KindaPerl6/Visitor/*.pm src/KindaPerl6/Runtime/Perl5/*.pm src/KindaPerl6/Runtime/Perl6/*.pm src/KindaPerl6/Test/*.pm ))
 
-kp6_mp6_modules_OBJ = $(patsubst lib-modules/%,lib-modules-kp6-mp6-p5/%,$(wildcard lib-modules/*.pm))
+kp6_mp6_modules_OBJ = $(patsubst src-modules/%,lib-modules-kp6-mp6-p5/%,$(wildcard src-modules/*.pm))
 
-kp6_kp6_modules_OBJ = $(patsubst lib-modules/%,lib-modules-kp6-kp6-p5/%,$(wildcard lib-modules/*.pm))
+kp6_kp6_modules_OBJ = $(patsubst src-modules/%,lib-modules-kp6-kp6-p5/%,$(wildcard src-modules/*.pm))
 # End custom v6-KindaPerl6 constants
 END
 }
@@ -159,7 +159,7 @@ compiled/perl5/lib/KindaPerl6/Runtime/Perl6/%.pm: src/KindaPerl6/Runtime/Perl6/%
 			echo "*** Compilation failed with exit code: $$res!" ; \
 			exit; \
 		fi
-lib-modules-kp6-mp6-p5/%.pm: lib-modules/%.pm
+lib-modules-kp6-mp6-p5/%.pm: src-modules/%.pm
 	@echo COMPILE $< $@
 	@$(PERL) script/kp6 < $< | perltidy -pro=util/perltidyrc > $@.temp ; \
 		res=$$? ; \
@@ -170,7 +170,7 @@ lib-modules-kp6-mp6-p5/%.pm: lib-modules/%.pm
 			exit; \
 		fi
 
-lib-modules-kp6-kp6-p5/%.pm: lib-modules/%.pm
+lib-modules-kp6-kp6-p5/%.pm: src-modules/%.pm
 	@echo COMPILE $< $@
 	@$(PERL) script/kp6 -r kp6 < $< | perltidy -pro=util/perltidyrc > $@.temp ; \
 		res=$$? ; \
