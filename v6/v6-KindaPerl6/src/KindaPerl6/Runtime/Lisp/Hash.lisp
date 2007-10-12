@@ -62,18 +62,19 @@
   (make-instance 'kp6-Int :value 
     (hash-table-count (kp6-value self))))
 
-(defmethod kp6-dispatch ((invocant kp6-Hash) (method (eql :true)) &rest parameters)
+(defmethod kp6-dispatch ((invocant kp6-Hash) interpreter (method (eql :true)) &rest parameters)
   "A hash is true if it contains nonzero entries"
   (declare (ignore parameters))
-  (make-instance 'kp6-Bit :value (plusp (hash-table-count (kp6-dispatch invocant :cl-landish)))))
+  (make-instance 'kp6-Bit :value (plusp (hash-table-count (kp6-dispatch invocant interpreter :cl-landish)))))
 
-(defmethod kp6-dispatch ((invocant kp6-Hash) (method (eql :cl-landish)) &rest parameters)
+(defmethod kp6-dispatch ((invocant kp6-Hash) interpreter (method (eql :cl-landish)) &rest parameters)
   "Return a lisp object for the Hash"
-  (declare (ignore parameters))
+  (declare (ignore parameters interpreter))
   (slot-value invocant 'value))
 
-(defmethod kp6-dispatch ((invocant kp6-Hash) (method (eql :store)) &rest parameters)
+(defmethod kp6-dispatch ((invocant kp6-Hash) interpreter (method (eql :store)) &rest parameters)
   "Stores a key-value pair in the hash"
+  (declare (ignore interpreter))
   (assert (= 2 (length parameters)))
   (let ((key (perl->cl (elt parameters 0)))
 	(value (elt parameters 1)))
@@ -81,68 +82,70 @@
       (setf (gethash key hash) value)
       hash)))
 
-(defmethod kp6-dispatch ((invocant kp6-Hash) (method (eql :lookup)) &rest parameters)
+(defmethod kp6-dispatch ((invocant kp6-Hash) interpreter (method (eql :lookup)) &rest parameters)
   "Looks up a value in the hash by key"
+  (declare (ignore interpreter))
   (assert (= 1 (length parameters)))
   (let ((key (perl->cl (elt parameters 0)))
 	(hash (slot-value invocant 'value)))
     (let ((value (gethash key hash)))
       (if value value (make-instance 'kp6-Undef)))))
 
-(defmethod kp6-dispatch ((invocant kp6-Hash) (method (eql :elems)) &rest parameters)
+(defmethod kp6-dispatch ((invocant kp6-Hash) interpreter (method (eql :elems)) &rest parameters)
   "Returns the number of elements in the hash"
-  (declare (ignore parameters))
+  (declare (ignore parameters interpreter))
   (make-instance 'kp6-Int
      :value (hash-table-count (slot-value invocant 'value))))
 
-(defmethod kp6-dispatch ((invocant kp6-Hash) (method (eql :keys)) &rest parameters)
+(defmethod kp6-dispatch ((invocant kp6-Hash) interpreter (method (eql :keys)) &rest parameters)
   "Returns a list of keys in the hash in `maphash' order"
   (declare (ignore parameters))
   (let ((hash (slot-value invocant 'value))
 	(values (make-instance 'kp6-array)))
     (maphash #'(lambda (key val)
 		 (declare (ignore val))
-		 (kp6-dispatch values :push (make-instance 'kp6-Str :value key)))
+		 (kp6-dispatch values interpreter :push (make-instance 'kp6-Str :value key)))
 	     hash)
     values))
 
-(defmethod kp6-dispatch ((invocant kp6-Hash) (method (eql :values)) &rest parameters)
+(defmethod kp6-dispatch ((invocant kp6-Hash) interpreter (method (eql :values)) &rest parameters)
   "Returns a list of values in the hash in `maphash' order"
   (declare (ignore parameters))
   (let ((hash (slot-value invocant 'value))
 	(values (make-instance 'kp6-array)))
     (maphash #'(lambda (key val)
 		 (declare (ignore key))
-		 (kp6-dispatch values :push val))
+		 (kp6-dispatch values interpreter :push val))
 	     hash)
     values))
 
-(defmethod kp6-dispatch ((invocant kp6-Hash) (method (eql :exists)) &rest parameters)
+(defmethod kp6-dispatch ((invocant kp6-Hash) interpreter (method (eql :exists)) &rest parameters)
   "Test whether an entry exists"
+  (declare (ignore interpreter))
   (let ((key (perl->cl (elt parameters 0))))
     (make-instance 'kp6-Bit :value
                    (not (null (nth-value 1 (gethash key (slot-value invocant 'value))))))))
 
-(defmethod kp6-dispatch ((invocant kp6-Hash) (method (eql :delete)) &rest parameters)
+(defmethod kp6-dispatch ((invocant kp6-Hash) interpreter (method (eql :delete)) &rest parameters)
   "Deletes a key-value pair from the hash given a key"
   (let ((hash (slot-value invocant 'value))
         (key (perl->cl (elt parameters 0))))
     (make-instance 'kp6-Bit :value (remhash key hash))))
 
-(defmethod kp6-dispatch ((invocant kp6-Hash) (method (eql :clear)) &rest parameters)
+(defmethod kp6-dispatch ((invocant kp6-Hash) interpreter (method (eql :clear)) &rest parameters)
   "Empties the hash"
-  (declare (ignore parameters))
+  (declare (ignore parameters interpreter))
   (clrhash (slot-value invocant 'value))
   ;; XXX: Always return true?
   (make-instance 'kp6-Bit :value t))
 
-(defmethod kp6-dispatch ((invocant kp6-Hash) (method (eql :pairs)) &rest parameters)
+(defmethod kp6-dispatch ((invocant kp6-Hash) interpreter (method (eql :pairs)) &rest parameters)
   "Returns an Array of key-value pairs in the hash in `maphash' order"
   (declare (ignore parameters))
   (let ((hash (slot-value invocant 'value))
 	(values (make-instance 'kp6-array)))
     (maphash #'(lambda (key val)
-		 (kp6-dispatch values :push val)
-		 (kp6-dispatch values :push (make-instance 'kp6-str :value key)))
+		 (kp6-dispatch interpreter values :push val)
+		 (kp6-dispatch interpreter values :push (make-instance 'kp6-str :value key)))
 	     hash)
     values))

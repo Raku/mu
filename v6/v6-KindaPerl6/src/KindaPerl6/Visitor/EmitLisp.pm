@@ -102,7 +102,7 @@ class Lit::Hash {
         my $str := ''; # XXX (' ' x ($indent + 1))
         my $field;
         for @$fields -> $field { 
-            $str := $str ~ '(kp6-dispatch hash :store ' ~ ($field[0]).emit_lisp($interpreter, $indent) ~ ' ' ~ ($field[1]).emit_lisp($interpreter, $indent) ~ ')' ~ Main::newline(); # XXX (' ' x ($indent + 1))
+            $str := $str ~ '(kp6-dispatch hash ' ~ $interpreter ~ ' :store ' ~ ($field[0]).emit_lisp($interpreter, $indent) ~ ' ' ~ ($field[1]).emit_lisp($interpreter, $indent) ~ ')' ~ Main::newline(); # XXX (' ' x ($indent + 1))
         }; 
   
 	'(let ((hash (make-instance \'kp6-Hash)))' ~ Main::newline() ~ $str ~ ' hash)';
@@ -197,6 +197,7 @@ class Assign {
 	    && ((($node.method) eq 'INDEX') || (($node.method) eq 'LOOKUP')) {
 	    return '(kp6-dispatch '
 		~ ($node.invocant).emit_lisp($interpreter, $indent)
+        ~ ' ' ~ $interpreter ~ ' '
 		~ ' :store '
 		~ (($node.arguments)[0]).emit_lisp($interpreter, $indent)
 		~ ' '
@@ -266,7 +267,7 @@ class Proto {
 class Call {
     method emit_lisp ($interpreter, $indent) {
         if $.invocant.isa('Var') && (($.method eq 'LOOKUP') || ($.method eq 'INDEX')) {
-            return '(kp6-dispatch ' ~ $.invocant.emit_lisp($interpreter, $indent) ~ ' :lookup ' ~ (($.arguments)[0]).emit_lisp($interpreter, $indent) ~ ')';
+            return '(kp6-dispatch ' ~ $.invocant.emit_lisp($interpreter, $indent) ~ ' ' ~ $interpreter ~ ' :lookup ' ~ (($.arguments)[0]).emit_lisp($interpreter, $indent) ~ ')';
         }
 
         my $invocant;
@@ -305,6 +306,7 @@ class Call {
             else {
                   '(kp6-dispatch '
                 ~ $invocant ~ ' '
+                ~ $interpreter ~ ' '
                 ~ ':' ~ $meth ~ ' '
                 ~ $call
                 ~ ')'
@@ -328,11 +330,11 @@ class Apply {
         }
 
         if ($name eq 'infix:<&&>') {
-            return '(make-instance \'kp6-Bit :value (and (kp6-dispatch (kp6-dispatch ' ~ (@.arguments.>>emit_lisp($interpreter, $indent)).join(' :true) :cl-landish) (kp6-dispatch (kp6-dispatch ') ~ ' :true) :cl-landish)))';
+            return '(make-instance \'kp6-Bit :value (and (kp6-dispatch (kp6-dispatch ' ~ (@.arguments.>>emit_lisp($interpreter, $indent)).join(' ' ~ $interpreter ~ ' :true) :cl-landish) (kp6-dispatch (kp6-dispatch ') ~ ' ' ~ $interpreter ~ ' :true) :cl-landish)))';
         }
 
         if ($name eq 'infix:<||>') {
-            return '(make-instance \'kp6-Bit :value (or (kp6-dispatch (kp6-dispatch ' ~ (@.arguments.>>emit_lisp($interpreter, $indent)).join(' :true) :cl-landish) (kp6-dispatch (kp6-dispatch ') ~ ' :true) :cl-landish)))';
+            return '(make-instance \'kp6-Bit :value (or (kp6-dispatch (kp6-dispatch ' ~ (@.arguments.>>emit_lisp($interpreter, $indent)).join(' ' ~ $interpreter ~ ' :true) :cl-landish) (kp6-dispatch (kp6-dispatch ') ~ ' :true) ' ~ $interpreter ~ ' :cl-landish)))';
         }
 
         if ($name eq 'ternary:<?? !!>') {
@@ -370,7 +372,7 @@ class Return {
 
 class If {
     method emit_lisp ($interpreter, $indent) {
-        my $cond := '(kp6-dispatch (kp6-dispatch ' ~ $.cond.emit_lisp($interpreter, $indent) ~ ' :true) :cl-landish)';
+        my $cond := '(kp6-dispatch (kp6-dispatch ' ~ $.cond.emit_lisp($interpreter, $indent) ~ ' ' ~ $interpreter ~ ' :true) ' ~ $interpreter ~ ' :cl-landish)';
 
         '(cond ' ~ Main::newline()
           ~ '(' ~ $cond ~ ' ' ~ ($.body ?? $.body.emit_lisp($interpreter, $indent) !! 'nil') ~ ')'
@@ -388,9 +390,11 @@ class For {
         } else {
             $cond := ::Apply( code => ::Var(sigil=>'&',twigil=>'',name=>'prefix:<@>',namespace => [ 'GLOBAL' ],), arguments => [$cond] );
         }
-        '(kp6-for-loop-structure'
+        '(kp6-for-loop-structure ('
+        ~ $interpreter
         ~ ' ' ~ $.topic.emit_lisp_name()
         ~ ' ' ~ $cond.emit_lisp($interpreter, $indent)
+        ~ ')' ~ Main::newline()
         ~ ' ' ~ $.body.emit_lisp($interpreter, $indent) 
         ~ ')';
     }

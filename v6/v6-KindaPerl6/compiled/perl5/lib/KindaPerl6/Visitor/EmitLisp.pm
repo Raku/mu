@@ -244,7 +244,10 @@ sub emit_lisp {
     my $str    = '';
     my $field;
     do {
-        for my $field ( @{$fields} ) { $str = ( $str . ( '(kp6-dispatch hash :store ' . ( $field->[0]->emit_lisp( $interpreter, $indent ) . ( ' ' . ( $field->[1]->emit_lisp( $interpreter, $indent ) . ( ')' . Main::newline() ) ) ) ) ) ) }
+
+        for my $field ( @{$fields} ) {
+            $str = ( $str . ( '(kp6-dispatch hash ' . ( $interpreter . ( ' :store ' . ( $field->[0]->emit_lisp( $interpreter, $indent ) . ( ' ' . ( $field->[1]->emit_lisp( $interpreter, $indent ) . ( ')' . Main::newline() ) ) ) ) ) ) ) );
+        }
     };
     ( '(let ((hash (make-instance \'kp6-Hash)))' . ( Main::newline() . ( $str . ' hash)' ) ) );
 }
@@ -385,7 +388,10 @@ sub emit_lisp {
         if ( ( Main::isa( $node, 'Call' ) && ( Main::isa( $node->invocant(), 'Var' ) && ( ( $node->method() eq 'INDEX' ) || ( $node->method() eq 'LOOKUP' ) ) ) ) ) {
             return (
                 (   '(kp6-dispatch '
-                        . ( $node->invocant()->emit_lisp( $interpreter, $indent ) . ( ' :store ' . ( $node->arguments()->[0]->emit_lisp( $interpreter, $indent ) . ( ' ' . ( $self->{arguments}->emit_lisp( $interpreter, $indent ) . ')' ) ) ) ) )
+                        . (
+                        $node->invocant()->emit_lisp( $interpreter, $indent )
+                            . ( ' ' . ( $interpreter . ( ' ' . ( ' :store ' . ( $node->arguments()->[0]->emit_lisp( $interpreter, $indent ) . ( ' ' . ( $self->{arguments}->emit_lisp( $interpreter, $indent ) . ')' ) ) ) ) ) ) )
+                        )
                 )
             );
         }
@@ -488,7 +494,7 @@ sub emit_lisp {
     do { $interpreter = $List__->[0]; $indent = $List__->[1]; [ $interpreter, $indent ] };
     do {
         if ( ( Main::isa( $self->{invocant}, 'Var' ) && ( ( $self->{method} eq 'LOOKUP' ) || ( $self->{method} eq 'INDEX' ) ) ) ) {
-            return ( ( '(kp6-dispatch ' . ( $self->{invocant}->emit_lisp( $interpreter, $indent ) . ( ' :lookup ' . ( $self->{arguments}->[0]->emit_lisp( $interpreter, $indent ) . ')' ) ) ) ) );
+            return ( ( '(kp6-dispatch ' . ( $self->{invocant}->emit_lisp( $interpreter, $indent ) . ( ' ' . ( $interpreter . ( ' :lookup ' . ( $self->{arguments}->[0]->emit_lisp( $interpreter, $indent ) . ')' ) ) ) ) ) ) );
         }
         else { }
     };
@@ -516,8 +522,8 @@ sub emit_lisp {
         if ( $self->{hyper} ) { return ('XXX: Hyper') }
         else {
             do {
-                if ( ( $meth eq '' ) ) { ( '::DISPATCH( ' . ( $invocant . ( ', \'APPLY\', ' . ( $call . ( ' )' . Main::newline() ) ) ) ) ) }
-                else                   { ( '(kp6-dispatch ' . ( $invocant . ( ' ' . ( ':' . ( $meth . ( ' ' . ( $call . ( ')' . Main::newline() ) ) ) ) ) ) ) ) }
+                if   ( ( $meth eq '' ) ) { ( '::DISPATCH( ' .   ( $invocant . ( ', \'APPLY\', ' . ( $call .        ( ' )' . Main::newline() ) ) ) ) ) }
+                else                     { ( '(kp6-dispatch ' . ( $invocant . ( ' ' .             ( $interpreter . ( ' ' . ( ':' . ( $meth . ( ' ' . ( $call . ( ')' . Main::newline() ) ) ) ) ) ) ) ) ) ) }
                 }
         }
         }
@@ -544,7 +550,9 @@ sub emit_lisp {
         if ( ( $name eq 'infix:<&&>' ) ) {
             return (
                 (   '(make-instance \'kp6-Bit :value (and (kp6-dispatch (kp6-dispatch '
-                        . ( Main::join( [ map { $_->emit_lisp( $interpreter, $indent ) } @{ $self->{arguments} } ], ' :true) :cl-landish) (kp6-dispatch (kp6-dispatch ' ) . ' :true) :cl-landish)))' )
+                        . (
+                        Main::join( [ map { $_->emit_lisp( $interpreter, $indent ) } @{ $self->{arguments} } ], ( ' ' . ( $interpreter . ' :true) :cl-landish) (kp6-dispatch (kp6-dispatch ' ) ) ) . ( ' ' . ( $interpreter . ' :true) :cl-landish)))' ) )
+                        )
                 )
             );
         }
@@ -554,7 +562,9 @@ sub emit_lisp {
         if ( ( $name eq 'infix:<||>' ) ) {
             return (
                 (   '(make-instance \'kp6-Bit :value (or (kp6-dispatch (kp6-dispatch '
-                        . ( Main::join( [ map { $_->emit_lisp( $interpreter, $indent ) } @{ $self->{arguments} } ], ' :true) :cl-landish) (kp6-dispatch (kp6-dispatch ' ) . ' :true) :cl-landish)))' )
+                        . (
+                        Main::join( [ map { $_->emit_lisp( $interpreter, $indent ) } @{ $self->{arguments} } ], ( ' ' . ( $interpreter . ' :true) :cl-landish) (kp6-dispatch (kp6-dispatch ' ) ) ) . ( ' :true) ' . ( $interpreter . ' :cl-landish)))' ) )
+                        )
                 )
             );
         }
@@ -610,7 +620,7 @@ sub emit_lisp {
     my $interpreter;
     my $indent;
     do { $interpreter = $List__->[0]; $indent = $List__->[1]; [ $interpreter, $indent ] };
-    my $cond = ( '(kp6-dispatch (kp6-dispatch ' . ( $self->{cond}->emit_lisp( $interpreter, $indent ) . ' :true) :cl-landish)' ) );
+    my $cond = ( '(kp6-dispatch (kp6-dispatch ' . ( $self->{cond}->emit_lisp( $interpreter, $indent ) . ( ' ' . ( $interpreter . ( ' :true) ' . ( $interpreter . ' :cl-landish)' ) ) ) ) ) );
     (   '(cond '
             . (
             Main::newline()
@@ -645,7 +655,8 @@ sub emit_lisp {
         if   ( ( Main::isa( $cond, 'Var' ) && ( $cond->sigil() eq '@' ) ) ) { }
         else                                                                { $cond = Apply->new( 'code' => Var->new( 'sigil' => '&', 'twigil' => '', 'name' => 'prefix:<@>', 'namespace' => ['GLOBAL'], ), 'arguments' => [$cond], ) }
     };
-    ( '(kp6-for-loop-structure' . ( ' ' . ( $self->{topic}->emit_lisp_name() . ( ' ' . ( $cond->emit_lisp( $interpreter, $indent ) . ( ' ' . ( $self->{body}->emit_lisp( $interpreter, $indent ) . ')' ) ) ) ) ) ) );
+    ( '(kp6-for-loop-structure ('
+            . ( $interpreter . ( ' ' . ( $self->{topic}->emit_lisp_name() . ( ' ' . ( $cond->emit_lisp( $interpreter, $indent ) . ( ')' . ( Main::newline() . ( ' ' . ( $self->{body}->emit_lisp( $interpreter, $indent ) . ')' ) ) ) ) ) ) ) ) ) );
 }
 
 package While;

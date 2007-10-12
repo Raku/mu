@@ -17,11 +17,11 @@
       (declare (ignorable ,@(mapcar #'(lambda (x) `#',(first x)) functions)))
       ,@body)))
 
-(defmacro kp6-for-loop-structure (loop-variable array &body body)
+(defmacro kp6-for-loop-structure ((interpreter loop-variable array) &body body)
   (with-unique-names (array-index array-value)
     `(let ((,array-value ,array))
-       (dotimes (,array-index (perl->cl (kp6-dispatch ,array-value :elems)))
+       (dotimes (,array-index (perl->cl (kp6-dispatch ,array-value ,interpreter :elems)))
 	 (set-lexical-variable ,loop-variable
-			       (kp6-dispatch ,array-value :lookup
+			       (kp6-dispatch ,interpreter ,array-value :lookup
 					     (make-instance 'kp6-Int :value ,array-index)))
 	 ,@body))))

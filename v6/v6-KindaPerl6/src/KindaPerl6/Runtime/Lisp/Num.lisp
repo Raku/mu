@@ -3,6 +3,6 @@
 (defclass kp6-Num (kp6-Value)
   ())
 
-(defmethod kp6-dispatch ((invocant kp6-Num) (method (eql :true)) &rest parameters)
-  (declare (ignore parameters))
+(defmethod kp6-dispatch ((invocant kp6-Num) interpreter (method (eql :true)) &rest parameters)
+  (declare (ignore parameters interpreter))
   (make-instance 'kp6-Bit :value (/= (kp6-value invocant) 0)))
