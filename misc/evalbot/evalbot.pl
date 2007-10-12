@@ -97,7 +97,7 @@ package Evalbot;
         my ($tmp_fh, $name) = tempfile();
         print $tmp_fh $program;
         close $tmp_fh;
-        system "perl script/kp6 --secure < $name 2>$filename| perl -Ilib-kp6-mp6-p5 >> $filename 2>&1";
+        system "perl script/kp6 --secure < $name 2>$filename| perl -Icompiled/perl5/lib >> $filename 2>&1";
         unlink $name;
         chdir $FindBin::Bin;
         return;
