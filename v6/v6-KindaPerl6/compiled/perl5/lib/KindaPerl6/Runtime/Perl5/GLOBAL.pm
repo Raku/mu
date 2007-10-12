@@ -195,6 +195,10 @@ package GLOBAL;
     }
     sub take {
         # this assumes 'Coro' and 'Scalar::Util' are already loaded
+        
+        # XXX this "does nothing" but gather has problems without it ???
+        _str($_[0]);
+        
         push @{ $::GATHER{ Scalar::Util::refaddr( $Coro::current ) } }, 
             ::DISPATCH( $_[0], 'FETCH' );
         Coro::cede();
