@@ -37,12 +37,12 @@ class Token {
             ~   '$GLOBAL::_M2 = $GLOBAL::_M; '
             ~ '})'
 
-            ~ '/x; ' 
+            ~ '/x; '  ~ Main::newline() 
 
             # create the method, using the OO metamodel
             # OUTER::<$_> := string to match
             # OUTER::<$/> := match result
-            '::DISPATCH(::DISPATCH($::' ~ $KindaPerl6::Visitor::EmitPerl5::current_compunit ~ ',"HOW")'         
+            ~ '::DISPATCH(::DISPATCH($::' ~ $KindaPerl6::Visitor::EmitPerl5::current_compunit ~ ',"HOW"),'         
                 ~ '"add_method", '
                 ~ '::DISPATCH( $::Str, "new", "' ~ $.name ~ '" ), '
 

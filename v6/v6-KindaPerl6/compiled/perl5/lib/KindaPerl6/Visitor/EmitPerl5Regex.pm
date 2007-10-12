@@ -40,44 +40,80 @@ sub emit_perl5 {
                                 '(?{ '
                                     . (
                                     'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
-                                        . ( '$GLOBAL::_M2 = $GLOBAL::_M; ' . ( '})' . ( $regex_source . ( '(?{ ' . ( 'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; ' . ( '$GLOBAL::_M2 = $GLOBAL::_M; ' . ( '})' . '/x; ' ) ) ) ) ) ) )
-                                    )
-                                )
-                            )
-                        )
-                    )
-                )
-            )
-    );
-    (   '::DISPATCH(::DISPATCH($::'
-            . (
-            $KindaPerl6::Visitor::EmitPerl5::current_compunit
-                . (
-                ',"HOW")'
-                    . (
-                    '"add_method", '
-                        . (
-                        '::DISPATCH( $::Str, "new", "'
-                            . (
-                            $self->{name}
-                                . (
-                                '" ), '
-                                    . (
-                                    '::DISPATCH( $::Method, "new", '
                                         . (
-                                        'sub { '
+                                        '$GLOBAL::_M2 = $GLOBAL::_M; '
                                             . (
-                                            'local $GLOBAL::_Class = shift; '
+                                            '})'
                                                 . (
-                                                'undef $GLOBAL::_M2; '
+                                                $regex_source
                                                     . (
-                                                    '( ref($_) ? $_->{_dispatch}( $_, "str" )->{_value} : $_ ) =~ '
+                                                    '(?{ '
                                                         . (
-                                                        '/$_rule_'
+                                                        'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
                                                             . (
-                                                            $self->{name}
+                                                            '$GLOBAL::_M2 = $GLOBAL::_M; '
                                                                 . (
-                                                                '/; ' . ( 'Match::from_global_data( $GLOBAL::_M2 ); ' . ( '$MATCH = ' . ( '$GLOBAL::MATCH = pop @Match::Matches; ' . ( '@Match::Matches = (); ' . ( '} ' . ( '), ' . '); ' ) ) ) ) ) )
+                                                                '})'
+                                                                    . (
+                                                                    '/x; '
+                                                                        . (
+                                                                        Main::newline()
+                                                                            . (
+                                                                            '::DISPATCH(::DISPATCH($::'
+                                                                                . (
+                                                                                $KindaPerl6::Visitor::EmitPerl5::current_compunit
+                                                                                    . (
+                                                                                    ',"HOW"),'
+                                                                                        . (
+                                                                                        '"add_method", '
+                                                                                            . (
+                                                                                            '::DISPATCH( $::Str, "new", "'
+                                                                                                . (
+                                                                                                $self->{name}
+                                                                                                    . (
+                                                                                                    '" ), '
+                                                                                                        . (
+                                                                                                        '::DISPATCH( $::Method, "new", '
+                                                                                                            . (
+                                                                                                            'sub { '
+                                                                                                                . (
+                                                                                                                'local $GLOBAL::_Class = shift; '
+                                                                                                                    . (
+                                                                                                                    'undef $GLOBAL::_M2; '
+                                                                                                                        . (
+                                                                                                                        '( ref($_) ? $_->{_dispatch}( $_, "str" )->{_value} : $_ ) =~ '
+                                                                                                                            . (
+                                                                                                                            '/$_rule_'
+                                                                                                                                . (
+                                                                                                                                $self->{name}
+                                                                                                                                    . (
+                                                                                                                                    '/; '
+                                                                                                                                        . (
+                                                                                                                                        'Match::from_global_data( $GLOBAL::_M2 ); '
+                                                                                                                                            . (
+                                                                                                                                            '$MATCH = '
+                                                                                                                                                . (
+                                                                                                                                                '$GLOBAL::MATCH = pop @Match::Matches; ' . ( '@Match::Matches = (); ' . ( '} ' . ( '), ' . '); ' ) ) )
+                                                                                                                                                )
+                                                                                                                                            )
+                                                                                                                                        )
+                                                                                                                                    )
+                                                                                                                                )
+                                                                                                                            )
+                                                                                                                        )
+                                                                                                                    )
+                                                                                                                )
+                                                                                                            )
+                                                                                                        )
+                                                                                                    )
+                                                                                                )
+                                                                                            )
+                                                                                        )
+                                                                                    )
+                                                                                )
+                                                                            )
+                                                                        )
+                                                                    )
                                                                 )
                                                             )
                                                         )
