@@ -110,14 +110,14 @@ struct YAP6__CORE__ScalarDispatcher {
   int                (*COMPR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__Capture* arguments);
+  // REFCOUNT: the return of this method is counted as a refcount
   YAP6__CORE__Value* (*FETCH)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
-                               YAP6__CORE__Capture* arguments,
                                YAP6__CORE__Value* wants);
+  // REFCOUNT: the return of this method is counted as a refcount
   YAP6__CORE__Value* (*STORE)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
-                               YAP6__CORE__Capture* arguments,
-                               YAP6__CORE__Value* wants);
+                               YAP6__CORE__Value* newvalue);
 };
 
 
@@ -136,15 +136,18 @@ typedef struct YAP6__CORE__ListDispatcher {
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__Capture* arguments);
   // Lookup returns the value or the proxy value
+  // REFCOUNT: the return of this method is counted as a refcount
   YAP6__CORE__Scalar* (*LOOKP)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__int* index);
   // Exists doesn't vivifies and returns only if it exists,
   // else return NULL
+  // REFCOUNT: the return of this method is counted as a refcount
   YAP6__CORE__Scalar* (*EXIST)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__int* index);
   // Delete removes the key and returns it.
+  // REFCOUNT: the return of this method is counted as a refcount
   YAP6__CORE__Scalar* (*DELET)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__int* index);
@@ -166,8 +169,8 @@ typedef struct YAP6__CORE__List__ProxyScalar {
 } YAP6__CORE__List__ProxyScalar;
 
 /* list support */
-extern YAP6__CORE__Dispatcher* yap6_const_list_dispatcher;
-extern YAP6__CORE__Dispatcher* yap6_const_list_proxyscalar_dispatcher;
+extern YAP6__CORE__ListDispatcher* yap6_const_list_dispatcher;
+extern YAP6__CORE__ScalarDispatcher* yap6_const_list_proxyscalar_dispatcher;
 extern void yap6_list_dispatcher_init();
 extern YAP6__CORE__List* yap6_list_create();
 
@@ -192,16 +195,19 @@ typedef struct YAP6__CORE__HashDispatcher {
   int                (*COMPR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__Capture* arguments);
+  // REFCOUNT: the return of this method is counted as a refcount
   // Lookup returns the value or the proxy value
   YAP6__CORE__Scalar* (*LOOKP)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__Value* key);
   // Exists doesn't vivifies and returns only if it exists,
   // else return NULL
+  // REFCOUNT: the return of this method is counted as a refcount
   YAP6__CORE__Scalar* (*EXIST)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__Value* key);
   // Delete removes the key and returns it.
+  // REFCOUNT: the return of this method is counted as a refcount
   YAP6__CORE__Scalar* (*DELET)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__Value* key);
@@ -231,11 +237,13 @@ struct YAP6__CORE__CaptureDispatcher {
   int                (*COMPR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__Capture* arguments);
+  // REFCOUNT: the return of this method is counted as a refcount
   // Gets a positional value
   YAP6__CORE__Scalar* (*LOOKP)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__int* index,
                                YAP6__CORE__Value* wants);
+  // REFCOUNT: the return of this method is counted as a refcount
   // Gets a named value
   YAP6__CORE__Scalar* (*LOOKN)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
@@ -296,7 +304,7 @@ extern void yap6_value_unlock(YAP6__CORE__Value* value);
                                               (YAP6__CORE__Capture*)arguments,\
                                               (YAP6__CORE__Value*)wants\
                                            ):\
-                                           ((YAP6__CORE__Dispatcher*)value)->APPLY(\
+                                           ((YAP6__CORE__ListDispatcher*)value)->APPLY(\
                                               (YAP6__CORE__Dispatcher*)value,\
                                               (YAP6__CORE__Value*)value,\
                                               (YAP6__CORE__Capture*)arguments,\
@@ -306,11 +314,11 @@ extern void yap6_value_unlock(YAP6__CORE__Value* value);
    but for now, it's as simple as it gets */
 #define YAP6_LIST_LOOKP(value,index) (value->dispatcher?\
                                            value->dispatcher->LOOKP(\
-                                              value->dispatcher,\
+                                              ((YAP6__CORE__ListDispatcher*)value)->dispatcher,\
                                               (YAP6__CORE__Value*)value,\
                                               (YAP6__CORE__int*)index\
                                            ):\
-                                           ((YAP6__CORE__Dispatcher*)value)->LOOKP(\
+                                           ((YAP6__CORE__ListDispatcher*)value)->LOOKP(\
                                               (YAP6__CORE__Dispatcher*)value,\
                                               (YAP6__CORE__Value*)value,\
                                               (YAP6__CORE__int*)index))
@@ -319,13 +327,38 @@ extern void yap6_value_unlock(YAP6__CORE__Value* value);
    but for now, it's as simple as it gets */
 #define YAP6_LIST_EXIST(value,index) (value->dispatcher?\
                                            value->dispatcher->EXIST(\
-                                              value->dispatcher,\
+                                              ((YAP6__CORE__ListDispatcher*)value)->dispatcher,\
                                               (YAP6__CORE__Value*)value,\
                                               (YAP6__CORE__int*)index\
                                            ):\
-                                           ((YAP6__CORE__Dispatcher*)value)->EXIST(\
+                                           ((YAP6__CORE__ListDispatcher*)value)->EXIST(\
                                               (YAP6__CORE__Dispatcher*)value,\
                                               (YAP6__CORE__Value*)value,\
                                               (YAP6__CORE__int*)index))
 
+/* Dispatching mechanism... This can be rewritten in the future,
+   but for now, it's as simple as it gets */
+#define YAP6_SCALAR_FETCH(value,wants) (value->dispatcher?\
+                                           ((YAP6__CORE__ScalarDispatcher*)value->dispatcher)->FETCH(\
+                                              ((YAP6__CORE__Dispatcher*)value)->dispatcher,\
+                                              (YAP6__CORE__Value*)value,\
+                                              (YAP6__CORE__Value*)wants\
+                                           ):\
+                                           ((YAP6__CORE__ScalarDispatcher*)value)->FETCH(\
+                                              (YAP6__CORE__Dispatcher*)value,\
+                                              (YAP6__CORE__Value*)value,\
+                                              (YAP6__CORE__Value*)wants))
+
+/* Dispatching mechanism... This can be rewritten in the future,
+   but for now, it's as simple as it gets */
+#define YAP6_SCALAR_STORE(value,newvalue) (value->dispatcher?\
+                                           ((YAP6__CORE__ScalarDispatcher*)value->dispatcher)->STORE(\
+                                              ((YAP6__CORE__ScalarDispatcher*)value)->dispatcher,\
+                                              (YAP6__CORE__Value*)value,\
+                                              (YAP6__CORE__Value*)newvalue\
+                                           ):\
+                                           ((YAP6__CORE__ScalarDispatcher*)value)->STORE(\
+                                              (YAP6__CORE__Dispatcher*)value,\
+                                              (YAP6__CORE__Value*)value,\
+                                              (YAP6__CORE__Value*)newvalue))
 #endif
