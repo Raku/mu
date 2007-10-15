@@ -28,6 +28,8 @@ refcount garbage collection is implemented.
 
 ROADMAP
 
+0.0.1.11 - List destruction, List_ProxyScalar destruction.
+
 0.0.2 - Implement the basic types
 
 0.0.2.5 - Implement namespace as globally accessible
