@@ -6,7 +6,7 @@ plan 11;
 
 =pod
 
-Tests for the :2() built-in
+Tests for the :10() built-in
 
 =cut
 

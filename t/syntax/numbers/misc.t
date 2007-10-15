@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 19 + 35;
+plan 17 + 35;
 
 # Ambiguity tests, see thread "Ambiguity of parsing numbers with
 # underscores/methods" on p6l started by Ingo Blechschmidt:
@@ -21,25 +21,21 @@ is :10("99"),  99, "Adverbial function form of dec number works";
 is :8("77"),   63, "Adverbial function form of oct number works";
 is :2("11"),    3, "Adverbial function form of bin number works";
 
-is :16<ff>,   255, "Adverbial string form of hex number works";
-is :10<99>,    99, "Adverbial string form of dec number works";
-is :8<77>,     63, "Adverbial string form of oct number works";
-is :2<11>,      3, "Adverbial string form of bin number works";
+is :16<ff>,   255,   "Adverbial string form of hex number works";
+is :10<99>,    99,   "Adverbial string form of dec number works";
+is :8<77>,     63,   "Adverbial string form of oct number works";
+is :2<11>,      3,   "Adverbial string form of bin number works";
 is :2<1_0.1>,   2.5, "Adverbial string form can include . and _";
 
 is :10<99*10**2>, 99e2, "Adverbial form of exponentiation works", :todo<feature>;
 is :2<11*10**2>, 300, "Adverbial exponent defaults to decimal", :todo<feature>;
 is :2«1.1*:2<10>**:2<10>», 6, "Adverbial form in french quotes", :todo<feature>;
 
-
-is :100[10,10], 1010, "Adverbial form of base 100 integer works";
-is :100[10,'.',10], 10.10, "Adverbial form of base 100 fraction works";
-
-is eval(":2<2>"), undef, ":2<2> recognized as illegal", :todo<bug>;
+is eval(":2<2>"),   undef, ":2<2> recognized as illegal", :todo<bug>;
 is eval(":10<3a>"), undef, ":10<3a> recognized as illegal", :todo<bug>;
 
 #*** Missing required parameters: $_
-#    at misc.t line 44, column 13-24
+#    at misc.t line xx, column 13-24
 for 2..36 {
     is eval(":{$_}<11>"), $_ + 1, "Adverbial form of base $_ works";
 }
