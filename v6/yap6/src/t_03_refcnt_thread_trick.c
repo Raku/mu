@@ -36,8 +36,7 @@ void evil_function(void* unused) {
 int main(int argc, char** argv) {
   printf("1..5\n");
 
-  yap6_ident_dispatcher_init();
-  yap6_const_init();
+  yap6_init();
 
   foo = yap6_value_alloc(sizeof(YAP6__CORE__Value));
 

@@ -6,8 +6,7 @@
 int main(int argc, char** argv) {
   printf("1..2\n");
 
-  yap6_ident_dispatcher_init();
-  yap6_const_init();
+  yap6_init();
 
   if (YAP6_APPLY(yap6_const_undef, NULL, NULL) == yap6_const_undef) {
     printf("ok");

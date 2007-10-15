@@ -2,11 +2,10 @@
 #include <stdlib.h>
 #include <assert.h>
 
-int main(int arc, char** argv) {
+void yap6_init() {
 
   yap6_ident_dispatcher_init();
+  yap6_int_dispatcher_init();
   yap6_const_init();
 
-
-  return 0;
 }
