@@ -161,51 +161,29 @@ token opt_ident {
 token term_meth {
     <full_ident>
     [ \.
-    
-        [
-
-            'new'
-            \( 
-            [
-                <?opt_ws> <exp_mapping> <?opt_ws> \)
-                {
-                    # say 'Parsing Lit::Object ', $$<full_ident>, ($$<exp_mapping>).perl;
-                    return ::Lit::Object(
-                        'class'  => $$<full_ident>,
-                        'fields' => $$<exp_mapping>
-                    )
-                }
-            | { say '*** Syntax Error parsing Constructor'; die() }
-            ]
-
-        
-        ]
-        |
-        [
-            <hyper_op>
-            <ident>
-                [ \( <?opt_ws> <exp_seq> <?opt_ws> \)
-                    # { say 'found parameter list: ', $<exp_seq>.perl }
-                | \: <?ws> <exp_seq> <?opt_ws>
-                |
-                    {
-                        return ::Call(
-                            'invocant'  => ::Proto( 'name' => ~$<full_ident> ),
-                            'method'    => $$<ident>,
-                            'arguments' => undef,
-                            'hyper'     => $$<hyper_op>,
-                        )
-                    }
-                ]
+        <hyper_op>
+        <ident>
+            [ \( <?opt_ws> <exp_seq> <?opt_ws> \)
+                # { say 'found parameter list: ', $<exp_seq>.perl }
+            | \: <?ws> <exp_seq> <?opt_ws>
+            |
                 {
                     return ::Call(
                         'invocant'  => ::Proto( 'name' => ~$<full_ident> ),
                         'method'    => $$<ident>,
-                        'arguments' => $$<exp_seq>,
+                        'arguments' => undef,
                         'hyper'     => $$<hyper_op>,
                     )
                 }
-        ]
+            ]
+            {
+                return ::Call(
+                    'invocant'  => ::Proto( 'name' => ~$<full_ident> ),
+                    'method'    => $$<ident>,
+                    'arguments' => $$<exp_seq>,
+                    'hyper'     => $$<hyper_op>,
+                )
+            }
     ]
     |
     <term>
