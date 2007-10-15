@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 int main(int argc, char** argv) {
-  printf("1..2\n");
+  printf("1..4\n");
 
   yap6_init();
 

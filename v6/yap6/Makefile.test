@@ -1,0 +1,3 @@
+
+test: check
+	perl -MTest::Harness -e '@tests=<src/*.t>;$$Test::Harness::switches="-e \"system(shift)\"";runtests(@tests)'

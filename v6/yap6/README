@@ -24,6 +24,8 @@ refcount garbage collection is implemented.
 
 0.0.1.9 - Basic list features working.
 
+0.0.1.10 - make test works
+
 ROADMAP
 
 0.0.2 - Implement the basic types
