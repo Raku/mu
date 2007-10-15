@@ -55,6 +55,12 @@ typedef struct YAP6__CORE__int {
   int value;  
 } YAP6__CORE__int;
 
+/* int support */
+extern YAP6__CORE__Dispatcher* yap6_const_int_dispatcher;
+extern void yap6_int_dispatcher_init();
+extern YAP6__CORE__int* yap6_int_create(int initialvalue);
+extern int yap6_int_lowlevel(YAP6__CORE__int* value);
+
 typedef struct YAP6__CORE__double {
   pthread_rwlock_t* rwlock; int ref_cnt;
   YAP6__CORE__Dispatcher* dispatcher;
@@ -132,19 +138,16 @@ typedef struct YAP6__CORE__ListDispatcher {
   // Lookup returns the value or the proxy value
   YAP6__CORE__Scalar* (*LOOKP)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
-                               YAP6__CORE__int* index,
-                               YAP6__CORE__Value* wants);
+                               YAP6__CORE__int* index);
   // Exists doesn't vivifies and returns only if it exists,
   // else return NULL
   YAP6__CORE__Scalar* (*EXIST)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
-                               YAP6__CORE__int* index,
-                               YAP6__CORE__Value* wants);
+                               YAP6__CORE__int* index);
   // Delete removes the key and returns it.
   YAP6__CORE__Scalar* (*DELET)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
-                               YAP6__CORE__int* index,
-                               YAP6__CORE__Value* wants);
+                               YAP6__CORE__int* index);
 } YAP6__CORE__ListDispatcher;
 
 typedef struct YAP6__CORE__List {
@@ -153,6 +156,20 @@ typedef struct YAP6__CORE__List {
   int length;
   YAP6__CORE__Value** items;
 } YAP6__CORE__List;
+
+typedef struct YAP6__CORE__List__ProxyScalar {
+  pthread_rwlock_t* rwlock; int ref_cnt;
+  YAP6__CORE__ScalarDispatcher* dispatcher;
+  YAP6__CORE__Value* cell;
+  YAP6__CORE__List* owner;
+  YAP6__CORE__int* index;
+} YAP6__CORE__List__ProxyScalar;
+
+/* list support */
+extern YAP6__CORE__Dispatcher* yap6_const_list_dispatcher;
+extern YAP6__CORE__Dispatcher* yap6_const_list_proxyscalar_dispatcher;
+extern void yap6_list_dispatcher_init();
+extern YAP6__CORE__List* yap6_list_create();
 
 typedef struct YAP6__CORE__Pair {
   pthread_rwlock_t* rwlock; int ref_cnt;
@@ -178,19 +195,16 @@ typedef struct YAP6__CORE__HashDispatcher {
   // Lookup returns the value or the proxy value
   YAP6__CORE__Scalar* (*LOOKP)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
-                               YAP6__CORE__Value* key,
-                               YAP6__CORE__Value* wants);
+                               YAP6__CORE__Value* key);
   // Exists doesn't vivifies and returns only if it exists,
   // else return NULL
   YAP6__CORE__Scalar* (*EXIST)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
-                               YAP6__CORE__Value* key,
-                               YAP6__CORE__Value* wants);
+                               YAP6__CORE__Value* key);
   // Delete removes the key and returns it.
   YAP6__CORE__Scalar* (*DELET)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
-                               YAP6__CORE__Value* key,
-                               YAP6__CORE__Value* wants);
+                               YAP6__CORE__Value* key);
 } YAP6__CORE__HashDispatcher;
 
 typedef struct YAP6__CORE__Hash {
@@ -273,12 +287,6 @@ extern void yap6_value_rdlock(YAP6__CORE__Value* value);
 extern void yap6_value_wrlock(YAP6__CORE__Value* value);
 extern void yap6_value_unlock(YAP6__CORE__Value* value);
 
-/* int support */
-extern YAP6__CORE__Dispatcher* yap6_const_int_dispatcher;
-extern void yap6_int_dispatcher_init();
-extern YAP6__CORE__int* yap6_int_create(int initialvalue);
-extern int yap6_int_lowlevel(YAP6__CORE__int* value);
-
 /* Dispatching mechanism... This can be rewritten in the future,
    but for now, it's as simple as it gets */
 #define YAP6_APPLY(value,arguments,wants) (value->dispatcher?\
@@ -296,18 +304,28 @@ extern int yap6_int_lowlevel(YAP6__CORE__int* value);
 
 /* Dispatching mechanism... This can be rewritten in the future,
    but for now, it's as simple as it gets */
-#define YAP6_LIST_LOOKP(value,index,wants) (value->dispatcher?\
+#define YAP6_LIST_LOOKP(value,index) (value->dispatcher?\
                                            value->dispatcher->LOOKP(\
                                               value->dispatcher,\
                                               (YAP6__CORE__Value*)value,\
-                                              (YAP6__CORE__int*)index,\
-                                              (YAP6__CORE__Value*)wants\
+                                              (YAP6__CORE__int*)index\
                                            ):\
                                            ((YAP6__CORE__Dispatcher*)value)->LOOKP(\
                                               (YAP6__CORE__Dispatcher*)value,\
                                               (YAP6__CORE__Value*)value,\
-                                              (YAP6__CORE__int*)index,\
-                                              (YAP6__CORE__Value*)wants))
+                                              (YAP6__CORE__int*)index))
 
+/* Dispatching mechanism... This can be rewritten in the future,
+   but for now, it's as simple as it gets */
+#define YAP6_LIST_EXIST(value,index) (value->dispatcher?\
+                                           value->dispatcher->EXIST(\
+                                              value->dispatcher,\
+                                              (YAP6__CORE__Value*)value,\
+                                              (YAP6__CORE__int*)index\
+                                           ):\
+                                           ((YAP6__CORE__Dispatcher*)value)->EXIST(\
+                                              (YAP6__CORE__Dispatcher*)value,\
+                                              (YAP6__CORE__Value*)value,\
+                                              (YAP6__CORE__int*)index))
 
 #endif

@@ -20,6 +20,8 @@ refcount garbage collection is implemented.
 
 0.0.1.7 - Some work in supporting lists
 
+0.0.1.8 - Starting the list dispatcher
+
 ROADMAP
 
 0.0.2 - Implement the basic types

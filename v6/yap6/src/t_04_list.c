@@ -10,11 +10,11 @@ int main(int argc, char** argv) {
   // For starts, there will be some functions to
   // wrap the dispatch, after the list is built,
   // we can start to use the dispatcher itself
-  YAP6__CORE__List* mylist = yap6_list_init();
+  YAP6__CORE__List* mylist = yap6_list_create();
   
   // Let's get the proxy value for autovivifying some element.
   YAP6__CORE__int* index_0 = yap6_int_create(0);
-  YAP6__CORE__Scalar* item = YAP6_LIST_LOOKP(mylist,index_0,NULL);
+  YAP6__CORE__Scalar* item = YAP6_LIST_LOOKP(mylist,index_0);
 
   if (item) {
     printf("ok ");
@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
   printf("1 - autovivification is a two-step process.\n");
 
   // At this time, no item should exist...
-  if (YAP6_LIST_EXIST(mylist,index_0,NULL) == NULL) {
+  if (YAP6_LIST_EXIST(mylist,index_0) == NULL) {
     printf("ok ");
   } else {
     printf("not ok ");
@@ -36,12 +36,12 @@ int main(int argc, char** argv) {
   YAP6_SCALAR_STORE(item, value);
   yap6_value_refcnt_dec(value);
 
-  item = YAP6_LIST_LOOKP(mylist,index_0,NULL);
+  item = YAP6_LIST_LOOKP(mylist,index_0);
   yap6_value_refcnt_dec((YAP6__CORE__Value*)index_0);
   // item is a scalar, we need to FETCH
   YAP6__CORE__int* result = (YAP6__CORE__int*)YAP6_SCALAR_FETCH(item);
 
-  if (yap6_int_lowlever(result) == 1234) {
+  if (yap6_int_lowlevel(result) == 1234) {
     printf("ok ");
   } else {
     printf("not ok ");
