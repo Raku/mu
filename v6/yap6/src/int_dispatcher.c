@@ -10,17 +10,14 @@ static YAP6__CORE__Value* int_dispatcher_APPLY(YAP6__CORE__Dispatcher* self,
   return value;
 }
 
-static YAP6__CORE__Value* int_dispatcher_DESTR(YAP6__CORE__Dispatcher* self,
-                                          YAP6__CORE__Value* value,
-                                          YAP6__CORE__Capture* arguments,
-                                          YAP6__CORE__Value* wants) {
-  // TODO
-  return NULL;
+static void int_dispatcher_DESTR(YAP6__CORE__Dispatcher* self,
+                                          YAP6__CORE__Value* value) {
+  // does nothing
 }
 
 static int int_dispatcher_COMPR(YAP6__CORE__Dispatcher* self,
                                           YAP6__CORE__Value* value,
-                                          YAP6__CORE__Capture* arguments) {
+                                          YAP6__CORE__Value* other) {
   // TODO
   return 0;
 }

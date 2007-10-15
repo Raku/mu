@@ -19,17 +19,14 @@ static YAP6__CORE__Value* list_dispatcher_APPLY(YAP6__CORE__Dispatcher* self,
   return NULL;
 }
 
-static YAP6__CORE__Value* list_dispatcher_DESTR(YAP6__CORE__Dispatcher* self,
-                                          YAP6__CORE__Value* value,
-                                          YAP6__CORE__Capture* arguments,
-                                          YAP6__CORE__Value* wants) {
+static void list_dispatcher_DESTR(YAP6__CORE__Dispatcher* self,
+                                          YAP6__CORE__Value* value) {
   // TODO
-  return NULL;
 }
 
 static int list_dispatcher_COMPR(YAP6__CORE__Dispatcher* self,
                                           YAP6__CORE__Value* value,
-                                          YAP6__CORE__Capture* arguments) {
+                                          YAP6__CORE__Value* other) {
   // TODO
   return 0;
 }
@@ -100,17 +97,14 @@ static YAP6__CORE__Value* list_proxyscalar_dispatcher_APPLY(YAP6__CORE__Dispatch
   return NULL;
 }
 
-static YAP6__CORE__Value* list_proxyscalar_dispatcher_DESTR(YAP6__CORE__Dispatcher* self,
-                                          YAP6__CORE__Value* value,
-                                          YAP6__CORE__Capture* arguments,
-                                          YAP6__CORE__Value* wants) {
+static void list_proxyscalar_dispatcher_DESTR(YAP6__CORE__Dispatcher* self,
+                                          YAP6__CORE__Value* value) {
   // TODO
-  return NULL;
 }
 
 static int list_proxyscalar_dispatcher_COMPR(YAP6__CORE__Dispatcher* self,
                                           YAP6__CORE__Value* value,
-                                          YAP6__CORE__Capture* arguments) {
+                                          YAP6__CORE__Value* other) {
   // TODO
   return 0;
 }
@@ -135,17 +129,23 @@ static YAP6__CORE__Value* list_proxyscalar_dispatcher_STORE(YAP6__CORE__Dispatch
   YAP6__CORE__List* list = ((YAP6__CORE__List__ProxyScalar*)value)->owner;
   int index = yap6_int_lowlevel(((YAP6__CORE__List__ProxyScalar*)value)->index);
   yap6_value_unlock(value);
-  yap6_value_wrlock((YAP6__CORE__Value*)list);
-  if (list->length <= index) {
-    list->items = (YAP6__CORE__Value**)realloc(list->items, sizeof(void*)*(index+1));
-    assert(list->items);
-    memset(list->items[list->length - 1], 0, list->length - index);
-    list->length = index + 1;
+  if (list) {
+    yap6_value_wrlock((YAP6__CORE__Value*)list);
+    if (list->length <= index) {
+      list->items = (YAP6__CORE__Value**)realloc(list->items, sizeof(void*)*(index+1));
+      assert(list->items);
+      memset(list->items[list->length - 1], 0, list->length - index);
+      list->length = index + 1;
+    }
+    if (list->items[index] == NULL) {
+      list->items[index] = value;
+    }
+    yap6_value_unlock((YAP6__CORE__Value*)list);
+    yap6_value_wrlock(value);
+    ((YAP6__CORE__List__ProxyScalar*)value)->owner = NULL;
+    yap6_value_refcnt_dec(list);
+    yap6_value_unlock(value);
   }
-  if (list->items[index] == NULL) {
-    list->items[index] = value;
-  }
-  yap6_value_unlock((YAP6__CORE__Value*)list);
   yap6_value_refcnt_inc(newvalue);
   return oldval;
 }

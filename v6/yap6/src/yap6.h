@@ -40,13 +40,11 @@ struct YAP6__CORE__Dispatcher {
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__Capture* arguments,
                                YAP6__CORE__Value* wants);
-  YAP6__CORE__Value* (*DESTR)(YAP6__CORE__Dispatcher* self,
-                               YAP6__CORE__Value* value, 
-                               YAP6__CORE__Capture* arguments,
-                               YAP6__CORE__Value* wants);
+  void               (*DESTR)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
   int                (*COMPR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
-                               YAP6__CORE__Capture* arguments);
+                               YAP6__CORE__Value* other);
 };
 
 typedef struct YAP6__CORE__int {
@@ -103,13 +101,11 @@ struct YAP6__CORE__ScalarDispatcher {
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__Capture* arguments,
                                YAP6__CORE__Value* wants);
-  YAP6__CORE__Value* (*DESTR)(YAP6__CORE__Dispatcher* self,
-                               YAP6__CORE__Value* value, 
-                               YAP6__CORE__Capture* arguments,
-                               YAP6__CORE__Value* wants);
+  void               (*DESTR)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
   int                (*COMPR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
-                               YAP6__CORE__Capture* arguments);
+                               YAP6__CORE__Value* other);
   // REFCOUNT: the return of this method is counted as a refcount
   YAP6__CORE__Value* (*FETCH)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
@@ -128,13 +124,11 @@ typedef struct YAP6__CORE__ListDispatcher {
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__Capture* arguments,
                                YAP6__CORE__Value* wants);
-  YAP6__CORE__Value* (*DESTR)(YAP6__CORE__Dispatcher* self,
-                               YAP6__CORE__Value* value, 
-                               YAP6__CORE__Capture* arguments,
-                               YAP6__CORE__Value* wants);
+  void               (*DESTR)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
   int                (*COMPR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
-                               YAP6__CORE__Capture* arguments);
+                               YAP6__CORE__Value* other);
   // Lookup returns the value or the proxy value
   // REFCOUNT: the return of this method is counted as a refcount
   YAP6__CORE__Scalar* (*LOOKP)(YAP6__CORE__Dispatcher* self,
@@ -188,13 +182,11 @@ typedef struct YAP6__CORE__HashDispatcher {
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__Capture* arguments,
                                YAP6__CORE__Value* wants);
-  YAP6__CORE__Value* (*DESTR)(YAP6__CORE__Dispatcher* self,
-                               YAP6__CORE__Value* value, 
-                               YAP6__CORE__Capture* arguments,
-                               YAP6__CORE__Value* wants);
+  void               (*DESTR)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
   int                (*COMPR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
-                               YAP6__CORE__Capture* arguments);
+                               YAP6__CORE__Value* other);
   // REFCOUNT: the return of this method is counted as a refcount
   // Lookup returns the value or the proxy value
   YAP6__CORE__Scalar* (*LOOKP)(YAP6__CORE__Dispatcher* self,
@@ -230,13 +222,11 @@ struct YAP6__CORE__CaptureDispatcher {
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__Capture* arguments,
                                YAP6__CORE__Value* wants);
-  YAP6__CORE__Value* (*DESTR)(YAP6__CORE__Dispatcher* self,
-                               YAP6__CORE__Value* value, 
-                               YAP6__CORE__Capture* arguments,
-                               YAP6__CORE__Value* wants);
+  void               (*DESTR)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
   int                (*COMPR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
-                               YAP6__CORE__Capture* arguments);
+                               YAP6__CORE__Value* other);
   // REFCOUNT: the return of this method is counted as a refcount
   // Gets a positional value
   YAP6__CORE__Scalar* (*LOOKP)(YAP6__CORE__Dispatcher* self,
