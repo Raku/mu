@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 33;
+plan 38;
 
 =pod
 
@@ -58,4 +58,19 @@ is(:16("fF"), 255, 'got the correct int value from (mixed case) hex fF');
 # some random mad up hex strings (these values are checked against perl5)
 is :16("FFACD5FE"), 4289517054, 'got the correct int value from hex FFACD5FE';
 is :16("AAA4872D"), 2862909229, 'got the correct int value from hex AAA4872D';
-is :16<DEAD_BEEF>, 0xDEADBEEF, 'got the correct int value from hex DEAD_BEEF';
+is :16<DEAD_BEEF>,  0xDEADBEEF, 'got the correct int value from hex DEAD_BEEF';
+
+# L<S02/Literals/"Think of these as setting the default radix">
+# setting the default radix
+
+is(:16<0b1110>,  0d14, ':16<0b1110> converts from binary',   :todo<feature> );
+is(:16<0x20>,    0d32, ':16<0x20> stays hexadecimal',        :todo<feature> );
+is(:16<0o377>,  0d255, ':16<0o255> converts from octal',     :todo<feature> );
+is(:16<0d37>,    0d37, ':16<0d37> converts from decimal',    :todo<feature> );
+
+# L<S02/Literals/"which will be interpreted as they would outside the string">
+# It seems odd that the numbers on the inside on the <> would be a mix of
+# bases. Maybe I've misread the paragraph -- brian
+is( :16<dead_beef> * 16**8, :16<dead_beef*16**8>, 
+	'Powers outside same as powers inside', :todo<feature> );
+
