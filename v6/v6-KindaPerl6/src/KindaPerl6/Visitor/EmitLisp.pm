@@ -330,15 +330,16 @@ class Apply {
         }
 
         if ($name eq 'infix:<&&>') {
-            return '(make-instance \'kp6-Bit :value (and (kp6-dispatch (kp6-dispatch ' ~ (@.arguments.>>emit_lisp($interpreter, $indent)).join(' ' ~ $interpreter ~ ' :true) :cl-landish) (kp6-dispatch (kp6-dispatch ') ~ ' ' ~ $interpreter ~ ' :true) :cl-landish)))';
+            return
+            '(make-instance \'kp6-Bit :value (and (kp6-dispatch (kp6-dispatch ' ~ (@.arguments.>>emit_lisp($interpreter, $indent)).join(' ' ~ $interpreter ~ ' :true) ' ~ $interpreter ~ ' :cl-landish) (kp6-dispatch (kp6-dispatch ') ~ ' ' ~ $interpreter ~ ' :true) ' ~ $interpreter ~ ' :cl-landish)))';
         }
 
         if ($name eq 'infix:<||>') {
-            return '(make-instance \'kp6-Bit :value (or (kp6-dispatch (kp6-dispatch ' ~ (@.arguments.>>emit_lisp($interpreter, $indent)).join(' ' ~ $interpreter ~ ' :true) :cl-landish) (kp6-dispatch (kp6-dispatch ') ~ ' :true) ' ~ $interpreter ~ ' :cl-landish)))';
+            return '(make-instance \'kp6-Bit :value (or (kp6-dispatch (kp6-dispatch ' ~ (@.arguments.>>emit_lisp($interpreter, $indent)).join(' ' ~ $interpreter ~ ' :true) ' ~ $interpreter ~ ' :cl-landish) (kp6-dispatch (kp6-dispatch ') ~ ' :true) ' ~ $interpreter ~ ' :cl-landish)))';
         }
 
         if ($name eq 'ternary:<?? !!>') {
-            return '(if (kp6-true ' ~ (@.arguments[0]).emit_lisp($interpreter, $indent) ~ ') (progn ' ~ (@.arguments[1]).emit_lisp($interpreter, $indent) ~ ') (progn ' ~ (@.arguments[2]).emit_lisp($interpreter, $indent) ~ '))';
+            return '(if (kp6-dispatch (kp6-dispatch ' ~ (@.arguments[0]).emit_lisp($interpreter, $indent) ~ ' ' ~ $interpreter ~ ' ' ~ ':true) ' ~ $interpreter ~ ' :cl-landish) (progn ' ~ (@.arguments[1]).emit_lisp($interpreter, $indent) ~ ') (progn ' ~ (@.arguments[2]).emit_lisp($interpreter, $indent) ~ '))';
         }
 
         my $op := $.code.emit_lisp($interpreter, $indent);
@@ -372,11 +373,22 @@ class Return {
 
 class If {
     method emit_lisp ($interpreter, $indent) {
-        my $cond := '(kp6-dispatch (kp6-dispatch ' ~ $.cond.emit_lisp($interpreter, $indent) ~ ' ' ~ $interpreter ~ ' :true) ' ~ $interpreter ~ ' :cl-landish)';
+        my $cond :=
+        '(kp6-dispatch'
+           ~ ' ' ~ '(kp6-dispatch'
+           ~ ' ' ~ $.cond.emit_lisp($interpreter, $indent)
+           ~ ' ' ~ $interpreter
+           ~ ' ' ~ ':true)'
+         ~ ' ' ~ $interpreter
+         ~ ' ' ~ ':cl-landish)';
 
         '(cond ' ~ Main::newline()
-          ~ '(' ~ $cond ~ ' ' ~ ($.body ?? $.body.emit_lisp($interpreter, $indent) !! 'nil') ~ ')'
-          ~ ($.otherwise ?? Main::newline() ~ '(t ' ~ $.otherwise.emit_lisp($interpreter, $indent) ~ ')' !! '') 
+          ~ '(' ~ $cond ~ ' '
+            ~ ($.body ?? $.body.emit_lisp($interpreter, $indent) !! 'nil')
+          ~ ')'
+          ~ ($.otherwise
+             ?? Main::newline() ~ '(t ' ~ $.otherwise.emit_lisp($interpreter, $indent) ~ ')'
+             !! '')
           ~ ')';
     }
 }

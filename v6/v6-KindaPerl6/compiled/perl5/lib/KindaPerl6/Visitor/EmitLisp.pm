@@ -551,7 +551,8 @@ sub emit_lisp {
             return (
                 (   '(make-instance \'kp6-Bit :value (and (kp6-dispatch (kp6-dispatch '
                         . (
-                        Main::join( [ map { $_->emit_lisp( $interpreter, $indent ) } @{ $self->{arguments} } ], ( ' ' . ( $interpreter . ' :true) :cl-landish) (kp6-dispatch (kp6-dispatch ' ) ) ) . ( ' ' . ( $interpreter . ' :true) :cl-landish)))' ) )
+                        Main::join( [ map { $_->emit_lisp( $interpreter, $indent ) } @{ $self->{arguments} } ], ( ' ' . ( $interpreter . ( ' :true) ' . ( $interpreter . ' :cl-landish) (kp6-dispatch (kp6-dispatch ' ) ) ) ) )
+                            . ( ' ' . ( $interpreter . ( ' :true) ' . ( $interpreter . ' :cl-landish)))' ) ) ) )
                         )
                 )
             );
@@ -563,7 +564,8 @@ sub emit_lisp {
             return (
                 (   '(make-instance \'kp6-Bit :value (or (kp6-dispatch (kp6-dispatch '
                         . (
-                        Main::join( [ map { $_->emit_lisp( $interpreter, $indent ) } @{ $self->{arguments} } ], ( ' ' . ( $interpreter . ' :true) :cl-landish) (kp6-dispatch (kp6-dispatch ' ) ) ) . ( ' :true) ' . ( $interpreter . ' :cl-landish)))' ) )
+                        Main::join( [ map { $_->emit_lisp( $interpreter, $indent ) } @{ $self->{arguments} } ], ( ' ' . ( $interpreter . ( ' :true) ' . ( $interpreter . ' :cl-landish) (kp6-dispatch (kp6-dispatch ' ) ) ) ) )
+                            . ( ' :true) ' . ( $interpreter . ' :cl-landish)))' ) )
                         )
                 )
             );
@@ -573,10 +575,22 @@ sub emit_lisp {
     do {
         if ( ( $name eq 'ternary:<?? !!>' ) ) {
             return (
-                (   '(if (kp6-true '
+                (   '(if (kp6-dispatch (kp6-dispatch '
                         . (
                         $self->{arguments}->[0]->emit_lisp( $interpreter, $indent )
-                            . ( ') (progn ' . ( $self->{arguments}->[1]->emit_lisp( $interpreter, $indent ) . ( ') (progn ' . ( $self->{arguments}->[2]->emit_lisp( $interpreter, $indent ) . '))' ) ) ) )
+                            . (
+                            ' '
+                                . (
+                                $interpreter
+                                    . (
+                                    ' '
+                                        . (
+                                        ':true) '
+                                            . ( $interpreter . ( ' :cl-landish) (progn ' . ( $self->{arguments}->[1]->emit_lisp( $interpreter, $indent ) . ( ') (progn ' . ( $self->{arguments}->[2]->emit_lisp( $interpreter, $indent ) . '))' ) ) ) ) )
+                                        )
+                                    )
+                                )
+                            )
                         )
                 )
             );
@@ -620,7 +634,7 @@ sub emit_lisp {
     my $interpreter;
     my $indent;
     do { $interpreter = $List__->[0]; $indent = $List__->[1]; [ $interpreter, $indent ] };
-    my $cond = ( '(kp6-dispatch (kp6-dispatch ' . ( $self->{cond}->emit_lisp( $interpreter, $indent ) . ( ' ' . ( $interpreter . ( ' :true) ' . ( $interpreter . ' :cl-landish)' ) ) ) ) ) );
+    my $cond = ( '(kp6-dispatch' . ( ' ' . ( '(kp6-dispatch' . ( ' ' . ( $self->{cond}->emit_lisp( $interpreter, $indent ) . ( ' ' . ( $interpreter . ( ' ' . ( ':true)' . ( ' ' . ( $interpreter . ( ' ' . ':cl-landish)' ) ) ) ) ) ) ) ) ) ) ) );
     (   '(cond '
             . (
             Main::newline()
