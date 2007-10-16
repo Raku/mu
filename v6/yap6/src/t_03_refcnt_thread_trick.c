@@ -7,7 +7,7 @@
 
 YAP6__CORE__Value* foo;
 
-void threaded_function(void* unused) {
+void* threaded_function(void* unused) {
   // this will be the function used by t1, t2 and t3
   
 
@@ -21,9 +21,10 @@ void threaded_function(void* unused) {
 
   yap6_value_refcnt_dec(foo);
   printf("ok - it didn't break while trying to use it\n");
+  return NULL;
 }
 
-void evil_function(void* unused) {
+void* evil_function(void* unused) {
   // this will be the function used by t4
   // let's sleep...
   sleep(1);
@@ -31,6 +32,7 @@ void evil_function(void* unused) {
   // this thread would destroy the value...
   yap6_value_refcnt_dec(foo);
   printf("ok - it didn't break while trying to use it\n");
+  return NULL;
 }
 
 int main(int argc, char** argv) {
