@@ -22,6 +22,6 @@
     `(let ((,array-value ,array))
        (dotimes (,array-index (perl->cl (kp6-dispatch ,array-value ,interpreter :elems)))
 	 (set-lexical-variable ,loop-variable
-			       (kp6-dispatch ,interpreter ,array-value :lookup
+			       (kp6-dispatch ,array-value ,interpreter :lookup
 					     (make-instance 'kp6-Int :value ,array-index)))
 	 ,@body))))
