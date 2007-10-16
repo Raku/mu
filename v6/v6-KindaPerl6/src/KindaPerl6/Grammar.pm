@@ -182,6 +182,7 @@ token infix_op {
     | '<'  | '>' 
     | '&' | '^' | '|'
     | '..'
+    | 'but'
 };
 
 token hyper_op {

@@ -1323,8 +1323,10 @@ sub infix_op {
                                                                                 || (do { $MATCH->to($pos1); ( ( '>' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) }
                                                                                     || (do { $MATCH->to($pos1); ( ( '&' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) }
                                                                                         || (do { $MATCH->to($pos1); ( ( '^' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) }
-                                                                                            || (do    { $MATCH->to($pos1); ( ( '|'  eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) }
-                                                                                                || do { $MATCH->to($pos1); ( ( '..' eq substr( $str, $MATCH->to(), 2 ) ) ? ( 1 + $MATCH->to( ( 2 + $MATCH->to() ) ) ) : 0 ) }
+                                                                                            || (do { $MATCH->to($pos1); ( ( '|' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) }
+                                                                                                || (do    { $MATCH->to($pos1); ( ( '..'  eq substr( $str, $MATCH->to(), 2 ) ) ? ( 1 + $MATCH->to( ( 2 + $MATCH->to() ) ) ) : 0 ) }
+                                                                                                    || do { $MATCH->to($pos1); ( ( 'but' eq substr( $str, $MATCH->to(), 3 ) ) ? ( 1 + $MATCH->to( ( 3 + $MATCH->to() ) ) ) : 0 ) }
+                                                                                                )
                                                                                             )
                                                                                         )
                                                                                     )
