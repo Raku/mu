@@ -3,6 +3,7 @@
 #define __YAP6_H
 
 #include <pthread.h>
+#include <lcms.h>
 
 // initialize all constants and low-level dispatchers...
 extern void yap6_init();
