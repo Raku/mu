@@ -10,3 +10,12 @@ void yap6_init() {
   yap6_list_dispatcher_init();
 
 }
+
+void yap6_destr() {
+
+  yap6_list_dispatcher_destr();
+  yap6_int_dispatcher_destr();
+  yap6_const_destr();
+  yap6_ident_dispatcher_destr();
+
+}

@@ -38,13 +38,17 @@ int main(int argc, char** argv) {
 
   // At this time, the item shall be created.
   YAP6__CORE__int* value = yap6_int_create(1234);
-  YAP6_SCALAR_STORE(item, value);
+  YAP6__CORE__Value* oldvalue = YAP6_SCALAR_STORE(item, value);
+  yap6_value_refcnt_dec(oldvalue);
   yap6_value_refcnt_dec((YAP6__CORE__Value*)value);
+  yap6_value_refcnt_dec((YAP6__CORE__Value*)item);
 
   item = YAP6_LIST_LOOKP(mylist,index_0);
-  yap6_value_refcnt_dec((YAP6__CORE__Value*)index_0);
   // item is a scalar, we need to FETCH
   YAP6__CORE__int* result = (YAP6__CORE__int*)YAP6_SCALAR_FETCH(item, NULL);
+
+  yap6_value_refcnt_dec((YAP6__CORE__Value*)index_0);
+  yap6_value_refcnt_dec((YAP6__CORE__Value*)item);
 
   if (yap6_int_lowlevel(result) == 1234) {
     printf("ok ");
@@ -52,6 +56,11 @@ int main(int argc, char** argv) {
     printf("not ok ");
   }
   printf("3 - Lazy STORE should autovivify the item\n");
+
+  yap6_value_refcnt_dec((YAP6__CORE__Value*)result);
+  yap6_value_refcnt_dec((YAP6__CORE__Value*)mylist);
+
+  yap6_destr();
 
   return 0;
 }

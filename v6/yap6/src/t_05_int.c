@@ -23,5 +23,6 @@ int main(int argc, char** argv) {
 
   printf("ok 2 - destroying the int...\n");
 
+  yap6_destr();
   return 0;
 }

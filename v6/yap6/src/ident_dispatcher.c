@@ -11,7 +11,6 @@ static YAP6__CORE__Value* ident_dispatcher_APPLY(YAP6__CORE__Dispatcher* self,
 
 static void ident_dispatcher_DESTR(YAP6__CORE__Dispatcher* self,
                                           YAP6__CORE__Value* value) {
-  return NULL;
 }
 
 static int ident_dispatcher_COMPR(YAP6__CORE__Dispatcher* self,
@@ -30,4 +29,8 @@ void yap6_ident_dispatcher_init() {
   yap6_const_ident_dispatcher->APPLY = &ident_dispatcher_APPLY;
   yap6_const_ident_dispatcher->DESTR = &ident_dispatcher_DESTR;
   yap6_const_ident_dispatcher->COMPR = &ident_dispatcher_COMPR;
+}
+
+void yap6_ident_dispatcher_destr() {
+  yap6_value_refcnt_dec(yap6_const_ident_dispatcher);
 }

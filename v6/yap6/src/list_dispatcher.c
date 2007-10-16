@@ -22,6 +22,20 @@ static YAP6__CORE__Value* list_dispatcher_APPLY(YAP6__CORE__Dispatcher* self,
 static void list_dispatcher_DESTR(YAP6__CORE__Dispatcher* self,
                                           YAP6__CORE__Value* value) {
   // TODO
+  yap6_value_wrlock(value);
+  YAP6__CORE__List* list = (YAP6__CORE__List*)value;
+  int length = list->length;
+  YAP6__CORE__Value** items = list->items;
+  list->length = 0;
+  list->items = NULL;
+  yap6_value_unlock(value);
+  int i;
+  for (i = 0; i < length; i++) {
+    if (items[i]) {
+      yap6_value_refcnt_dec(items[i]);
+      items[i] = NULL;
+    }
+  }
 }
 
 static int list_dispatcher_COMPR(YAP6__CORE__Dispatcher* self,
@@ -99,7 +113,13 @@ static YAP6__CORE__Value* list_proxyscalar_dispatcher_APPLY(YAP6__CORE__Dispatch
 
 static void list_proxyscalar_dispatcher_DESTR(YAP6__CORE__Dispatcher* self,
                                           YAP6__CORE__Value* value) {
-  // TODO
+  yap6_value_wrlock(value);
+  YAP6__CORE__Value* cell = ((YAP6__CORE__Scalar*)value)->cell;
+  ((YAP6__CORE__Scalar*)value)->cell = NULL;
+  yap6_value_unlock(value);
+  if (cell) {
+    yap6_value_refcnt_dec(cell);
+  }
 }
 
 static int list_proxyscalar_dispatcher_COMPR(YAP6__CORE__Dispatcher* self,
@@ -127,7 +147,8 @@ static YAP6__CORE__Value* list_proxyscalar_dispatcher_STORE(YAP6__CORE__Dispatch
   YAP6__CORE__Value* oldval = ((YAP6__CORE__Scalar*)value)->cell;
   ((YAP6__CORE__Scalar*)value)->cell = newvalue;
   YAP6__CORE__List* list = ((YAP6__CORE__List__ProxyScalar*)value)->owner;
-  int index = yap6_int_lowlevel(((YAP6__CORE__List__ProxyScalar*)value)->index);
+  YAP6__CORE__int* index_i = ((YAP6__CORE__List__ProxyScalar*)value)->index;
+  int index = yap6_int_lowlevel(index_i);
   yap6_value_unlock(value);
   if (list) {
     yap6_value_wrlock((YAP6__CORE__Value*)list);
@@ -140,10 +161,13 @@ static YAP6__CORE__Value* list_proxyscalar_dispatcher_STORE(YAP6__CORE__Dispatch
     if (list->items[index] == NULL) {
       list->items[index] = value;
     }
+    yap6_value_refcnt_inc(value);
     yap6_value_unlock((YAP6__CORE__Value*)list);
     yap6_value_wrlock(value);
     ((YAP6__CORE__List__ProxyScalar*)value)->owner = NULL;
-    yap6_value_refcnt_dec(list);
+    yap6_value_refcnt_dec((YAP6__CORE__Value*)((YAP6__CORE__List__ProxyScalar*)value)->index);
+    ((YAP6__CORE__List__ProxyScalar*)value)->index = NULL;
+    yap6_value_refcnt_dec((YAP6__CORE__Value*)list);
     yap6_value_unlock(value);
   }
   yap6_value_refcnt_inc(newvalue);
@@ -157,6 +181,8 @@ YAP6__CORE__ScalarDispatcher* yap6_const_list_proxyscalar_dispatcher;
 
 void yap6_list_dispatcher_init() {
   yap6_const_list_dispatcher = (YAP6__CORE__ListDispatcher*)yap6_value_alloc(sizeof(YAP6__CORE__ListDispatcher));
+  yap6_const_list_dispatcher->dispatcher = yap6_const_ident_dispatcher;
+  yap6_value_refcnt_inc((YAP6__CORE__Value*)yap6_const_ident_dispatcher);
   yap6_const_list_dispatcher->APPLY = &list_dispatcher_APPLY;
   yap6_const_list_dispatcher->DESTR = &list_dispatcher_DESTR;
   yap6_const_list_dispatcher->COMPR = &list_dispatcher_COMPR;
@@ -165,6 +191,8 @@ void yap6_list_dispatcher_init() {
   yap6_const_list_dispatcher->DELET = &list_dispatcher_DELET;
 
   yap6_const_list_proxyscalar_dispatcher = (YAP6__CORE__ScalarDispatcher*)yap6_value_alloc(sizeof(YAP6__CORE__ScalarDispatcher));
+  yap6_const_list_proxyscalar_dispatcher->dispatcher = yap6_const_ident_dispatcher;
+  yap6_value_refcnt_inc((YAP6__CORE__Value*)yap6_const_ident_dispatcher);
   yap6_const_list_proxyscalar_dispatcher->APPLY = &list_proxyscalar_dispatcher_APPLY;
   yap6_const_list_proxyscalar_dispatcher->DESTR = &list_proxyscalar_dispatcher_DESTR;
   yap6_const_list_proxyscalar_dispatcher->COMPR = &list_proxyscalar_dispatcher_COMPR;
@@ -178,4 +206,9 @@ YAP6__CORE__List* yap6_list_create() {
   yap6_value_refcnt_inc((YAP6__CORE__Value*)yap6_const_list_dispatcher);
   foo->dispatcher = yap6_const_list_dispatcher;
   return foo;
+}
+
+void yap6_list_dispatcher_destr() {
+  yap6_value_refcnt_dec((YAP6__CORE__Value*)yap6_const_list_dispatcher);
+  yap6_value_refcnt_dec((YAP6__CORE__Value*)yap6_const_list_proxyscalar_dispatcher);
 }

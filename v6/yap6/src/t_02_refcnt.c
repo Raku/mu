@@ -9,6 +9,8 @@ int main(int argc, char** argv) {
   yap6_init();
 
   YAP6__CORE__Value* foo = yap6_value_alloc(sizeof(YAP6__CORE__Value));
+  yap6_value_refcnt_inc(yap6_const_ident_dispatcher);
+  foo->dispatcher = yap6_const_ident_dispatcher;
 
   if (foo->ref_cnt == 1) {
     printf("ok");
@@ -38,5 +40,6 @@ int main(int argc, char** argv) {
   printf("ok 4 - the pointer should be freed now...\n");
 
 
+  yap6_destr();
   return 0;
 }

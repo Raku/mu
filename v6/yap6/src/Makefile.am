@@ -1,5 +1,6 @@
 LDADD = -lpthread
 AM_CFLAGS = -Wall -D_GNU_SOURCE
+# -DYAP6_MEM_TRACE use this to see alloc, refcnt_inc, refcnt_dec and destroys...
 
 bin_PROGRAMS = yap6
 yap6_SOURCES = const.c int_dispatcher.c ident_dispatcher.c list_dispatcher.c yap6.c yap6.h memory.c main.c

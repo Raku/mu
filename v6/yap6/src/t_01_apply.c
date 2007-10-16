@@ -22,5 +22,6 @@ int main(int argc, char** argv) {
   }
   printf(" 2 - apply on value with no dispatcher means the value is a dispatcher\n");
 
+  yap6_destr();
   return 0;
 }

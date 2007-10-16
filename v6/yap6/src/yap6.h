@@ -7,6 +7,7 @@
 
 // initialize all constants and low-level dispatchers...
 extern void yap6_init();
+extern void yap6_destr();
 
 // forward declarations
 struct YAP6__CORE__Value; typedef struct YAP6__CORE__Value YAP6__CORE__Value;
@@ -59,6 +60,7 @@ extern YAP6__CORE__Dispatcher* yap6_const_int_dispatcher;
 extern void yap6_int_dispatcher_init();
 extern YAP6__CORE__int* yap6_int_create(int initialvalue);
 extern int yap6_int_lowlevel(YAP6__CORE__int* value);
+extern void yap6_int_dispatcher_destr();
 
 typedef struct YAP6__CORE__double {
   pthread_rwlock_t* rwlock; int ref_cnt;
@@ -168,6 +170,7 @@ extern YAP6__CORE__ListDispatcher* yap6_const_list_dispatcher;
 extern YAP6__CORE__ScalarDispatcher* yap6_const_list_proxyscalar_dispatcher;
 extern void yap6_list_dispatcher_init();
 extern YAP6__CORE__List* yap6_list_create();
+extern void yap6_list_dispatcher_destr();
 
 typedef struct YAP6__CORE__Pair {
   pthread_rwlock_t* rwlock; int ref_cnt;
@@ -257,12 +260,14 @@ struct YAP6__CORE__Capture {
 // ident_dispatcher
 extern YAP6__CORE__Dispatcher* yap6_const_ident_dispatcher;
 extern void yap6_ident_dispatcher_init();
+extern void yap6_ident_dispatcher_destr();
 
 // const values
 extern YAP6__CORE__Value* yap6_const_undef;
 extern YAP6__CORE__Value* yap6_const_true;
 extern YAP6__CORE__Value* yap6_const_false;
 extern void yap6_const_init();
+extern void yap6_const_destr();
 
 // basic object management
 /* This function is the place from where every allocation should
@@ -300,6 +305,16 @@ extern void yap6_value_unlock(YAP6__CORE__Value* value);
                                               (YAP6__CORE__Value*)value,\
                                               (YAP6__CORE__Capture*)arguments,\
                                               (YAP6__CORE__Value*)wants))
+
+/* Dispatching mechanism... This can be rewritten in the future,
+   but for now, it's as simple as it gets */
+#define YAP6_DESTR(value)                (value->dispatcher?\
+                                           value->dispatcher->DESTR(\
+                                              value->dispatcher,\
+                                              (YAP6__CORE__Value*)value):\
+                                           ((YAP6__CORE__Dispatcher*)value)->DESTR(\
+                                              (YAP6__CORE__Dispatcher*)value,\
+                                              (YAP6__CORE__Value*)value))
 
 /* Dispatching mechanism... This can be rewritten in the future,
    but for now, it's as simple as it gets */
