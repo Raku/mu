@@ -421,7 +421,12 @@ class While {
         } else {
             $cond := ::Apply( code => ::Var(sigil=>'&',twigil=>'',name=>'prefix:<@>',namespace => [ 'GLOBAL' ],), arguments => [$cond] );
         }
-        '(loop :while (kp6-true ' ~ $.cond.emit_lisp($interpreter, $indent) ~ ')' ~ Main::newline()
+        '(loop :while (kp6-dispatch' ~ Main::newline()
+        ~ '  (kp6-dispatch '
+        ~     $.cond.emit_lisp($interpreter, $indent)
+        ~ ' ' ~ $interpreter ~ ' :true) ' ~ Main::newline()
+        ~ $interpreter
+        ~ ' :cl-landish)' ~ Main::newline()
         ~ ' :do '
         ~     $.body.emit_lisp($interpreter, $indent)
         ~ ')'

@@ -687,7 +687,20 @@ sub emit_lisp {
         if   ( ( Main::isa( $cond, 'Var' ) && ( $cond->sigil() eq '@' ) ) ) { }
         else                                                                { $cond = Apply->new( 'code' => Var->new( 'sigil' => '&', 'twigil' => '', 'name' => 'prefix:<@>', 'namespace' => ['GLOBAL'], ), 'arguments' => [$cond], ) }
     };
-    ( '(loop :while (kp6-true ' . ( $self->{cond}->emit_lisp( $interpreter, $indent ) . ( ')' . ( Main::newline() . ( ' :do ' . ( $self->{body}->emit_lisp( $interpreter, $indent ) . ( ')' . Main::newline() ) ) ) ) ) ) );
+    (   '(loop :while (kp6-dispatch'
+            . (
+            Main::newline()
+                . (
+                '  (kp6-dispatch '
+                    . (
+                    $self->{cond}->emit_lisp( $interpreter, $indent )
+                        . (
+                        ' ' . ( $interpreter . ( ' :true) ' . ( Main::newline() . ( $interpreter . ( ' :cl-landish)' . ( Main::newline() . ( ' :do ' . ( $self->{body}->emit_lisp( $interpreter, $indent ) . ( ')' . Main::newline() ) ) ) ) ) ) ) ) )
+                        )
+                    )
+                )
+            )
+    );
 }
 
 package Decl;
