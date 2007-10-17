@@ -6,3 +6,7 @@
 (defmethod kp6-dispatch ((invocant kp6-Num) interpreter (method (eql :true)) &rest parameters)
   (declare (ignore parameters interpreter))
   (make-instance 'kp6-Bit :value (/= (kp6-value invocant) 0)))
+
+(defmethod kp6-dispatch ((invocant kp6-Num) interpreter (method (eql :num)) &rest parameters)
+  (declare (ignore parameters interpreter))
+  invocant)

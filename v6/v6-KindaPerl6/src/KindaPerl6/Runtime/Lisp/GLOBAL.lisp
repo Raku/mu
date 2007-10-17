@@ -53,8 +53,8 @@ result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
 				(mapcar #'(lambda (x)
 					    (make-instance 'kp6-positional-parameter :value x))
 					(mapcar #'make-kp6-cell positional)))))
-	 (str* (object) (kp6-coerce object 'string))
-	 (num* (object) (kp6-coerce object 'number)))
+	 (str* (object) (kp6-dispatch (kp6-dispatch object nil :Str) nil :cl-landish))
+	 (num* (object) (kp6-dispatch (kp6-dispatch object nil :Num) nil :cl-landish)))
     (declare (ignorable #'call-kp6-function #'str* #'num*))
 
     (define-kp6-function ("infix:<eq>" :coerce 'kp6-Bit) (($ first) ($ second))
