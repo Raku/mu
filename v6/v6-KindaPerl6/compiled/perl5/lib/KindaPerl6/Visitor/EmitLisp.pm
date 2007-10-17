@@ -443,8 +443,9 @@ sub emit_lisp_assignment {
     my $List__ = \@_;
     my $value;
     my $cell;
-    do { $value = $List__->[0]; $cell = $List__->[1]; [ $value, $cell ] };
-    my $variant = ( $cell ? '/c' : '' );
+    my $constant;
+    do { $value = $List__->[0]; $cell = $List__->[1]; $constant = $List__->[2]; [ $value, $cell, $constant ] };
+    my $variant = ( $cell ? '/c' : ( $constant ? '/k' : '' ) );
     do {
         if ( @{ $self->{namespace} } ) { return ( ( '(set-package-variable' . ( $variant . ( ' ' . ( $self->emit_lisp_name() . ( ' ' . ( $value . ( ' ' . ( $self->emit_lisp_namespace() . ')' ) ) ) ) ) ) ) ) ) }
         else                           { return ( ( '(set-lexical-variable' . ( $variant . ( ' ' . ( $self->emit_lisp_name() . ( ' ' . ( $value . ')' ) ) ) ) ) ) ) }
@@ -468,7 +469,7 @@ sub emit_lisp {
         if ( Main::isa( $self->{arguments}, 'Sub' ) ) { return ( $self->{parameters}->emit_lisp_assignment( $self->{arguments}->emit_lisp( $interpreter, $indent ) ) ) }
         else                                          { }
     };
-    return ( ( '(kp6-error ' . ( $interpreter . ' \'kp6-not-implemented :feature "binding anything other than variables")' ) ) );
+    return ( $self->{parameters}->emit_lisp_assignment( $self->{arguments}->emit_lisp( $interpreter, $indent ), 0, 1 ) );
 }
 
 package Proto;
