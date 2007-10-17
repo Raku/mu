@@ -118,10 +118,12 @@ my $dispatch = sub {
 
     if (  !defined $self->{_value} 
        && $method_name eq 'Str'
+       && !exists( $self->{_methods}{'Str'} )
        ) 
     {
         # 'self' is a prototype object
         # it stringifies to the class name
+        # (unless the .Str method was replaced)
         #print "Class.Str: ",$self->{_isa}[0]{_value}{class_name},"\n";
         return ::DISPATCH( $::Str, 'new',  $self->{_isa}[0]{_value}{class_name} )
     }
