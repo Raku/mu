@@ -30,7 +30,7 @@
   (assert (= 2 (length parameters)))
   (let ((index (perl->cl (elt parameters 0)))
 	(value (elt parameters 1)))
-    (when (<= index (array-dimension (kp6-value invocant) 0))
+    (when (> index (array-dimension (kp6-value invocant) 0))
       (adjust-array (kp6-value invocant) (1+ index)))
     (setf (elt (kp6-value invocant) index) value)))
 
