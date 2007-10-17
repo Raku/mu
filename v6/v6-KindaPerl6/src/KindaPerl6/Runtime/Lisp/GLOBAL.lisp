@@ -105,6 +105,9 @@ result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
     (define-kp6-function "prefix:<~>" (($ first))
       (cl->perl (perl->display (VAR $ first))))
 
+    (define-kp6-function ("not" :interpreter interpreter) (($ first))
+      (make-instance 'kp6-Bit :value (not (kp6-dispatch (kp6-dispatch (VAR $ first) interpreter :true) interpreter :cl-landish))))
+
     (define-kp6-function "prefix:<@>" (($ first))
       (VAR $ first)) ;; unsure about this
 
