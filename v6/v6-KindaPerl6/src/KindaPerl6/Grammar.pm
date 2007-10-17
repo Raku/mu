@@ -57,7 +57,8 @@ token pod_begin {
 };
 
 token pod_other {
-    |   \n <'=cut'> <?to_line_end>
+    |   \n <'=cut'> <?to_line_end>   # XXX
+    |   \n <'=end'> <?to_line_end>
     |   . <?to_line_end> <?pod_other>
 };
 
