@@ -293,7 +293,7 @@ class Call {
              $meth := '';  
         };
 	
-	my $call := (@.arguments.>>emit_lisp($interpreter, $indent)).join(' ');
+        my $call := (@.arguments.>>emit_lisp($interpreter, $indent)).join(' ');
 	
         if ($.hyper) {
             return 'XXX: Hyper';
@@ -301,7 +301,7 @@ class Call {
         else {
             if ( $meth eq '' ) {
                 # $var.()
-                '::DISPATCH( ' ~ $invocant ~ ', \'APPLY\', ' ~ $call ~ ' )' ~ Main::newline()
+                '(kp6-dispatch ' ~ $invocant ~ ' ' ~ $interpreter ~ ' :APPLY ' ~ $call ~ ')' ~ Main::newline()
             }
             else {
                   '(kp6-dispatch '

@@ -47,3 +47,7 @@
 	    (unless (is-kp6-code function-object)
 	      (kp6-error interpreter 'kp6-function-not-found :package package :function obj))
 	    (apply (kp6-value function-object) interpreter args))))))
+
+(defmethod kp6-dispatch ((invocant kp6-Code) interpreter (method (eql :apply)) &rest parameters)
+  ".() on a function object"
+  (apply (kp6-value invocant) interpreter parameters))

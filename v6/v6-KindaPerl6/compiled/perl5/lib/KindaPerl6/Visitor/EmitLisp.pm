@@ -522,8 +522,8 @@ sub emit_lisp {
         if ( $self->{hyper} ) { return ('XXX: Hyper') }
         else {
             do {
-                if   ( ( $meth eq '' ) ) { ( '::DISPATCH( ' .   ( $invocant . ( ', \'APPLY\', ' . ( $call .        ( ' )' . Main::newline() ) ) ) ) ) }
-                else                     { ( '(kp6-dispatch ' . ( $invocant . ( ' ' .             ( $interpreter . ( ' ' . ( ':' . ( $meth . ( ' ' . ( $call . ( ')' . Main::newline() ) ) ) ) ) ) ) ) ) ) }
+                if ( ( $meth eq '' ) ) { ( '(kp6-dispatch ' . ( $invocant . ( ' ' . ( $interpreter . ( ' :APPLY ' . ( $call . ( ')' . Main::newline() ) ) ) ) ) ) ) }
+                else                   { ( '(kp6-dispatch ' . ( $invocant . ( ' ' . ( $interpreter . ( ' ' . ( ':' . ( $meth . ( ' ' . ( $call . ( ')' . Main::newline() ) ) ) ) ) ) ) ) ) ) }
                 }
         }
         }
