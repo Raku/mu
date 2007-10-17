@@ -22,7 +22,9 @@
   (declare (ignore interpreter))
   (assert (= 1 (length parameters)))
   (let ((index (perl->cl (elt parameters 0))))
-    (elt (kp6-value invocant) index)))
+    (if (>= index (array-dimension (kp6-value invocant) 0))
+	(make-instance 'kp6-undef)
+	(elt (kp6-value invocant) index))))
 
 (defmethod kp6-dispatch ((invocant kp6-Array) interpreter (method (eql :store)) &rest parameters)
   "Stores a value in the index of the array"
