@@ -523,7 +523,13 @@ sub emit_lisp {
         else {
             do {
                 if ( ( $meth eq '' ) ) { ( '(kp6-dispatch ' . ( $invocant . ( ' ' . ( $interpreter . ( ' :APPLY ' . ( $call . ( ')' . Main::newline() ) ) ) ) ) ) ) }
-                else                   { ( '(kp6-dispatch ' . ( $invocant . ( ' ' . ( $interpreter . ( ' ' . ( ':' . ( $meth . ( ' ' . ( $call . ( ')' . Main::newline() ) ) ) ) ) ) ) ) ) ) }
+                else {
+                    do {
+                        if ( ( $interpreter eq '' ) ) { $interpreter = '|Main|' }
+                        else                          { }
+                    };
+                    ( '(kp6-dispatch ' . ( $invocant . ( ' ' . ( $interpreter . ( ' ' . ( ':' . ( $meth . ( ' ' . ( $call . ( ')' . Main::newline() ) ) ) ) ) ) ) ) ) );
+                }
                 }
         }
         }

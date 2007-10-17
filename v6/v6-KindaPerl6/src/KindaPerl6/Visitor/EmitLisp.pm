@@ -304,9 +304,17 @@ class Call {
                 '(kp6-dispatch ' ~ $invocant ~ ' ' ~ $interpreter ~ ' :APPLY ' ~ $call ~ ')' ~ Main::newline()
             }
             else {
+                ###  XXX: HACK: TODO: ZOMGWTFISGOINGON ###
+                ## Under:
+                # echo 'say ((1).true).Str' | perl script/kp6 -lisp
+                ## Then :true has *no interpreter*, why the crap is
+                ## this? hack one in until this is fixed
+                if $interpreter eq '' {
+                    $interpreter := '|Main|';
+                }
                   '(kp6-dispatch '
                 ~ $invocant ~ ' '
-                ~ $interpreter ~ ' '
+                ~ $interpreter ~' '
                 ~ ':' ~ $meth ~ ' '
                 ~ $call
                 ~ ')'
