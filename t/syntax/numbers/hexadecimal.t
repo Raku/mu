@@ -60,13 +60,13 @@ is :16("FFACD5FE"), 4289517054, 'got the correct int value from hex FFACD5FE';
 is :16("AAA4872D"), 2862909229, 'got the correct int value from hex AAA4872D';
 is :16<DEAD_BEEF>,  0xDEADBEEF, 'got the correct int value from hex DEAD_BEEF';
 
-# L<S02/Literals/"Think of these as setting the default radix">
-# setting the default radix
+# L<S02/Literals/"interpret leading 0b or 0d as hex digits">
+is(:16<0b1110>, 0xB1110, ':16<0b1110> uses b as hex digit'  );
+is(:16<0d37>,   0x0D37,  ':16<0d37> uses d as hex digit'     );
 
-is(:16<0b1110>,  0d14, ':16<0b1110> converts from binary',   :todo<feature> );
-is(:16<0x20>,    0d32, ':16<0x20> stays hexadecimal',        :todo<feature> );
-is(:16<0o377>,  0d255, ':16<0o255> converts from octal',     :todo<feature> );
-is(:16<0d37>,    0d37, ':16<0d37> converts from decimal',    :todo<feature> );
+# L<S02/Literals/"Think of these as setting the default radix">
+is(:16<0x20>,      0d32, ':16<0x20> stays hexadecimal',        :todo<feature> );
+is(:16<0o377>,    0d255, ':16<0o255> converts from octal',     :todo<feature> );
 
 # L<S02/Literals/"which will be interpreted as they would outside the string">
 # It seems odd that the numbers on the inside on the <> would be a mix of
