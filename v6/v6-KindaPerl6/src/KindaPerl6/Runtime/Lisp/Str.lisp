@@ -11,7 +11,7 @@
 (defmethod kp6-dispatch ((invocant kp6-Str) interpreter (method (eql :cl-landish)) &rest parameters)
   "Stringify the uh.. string"
   (declare (ignore parameters interpreter))
-  (kp6-value invocant))
+  (slot-value invocant 'value))
 
 (defmethod kp6-dispatch ((invocant kp6-Str) interpreter (method (eql :true)) &rest parameters)
   "Is the string true? \"\" and \"0\" are false for now"
