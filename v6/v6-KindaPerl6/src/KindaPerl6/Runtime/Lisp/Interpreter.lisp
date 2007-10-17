@@ -12,7 +12,7 @@
                     #'(lambda (func) `(,func (&rest rest)
                                        (declare (ignore rest))
                                        (kp6-error ,interpreter 'kp6-stub-function :name ',func)))
-                    '(enclosing-pad outer-pad lexical-variable-exists define-lexical-variable set-lexical-variable set-lexical-variable/c lookup-lexical-variable lookup-lexical-variable/c define-our-variable))))
+                    '(enclosing-pad outer-pad lexical-variable-exists define-lexical-variable set-lexical-variable set-lexical-variable/c set-lexical-variable/k lookup-lexical-variable lookup-lexical-variable/c lookup-lexical-variable/k define-our-variable))))
     `(flet ,functions
       (declare (ignorable ,@(mapcar #'(lambda (x) `#',(first x)) functions)))
       ,@body)))

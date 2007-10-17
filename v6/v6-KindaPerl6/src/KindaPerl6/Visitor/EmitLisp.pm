@@ -232,8 +232,8 @@ class Var {
 	}
     }
 
-    method emit_lisp_assignment ($value, $cell) {
-	my $variant := $cell ?? '/c' !! '';
+    method emit_lisp_assignment ($value, $cell, $constant) {
+	my $variant := $cell ?? '/c' !! ($constant ?? '/k' !! '');
 
 	if @($.namespace) {
 	    return '(set-package-variable' ~ $variant ~ ' ' ~ self.emit_lisp_name ~ ' ' ~ $value ~ ' ' ~ self.emit_lisp_namespace ~ ')';
@@ -254,7 +254,7 @@ class Bind {
 	}
 
         # XXX: TODO
-        return '(kp6-error ' ~ $interpreter ~ ' \'kp6-not-implemented :feature "binding anything other than variables")';
+	return $.parameters.emit_lisp_assignment($.arguments.emit_lisp($interpreter, $indent), False, 1)
     }
 }
 

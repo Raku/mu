@@ -49,8 +49,10 @@
    #:define-lexical-variable
    #:set-lexical-variable
    #:set-lexical-variable/c
+   #:set-lexical-variable/k
    #:lookup-lexical-variable
    #:lookup-lexical-variable/c
+   #:lookup-lexical-variable/k
    #:define-our-variable
 
    #:enclosing-package
