@@ -1626,8 +1626,29 @@ sub exp {
                                                                         else     {0}
                                                                         }
                                                                 }
-                                                                && (( ( '!!' eq substr( $str, $MATCH->to(), 2 ) ) ? ( 1 + $MATCH->to( ( 2 + $MATCH->to() ) ) ) : 0 ) && (
-                                                                        do {
+                                                                && (do {
+                                                                        my $pos1 = $MATCH->to();
+                                                                        (   do {
+                                                                                (   ( ( '::' eq substr( $str, $MATCH->to(), 2 ) ) ? ( 1 + $MATCH->to( ( 2 + $MATCH->to() ) ) ) : 0 ) && do {
+                                                                                        my $ret = sub {
+                                                                                            my $List__ = \@_;
+                                                                                            do { [] };
+                                                                                            do { die('maybe you mean infix:<?? !!>') };
+                                                                                            '974^213';
+                                                                                            }
+                                                                                            ->();
+                                                                                        do {
+                                                                                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                                                                                            else                         { }
+                                                                                        };
+                                                                                        1;
+                                                                                        }
+                                                                                );
+                                                                                }
+                                                                                || do { $MATCH->to($pos1); ( ( '!!' eq substr( $str, $MATCH->to(), 2 ) ) ? ( 1 + $MATCH->to( ( 2 + $MATCH->to() ) ) ) : 0 ) }
+                                                                        );
+                                                                    }
+                                                                    && (do {
                                                                             my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
                                                                             do {
                                                                                 if ($m2) { $MATCH->to( $m2->to() ); 1 }

@@ -215,7 +215,10 @@ token exp {
         <'??'>
         [
           <?opt_ws>  <exp>
-          <?opt_ws>  <'!!'>
+          <?opt_ws>  
+                [ '::' { die "maybe you mean infix:<?? !!>" } 
+                | '!!' 
+                ]
           <?opt_ws>
           <exp2>
           { 
