@@ -3,10 +3,20 @@
 (defclass kp6-Str (kp6-Value)
   ())
 
-(defmethod kp6-dispatch ((invocant kp6-Str) interpreter (method (eql :str)) &rest parameters)
-  "Stringify the uh.. string"
+(defmethod kp6-dispatch ((invocant kp6-Str) interpreter (method (eql :Str)) &rest parameters)
+  "Stringify the Str"
   (declare (ignore parameters interpreter))
   invocant)
+
+(defmethod kp6-dispatch ((invocant kp6-Str) interpreter (method (eql :Int)) &rest parameters)
+  "Intify the Str with `parse-integer'"
+  (declare (ignore parameters))
+  (let* ((string (kp6-dispatch invocant interpreter :cl-landish))
+         (start 0)
+         (radix 10)
+         (integer (parse-integer string :start start :radix radix :junk-allowed t))
+         (integer (if (null integer) 0 integer)))
+    (make-instance 'kp6-Int :value integer)))
 
 (defmethod kp6-dispatch ((invocant kp6-Str) interpreter (method (eql :cl-landish)) &rest parameters)
   "Stringify the uh.. string"
