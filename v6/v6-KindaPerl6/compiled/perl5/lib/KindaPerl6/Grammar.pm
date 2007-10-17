@@ -1633,7 +1633,7 @@ sub exp {
                                                                                         my $ret = sub {
                                                                                             my $List__ = \@_;
                                                                                             do { [] };
-                                                                                            do { die('maybe you mean infix:<?? !!>') };
+                                                                                            do { die('maybe you mean ternary:<?? !!>') };
                                                                                             '974^213';
                                                                                             }
                                                                                             ->();

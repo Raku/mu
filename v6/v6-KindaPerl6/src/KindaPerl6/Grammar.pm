@@ -216,7 +216,7 @@ token exp {
         [
           <?opt_ws>  <exp>
           <?opt_ws>  
-                [ '::' { die "maybe you mean infix:<?? !!>" } 
+                [ '::' { die "maybe you mean ternary:<?? !!>" } 
                 | '!!' 
                 ]
           <?opt_ws>
