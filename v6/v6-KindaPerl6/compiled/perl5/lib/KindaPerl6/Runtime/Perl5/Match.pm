@@ -88,7 +88,7 @@ sub elems  {
     scalar $_[0]->keys
 }
 
-sub chars  { CORE::length $_[0]->str }
+sub chars  { CORE::length $_[0]->Str }
 
 sub flat {
     my $obj = $_data{refaddr $_[0]};
@@ -103,7 +103,12 @@ sub flat {
     return substr( $obj->{str}, $_[0]->from, $_[0]->to - $_[0]->from );
 }
 
+# deprecated
 sub str {
+    "" . $_[0]->flat;
+}
+
+sub Str {
     "" . $_[0]->flat;
 }
 
@@ -166,7 +171,7 @@ KindaPerl6::Perl5::Match - Match object created by rules
 
 - return both the named and positional (numbered) matches
 
-* str
+* Str
 
 - return the stringified capture object. 
 If there is no capture, return the matched substring

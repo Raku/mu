@@ -27,7 +27,7 @@ class Capture is Value {
         
         return $s ~ ' )' 
     };
-    method str {
+    method Str {
         self.perl;
     };
     method LOOKUP($key) {
@@ -37,6 +37,6 @@ class Capture is Value {
         return $.hash{$key};
     };
     #method true { self.elems != 0 };
-    #method int  { self.elems };
+    #method Int  { self.elems };
 }
 

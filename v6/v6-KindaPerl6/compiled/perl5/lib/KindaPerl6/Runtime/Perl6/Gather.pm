@@ -73,7 +73,7 @@
         ::DISPATCH(
             ::DISPATCH( $::Gather, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'str' ),
+            ::DISPATCH( $::Str, 'new', 'Str' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -94,7 +94,7 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        ::DISPATCH( ::DISPATCH( $self, 'eager', ), 'str', );
+                        ::DISPATCH( ::DISPATCH( $self, 'eager', ), 'Str', );
                     },
                     signature => ::DISPATCH(
                         $::Signature,

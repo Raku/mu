@@ -5,11 +5,11 @@ class Range is Value {
     method perl {
         '( ' ~ $.start.perl ~ '..' ~ $.end.perl ~ ' )' 
     };
-    method str {
+    method Str {
         $.start ~ ".." ~ $.end 
     };
     #method true { true };
-    #method int  { $.start.int };
+    #method Int  { $.start.Int };
     #method hash {
     #    { $.start => $.end, }
     #};

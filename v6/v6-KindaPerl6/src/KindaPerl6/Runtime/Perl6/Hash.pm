@@ -7,7 +7,7 @@ class Hash is Container {
         };
         return $s ~ ' }' 
     };
-    method str {
+    method Str {
         ( ( self.pairs ).map( -> $pair { $pair.key ~ "\t" ~ $pair.value}) ).join( "\n" ); 
     };
     method keys {
@@ -19,6 +19,6 @@ class Hash is Container {
         $pairs.map( -> $pair {$pair.value}); 
     };
     method true { self.elems != 0 };
-    method int  { self.elems };
+    method Int  { self.elems };
     method hash { self };
 }

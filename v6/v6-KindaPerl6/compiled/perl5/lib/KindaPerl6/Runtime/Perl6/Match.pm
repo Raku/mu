@@ -32,7 +32,7 @@
         ::DISPATCH(
             ::DISPATCH( $::Match, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'str' ),
+            ::DISPATCH( $::Str, 'new', 'Str' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -56,7 +56,7 @@
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "result" ), "true" ), "p5landish" ) ) {
                                 {
-                                    return ( ::DISPATCH( ::DISPATCH( $self, "result" ), 'str', ) )
+                                    return ( ::DISPATCH( ::DISPATCH( $self, "result" ), 'Str', ) )
                                 }
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
@@ -115,7 +115,7 @@
                             }
                             else {
                                 {
-                                    return ( ::DISPATCH( $self, 'str', ) )
+                                    return ( ::DISPATCH( $self, 'Str', ) )
                                 }
                             }
                             }

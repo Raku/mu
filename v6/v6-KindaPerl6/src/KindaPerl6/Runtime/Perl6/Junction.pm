@@ -12,7 +12,7 @@ class Junction {
     has $.type;
     has $.things;
 
-    method str { 
+    method Str { 
                 my %sep = {
                     "any" =>" | ",
                     "none"=>" , ",

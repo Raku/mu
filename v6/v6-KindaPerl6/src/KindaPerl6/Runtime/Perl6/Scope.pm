@@ -53,7 +53,7 @@ class Scope is Value {
         };
         return $s ~ ' }' 
     };
-    method str {
+    method Str {
         ( ( self.pairs ).map( -> $pair { $pair.key ~ "\t" ~ $pair.value}) ).join( "\n" ); 
     };
     method keys {
@@ -65,7 +65,7 @@ class Scope is Value {
         $pairs.map( -> $pair {$pair.value}); 
     };
     method true { self.elems != 0 };
-    method int  { self.elems };
+    method Int  { self.elems };
 }
 
 =begin

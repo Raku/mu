@@ -27,11 +27,11 @@ module Main {
         say "not ok - got ", $m.from;
     };
 
-    if $m.str eq 'cd' {
+    if $m.Str eq 'cd' {
         say "ok 3 - match stringify";
     }
     else {
-        say "not ok - got ", $m.str;
+        say "not ok - got ", $m.Str;
     }
 
 }

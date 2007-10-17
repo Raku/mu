@@ -126,15 +126,15 @@ package GLOBAL;
 
     sub _str {
         my $v = $_[0];
-        $v = ::DISPATCH( $v, 'str' )   if ref($v); 
-        $v = ::DISPATCH( $v, 'FETCH' ) if ref($v);  # .str may return a Scalar
+        $v = ::DISPATCH( $v, 'Str' )   if ref($v); 
+        $v = ::DISPATCH( $v, 'FETCH' ) if ref($v);  # .Str may return a Scalar
         return $v->{_value}            if ref($v); 
         $v;
     }
     sub _int {
         my $v = $_[0];
-        $v = ::DISPATCH( $v, 'int' )   if ref($v); 
-        $v = ::DISPATCH( $v, 'FETCH' ) if ref($v);  # .int may return a Scalar
+        $v = ::DISPATCH( $v, 'Int' )   if ref($v); 
+        $v = ::DISPATCH( $v, 'FETCH' ) if ref($v);  # .Int may return a Scalar
         return $v->{_value}            if ref($v); 
         $v;
     }
@@ -266,19 +266,25 @@ package GLOBAL;
     sub infix_58__60_but_62_ {    # but
         my $value = ::DISPATCH( $_[0], 'FETCH' );
         my $but   = ::DISPATCH( $_[1], 'FETCH' );
-        my $class = ::DISPATCH( ::DISPATCH( $_[1], 'WHAT' ), 'str' )->{_value};
+        my $class = ::DISPATCH( ::DISPATCH( $but, 'WHAT' ), 'Str' )->{_value};
         #print "class: $class \n";
         
-        my $meth  = "";
         # XXX fixme
-        $meth = "str"  if $class eq "Str";
-        $meth = "int"  if $class eq "Int";
-        $meth = "true" if $class eq "Bit";
-        die "don't know how to implement 'but' with $class"
-            unless $meth;
+        my $meth  = "";
+        #$meth = "Str"  if $class eq "Str";
+        #$meth = "Int"  if $class eq "Int";
+        $meth = "true" if $class eq "Bit";        
+        # ???
+        #die "don't know how to implement 'but' with $class"
+        #    unless $meth;
 
         $value = { %{ $value } };
-        $value->{_methods}{$meth} = ::DISPATCH( $::Method, 'new', sub { $but } );
+        
+        # XXX
+        $value->{_methods}{$meth}  = ::DISPATCH( $::Method, 'new', sub { $but } )
+            if $meth;
+        
+        $value->{_methods}{$class} = ::DISPATCH( $::Method, 'new', sub { $but } );
         
         return $value;
     }

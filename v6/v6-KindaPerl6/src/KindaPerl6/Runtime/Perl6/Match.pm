@@ -7,9 +7,9 @@ class Match is Capture {
     has $.bool;
     has $.match_str;
 
-    method str {
+    method Str {
         if ($.result) {
-            return $.result.str;
+            return $.result.Str;
         }
            $.bool
         ?? substr( $.match_str, $.from, $.to - $.from )
@@ -20,7 +20,7 @@ class Match is Capture {
         if ($.result) {
             return $.result;
         } else {
-            return self.str()
+            return self.Str()
         }
     };
 

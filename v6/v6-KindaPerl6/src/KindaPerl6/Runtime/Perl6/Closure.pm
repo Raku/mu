@@ -5,7 +5,7 @@ class Closure {
     method perl {
         'sub { ... }' 
     };
-    method str {
+    method Str {
         'sub { ... }' 
     };
 }

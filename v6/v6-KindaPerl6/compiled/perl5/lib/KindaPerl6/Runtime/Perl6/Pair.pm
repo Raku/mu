@@ -80,7 +80,7 @@
         ::DISPATCH(
             ::DISPATCH( $::Pair, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'str' ),
+            ::DISPATCH( $::Str, 'new', 'Str' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -156,7 +156,7 @@
         ::DISPATCH(
             ::DISPATCH( $::Pair, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'int' ),
+            ::DISPATCH( $::Str, 'new', 'Int' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -177,7 +177,7 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        ::DISPATCH( ::DISPATCH( $self, "value" ), 'int', );
+                        ::DISPATCH( ::DISPATCH( $self, "value" ), 'Int', );
                     },
                     signature => ::DISPATCH(
                         $::Signature,

@@ -45,8 +45,15 @@ package Match;
     sub from   :lvalue { $_[0]->{from} }
     sub to     :lvalue { $_[0]->{to} }
     sub match_str :lvalue { $_[0]->{match_str} }
-    
+
+    # deprecated
     sub str {
+          $_[0]->bool 
+        ? substr( ${$_[0]->match_str}, $_[0]->from, $_[0]->to - $_[0]->from )
+        : undef;
+    }
+    
+    sub Str {
           $_[0]->bool 
         ? substr( ${$_[0]->match_str}, $_[0]->from, $_[0]->to - $_[0]->from )
         : undef;
@@ -127,7 +134,7 @@ KindaPerl6::Perl5::Match - Match object created by rules
 
 - return both the named and positional (numbered) matches
 
-* str
+* Str
 
 - return the stringified capture object. 
 If there is no capture, return the matched substring

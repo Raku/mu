@@ -5,7 +5,7 @@ class NamedArgument {
     method perl {
         $._argument_name_.perl ~ ' => ' ~ $.value.perl 
     };
-    method str {
+    method Str {
         self.perl
     };
 }

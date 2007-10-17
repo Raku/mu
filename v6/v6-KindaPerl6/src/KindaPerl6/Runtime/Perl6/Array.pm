@@ -3,11 +3,11 @@ class Array is Container {
     method perl {
         '[ ' ~ (self.map( sub { $_.perl } )).join(', ') ~ ' ]' 
     };
-    method str {
+    method Str {
         self.join( ' ' );
     };
     method true { self.elems != 0 };
-    method int  { self.elems };
+    method Int  { self.elems };
     method array { self };
 
     # belongs to List

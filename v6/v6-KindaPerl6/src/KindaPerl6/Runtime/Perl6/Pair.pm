@@ -5,12 +5,12 @@ class Pair is Value {
     method perl {
         '( ' ~ $.key.perl ~ ' => ' ~ $.value.perl ~ ' )' 
     };
-    method str {
+    method Str {
         $.key ~ "\t" ~ $.value 
     };
     method true { true };
     #method kv   { ( $.key, $.value ) };
-    method int  { $.value.int };
+    method Int  { $.value.Int };
     method hash {
         { $.key => $.value, }
     };

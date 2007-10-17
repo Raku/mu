@@ -48,7 +48,7 @@ class Signature is Value {
         
         return $s ~ ' )' 
     };
-    method str {
+    method Str {
         self.perl;
     };
 }

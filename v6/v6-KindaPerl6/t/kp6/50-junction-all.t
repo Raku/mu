@@ -5,7 +5,7 @@ class Main {
 
     my $junc = all( 1,2,3,4);
 
-    say '# junction: ', $junc.str;
+    say '# junction: ', $junc.Str;
     say '# junction: ', $junc;
 
     # $junc.say;

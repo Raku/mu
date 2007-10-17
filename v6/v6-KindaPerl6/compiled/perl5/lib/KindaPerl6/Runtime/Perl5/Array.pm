@@ -13,7 +13,7 @@ $::Array = KindaPerl6::Runtime::Perl5::MOP::make_class(
             };
         },
     INDEX=>sub {
-            my $key = ::DISPATCH(::DISPATCH($_[1],"int"),"p5landish");
+            my $key = ::DISPATCH(::DISPATCH($_[1],"Int"),"p5landish");
             $_[0]{_value}{_array} = []
                 unless defined $_[0]{_value}{_array};  # XXX 
             return ::DISPATCH($::ArrayCell,"new",{

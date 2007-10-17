@@ -28,7 +28,7 @@
         ::DISPATCH(
             ::DISPATCH( $::Junction, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', 'str' ),
+            ::DISPATCH( $::Str, 'new', 'Str' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
