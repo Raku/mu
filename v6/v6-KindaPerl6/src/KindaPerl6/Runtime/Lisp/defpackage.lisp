@@ -18,14 +18,6 @@
    #:kp6-value
    #:kp6-pad
 
-   ; Hash.lisp
-   #:kp6-STORE
-   #:kp6-LOOKUP
-   #:kp6-DELETE
-   #:kp6-CLEAR
-   #:kp6-pairs
-   #:kp6-elems
-
    #:kp6-apply-function
    
    ; foreign.lisp
