@@ -16,7 +16,7 @@
               "Hash" "Array"            ; Containers
               "Package" "Pad"
               "foreign"                 ; Utilities
-              "display" "coerce"        ; Utilities
+              "display"                 ; Utilities
               "GLOBAL"                  ; Functions
               ))
     (load (format nil "src/KindaPerl6/Runtime/Lisp/~A.lisp" file))))
