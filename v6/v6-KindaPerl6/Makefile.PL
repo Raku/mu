@@ -24,15 +24,17 @@ elsif ( $KP6_TARGET eq "KP6-KP6" ) {
         run_test    => "script/run_tests_kp6_kp6.pl",
     );
 }
-elsif ( $KP6_TARGET eq "KP6-LISP" ) {
+elsif ( $KP6_TARGET =~ /^KP6-LISP(?:-([A-Za-z]+))?$/ ) {
     #die "not yet implemented KP6_TARGET '$KP6_TARGET', can't continue";
+    my $runtime = lc($1) || "sbcl";
+    die "Unknown runtime $runtime" unless $runtime eq "sbcl" or $runtime eq "clisp";
     %Kp6Build = (
         # We don't use this and not defining this makes things break,
         # just use the same things as kp6-mp6
         lib         => "compiled/perl5/lib",
         module_lib  => "compiled/perl5/lib",
 
-        run_test    => "script/run_tests_kp6_mp6_lisp.pl",
+        run_test    => "script/run_tests_kp6_mp6_lisp_$runtime.pl",
     );
 }
 else {
