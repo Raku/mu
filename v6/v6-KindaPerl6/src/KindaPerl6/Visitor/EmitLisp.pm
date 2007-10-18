@@ -283,12 +283,12 @@ class Call {
                 $invocant := '$self';
             }
             else {
-                $invocant := $.invocant.emit_lisp;
+                $invocant := $.invocant.emit_lisp($interpreter, $indent);
             }
             
         }
         else {
-            $invocant := $.invocant.emit_lisp;
+            $invocant := $.invocant.emit_lisp($interpreter, $indent);
         };
         if $invocant eq 'self' {
             $invocant := '$self';
@@ -315,9 +315,12 @@ class Call {
                 # echo 'say ((1).true).Str' | perl script/kp6 -lisp
                 ## Then :true has *no interpreter*, why the crap is
                 ## this? hack one in until this is fixed
-                if $interpreter eq '' {
-                    $interpreter := '|Main|';
-                }
+                #if $interpreter eq '' {
+                #    $interpreter := '|Main|';
+                #}
+		#; Seems to be the calls to emit_lisp in lines 286 & 291 were missing parameters
+		#;  In the say ((1).true).Str case, line 291 fixed the output.
+		#;  is it right to add them both and what about 193?
                   '(kp6-dispatch '
                 ~ $invocant ~ ' '
                 ~ $interpreter ~' '

@@ -52,9 +52,7 @@
     (set-lexical-variable/c (name value)
      (when (kp6-exists ,pad name)
        (kp6-delete ,pad name)
-       (kp6-store ,pad name value)
-       ;;(setf (kp6-lookup ,pad name) value)
-       ))
+       (setf (kp6-lookup ,pad name) value)))
     (lookup-lexical-variable (name)
      "Get the value of NAME in any enclosing pad."
      (if (kp6-exists ,pad name)
