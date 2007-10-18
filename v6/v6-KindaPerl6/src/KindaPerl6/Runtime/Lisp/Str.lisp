@@ -14,8 +14,7 @@
   (let* ((string (kp6-dispatch invocant interpreter :cl-landish))
          (start 0)
          (radix 10)
-         (integer (parse-integer string :start start :radix radix :junk-allowed t))
-         (integer (if (null integer) 0 integer)))
+         (integer (or (parse-integer string :start start :radix radix :junk-allowed t) 0)))
     (make-instance 'kp6-Int :value integer)))
 
 (defmethod kp6-dispatch ((invocant kp6-Str) interpreter (method (eql :cl-landish)) &rest parameters)
