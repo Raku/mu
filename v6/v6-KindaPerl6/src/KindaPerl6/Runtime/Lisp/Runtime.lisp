@@ -7,8 +7,10 @@
               "compat/stub"
               ,(format nil "compat/~A"
                        #+sbcl "sbcl"
-                       #+clisp "clisp" 
-                       #-(or sbcl clisp) "other")
+                       #+clisp "clisp"
+                       #+ecl   "ecl"
+                       #+gcl   "gcl"
+                       #-(or sbcl clisp ecl gcl) "other")
               "MOP"
               "Object" "Cell" "Signature"
               "Value" "Container"       ; Base classes
