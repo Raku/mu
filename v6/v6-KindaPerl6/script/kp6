@@ -147,8 +147,8 @@ version(exitval => 0)
 #
 
 sub runtime_dir {
-    return "lib-kp6-kp6-p5"     if $runtime eq "kp6";
-    return "compiled/perl5/lib" if $runtime eq "mp6";
+    return "compiled/perl5/kp6-kp6"  if $runtime eq "kp6";
+    return "compiled/perl5/lib"      if $runtime eq "mp6";
 }
 
 sub install_dir {
