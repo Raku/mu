@@ -27,7 +27,7 @@ elsif ( $KP6_TARGET eq "KP6-KP6" ) {
 elsif ( $KP6_TARGET =~ /^KP6-LISP(?:-([A-Za-z]+))?$/ ) {
     #die "not yet implemented KP6_TARGET '$KP6_TARGET', can't continue";
     my $runtime = lc($1) || "sbcl";
-    die "Unknown runtime $runtime" unless $runtime eq "sbcl" or $runtime eq "clisp";
+    die "Unknown runtime $runtime" unless $runtime =~ /^(?:sbcl|clisp|ecl)$/;
     %Kp6Build = (
         # We don't use this and not defining this makes things break,
         # just use the same things as kp6-mp6
