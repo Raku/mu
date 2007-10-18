@@ -233,12 +233,19 @@ class Var {
     }
 
     method emit_lisp_assignment ($value, $cell, $constant) {
-	my $variant := $cell ?? '/c' !! ($constant ?? '/k' !! '');
-
-	if @($.namespace) {
-	    return '(set-package-variable' ~ $variant ~ ' ' ~ self.emit_lisp_name ~ ' ' ~ $value ~ ' ' ~ self.emit_lisp_namespace ~ ')';
+	my $maybe_boxed_value;
+	my $variant := $cell ?? '/c' !! '';
+	
+	if $constant {
+	    $maybe_boxed_value := '(make-kp6-cell ' ~ $value ~ ')';
 	} else {
-	    return '(set-lexical-variable' ~ $variant ~ ' ' ~ self.emit_lisp_name ~ ' ' ~ $value ~ ')';
+	    $maybe_boxed_value := $value;
+	}
+	
+	if @($.namespace) {
+	    return '(set-package-variable' ~ $variant ~ ' ' ~ self.emit_lisp_name ~ ' ' ~ $maybe_boxed_value ~ ' ' ~ self.emit_lisp_namespace ~ ')';
+	} else {
+	    return '(set-lexical-variable' ~ $variant ~ ' ' ~ self.emit_lisp_name ~ ' ' ~ $maybe_boxed_value ~ ')';
 	}
     }
 }
@@ -253,8 +260,7 @@ class Bind {
 	    return $.parameters.emit_lisp_assignment($.arguments.emit_lisp($interpreter, $indent));
 	}
 
-        # XXX: TODO
-	return $.parameters.emit_lisp_assignment($.arguments.emit_lisp($interpreter, $indent), False, 1)
+	return $.parameters.emit_lisp_assignment($.arguments.emit_lisp($interpreter, $indent), 1, 1);
     }
 }
 

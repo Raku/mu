@@ -445,10 +445,15 @@ sub emit_lisp_assignment {
     my $cell;
     my $constant;
     do { $value = $List__->[0]; $cell = $List__->[1]; $constant = $List__->[2]; [ $value, $cell, $constant ] };
-    my $variant = ( $cell ? '/c' : ( $constant ? '/k' : '' ) );
+    my $maybe_boxed_value;
+    my $variant = ( $cell ? '/c' : '' );
     do {
-        if ( @{ $self->{namespace} } ) { return ( ( '(set-package-variable' . ( $variant . ( ' ' . ( $self->emit_lisp_name() . ( ' ' . ( $value . ( ' ' . ( $self->emit_lisp_namespace() . ')' ) ) ) ) ) ) ) ) ) }
-        else                           { return ( ( '(set-lexical-variable' . ( $variant . ( ' ' . ( $self->emit_lisp_name() . ( ' ' . ( $value . ')' ) ) ) ) ) ) ) }
+        if ($constant) { $maybe_boxed_value = ( '(make-kp6-cell ' . ( $value . ')' ) ) }
+        else           { $maybe_boxed_value = $value }
+    };
+    do {
+        if ( @{ $self->{namespace} } ) { return ( ( '(set-package-variable' . ( $variant . ( ' ' . ( $self->emit_lisp_name() . ( ' ' . ( $maybe_boxed_value . ( ' ' . ( $self->emit_lisp_namespace() . ')' ) ) ) ) ) ) ) ) ) }
+        else                           { return ( ( '(set-lexical-variable' . ( $variant . ( ' ' . ( $self->emit_lisp_name() . ( ' ' . ( $maybe_boxed_value . ')' ) ) ) ) ) ) ) }
         }
 }
 
@@ -469,7 +474,7 @@ sub emit_lisp {
         if ( Main::isa( $self->{arguments}, 'Sub' ) ) { return ( $self->{parameters}->emit_lisp_assignment( $self->{arguments}->emit_lisp( $interpreter, $indent ) ) ) }
         else                                          { }
     };
-    return ( $self->{parameters}->emit_lisp_assignment( $self->{arguments}->emit_lisp( $interpreter, $indent ), 0, 1 ) );
+    return ( $self->{parameters}->emit_lisp_assignment( $self->{arguments}->emit_lisp( $interpreter, $indent ), 1, 1 ) );
 }
 
 package Proto;
