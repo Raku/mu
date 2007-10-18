@@ -17,7 +17,7 @@
               "Undef"                   ; Undef
               "Bit" "Num" "Int" "Str" "Code" ; Values
               "Hash" "Array"            ; Containers
-              "Package" "Pad"
+              "Pad" "Package"
               "foreign"                 ; Utilities
               "display"                 ; Utilities
               "GLOBAL"                  ; Functions
