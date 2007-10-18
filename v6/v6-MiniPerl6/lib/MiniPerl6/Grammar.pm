@@ -98,6 +98,7 @@ token comp_unit {
 
 token infix_op {
     <'+'> | <'-'> | <'*'> | <'/'> | eq | ne | <'=='> | <'!='> | <'&&'> | <'||'> | <'~~'> | <'~'> | '>'
+    | 'x'
 }
 
 token hyper_op {

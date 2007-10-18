@@ -184,6 +184,7 @@ token infix_op {
     | '&' | '^' | '|'
     | '..'
     | 'but'
+    | 'x'
 };
 
 token hyper_op {

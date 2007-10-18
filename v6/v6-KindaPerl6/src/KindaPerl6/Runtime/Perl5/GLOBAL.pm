@@ -51,6 +51,7 @@ package GLOBAL;
         infix_58__60__62__62_
         infix_58__60__60__62_
         infix_58__60_but_62_
+        infix_58__60_x_62_
         
         prefix_58__60__33__62_
         prefix_58__60__36__62_
@@ -287,6 +288,11 @@ package GLOBAL;
         $value->{_methods}{$class} = ::DISPATCH( $::Method, 'new', sub { $but } );
         
         return $value;
+    }
+    sub infix_58__60_x_62_ {    # x
+        return ::DISPATCH( $::Str, 'new', 
+                _str( $_[0] ) x _int( $_[1] ) 
+        );
     }
 
     sub substr      
