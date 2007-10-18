@@ -18,7 +18,7 @@ $::Hash = KindaPerl6::Runtime::Perl5::MOP::make_class(
             $_[0];
         },
     LOOKUP=>sub {
-            my $key = ::DISPATCH(::DISPATCH($_[1],"str"),"p5landish");
+            my $key = ::DISPATCH(::DISPATCH($_[1],"Str"),"p5landish");
             $_[0]{_value}{_hash} = {}
                 unless defined $_[0]{_value}{_hash};  # XXX 
             return ::DISPATCH($::HashCell,"new",{

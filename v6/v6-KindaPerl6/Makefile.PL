@@ -13,14 +13,14 @@ my %Kp6Build;
 if ( $KP6_TARGET eq "KP6-MP6" ) {
     %Kp6Build = (
         lib         => "compiled/perl5/lib",
-        module_lib  => "lib-modules-kp6-mp6-p5",
+        module_lib  => "compiled/perl5/lib",
         run_test    => "script/run_tests_kp6_mp6.pl",
     );
 }
 elsif ( $KP6_TARGET eq "KP6-KP6" ) {
     %Kp6Build = (
-        lib         => "lib-kp6-kp6-p5",
-        module_lib  => "lib-modules-kp6-kp6-p5",
+        lib         => "compiled/perl5/kp6-kp6",
+        module_lib  => "compiled/perl5/kp6-kp6",
         run_test    => "script/run_tests_kp6_kp6.pl",
     );
 }
@@ -188,7 +188,7 @@ compiled/perl5/lib/KindaPerl6/Runtime/Perl6/%.pm: src/KindaPerl6/Runtime/Perl6/%
 			echo "*** Compilation failed with exit code: $$res!" ; \
 			exit; \
 		fi
-lib-modules-kp6-mp6-p5/%.pm: src-modules/%.pm
+compiled/perl5/lib/%.pm: src-modules/%.pm
 	@echo COMPILE $< $@
 	@$(PERL) script/kp6 < $< | perltidy -pro=util/perltidyrc > $@.temp ; \
 		res=$$? ; \
@@ -199,7 +199,7 @@ lib-modules-kp6-mp6-p5/%.pm: src-modules/%.pm
 			exit; \
 		fi
 
-lib-modules-kp6-kp6-p5/%.pm: src-modules/%.pm
+compiled/perl5/kp6-kp6/%.pm: src-modules/%.pm
 	@echo COMPILE $< $@
 	@$(PERL) script/kp6 -r kp6 < $< | perltidy -pro=util/perltidyrc > $@.temp ; \
 		res=$$? ; \
@@ -211,20 +211,20 @@ lib-modules-kp6-kp6-p5/%.pm: src-modules/%.pm
 		fi
 
 
-lib-kp6-kp6-p5/KindaPerl6/Runtime/Perl6/%.pm: src/KindaPerl6/Runtime/Perl6/%.pm
+compiled/perl5/kp6-kp6/KindaPerl6/Runtime/Perl6/%.pm: src/KindaPerl6/Runtime/Perl6/%.pm
 	$(PERL) script/kp6 -r kp6 < $< | perltidy -pro=util/perltidyrc > $@
 
 
 compiled/perl5/lib/KindaPerl6/Runtime/Perl5/%.pm: src/KindaPerl6/Runtime/Perl5/%.pm
 	$(CP) $< $@
 
-lib-kp6-kp6-p5/KindaPerl6/Runtime/Perl5/%.pm: src/KindaPerl6/Runtime/Perl5/%.pm
+compiled/perl5/kp6-kp6/KindaPerl6/Runtime/Perl5/%.pm: src/KindaPerl6/Runtime/Perl5/%.pm
 	$(CP) $< $@
 
 compiled/perl5/lib/%.pm: src/%.pm
 	$(PERL) script/mp6.pl < $< | perltidy -pro=util/perltidyrc > $@
 
-lib-kp6-kp6-p5/%.pm: src/%.pm
+compiled/perl5/kp6-kp6/%.pm: src/%.pm
 	$(PERL) script/kp6 -r kp6 < $< | perltidy -pro=util/perltidyrc > $@
 
 kp6-kp6.pl: kp6.p6

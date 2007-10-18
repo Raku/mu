@@ -50,6 +50,8 @@ package GLOBAL;
         infix_58__60__62__61__62_
         infix_58__60__62__62_
         infix_58__60__60__62_
+        infix_58__60_but_62_
+        infix_58__60_x_62_
         
         prefix_58__60__33__62_
         prefix_58__60__36__62_
@@ -125,15 +127,15 @@ package GLOBAL;
 
     sub _str {
         my $v = $_[0];
-        $v = ::DISPATCH( $v, 'str' )   if ref($v); 
-        $v = ::DISPATCH( $v, 'FETCH' ) if ref($v);  # .str may return a Scalar
+        $v = ::DISPATCH( $v, 'Str' )   if ref($v); 
+        $v = ::DISPATCH( $v, 'FETCH' ) if ref($v);  # .Str may return a Scalar
         return $v->{_value}            if ref($v); 
         $v;
     }
     sub _int {
         my $v = $_[0];
-        $v = ::DISPATCH( $v, 'int' )   if ref($v); 
-        $v = ::DISPATCH( $v, 'FETCH' ) if ref($v);  # .int may return a Scalar
+        $v = ::DISPATCH( $v, 'Int' )   if ref($v); 
+        $v = ::DISPATCH( $v, 'FETCH' ) if ref($v);  # .Int may return a Scalar
         return $v->{_value}            if ref($v); 
         $v;
     }
@@ -195,6 +197,10 @@ package GLOBAL;
     }
     sub take {
         # this assumes 'Coro' and 'Scalar::Util' are already loaded
+        
+        # XXX this "does nothing" but gather has problems without it ???
+        _str($_[0]);
+        
         push @{ $::GATHER{ Scalar::Util::refaddr( $Coro::current ) } }, 
             ::DISPATCH( $_[0], 'FETCH' );
         Coro::cede();
@@ -257,6 +263,37 @@ package GLOBAL;
     { ::DISPATCH( $::Int, 'new', _int( $_[0] ) / _int( $_[1] ) ) }  # infix:</>   XXX - Num
     sub infix_58__60__62__62_  
     { ::DISPATCH( $::Bit, 'new', (_int($_[0]) > _int($_[1])) ? 1 : 0) }  # >
+
+    sub infix_58__60_but_62_ {    # but
+        my $value = ::DISPATCH( $_[0], 'FETCH' );
+        my $but   = ::DISPATCH( $_[1], 'FETCH' );
+        my $class = ::DISPATCH( ::DISPATCH( $but, 'WHAT' ), 'Str' )->{_value};
+        #print "class: $class \n";
+        
+        # XXX fixme
+        my $meth  = "";
+        #$meth = "Str"  if $class eq "Str";
+        #$meth = "Int"  if $class eq "Int";
+        $meth = "true" if $class eq "Bit";        
+        # ???
+        #die "don't know how to implement 'but' with $class"
+        #    unless $meth;
+
+        $value = { %{ $value } };
+        
+        # XXX
+        $value->{_methods}{$meth}  = ::DISPATCH( $::Method, 'new', sub { $but } )
+            if $meth;
+        
+        $value->{_methods}{$class} = ::DISPATCH( $::Method, 'new', sub { $but } );
+        
+        return $value;
+    }
+    sub infix_58__60_x_62_ {    # x
+        return ::DISPATCH( $::Str, 'new', 
+                _str( $_[0] ) x _int( $_[1] ) 
+        );
+    }
 
     sub substr      
     { 

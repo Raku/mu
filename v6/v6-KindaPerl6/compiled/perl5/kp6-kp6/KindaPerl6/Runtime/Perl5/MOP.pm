@@ -117,12 +117,14 @@ my $dispatch = sub {
     }
 
     if (  !defined $self->{_value} 
-       && $method_name eq 'str'
+       && $method_name eq 'Str'
+       && !exists( $self->{_methods}{'Str'} )
        ) 
     {
         # 'self' is a prototype object
         # it stringifies to the class name
-        #print "Class.str: ",$self->{_isa}[0]{_value}{class_name},"\n";
+        # (unless the .Str method was replaced)
+        #print "Class.Str: ",$self->{_isa}[0]{_value}{class_name},"\n";
         return ::DISPATCH( $::Str, 'new',  $self->{_isa}[0]{_value}{class_name} )
     }
 
@@ -419,7 +421,11 @@ $meta_Str->add_method(
         { code => sub { my $v = ::DISPATCH( $::Str, 'new',  '\'' . $_[0]{_value} . '\'' ) } }
     )
 );
-$meta_Str->add_method( 'str', ::DISPATCH( $::Method, 'new', { code => sub { $_[0] } } ) );
+$meta_Str->add_method( 
+    'Str', 
+    ::DISPATCH( $::Method, 'new', 
+        { code => sub { $_[0] } } 
+    ) );
 $meta_Str->add_method(
     'true',
     ::DISPATCH( $::Method, 'new', 
@@ -446,7 +452,7 @@ $meta_Int->add_method( 'perl',
 # XXX - Bind to attributes fail, so to move on, a increment is interesting
 $meta_Int->add_method( 'increment',
     ::DISPATCH( $::Method, 'new',  sub { $_[0]{_value}++; $_[0] } ) );
-$meta_Int->add_method( 'str',
+$meta_Int->add_method( 'Str',
     ::DISPATCH( $::Method, 'new',  sub { my $v = $::Str->new( $_[0]{_value} ) } ) );
 $meta_Int->add_method( 'true',
     ::DISPATCH( $::Method, 'new',  sub { $::Bit->new( $_[0]{_value} == 0 ? 0 : 1 ) } ) );
@@ -456,7 +462,7 @@ $::Num = $meta_Num->PROTOTYPE();
 $meta_Num->add_parent($meta_Value);
 $meta_Num->add_method( 'perl',
     ::DISPATCH( $::Method, 'new',  sub { my $v = $::Str->new( $_[0]{_value} ) } ) );
-$meta_Num->add_method( 'str',
+$meta_Num->add_method( 'Str',
     ::DISPATCH( $::Method, 'new',  sub { my $v = $::Str->new( $_[0]{_value} ) } ) );
 $meta_Num->add_method( 'true',
     ::DISPATCH( $::Method, 'new',  sub { $::Bit->new( $_[0]{_value} == 0 ? 0 : 1 ) } ) );
@@ -471,7 +477,7 @@ $meta_Bit->add_method(
         sub { my $v = ::DISPATCH( $::Str, 'new',  $_[0]{_value} ? 'True' : 'False' ) }
     )
 );
-$meta_Bit->add_method( 'str',
+$meta_Bit->add_method( 'Str',
     ::DISPATCH( $::Method, 'new',  sub { my $v = $::Str->new( $_[0]{_value} ) } ) );
 $meta_Bit->add_method( 'true',
     ::DISPATCH( $::Method, 'new',  sub { $::Bit->new( $_[0]{_value} ) } ) );
@@ -496,7 +502,7 @@ $meta_Object->add_method(
         sub {
             my $self = shift;
             my $obj  = shift;   # Proto, Subset, Str  ???
-            $obj = ::DISPATCH( $obj, 'str' );
+            $obj = ::DISPATCH( $obj, 'Str' );
             my $meta = ::DISPATCH( $self, 'HOW' );
             return ::DISPATCH( $::Bit, 'new', 
                 (  meta_isa( $meta, $obj ) 
@@ -520,8 +526,8 @@ $meta_Object->add_method(
                  )->{_value} 
             ) {
                 # Str                
-                # the call to .str is needed in order to stringify the ::Str prototype
-                $obj = eval '$::' . ::DISPATCH( $obj, "str" )->{_value};
+                # the call to .Str is needed in order to stringify the ::Str prototype
+                $obj = eval '$::' . ::DISPATCH( $obj, "Str" )->{_value};
             }
 
             if ( ::DISPATCH( $obj, 'isa', 
@@ -543,7 +549,7 @@ $meta_Object->add_method(
 
             }
             #print "Testing not-Subset\n";
-            $obj = ::DISPATCH( $obj, 'str' );   # Proto or Str  XXX
+            $obj = ::DISPATCH( $obj, 'Str' );   # Proto or Str  XXX
             return ::DISPATCH( $::Bit, 'new', 1 )
                 if exists( $self->{_roles}{ $obj->{_value} } );
             return ::DISPATCH( $self, 'isa', $obj );
@@ -551,7 +557,7 @@ $meta_Object->add_method(
     )
 );
 $meta_Object->add_method(
-    'str',
+    'Str',
     ::DISPATCH( $::Method, 'new', 
         sub {
             my $v = ::DISPATCH( $::Str, 'new', 
@@ -560,7 +566,7 @@ $meta_Object->add_method(
     )
 );
 $meta_Object->add_method(
-    'int',
+    'Int',
     ::DISPATCH( $::Method, 'new', 
         sub {
             my $v = ::DISPATCH( $::Int, 'new',  0 + $_[0]{_value} );  # ???
@@ -598,7 +604,7 @@ $meta_Object->add_method( 'STORE', $method_readonly );
 
 $::Undef = make_class( proto => $::Undef, name=>"Undef",parents=>[$meta_Value],methods=>{
     perl    => sub { ::DISPATCH($::Str,'new','undef') },
-    str     => sub { ::DISPATCH($::Str,'new','') },
+    Str     => sub { ::DISPATCH($::Str,'new','') },
     true    => sub { ::DISPATCH($::Bit,'new',0) },
     defined => sub { ::DISPATCH($::Bit,'new',0) },
 });
@@ -911,7 +917,7 @@ sub ::CAPTURIZE {
                eval { exists( $p->{_value}{_argument_name_} ) }
             
            ) {
-                my $key = ::DISPATCH( ::DISPATCH( $p, '_argument_name_' ), 'str' )->{_value};
+                my $key = ::DISPATCH( ::DISPATCH( $p, '_argument_name_' ), 'Str' )->{_value};
                 #print "named: $key \n";
                 my $value = ::DISPATCH( $p, 'value' );
                 #print "value: $value \n";
