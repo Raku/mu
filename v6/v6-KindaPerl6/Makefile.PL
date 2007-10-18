@@ -25,12 +25,15 @@ elsif ( $KP6_TARGET eq "KP6-KP6" ) {
     );
 }
 elsif ( $KP6_TARGET eq "KP6-LISP" ) {
-    die "not yet implemented KP6_TARGET '$KP6_TARGET', can't continue";
-    # %Kp6Build = (
-    #    lib         => "lib-kp6-kp6-p5",
-    #    module_lib  => "lib-modules-kp6-kp6-p5",
-    #    run_test    => "script/run_tests_kp6_kp6.pl",
-    #);
+    #die "not yet implemented KP6_TARGET '$KP6_TARGET', can't continue";
+    %Kp6Build = (
+        # We don't use this and not defining this makes things break,
+        # just use the same things as kp6-mp6
+        lib         => "compiled/perl5/lib",
+        module_lib  => "compiled/perl5/lib",
+
+        run_test    => "script/run_tests_kp6_mp6_lisp.pl",
+    );
 }
 else {
     die "unknown KP6_TARGET '$KP6_TARGET', can't continue";
