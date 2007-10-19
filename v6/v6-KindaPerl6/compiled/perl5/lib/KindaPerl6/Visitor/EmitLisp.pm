@@ -772,7 +772,6 @@ sub emit_lisp {
         for my $decl ( @{ $self->{positional} } ) { $str = ( $str . ( ' (make-instance \'kp6-named-parameter :name ' . ( $decl->emit_lisp_name( $interpreter, $indent ) . ')' ) ) ) }
     };
     $str = ( $str . ')' );
-    $str = ( $str . ' :slurpy-array (make-instance \'kp6-named-parameter :name (kp6-generate-variable "@" "_"))' );
     $str = ( $str . ')' );
     return ($str);
 }

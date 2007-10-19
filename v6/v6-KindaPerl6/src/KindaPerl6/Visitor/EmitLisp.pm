@@ -485,7 +485,7 @@ class Sig {
 	
 	$str := $str ~ ')';
 	
-	$str := $str ~ ' :slurpy-array (make-instance \'kp6-named-parameter :name (kp6-generate-variable "@" "_"))';
+#	$str := $str ~ ' :slurpy-array (make-instance \'kp6-named-parameter :name (kp6-generate-variable "@" "_"))';
 	
 	$str := $str ~ ')';
 

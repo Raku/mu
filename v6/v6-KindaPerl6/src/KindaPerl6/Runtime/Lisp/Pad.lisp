@@ -62,7 +62,7 @@
 	     (kp6-error ,interpreter-var 'kp6-variable-not-found :name name))))
     (lookup-lexical-variable/c (name)
      (if (kp6-exists ,pad name)
-	 (kp6-lookup ,pad name)
+	 (make-kp6-cell (kp6-lookup ,pad name)) ;; should this return a cell or not?
 	 (if ,parent-var
 	     (lookup-lexical-variable/c name)
 	     (kp6-error ,interpreter-var 'kp6-variable-not-found :name name))))

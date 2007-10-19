@@ -59,3 +59,13 @@
           do (kp6-dispatch array interpreter
 			   :push (kp6-dispatch (first parameters) interpreter :apply element))
 	  finally (return array))))
+
+(defmethod kp6-dispatch ((invocant kp6-Array) interpreter (method (eql :join)) &rest parameters)
+  "Join the elements of a list into a single string"
+  (assert (= 1 (length parameters)))
+  (cl->perl
+   (if (= 0 (length (kp6-value invocant))) ""
+       (apply #'concatenate 'string
+	      (rest (loop for element across (kp6-value invocant)
+			  collect (perl->cl (first parameters))
+		          collect (perl->cl (kp6-dispatch element interpreter :Str))))))))
