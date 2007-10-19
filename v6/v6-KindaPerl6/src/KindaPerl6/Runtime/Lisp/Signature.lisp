@@ -143,7 +143,10 @@
 	    (set-lexical-variable/c name (make-kp6-cell (make-instance 'kp6-Hash :value (if (slot-boundp slurpy-hash 'value) value (make-hash-table)))))))
 	(when (slot-boundp ,result 'slurpy-array)
 	  (define-lexical-variable (kp6-name slurpy-array))
-	  (set-lexical-variable/c (kp6-name slurpy-array) (make-kp6-cell (make-instance 'kp6-Array :value (if (slot-boundp slurpy-array 'value) (nreverse (kp6-value slurpy-array)) (make-array 1))))))))))
+	  (set-lexical-variable/c
+	   (kp6-name slurpy-array)
+	   (make-kp6-cell
+	    (cl->perl (if (slot-boundp slurpy-array 'value) (nreverse (kp6-value slurpy-array)))))))))))
 
 (defun kp6-next-unbound-argument (arguments)
   (find-if #'(lambda (x) (eql (kp6-value x) +special-unbound-value+)) arguments))
