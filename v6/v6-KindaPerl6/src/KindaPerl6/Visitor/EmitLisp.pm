@@ -236,11 +236,11 @@ class Var {
 	my $maybe_boxed_value;
 	my $variant := $cell ?? '/c' !! '';
 	
-	if $constant {
-	    $maybe_boxed_value := '(make-kp6-cell ' ~ $value ~ ')';
-	} else {
+	#if $constant {
+	#    $maybe_boxed_value := '(make-kp6-cell ' ~ $value ~ ')';
+	#} else {
 	    $maybe_boxed_value := $value;
-	}
+	#}
 	
 	if @($.namespace) {
 	    return '(set-package-variable' ~ $variant ~ ' ' ~ self.emit_lisp_name ~ ' ' ~ $maybe_boxed_value ~ ' ' ~ self.emit_lisp_namespace ~ ')';
