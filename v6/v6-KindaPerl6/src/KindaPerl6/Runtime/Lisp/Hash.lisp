@@ -46,6 +46,7 @@
   ; XXX: Just return true for now?
   (make-instance 'kp6-Bit :value 1))
 
+#||
 (defmethod kp6-pairs ((self kp6-Hash) &key)
   "Returns an Array of key-value pairs in the hash in `maphash' order"
   (make-instance 'kp6-Array :value 
@@ -56,6 +57,7 @@
                    (push key values))
                hash)
       values)))
+||#
 
 (defmethod kp6-elems ((self kp6-Hash) &key)
   "Returns the number of elements in the hash"

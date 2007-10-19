@@ -50,3 +50,12 @@
   (declare (ignore parameters interpreter))
   (make-instance 'kp6-Int
      :value (array-dimension (kp6-value invocant) 0)))
+
+(defmethod kp6-dispatch ((invocant kp6-Array) interpreter (method (eql :map)) &rest parameters)
+  "Map a function over the elements of an array"
+  (assert (= 1 (length parameters)))
+  (let ((array (make-instance 'kp6-Array)))
+    (loop for element across (kp6-value invocant)
+          do (kp6-dispatch array interpreter
+			   :push (kp6-dispatch (first parameters) interpreter :apply element))
+	  finally (return array))))

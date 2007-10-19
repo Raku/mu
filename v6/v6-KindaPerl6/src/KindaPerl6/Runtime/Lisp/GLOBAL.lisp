@@ -120,6 +120,9 @@ result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
       (call-kp6-function interpreter "print" :positional (list (VAR @ string)))
       (terpri))
 
+    (define-kp6-function ("map" :interpreter interpreter) (($ array) ($ sub))
+      (kp6-dispatch (VAR $ array) interpreter :map (VAR $ sub)))
+
     (define-kp6-function ("warn" :returns 'true :interpreter interpreter) (($ string))
       (warn "~A" (VAR $ string)))
 

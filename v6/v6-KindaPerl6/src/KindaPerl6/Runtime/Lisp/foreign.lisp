@@ -3,8 +3,10 @@
 (defgeneric cl->perl (object &key &allow-other-keys)
   (:documentation "Convert a Lisp object into a Perl 6 object."))
 
-(defmethod cl->perl ((object list) &key)
-  (make-instance 'kp6-Array :value object))
+(defmethod cl->perl ((object list) &key) ;; TODO test this
+  (let ((array (make-instance 'kp6-Array)))
+    (dolist (element object array)
+      (kp6-dispatch array :push element))))
 
 (defmethod cl->perl ((object character) &key)
   (cl->perl (string object)))
