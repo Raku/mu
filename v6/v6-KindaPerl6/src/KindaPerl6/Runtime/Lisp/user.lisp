@@ -10,10 +10,12 @@
     *kp6-programs*))
   
 (defun main (&key (interpreter (make-instance 'kp6-interpreter)) (standalone t))
-  (kp6-check-implementation-compatibility)
   (kp6-initialize-interpreter interpreter)
   (handler-case (dolist (program (reverse *kp6-programs*))
                   (funcall program interpreter))
     (error (e)
-      (when standalone (kp6-quit interpreter :message (format nil "Error: ~A~%" e) :code 1))))
-  (when standalone (kp6-quit interpreter)))
+      (when standalone
+        (progn
+          (write-string (format nil "Error: ~A~%" e))
+          (quit 1)))))
+  (when standalone (quit)))

@@ -1,16 +1,9 @@
 (with-compilation-unit ()
   (dolist (file
             `("defpackage"
-              "util" "var" "user"
+              "util" "var" "user" "compat"
               "Interpreter"
               "error"
-              "compat/stub"
-              ,(format nil "compat/~A"
-                       #+sbcl "sbcl"
-                       #+clisp "clisp"
-                       #+ecl   "ecl"
-                       #+gcl   "gcl"
-                       #-(or sbcl clisp ecl gcl) "other")
               "MOP"
               "Object" "Cell" "Signature"
               "Value" "Container"       ; Base classes

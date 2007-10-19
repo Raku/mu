@@ -57,8 +57,7 @@
    #:with-kp6-interpreter
    #:kp6-for-loop-structure
 
-   #:kp6-check-implementation-compatibility
-   #:kp6-quit
+   #:quit
 
    #:kp6-initialize-interpreter))
 
