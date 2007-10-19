@@ -91,7 +91,6 @@ examples/coro.pl
 examples/custom-metamode.pl
 examples/example.pl
 examples/gather.pl
-examples/hello.lisp
 examples/hello.pl
 examples/interpolation.pl
 examples/kp6-example.c
