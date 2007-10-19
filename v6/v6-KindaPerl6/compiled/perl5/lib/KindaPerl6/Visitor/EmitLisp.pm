@@ -509,7 +509,7 @@ sub emit_lisp {
         if ( Main::isa( $self->{invocant}, 'Proto' ) ) {
             do {
                 if   ( ( $self->{invocant}->name() eq 'self' ) ) { $invocant = '$self' }
-                else                                             { $invocant = $self->{invocant}->emit_lisp() }
+                else                                             { $invocant = $self->{invocant}->emit_lisp( $interpreter, $indent ) }
                 }
         }
         else { $invocant = $self->{invocant}->emit_lisp( $interpreter, $indent ) }

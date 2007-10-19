@@ -25,6 +25,9 @@
 (defclass kp6-positional-parameter (kp6-parameter)
   ())
 
+(defun make-kp6-positional-parameter (value)
+  (make-instance 'kp6-positional-parameter :value value))
+
 (defclass kp6-named-parameter (kp6-parameter)
   ((name :accessor kp6-name :initarg :name)))
 
@@ -77,33 +80,52 @@
     `(with-kp6-pad (,interpreter)
       (flet ((,error-report () (kp6-error ,interpreter 'kp6-bad-arguments :signature ,signature :arguments ,rest)))
 	(let ((,result (signature->arguments ,signature)))
-	  (with-slots ((,positional positional) (,optional optional) (,named named) (,slurpy-array slurpy-array) (,slurpy-hash slurpy-hash) (,slurpy-block slurpy-block)) ,result
-	    ,(collect-arguments error-report result rest positional optional named slurpy-array slurpy-hash slurpy-block)
+	  (with-slots ((,positional positional)
+		       (,optional optional)
+		       (,named named)
+		       (,slurpy-array slurpy-array)
+		       (,slurpy-hash slurpy-hash)
+		       (,slurpy-block slurpy-block)) ,result
+	    ,(collect-arguments error-report
+				result
+				rest
+				positional
+				optional
+				named
+				slurpy-array
+				slurpy-hash
+				slurpy-block)
 	    ,(bind-arguments result)
 	    ,@body))))))
 
 (defun collect-arguments (error-report result arguments positional optional named slurpy-array slurpy-hash slurpy-block)
   (declare (ignore slurpy-block))
   (with-unique-names (item name)
-    `(progn
-      (dolist (,item ,arguments)
-	(with-slots (value) ,item
-	  (etypecase ,item
-	    (kp6-positional-parameter
-	     (cond
-	       ((kp6-next-unbound-argument ,positional) (setf (kp6-next-unbound-argument ,positional) value))
-	       ((and (slot-boundp ,result 'optional) (kp6-next-unbound-argument ,optional)) (setf (kp6-next-unbound-argument ,optional) value))
-	       ((slot-boundp ,result 'slurpy-array)
-		(unless (listp (kp6-value ,slurpy-array))
-		  (setf (kp6-value ,slurpy-array) (list)))
-		(push value (kp6-value ,slurpy-array)))
-	       (t (,error-report))))
-	    (kp6-named-parameter
-	     (let ((,name (kp6-name ,item)))
-	       (cond
-		 ((kp6-find-argument ,named ,name) (setf (kp6-find-argument ,named ,name) value))
-		 ((slot-boundp ,result 'slurpy-hash) (setf (gethash ,name ,slurpy-hash) value))
-		 (t (,error-report)))))))))))
+    `(when t
+       (dolist (,item ,arguments)
+	 (with-slots (value) ,item
+	   (etypecase ,item
+	     (kp6-positional-parameter
+	      (cond ((kp6-next-unbound-argument ,positional)
+		     (setf (kp6-next-unbound-argument ,positional) value))
+		    ((and (slot-boundp ,result 'optional)
+			  (kp6-next-unbound-argument ,optional))
+		     (setf (kp6-next-unbound-argument ,optional) value))
+		    ((slot-boundp ,result 'slurpy-array)
+		     (unless (listp (kp6-value ,slurpy-array))
+		       (setf (kp6-value ,slurpy-array) (list)))
+		     (push value (kp6-value ,slurpy-array)))
+		    ;;(t (,error-report)) ;;; if we have no unbound arguments,
+					  ;;; every positional parameter has been passed
+		                          ;;; so just ignore the rest of them?
+		    ))
+	     (kp6-named-parameter
+	      (let ((,name (kp6-name ,item)))
+		(cond ((kp6-find-argument ,named ,name)
+		       (setf (kp6-find-argument ,named ,name) value))
+		      ((slot-boundp ,result 'slurpy-hash)
+		       (setf (gethash ,name ,slurpy-hash) value))
+		      (t (,error-report)))))))))))
 
 (defun bind-arguments (result)
   (flet ((bind-list (slot)

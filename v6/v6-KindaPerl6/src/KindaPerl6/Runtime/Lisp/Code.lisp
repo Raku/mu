@@ -50,4 +50,5 @@
 
 (defmethod kp6-dispatch ((invocant kp6-Code) interpreter (method (eql :apply)) &rest parameters)
   ".() on a function object"
-  (apply (kp6-value invocant) interpreter parameters))
+  (let ((parameters (mapcar #'make-kp6-positional-parameter parameters)))
+    (apply (kp6-value invocant) interpreter parameters)))
