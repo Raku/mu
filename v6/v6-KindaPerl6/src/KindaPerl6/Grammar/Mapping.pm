@@ -47,6 +47,12 @@ token exp_mapping {
         { return [ ] }
 };
 
+# has $.is_longname; ???
+token parameter_named_only       { ':' { return 1 } | { return 0 } }
+token parameter_optional         { '?' { return 1 } | { return 0 } }
+token parameter_slurpy           { '*' { return 1 } | { return 0 } }
+token parameter_multidimensional { '@' { return 1 } | { return 0 } }
+
 token exp_parameter_list {
     |   <pair> 
         [

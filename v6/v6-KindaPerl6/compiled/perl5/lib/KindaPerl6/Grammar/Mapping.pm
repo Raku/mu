@@ -403,6 +403,210 @@ sub exp_mapping {
     return ($MATCH);
 }
 
+sub parameter_named_only {
+    my $grammar = shift;
+    my $List__  = \@_;
+    my $str;
+    my $pos;
+    do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
+    my $MATCH;
+    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH->bool(
+        do {
+            my $pos1 = $MATCH->to();
+            (   do {
+                    (   ( ( ':' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
+                            my $ret = sub {
+                                my $List__ = \@_;
+                                do { [] };
+                                do { return (1) };
+                                '974^213';
+                                }
+                                ->();
+                            do {
+                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                                else                         { }
+                            };
+                            1;
+                            }
+                    );
+                    }
+                    || do {
+                    $MATCH->to($pos1);
+                    do {
+                        my $ret = sub {
+                            my $List__ = \@_;
+                            do { [] };
+                            do { return (0) };
+                            '974^213';
+                            }
+                            ->();
+                        do {
+                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                            else                         { }
+                        };
+                        1;
+                        }
+                    }
+            );
+            }
+    );
+    return ($MATCH);
+}
+
+sub parameter_optional {
+    my $grammar = shift;
+    my $List__  = \@_;
+    my $str;
+    my $pos;
+    do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
+    my $MATCH;
+    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH->bool(
+        do {
+            my $pos1 = $MATCH->to();
+            (   do {
+                    (   ( ( '?' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
+                            my $ret = sub {
+                                my $List__ = \@_;
+                                do { [] };
+                                do { return (1) };
+                                '974^213';
+                                }
+                                ->();
+                            do {
+                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                                else                         { }
+                            };
+                            1;
+                            }
+                    );
+                    }
+                    || do {
+                    $MATCH->to($pos1);
+                    do {
+                        my $ret = sub {
+                            my $List__ = \@_;
+                            do { [] };
+                            do { return (0) };
+                            '974^213';
+                            }
+                            ->();
+                        do {
+                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                            else                         { }
+                        };
+                        1;
+                        }
+                    }
+            );
+            }
+    );
+    return ($MATCH);
+}
+
+sub parameter_slurpy {
+    my $grammar = shift;
+    my $List__  = \@_;
+    my $str;
+    my $pos;
+    do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
+    my $MATCH;
+    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH->bool(
+        do {
+            my $pos1 = $MATCH->to();
+            (   do {
+                    (   ( ( '*' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
+                            my $ret = sub {
+                                my $List__ = \@_;
+                                do { [] };
+                                do { return (1) };
+                                '974^213';
+                                }
+                                ->();
+                            do {
+                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                                else                         { }
+                            };
+                            1;
+                            }
+                    );
+                    }
+                    || do {
+                    $MATCH->to($pos1);
+                    do {
+                        my $ret = sub {
+                            my $List__ = \@_;
+                            do { [] };
+                            do { return (0) };
+                            '974^213';
+                            }
+                            ->();
+                        do {
+                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                            else                         { }
+                        };
+                        1;
+                        }
+                    }
+            );
+            }
+    );
+    return ($MATCH);
+}
+
+sub parameter_multidimensional {
+    my $grammar = shift;
+    my $List__  = \@_;
+    my $str;
+    my $pos;
+    do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
+    my $MATCH;
+    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH->bool(
+        do {
+            my $pos1 = $MATCH->to();
+            (   do {
+                    (   ( ( '@' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
+                            my $ret = sub {
+                                my $List__ = \@_;
+                                do { [] };
+                                do { return (1) };
+                                '974^213';
+                                }
+                                ->();
+                            do {
+                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                                else                         { }
+                            };
+                            1;
+                            }
+                    );
+                    }
+                    || do {
+                    $MATCH->to($pos1);
+                    do {
+                        my $ret = sub {
+                            my $List__ = \@_;
+                            do { [] };
+                            do { return (0) };
+                            '974^213';
+                            }
+                            ->();
+                        do {
+                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                            else                         { }
+                        };
+                        1;
+                        }
+                    }
+            );
+            }
+    );
+    return ($MATCH);
+}
+
 sub exp_parameter_list {
     my $grammar = shift;
     my $List__  = \@_;
