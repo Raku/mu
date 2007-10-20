@@ -251,7 +251,7 @@ class Lit::SigArgument {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
-            'Lit::NamedArgument',
+            'Lit::SigArgument',
             $path,
         );
     };

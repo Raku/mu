@@ -272,7 +272,7 @@ sub emit {
     my $visitor;
     my $path;
     do { $visitor = $List__->[0]; $path = $List__->[1]; [ $visitor, $path ] };
-    KindaPerl6::Traverse::visit( $visitor, $self, 'Lit::NamedArgument', $path );
+    KindaPerl6::Traverse::visit( $visitor, $self, 'Lit::SigArgument', $path );
 }
 
 sub attribs {
