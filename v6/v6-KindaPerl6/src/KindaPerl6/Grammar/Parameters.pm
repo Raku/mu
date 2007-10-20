@@ -28,4 +28,19 @@ grammar KindaPerl6::Grammar {
         $env.add_lexicals( $decl );
     }
 
+    token exp_parameter_list {
+        # TODO - put back named params !!!
+        |   <exp> 
+            [
+            |   <?opt_ws> \, <?opt_ws> <exp_parameter_list> 
+                { return [ $$<exp>, @( $$<exp_parameter_list> ) ] }
+            |   <?opt_ws> [ \, <?opt_ws> | '' ]
+                { return [ $$<exp> ] }
+            ]
+        |
+            { return [ ] }
+    };
+
+
+
 }

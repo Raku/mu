@@ -7,7 +7,7 @@ use MiniPerl6::Perl5::Match;
 package KindaPerl6::Grammar;
 sub new { shift; bless {@_}, "KindaPerl6::Grammar" }
 
-sub parameter_named_only {
+sub sig_named_only {
     my $grammar = shift;
     my $List__  = \@_;
     my $str;
@@ -58,7 +58,7 @@ sub parameter_named_only {
     return ($MATCH);
 }
 
-sub parameter_optional {
+sub sig_optional {
     my $grammar = shift;
     my $List__  = \@_;
     my $str;
@@ -109,7 +109,7 @@ sub parameter_optional {
     return ($MATCH);
 }
 
-sub parameter_slurpy {
+sub sig_slurpy {
     my $grammar = shift;
     my $List__  = \@_;
     my $str;
@@ -160,7 +160,7 @@ sub parameter_slurpy {
     return ($MATCH);
 }
 
-sub parameter_multidimensional {
+sub sig_multidimensional {
     my $grammar = shift;
     my $List__  = \@_;
     my $str;
@@ -211,7 +211,7 @@ sub parameter_multidimensional {
     return ($MATCH);
 }
 
-sub exp_parameter_item {
+sub exp_sig_item {
     my $grammar = shift;
     my $List__  = \@_;
     my $str;
@@ -224,24 +224,24 @@ sub exp_parameter_item {
             my $pos1 = $MATCH->to();
             (   do {
                     (   do {
-                            my $m2 = $grammar->parameter_named_only( $str, $MATCH->to() );
+                            my $m2 = $grammar->sig_named_only( $str, $MATCH->to() );
                             do {
-                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'parameter_named_only'} = $m2; 1 }
+                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'sig_named_only'} = $m2; 1 }
                                 else     {0}
                                 }
                             }
                             && (
                             do {
-                                my $m2 = $grammar->parameter_slurpy( $str, $MATCH->to() );
+                                my $m2 = $grammar->sig_slurpy( $str, $MATCH->to() );
                                 do {
-                                    if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'parameter_slurpy'} = $m2; 1 }
+                                    if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'sig_slurpy'} = $m2; 1 }
                                     else     {0}
                                     }
                             }
                             && (do {
-                                    my $m2 = $grammar->parameter_multidimensional( $str, $MATCH->to() );
+                                    my $m2 = $grammar->sig_multidimensional( $str, $MATCH->to() );
                                     do {
-                                        if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'parameter_multidimensional'} = $m2; 1 }
+                                        if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'sig_multidimensional'} = $m2; 1 }
                                         else     {0}
                                         }
                                 }
@@ -253,9 +253,9 @@ sub exp_parameter_item {
                                             }
                                     }
                                     && (do {
-                                            my $m2 = $grammar->parameter_optional( $str, $MATCH->to() );
+                                            my $m2 = $grammar->sig_optional( $str, $MATCH->to() );
                                             do {
-                                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'parameter_optional'} = $m2; 1 }
+                                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'sig_optional'} = $m2; 1 }
                                                 else     {0}
                                                 }
                                         }
@@ -268,10 +268,10 @@ sub exp_parameter_item {
                                                         Lit::NamedArgument->new(
                                                             'key'                 => ${ $MATCH->{'pair'} }->[0],
                                                             'value'               => ${ $MATCH->{'pair'} }->[1],
-                                                            'is_named_only'       => ${ $MATCH->{'parameter_named_only'} },
-                                                            'is_optional'         => ${ $MATCH->{'parameter_optional'} },
-                                                            'is_slurpy'           => ${ $MATCH->{'parameter_slurpy'} },
-                                                            'is_multidimensional' => ${ $MATCH->{'parameter_multidimensional'} },
+                                                            'is_named_only'       => ${ $MATCH->{'sig_named_only'} },
+                                                            'is_optional'         => ${ $MATCH->{'sig_optional'} },
+                                                            'is_slurpy'           => ${ $MATCH->{'sig_slurpy'} },
+                                                            'is_multidimensional' => ${ $MATCH->{'sig_multidimensional'} },
                                                         )
                                                     );
                                                 };
@@ -293,26 +293,70 @@ sub exp_parameter_item {
                     || do {
                     $MATCH->to($pos1);
                     (   do {
-                            my $m2 = $grammar->exp( $str, $MATCH->to() );
+                            my $m2 = $grammar->sig_named_only( $str, $MATCH->to() );
                             do {
-                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'exp'} = $m2; 1 }
+                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'sig_named_only'} = $m2; 1 }
                                 else     {0}
                                 }
                             }
-                            && do {
-                            my $ret = sub {
-                                my $List__ = \@_;
-                                do { [] };
-                                do { return ( ${ $MATCH->{'exp'} } ) };
-                                '974^213';
-                                }
-                                ->();
+                            && (
                             do {
-                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                else                         { }
-                            };
-                            1;
+                                my $m2 = $grammar->sig_slurpy( $str, $MATCH->to() );
+                                do {
+                                    if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'sig_slurpy'} = $m2; 1 }
+                                    else     {0}
+                                    }
                             }
+                            && (do {
+                                    my $m2 = $grammar->sig_multidimensional( $str, $MATCH->to() );
+                                    do {
+                                        if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'sig_multidimensional'} = $m2; 1 }
+                                        else     {0}
+                                        }
+                                }
+                                && (do {
+                                        my $m2 = $grammar->exp( $str, $MATCH->to() );
+                                        do {
+                                            if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'exp'} = $m2; 1 }
+                                            else     {0}
+                                            }
+                                    }
+                                    && (do {
+                                            my $m2 = $grammar->sig_optional( $str, $MATCH->to() );
+                                            do {
+                                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'sig_optional'} = $m2; 1 }
+                                                else     {0}
+                                                }
+                                        }
+                                        && do {
+                                            my $ret = sub {
+                                                my $List__ = \@_;
+                                                do { [] };
+                                                do {
+                                                    return (
+                                                        Lit::NamedArgument->new(
+                                                            'key'                 => ${ $MATCH->{'exp'} },
+                                                            'value'               => (undef),
+                                                            'is_named_only'       => ${ $MATCH->{'sig_named_only'} },
+                                                            'is_optional'         => ${ $MATCH->{'sig_optional'} },
+                                                            'is_slurpy'           => ${ $MATCH->{'sig_slurpy'} },
+                                                            'is_multidimensional' => ${ $MATCH->{'sig_multidimensional'} },
+                                                        )
+                                                    );
+                                                };
+                                                '974^213';
+                                                }
+                                                ->();
+                                            do {
+                                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                                                else                         { }
+                                            };
+                                            1;
+                                        }
+                                    )
+                                )
+                            )
+                            )
                     );
                     }
             );
@@ -321,7 +365,7 @@ sub exp_parameter_item {
     return ($MATCH);
 }
 
-sub exp_parameter_list {
+sub exp_sig_list {
     my $grammar = shift;
     my $List__  = \@_;
     my $str;
@@ -334,9 +378,9 @@ sub exp_parameter_list {
             my $pos1 = $MATCH->to();
             (   do {
                     (   do {
-                            my $m2 = $grammar->exp_parameter_item( $str, $MATCH->to() );
+                            my $m2 = $grammar->exp_sig_item( $str, $MATCH->to() );
                             do {
-                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'exp_parameter_item'} = $m2; 1 }
+                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'exp_sig_item'} = $m2; 1 }
                                 else     {0}
                                 }
                             }
@@ -360,9 +404,9 @@ sub exp_parameter_list {
                                                         }
                                                 }
                                                 && (do {
-                                                        my $m2 = $grammar->exp_parameter_list( $str, $MATCH->to() );
+                                                        my $m2 = $grammar->exp_sig_list( $str, $MATCH->to() );
                                                         do {
-                                                            if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'exp_parameter_list'} = $m2; 1 }
+                                                            if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'exp_sig_list'} = $m2; 1 }
                                                             else     {0}
                                                             }
                                                     }
@@ -370,7 +414,7 @@ sub exp_parameter_list {
                                                         my $ret = sub {
                                                             my $List__ = \@_;
                                                             do { [] };
-                                                            do { return ( [ ${ $MATCH->{'exp_parameter_item'} }, @{ ${ $MATCH->{'exp_parameter_list'} } } ] ) };
+                                                            do { return ( [ ${ $MATCH->{'exp_sig_item'} }, @{ ${ $MATCH->{'exp_sig_list'} } } ] ) };
                                                             '974^213';
                                                             }
                                                             ->();
@@ -414,7 +458,7 @@ sub exp_parameter_list {
                                                 my $ret = sub {
                                                     my $List__ = \@_;
                                                     do { [] };
-                                                    do { return ( [ ${ $MATCH->{'exp_parameter_item'} } ] ) };
+                                                    do { return ( [ ${ $MATCH->{'exp_sig_item'} } ] ) };
                                                     '974^213';
                                                     }
                                                     ->();
@@ -482,9 +526,9 @@ sub sig {
                                 }
                         }
                         && (do {
-                                my $m2 = $grammar->exp_parameter_list( $str, $MATCH->to() );
+                                my $m2 = $grammar->exp_sig_list( $str, $MATCH->to() );
                                 do {
-                                    if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'exp_parameter_list'} = $m2; 1 }
+                                    if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'exp_sig_list'} = $m2; 1 }
                                     else     {0}
                                     }
                             }
@@ -492,7 +536,7 @@ sub sig {
                                 my $ret = sub {
                                     my $List__ = \@_;
                                     do { [] };
-                                    do { return ( Sig->new( 'invocant' => ${ $MATCH->{'invocant'} }, 'positional' => ${ $MATCH->{'exp_parameter_list'} }, 'named' => {}, ) ) };
+                                    do { return ( Sig->new( 'invocant' => ${ $MATCH->{'invocant'} }, 'positional' => ${ $MATCH->{'exp_sig_list'} }, 'named' => {}, ) ) };
                                     '974^213';
                                     }
                                     ->();

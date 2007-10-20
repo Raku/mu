@@ -136,7 +136,7 @@ class Lit::NamedArgument {
     method emit_perl5 {
         '::DISPATCH( $::NamedArgument, \'new\', ' 
         ~ '{ _argument_name_ => '   ~ $.key.emit_perl5
-        ~ ', value => ' ~ $.value.emit_perl5
+        ~ ', value => ' ~ ( defined($.value) ?? $.value.emit_perl5 !! 'undef' )   # XXX
         ~ ' } )' ~ Main::newline();
     }
 }
