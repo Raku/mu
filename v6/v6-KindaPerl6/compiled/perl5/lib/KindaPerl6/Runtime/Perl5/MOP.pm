@@ -140,6 +140,7 @@ my $dispatch = sub {
     
     # low-level Method - APPLY can't dispatch itself!
     # warn 'LOW-LEVEL APPLY '.$method_name."\n".join("\n", map { join ",", caller($_) } 1..6)."\n";
+    #local $::ROUTINE = $meth;  # XXX 
     return $meth->{_value}->( $self, @_ );
 };
 
@@ -648,7 +649,8 @@ $meta_Code->add_method( 'APPLY',
               } 
             }
 
-           $self->{_value}{code}->(@_);
+            local $::ROUTINE = $self;
+            $self->{_value}{code}->(@_);
         } 
     ) 
 ) );
@@ -766,7 +768,11 @@ $meta_Routine->add_method( 'STORE', $method_readonly );
 $meta_Routine->add_method(
     'APPLY',
     ::DISPATCH( $::Method, 'new', 
-        sub { my $self = shift; $self->{_value}{cell}{_value}{code}->(@_) }
+        sub { 
+            my $self = shift; 
+            local $::ROUTINE = $self->{_value}{cell};
+            $self->{_value}{cell}{_value}{code}->(@_) 
+        }
     )
 );
 $meta_Routine->add_method(
