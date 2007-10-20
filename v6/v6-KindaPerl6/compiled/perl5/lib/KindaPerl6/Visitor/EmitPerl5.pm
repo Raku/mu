@@ -246,6 +246,16 @@ sub emit_perl5 {
     ( '::DISPATCH( $::NamedArgument, \'new\', ' . ( '{ _argument_name_ => ' . ( $self->{key}->emit_perl5() . ( ', value => ' . ( ( defined( $self->{value} ) ? $self->{value}->emit_perl5() : 'undef' ) . ( ' } )' . Main::newline() ) ) ) ) ) );
 }
 
+package Lit::SigArgument;
+sub new { shift; bless {@_}, "Lit::SigArgument" }
+
+sub emit_perl5 {
+    my $self   = shift;
+    my $List__ = \@_;
+    do { [] };
+    ( '::DISPATCH( $::NamedArgument, \'new\', ' . ( '{ _argument_name_ => ' . ( $self->{key}->emit_perl5() . ( ', value => ' . ( ( defined( $self->{value} ) ? $self->{value}->emit_perl5() : 'undef' ) . ( ' } )' . Main::newline() ) ) ) ) ) );
+}
+
 package Lit::Code;
 sub new { shift; bless {@_}, "Lit::Code" }
 

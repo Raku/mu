@@ -141,6 +141,16 @@ class Lit::NamedArgument {
     }
 }
 
+class Lit::SigArgument {
+    method emit_perl5 {
+        # XXX XXX XXX
+        '::DISPATCH( $::NamedArgument, \'new\', ' 
+        ~ '{ _argument_name_ => '   ~ $.key.emit_perl5
+        ~ ', value => ' ~ ( defined($.value) ?? $.value.emit_perl5 !! 'undef' )   # XXX
+        ~ ' } )' ~ Main::newline();
+    }
+}
+
 class Lit::Code {
     method emit_perl5 {
           '{ ' 

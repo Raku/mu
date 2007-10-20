@@ -13,7 +13,7 @@ grammar KindaPerl6::Grammar {
         |   <sig_named_only> <sig_slurpy> <sig_multidimensional> 
             <pair>  
             <sig_optional>
-            { return ::Lit::NamedArgument( 
+            { return ::Lit::SigArgument( 
                     key           => ($$<pair>)[0], 
                     value         => ($$<pair>)[1],
                     is_named_only => $$<sig_named_only>,
@@ -24,7 +24,7 @@ grammar KindaPerl6::Grammar {
         |   <sig_named_only> <sig_slurpy> <sig_multidimensional> 
             <exp>     # XXX
             <sig_optional>
-            { return ::Lit::NamedArgument( 
+            { return ::Lit::SigArgument( 
                     key           => $$<exp>, 
                     value         => undef,
                     is_named_only => $$<sig_named_only>,

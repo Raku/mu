@@ -121,6 +121,13 @@ class Lit::NamedArgument {
     }
 }
 
+class Lit::SigArgument {
+    # XXX XXX XXX
+    method emit_lisp ($interpreter, $indent) {
+	'(make-kp6-argument \'named (make-instance \'kp6-pair :key ' ~ $.key.emit_lisp($interpreter, $indent) ~ ' :value ' ~ $.value.emit_lisp($interpreter, $indent) ~ '))';
+    }
+}
+
 class Lit::Code {
     method emit_lisp ($interpreter, $indent) {
           '(with-kp6-pad ('

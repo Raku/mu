@@ -236,7 +236,7 @@ class Lit::Pair {
     };
 }
 
-class Lit::NamedArgument {
+class Lit::SigArgument {
     has $.key;
     has $.value;
 
@@ -264,6 +264,26 @@ class Lit::NamedArgument {
                 # $.is_longname,
                 is_slurpy       => $.is_slurpy,
                 is_multidimensional => $.is_multidimensional,
+            }
+    };
+}
+
+class Lit::NamedArgument {
+    has $.key;
+    has $.value;
+
+    method emit( $visitor, $path ) {
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
+            self,
+            'Lit::NamedArgument',
+            $path,
+        );
+    };
+    method attribs {
+            { 
+                key             => $.key,
+                value           => $.value,
             }
     };
 }

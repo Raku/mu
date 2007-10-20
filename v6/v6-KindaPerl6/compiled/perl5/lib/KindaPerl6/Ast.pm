@@ -257,8 +257,8 @@ sub attribs {
     { 'key' => $self->{key}, 'value' => $self->{value}, };
 }
 
-package Lit::NamedArgument;
-sub new { shift; bless {@_}, "Lit::NamedArgument" }
+package Lit::SigArgument;
+sub new { shift; bless {@_}, "Lit::SigArgument" }
 sub key                 { @_ == 1 ? ( $_[0]->{key} )                 : ( $_[0]->{key}                 = $_[1] ) }
 sub value               { @_ == 1 ? ( $_[0]->{value} )               : ( $_[0]->{value}               = $_[1] ) }
 sub is_named_only       { @_ == 1 ? ( $_[0]->{is_named_only} )       : ( $_[0]->{is_named_only}       = $_[1] ) }
@@ -280,6 +280,27 @@ sub attribs {
     my $List__ = \@_;
     do { [] };
     { 'key' => $self->{key}, 'value' => $self->{value}, 'is_named_only' => $self->{is_named_only}, 'is_optional' => $self->{is_optional}, 'is_slurpy' => $self->{is_slurpy}, 'is_multidimensional' => $self->{is_multidimensional}, };
+}
+
+package Lit::NamedArgument;
+sub new { shift; bless {@_}, "Lit::NamedArgument" }
+sub key   { @_ == 1 ? ( $_[0]->{key} )   : ( $_[0]->{key}   = $_[1] ) }
+sub value { @_ == 1 ? ( $_[0]->{value} ) : ( $_[0]->{value} = $_[1] ) }
+
+sub emit {
+    my $self   = shift;
+    my $List__ = \@_;
+    my $visitor;
+    my $path;
+    do { $visitor = $List__->[0]; $path = $List__->[1]; [ $visitor, $path ] };
+    KindaPerl6::Traverse::visit( $visitor, $self, 'Lit::NamedArgument', $path );
+}
+
+sub attribs {
+    my $self   = shift;
+    my $List__ = \@_;
+    do { [] };
+    { 'key' => $self->{key}, 'value' => $self->{value}, };
 }
 
 package Lit::Code;

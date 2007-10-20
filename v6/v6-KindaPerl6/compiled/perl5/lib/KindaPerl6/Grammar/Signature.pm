@@ -265,7 +265,7 @@ sub exp_sig_item {
                                                 do { [] };
                                                 do {
                                                     return (
-                                                        Lit::NamedArgument->new(
+                                                        Lit::SigArgument->new(
                                                             'key'                 => ${ $MATCH->{'pair'} }->[0],
                                                             'value'               => ${ $MATCH->{'pair'} }->[1],
                                                             'is_named_only'       => ${ $MATCH->{'sig_named_only'} },
@@ -334,7 +334,7 @@ sub exp_sig_item {
                                                 do { [] };
                                                 do {
                                                     return (
-                                                        Lit::NamedArgument->new(
+                                                        Lit::SigArgument->new(
                                                             'key'                 => ${ $MATCH->{'exp'} },
                                                             'value'               => (undef),
                                                             'is_named_only'       => ${ $MATCH->{'sig_named_only'} },

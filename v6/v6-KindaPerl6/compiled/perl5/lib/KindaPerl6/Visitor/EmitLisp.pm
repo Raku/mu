@@ -276,6 +276,18 @@ sub emit_lisp {
     ( '(make-kp6-argument \'named (make-instance \'kp6-pair :key ' . ( $self->{key}->emit_lisp( $interpreter, $indent ) . ( ' :value ' . ( $self->{value}->emit_lisp( $interpreter, $indent ) . '))' ) ) ) );
 }
 
+package Lit::SigArgument;
+sub new { shift; bless {@_}, "Lit::SigArgument" }
+
+sub emit_lisp {
+    my $self   = shift;
+    my $List__ = \@_;
+    my $interpreter;
+    my $indent;
+    do { $interpreter = $List__->[0]; $indent = $List__->[1]; [ $interpreter, $indent ] };
+    ( '(make-kp6-argument \'named (make-instance \'kp6-pair :key ' . ( $self->{key}->emit_lisp( $interpreter, $indent ) . ( ' :value ' . ( $self->{value}->emit_lisp( $interpreter, $indent ) . '))' ) ) ) );
+}
+
 package Lit::Code;
 sub new { shift; bless {@_}, "Lit::Code" }
 
