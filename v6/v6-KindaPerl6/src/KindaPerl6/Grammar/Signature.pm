@@ -10,11 +10,16 @@ grammar KindaPerl6::Grammar {
     token parameter_multidimensional { '@' { return 1 } | { return 0 } }
 
     token exp_parameter_item {
-        |   <parameter_slurpy> <pair>  
+        |   <parameter_named_only> <parameter_slurpy> <parameter_multidimensional> 
+            <pair>  
+            <parameter_optional>
             { return ::Lit::NamedArgument( 
-                    key   => ($$<pair>)[0], 
-                    value => ($$<pair>)[1],
-                    # is_slurpy => ...
+                    key           => ($$<pair>)[0], 
+                    value         => ($$<pair>)[1],
+                    is_named_only => $$<parameter_named_only>,
+                    is_optional   => $$<parameter_optional>,
+                    is_slurpy     => $$<parameter_slurpy>,
+                    is_multidimensional => $$<parameter_multidimensional>,
                 ) }
         |   <exp>   { return $$<exp>   }
     }
@@ -36,11 +41,11 @@ grammar KindaPerl6::Grammar {
         <?opt_ws> 
         # TODO - exp_seq / exp_mapping == positional / named 
         # ??? exp_parameter_list
-        <exp_seq> 
+        <exp_parameter_list> 
         {
             # say ' invocant: ', ($$<invocant>).perl;
             # say ' positional: ', ($$<exp_seq>).perl;
-            return ::Sig( 'invocant' => $$<invocant>, 'positional' => $$<exp_seq>, 'named' => { } );
+            return ::Sig( 'invocant' => $$<invocant>, 'positional' => $$<exp_parameter_list>, 'named' => { } );
         }
     };
 
