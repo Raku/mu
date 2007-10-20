@@ -8,11 +8,14 @@ grammar KindaPerl6::Grammar {
     token sig_optional         { '?' { return 1 } | { return 0 } }
     token sig_slurpy           { '*' { return 1 } | { return 0 } }
     token sig_multidimensional { '@' { return 1 } | { return 0 } }
+    token sig_rw               { <?ws> 'is' <?ws> 'rw'   { return 1 } | { return 0 } }
+    token sig_copy             { <?ws> 'is' <?ws> 'copy' { return 1 } | { return 0 } }
 
     token exp_sig_item {
         |   <sig_named_only> <sig_slurpy> <sig_multidimensional> 
             <pair>  
-            <sig_optional>
+            <sig_optional> 
+            <sig_rw> <sig_copy>   # XXX no order !!!
             { return ::Lit::SigArgument( 
                     key           => ($$<pair>)[0], 
                     value         => ($$<pair>)[1],
@@ -20,10 +23,13 @@ grammar KindaPerl6::Grammar {
                     is_optional   => $$<sig_optional>,
                     is_slurpy     => $$<sig_slurpy>,
                     is_multidimensional => $$<sig_multidimensional>,
+                    is_rw         => $$<sig_rw>,
+                    is_copy       => $$<sig_copy>,
                 ) }
         |   <sig_named_only> <sig_slurpy> <sig_multidimensional> 
             <exp>     # XXX
             <sig_optional>
+            <sig_rw> <sig_copy>   # XXX no order !!!
             { return ::Lit::SigArgument( 
                     key           => $$<exp>, 
                     value         => undef,
@@ -31,6 +37,8 @@ grammar KindaPerl6::Grammar {
                     is_optional   => $$<sig_optional>,
                     is_slurpy     => $$<sig_slurpy>,
                     is_multidimensional => $$<sig_multidimensional>,
+                    is_rw         => $$<sig_rw>,
+                    is_copy       => $$<sig_copy>,
                 ) }
     }
 

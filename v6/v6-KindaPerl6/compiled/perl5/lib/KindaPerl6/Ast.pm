@@ -265,6 +265,8 @@ sub is_named_only       { @_ == 1 ? ( $_[0]->{is_named_only} )       : ( $_[0]->
 sub is_optional         { @_ == 1 ? ( $_[0]->{is_optional} )         : ( $_[0]->{is_optional}         = $_[1] ) }
 sub is_slurpy           { @_ == 1 ? ( $_[0]->{is_slurpy} )           : ( $_[0]->{is_slurpy}           = $_[1] ) }
 sub is_multidimensional { @_ == 1 ? ( $_[0]->{is_multidimensional} ) : ( $_[0]->{is_multidimensional} = $_[1] ) }
+sub is_rw               { @_ == 1 ? ( $_[0]->{is_rw} )               : ( $_[0]->{is_rw}               = $_[1] ) }
+sub is_copy             { @_ == 1 ? ( $_[0]->{is_copy} )             : ( $_[0]->{is_copy}             = $_[1] ) }
 
 sub emit {
     my $self   = shift;
@@ -279,7 +281,15 @@ sub attribs {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    { 'key' => $self->{key}, 'value' => $self->{value}, 'is_named_only' => $self->{is_named_only}, 'is_optional' => $self->{is_optional}, 'is_slurpy' => $self->{is_slurpy}, 'is_multidimensional' => $self->{is_multidimensional}, };
+    {   'key'                 => $self->{key},
+        'value'               => $self->{value},
+        'is_named_only'       => $self->{is_named_only},
+        'is_optional'         => $self->{is_optional},
+        'is_slurpy'           => $self->{is_slurpy},
+        'is_multidimensional' => $self->{is_multidimensional},
+        'is_rw'               => $self->{is_rw},
+        'is_copy'             => $self->{is_copy},
+    };
 }
 
 package Lit::NamedArgument;

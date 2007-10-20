@@ -211,6 +211,146 @@ sub sig_multidimensional {
     return ($MATCH);
 }
 
+sub sig_rw {
+    my $grammar = shift;
+    my $List__  = \@_;
+    my $str;
+    my $pos;
+    do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
+    my $MATCH;
+    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH->bool(
+        do {
+            my $pos1 = $MATCH->to();
+            (   do {
+                    (   do {
+                            my $m2 = $grammar->ws( $str, $MATCH->to() );
+                            do {
+                                if ($m2) { $MATCH->to( $m2->to() ); 1 }
+                                else     {0}
+                                }
+                            }
+                            && (
+                            ( ( 'is' eq substr( $str, $MATCH->to(), 2 ) ) ? ( 1 + $MATCH->to( ( 2 + $MATCH->to() ) ) ) : 0 ) && (
+                                do {
+                                    my $m2 = $grammar->ws( $str, $MATCH->to() );
+                                    do {
+                                        if ($m2) { $MATCH->to( $m2->to() ); 1 }
+                                        else     {0}
+                                        }
+                                }
+                                && (( ( 'rw' eq substr( $str, $MATCH->to(), 2 ) ) ? ( 1 + $MATCH->to( ( 2 + $MATCH->to() ) ) ) : 0 ) && do {
+                                        my $ret = sub {
+                                            my $List__ = \@_;
+                                            do { [] };
+                                            do { return (1) };
+                                            '974^213';
+                                            }
+                                            ->();
+                                        do {
+                                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                                            else                         { }
+                                        };
+                                        1;
+                                    }
+                                )
+                            )
+                            )
+                    );
+                    }
+                    || do {
+                    $MATCH->to($pos1);
+                    do {
+                        my $ret = sub {
+                            my $List__ = \@_;
+                            do { [] };
+                            do { return (0) };
+                            '974^213';
+                            }
+                            ->();
+                        do {
+                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                            else                         { }
+                        };
+                        1;
+                        }
+                    }
+            );
+            }
+    );
+    return ($MATCH);
+}
+
+sub sig_copy {
+    my $grammar = shift;
+    my $List__  = \@_;
+    my $str;
+    my $pos;
+    do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
+    my $MATCH;
+    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH->bool(
+        do {
+            my $pos1 = $MATCH->to();
+            (   do {
+                    (   do {
+                            my $m2 = $grammar->ws( $str, $MATCH->to() );
+                            do {
+                                if ($m2) { $MATCH->to( $m2->to() ); 1 }
+                                else     {0}
+                                }
+                            }
+                            && (
+                            ( ( 'is' eq substr( $str, $MATCH->to(), 2 ) ) ? ( 1 + $MATCH->to( ( 2 + $MATCH->to() ) ) ) : 0 ) && (
+                                do {
+                                    my $m2 = $grammar->ws( $str, $MATCH->to() );
+                                    do {
+                                        if ($m2) { $MATCH->to( $m2->to() ); 1 }
+                                        else     {0}
+                                        }
+                                }
+                                && (( ( 'copy' eq substr( $str, $MATCH->to(), 4 ) ) ? ( 1 + $MATCH->to( ( 4 + $MATCH->to() ) ) ) : 0 ) && do {
+                                        my $ret = sub {
+                                            my $List__ = \@_;
+                                            do { [] };
+                                            do { return (1) };
+                                            '974^213';
+                                            }
+                                            ->();
+                                        do {
+                                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                                            else                         { }
+                                        };
+                                        1;
+                                    }
+                                )
+                            )
+                            )
+                    );
+                    }
+                    || do {
+                    $MATCH->to($pos1);
+                    do {
+                        my $ret = sub {
+                            my $List__ = \@_;
+                            do { [] };
+                            do { return (0) };
+                            '974^213';
+                            }
+                            ->();
+                        do {
+                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                            else                         { }
+                        };
+                        1;
+                        }
+                    }
+            );
+            }
+    );
+    return ($MATCH);
+}
+
 sub exp_sig_item {
     my $grammar = shift;
     my $List__  = \@_;
@@ -259,31 +399,49 @@ sub exp_sig_item {
                                                 else     {0}
                                                 }
                                         }
-                                        && do {
-                                            my $ret = sub {
-                                                my $List__ = \@_;
-                                                do { [] };
+                                        && (do {
+                                                my $m2 = $grammar->sig_rw( $str, $MATCH->to() );
                                                 do {
-                                                    return (
-                                                        Lit::SigArgument->new(
-                                                            'key'                 => ${ $MATCH->{'pair'} }->[0],
-                                                            'value'               => ${ $MATCH->{'pair'} }->[1],
-                                                            'is_named_only'       => ${ $MATCH->{'sig_named_only'} },
-                                                            'is_optional'         => ${ $MATCH->{'sig_optional'} },
-                                                            'is_slurpy'           => ${ $MATCH->{'sig_slurpy'} },
-                                                            'is_multidimensional' => ${ $MATCH->{'sig_multidimensional'} },
-                                                        )
-                                                    );
-                                                };
-                                                '974^213';
+                                                    if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'sig_rw'} = $m2; 1 }
+                                                    else     {0}
+                                                    }
+                                            }
+                                            && (do {
+                                                    my $m2 = $grammar->sig_copy( $str, $MATCH->to() );
+                                                    do {
+                                                        if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'sig_copy'} = $m2; 1 }
+                                                        else     {0}
+                                                        }
                                                 }
-                                                ->();
-                                            do {
-                                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                else                         { }
-                                            };
-                                            1;
-                                        }
+                                                && do {
+                                                    my $ret = sub {
+                                                        my $List__ = \@_;
+                                                        do { [] };
+                                                        do {
+                                                            return (
+                                                                Lit::SigArgument->new(
+                                                                    'key'                 => ${ $MATCH->{'pair'} }->[0],
+                                                                    'value'               => ${ $MATCH->{'pair'} }->[1],
+                                                                    'is_named_only'       => ${ $MATCH->{'sig_named_only'} },
+                                                                    'is_optional'         => ${ $MATCH->{'sig_optional'} },
+                                                                    'is_slurpy'           => ${ $MATCH->{'sig_slurpy'} },
+                                                                    'is_multidimensional' => ${ $MATCH->{'sig_multidimensional'} },
+                                                                    'is_rw'               => ${ $MATCH->{'sig_rw'} },
+                                                                    'is_copy'             => ${ $MATCH->{'sig_copy'} },
+                                                                )
+                                                            );
+                                                        };
+                                                        '974^213';
+                                                        }
+                                                        ->();
+                                                    do {
+                                                        if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                                                        else                         { }
+                                                    };
+                                                    1;
+                                                }
+                                            )
+                                        )
                                     )
                                 )
                             )
@@ -328,31 +486,49 @@ sub exp_sig_item {
                                                 else     {0}
                                                 }
                                         }
-                                        && do {
-                                            my $ret = sub {
-                                                my $List__ = \@_;
-                                                do { [] };
+                                        && (do {
+                                                my $m2 = $grammar->sig_rw( $str, $MATCH->to() );
                                                 do {
-                                                    return (
-                                                        Lit::SigArgument->new(
-                                                            'key'                 => ${ $MATCH->{'exp'} },
-                                                            'value'               => (undef),
-                                                            'is_named_only'       => ${ $MATCH->{'sig_named_only'} },
-                                                            'is_optional'         => ${ $MATCH->{'sig_optional'} },
-                                                            'is_slurpy'           => ${ $MATCH->{'sig_slurpy'} },
-                                                            'is_multidimensional' => ${ $MATCH->{'sig_multidimensional'} },
-                                                        )
-                                                    );
-                                                };
-                                                '974^213';
+                                                    if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'sig_rw'} = $m2; 1 }
+                                                    else     {0}
+                                                    }
+                                            }
+                                            && (do {
+                                                    my $m2 = $grammar->sig_copy( $str, $MATCH->to() );
+                                                    do {
+                                                        if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'sig_copy'} = $m2; 1 }
+                                                        else     {0}
+                                                        }
                                                 }
-                                                ->();
-                                            do {
-                                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                else                         { }
-                                            };
-                                            1;
-                                        }
+                                                && do {
+                                                    my $ret = sub {
+                                                        my $List__ = \@_;
+                                                        do { [] };
+                                                        do {
+                                                            return (
+                                                                Lit::SigArgument->new(
+                                                                    'key'                 => ${ $MATCH->{'exp'} },
+                                                                    'value'               => (undef),
+                                                                    'is_named_only'       => ${ $MATCH->{'sig_named_only'} },
+                                                                    'is_optional'         => ${ $MATCH->{'sig_optional'} },
+                                                                    'is_slurpy'           => ${ $MATCH->{'sig_slurpy'} },
+                                                                    'is_multidimensional' => ${ $MATCH->{'sig_multidimensional'} },
+                                                                    'is_rw'               => ${ $MATCH->{'sig_rw'} },
+                                                                    'is_copy'             => ${ $MATCH->{'sig_copy'} },
+                                                                )
+                                                            );
+                                                        };
+                                                        '974^213';
+                                                        }
+                                                        ->();
+                                                    do {
+                                                        if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                                                        else                         { }
+                                                    };
+                                                    1;
+                                                }
+                                            )
+                                        )
                                     )
                                 )
                             )

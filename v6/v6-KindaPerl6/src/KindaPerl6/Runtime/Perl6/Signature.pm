@@ -12,6 +12,8 @@ class Signature::Item {
     # has $.is_longname;
     has $.is_slurpy;
     has $.is_multidimensional;
+    has $.is_rw;
+    has $.is_copy;
     
     method perl {
           ( $.is_named_only       ?? ':' !! '' )
@@ -19,6 +21,8 @@ class Signature::Item {
         ~ ( $.is_multidimensional ?? '@' !! '' )
         ~ $.sigil ~ $.twigil ~ $.name
         ~ ( $.is_optional         ?? '?' !! '!' )
+        ~ ( $.is_rw               ?? ' is rw' !! '' )
+        ~ ( $.is_copy             ?? ' is copy' !! '' )
     }
 }
 

@@ -246,6 +246,8 @@ class Lit::SigArgument {
     # has $.is_longname;
     has $.is_slurpy;
     has $.is_multidimensional;
+    has $.is_rw;
+    has $.is_copy;
 
     method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
@@ -264,6 +266,8 @@ class Lit::SigArgument {
                 # $.is_longname,
                 is_slurpy       => $.is_slurpy,
                 is_multidimensional => $.is_multidimensional,
+                is_rw           => $.is_rw,
+                is_copy         => $.is_copy,
             }
     };
 }
