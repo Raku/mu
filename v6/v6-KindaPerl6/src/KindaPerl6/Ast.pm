@@ -554,7 +554,7 @@ class Decl {
 class Sig {
     has $.invocant;
     has $.positional;
-    has $.named;
+    #has $.named;  # XXX obsolete
     method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
@@ -567,7 +567,7 @@ class Sig {
             { 
                 invocant   => $.invocant,
                 positional => @.positional,
-                named      => @.named,
+                #named      => @.named,   # XXX obsolete
             }
     };
 }

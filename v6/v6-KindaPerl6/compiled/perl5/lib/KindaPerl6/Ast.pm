@@ -587,7 +587,6 @@ package Sig;
 sub new { shift; bless {@_}, "Sig" }
 sub invocant   { @_ == 1 ? ( $_[0]->{invocant} )   : ( $_[0]->{invocant}   = $_[1] ) }
 sub positional { @_ == 1 ? ( $_[0]->{positional} ) : ( $_[0]->{positional} = $_[1] ) }
-sub named      { @_ == 1 ? ( $_[0]->{named} )      : ( $_[0]->{named}      = $_[1] ) }
 
 sub emit {
     my $self   = shift;
@@ -602,7 +601,7 @@ sub attribs {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    { 'invocant' => $self->{invocant}, 'positional' => $self->{positional}, 'named' => $self->{named}, };
+    { 'invocant' => $self->{invocant}, 'positional' => $self->{positional}, };
 }
 
 package Capture;
