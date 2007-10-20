@@ -93,7 +93,7 @@ modify it under the same terms as Perl itself.
 
 my %opt;
 Getopt::Long::Parser->new(
-    config => [ qw( bundling no_ignore_case pass_through ) ],
+    config => [ qw( bundling no_ignore_case pass_through require_order) ],
 )->getoptions(
     'h|help'    => \$opt{help},
     'v|version' => \$opt{version},
@@ -361,6 +361,12 @@ for ( @COMPILER::CHECK ) {
 #}
 
 #
+# End of main program
+#
+
+exit(0);
+
+#
 # Utility functions
 #
 
@@ -415,13 +421,16 @@ sub report_error
 # Print perl code, use perltidy if we have it
 sub print_perl
 {
-    my $x;
+    my ($out) = @_;
     eval { require Perl::Tidy };
     unless ($@) {
         my @dest;
         Perl::Tidy::perltidy(
             source => \$out,
             destination => \@dest,
+            # required to stop Perl::Tidy using the real @ARGV for some
+            # unknown (and wrong) reason
+            argv => [],
         );
         print for @dest;
         return;
