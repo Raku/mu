@@ -72,7 +72,7 @@ implementation of Muldis DB.  The second is L<Muldis::DB::Validator>, a
 common comprehensive test suite for Muldis DB implementations.  Together,
 these components make it possible for the Muldis DB core distribution to be
 completely testable on its own.  It is therefore also feasible for an
-application to use Muldis DB in isolation from further framework
+application to use the Muldis DB core in isolation from further framework
 components, though doing so isn't recommended for production use since
 C<Example> is kept simple on purpose and doesn't scale well.
 
@@ -135,12 +135,12 @@ trouble.  Likewise, emulation layers for any other programming language can
 be supported, such as B<Tutorial D> or XQuery or FoxPro or dBase.
 
 One distinctive feature of a Muldis DB DBMS (compared to a typical other
-vendor's DBMS) is that data definition statements are structured as
-standard data manipulation statements but that the target relation
-variables are system catalog relation variables rather than user-defined
-relation variables.  In SQL terms, you create or alter tables by adding or
-updating their "information schema" records, which in SQL are read-only,
-not by using special 'create' or 'alter' statements.
+vendor's DBMS) is that data definition statements are structured
+fundamentally as standard data manipulation statements but that the target
+relation variables are system catalog relation variables rather than
+user-defined relation variables.  In SQL terms, you create or alter tables
+by adding or updating their "information schema" records, which in SQL are
+read-only, not only by using special 'create' or 'alter' statements.
 
 Each Muldis DB Engine has the complete freedom to implement the Muldis DB
 DBMS and Muldis D however it likes; all Muldis DB cares about is that the
@@ -168,6 +168,11 @@ databases before, especially given that the Perl DBI purports to provide
 is I<Database Driver Independence>, and not I<Database Language
 Independence>.  To further demonstrate the difference, it is useful to
 compare the DBI and Muldis DB.  I<Such documentation is currently absent.>
+
+In the context of a Muldis DB implementation over the Perl DBI, if one were
+to categorize Muldis DB among other Perl modules, it could reasonably be
+called a database abstraction layer; but it should I<not> be called a Perl
+object persistence layer, as that is a different paradigm.
 
 =head1 FEATURE SUPPORT VALIDATION
 

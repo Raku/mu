@@ -177,6 +177,12 @@ provide the C<new_dbms> function and do the C<Muldis::DB::Interface::\w+>
 roles.  A lot of these would likely be implemented over existing DBMSs,
 which results in Muldis DB being an alternative API for them.
 
+=item C<Muldis::DB::Engine::DBI>
+
+A Muldis DB Engine built around the Perl DBI module in a more generic
+fashion, that would work with multiple DBD modules rather than being
+specific to one SQL DBMS, could be named this.
+
 =item C<DBIx::Class::Storage::MuldisDB> etc
 
 An alternative plug-in storage engine for L<DBIx::Class> that uses Muldis

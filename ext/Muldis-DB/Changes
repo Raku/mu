@@ -10,6 +10,9 @@
     which sets its own less frequent release schedule.  The rest of this
     Changes entry refers only to the Perl 5 version.
 
+    * Removed the files PhysType.pm and Operators.pm; these files were very
+    out of date and will be replaced later (possibly under the same names).
+
     * New file versions are: DB.pm and Interface.pm and Validator.pm and
     Example.pm 0.5.0.  The other pre-existing versioned files are
     unchanged.
@@ -27,6 +30,10 @@
     &main of Validator.pm was updated to provide a hard-coded argument for
     exp_ast_lang, which will be maintained in future releases at the latest
     official Muldis D version number known to work at the time.
+
+    * (DB.pm)  Some small DESCRIPTION pod updates.
+
+    * (SeeAlso.pod)  Added more prospective extension modules.
 
     * Fleshed out the tail of this Changes file with a summary pre-release
     (rel. 2007 June) history of Muldis DB; going from mid-2002 to mid-2007.
