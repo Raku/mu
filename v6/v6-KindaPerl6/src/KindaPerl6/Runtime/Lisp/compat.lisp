@@ -13,8 +13,10 @@
 ;;;
 ;;; $Id: ext.lisp,v 1.43 2006/04/07 21:59:23 sds Exp $
 ;;; $Source: /cvsroot/clocc/clocc/src/port/ext.lisp,v $
+;;; Added ecl support -avar
 (defun quit (&optional code)
   #+abcl (ext:quit code)
+  #+ecl (ext:quit code)
   #+allegro (excl:exit code)
   #+clisp (#+lisp=cl ext:quit #-lisp=cl lisp:quit code)
   #+cmu (ext:quit code)
@@ -22,7 +24,8 @@
   #+gcl (lisp:bye code)
   #+lispworks (lw:quit :status code)
   #+lucid (lcl:quit code)
+
   #+sbcl (sb-ext:quit :unix-status
                       (typecase code ((signed-byte 32) code) (null 0) (t 1)))
-  #-(or allegro clisp cmu cormanlisp gcl lispworks lucid sbcl)
-  (error 'not-implemented :proc (list 'quit code)))
+  #-(or allegro ecl clisp cmu cormanlisp gcl lispworks lucid sbcl)
+  (error "Your implementation does not support this functionality."))
