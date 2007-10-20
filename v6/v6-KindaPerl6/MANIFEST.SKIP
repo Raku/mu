@@ -6,3 +6,5 @@
 ^KindaPerl6-\d+\.\d+\/
 ^blib
 ^pm_to_blib$
+~$
+\..*\.swp$
