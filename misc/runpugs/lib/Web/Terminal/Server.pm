@@ -1,21 +1,8 @@
 package Web::Terminal::Server;
 
-#The inactive sessions queue starts with n_inactive_max sessions.
-#Ideally, once it drops to n_inactive_min, it should gradually create 
-#n_inactive_max-n_inactive_min sessions
-#To do this reallu asynchronously, we need to let the child handle this
-#The problem is that the child can't access the counters of the parent.
-#So I'd just have the child create n_inactive_max-n_inactive_min sessions, gradually e.g. one every 5 minutes
-#But that might interfere with the cleanup:
-#The child sleeps for some time, then cleans up
-#So if we use the same time constant (makes sense),
-#the we need a counter which is set by the signal, that's all
-#So child gets a SIGUSR
-#=> it sets n_new_sessions to max-min if n_new_sessions was 0
-
 use vars qw( $VERSION );
 $VERSION = '0.4.0';
-# use utf8; # No UTF, sorry
+#use utf8; # No UTF, sorry
 use strict;
 use Carp::Assert;
 use YAML::Syck;
@@ -38,21 +25,21 @@ $SIG{CHLD} = 'IGNORE';
 
 # The messages contain the session id and the app.
 # If the ID does not exist in %active_sessions, create a new session
-# Otherwise, write to the terminal and send back the result, again
-# with the session id as first line.
+# Otherwise, write to the terminal and send back the result, 
+# again with the session id as first line.
 
 # verbose
 my $v                 = 1;#(1 - $Web::Terminal::Settings::daemon)*(1-$Web::Terminal::Settings::test);
 
-# Datastructures per app, so $session{$app}{...}, $inactive[$app][...] or @{$inactive[$app]}
-my @active_sessions       = (); # id => session_number for active sessions
-my @sessions              = (); # session_number (from stack) =>  actual session object
-my @session_numbers_stack = ();  # stack for session numbers, i.e. those not active or inactive!
-my @inactive_sessions     = ();  # => stack of session numbers for inactive sessions
+# Datastructures per app, so $sessions[$app]{...}, $inactive[$app][...] or @{$inactive[$app]}
+my @active_sessions       = (); # {id => session_number} for active sessions
+my @sessions              = (); # {session_number =>  actual session object}
+my @session_numbers_stack = (); # stack for session numbers, i.e. those not active or inactive!
+my @inactive_sessions     = (); # stack of session numbers for inactive sessions
 
 # Counters.
 # initialised via init_sessions()
-my @n_sessions          = ();    # total number of sessions
+my @n_sessions          = (); # total number of sessions
 my @n_active_sessions   = ();
 my @n_inactive_sessions = ();
 
@@ -91,22 +78,27 @@ sub run {
     FORK: {
 		if ( $childpid = fork ) {
 
-			#parent here
+			# Parent here
+			# Open log
 			my $log =
 "$Web::Terminal::Settings::log_path/$Web::Terminal::Settings::appname.log";
 			if ( -e $log ) {
 				rename $log, $log . '.' . join( "", localtime );
 			}
-			open( LOG2, ">$log" );
+			open( LOG, ">$log" );
+			
 			print "Parent: init sessions ...\n " if $v;
 			&init_sessions();
+			
 			print "Parent: create new server..." if $v;
 			Web::Terminal::Msg->new_server( $host, $port, \&login_proc );
 			print "OK\n" if $v;
+			
+			# Wait for messages
 			Web::Terminal::Msg->event_loop();
 		} elsif ( defined $childpid ) {
 
-			# child here
+			# Child here			
 			&init_child();
 			
 			while ( getppid() > 10 ) { # a bit ad-hoc. to see if parent is alive
@@ -120,12 +112,14 @@ sub run {
 
 			# The child can restart the parent
 			if ($Web::Terminal::Settings::test==1) {
-			die "No restarting, test phase\n";
+				die "No restarting, test phase\n";
 			} elsif ($Web::Terminal::Settings::restart_parent==1) {
-			print "Restarting server\n" if $v;
-			chdir $Web::Terminal::Settings::lib_path;
-			exec("$Web::Terminal::Settings::perl $Web::Terminal::Settings::server"
-			);
+				print "Restarting server\n" if $v;
+				chdir $Web::Terminal::Settings::lib_path;
+				exec("$Web::Terminal::Settings::perl $Web::Terminal::Settings::server"
+				);
+			} else {
+				die "Server died, please restart manually.\n";
 			}
 		} elsif ( $! == EAGAIN ) {
 			# Maybe ulimit might take us here
@@ -192,7 +186,7 @@ print "MSG LEN $len: id:$id;cmd:$cmd;ip:$ip,app:$app,ia:$ia\n" if $v;
 			if ( exists $active_sessions[$app]{$id} ) {
 				my $term = $sessions[$app]{ $active_sessions[$app]{$id} };
 				$tpid = $term->{pid};
-				print LOG2 scalar(localtime),
+				print LOG scalar(localtime),
 				  " : $n_sess/$n_active_sess : $ip : $id : $tpid > ", $cmd,
 				  "\n";
 				print scalar(localtime),
@@ -433,7 +427,7 @@ print "    Session $id ($app,$cmd) is not active:", (defined $active_sessions[$a
 				}
 			}
 		} else {    # max for ip reached
-			print LOG2 "MAX nsessions for $ip reached\n";
+			print LOG "MAX nsessions for $ip reached\n";
 			print "MAX nsessions for $ip reached\n" if $v;
 			return
 "Sorry, you can't run more than $n_sessions_ip_max sessions from one IP address.\n";
@@ -646,7 +640,7 @@ sub clean_up_timed_out_sessions() {
 					} #else {
 						&kill_session( $app, $id, $ip );
 					#}
-					print LOG2 "Cleaned up $ip : $id : $tpid\n";
+					print LOG "Cleaned up $ip : $id : $tpid\n";
 					print "Cleaned up $ip : $id : $tpid\n" if $v;
 				}
 			}

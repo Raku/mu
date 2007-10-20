@@ -1,16 +1,15 @@
 package Web::Terminal::Server::Session;
 
 use vars qw( $VERSION );
-$VERSION='0.3.0';
+$VERSION='0.4.0';
 use Moose;
-#use strict;
-#use utf8;
+#use utf8; # Sorry, no UTF. Somebofy fix me Net::Telnet
 use lib '.','../../..';
 use Web::Terminal::Settings;
 
-#A thin wrapper around Net::Telnet
-#new() starts the session;
-#write() sends commands to it.
+# A thin wrapper around Net::Telnet
+# new() starts the session;
+# write() sends commands to it.
 
 $SIG{CHLD}='IGNORE';
 

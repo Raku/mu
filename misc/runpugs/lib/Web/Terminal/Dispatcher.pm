@@ -7,7 +7,7 @@ use utf8;
 use YAML::Syck;
 
 #
-# based on testmsg.pl from "Advanced Perl Programming"
+# Vaguely based on testmsg.pl from "Advanced Perl Programming"
 #
 use lib '.', '../..';    #to keep EPIC happy
 use Web::Terminal::Settings;
@@ -20,8 +20,15 @@ our %EXPORT_TAGS = (
 					 ALL     => [qw( send )],
 					 DEFAULT => [],
 );
-my $v = 1;#(1 - $Web::Terminal::Settings::daemon)*(1-$Web::Terminal::Settings::test);
+my $v =
+  1; #(1 - $Web::Terminal::Settings::daemon)*(1-$Web::Terminal::Settings::test);
 
+# send(id,ip,app,interactive,cmds)
+# id is a unique identifier (string)
+# ip is the client IP address (string)
+# app is a small integer indicating the application to run
+# interactive is a flag (1 or 0) indicating if the Server needs to run the app as an interactive session or single-shot
+# cmds is the string of commands to be sent to the application
 sub send {
 	my $id          = shift;
 	my $ip          = shift;
@@ -30,64 +37,84 @@ sub send {
 	my $cmds        = shift;
 	my $host        = $Web::Terminal::Settings::host;
 	my $port        = $Web::Terminal::Settings::port;
-	my $cmd         = $cmds;                            #'';
+	my $cmd         = $cmds;
 
 	#WV:   We're using PUGS_SAFEMODE=1 instead
-	#    if ($Web::Terminal::Settings::filter and
-	#    $cmd=~/$Web::Terminal::Settings::filter_pattern/) {
-	#    my $offending_command=$1||$2;
-	#    return "Sorry, \'$offending_command\' is not
-	#    allowed.\n$Web::Terminal::Settings::prompt";
-	#   } else {
-	my $conn;
-	$conn = Web::Terminal::Msg->connect( $host, $port, \&rcvd_msg_from_server );
-	if ( not $conn ) {
-
-		#WV: disabled, too dangerous
-		#       system("/usr/bin/perl ../bin/termserv.pl");
-		#       sleep 5;
-		#    } else {last;}
-		return "Sorry, the pugs server is not running.";
+	# But for applications without safe mode, we need this
+	if (     $Web::Terminal::Settings::filter
+		 and $cmd =~ /$Web::Terminal::Settings::filter_pattern/ )
+	{
+		my $offending_command = $1 || $2;
+		return "Sorry, \'$offending_command\' is not
+	    allowed.\n$Web::Terminal::Settings::prompt";
 	} else {
-		my $msg = YAML::Syck::Dump(
-									{
-									  id  => $id,
-									  ip  => $ip,
-									  app => $app,
-									  ia  => $interactive,
-									  cmd => $cmd
-									}
-		);
-		print STDERR "Sending message to server: $msg\n", '#' x 70, "\n" if $v;
-		$conn->send_now($msg);
-		print STDERR "done\n" if $v;
-		( my $rmesg, my $err ) = $conn->rcv_now();
-		print STDERR "Received reply from server: $rmesg (Error msg:$err)\n",
-		  '#' x 70, "\n" if $v;
-		my $rmesgref = YAML::Syck::Load($rmesg);
-		my $rid      = $rmesgref->{id};
-		my $reply    = $rmesgref->{msg};
-		my $histref  = $rmesgref->{recent};
-		my $prompt   = $rmesgref->{prompt};
-		$conn->disconnect();
+		my $conn;
+		$conn =
+		  Web::Terminal::Msg->connect( $host, $port, \&rcvd_msg_from_server );
+		if ( not $conn ) {
 
-		if ( "$id" ne "$rid" ) {
-			print "Terminal server returned wrong id: $rid, should be $id" if $v;
-			return "Sorry, the pugs session died.";
+			#WV: disabled, too dangerous
+			#       system("/usr/bin/perl ../bin/termserv.pl");
+			#       sleep 5;
+			#    } else {last;}
+			return "Sorry, the pugs server is not running.";
+		} else { # Create the YAML-encoded message to be sent to the Server
+			my $msg = YAML::Syck::Dump(
+										{
+										  id  => $id,
+										  ip  => $ip,
+										  app => $app,
+										  ia  => $interactive,
+										  cmd => $cmd
+										}
+			);
+			print STDERR "Sending message to server: $msg\n", '#' x 70, "\n"
+			  if $v;
+			# Send it
+			$conn->send_now($msg);
+			print STDERR "done\n" if $v;
+			# Wait for reply
+			( my $rmesg, my $err ) = $conn->rcv_now();
+			print STDERR
+			  "Received reply from server: $rmesg (Error msg:$err)\n", '#' x 70,
+			  "\n"
+			  if $v;
+			# Decode reply  
+			my $rmesgref = YAML::Syck::Load($rmesg);
+			my $rid      = $rmesgref->{id};
+			my $reply    = $rmesgref->{msg};
+			my $histref  = $rmesgref->{recent};
+			my $prompt   = $rmesgref->{prompt};
+			# Tear down TCP connection
+			$conn->disconnect();
+
+			if ( "$id" ne "$rid" ) {
+				print "Terminal server returned wrong id: $rid, should be $id"
+				  if $v;
+				return "Sorry, the pugs session died.";
+			}
+			# The next bit is purely for testing
+			if (     $Web::Terminal::Settings::test == 1
+				 and $cmd ne ':A'
+				 and $cmd ne ':q'
+				 and $cmd !~ /Web::Terminal/ )
+			{
+				my $cmdreply = $reply;
+				$cmdreply =~ s/^.*?called\ with\ //;
+				$cmdreply =~ s/\.\s*$//;
+				if ( $cmdreply ne $cmd and $cmd != 1 ) {
+					print "D: Application returned '$reply'<>'$cmd':",
+					  ( $reply eq '0' ), "<>", ( $reply == 0 ), ';', $rmesg,
+					  "\n";
+				}
+			} elsif ( $Web::Terminal::Settings::test == 1 and $cmd eq ':A' ) {
+				print "D: Simulated Abort. Application returned '$reply'\n"
+				  if $v;
+			} # end of testing stuff
+			return ( $reply, $prompt, $histref );
 		}
-		if($Web::Terminal::Settings::test==1 and $cmd ne ':A' and $cmd ne ':q' and $cmd!~/Web::Terminal/) {
-my $cmdreply=$reply;
-$cmdreply=~s/^.*?called\ with\ //;
-$cmdreply=~s/\.\s*$//;
-if($cmdreply ne $cmd and $cmd!=1 ) {
-	print "D: Application returned '$reply'<>'$cmd':",($reply eq '0'),"<>",($reply==0),';',$rmesg,"\n";
-}
-} elsif ($Web::Terminal::Settings::test==1 and $cmd eq ':A') {
-	print "D: Simulated Abort. Application returned '$reply'\n" if $v;
-}
-		return ( $reply, $prompt, $histref );
 	}
-}
+}    # END of send()
 
 sub rcvd_msg_from_server {
 	my ( $conn, $msg, $err ) = @_;

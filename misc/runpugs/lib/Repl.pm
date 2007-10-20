@@ -13,7 +13,7 @@ has 'motd' => (is => 'ro', isa => 'Str', default => '');
 
 sub run {
 	my $s=shift;
-    my $nl=shift || "";
+	my $nl=shift || "";
 	print $s->motd,"\n",$s->prompt;
 	while (<STDIN>) {		
 		/\:q(uit)*$/i && exit();
