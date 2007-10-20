@@ -18,4 +18,4 @@
         (progn
           (write-string (format nil "Error: ~A~%" e))
           (quit 1)))))
-  (when standalone (quit)))
+  (when standalone (quit 0)))
