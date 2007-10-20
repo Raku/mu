@@ -14,10 +14,11 @@ class Signature::Item {
     has $.is_multidimensional;
     
     method perl {
-          ( $.is_named_only ?? ':' !! '' )
-        ~ ( $.is_slurpy     ?? '*' !! '' )
+          ( $.is_named_only       ?? ':' !! '' )
+        ~ ( $.is_slurpy           ?? '*' !! '' )
+        ~ ( $.is_multidimensional ?? '@' !! '' )
         ~ $.sigil ~ $.twigil ~ $.name
-        ~ ( $.is_optional   ?? '?' !! '!' )
+        ~ ( $.is_optional         ?? '?' !! '!' )
     }
 }
 

@@ -65,16 +65,21 @@
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
-                                    ::DISPATCH( $self, "sigil" ),
+                                    ::DISPATCH( $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_, 'APPLY', ::DISPATCH( $self, "is_multidimensional" ), ::DISPATCH( $::Str, 'new', '@' ), ::DISPATCH( $::Str, 'new', '' ) ),
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
-                                        ::DISPATCH( $self, "twigil" ),
+                                        ::DISPATCH( $self, "sigil" ),
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY',
-                                            ::DISPATCH( $self, "name" ),
-                                            ::DISPATCH( $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_, 'APPLY', ::DISPATCH( $self, "is_optional" ), ::DISPATCH( $::Str, 'new', '?' ), ::DISPATCH( $::Str, 'new', '!' ) )
+                                            ::DISPATCH( $self, "twigil" ),
+                                            ::DISPATCH(
+                                                $GLOBAL::Code_infix_58__60__126__62_,
+                                                'APPLY',
+                                                ::DISPATCH( $self, "name" ),
+                                                ::DISPATCH( $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_, 'APPLY', ::DISPATCH( $self, "is_optional" ), ::DISPATCH( $::Str, 'new', '?' ), ::DISPATCH( $::Str, 'new', '!' ) )
+                                            )
                                         )
                                     )
                                 )
