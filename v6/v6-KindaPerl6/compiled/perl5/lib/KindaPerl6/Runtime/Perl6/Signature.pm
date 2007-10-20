@@ -26,6 +26,10 @@
         ::DISPATCH( ::DISPATCH( $::Signature::Item, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'sigil' ) );
         ::DISPATCH( ::DISPATCH( $::Signature::Item, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'twigil' ) );
         ::DISPATCH( ::DISPATCH( $::Signature::Item, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'name' ) );
+        ::DISPATCH( ::DISPATCH( $::Signature::Item, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'is_named_only' ) );
+        ::DISPATCH( ::DISPATCH( $::Signature::Item, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'is_optional' ) );
+        ::DISPATCH( ::DISPATCH( $::Signature::Item, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'is_slurpy' ) );
+        ::DISPATCH( ::DISPATCH( $::Signature::Item, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'is_multidimensional' ) );
         ::DISPATCH(
             ::DISPATCH( $::Signature::Item, 'HOW', ),
             'add_method',
@@ -50,7 +54,32 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $self, "sigil" ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $self, "twigil" ), ::DISPATCH( $self, "name" ) ) );
+                        ::DISPATCH(
+                            $GLOBAL::Code_infix_58__60__126__62_,
+                            'APPLY',
+                            ::DISPATCH( $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_, 'APPLY', ::DISPATCH( $self, "is_named_only" ), ::DISPATCH( $::Str, 'new', ':' ), ::DISPATCH( $::Str, 'new', '' ) ),
+                            ::DISPATCH(
+                                $GLOBAL::Code_infix_58__60__126__62_,
+                                'APPLY',
+                                ::DISPATCH( $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_, 'APPLY', ::DISPATCH( $self, "is_slurpy" ), ::DISPATCH( $::Str, 'new', '*' ), ::DISPATCH( $::Str, 'new', '' ) ),
+                                ::DISPATCH(
+                                    $GLOBAL::Code_infix_58__60__126__62_,
+                                    'APPLY',
+                                    ::DISPATCH( $self, "sigil" ),
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                        'APPLY',
+                                        ::DISPATCH( $self, "twigil" ),
+                                        ::DISPATCH(
+                                            $GLOBAL::Code_infix_58__60__126__62_,
+                                            'APPLY',
+                                            ::DISPATCH( $self, "name" ),
+                                            ::DISPATCH( $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_, 'APPLY', ::DISPATCH( $self, "is_optional" ), ::DISPATCH( $::Str, 'new', '?' ), ::DISPATCH( $::Str, 'new', '!' ) )
+                                        )
+                                    )
+                                )
+                            )
+                        );
                     },
                     signature => ::DISPATCH(
                         $::Signature,

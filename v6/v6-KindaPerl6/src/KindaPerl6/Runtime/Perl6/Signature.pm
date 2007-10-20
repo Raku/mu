@@ -1,12 +1,23 @@
 use v6-alpha;
 
+# See also: S06
+
 class Signature::Item {
     has $.sigil;
     has $.twigil;
     has $.name;
     
+    has $.is_named_only;
+    has $.is_optional;  # !is_required
+    # has $.is_longname;
+    has $.is_slurpy;
+    has $.is_multidimensional;
+    
     method perl {
-        $.sigil ~ $.twigil ~ $.name
+          ( $.is_named_only ?? ':' !! '' )
+        ~ ( $.is_slurpy     ?? '*' !! '' )
+        ~ $.sigil ~ $.twigil ~ $.name
+        ~ ( $.is_optional   ?? '?' !! '!' )
     }
 }
 
