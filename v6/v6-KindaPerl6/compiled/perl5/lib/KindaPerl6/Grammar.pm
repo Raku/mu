@@ -10,6 +10,7 @@ use KindaPerl6::Grammar::Regex;
 use KindaPerl6::Grammar::Mapping;
 use KindaPerl6::Grammar::Control;
 use KindaPerl6::Grammar::Parameters;
+use KindaPerl6::Grammar::Signature;
 use KindaPerl6::Grammar::Term;
 use KindaPerl6::Grammar::Statements;
 use KindaPerl6::Grammar::Quote;
@@ -4041,63 +4042,6 @@ sub capture {
                     );
                     }
             );
-            }
-    );
-    return ($MATCH);
-}
-
-sub sig {
-    my $grammar = shift;
-    my $List__  = \@_;
-    my $str;
-    my $pos;
-    do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
-    my $MATCH;
-    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
-    $MATCH->bool(
-        do {
-            my $pos1 = $MATCH->to();
-            do {
-                (   do {
-                        my $m2 = $grammar->invocant( $str, $MATCH->to() );
-                        do {
-                            if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'invocant'} = $m2; 1 }
-                            else     {0}
-                            }
-                        }
-                        && (
-                        do {
-                            my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
-                            do {
-                                if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                else     {0}
-                                }
-                        }
-                        && (do {
-                                my $m2 = $grammar->exp_seq( $str, $MATCH->to() );
-                                do {
-                                    if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'exp_seq'} = $m2; 1 }
-                                    else     {0}
-                                    }
-                            }
-                            && do {
-                                my $ret = sub {
-                                    my $List__ = \@_;
-                                    do { [] };
-                                    do { return ( Sig->new( 'invocant' => ${ $MATCH->{'invocant'} }, 'positional' => ${ $MATCH->{'exp_seq'} }, 'named' => {}, ) ) };
-                                    '974^213';
-                                    }
-                                    ->();
-                                do {
-                                    if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                    else                         { }
-                                };
-                                1;
-                            }
-                        )
-                        )
-                );
-                }
             }
     );
     return ($MATCH);

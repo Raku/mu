@@ -47,35 +47,5 @@ token exp_mapping {
         { return [ ] }
 };
 
-# has $.is_longname; ???
-token parameter_named_only       { ':' { return 1 } | { return 0 } }
-token parameter_optional         { '?' { return 1 } | { return 0 } }
-token parameter_slurpy           { '*' { return 1 } | { return 0 } }
-token parameter_multidimensional { '@' { return 1 } | { return 0 } }
-
-token exp_parameter_list {
-    |   <pair> 
-        [
-        |   <?opt_ws> \, <?opt_ws> <exp_parameter_list> 
-            { return [ 
-                    ::Lit::NamedArgument( key => ($$<pair>)[0], value => ($$<pair>)[1] ),
-                    @( $$<exp_parameter_list> ),
-                ] }
-        |   <?opt_ws> [ \, <?opt_ws> | <''> ]
-            { return [ 
-                    ::Lit::NamedArgument( key => ($$<pair>)[0], value => ($$<pair>)[1] ),
-                ] }
-        ]
-    |   <exp> 
-        [
-        |   <?opt_ws> \, <?opt_ws> <exp_parameter_list> 
-            { return [ $$<exp>, @( $$<exp_parameter_list> ) ] }
-        |   <?opt_ws> [ \, <?opt_ws> | <''> ]
-            { return [ $$<exp> ] }
-        ]
-    |
-        { return [ ] }
-};
-
 }
 

@@ -6,6 +6,7 @@ use KindaPerl6::Grammar::Regex;
 use KindaPerl6::Grammar::Mapping;
 use KindaPerl6::Grammar::Control;
 use KindaPerl6::Grammar::Parameters;
+use KindaPerl6::Grammar::Signature;
 use KindaPerl6::Grammar::Term;
 use KindaPerl6::Grammar::Statements;
 use KindaPerl6::Grammar::Quote;
@@ -576,20 +577,6 @@ token capture {
     #|  <exp_parameter_list>
     #    { return ::Capture( 'invocant' => undef, 'array' => $$<exp_parameter_list>, 'hash' => [ ] ); }
 };
-
-token sig {
-        <invocant>
-        <?opt_ws> 
-        # TODO - exp_seq / exp_mapping == positional / named 
-        # ??? exp_parameter_list
-        <exp_seq> 
-        {
-            # say ' invocant: ', ($$<invocant>).perl;
-            # say ' positional: ', ($$<exp_seq>).perl;
-            return ::Sig( 'invocant' => $$<invocant>, 'positional' => $$<exp_seq>, 'named' => { } );
-        }
-};
-
 
 token base_class { <full_ident> }
 

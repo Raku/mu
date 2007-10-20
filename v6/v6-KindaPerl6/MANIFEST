@@ -7,6 +7,7 @@ compiled/perl5/lib/KindaPerl6/Grammar/Mapping.pm
 compiled/perl5/lib/KindaPerl6/Grammar/Parameters.pm
 compiled/perl5/lib/KindaPerl6/Grammar/Quote.pm
 compiled/perl5/lib/KindaPerl6/Grammar/Regex.pm
+compiled/perl5/lib/KindaPerl6/Grammar/Signature.pm
 compiled/perl5/lib/KindaPerl6/Grammar/Statements.pm
 compiled/perl5/lib/KindaPerl6/Grammar/Sub.pm
 compiled/perl5/lib/KindaPerl6/Grammar/Term.pm
@@ -133,6 +134,7 @@ lib-kp6-kp6-p5/KindaPerl6/Grammar/Mapping.pm
 lib-kp6-kp6-p5/KindaPerl6/Grammar/Parameters.pm
 lib-kp6-kp6-p5/KindaPerl6/Grammar/Quote.pm
 lib-kp6-kp6-p5/KindaPerl6/Grammar/Regex.pm
+lib-kp6-kp6-p5/KindaPerl6/Grammar/Signature.pm
 lib-kp6-kp6-p5/KindaPerl6/Grammar/Statements.pm
 lib-kp6-kp6-p5/KindaPerl6/Grammar/Sub.pm
 lib-kp6-kp6-p5/KindaPerl6/Grammar/Term.pm
@@ -218,6 +220,7 @@ src/KindaPerl6/Grammar/Mapping.pm
 src/KindaPerl6/Grammar/Parameters.pm
 src/KindaPerl6/Grammar/Quote.pm
 src/KindaPerl6/Grammar/Regex.pm
+src/KindaPerl6/Grammar/Signature.pm
 src/KindaPerl6/Grammar/Statements.pm
 src/KindaPerl6/Grammar/Sub.pm
 src/KindaPerl6/Grammar/Term.pm
