@@ -912,6 +912,7 @@ require KindaPerl6::Runtime::Perl6::Match;
 sub ::CAPTURIZE {
     my @array;
     my %hash;
+    print "# CAPTURIZE: now at Code == $::ROUTINE \n";
     for my $p ( @{ $_[0] } ) {
         #print "param @{[ keys( %{ $p->{_value} } ) ]} \n";
         if (

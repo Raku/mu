@@ -315,7 +315,7 @@ sub emit_arguments {
     do {
 
         for my $field ( @{ $self->{sig}->positional() } ) {
-            my $bind = Bind->new( 'parameters' => $field, 'arguments' => Call->new( 'invocant' => $array_, 'arguments' => [ Val::Int->new( 'int' => $i, ) ], 'method' => 'INDEX', ), );
+            my $bind = Bind->new( 'parameters' => $field->key(), 'arguments' => Call->new( 'invocant' => $array_, 'arguments' => [ Val::Int->new( 'int' => $i, ) ], 'method' => 'INDEX', ), );
             $str = ( $str . ( $bind->emit_perl5() . ';' ) );
             $i = ( $i + 1 );
         }

@@ -200,7 +200,9 @@ class Lit::Code {
         my $i := 0;
         my $field;
         for @($.sig.positional) -> $field { 
-            my $bind := ::Bind(parameters=>$field,arguments=>::Call(invocant => $array_ , arguments=>[::Val::Int(int=>$i)],method=>'INDEX') );
+            my $bind := ::Bind(
+                parameters => $field.key,
+                arguments  => ::Call(invocant => $array_ , arguments=>[::Val::Int(int=>$i)],method=>'INDEX') );
             $str := $str ~ $bind.emit_perl5 ~ ';';
             $i := $i + 1;
         };
