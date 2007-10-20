@@ -24,7 +24,7 @@ my $ok = 1;
 if (defined $section)
 { # kp6-perl5.pl tests
   my $perl5 = $ENV{HARNESS_PERL} || $^X;
-  local $ENV{HARNESS_PERL} = "$^X script/run_kp6_mp6_lisp_clisp.pl";
+  local $ENV{HARNESS_PERL} = "$^X script/kp6 -Bcl-clisp";
   local $ENV{PERL5LIB} = '';
   local $Test::Harness::Switches = '';
   open(TESTS,"TESTS") || die "Can not open test list";
@@ -35,7 +35,7 @@ else # all
 { # kp6-perl5.pl tests
   my $perl5 = $ENV{HARNESS_PERL} || $^X;
   warn $@ if $@;
-  local $ENV{HARNESS_PERL} = "$^X script/run_kp6_mp6_lisp_clisp.pl";
+  local $ENV{HARNESS_PERL} = "$^X script/kp6 -Bcl-clisp";
   local $ENV{PERL5LIB} = '';
   local $Test::Harness::Switches = '';
   open(TESTS,"TESTS") || die "Can not open test list";

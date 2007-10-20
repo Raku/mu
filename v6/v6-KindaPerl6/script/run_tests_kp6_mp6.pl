@@ -24,7 +24,7 @@ unless (defined $section)
 if (defined $section)
 { # kp6-perl5.pl tests
   my $perl5 = $ENV{HARNESS_PERL} || $^X;
-  local $ENV{HARNESS_PERL} = "$^X script/run_kp6_mp6_perl5.pl -Icompiled/perl5/lib";
+  local $ENV{HARNESS_PERL} = "$^X script/kp6 -Bperl5";
   local $ENV{PERL5LIB} = '';
   local $Test::Harness::Switches = '';
   open(TESTS,"TESTS") || die "Can not open test list";
@@ -35,7 +35,7 @@ else # all
 { # kp6-perl5.pl tests
   my $perl5 = $ENV{HARNESS_PERL} || $^X;
   warn $@ if $@;
-  local $ENV{HARNESS_PERL} = "$^X script/run_kp6_mp6_perl5.pl -Ilib-modules-kp6-mp6-p5 -Icompiled/perl5/lib";
+  local $ENV{HARNESS_PERL} = "$^X script/kp6 -Bperl5";
   local $ENV{PERL5LIB} = '';
   local $Test::Harness::Switches = '';
   open(TESTS,"TESTS") || die "Can not open test list";
