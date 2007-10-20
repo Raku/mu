@@ -347,6 +347,19 @@ $meta_Class->add_method( 'methods',
             );
         } } )
 );
+$meta_Class->add_method( 'attributes',
+    ::DISPATCH( $::Method, 'new', 
+        { code => sub {
+            # TODO - show inherited methods
+            # ??? - should this return the Methods and they stringify to method name ???
+            ::DISPATCH( $::Array, 'new', 
+                    { _array => [ 
+                            map { ::DISPATCH( $::Str, 'new', $_ ) } 
+                                keys %{ $_[0]{_value}{attributes} } 
+                        ] }  
+            );
+        } } )
+);
 $meta_Class->add_method(
     'new',
     ::DISPATCH( $::Method, 'new', 
