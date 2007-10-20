@@ -416,16 +416,16 @@ sub report_error
 sub print_perl
 {
     my $x;
-    eval {
-        require Perl::Tidy;
+    eval { require Perl::Tidy };
+    unless ($@) {
         my @dest;
         Perl::Tidy::perltidy(
-            source => $out,
+            source => \$out,
             destination => \@dest,
         );
         print for @dest;
-    };
-    return unless $@;
+        return;
+    }
     print $out;
 }
 
