@@ -5,7 +5,7 @@ use Muldis::DB::Interface;
 ###########################################################################
 ###########################################################################
 
-module Muldis::DB::Validator-0.4.0 {
+module Muldis::DB::Validator-0.5.0 {
 
     use Test;
 
@@ -222,7 +222,7 @@ A common comprehensive test suite to run against all Engines
 
 =head1 VERSION
 
-This document describes Muldis::DB::Validator version 0.4.0 for Perl 6.
+This document describes Muldis::DB::Validator version 0.5.0 for Perl 6.
 
 =head1 SYNOPSIS
 
@@ -299,7 +299,7 @@ I<This documentation is pending.>
 This file requires any version of Perl 6.x.y that is at least 6.0.0.
 
 It also requires these Perl 6 classes that are in the current distribution:
-L<Muldis::DB::Interface-0.4.0|Muldis::DB::Interface>.
+L<Muldis::DB::Interface-0.5.0|Muldis::DB::Interface>.
 
 =head1 INCOMPATIBILITIES
 

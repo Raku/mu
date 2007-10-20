@@ -1,7 +1,7 @@
                                 Muldis::DB
 ---------------------------------------------------------------------------
 
-2007-10-xx   Darren Duncan <perl@DarrenDuncan.net>
+2007-10-20   Darren Duncan <perl@DarrenDuncan.net>
 
     * Muldis DB version 0.5.0 for Perl 5 is released on CPAN as
     Muldis-DB-0.5.0.tar.gz.  Muldis DB version 0.5.0 for Perl 6 is not
@@ -14,8 +14,7 @@
     out of date and will be replaced later (possibly under the same names).
 
     * New file versions are: DB.pm and Interface.pm and Validator.pm and
-    Example.pm 0.5.0.  The other pre-existing versioned files are
-    unchanged.
+    Example.pm 0.5.0 and SeeAlso.pm 0.4.1.
 
     * (Interface.pm, Example.pm, Validator.pm)  Added a new attribute to
     the DBMS role (and Example's doing class), "expected AST language",
