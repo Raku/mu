@@ -1,6 +1,6 @@
 use v6-alpha;
 
-# See also: S06
+# See also: S06, AST.pm, Grammar::Signature.pm
 
 class Signature::Item {
     has $.sigil;

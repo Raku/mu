@@ -239,6 +239,14 @@ class Lit::Pair {
 class Lit::NamedArgument {
     has $.key;
     has $.value;
+
+    # see also S06, Runtime::Perl6::Signature.pm, Grammar::Signature.pm
+    has $.is_named_only;
+    has $.is_optional;  # !is_required
+    # has $.is_longname;
+    has $.is_slurpy;
+    has $.is_multidimensional;
+
     method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
@@ -249,8 +257,13 @@ class Lit::NamedArgument {
     };
     method attribs {
             { 
-                key   => $.key,
-                value => $.value,
+                key             => $.key,
+                value           => $.value,
+                is_named_only   => $.is_named_only,
+                is_optional     => $.is_optional,  # !is_required
+                # $.is_longname,
+                is_slurpy       => $.is_slurpy,
+                is_multidimensional => $.is_multidimensional,
             }
     };
 }
