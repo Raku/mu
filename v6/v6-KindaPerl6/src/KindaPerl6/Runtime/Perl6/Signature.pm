@@ -6,7 +6,7 @@ class Signature::Item {
     has $.sigil;
     has $.twigil;
     has $.name;
-    # has $.value;
+    has $.value;
     
     has $.is_named_only;
     has $.is_optional;  # !is_required
@@ -22,6 +22,7 @@ class Signature::Item {
         ~ ( $.is_multidimensional ?? '@' !! '' )
         ~ $.sigil ~ $.twigil ~ $.name
         ~ ( $.is_optional         ?? '?' !! '!' )
+        ~ ( defined( $.value )    ?? ' = ' ~ $.value.perl !! '' )
         ~ ( $.is_rw               ?? ' is rw' !! '' )
         ~ ( $.is_copy             ?? ' is copy' !! '' )
     }
