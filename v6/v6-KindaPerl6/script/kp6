@@ -310,6 +310,13 @@ for ( @COMPILER::CHECK ) {
 # We have source to print out, do so, but consider the backends
 {
     no warnings 'uninitialized';
+
+    # Make kp6 -e 'say "foo"' and echo 'say "foo"' | kp6 run stuff
+    # under the p5 backend
+    if (!grep { defined } @opt{qw( B C do )}) {
+        goto perl5_B;
+    }
+
     if (grep { $_ eq 'ast' } @opt{qw(C B)}) {
         if ($opt{B}) {
             die "'ast' backend does not support compilation";
@@ -320,6 +327,7 @@ for ( @COMPILER::CHECK ) {
     }
     elsif (grep { $_ eq 'perl5' } @opt{qw(C B)}) {
         if ($opt{B}) {
+          perl5_B:
             # Execute!
             open my $fh, "|$^X -I$lib - -- @ARGV" or die $!;
             local $/;
