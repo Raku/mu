@@ -925,8 +925,18 @@ require KindaPerl6::Runtime::Perl6::Match;
 sub ::CAPTURIZE {
     my @array;
     my %hash;
-    print "# CAPTURIZE: now at Code == $::ROUTINE \n";
-    for my $p ( @{ $_[0] } ) {
+    
+    #print "# CAPTURIZE: now at Code == $::ROUTINE \n";
+    my $signature = ::DISPATCH( ::DISPATCH( $::ROUTINE, 'signature' ), 'array' );
+    # -- get the signature specification
+    my @sigs = @{ $signature->{_value}{_array} };
+    #print "# sig = @{[ keys %{ $sigs[0] } ]} \n";
+    # -- get the runtime parameter list
+    my @params = @{ $_[0] }; 
+    
+    # match the parameter list to the signature specification
+    # XXX TODO
+    for my $p ( @params ) {
         #print "param @{[ keys( %{ $p->{_value} } ) ]} \n";
         if (
 
