@@ -927,9 +927,9 @@ sub ::CAPTURIZE {
     my %hash;
     
     #print "# CAPTURIZE: now at Code == $::ROUTINE \n";
-    my $signature = ::DISPATCH( ::DISPATCH( $::ROUTINE, 'signature' ), 'array' );
+    #my $signature = ::DISPATCH( ::DISPATCH( $::ROUTINE, 'signature' ), 'array' );
     # -- get the signature specification
-    my @sigs = @{ $signature->{_value}{_array} };
+    #my @sigs = @{ $signature->{_value}{_array} };
     #print "# sig = @{[ keys %{ $sigs[0] } ]} \n";
     # -- get the runtime parameter list
     my @params = @{ $_[0] }; 
