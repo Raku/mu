@@ -13,7 +13,7 @@ sub declare_parameters {
     my $block;
     my $sig;
     do { $env = $List__->[0]; $block = $List__->[1]; $sig = $List__->[2]; [ $env, $block, $sig ] };
-    my $vars = [ Var->new( 'sigil' => '@', 'twigil' => '', 'name' => '_', 'namespace' => [], ), $sig->invocant(), @{ $sig->positional() } ];
+    my $vars = [ Var->new( 'sigil' => '@', 'twigil' => '', 'name' => '_', 'namespace' => [], ), $sig->invocant(), @{ [ map { $_->key() } @{ $sig->positional() } ] } ];
     my $decl;
     my $var;
     do {

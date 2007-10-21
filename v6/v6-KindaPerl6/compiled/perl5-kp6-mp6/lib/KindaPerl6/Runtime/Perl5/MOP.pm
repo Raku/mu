@@ -955,6 +955,7 @@ sub ::CAPTURIZE {
                 #print "return\n";
         }
         else {
+                #print "positional: ", ::DISPATCH( $p, 'Str' )->{_value} ," \n";
                 push @array, $p;
         }
     }

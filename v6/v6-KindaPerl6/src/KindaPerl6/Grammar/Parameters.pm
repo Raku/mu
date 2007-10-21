@@ -10,7 +10,7 @@ grammar KindaPerl6::Grammar {
         my $vars := [
                 ::Var( sigil => '@', twigil => '', name => '_', namespace => [ ] ),
                 $sig.invocant,
-                @($sig.positional),
+                @($sig.positional).>>key,
             ];
         my $decl;
         my $var;
