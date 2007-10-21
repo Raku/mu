@@ -28,6 +28,72 @@ sub declare_parameters {
     $env->add_lexicals($decl);
 }
 
+sub exp_parameter_item {
+    my $grammar = shift;
+    my $List__  = \@_;
+    my $str;
+    my $pos;
+    do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
+    my $MATCH;
+    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH->bool(
+        do {
+            my $pos1 = $MATCH->to();
+            (   do {
+                    (   do {
+                            my $m2 = $grammar->pair( $str, $MATCH->to() );
+                            do {
+                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'pair'} = $m2; 1 }
+                                else     {0}
+                                }
+                            }
+                            && do {
+                            my $ret = sub {
+                                my $List__ = \@_;
+                                do { [] };
+                                do { return ( Lit::NamedArgument->new( 'key' => ${ $MATCH->{'pair'} }->[0], 'value' => ${ $MATCH->{'pair'} }->[1], ) ) };
+                                '974^213';
+                                }
+                                ->();
+                            do {
+                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                                else                         { }
+                            };
+                            1;
+                            }
+                    );
+                    }
+                    || do {
+                    $MATCH->to($pos1);
+                    (   do {
+                            my $m2 = $grammar->exp( $str, $MATCH->to() );
+                            do {
+                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'exp'} = $m2; 1 }
+                                else     {0}
+                                }
+                            }
+                            && do {
+                            my $ret = sub {
+                                my $List__ = \@_;
+                                do { [] };
+                                do { ${ $MATCH->{'exp'} } };
+                                '974^213';
+                                }
+                                ->();
+                            do {
+                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                                else                         { }
+                            };
+                            1;
+                            }
+                    );
+                    }
+            );
+            }
+    );
+    return ($MATCH);
+}
+
 sub exp_parameter_list {
     my $grammar = shift;
     my $List__  = \@_;
@@ -41,9 +107,9 @@ sub exp_parameter_list {
             my $pos1 = $MATCH->to();
             (   do {
                     (   do {
-                            my $m2 = $grammar->exp( $str, $MATCH->to() );
+                            my $m2 = $grammar->exp_parameter_item( $str, $MATCH->to() );
                             do {
-                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'exp'} = $m2; 1 }
+                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'exp_parameter_item'} = $m2; 1 }
                                 else     {0}
                                 }
                             }
@@ -77,7 +143,7 @@ sub exp_parameter_list {
                                                         my $ret = sub {
                                                             my $List__ = \@_;
                                                             do { [] };
-                                                            do { return ( [ ${ $MATCH->{'exp'} }, @{ ${ $MATCH->{'exp_parameter_list'} } } ] ) };
+                                                            do { return ( [ ${ $MATCH->{'exp_parameter_item'} }, @{ ${ $MATCH->{'exp_parameter_list'} } } ] ) };
                                                             '974^213';
                                                             }
                                                             ->();
@@ -121,7 +187,7 @@ sub exp_parameter_list {
                                                 my $ret = sub {
                                                     my $List__ = \@_;
                                                     do { [] };
-                                                    do { return ( [ ${ $MATCH->{'exp'} } ] ) };
+                                                    do { return ( [ ${ $MATCH->{'exp_parameter_item'} } ] ) };
                                                     '974^213';
                                                     }
                                                     ->();

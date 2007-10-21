@@ -28,14 +28,22 @@ grammar KindaPerl6::Grammar {
         $env.add_lexicals( $decl );
     }
 
+    token exp_parameter_item {
+        |   <pair>  
+            { return ::Lit::NamedArgument( 
+                    key           => ($$<pair>)[0], 
+                    value         => ($$<pair>)[1],
+                ) }
+        |   <exp>  { $$<exp> }
+    }
+
     token exp_parameter_list {
-        # TODO - put back named params !!!
-        |   <exp> 
+        |   <exp_parameter_item> 
             [
             |   <?opt_ws> \, <?opt_ws> <exp_parameter_list> 
-                { return [ $$<exp>, @( $$<exp_parameter_list> ) ] }
+                { return [ $$<exp_parameter_item>, @( $$<exp_parameter_list> ) ] }
             |   <?opt_ws> [ \, <?opt_ws> | '' ]
-                { return [ $$<exp> ] }
+                { return [ $$<exp_parameter_item> ] }
             ]
         |
             { return [ ] }
