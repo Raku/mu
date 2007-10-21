@@ -37,8 +37,8 @@ class Main {
 
     say '# Signature: ', &ab_3_.signature;
 
-    say '# flattened Capture:   ', $capture;    
     my $capture = \( 1, 2 );
+    say '# flattened Capture:   ', $capture;    
     my_multi( |$capture );
     
     say '# Param list:';    
