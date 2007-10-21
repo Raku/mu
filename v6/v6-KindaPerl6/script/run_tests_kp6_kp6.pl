@@ -16,11 +16,11 @@ my $ok = 1;
 unless (defined $section)
 { # Perl5 tests
   # Use $ENV{HARNESS_PERL} or $^X
-  local $Test::Harness::Switches = "$Test::Harness::Switches -Icompiled/perl5/kp6-kp6";
+  local $Test::Harness::Switches = "$Test::Harness::Switches -Icompiled/perl5-kp6-kp6/lib";
   $ok &&= eval { runtests glob("t/p5/*.t") };
   warn $@ if $@;
   my $perl5 = $ENV{HARNESS_PERL} || $^X;
-  local $ENV{HARNESS_PERL} = "$^X script/run_kp6_kp6_perl5.pl -Icompiled/perl5/kp6-kp6";
+  local $ENV{HARNESS_PERL} = "$^X script/run_kp6_kp6_perl5.pl -Icompiled/perl5-kp6-kp6/lib";
   local $ENV{PERL5LIB} = '';
   local $Test::Harness::Switches = '';
   $ok &&= eval { runtests (glob("t/kp6-kp6/*.t"),glob("t/kp6-kp6/*/*.t")) };
@@ -29,7 +29,7 @@ unless (defined $section)
 if (defined $section)
 { # kp6-perl5.pl tests
   my $perl5 = $ENV{HARNESS_PERL} || $^X;
-  local $ENV{HARNESS_PERL} = "$^X script/run_kp6_kp6_perl5.pl -Icompiled/perl5/kp6-kp6";
+  local $ENV{HARNESS_PERL} = "$^X script/run_kp6_kp6_perl5.pl -Icompiled/perl5-kp6-kp6/lib";
   local $ENV{PERL5LIB} = '';
   local $Test::Harness::Switches = '';
   open(TESTS,"TESTS") || die "Can not open test list";
@@ -40,7 +40,7 @@ else # all
 { # kp6-perl5.pl tests
   my $perl5 = $ENV{HARNESS_PERL} || $^X;
   warn $@ if $@;
-  local $ENV{HARNESS_PERL} = "$^X script/run_kp6_kp6_perl5.pl -Ilib-modules-kp6-mp6-p5 -Icompiled/perl5/kp6-kp6";
+  local $ENV{HARNESS_PERL} = "$^X script/run_kp6_kp6_perl5.pl -Ilib-modules-kp6-mp6-p5 -Icompiled/perl5-kp6-kp6/lib";
   local $ENV{PERL5LIB} = '';
   local $Test::Harness::Switches = '';
   open(TESTS,"TESTS") || die "Can not open test list";

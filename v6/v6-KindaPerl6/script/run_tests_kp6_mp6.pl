@@ -16,7 +16,7 @@ my $ok = 1;
 unless (defined $section)
 { # Perl5 tests
   # Use $ENV{HARNESS_PERL} or $^X
-  local $Test::Harness::Switches = "$Test::Harness::Switches -Icompiled/perl5/lib";
+  local $Test::Harness::Switches = "$Test::Harness::Switches -Icompiled/perl5-kp6-mp6/lib";
   $ok &&= eval { runtests glob("t/p5/*.t") };
   warn $@ if $@;
 }

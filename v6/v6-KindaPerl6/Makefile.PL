@@ -12,15 +12,15 @@ my $KP6_TARGET = $ENV{KP6_TARGET} || "KP6-MP6";
 my %Kp6Build;
 if ( $KP6_TARGET eq "KP6-MP6" ) {
     %Kp6Build = (
-        lib         => "compiled/perl5/lib",
-        module_lib  => "compiled/perl5/lib",
+        lib         => "compiled/perl5-kp6-mp6/lib",
+        module_lib  => "compiled/perl5-kp6-mp6/lib",
         run_test    => "script/run_tests_kp6_mp6.pl",
     );
 }
 elsif ( $KP6_TARGET eq "KP6-KP6" ) {
     %Kp6Build = (
-        lib         => "compiled/perl5/kp6-kp6",
-        module_lib  => "compiled/perl5/kp6-kp6",
+        lib         => "compiled/perl5-kp6-kp6/lib",
+        module_lib  => "compiled/perl5-kp6-kp6/lib",
         run_test    => "script/run_tests_kp6_kp6.pl",
     );
 }
@@ -31,8 +31,8 @@ elsif ( $KP6_TARGET =~ /^KP6-LISP(?:-([A-Za-z]+))?$/ ) {
     %Kp6Build = (
         # We don't use this and not defining this makes things break,
         # just use the same things as kp6-mp6
-        lib         => "compiled/perl5/lib",
-        module_lib  => "compiled/perl5/lib",
+        lib         => "compiled/perl5-kp6-mp6/lib",
+        module_lib  => "compiled/perl5-kp6-mp6/lib",
 
         run_test    => "script/run_tests_kp6_mp6_lisp_$runtime.pl",
     );
@@ -51,7 +51,7 @@ my %PM;
     for my $key (@lib_pm) {
         my $value = $key;
 
-        $value =~ s[^$Kp6Build{lib}/KindaPerl6/][\$\(INST_LIBDIR\)/KindaPerl6/$Kp6Build{lib}/lib/KindaPerl6/];
+        $value =~ s[^$Kp6Build{lib}/KindaPerl6/][\$\(INST_LIBDIR\)/KindaPerl6/$Kp6Build{lib}/KindaPerl6/];
 
         $PM{$key} = $value;
     }
@@ -61,7 +61,7 @@ my %PM;
     for my $key (@mod_pm) {
         my $value = $key;
 
-        $value =~ s[^$Kp6Build{module_lib}/][\$\(INST_LIBDIR\)/KindaPerl6/$Kp6Build{module_lib}/mod/];
+        $value =~ s[^$Kp6Build{module_lib}/][\$\(INST_LIBDIR\)/KindaPerl6/$Kp6Build{module_lib}/];
 
         $PM{$key} = $value;
     }
@@ -182,8 +182,27 @@ sub top_targets
 #all: $(kp6_mp6_OBJ) $(kp6_kp6_OBJ) $(kp6_mp6_modules_OBJ) $(kp6_kp6_modules_OBJ) kp6-kp6.pl
 #kp6_mp6: $(kp6_mp6_OBJ) $(kp6_mp6_modules_OBJ)
 
+# Touch all the .pm files in src/KindaPerl6 to force recompilation
+forcerecompile:
+	find src/KindaPerl6/ -name "*.pm" | grep -v \.svn | xargs touch
 
-compiled/perl5/lib/KindaPerl6/Runtime/Perl6/%.pm: src/KindaPerl6/Runtime/Perl6/%.pm
+## kp6 frontend in p6, uncomment to use
+#kp6-kp6.pl: kp6.p6
+#	$(PERL) script/kp6 -r kp6 < $< | perltidy -pro=util/perltidyrc > temp.pl ; \
+#		res=$$? ; \
+#		if [ $$res = 0 -a -s temp.pl ] ; then \
+#			cp temp.pl $@ ; \
+#		else \
+#			echo "*** Compilation failed with exit code: $$res!" ; \
+#			exit; \
+#		fi; \
+#	    rm temp.pl
+
+#
+# perl5-kp6-mp6
+#
+
+compiled/perl5-kp6-mp6/lib/KindaPerl6/Runtime/Perl6/%.pm: src/KindaPerl6/Runtime/Perl6/%.pm
 	@echo COMPILE $< $@
 	@$(PERL) script/kp6 < $< | perltidy -pro=util/perltidyrc > $@.temp ; \
 		res=$$? ; \
@@ -193,7 +212,7 @@ compiled/perl5/lib/KindaPerl6/Runtime/Perl6/%.pm: src/KindaPerl6/Runtime/Perl6/%
 			echo "*** Compilation failed with exit code: $$res!" ; \
 			exit; \
 		fi
-compiled/perl5/lib/%.pm: src-modules/%.pm
+compiled/perl5-kp6-mp6/lib/%.pm: src-modules/%.pm
 	@echo COMPILE $< $@
 	@$(PERL) script/kp6 < $< | perltidy -pro=util/perltidyrc > $@.temp ; \
 		res=$$? ; \
@@ -204,7 +223,20 @@ compiled/perl5/lib/%.pm: src-modules/%.pm
 			exit; \
 		fi
 
-compiled/perl5/kp6-kp6/%.pm: src-modules/%.pm
+compiled/perl5-kp6-mp6/lib/KindaPerl6/Runtime/Perl5/%.pm: src/KindaPerl6/Runtime/Perl5/%.pm
+	$(CP) $< $@
+
+compiled/perl5-kp6-mp6/lib/%.pm: src/%.pm
+	$(PERL) script/mp6.pl < $< | perltidy -pro=util/perltidyrc > $@
+
+#
+# perl5-kp6-kp6
+#
+
+compiled/perl5-kp6-kp6/KindaPerl6/Runtime/Perl6/%.pm: src/KindaPerl6/Runtime/Perl6/%.pm
+	$(PERL) script/kp6 -r kp6 < $< | perltidy -pro=util/perltidyrc > $@
+
+compiled/perl5-kp6-kp6/%.pm: src-modules/%.pm
 	@echo COMPILE $< $@
 	@$(PERL) script/kp6 -r kp6 < $< | perltidy -pro=util/perltidyrc > $@.temp ; \
 		res=$$? ; \
@@ -215,36 +247,11 @@ compiled/perl5/kp6-kp6/%.pm: src-modules/%.pm
 			exit; \
 		fi
 
-
-compiled/perl5/kp6-kp6/KindaPerl6/Runtime/Perl6/%.pm: src/KindaPerl6/Runtime/Perl6/%.pm
-	$(PERL) script/kp6 -r kp6 < $< | perltidy -pro=util/perltidyrc > $@
-
-
-compiled/perl5/lib/KindaPerl6/Runtime/Perl5/%.pm: src/KindaPerl6/Runtime/Perl5/%.pm
+compiled/perl5-kp6-kp6/KindaPerl6/Runtime/Perl5/%.pm: src/KindaPerl6/Runtime/Perl5/%.pm
 	$(CP) $< $@
 
-compiled/perl5/kp6-kp6/KindaPerl6/Runtime/Perl5/%.pm: src/KindaPerl6/Runtime/Perl5/%.pm
-	$(CP) $< $@
-
-compiled/perl5/lib/%.pm: src/%.pm
-	$(PERL) script/mp6.pl < $< | perltidy -pro=util/perltidyrc > $@
-
-compiled/perl5/kp6-kp6/%.pm: src/%.pm
+compiled/perl5-kp6-kp6/%.pm: src/%.pm
 	$(PERL) script/kp6 -r kp6 < $< | perltidy -pro=util/perltidyrc > $@
-
-kp6-kp6.pl: kp6.p6
-	$(PERL) script/kp6 -r kp6 < $< | perltidy -pro=util/perltidyrc > temp.pl ; \
-		res=$$? ; \
-		if [ $$res = 0 -a -s temp.pl ] ; then \
-			cp temp.pl $@ ; \
-		else \
-			echo "*** Compilation failed with exit code: $$res!" ; \
-			exit; \
-		fi; \
-	    rm temp.pl
-
-forcerecompile:
-	find src/KindaPerl6/ -name "*.pm" | grep -v \.svn | xargs touch
 
 # end v6-KindaPerl6 specific targets
 END

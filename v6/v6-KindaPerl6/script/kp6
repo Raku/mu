@@ -6,6 +6,13 @@ use Digest ();
 use Getopt::Long ();
 use File::Spec::Functions qw(catdir);
 
+# XXX: HACK around harness which calls us like this during `make test'
+# to find out what's in our @INC
+if ($ENV{HARNESS_ACTIVE} and "@ARGV" =~ /-le print join qq/) {
+    print join(qq[\n], @INC) . "\n";
+    exit 0;
+}
+
 =begin
 
 =head1 NAME
@@ -141,13 +148,13 @@ version(exitval => 0)
 #
 
 sub runtime_dir {
-    return "compiled/perl5/kp6-kp6"  if $opt{runtime} eq "kp6";
-    return "compiled/perl5/lib"      if $opt{runtime} eq "mp6";
+    return "compiled/perl5-kp6-kp6/lib"  if $opt{runtime} eq "kp6";
+    return "compiled/perl5-kp6-mp6/lib"      if $opt{runtime} eq "mp6";
 }
 
 sub install_dir {
-    return "kp6-kp6-p5"         if $opt{runtime} eq "kp6";
-    return "kp6-mp6-p5"         if $opt{runtime} eq "mp6";
+    return "compiled/perl5-kp6-kp6" if $opt{runtime} eq "kp6";
+    return "compiled/perl5-kp6-mp6" if $opt{runtime} eq "mp6";
 }
 
 my $lib;
@@ -302,6 +309,7 @@ for ( @COMPILER::CHECK ) {
 
 # We have source to print out, do so, but consider the backends
 {
+    no warnings 'uninitialized';
     if (grep { $_ eq 'ast' } @opt{qw(C B)}) {
         if ($opt{B}) {
             die "'ast' backend does not support compilation";
@@ -309,6 +317,7 @@ for ( @COMPILER::CHECK ) {
             print_perl($out);
         }
     }
+
     if (grep { $_ eq 'perl5' } @opt{qw(C B)}) {
         if ($opt{B}) {
             # Execute!
