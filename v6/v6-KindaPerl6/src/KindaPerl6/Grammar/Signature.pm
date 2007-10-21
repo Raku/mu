@@ -19,12 +19,13 @@ grammar KindaPerl6::Grammar {
             { return ::Lit::SigArgument( 
                     key           => ($$<pair>)[0], 
                     value         => ($$<pair>)[1],
-                    is_named_only => $$<sig_named_only>,
-                    is_optional   => $$<sig_optional>,
-                    is_slurpy     => $$<sig_slurpy>,
-                    is_multidimensional => $$<sig_multidimensional>,
-                    is_rw         => $$<sig_rw>,
-                    is_copy       => $$<sig_copy>,
+                    is_named_only => ::Val::Bit( bit => $$<sig_named_only> ),
+                    is_optional   => ::Val::Bit( bit => $$<sig_optional>   ),
+                    is_slurpy     => ::Val::Bit( bit => $$<sig_slurpy>     ),
+                    is_multidimensional => 
+                                     ::Val::Bit( bit => $$<sig_multidimensional> ),
+                    is_rw         => ::Val::Bit( bit => $$<sig_rw>         ),
+                    is_copy       => ::Val::Bit( bit => $$<sig_copy>       ),
                 ) }
         |   <sig_named_only> <sig_slurpy> <sig_multidimensional> 
             <exp>     # XXX
@@ -33,12 +34,13 @@ grammar KindaPerl6::Grammar {
             { return ::Lit::SigArgument( 
                     key           => $$<exp>, 
                     value         => undef,
-                    is_named_only => $$<sig_named_only>,
-                    is_optional   => $$<sig_optional>,
-                    is_slurpy     => $$<sig_slurpy>,
-                    is_multidimensional => $$<sig_multidimensional>,
-                    is_rw         => $$<sig_rw>,
-                    is_copy       => $$<sig_copy>,
+                    is_named_only => ::Val::Bit( bit => $$<sig_named_only>  ),
+                    is_optional   => ::Val::Bit( bit => $$<sig_optional>    ),
+                    is_slurpy     => ::Val::Bit( bit => $$<sig_slurpy>      ),
+                    is_multidimensional => 
+                                     ::Val::Bit( bit => $$<sig_multidimensional> ),
+                    is_rw         => ::Val::Bit( bit => $$<sig_rw>          ),
+                    is_copy       => ::Val::Bit( bit => $$<sig_copy>        ),
                 ) }
     }
 

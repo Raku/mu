@@ -31,7 +31,7 @@ class Signature::Item {
 class Signature is Value {
     has $.invocant;
     has @.array;
-    has $.hash;
+    #has $.hash;
     has $.return;  # ???
 
     method arity {
@@ -41,11 +41,11 @@ class Signature is Value {
             self.array = [ ];   # XXX accessor init bug
         };
 
-        if !( defined( self.hash ) ) {
-            self.hash = { };   # XXX accessor init bug
-        };
+        #if !( defined( self.hash ) ) {
+        #    self.hash = { };   # XXX accessor init bug
+        #};
 
-        @.array.elems + $.hash.elems;
+        @.array.elems;   # + $.hash.elems;
     };
     method perl {
         my $v;   # XXX kp6 ast processor bug

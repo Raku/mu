@@ -380,11 +380,6 @@
         ::DISPATCH(
             ::DISPATCH( $::Signature, 'HOW', ),
             'add_attribute',
-            ::DISPATCH( $::Str, 'new', 'hash' )
-        );
-        ::DISPATCH(
-            ::DISPATCH( $::Signature, 'HOW', ),
-            'add_attribute',
             ::DISPATCH( $::Str, 'new', 'return' )
         );
         ::DISPATCH(
@@ -462,45 +457,7 @@
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
-                        do {
-                            if (
-                                ::DISPATCH(
-                                    ::DISPATCH(
-                                        ::DISPATCH(
-                                            $GLOBAL::Code_prefix_58__60__33__62_,
-                                            'APPLY',
-                                            ::DISPATCH(
-                                                $GLOBAL::Code_defined,
-                                                'APPLY',
-                                                ::DISPATCH( $self, 'hash', )
-                                            )
-                                        ),
-                                        "true"
-                                    ),
-                                    "p5landish"
-                                )
-                              )
-                            {
-                                {
-                                    ::DISPATCH_VAR(
-                                        ::DISPATCH( $self, 'hash', ),
-                                        'STORE',
-                                        ::DISPATCH(
-                                            $::Hash, "new", { _hash => {} }
-                                        )
-                                      )
-                                }
-                            }
-                            else { ::DISPATCH( $::Bit, "new", 0 ) }
-                        };
-                        ::DISPATCH(
-                            $GLOBAL::Code_infix_58__60__43__62_,
-                            'APPLY',
-                            ::DISPATCH(
-                                ::DISPATCH( $self, "array" ), 'elems',
-                            ),
-                            ::DISPATCH( ::DISPATCH( $self, "hash" ), 'elems', )
-                        );
+                        ::DISPATCH( ::DISPATCH( $self, "array" ), 'elems', );
                     },
                     signature => ::DISPATCH(
                         $::Signature,

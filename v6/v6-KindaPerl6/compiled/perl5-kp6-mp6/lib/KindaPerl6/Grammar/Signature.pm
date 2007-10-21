@@ -422,12 +422,12 @@ sub exp_sig_item {
                                                                 Lit::SigArgument->new(
                                                                     'key'                 => ${ $MATCH->{'pair'} }->[0],
                                                                     'value'               => ${ $MATCH->{'pair'} }->[1],
-                                                                    'is_named_only'       => ${ $MATCH->{'sig_named_only'} },
-                                                                    'is_optional'         => ${ $MATCH->{'sig_optional'} },
-                                                                    'is_slurpy'           => ${ $MATCH->{'sig_slurpy'} },
-                                                                    'is_multidimensional' => ${ $MATCH->{'sig_multidimensional'} },
-                                                                    'is_rw'               => ${ $MATCH->{'sig_rw'} },
-                                                                    'is_copy'             => ${ $MATCH->{'sig_copy'} },
+                                                                    'is_named_only'       => Val::Bit->new( 'bit' => ${ $MATCH->{'sig_named_only'} }, ),
+                                                                    'is_optional'         => Val::Bit->new( 'bit' => ${ $MATCH->{'sig_optional'} }, ),
+                                                                    'is_slurpy'           => Val::Bit->new( 'bit' => ${ $MATCH->{'sig_slurpy'} }, ),
+                                                                    'is_multidimensional' => Val::Bit->new( 'bit' => ${ $MATCH->{'sig_multidimensional'} }, ),
+                                                                    'is_rw'               => Val::Bit->new( 'bit' => ${ $MATCH->{'sig_rw'} }, ),
+                                                                    'is_copy'             => Val::Bit->new( 'bit' => ${ $MATCH->{'sig_copy'} }, ),
                                                                 )
                                                             );
                                                         };
@@ -509,12 +509,12 @@ sub exp_sig_item {
                                                                 Lit::SigArgument->new(
                                                                     'key'                 => ${ $MATCH->{'exp'} },
                                                                     'value'               => (undef),
-                                                                    'is_named_only'       => ${ $MATCH->{'sig_named_only'} },
-                                                                    'is_optional'         => ${ $MATCH->{'sig_optional'} },
-                                                                    'is_slurpy'           => ${ $MATCH->{'sig_slurpy'} },
-                                                                    'is_multidimensional' => ${ $MATCH->{'sig_multidimensional'} },
-                                                                    'is_rw'               => ${ $MATCH->{'sig_rw'} },
-                                                                    'is_copy'             => ${ $MATCH->{'sig_copy'} },
+                                                                    'is_named_only'       => Val::Bit->new( 'bit' => ${ $MATCH->{'sig_named_only'} }, ),
+                                                                    'is_optional'         => Val::Bit->new( 'bit' => ${ $MATCH->{'sig_optional'} }, ),
+                                                                    'is_slurpy'           => Val::Bit->new( 'bit' => ${ $MATCH->{'sig_slurpy'} }, ),
+                                                                    'is_multidimensional' => Val::Bit->new( 'bit' => ${ $MATCH->{'sig_multidimensional'} }, ),
+                                                                    'is_rw'               => Val::Bit->new( 'bit' => ${ $MATCH->{'sig_rw'} }, ),
+                                                                    'is_copy'             => Val::Bit->new( 'bit' => ${ $MATCH->{'sig_copy'} }, ),
                                                                 )
                                                             );
                                                         };

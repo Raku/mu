@@ -153,12 +153,12 @@ class Lit::SigArgument {
 
         ~     'value  => ' ~ ( defined($.value) ?? $.value.emit_perl5 !! 'undef' ) ~ ', '  # XXX
 
-        ~     'is_named_only  => \'' ~ $.is_named_only  ~ '\', '
-        ~     'is_optional    => \'' ~ $.is_optional    ~ '\', '
-        ~     'is_slurpy      => \'' ~ $.is_slurpy      ~ '\', '
-        ~     'is_multidimensional  => \'' ~ $.is_multidimensional  ~ '\', '
-        ~     'is_rw          => \'' ~ $.is_rw          ~ '\', '
-        ~     'is_copy        => \'' ~ $.is_copy        ~ '\', '
+        ~     'is_named_only  => ' ~ $.is_named_only.emit_perl5  ~ ', '
+        ~     'is_optional    => ' ~ $.is_optional.emit_perl5    ~ ', '
+        ~     'is_slurpy      => ' ~ $.is_slurpy.emit_perl5      ~ ', '
+        ~     'is_multidimensional  => ' ~ $.is_multidimensional.emit_perl5  ~ ', '
+        ~     'is_rw          => ' ~ $.is_rw.emit_perl5          ~ ', '
+        ~     'is_copy        => ' ~ $.is_copy.emit_perl5        ~ ', '
 
         ~ ' } )' ~ Main::newline();
     }
@@ -612,7 +612,7 @@ class Sig {
           '::DISPATCH( $::Signature, "new", { '
         ~     'invocant => ' ~ $inv ~ ', '
         ~     'array    => ::DISPATCH( $::Array, "new", { _array => [ ' ~ $pos   ~ ' ] } ), '
-        ~     'hash     => ::DISPATCH( $::Hash,  "new", { _hash  => { ' ~ $named ~ ' } } ), '
+        # ~     'hash     => ::DISPATCH( $::Hash,  "new", { _hash  => { ' ~ $named ~ ' } } ), '
         ~     'return   => $::Undef, '
         ~ '} )'
         ~ Main::newline();

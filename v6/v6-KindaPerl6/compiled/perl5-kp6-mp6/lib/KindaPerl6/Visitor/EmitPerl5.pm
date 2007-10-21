@@ -280,32 +280,35 @@ sub emit_perl5 {
                                                         ( defined( $self->{value} ) ? $self->{value}->emit_perl5() : 'undef' )
                                                         . ( ', '
                                                                 . (
-                                                                'is_named_only  => \''
+                                                                'is_named_only  => '
                                                                     . (
-                                                                    $self->{is_named_only}
+                                                                    $self->{is_named_only}->emit_perl5()
                                                                         . (
-                                                                        '\', '
+                                                                        ', '
                                                                             . (
-                                                                            'is_optional    => \''
+                                                                            'is_optional    => '
                                                                                 . (
-                                                                                $self->{is_optional}
+                                                                                $self->{is_optional}->emit_perl5()
                                                                                     . (
-                                                                                    '\', '
+                                                                                    ', '
                                                                                         . (
-                                                                                        'is_slurpy      => \''
+                                                                                        'is_slurpy      => '
                                                                                             . (
-                                                                                            $self->{is_slurpy}
+                                                                                            $self->{is_slurpy}->emit_perl5()
                                                                                                 . (
-                                                                                                '\', '
+                                                                                                ', '
                                                                                                     . (
-                                                                                                    'is_multidimensional  => \''
+                                                                                                    'is_multidimensional  => '
                                                                                                         . (
-                                                                                                        $self->{is_multidimensional}
+                                                                                                        $self->{is_multidimensional}->emit_perl5()
                                                                                                             . (
-                                                                                                            '\', '
+                                                                                                            ', '
                                                                                                                 . (
-                                                                                                                'is_rw          => \''
-                                                                                                                    . ( $self->{is_rw} . ( '\', ' . ( 'is_copy        => \'' . ( $self->{is_copy} . ( '\', ' . ( ' } )' . Main::newline() ) ) ) ) ) )
+                                                                                                                'is_rw          => '
+                                                                                                                    . (
+                                                                                                                    $self->{is_rw}->emit_perl5()
+                                                                                                                        . ( ', ' . ( 'is_copy        => ' . ( $self->{is_copy}->emit_perl5() . ( ', ' . ( ' } )' . Main::newline() ) ) ) ) )
+                                                                                                                    )
                                                                                                                 )
                                                                                                             )
                                                                                                         )
@@ -808,21 +811,7 @@ sub emit_perl5 {
         for my $decl ( @{ $self->{positional} } ) { $pos = ( $pos . ( $decl->emit_perl5() . ', ' ) ) }
     };
     my $named = '';
-    (   '::DISPATCH( $::Signature, "new", { '
-            . (
-            'invocant => '
-                . (
-                $inv
-                    . (
-                    ', '
-                        . (
-                        'array    => ::DISPATCH( $::Array, "new", { _array => [ '
-                            . ( $pos . ( ' ] } ), ' . ( 'hash     => ::DISPATCH( $::Hash,  "new", { _hash  => { ' . ( $named . ( ' } } ), ' . ( 'return   => $::Undef, ' . ( '} )' . Main::newline() ) ) ) ) ) ) )
-                        )
-                    )
-                )
-            )
-    );
+    ( '::DISPATCH( $::Signature, "new", { ' . ( 'invocant => ' . ( $inv . ( ', ' . ( 'array    => ::DISPATCH( $::Array, "new", { _array => [ ' . ( $pos . ( ' ] } ), ' . ( 'return   => $::Undef, ' . ( '} )' . Main::newline() ) ) ) ) ) ) ) ) );
 }
 
 package Capture;
