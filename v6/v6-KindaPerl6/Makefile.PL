@@ -47,11 +47,13 @@ my %PM;
 #for my $lib (qw(mp6 kp6)) 
 {
     my @lib_pm = glob "$Kp6Build{lib}/KindaPerl6/*.pm $Kp6Build{lib}/KindaPerl6/*/*.pm $Kp6Build{lib}/KindaPerl6/*/*/*.pm";
+    push @lib_pm, glob "compiled/cl/lib/KindaPerl6/Runtime/Lisp/*lisp";
 
     for my $key (@lib_pm) {
         my $value = $key;
 
         $value =~ s[^$Kp6Build{lib}/KindaPerl6/][\$\(INST_LIBDIR\)/KindaPerl6/$Kp6Build{lib}/KindaPerl6/];
+        $value =~ s[^compiled/cl/lib/KindaPerl6/][\$\(INST_LIBDIR\)/KindaPerl6/compiled/cl/lib/KindaPerl6/];
 
         $PM{$key} = $value;
     }
