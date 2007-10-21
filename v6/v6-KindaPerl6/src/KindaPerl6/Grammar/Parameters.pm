@@ -34,7 +34,7 @@ grammar KindaPerl6::Grammar {
                     key           => ($$<pair>)[0], 
                     value         => ($$<pair>)[1],
                 ) }
-        |   <exp>  { $$<exp> }
+        |   <exp>  { return $$<exp> }
     }
 
     token exp_parameter_list {

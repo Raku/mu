@@ -76,7 +76,7 @@ sub exp_parameter_item {
                             my $ret = sub {
                                 my $List__ = \@_;
                                 do { [] };
-                                do { ${ $MATCH->{'exp'} } };
+                                do { return ( ${ $MATCH->{'exp'} } ) };
                                 '974^213';
                                 }
                                 ->();
