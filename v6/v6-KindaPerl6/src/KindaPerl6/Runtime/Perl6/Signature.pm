@@ -6,6 +6,7 @@ class Signature::Item {
     has $.sigil;
     has $.twigil;
     has $.name;
+    # has $.value;
     
     has $.is_named_only;
     has $.is_optional;  # !is_required

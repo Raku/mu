@@ -253,7 +253,86 @@ sub emit_perl5 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( '::DISPATCH( $::NamedArgument, \'new\', ' . ( '{ _argument_name_ => ' . ( $self->{key}->emit_perl5() . ( ', value => ' . ( ( defined( $self->{value} ) ? $self->{value}->emit_perl5() : 'undef' ) . ( ' } )' . Main::newline() ) ) ) ) ) );
+    (   '::DISPATCH( $::Signature::Item, \'new\', '
+            . (
+            '{ '
+                . (
+                'sigil  => \''
+                    . (
+                    $self->{key}->sigil()
+                        . (
+                        '\', '
+                            . (
+                            'twigil => \''
+                                . (
+                                $self->{key}->twigil()
+                                    . (
+                                    '\', '
+                                        . (
+                                        'name   => \''
+                                            . (
+                                            $self->{key}->name()
+                                                . (
+                                                '\', '
+                                                    . (
+                                                    'value  => '
+                                                        . (
+                                                        ( defined( $self->{value} ) ? $self->{value}->emit_perl5() : 'undef' )
+                                                        . ( ', '
+                                                                . (
+                                                                'is_named_only  => \''
+                                                                    . (
+                                                                    $self->{is_named_only}
+                                                                        . (
+                                                                        '\', '
+                                                                            . (
+                                                                            'is_optional    => \''
+                                                                                . (
+                                                                                $self->{is_optional}
+                                                                                    . (
+                                                                                    '\', '
+                                                                                        . (
+                                                                                        'is_slurpy      => \''
+                                                                                            . (
+                                                                                            $self->{is_slurpy}
+                                                                                                . (
+                                                                                                '\', '
+                                                                                                    . (
+                                                                                                    'is_multidimensional  => \''
+                                                                                                        . (
+                                                                                                        $self->{is_multidimensional}
+                                                                                                            . (
+                                                                                                            '\', '
+                                                                                                                . (
+                                                                                                                'is_rw          => \''
+                                                                                                                    . ( $self->{is_rw} . ( '\', ' . ( 'is_copy        => \'' . ( $self->{is_copy} . ( '\', ' . ( ' } )' . Main::newline() ) ) ) ) ) )
+                                                                                                                )
+                                                                                                            )
+                                                                                                        )
+                                                                                                    )
+                                                                                                )
+                                                                                            )
+                                                                                        )
+                                                                                    )
+                                                                                )
+                                                                            )
+                                                                        )
+                                                                    )
+                                                                )
+                                                        )
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+    );
 }
 
 package Lit::Code;
@@ -385,14 +464,6 @@ sub emit_perl5 {
         else                            { }
     };
     return ( Main::mangle_name( $self->{sigil}, $self->{twigil}, $self->{name}, $self->{namespace} ) );
-}
-
-sub perl {
-    my $self   = shift;
-    my $List__ = \@_;
-    do { [] };
-    ( '::DISPATCH( $::Signature::Item, "new", { '
-            . ( 'sigil  => \'' . ( $self->{sigil} . ( '\', ' . ( 'twigil => \'' . ( $self->{twigil} . ( '\', ' . ( 'name   => \'' . ( $self->{name} . ( '\', ' . ( 'namespace => [ ], ' . ( '} )' . Main::newline() ) ) ) ) ) ) ) ) ) ) ) );
 }
 
 package Bind;
@@ -734,7 +805,7 @@ sub emit_perl5 {
     my $pos;
     my $decl;
     do {
-        for my $decl ( @{ $self->{positional} } ) { $pos = ( $pos . ( Main::perl( $decl, ) . ', ' ) ) }
+        for my $decl ( @{ $self->{positional} } ) { $pos = ( $pos . ( $decl->emit_perl5() . ', ' ) ) }
     };
     my $named = '';
     (   '::DISPATCH( $::Signature, "new", { '

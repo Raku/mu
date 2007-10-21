@@ -143,10 +143,23 @@ class Lit::NamedArgument {
 
 class Lit::SigArgument {
     method emit_perl5 {
-        # XXX XXX XXX
-        '::DISPATCH( $::NamedArgument, \'new\', ' 
-        ~ '{ _argument_name_ => '   ~ $.key.emit_perl5
-        ~ ', value => ' ~ ( defined($.value) ?? $.value.emit_perl5 !! 'undef' )   # XXX
+
+        '::DISPATCH( $::Signature::Item, \'new\', '     
+        ~ '{ ' 
+        
+        ~     'sigil  => \'' ~ $.key.sigil  ~ '\', '
+        ~     'twigil => \'' ~ $.key.twigil ~ '\', '
+        ~     'name   => \'' ~ $.key.name   ~ '\', '
+
+        ~     'value  => ' ~ ( defined($.value) ?? $.value.emit_perl5 !! 'undef' ) ~ ', '  # XXX
+
+        ~     'is_named_only  => \'' ~ $.is_named_only  ~ '\', '
+        ~     'is_optional    => \'' ~ $.is_optional    ~ '\', '
+        ~     'is_slurpy      => \'' ~ $.is_slurpy      ~ '\', '
+        ~     'is_multidimensional  => \'' ~ $.is_multidimensional  ~ '\', '
+        ~     'is_rw          => \'' ~ $.is_rw          ~ '\', '
+        ~     'is_copy        => \'' ~ $.is_copy        ~ '\', '
+
         ~ ' } )' ~ Main::newline();
     }
 }
@@ -301,15 +314,16 @@ class Var {
         
         return Main::mangle_name( $.sigil, $.twigil, $.name, $.namespace ); 
     };
-    method perl {
-        # this is used by the signature emitter
-          '::DISPATCH( $::Signature::Item, "new", { ' 
-        ~     'sigil  => \'' ~ $.sigil  ~ '\', '
-        ~     'twigil => \'' ~ $.twigil ~ '\', '
-        ~     'name   => \'' ~ $.name   ~ '\', '
-        ~     'namespace => [ ], '
-        ~ '} )' ~ Main::newline()
-    }
+    #method perl {
+    #    # this is used by the signature emitter
+    #    # XXX rename this node, it may clash with a User class
+    #      '::DISPATCH( $::Var, "new", { ' 
+    #    ~     'sigil  => \'' ~ $.sigil  ~ '\', '
+    #    ~     'twigil => \'' ~ $.twigil ~ '\', '
+    #    ~     'name   => \'' ~ $.name   ~ '\', '
+    #    ~     'namespace => [ ], '
+    #    ~ '} )' ~ Main::newline()
+    #}
 }
 
 class Bind {
@@ -590,7 +604,7 @@ class Sig {
         my $pos;
         my $decl;
         for @($.positional) -> $decl {
-            $pos := $pos ~ $decl.perl ~ ', ';
+            $pos := $pos ~ $decl.emit_perl5 ~ ', ';
         };
 
         my $named := '';  # TODO
