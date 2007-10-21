@@ -1,4 +1,4 @@
-use Kp6Ast;
+use Kp6Ast; # Kp6Ast should be KindaPerl6::Ast compiled with kp6
 say "package Call;";
 for ((Call.HOW).methods()) -> $method {
     say "sub $method {
