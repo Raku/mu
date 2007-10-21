@@ -315,10 +315,10 @@ for ( @COMPILER::CHECK ) {
             die "'ast' backend does not support compilation";
         } elsif ($opt{C}) {
             print_perl($out);
+            exit 0;
         }
     }
-
-    if (grep { $_ eq 'perl5' } @opt{qw(C B)}) {
+    elsif (grep { $_ eq 'perl5' } @opt{qw(C B)}) {
         if ($opt{B}) {
             # Execute!
             open my $fh, "|$^X -I$lib -" or die $!;
@@ -328,11 +328,13 @@ for ( @COMPILER::CHECK ) {
             exit 0;
         } elsif ($opt{C}) {
             print_perl($out);
+            exit 0;
         }
     }
     elsif (grep { $_ =~ /^cl/ } @opt{qw(C B)}) {
         if ($opt{C}) {
             print $out;
+            exit 0;
         }
         elsif ($opt{B} =~ /^cl(?:-(.*))$/) {
             my $compiler = $1;
@@ -362,6 +364,9 @@ for ( @COMPILER::CHECK ) {
                 exit 0;
             }
         }
+    } else {
+        print $out;
+        exit 0;
     }
 }
 
