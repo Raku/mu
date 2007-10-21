@@ -260,7 +260,7 @@ if (-t STDIN) {
     # STDIN is open to a terminal, i.e. we're being run as `kp6
     # file.p6'. slurp the file
     my ($file, @args) = @ARGV;
-    if ($file) {
+    if ($file and not $opt{e}) {
         $source = slurp($file);
     } elsif ($opt{e}) {
         # divide -e statements by ;
