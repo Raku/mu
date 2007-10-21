@@ -321,7 +321,7 @@ for ( @COMPILER::CHECK ) {
     elsif (grep { $_ eq 'perl5' } @opt{qw(C B)}) {
         if ($opt{B}) {
             # Execute!
-            open my $fh, "|$^X -I$lib -" or die $!;
+            open my $fh, "|$^X -I$lib - -- @ARGV" or die $!;
             local $/;
             print $fh $out;
             close $fh;
