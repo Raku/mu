@@ -206,7 +206,7 @@ forcerecompile:
 
 compiled/perl5-kp6-mp6/lib/KindaPerl6/Runtime/Perl6/%.pm: src/KindaPerl6/Runtime/Perl6/%.pm
 	@echo COMPILE $< $@
-	@$(PERL) script/kp6 < $< | perltidy -pro=util/perltidyrc > $@.temp ; \
+	@$(PERL) script/kp6 -Cperl5 $< > $@.temp ; \
 		res=$$? ; \
 		if [ $$res = 0 -a -s $@.temp ] ; then \
 			mv $@.temp $@ ; \
@@ -216,7 +216,7 @@ compiled/perl5-kp6-mp6/lib/KindaPerl6/Runtime/Perl6/%.pm: src/KindaPerl6/Runtime
 		fi
 compiled/perl5-kp6-mp6/lib/%.pm: src-modules/%.pm
 	@echo COMPILE $< $@
-	@$(PERL) script/kp6 < $< | perltidy -pro=util/perltidyrc > $@.temp ; \
+	@$(PERL) script/kp6 -Cperl5 $< > $@.temp ; \
 		res=$$? ; \
 		if [ $$res = 0 -a -s $@.temp ] ; then \
 			mv $@.temp $@ ; \
