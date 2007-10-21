@@ -31,8 +31,8 @@ elsif ( $KP6_TARGET =~ /^KP6-LISP(?:-([A-Za-z]+))?$/ ) {
     %Kp6Build = (
         # We don't use this and not defining this makes things break,
         # just use the same things as kp6-mp6
-        lib         => "compiled/perl5-kp6-mp6/lib",
-        module_lib  => "compiled/perl5-kp6-mp6/lib",
+        lib         => "compiled/cl/lib",
+        module_lib  => "compiled/cl/lib",
 
         run_test    => "script/run_tests_kp6_mp6_lisp_$runtime.pl",
     );
@@ -152,7 +152,7 @@ sub constants
 $inherited . "\n" .
 <<"END"
 # Custom v6-KindaPerl6 constants:
-kp6_mp6_OBJ = \$(patsubst src/%,$Kp6Build{lib}/%,\$(wildcard src/*.pm src/KindaPerl6/Grammar/*.pm src/KindaPerl6/Grammar.pm src/KindaPerl6/Traverse.pm src/KindaPerl6/Ast.pm src/KindaPerl6/Visitor/*.pm src/KindaPerl6/Runtime/Perl5/*.pm src/KindaPerl6/Runtime/Perl6/*.pm src/KindaPerl6/Test/*.pm ))
+kp6_mp6_OBJ = \$(patsubst src/%,$Kp6Build{lib}/%,\$(wildcard src/*.pm src/KindaPerl6/Grammar/*.pm src/KindaPerl6/Grammar.pm src/KindaPerl6/Traverse.pm src/KindaPerl6/Ast.pm src/KindaPerl6/Visitor/*.pm src/KindaPerl6/Runtime/Perl5/*.pm src/KindaPerl6/Runtime/Perl6/*.pm src/KindaPerl6/Test/*.pm )) \$(patsubst src/%,compiled/cl/lib/%,\$(wildcard src/KindaPerl6/Runtime/Lisp/*.lisp))
 
 kp6_mp6_modules_OBJ = \$(patsubst src-modules/%,$Kp6Build{module_lib}/%,\$(wildcard src-modules/*.pm))
 
@@ -252,6 +252,14 @@ compiled/perl5-kp6-kp6/KindaPerl6/Runtime/Perl5/%.pm: src/KindaPerl6/Runtime/Per
 
 compiled/perl5-kp6-kp6/%.pm: src/%.pm
 	$(PERL) script/kp6 -r kp6 < $< | perltidy -pro=util/perltidyrc > $@
+
+#
+# CL
+#
+
+# Hack to get the .lisp files copied under perl Makefile.PL && make
+compiled/cl/lib/KindaPerl6/Runtime/Lisp/%.lisp: src/KindaPerl6/Runtime/Lisp/%.lisp
+	$(CP) $< $@
 
 # end v6-KindaPerl6 specific targets
 END
