@@ -46,22 +46,6 @@
                 name     => '$Code_infix_58__60__46__46__62_'
             }
         );
-        our $Code_infix_58__60__38__38__62_ = ::DISPATCH(
-            $::Routine,
-            'new',
-            {
-                modified => $_MODIFIED,
-                name     => '$Code_infix_58__60__38__38__62_'
-            }
-        );
-        our $Code_infix_58__60__124__124__62_ = ::DISPATCH(
-            $::Routine,
-            'new',
-            {
-                modified => $_MODIFIED,
-                name     => '$Code_infix_58__60__124__124__62_'
-            }
-        );
         our $Code_Inf =
           ::DISPATCH( $::Routine, 'new',
             { modified => $_MODIFIED, name => '$Code_Inf' } );
@@ -136,22 +120,6 @@
                         {
                             modified => $_MODIFIED,
                             name     => '$Code_infix_58__60__46__46__62_'
-                        }
-                    );
-                    our $Code_infix_58__60__38__38__62_ = ::DISPATCH(
-                        $::Routine,
-                        'new',
-                        {
-                            modified => $_MODIFIED,
-                            name     => '$Code_infix_58__60__38__38__62_'
-                        }
-                    );
-                    our $Code_infix_58__60__124__124__62_ = ::DISPATCH(
-                        $::Routine,
-                        'new',
-                        {
-                            modified => $_MODIFIED,
-                            name     => '$Code_infix_58__60__124__124__62_'
                         }
                     );
                     our $Code_Inf =
@@ -874,27 +842,27 @@
                         my $List__ =
                           ::DISPATCH( $::Array, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
-                        my $from;
-                        $from =
+                        my $a;
+                        $a =
                           ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$from' } )
-                          unless defined $from;
+                            { modified => $_MODIFIED, name => '$a' } )
+                          unless defined $a;
 
                         BEGIN {
-                            $from =
+                            $a =
                               ::DISPATCH( $::Scalar, 'new',
-                                { modified => $_MODIFIED, name => '$from' } );
+                                { modified => $_MODIFIED, name => '$a' } );
                         }
-                        my $to;
-                        $to =
+                        my $b;
+                        $b =
                           ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$to' } )
-                          unless defined $to;
+                            { modified => $_MODIFIED, name => '$b' } )
+                          unless defined $b;
 
                         BEGIN {
-                            $to =
+                            $b =
                               ::DISPATCH( $::Scalar, 'new',
-                                { modified => $_MODIFIED, name => '$to' } );
+                                { modified => $_MODIFIED, name => '$b' } );
                         }
                         my $CAPTURE;
                         $CAPTURE =
@@ -917,14 +885,14 @@
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         do {
-                            ::MODIFIED($from);
-                            $from =
+                            ::MODIFIED($a);
+                            $a =
                               ::DISPATCH( $List__, 'INDEX',
                                 ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         do {
-                            ::MODIFIED($to);
-                            $to =
+                            ::MODIFIED($b);
+                            $b =
                               ::DISPATCH( $List__, 'INDEX',
                                 ::DISPATCH( $::Int, 'new', 1 ) );
                         };
@@ -936,7 +904,7 @@
                                 {
                                     _argument_name_ =>
                                       ::DISPATCH( $::Str, 'new', 'start' ),
-                                    value => $from
+                                    value => $a
                                 }
                             ),
                             ::DISPATCH(
@@ -945,7 +913,7 @@
                                 {
                                     _argument_name_ =>
                                       ::DISPATCH( $::Str, 'new', 'end' ),
-                                    value => $to
+                                    value => $b
                                 }
                             )
                         );
@@ -965,7 +933,7 @@
                                             {
                                                 sigil         => '$',
                                                 twigil        => '',
-                                                name          => 'from',
+                                                name          => 'a',
                                                 value         => undef,
                                                 is_named_only => ::DISPATCH(
                                                     $::Bit, 'new', 0
@@ -994,361 +962,7 @@
                                             {
                                                 sigil         => '$',
                                                 twigil        => '',
-                                                name          => 'to',
-                                                value         => undef,
-                                                is_named_only => ::DISPATCH(
-                                                    $::Bit, 'new', 0
-                                                ),
-                                                is_optional => ::DISPATCH(
-                                                    $::Bit, 'new', 0
-                                                ),
-                                                is_slurpy => ::DISPATCH(
-                                                    $::Bit, 'new', 0
-                                                ),
-                                                is_multidimensional =>
-                                                  ::DISPATCH(
-                                                    $::Bit, 'new', 0
-                                                  ),
-                                                is_rw => ::DISPATCH(
-                                                    $::Bit, 'new', 0
-                                                ),
-                                                is_copy => ::DISPATCH(
-                                                    $::Bit, 'new', 0
-                                                ),
-                                            }
-                                        ),
-                                    ]
-                                }
-                            ),
-                            return => $::Undef,
-                        }
-                    ),
-                }
-            );
-        };
-        do {
-            ::MODIFIED($Code_infix_58__60__38__38__62_);
-            $Code_infix_58__60__38__38__62_ = ::DISPATCH(
-                $::Code, 'new',
-                {
-                    code => sub {
-                        my $left;
-                        $left =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$left' } )
-                          unless defined $left;
-
-                        BEGIN {
-                            $left =
-                              ::DISPATCH( $::Scalar, 'new',
-                                { modified => $_MODIFIED, name => '$left' } );
-                        }
-                        my $List__ =
-                          ::DISPATCH( $::Array, 'new',
-                            { modified => $_MODIFIED, name => '$List__' } );
-                        my $left_thunk;
-                        $left_thunk =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$left_thunk' } )
-                          unless defined $left_thunk;
-
-                        BEGIN {
-                            $left_thunk = ::DISPATCH(
-                                $::Scalar,
-                                'new',
-                                {
-                                    modified => $_MODIFIED,
-                                    name     => '$left_thunk'
-                                }
-                            );
-                        }
-                        my $right_thunk;
-                        $right_thunk = ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$right_thunk' } )
-                          unless defined $right_thunk;
-
-                        BEGIN {
-                            $right_thunk = ::DISPATCH(
-                                $::Scalar,
-                                'new',
-                                {
-                                    modified => $_MODIFIED,
-                                    name     => '$right_thunk'
-                                }
-                            );
-                        }
-                        my $CAPTURE;
-                        $CAPTURE =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$CAPTURE' } )
-                          unless defined $CAPTURE;
-
-                        BEGIN {
-                            $CAPTURE = ::DISPATCH( $::Scalar, 'new',
-                                { modified => $_MODIFIED, name => '$CAPTURE' }
-                            );
-                        }
-                        ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
-                        do {
-                            ::MODIFIED($List__);
-                            $List__ = ::DISPATCH( $CAPTURE, 'array', );
-                        };
-                        do {
-                            ::MODIFIED($Hash__);
-                            $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
-                        };
-                        do {
-                            ::MODIFIED($left_thunk);
-                            $left_thunk =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 0 ) );
-                        };
-                        do {
-                            ::MODIFIED($right_thunk);
-                            $right_thunk =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 1 ) );
-                        };
-                        ::DISPATCH_VAR( $left, 'STORE',
-                            ::DISPATCH( $left_thunk, 'APPLY', ) );
-                        do {
-                            if (
-                                ::DISPATCH(
-                                    ::DISPATCH( $left, "true" ), "p5landish"
-                                )
-                              )
-                            {
-                                {
-                                    ::DISPATCH( $right_thunk, 'APPLY', )
-                                }
-                            }
-                            else {
-                                { $left }
-                            }
-                          }
-                    },
-                    signature => ::DISPATCH(
-                        $::Signature,
-                        "new",
-                        {
-                            invocant => $::Undef,
-                            array    => ::DISPATCH(
-                                $::Array, "new",
-                                {
-                                    _array => [
-                                        ::DISPATCH(
-                                            $::Signature::Item,
-                                            'new',
-                                            {
-                                                sigil         => '$',
-                                                twigil        => '',
-                                                name          => 'left_thunk',
-                                                value         => undef,
-                                                is_named_only => ::DISPATCH(
-                                                    $::Bit, 'new', 0
-                                                ),
-                                                is_optional => ::DISPATCH(
-                                                    $::Bit, 'new', 0
-                                                ),
-                                                is_slurpy => ::DISPATCH(
-                                                    $::Bit, 'new', 0
-                                                ),
-                                                is_multidimensional =>
-                                                  ::DISPATCH(
-                                                    $::Bit, 'new', 0
-                                                  ),
-                                                is_rw => ::DISPATCH(
-                                                    $::Bit, 'new', 0
-                                                ),
-                                                is_copy => ::DISPATCH(
-                                                    $::Bit, 'new', 0
-                                                ),
-                                            }
-                                        ),
-                                        ::DISPATCH(
-                                            $::Signature::Item,
-                                            'new',
-                                            {
-                                                sigil         => '$',
-                                                twigil        => '',
-                                                name          => 'right_thunk',
-                                                value         => undef,
-                                                is_named_only => ::DISPATCH(
-                                                    $::Bit, 'new', 0
-                                                ),
-                                                is_optional => ::DISPATCH(
-                                                    $::Bit, 'new', 0
-                                                ),
-                                                is_slurpy => ::DISPATCH(
-                                                    $::Bit, 'new', 0
-                                                ),
-                                                is_multidimensional =>
-                                                  ::DISPATCH(
-                                                    $::Bit, 'new', 0
-                                                  ),
-                                                is_rw => ::DISPATCH(
-                                                    $::Bit, 'new', 0
-                                                ),
-                                                is_copy => ::DISPATCH(
-                                                    $::Bit, 'new', 0
-                                                ),
-                                            }
-                                        ),
-                                    ]
-                                }
-                            ),
-                            return => $::Undef,
-                        }
-                    ),
-                }
-            );
-        };
-        do {
-            ::MODIFIED($Code_infix_58__60__124__124__62_);
-            $Code_infix_58__60__124__124__62_ = ::DISPATCH(
-                $::Code, 'new',
-                {
-                    code => sub {
-                        my $left;
-                        $left =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$left' } )
-                          unless defined $left;
-
-                        BEGIN {
-                            $left =
-                              ::DISPATCH( $::Scalar, 'new',
-                                { modified => $_MODIFIED, name => '$left' } );
-                        }
-                        my $List__ =
-                          ::DISPATCH( $::Array, 'new',
-                            { modified => $_MODIFIED, name => '$List__' } );
-                        my $left_thunk;
-                        $left_thunk =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$left_thunk' } )
-                          unless defined $left_thunk;
-
-                        BEGIN {
-                            $left_thunk = ::DISPATCH(
-                                $::Scalar,
-                                'new',
-                                {
-                                    modified => $_MODIFIED,
-                                    name     => '$left_thunk'
-                                }
-                            );
-                        }
-                        my $right_thunk;
-                        $right_thunk = ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$right_thunk' } )
-                          unless defined $right_thunk;
-
-                        BEGIN {
-                            $right_thunk = ::DISPATCH(
-                                $::Scalar,
-                                'new',
-                                {
-                                    modified => $_MODIFIED,
-                                    name     => '$right_thunk'
-                                }
-                            );
-                        }
-                        my $CAPTURE;
-                        $CAPTURE =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$CAPTURE' } )
-                          unless defined $CAPTURE;
-
-                        BEGIN {
-                            $CAPTURE = ::DISPATCH( $::Scalar, 'new',
-                                { modified => $_MODIFIED, name => '$CAPTURE' }
-                            );
-                        }
-                        ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
-                        do {
-                            ::MODIFIED($List__);
-                            $List__ = ::DISPATCH( $CAPTURE, 'array', );
-                        };
-                        do {
-                            ::MODIFIED($Hash__);
-                            $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
-                        };
-                        do {
-                            ::MODIFIED($left_thunk);
-                            $left_thunk =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 0 ) );
-                        };
-                        do {
-                            ::MODIFIED($right_thunk);
-                            $right_thunk =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 1 ) );
-                        };
-                        ::DISPATCH_VAR( $left, 'STORE',
-                            ::DISPATCH( $left_thunk, 'APPLY', ) );
-                        do {
-                            if (
-                                ::DISPATCH(
-                                    ::DISPATCH( $left, "true" ), "p5landish"
-                                )
-                              )
-                            {
-                                { $left }
-                            }
-                            else {
-                                {
-                                    ::DISPATCH( $right_thunk, 'APPLY', )
-                                }
-                            }
-                          }
-                    },
-                    signature => ::DISPATCH(
-                        $::Signature,
-                        "new",
-                        {
-                            invocant => $::Undef,
-                            array    => ::DISPATCH(
-                                $::Array, "new",
-                                {
-                                    _array => [
-                                        ::DISPATCH(
-                                            $::Signature::Item,
-                                            'new',
-                                            {
-                                                sigil         => '$',
-                                                twigil        => '',
-                                                name          => 'left_thunk',
-                                                value         => undef,
-                                                is_named_only => ::DISPATCH(
-                                                    $::Bit, 'new', 0
-                                                ),
-                                                is_optional => ::DISPATCH(
-                                                    $::Bit, 'new', 0
-                                                ),
-                                                is_slurpy => ::DISPATCH(
-                                                    $::Bit, 'new', 0
-                                                ),
-                                                is_multidimensional =>
-                                                  ::DISPATCH(
-                                                    $::Bit, 'new', 0
-                                                  ),
-                                                is_rw => ::DISPATCH(
-                                                    $::Bit, 'new', 0
-                                                ),
-                                                is_copy => ::DISPATCH(
-                                                    $::Bit, 'new', 0
-                                                ),
-                                            }
-                                        ),
-                                        ::DISPATCH(
-                                            $::Signature::Item,
-                                            'new',
-                                            {
-                                                sigil         => '$',
-                                                twigil        => '',
-                                                name          => 'right_thunk',
+                                                name          => 'b',
                                                 value         => undef,
                                                 is_named_only => ::DISPATCH(
                                                     $::Bit, 'new', 0
