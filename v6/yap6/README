@@ -32,7 +32,15 @@ refcount garbage collection is implemented.
 
 ROADMAP
 
-0.0.2 - Implement the basic types
+0.0.1.13 - Pair Dispatcher.
+
+0.0.1.14 - Hash Dispatcher - probably include a hashcode mechanism or something like that.
+
+0.0.1.15 - Capture Dispatcher.
+
+0.0.1.16 - Last native types...
+
+0.0.2 - Basic types implemeted and stable
 
 0.0.2.5 - Implement namespace as globally accessible
 
