@@ -544,67 +544,7 @@ sub emit_perl5 {
         if   ( ( $self->{code}->name() eq 'self' ) ) { return ('$self') }
         else                                         { }
     };
-    my $op = $self->{code}->emit_perl5();
-    do {
-        if ( ( $op eq '$GLOBAL::Code_infix_58__60__124__124__62_' ) ) {
-            return (
-                (   'do { do { my $____some__weird___var____ = '
-                        . (
-                        $self->{arguments}->[0]->emit_perl5()
-                            . (
-                            '; '
-                                . (
-                                '::DISPATCH($____some__weird___var____,"true")->{_value} && $____some__weird___var____ '
-                                    . (
-                                    '} ||'
-                                        . (
-                                        'do { my $____some__weird___var____ = '
-                                            . (
-                                            $self->{arguments}->[1]->emit_perl5()
-                                                . ( '; ' . ( '::DISPATCH($____some__weird___var____,"true")->{_value} && $____some__weird___var____ ' . ( '} || ::DISPATCH( $::Bit, "new", 0 ) }' . Main::newline() ) ) )
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                )
-            );
-        }
-        else { }
-    };
-    do {
-        if ( ( $op eq '$GLOBAL::Code_infix_58__60__38__38__62_' ) ) {
-            return (
-                (   'do { ( '
-                        . (
-                        'do { my $____some__weird___var____ = '
-                            . (
-                            $self->{arguments}->[0]->emit_perl5()
-                                . (
-                                '; '
-                                    . (
-                                    '::DISPATCH($____some__weird___var____,"true")->{_value} && $____some__weird___var____ '
-                                        . (
-                                        '} &&'
-                                            . (
-                                            'do { my $____some__weird___var____ = '
-                                                . (
-                                                $self->{arguments}->[1]->emit_perl5()
-                                                    . ( '; ' . ( '::DISPATCH($____some__weird___var____,"true")->{_value} && $____some__weird___var____ ' . ( '}) || ::DISPATCH( $::Bit, "new", 0) }' . Main::newline() ) ) )
-                                                )
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                )
-            );
-        }
-        else { }
-    };
-    return ( ( '::DISPATCH( ' . ( $op . ( ', \'APPLY\', ' . ( Main::join( [ map { $_->emit_perl5() } @{ $self->{arguments} } ], ', ' ) . ( ' )' . Main::newline() ) ) ) ) ) );
+    return ( ( '::DISPATCH( ' . ( $self->{code}->emit_perl5() . ( ', \'APPLY\', ' . ( Main::join( [ map { $_->emit_perl5() } @{ $self->{arguments} } ], ', ' ) . ( ' )' . Main::newline() ) ) ) ) ) );
 }
 
 package Return;

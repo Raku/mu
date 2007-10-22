@@ -20,9 +20,26 @@ class GLOBAL {
     sub infix:<^>($a,$b) {
         one($a,$b);
     };
-    sub infix:<..>($a,$b) {
-        Range.new( start => $a, end => $b );
+    sub infix:<..>($from,$to) {
+        Range.new( start => $from, end => $to );
     };
+    sub infix:<&&>($left_thunk,$right_thunk) {
+        my $left = $left_thunk.();
+        if ($left) {
+            $right_thunk.();
+        } else {
+            $left;
+        }
+    };
+    sub infix:<||>($left_thunk,$right_thunk) {
+        my $left = $left_thunk.();
+        if ($left) {
+            $left;
+        } else {
+            $right_thunk.();
+        }
+    };
+
     sub Inf { Math.Inf };
     sub NaN { Math.NaN };
     sub mkdir { IO.mkdir( @_ ) };

@@ -24,7 +24,7 @@ class KindaPerl6::Visitor::ShortCircuit {
             my $left := (($node.arguments)[0]).emit(self);
             my $right := (($node.arguments)[1]).emit(self);
             return ::Apply(
-                code => ::Var( name => ($node.code).name , twigil => '', sigil => '&', namespace => [ ] ),
+                code => $node.code,
                 arguments => [ thunk($left),thunk($right) ]
             );
 

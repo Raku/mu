@@ -34,7 +34,7 @@ sub visit {
         if ( ( ( $node_name eq 'Apply' ) && $pass_thunks->{ $node->code()->name() } ) ) {
             my $left  = $node->arguments()->[0]->emit($self);
             my $right = $node->arguments()->[1]->emit($self);
-            return ( Apply->new( 'code' => Var->new( 'name' => $node->code()->name(), 'twigil' => '', 'sigil' => '&', 'namespace' => [], ), 'arguments' => [ thunk($left), thunk($right) ], ) );
+            return ( Apply->new( 'code' => $node->code(), 'arguments' => [ thunk($left), thunk($right) ], ) );
         }
         else { }
     };
