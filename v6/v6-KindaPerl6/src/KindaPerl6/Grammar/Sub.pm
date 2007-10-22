@@ -25,11 +25,10 @@ token sub_sig {
 };
 
 token arrow_sub_sig {
-    # |   <undeclared_var>
-    |   <exp_sig_item>
+    |   <exp_sig_list>
         { return ::Sig( 
-            'invocant' => ::Val::Undef(),
-            'positional' => [ $$<exp_sig_item> ], 
+            'invocant' =>   ::Val::Undef(),
+            'positional' => $$<exp_sig_list>, 
             ) }
     |   \( <?opt_ws>  <sig>  <?opt_ws>  \)
         { return $$<sig> }

@@ -280,34 +280,43 @@ sub emit_perl5 {
                                                         ( defined( $self->{value} ) ? $self->{value}->emit_perl5() : 'undef' )
                                                         . ( ', '
                                                                 . (
-                                                                'is_named_only  => '
+                                                                'has_default    => '
                                                                     . (
-                                                                    $self->{is_named_only}->emit_perl5()
+                                                                    $self->{has_default}->emit_perl5()
                                                                         . (
                                                                         ', '
                                                                             . (
-                                                                            'is_optional    => '
+                                                                            'is_named_only  => '
                                                                                 . (
-                                                                                $self->{is_optional}->emit_perl5()
+                                                                                $self->{is_named_only}->emit_perl5()
                                                                                     . (
                                                                                     ', '
                                                                                         . (
-                                                                                        'is_slurpy      => '
+                                                                                        'is_optional    => '
                                                                                             . (
-                                                                                            $self->{is_slurpy}->emit_perl5()
+                                                                                            $self->{is_optional}->emit_perl5()
                                                                                                 . (
                                                                                                 ', '
                                                                                                     . (
-                                                                                                    'is_multidimensional  => '
+                                                                                                    'is_slurpy      => '
                                                                                                         . (
-                                                                                                        $self->{is_multidimensional}->emit_perl5()
+                                                                                                        $self->{is_slurpy}->emit_perl5()
                                                                                                             . (
                                                                                                             ', '
                                                                                                                 . (
-                                                                                                                'is_rw          => '
+                                                                                                                'is_multidimensional  => '
                                                                                                                     . (
-                                                                                                                    $self->{is_rw}->emit_perl5()
-                                                                                                                        . ( ', ' . ( 'is_copy        => ' . ( $self->{is_copy}->emit_perl5() . ( ', ' . ( ' } )' . Main::newline() ) ) ) ) )
+                                                                                                                    $self->{is_multidimensional}->emit_perl5()
+                                                                                                                        . (
+                                                                                                                        ', '
+                                                                                                                            . (
+                                                                                                                            'is_rw          => '
+                                                                                                                                . (
+                                                                                                                                $self->{is_rw}->emit_perl5()
+                                                                                                                                    . ( ', ' . ( 'is_copy        => ' . ( $self->{is_copy}->emit_perl5() . ( ', ' . ( ' } )' . Main::newline() ) ) ) ) )
+                                                                                                                                )
+                                                                                                                            )
+                                                                                                                        )
                                                                                                                     )
                                                                                                                 )
                                                                                                             )
@@ -397,8 +406,31 @@ sub emit_arguments {
     do {
 
         for my $field ( @{ $self->{sig}->positional() } ) {
-            my $bind = Bind->new( 'parameters' => $field->key(), 'arguments' => Call->new( 'invocant' => $array_, 'arguments' => [ Val::Int->new( 'int' => $i, ) ], 'method' => 'INDEX', ), );
-            $str = ( $str . ( $bind->emit_perl5() . ';' ) );
+            my $bind;
+            do {
+                if ( $field->has_default()->bit() ) {
+                    $str = (
+                        $str
+                            . (
+                            ' if ( exists $List__->{_value}{_array}['
+                                . (
+                                $i
+                                    . (
+                                    '] ) '
+                                        . (
+                                        ' { '
+                                            . (
+                                            Bind->new( 'parameters' => $field->key(), 'arguments' => Call->new( 'invocant' => $array_, 'arguments' => [ Val::Int->new( 'int' => $i, ) ], 'method' => 'INDEX', ), )->emit_perl5()
+                                                . ( ' } ' . ( ' else { ' . ( Bind->new( 'parameters' => $field->key(), 'arguments' => $field->value(), )->emit_perl5() . ' };' ) ) )
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                    );
+                }
+                else { $bind = Bind->new( 'parameters' => $field->key(), 'arguments' => Call->new( 'invocant' => $array_, 'arguments' => [ Val::Int->new( 'int' => $i, ) ], 'method' => 'INDEX', ), ); $str = ( $str . ( $bind->emit_perl5() . ';' ) ) }
+            };
             $i = ( $i + 1 );
         }
     };

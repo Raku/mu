@@ -153,6 +153,7 @@ class Lit::SigArgument {
 
         ~     'value  => ' ~ ( defined($.value) ?? $.value.emit_perl5 !! 'undef' ) ~ ', '  # XXX
 
+        ~     'has_default    => ' ~ $.has_default.emit_perl5  ~ ', '
         ~     'is_named_only  => ' ~ $.is_named_only.emit_perl5  ~ ', '
         ~     'is_optional    => ' ~ $.is_optional.emit_perl5    ~ ', '
         ~     'is_slurpy      => ' ~ $.is_slurpy.emit_perl5      ~ ', '
@@ -213,10 +214,38 @@ class Lit::Code {
         my $i := 0;
         my $field;
         for @($.sig.positional) -> $field { 
-            my $bind := ::Bind(
-                parameters => $field.key,
-                arguments  => ::Call(invocant => $array_ , arguments=>[::Val::Int(int=>$i)],method=>'INDEX') );
-            $str := $str ~ $bind.emit_perl5 ~ ';';
+            my $bind;
+            if ($field.has_default).bit {
+                $str := $str 
+                    ~ ' if ( exists $List__->{_value}{_array}[' ~ $i ~ '] ) '
+                    ~ ' { '
+                    ~ ::Bind(
+                            parameters => $field.key,
+                            arguments  => ::Call(
+                                invocant => $array_ , 
+                                arguments=>[::Val::Int(int=>$i)],
+                                method   =>'INDEX',
+                            ), 
+                        ).emit_perl5 
+                    ~ ' } '
+                    ~ ' else { ' 
+                    ~ ::Bind(
+                            parameters => $field.key,
+                            arguments  => $field.value, 
+                        ).emit_perl5 
+                    ~ ' };';
+            }
+            else {
+                $bind := ::Bind(
+                    parameters => $field.key,
+                    arguments  => ::Call(
+                            invocant => $array_ , 
+                            arguments=>[::Val::Int(int=>$i)],
+                            method   =>'INDEX',
+                        ), 
+                );
+                $str := $str ~ $bind.emit_perl5 ~ ';';
+            }
             $i := $i + 1;
         };
 

@@ -50,6 +50,7 @@ package GLOBAL;
         infix_58__60__60__62_
         infix_58__60_but_62_
         infix_58__60_x_62_
+        infix_58__60__47__47__62_
         
         prefix_58__60__33__62_
         prefix_58__60__36__62_
@@ -261,6 +262,8 @@ package GLOBAL;
     { ::DISPATCH( $::Int, 'new', _int( $_[0] ) / _int( $_[1] ) ) }  # infix:</>   XXX - Num
     sub infix_58__60__62__62_  
     { ::DISPATCH( $::Bit, 'new', (_int($_[0]) > _int($_[1])) ? 1 : 0) }  # >
+    sub infix_58__60__47__47__62_
+    { die "not implemented"; }  # //  TODO
 
     sub infix_58__60_but_62_ {    # but
         my $value = ::DISPATCH( $_[0], 'FETCH' );

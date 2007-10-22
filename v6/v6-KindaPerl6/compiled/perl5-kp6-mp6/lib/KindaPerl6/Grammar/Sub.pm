@@ -192,9 +192,9 @@ sub arrow_sub_sig {
             my $pos1 = $MATCH->to();
             (   do {
                     (   do {
-                            my $m2 = $grammar->exp_sig_item( $str, $MATCH->to() );
+                            my $m2 = $grammar->exp_sig_list( $str, $MATCH->to() );
                             do {
-                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'exp_sig_item'} = $m2; 1 }
+                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'exp_sig_list'} = $m2; 1 }
                                 else     {0}
                                 }
                             }
@@ -202,7 +202,7 @@ sub arrow_sub_sig {
                             my $ret = sub {
                                 my $List__ = \@_;
                                 do { [] };
-                                do { return ( Sig->new( 'invocant' => Val::Undef->new(), 'positional' => [ ${ $MATCH->{'exp_sig_item'} } ], ) ) };
+                                do { return ( Sig->new( 'invocant' => Val::Undef->new(), 'positional' => ${ $MATCH->{'exp_sig_list'} }, ) ) };
                                 '974^213';
                                 }
                                 ->();

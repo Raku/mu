@@ -242,6 +242,7 @@ class Lit::SigArgument {
     has $.type;
 
     # see also S06, Runtime::Perl6::Signature.pm, Grammar::Signature.pm
+    has $.has_default;
     has $.is_named_only;
     has $.is_optional;  # !is_required
     # has $.is_longname;
@@ -263,6 +264,7 @@ class Lit::SigArgument {
                 key             => $.key,
                 value           => $.value,
                 type            => $.type,
+                has_default     => $.has_default,
                 is_named_only   => $.is_named_only,
                 is_optional     => $.is_optional,  # !is_required
                 # $.is_longname,
