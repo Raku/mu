@@ -6,7 +6,6 @@
 use strict;
 use ExtUtils::MakeMaker;
 
-
 # Makefile.PL needs to be rerun with a different KP6_TARGET in order to build kp6-mp6, kp6-kp6, or kp6-lisp
 my $KP6_TARGET = $ENV{KP6_TARGET} || "KP6-MP6";
 my %Kp6Build;
@@ -44,7 +43,7 @@ else {
 
 my %PM;
 
-#for my $lib (qw(mp6 kp6)) 
+#for my $lib (qw(mp6 kp6))
 {
     my @lib_pm = glob "$Kp6Build{lib}/KindaPerl6/*.pm $Kp6Build{lib}/KindaPerl6/*/*.pm $Kp6Build{lib}/KindaPerl6/*/*/*.pm";
     push @lib_pm, glob "compiled/cl/lib/KindaPerl6/Runtime/Lisp/*lisp";
@@ -145,21 +144,100 @@ test_base: all
 END
 }
 
-# FIXME: This uses patsubst and wildcard which are gnuisms
+# while, this code does the expansion INSIDE of Makefile.PL it really
+# should be done inside of the Makefile.  I just couldn't figure out a way
+# to do it in nmake.
+
+=head2 _patsubst_wildcard
+
+_patsubst_wildcard is a subroutine to handle the gnuism usage of
+
+ $(patsub search, replace, $(wildcard globs))
+
+=cut
+
+sub _patsubst_wildcard
+{
+    my ( $search, $replace, @globs ) = @_;
+    my @files;
+
+    for my $glob ( @globs ) {
+        for my $file ( < $glob > ) {
+            $file =~ s!^$search!$replace!o;
+            push @files, $file;
+        }
+    }
+
+    return join ' ', @files;
+}
+
 sub constants
 {
-    my $self = shift;
+    my $self      = shift;
     my $inherited = $self->SUPER::constants(@_);
+    $inherited    .= "\n";
 
-$inherited . "\n" .
-<<"END"
+    # FIXME: while this supports nmake, some people will have strawberry perl
+    # or gnumake on their system.  Other "make" programs may support gnuisms.
+
+    # possible fixes
+    # attempt to execute make -help, nmake -help, dmake -help and see what
+    # reports back as working
+
+    if ( $^O eq 'MSWin32' ) {
+        # nmake (Microsoft nmake doesn't support the gnuism's
+        # $(patsubst search, replace, text)
+        # $(wildcard glob, glob, ..)
+
+        my $warning = <<"END";
+# WARNING: You will have to rebuild Makefile when ever you add a file to
+# this list.  This is due to Microsoft's nmake not supporting features that
+# gnu make supports.
+
+# The specific problem that will arise is that if you add a file to a directory
+# however, make will not "add" that file to the list of files to be compiled.
+# To fix this you will have to rebuild the Makefile.  "perl Makefile.PL"
+# this is specific ONLY to MS Windows.
+END
+
+        warn $warning;
+
+        $inherited .= "# Custom v6-KindaPerl6 constants:\n";
+
+        $inherited .= 'kp6_mp6_OBJ = ' . _patsubst_wildcard( qw |
+                        src/
+                        compiled/perl5-kp6-mp6/lib/
+                        src/*.pm
+                        src/KindaPerl6/Grammar/*.pm
+                        src/KindaPerl6/Grammar.pm
+                        src/KindaPerl6/Traverse.pm
+                        src/KindaPerl6/Ast.pm
+                        src/KindaPerl6/Visitor/*.pm
+                        src/KindaPerl6/Visitor/Emit/*.pm
+                        src/KindaPerl6/Runtime/Perl5/*.pm
+                        src/KindaPerl6/Runtime/Perl6/*.pm
+                        src/KindaPerl6/Test/*.pm |
+        ) . "\n";
+
+        $inherited .= 'kp6_mp6_OBJ = ' . _patsubst_wildcard( qw |
+                        src/
+                        compiled/cl/lib/
+                        src/KindaPerl6/Runtime/Lisp/*.lisp |
+        ) . "\n";
+
+        $inherited .= "# End custom v6-KindaPerl6 constants\n";
+    } else {
+        $inherited .= <<"END"
 # Custom v6-KindaPerl6 constants:
-kp6_mp6_OBJ = \$(patsubst src/%,$Kp6Build{lib}/%,\$(wildcard src/*.pm src/KindaPerl6/Grammar/*.pm src/KindaPerl6/Grammar.pm src/KindaPerl6/Traverse.pm src/KindaPerl6/Ast.pm src/KindaPerl6/Visitor/*.pm src/KindaPerl6/Visitor/Emit/*.pm src/KindaPerl6/Runtime/Perl5/*.pm src/KindaPerl6/Runtime/Perl6/*.pm src/KindaPerl6/Test/*.pm )) \$(patsubst src/%,compiled/cl/lib/%,\$(wildcard src/KindaPerl6/Runtime/Lisp/*.lisp))
+kp6_mp6_OBJ = \$(patsubst src/%,$Kp6Build{lib}/%,\$(wildcard src/*.pm src/KindaPerl6/Grammar/*.pm src/KindaPerl6/Grammar.pm src/KindaPerl6/Traverse.pm src/KindaPerl6/Ast.pm src/KindaPerl6/Visitor/*.pm src/KindaPerl6/Visitor/Emit/*.pm src/KindaPerl6/Runtime/Perl5/*.pm src/KindaPerl6/Runtime/Perl6/*.pm src/KindaPerl6/Test/*.pm ))
 
 kp6_mp6_modules_OBJ = \$(patsubst src-modules/%,$Kp6Build{module_lib}/%,\$(wildcard src-modules/*.pm))
 
 # End custom v6-KindaPerl6 constants
 END
+    }
+
+    return $inherited;
 }
 
 # FIXME: top_targets shoul rightly just contain `all', putting all
@@ -318,5 +396,18 @@ Run math tests
 Run base tests
 
 =back
+
+=head2 WARNING
+
+MSWin32 Platforms:
+
+WARNING: You will have to rebuild Makefile when ever you add a file to
+this list.  This is due to Microsofts nmake not supporting features that
+gnu make supports.
+
+The specific problem that will arise is that if you add a file to a directory
+however, make will not "add" that file to the list of files to be compiled.
+To fix this you will have to rebuild the Makefile.  "perl Makefile.PL"
+this is specific ONLY to MS Windows.
 
 =cut
