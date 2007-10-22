@@ -59,13 +59,11 @@ grammar KindaPerl6::Grammar {
     token sig {
         <invocant>
         <?opt_ws> 
-        # TODO - exp_seq / exp_mapping == positional / named 
-        # ??? exp_sig_list
         <exp_sig_list> 
         {
             # say ' invocant: ', ($$<invocant>).perl;
             # say ' positional: ', ($$<exp_seq>).perl;
-            return ::Sig( 'invocant' => $$<invocant>, 'positional' => $$<exp_sig_list>, 'named' => { } );
+            return ::Sig( 'invocant' => $$<invocant>, 'positional' => $$<exp_sig_list>, );
         }
     };
 

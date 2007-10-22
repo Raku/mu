@@ -712,7 +712,7 @@ sub sig {
                                 my $ret = sub {
                                     my $List__ = \@_;
                                     do { [] };
-                                    do { return ( Sig->new( 'invocant' => ${ $MATCH->{'invocant'} }, 'positional' => ${ $MATCH->{'exp_sig_list'} }, 'named' => {}, ) ) };
+                                    do { return ( Sig->new( 'invocant' => ${ $MATCH->{'invocant'} }, 'positional' => ${ $MATCH->{'exp_sig_list'} }, ) ) };
                                     '974^213';
                                     }
                                     ->();

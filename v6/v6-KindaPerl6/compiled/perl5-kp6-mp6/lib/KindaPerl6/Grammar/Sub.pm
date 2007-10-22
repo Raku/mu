@@ -76,7 +76,7 @@ sub method_sig {
                         my $ret = sub {
                             my $List__ = \@_;
                             do { [] };
-                            do { return ( Sig->new( 'invocant' => Var->new( 'sigil' => '$', 'twigil' => '', 'name' => 'self', 'namespace' => [], ), 'positional' => [], 'named' => {}, ) ) };
+                            do { return ( Sig->new( 'invocant' => Var->new( 'sigil' => '$', 'twigil' => '', 'name' => 'self', 'namespace' => [], ), 'positional' => [], ) ) };
                             '974^213';
                             }
                             ->();
@@ -162,7 +162,7 @@ sub sub_sig {
                         my $ret = sub {
                             my $List__ = \@_;
                             do { [] };
-                            do { return ( Sig->new( 'invocant' => (undef), 'positional' => [], 'named' => {}, ) ) };
+                            do { return ( Sig->new( 'invocant' => (undef), 'positional' => [], ) ) };
                             '974^213';
                             }
                             ->();
@@ -192,9 +192,9 @@ sub arrow_sub_sig {
             my $pos1 = $MATCH->to();
             (   do {
                     (   do {
-                            my $m2 = $grammar->undeclared_var( $str, $MATCH->to() );
+                            my $m2 = $grammar->exp_sig_item( $str, $MATCH->to() );
                             do {
-                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'undeclared_var'} = $m2; 1 }
+                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'exp_sig_item'} = $m2; 1 }
                                 else     {0}
                                 }
                             }
@@ -202,7 +202,7 @@ sub arrow_sub_sig {
                             my $ret = sub {
                                 my $List__ = \@_;
                                 do { [] };
-                                do { return ( Sig->new( 'invocant' => Val::Undef->new(), 'positional' => [ ${ $MATCH->{'undeclared_var'} } ], 'named' => {}, ) ) };
+                                do { return ( Sig->new( 'invocant' => Val::Undef->new(), 'positional' => [ ${ $MATCH->{'exp_sig_item'} } ], ) ) };
                                 '974^213';
                                 }
                                 ->();
@@ -775,9 +775,8 @@ sub sub_block {
                                                     my $env = COMPILER::current_pad();
                                                     COMPILER::drop_pad();
                                                     my $block = ${ $MATCH->{'exp_stmts'} };
-                                                    KindaPerl6::Grammar::declare_parameters( $env, $block, Sig->new( 'invocant' => (undef), 'positional' => [], 'named' => {}, ) );
-                                                    return (
-                                                        Sub->new( 'name' => (undef), 'block' => Lit::Code->new( 'pad' => $env, 'state' => {}, 'sig' => Sig->new( 'invocant' => (undef), 'positional' => [], 'named' => {}, ), 'body' => $block, ), ) );
+                                                    KindaPerl6::Grammar::declare_parameters( $env, $block, Sig->new( 'invocant' => (undef), 'positional' => [], ) );
+                                                    return ( Sub->new( 'name' => (undef), 'block' => Lit::Code->new( 'pad' => $env, 'state' => {}, 'sig' => Sig->new( 'invocant' => (undef), 'positional' => [], ), 'body' => $block, ), ) );
                                                 };
                                                 '974^213';
                                                 }

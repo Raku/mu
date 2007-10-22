@@ -13,7 +13,7 @@ token method_sig {
                 'namespace' => [ ], 
                 ), 
             'positional' => [ ], 
-            'named' => { } ) }
+            ) }
 };
 token sub_sig {
     |   <?opt_ws> \( <?opt_ws>  <sig>  <?opt_ws>  \)
@@ -21,15 +21,16 @@ token sub_sig {
     |   { return ::Sig( 
             'invocant' => undef,
             'positional' => [ ], 
-            'named' => { } ) }
+            ) }
 };
 
 token arrow_sub_sig {
-    |   <undeclared_var>
+    # |   <undeclared_var>
+    |   <exp_sig_item>
         { return ::Sig( 
             'invocant' => ::Val::Undef(),
-            'positional' => [ $$<undeclared_var> ], 
-            'named' => { } ) }
+            'positional' => [ $$<exp_sig_item> ], 
+            ) }
     |   \( <?opt_ws>  <sig>  <?opt_ws>  \)
         { return $$<sig> }
 }
@@ -153,7 +154,6 @@ token sub_block {
             ::Sig( 
                 'invocant' => undef, 
                 'positional' => [ ], 
-                'named' => { } 
             ),
         );    
         return ::Sub( 
@@ -165,7 +165,6 @@ token sub_block {
                     ::Sig( 
                         'invocant' => undef, 
                         'positional' => [ ], 
-                        'named' => { } 
                     ),
                 body  => $block,
             ),
