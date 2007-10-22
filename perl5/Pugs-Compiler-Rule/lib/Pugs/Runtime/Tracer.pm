@@ -3,6 +3,7 @@ package Pugs::Runtime::Tracer;
 use strict;
 use warnings;
 use base 'Exporter';
+#use Smart::Comments;
 
 our @EXPORT = qw(
    trace_begin trace_end trace
@@ -30,13 +31,16 @@ sub trace ($@) {
 sub expand_tracing_code {
     my $s = shift;
     open my $in, '<', \$s or die;
-    my ($name);
+    my @names;
+    my $name;
     my $new;
     while (<$in>) {
         chomp;
         if (/^\s*## <(\w+)>$/) {
-            $new .= $_ . "\n";
             $name = $1;
+            push @names, $name;
+            ### begin: $name
+            $new .= $_ . "\n";
         } elsif (/^(\s*)## pos: (\d+) (\d+)/) {
             my ($tab, $from, $to) = ($1, $2, $3);
             $new .= <<"_EOC_";
@@ -47,8 +51,10 @@ $tab   my \$retval =
 _EOC_
         } elsif (/^(\s*)## <\/(\w+)>$/) {
             my ($tab, $n) = ($1, $2);
-            if (!defined $name or $n ne $name) {
-                die "ERROR: unexpected close tag </$n>";
+            $name = pop @names;
+            ### end: $n . "<=>" . $name
+            if (!defined $name || $n ne $name) {
+                die "ERROR: unexpected closing tag </$n>";
             } else {
                 $new .= <<"_EOC_";
 $_

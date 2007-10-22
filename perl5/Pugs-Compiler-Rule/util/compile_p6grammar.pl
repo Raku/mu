@@ -4,9 +4,10 @@ use lib 'lib';
 use File::Slurp 'slurp';
 use Getopt::Std;
 use Pugs::Compiler::Grammar;
+use Pugs::Runtime::Tracer;
 
 my %opts;
-getopts("s:", \%opts) or help();
+getopts("Ds:", \%opts) or help();
 if (defined $opts{s}) {
     $::PCR_SEED = $opts{s};
 }
@@ -27,11 +28,15 @@ use strict;
 use warnings;
 
 EOC
+    if ($opts{D}) {
+        print "use Pugs::Runtime::Tracer;\n";
+        $perl5 = expand_tracing_code($perl5);
+    }
     print $perl5;
 }
 
 sub help {
-    die "Usage: $0 [-s seed] foo.grammar > Foo.pm\n";
+    die "Usage: $0 [-s seed] [-D] foo.grammar > Foo.pm\n";
 }
 
 __END__

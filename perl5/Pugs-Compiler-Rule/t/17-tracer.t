@@ -52,3 +52,26 @@ is $out, <<'_EOC_';
      }
 _EOC_
 
+$out = expand_tracing_code(<<'_EOC_');
+## <a>
+## <b>
+## </b>
+## <c>
+## </c>
+## </a>
+_EOC_
+
+eval {
+$out = expand_tracing_code(<<'_EOC_');
+## <a>
+## <b>
+## </b>
+## <c>
+## </d>
+## </a>
+_EOC_
+};
+
+ok $@, 'unmatched tag';
+like($@, qr{unexpected closing tag </d>}, 'unmatched tags');
+
