@@ -17,3 +17,12 @@ clean:
 	rm install-sh
 	rm depcomp
 	rm -f src/Makefile.in
+
+build-world:
+	make -f Makefile.cvs
+	./configure
+	make test
+
+clean-world:
+	make distclean
+	make -f Makefile.cvs clean
