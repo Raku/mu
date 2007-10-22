@@ -27,6 +27,7 @@ class KindaPerl6::Visitor::ExtractRuleBlock {
                                     sigil       => '$',
                                 ),
                                 value         => undef,
+                                type          => '',
                                 is_multidimensional => ::Val::Bit( bit => '0', ),
                                 is_slurpy     => ::Val::Bit( bit => '0', ),
                                 is_optional   => ::Val::Bit( bit => '0', ),

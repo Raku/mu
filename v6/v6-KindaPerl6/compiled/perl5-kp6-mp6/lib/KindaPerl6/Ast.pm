@@ -261,6 +261,7 @@ package Lit::SigArgument;
 sub new { shift; bless {@_}, "Lit::SigArgument" }
 sub key                 { @_ == 1 ? ( $_[0]->{key} )                 : ( $_[0]->{key}                 = $_[1] ) }
 sub value               { @_ == 1 ? ( $_[0]->{value} )               : ( $_[0]->{value}               = $_[1] ) }
+sub type                { @_ == 1 ? ( $_[0]->{type} )                : ( $_[0]->{type}                = $_[1] ) }
 sub is_named_only       { @_ == 1 ? ( $_[0]->{is_named_only} )       : ( $_[0]->{is_named_only}       = $_[1] ) }
 sub is_optional         { @_ == 1 ? ( $_[0]->{is_optional} )         : ( $_[0]->{is_optional}         = $_[1] ) }
 sub is_slurpy           { @_ == 1 ? ( $_[0]->{is_slurpy} )           : ( $_[0]->{is_slurpy}           = $_[1] ) }
@@ -283,6 +284,7 @@ sub attribs {
     do { [] };
     {   'key'                 => $self->{key},
         'value'               => $self->{value},
+        'type'                => $self->{type},
         'is_named_only'       => $self->{is_named_only},
         'is_optional'         => $self->{is_optional},
         'is_slurpy'           => $self->{is_slurpy},

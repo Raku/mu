@@ -32,6 +32,7 @@ sub visit {
                                 Lit::SigArgument->new(
                                     'key'   => Var->new( 'namespace' => [], 'name' => 'MATCH', 'twigil' => '', 'sigil' => '$', ),
                                     'value' => (undef),
+                                    'type'  => '',
                                     'is_multidimensional' => Val::Bit->new( 'bit' => '0', ),
                                     'is_slurpy'           => Val::Bit->new( 'bit' => '0', ),
                                     'is_optional'         => Val::Bit->new( 'bit' => '0', ),

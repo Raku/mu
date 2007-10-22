@@ -239,6 +239,7 @@ class Lit::Pair {
 class Lit::SigArgument {
     has $.key;
     has $.value;
+    has $.type;
 
     # see also S06, Runtime::Perl6::Signature.pm, Grammar::Signature.pm
     has $.is_named_only;
@@ -261,6 +262,7 @@ class Lit::SigArgument {
             { 
                 key             => $.key,
                 value           => $.value,
+                type            => $.type,
                 is_named_only   => $.is_named_only,
                 is_optional     => $.is_optional,  # !is_required
                 # $.is_longname,
