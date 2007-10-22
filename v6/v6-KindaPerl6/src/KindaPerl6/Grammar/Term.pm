@@ -14,18 +14,32 @@ token term {
     | \( <?opt_ws> <exp> <?opt_ws> \)
         { return $$<exp> }   # ( exp )
         
+    # Pair, Hash, Bare block
     | \( <?opt_ws> <pair> <?opt_ws> \) 
         # special case - just for testing
         { return ::Lit::Pair( key => ($$<pair>)[0], value => ($$<pair>)[1] ) }
-    | \{ <?opt_ws> <pair> <?opt_ws> , <?opt_ws> \} 
-        { return ::Lit::Pair( key => ($$<pair>)[0], value => ($$<pair>)[1] ) }
-    | \{ <?opt_ws> <pair> <?opt_ws> <?opt_ws> \} 
-        { 
-            die "TODO: bare block";
-            return ::Lit::Pair( key => ($$<pair>)[0], value => ($$<pair>)[1] );
-        }
-    | \{ <?opt_ws> <exp_mapping> <?opt_ws> \}
-        { return ::Lit::Hash( 'hash' => $$<exp_mapping> ) }   # { exp => exp, ... }
+    | \{ <?opt_ws> 
+        [
+        |   <pair> <?opt_ws> , <?opt_ws> \} 
+            { return ::Lit::Pair( key => ($$<pair>)[0], value => ($$<pair>)[1] ) }
+        |   <pair> <?opt_ws> \} 
+            { 
+                die "TODO: bare block";
+                return ::Lit::Pair( key => ($$<pair>)[0], value => ($$<pair>)[1] );
+            }
+        |   <exp_mapping> <?opt_ws> \}
+            { return ::Lit::Hash( 'hash' => $$<exp_mapping> ) }   # { exp => exp, ... }
+        |   <exp_stmts> <?opt_ws> <?opt_ws> \} 
+            { 
+                die "TODO: bare block";
+                return ::Lit::Pair( key => ($$<pair>)[0], value => ($$<pair>)[1] );
+            }
+        |
+            { 
+                die "syntax error inside bare block";
+            }
+        ]    
+        
     | \[ <?opt_ws> <exp_seq> <?opt_ws> \]
         { return ::Lit::Array( 'array' => $$<exp_seq> ) }     # [ exp, ... ]
 
