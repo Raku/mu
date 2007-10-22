@@ -6,6 +6,7 @@ use base 'Exporter';
 
 our @EXPORT = qw(
    trace_begin trace_end trace
+   expand_tracing_code
 );
 
 sub trace_begin ($$$$) {
@@ -32,24 +33,36 @@ sub expand_tracing_code {
     my ($name);
     my $new;
     while (<$in>) {
+        chomp;
         if (/^\s*## <(\w+)>$/) {
+            $new .= $_ . "\n";
             $name = $1;
-        } elsif (/^(\s*)## </(\w+)>$/) {
+        } elsif (/^(\s*)## pos: (\d+) (\d+)/) {
+            my ($tab, $from, $to) = ($1, $2, $3);
+            $new .= <<"_EOC_";
+$_
+$tab do {
+$tab   trace_begin('$name', $from, $to, \$pos);
+$tab   my \$retval =
+_EOC_
+        } elsif (/^(\s*)## <\/(\w+)>$/) {
             my ($tab, $n) = ($1, $2);
             if (!defined $name or $n ne $name) {
                 die "ERROR: unexpected close tag </$n>";
             } else {
-                $new .= <<"_EOC_"
+                $new .= <<"_EOC_";
+$_
 $tab ;
 $tab   trace_end('$name', \$retval, \$pos);
 $tab   return \$retval;
 $tab }
 _EOC_
+            }
+        } else {
+            $new .= $_ . "\n";
         }
-    } continue {
-        $new .= $_;
     }
-
+    return $new;
 }
 
 1;
