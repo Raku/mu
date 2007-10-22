@@ -259,18 +259,6 @@ class If {
     }
 }
 
-class For {
-    method emit_perl6 {
-        my $cond := $.cond;
-        if   $cond.isa( 'Var' ) 
-          && $cond.sigil eq '@' 
-        {
-            $cond := ::Apply( code => 'prefix:<@>', arguments => [ $cond ] );
-        };
-        'do { for my ' ~ $.topic.emit_perl6 ~ ' ( ' ~ $cond.emit_perl6 ~ ' ) { ' ~ $.body.emit_perl6 ~ ' } }';
-    }
-}
-
 class Decl {
     method emit_perl6 {
         return $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit_perl6;

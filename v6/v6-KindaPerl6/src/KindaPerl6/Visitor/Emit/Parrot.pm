@@ -780,39 +780,6 @@ class If {
     }
 }
 
-class For {
-    has $.cond;
-    has @.body;
-    has @.topic;
-    my $label := 100;
-    method emit_parrot {
-        my $cond := $.cond;
-        $label := $label + 1;
-        my $id := $label;
-        if   $cond.isa( 'Var' )
-          && $cond.sigil ne '@'
-        {
-            $cond := ::Lit::Array( array => [ $cond ] );
-        };
-        return
-            '' ~ 
-            $cond.emit_parrot ~
-            '  save $P1' ~ Main::newline() ~
-            '  save $P2' ~ Main::newline() ~
-            '  $P1 = new .Iterator, $P0' ~ Main::newline() ~
-            ' test_iter'  ~ $id ~ ':' ~ Main::newline() ~
-            '  unless $P1 goto iter_done'  ~ $id ~ Main::newline() ~
-            '  $P2 = shift $P1' ~ Main::newline() ~
-            '  store_lex \'' ~ $.topic.full_name ~ '\', $P2' ~ Main::newline() ~
-            (@.body.>>emit_parrot).join('') ~
-            '  goto test_iter'  ~ $id ~ Main::newline() ~
-            ' iter_done'  ~ $id ~ ':' ~ Main::newline() ~
-            '  restore $P2' ~ Main::newline() ~
-            '  restore $P1' ~ Main::newline() ~
-            ''; 
-    }
-}
-
 class Decl {
     has $.decl;
     has $.type;

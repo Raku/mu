@@ -332,21 +332,6 @@ sub emit_perl6 {
     ( 'do { if ( ${' . ( $self->{cond}->emit_perl6() . ( '->FETCH} ) { ' . ( $self->{body}->emit_perl6() . ( ' } ' . ( ( $self->{otherwise} ? ( ' else { ' . ( $self->{otherwise}->emit_perl6() . ' }' ) ) : '' ) . ' }' ) ) ) ) ) );
 }
 
-package For;
-sub new { shift; bless {@_}, "For" }
-
-sub emit_perl6 {
-    my $self   = shift;
-    my $List__ = \@_;
-    do { [] };
-    my $cond = $self->{cond};
-    do {
-        if ( ( Main::isa( $cond, 'Var' ) && ( $cond->sigil() eq '@' ) ) ) { $cond = Apply->new( 'code' => 'prefix:<@>', 'arguments' => [$cond], ) }
-        else                                                              { }
-    };
-    ( 'do { for my ' . ( $self->{topic}->emit_perl6() . ( ' ( ' . ( $cond->emit_perl6() . ( ' ) { ' . ( $self->{body}->emit_perl6() . ' } }' ) ) ) ) ) );
-}
-
 package Decl;
 sub new { shift; bless {@_}, "Decl" }
 

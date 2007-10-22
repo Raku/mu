@@ -670,24 +670,6 @@ sub emit_lisp {
     );
 }
 
-package For;
-sub new { shift; bless {@_}, "For" }
-
-sub emit_lisp {
-    my $self   = shift;
-    my $List__ = \@_;
-    my $interpreter;
-    my $indent;
-    do { $interpreter = $List__->[0]; $indent = $List__->[1]; [ $interpreter, $indent ] };
-    my $cond = $self->{cond};
-    do {
-        if   ( ( Main::isa( $cond, 'Var' ) && ( $cond->sigil() eq '@' ) ) ) { }
-        else                                                                { $cond = Apply->new( 'code' => Var->new( 'sigil' => '&', 'twigil' => '', 'name' => 'prefix:<@>', 'namespace' => ['GLOBAL'], ), 'arguments' => [$cond], ) }
-    };
-    ( '(kp6-for-loop-structure ('
-            . ( $interpreter . ( ' ' . ( $self->{topic}->emit_lisp_name() . ( ' ' . ( $cond->emit_lisp( $interpreter, $indent ) . ( ')' . ( Main::newline() . ( ' ' . ( $self->{body}->emit_lisp( $interpreter, $indent ) . ')' ) ) ) ) ) ) ) ) ) );
-}
-
 package While;
 sub new { shift; bless {@_}, "While" }
 

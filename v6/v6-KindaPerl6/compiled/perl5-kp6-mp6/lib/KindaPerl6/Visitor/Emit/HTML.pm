@@ -361,21 +361,6 @@ sub emit_html {
             . ( $self->{cond}->emit_html() . ( '->FETCH} ) { ' . ( $self->{body}->emit_html() . ( ' } ' . ( ( $self->{otherwise} ? ( ' else { ' . ( $self->{otherwise}->emit_html() . ' }' ) ) : '' ) . ' }' ) ) ) ) ) );
 }
 
-package For;
-sub new { shift; bless {@_}, "For" }
-
-sub emit_html {
-    my $self   = shift;
-    my $List__ = \@_;
-    do { [] };
-    my $cond = $self->{cond};
-    do {
-        if ( ( Main::isa( $cond, 'Var' ) && ( $cond->sigil() eq '@' ) ) ) { $cond = Apply->new( 'code' => 'prefix:<@>', 'arguments' => [$cond], ) }
-        else                                                              { }
-    };
-    ( '<span class="keyword">do</span> { <span class="keyword">for my</span> ' . ( $self->{topic}->emit_html() . ( ' ( ' . ( $cond->emit_html() . ( ' ) { ' . ( $self->{body}->emit_html() . ' } }' ) ) ) ) ) );
-}
-
 package Decl;
 sub new { shift; bless {@_}, "Decl" }
 

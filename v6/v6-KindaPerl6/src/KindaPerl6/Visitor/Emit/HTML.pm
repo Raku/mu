@@ -291,19 +291,6 @@ class If {
     }
 }
 
-class For {
-    method emit_html {
-        my $cond := $.cond;
-        if   $cond.isa( 'Var' ) 
-          && $cond.sigil eq '@' 
-        {
-            $cond := ::Apply( code => 'prefix:<@>', arguments => [ $cond ] );
-        };
-        '<span class="keyword">do</span> { <span class="keyword">for my</span> ' 
-            ~ $.topic.emit_html ~ ' ( ' ~ $cond.emit_html ~ ' ) { ' ~ $.body.emit_html ~ ' } }';
-    }
-}
-
 class Decl {
     method emit_html {
         return $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit_html;

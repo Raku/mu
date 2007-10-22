@@ -430,24 +430,6 @@ class If {
         ~ ' }' ~ Main::newline();
     }
 }
-class For {
-    method emit_perl5 {
-        my $cond := $.cond;
-        if   $cond.isa( 'Var' ) 
-          && $cond.sigil eq '@' 
-        {
-        } else {
-            $cond := ::Apply( code => ::Var(sigil=>'&',twigil=>'',name=>'prefix:<@>',namespace => [ 'GLOBAL' ],), arguments => [$cond] );
-        }
-        'for ' 
-        ~   $.topic.emit_perl5 
-        ~ ' ( @{ ' ~ $cond.emit_perl5 ~ '->{_value}{_array} } )'
-        ~ ' { ' 
-        ~     $.body.emit_perl5 
-        ~ ' } '
-        ~ Main::newline();
-    }
-}
 
 class While {
     method emit_perl5 {

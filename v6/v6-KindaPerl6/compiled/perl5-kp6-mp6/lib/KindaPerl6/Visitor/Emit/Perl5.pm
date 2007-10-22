@@ -578,21 +578,6 @@ sub emit_perl5 {
     );
 }
 
-package For;
-sub new { shift; bless {@_}, "For" }
-
-sub emit_perl5 {
-    my $self   = shift;
-    my $List__ = \@_;
-    do { [] };
-    my $cond = $self->{cond};
-    do {
-        if   ( ( Main::isa( $cond, 'Var' ) && ( $cond->sigil() eq '@' ) ) ) { }
-        else                                                                { $cond = Apply->new( 'code' => Var->new( 'sigil' => '&', 'twigil' => '', 'name' => 'prefix:<@>', 'namespace' => ['GLOBAL'], ), 'arguments' => [$cond], ) }
-    };
-    ( 'for ' . ( $self->{topic}->emit_perl5() . ( ' ( @{ ' . ( $cond->emit_perl5() . ( '->{_value}{_array} } )' . ( ' { ' . ( $self->{body}->emit_perl5() . ( ' } ' . Main::newline() ) ) ) ) ) ) ) );
-}
-
 package While;
 sub new { shift; bless {@_}, "While" }
 
