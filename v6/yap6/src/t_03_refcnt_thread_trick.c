@@ -41,7 +41,7 @@ int main(int argc, char** argv) {
   yap6_init();
 
   foo = yap6_value_alloc(sizeof(YAP6__CORE__Value));
-  yap6_value_refcnt_inc(yap6_const_ident_dispatcher);
+  yap6_value_refcnt_inc((YAP6__CORE__Value*)yap6_const_ident_dispatcher);
   foo->dispatcher = yap6_const_ident_dispatcher;
 
   if (foo->ref_cnt == 1) {

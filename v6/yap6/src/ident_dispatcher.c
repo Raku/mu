@@ -32,5 +32,5 @@ void yap6_ident_dispatcher_init() {
 }
 
 void yap6_ident_dispatcher_destr() {
-  yap6_value_refcnt_dec(yap6_const_ident_dispatcher);
+  yap6_value_refcnt_dec((YAP6__CORE__Value*)yap6_const_ident_dispatcher);
 }

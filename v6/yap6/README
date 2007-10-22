@@ -28,6 +28,8 @@ refcount garbage collection is implemented.
 
 0.0.1.11 - List destruction, List_ProxyScalar destruction, consts destruction, no leaks at the moment.
 
+0.0.1.12 - Scalar Dispatcher.
+
 ROADMAP
 
 0.0.2 - Implement the basic types

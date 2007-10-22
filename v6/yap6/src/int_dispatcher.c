@@ -47,5 +47,5 @@ int yap6_int_lowlevel(YAP6__CORE__int* val) {
 }
 
 void yap6_int_dispatcher_destr() {
-  yap6_value_refcnt_dec(yap6_const_int_dispatcher);
+  yap6_value_refcnt_dec((YAP6__CORE__Value*)yap6_const_int_dispatcher);
 }

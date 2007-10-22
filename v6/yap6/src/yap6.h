@@ -119,6 +119,11 @@ struct YAP6__CORE__ScalarDispatcher {
                                YAP6__CORE__Value* newvalue);
 };
 
+/* scalar support */
+extern YAP6__CORE__ScalarDispatcher* yap6_const_scalar_dispatcher;
+extern void yap6_scalar_dispatcher_init();
+extern YAP6__CORE__Scalar* yap6_scalar_create(YAP6__CORE__Value* initialValue);
+extern void yap6_scalar_dispatcher_destr();
 
 typedef struct YAP6__CORE__ListDispatcher {
   pthread_rwlock_t* rwlock; int ref_cnt;
