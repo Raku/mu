@@ -170,20 +170,36 @@ sub term {
                                                             else     {0}
                                                             }
                                                     }
-                                                    && (( ( ')' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
-                                                            my $ret = sub {
-                                                                my $List__ = \@_;
-                                                                do { [] };
-                                                                do { return ( Lit::Pair->new( 'key' => ${ $MATCH->{'pair'} }->[0], 'value' => ${ $MATCH->{'pair'} }->[1], ) ) };
-                                                                '974^213';
-                                                                }
-                                                                ->();
-                                                            do {
-                                                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                                else                         { }
-                                                            };
-                                                            1;
+                                                    && (do {
+                                                            my $pos1 = $MATCH->to();
+                                                            (   do {
+                                                                    (   ( ( ',' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
+                                                                            my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
+                                                                            do {
+                                                                                if ($m2) { $MATCH->to( $m2->to() ); 1 }
+                                                                                else     {0}
+                                                                                }
+                                                                            }
+                                                                    );
+                                                                    }
+                                                                    || do { $MATCH->to($pos1); 1 }
+                                                            );
                                                         }
+                                                        && (( ( ')' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
+                                                                my $ret = sub {
+                                                                    my $List__ = \@_;
+                                                                    do { [] };
+                                                                    do { return ( Lit::Pair->new( 'key' => ${ $MATCH->{'pair'} }->[0], 'value' => ${ $MATCH->{'pair'} }->[1], ) ) };
+                                                                    '974^213';
+                                                                    }
+                                                                    ->();
+                                                                do {
+                                                                    if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                                                                    else                         { }
+                                                                };
+                                                                1;
+                                                            }
+                                                        )
                                                     )
                                                 )
                                             )

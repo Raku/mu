@@ -15,7 +15,7 @@ token term {
         { return $$<exp> }   # ( exp )
         
     # Pair, Hash, Bare block
-    | \( <?opt_ws> <pair> <?opt_ws> \) 
+    | \( <?opt_ws> <pair> <?opt_ws> [ ',' <?opt_ws> | '' ] \) 
         # special case - just for testing
         { return ::Lit::Pair( key => ($$<pair>)[0], value => ($$<pair>)[1] ) }
     | \{ <?opt_ws> 
