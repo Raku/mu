@@ -515,27 +515,6 @@ class While {
     };
 }
 
-class For {
-    has $.cond;
-    has @.body;
-    has @.topic;
-    method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
-            $visitor, 
-            self,
-            'For',
-            $path,
-        );
-    };
-    method attribs {
-            { 
-                cond       => $.cond,
-                body       => @.body,
-                topic      => @.topic,
-            }
-    };
-}
-
 class Decl {
     has $.decl;
     has $.type;
@@ -1180,7 +1159,7 @@ C<KindaPerl6::Visitor::Emit*>.
         | Leave     # last; break;
         | If        # 1 ?? 2 !! 3
         | When      # when 3 { ... }
-        | For       # $x.map(-> $i {...})
+        #| For       # $x.map(-> $i {...})   --- update: For is a method
         | While     # while ... { ... }
         );
 
@@ -1217,12 +1196,6 @@ C<KindaPerl6::Visitor::Emit*>.
 
     class When {
         has @.parameters    is Seq of Exp;
-        has @.body          is Seq of Exp;
-    }
-
-    class For {
-        has $.cond          is Exp;
-        has $.topic         is Var;
         has @.body          is Seq of Exp;
     }
 

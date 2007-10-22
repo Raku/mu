@@ -551,28 +551,6 @@ sub attribs {
     { 'cond' => $self->{cond}, 'body' => $self->{body}, };
 }
 
-package For;
-sub new { shift; bless {@_}, "For" }
-sub cond  { @_ == 1 ? ( $_[0]->{cond} )  : ( $_[0]->{cond}  = $_[1] ) }
-sub body  { @_ == 1 ? ( $_[0]->{body} )  : ( $_[0]->{body}  = $_[1] ) }
-sub topic { @_ == 1 ? ( $_[0]->{topic} ) : ( $_[0]->{topic} = $_[1] ) }
-
-sub emit {
-    my $self   = shift;
-    my $List__ = \@_;
-    my $visitor;
-    my $path;
-    do { $visitor = $List__->[0]; $path = $List__->[1]; [ $visitor, $path ] };
-    KindaPerl6::Traverse::visit( $visitor, $self, 'For', $path );
-}
-
-sub attribs {
-    my $self   = shift;
-    my $List__ = \@_;
-    do { [] };
-    { 'cond' => $self->{cond}, 'body' => $self->{body}, 'topic' => $self->{topic}, };
-}
-
 package Decl;
 sub new { shift; bless {@_}, "Decl" }
 sub decl { @_ == 1 ? ( $_[0]->{decl} ) : ( $_[0]->{decl} = $_[1] ) }
