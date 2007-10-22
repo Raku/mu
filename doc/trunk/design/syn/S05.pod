@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 13 Sep 2007
+   Last Modified: 22 Oct 2007
    Number: 5
-   Version: 66
+   Version: 67
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -430,23 +430,6 @@ to imply a C<:> after every construct that could backtrack, including
 bare C<*>, C<+>, and C<?> quantifiers, as well as alternations.
 (Note: for portions of patterns subject to longest-token analysis, a C<:>
 is ignored in any case, since there will be no backtracking necessary.)
-
-The C<:ratchet> modifier also implies that the anchoring on either
-end is controlled by context.  When a ratcheted regex is called as
-a subrule, the front is anchored to the current position (as with
-C<:p>), while the end is not anchored, since the calling context
-will likely wish to continue parsing.  However, when a ratcheted
-regex is called directly, it is automatically anchored on both ends.
-(You may override this with an explicit C<:p> or C<:c>.)  Thus,
-you can do direct pattern matching using a token or rule:
-
-    $string ~~ token { \d+ }
-    $string ~~ rule { \d+ }
-
-and these are equivalent to
-
-    $string ~~ m/^ \d+: $/;
-    $string ~~ m/^ <.ws> \d+: <.ws> $/;
 
 =item *
 
@@ -1747,7 +1730,7 @@ from an input stream or an iterator of arbitrary length.
 
 =back
 
-=head1 Named Regexes
+=head1 Regex Routines, Named and Anonymous
 
 =over
 
@@ -1781,6 +1764,42 @@ such as:
 in other regexes as named assertions:
 
      rule identification { [soft|hard]ware <type> <serial_number> }
+
+These keyword-declared regexes are officially of type C<Method>,
+which is derived from C<Routine>.
+
+In general, the anchoring of any subrule call is controlled by context.
+When a regex, token, or rule method is called as a subrule, the
+front is anchored to the current position (as with C<:p>), while
+the end is not anchored, since the calling context will likely wish
+to continue parsing.  However, when such a method is smartmatched
+directly, it is automatically anchored on both ends to the beginning
+and end of the string.  Thus, you can do direct pattern matching
+by using an anonymous regex routine as a standalone pattern:
+
+    $string ~~ regex { \d+ }
+    $string ~~ token { \d+ }
+    $string ~~ rule { \d+ }
+
+and these are equivalent to
+
+    $string ~~ m/^ \d+ $/;
+    $string ~~ m/^ \d+: $/;
+    $string ~~ m/^ <.ws> \d+: <.ws> $/;
+
+The basic rule of thumb is that the keyword-defined methods never
+do implicit C<.*?>-like scanning, while the C<m//> and C<s//>
+quotelike forms do such scanning in the absence of explicit anchoring.
+
+The C<rx//> and C<//> forms can go either way: they scan when used
+directly within a smartmatch or boolean context, but when called
+indirectly as a subrule they do not scan.  That is, the object returned
+by C<rx//> behaves like C<m//> when used directly, but like C<regex>
+C<{}> when used as a subrule:
+
+    $pattern = rx/foo/;
+    $string ~~ $pattern;                  # equivalent to m/foo/;
+    $string ~~ /'[' <$pattern> ']'/       # equivalent to /'[foo]'/
 
 =back
 
