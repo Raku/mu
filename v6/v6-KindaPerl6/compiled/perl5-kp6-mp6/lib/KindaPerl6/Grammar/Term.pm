@@ -284,7 +284,16 @@ sub term {
                                                                                 my $ret = sub {
                                                                                     my $List__ = \@_;
                                                                                     do { [] };
-                                                                                    do { die('TODO: bare block'); return ( Lit::Pair->new( 'key' => ${ $MATCH->{'pair'} }->[0], 'value' => ${ $MATCH->{'pair'} }->[1], ) ) };
+                                                                                    do {
+                                                                                        return (
+                                                                                            Lit::Code->new(
+                                                                                                'pad'   => COMPILER::current_pad(),
+                                                                                                'state' => {},
+                                                                                                'sig'   => Sig->new( 'invocant' => (undef), 'positional' => [], ),
+                                                                                                'body'  => [ Lit::Pair->new( 'key' => ${ $MATCH->{'pair'} }->[0], 'value' => ${ $MATCH->{'pair'} }->[1], ) ],
+                                                                                            )
+                                                                                        );
+                                                                                    };
                                                                                     '974^213';
                                                                                     }
                                                                                     ->();
@@ -336,44 +345,26 @@ sub term {
                                                                 || (do {
                                                                         $MATCH->to($pos1);
                                                                         (   do {
-                                                                                my $m2 = $grammar->exp_stmts( $str, $MATCH->to() );
+                                                                                my $m2 = $grammar->bare_block( $str, $MATCH->to() );
                                                                                 do {
-                                                                                    if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'exp_stmts'} = $m2; 1 }
+                                                                                    if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'bare_block'} = $m2; 1 }
                                                                                     else     {0}
                                                                                     }
                                                                                 }
-                                                                                && (
-                                                                                do {
-                                                                                    my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
-                                                                                    do {
-                                                                                        if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                                                                        else     {0}
-                                                                                        }
-                                                                                }
-                                                                                && (do {
-                                                                                        my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
-                                                                                        do {
-                                                                                            if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                                                                            else     {0}
-                                                                                            }
+                                                                                && do {
+                                                                                my $ret = sub {
+                                                                                    my $List__ = \@_;
+                                                                                    do { [] };
+                                                                                    do { return ( ${ $MATCH->{'bare_block'} } ) };
+                                                                                    '974^213';
                                                                                     }
-                                                                                    && (( ( '}' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
-                                                                                            my $ret = sub {
-                                                                                                my $List__ = \@_;
-                                                                                                do { [] };
-                                                                                                do { die('TODO: bare block'); return ( Lit::Pair->new( 'key' => ${ $MATCH->{'pair'} }->[0], 'value' => ${ $MATCH->{'pair'} }->[1], ) ) };
-                                                                                                '974^213';
-                                                                                                }
-                                                                                                ->();
-                                                                                            do {
-                                                                                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                                                                else                         { }
-                                                                                            };
-                                                                                            1;
-                                                                                        }
-                                                                                    )
-                                                                                )
-                                                                                )
+                                                                                    ->();
+                                                                                do {
+                                                                                    if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                                                                                    else                         { }
+                                                                                };
+                                                                                1;
+                                                                                }
                                                                         );
                                                                     }
                                                                     || do {
@@ -1351,40 +1342,62 @@ sub term {
                                                                                                                                                                             else     {0}
                                                                                                                                                                             }
                                                                                                                                                                     }
-                                                                                                                                                                    && (do {
-                                                                                                                                                                            my $m2 = $grammar->sub_block( $str, $MATCH->to() );
-                                                                                                                                                                            do {
-                                                                                                                                                                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'sub_block'} = $m2; 1 }
-                                                                                                                                                                                else     {0}
-                                                                                                                                                                                }
-                                                                                                                                                                        }
-                                                                                                                                                                        && do {
-                                                                                                                                                                            my $ret = sub {
-                                                                                                                                                                                my $List__ = \@_;
-                                                                                                                                                                                do { [] };
+                                                                                                                                                                    && ((     ( '{' eq substr( $str, $MATCH->to(), 1 ) )
+                                                                                                                                                                            ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) )
+                                                                                                                                                                            : 0
+                                                                                                                                                                        )
+                                                                                                                                                                        && (do {
+                                                                                                                                                                                my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
                                                                                                                                                                                 do {
-                                                                                                                                                                                    return (
-                                                                                                                                                                                        Call->new(
-                                                                                                                                                                                            'hyper'     => '',
-                                                                                                                                                                                            'arguments' => [ ${ $MATCH->{'sub_block'} } ],
-                                                                                                                                                                                            'method'    => 'new',
-                                                                                                                                                                                            'invocant'  => Proto->new( 'name' => 'Gather', ),
-                                                                                                                                                                                        )
-                                                                                                                                                                                    );
-                                                                                                                                                                                };
-                                                                                                                                                                                '974^213';
+                                                                                                                                                                                    if ($m2) { $MATCH->to( $m2->to() ); 1 }
+                                                                                                                                                                                    else     {0}
+                                                                                                                                                                                    }
+                                                                                                                                                                            }
+                                                                                                                                                                            && (do {
+                                                                                                                                                                                    my $m2 = $grammar->bare_block( $str, $MATCH->to() );
+                                                                                                                                                                                    do {
+                                                                                                                                                                                        if ($m2) {
+                                                                                                                                                                                            $MATCH->to( $m2->to() );
+                                                                                                                                                                                            $MATCH->{'bare_block'} = $m2;
+                                                                                                                                                                                            1;
+                                                                                                                                                                                        }
+                                                                                                                                                                                        else {0}
+                                                                                                                                                                                        }
                                                                                                                                                                                 }
-                                                                                                                                                                                ->();
-                                                                                                                                                                            do {
-                                                                                                                                                                                if ( ( $ret ne '974^213' ) ) {
-                                                                                                                                                                                    $MATCH->capture($ret);
-                                                                                                                                                                                    $MATCH->bool(1);
-                                                                                                                                                                                    return ($MATCH);
+                                                                                                                                                                                && do {
+                                                                                                                                                                                    my $ret = sub {
+                                                                                                                                                                                        my $List__ = \@_;
+                                                                                                                                                                                        do { [] };
+                                                                                                                                                                                        do {
+                                                                                                                                                                                            return (
+                                                                                                                                                                                                Call->new(
+                                                                                                                                                                                                    'hyper'     => '',
+                                                                                                                                                                                                    'arguments' => [
+                                                                                                                                                                                                        Sub->new(
+                                                                                                                                                                                                            'name'  => (undef),
+                                                                                                                                                                                                            'block' => ${ $MATCH->{'bare_block'} },
+                                                                                                                                                                                                        )
+                                                                                                                                                                                                    ],
+                                                                                                                                                                                                    'method'   => 'new',
+                                                                                                                                                                                                    'invocant' => Proto->new( 'name' => 'Gather', ),
+                                                                                                                                                                                                )
+                                                                                                                                                                                            );
+                                                                                                                                                                                        };
+                                                                                                                                                                                        '974^213';
+                                                                                                                                                                                        }
+                                                                                                                                                                                        ->();
+                                                                                                                                                                                    do {
+                                                                                                                                                                                        if ( ( $ret ne '974^213' ) ) {
+                                                                                                                                                                                            $MATCH->capture($ret);
+                                                                                                                                                                                            $MATCH->bool(1);
+                                                                                                                                                                                            return ($MATCH);
+                                                                                                                                                                                        }
+                                                                                                                                                                                        else { }
+                                                                                                                                                                                    };
+                                                                                                                                                                                    1;
                                                                                                                                                                                 }
-                                                                                                                                                                                else { }
-                                                                                                                                                                            };
-                                                                                                                                                                            1;
-                                                                                                                                                                        }
+                                                                                                                                                                            )
+                                                                                                                                                                        )
                                                                                                                                                                     )
                                                                                                                                                                 )
                                                                                                                                                             )

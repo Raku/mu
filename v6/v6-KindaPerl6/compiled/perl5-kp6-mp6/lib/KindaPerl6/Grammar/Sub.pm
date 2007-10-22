@@ -379,10 +379,13 @@ sub sub {
                                                                                 do {
                                                                                     my $env = COMPILER::current_pad();
                                                                                     COMPILER::drop_pad();
-                                                                                    my $block = ${ $MATCH->{'exp_stmts'} };
-                                                                                    KindaPerl6::Grammar::declare_parameters( $env, $block, ${ $MATCH->{'sub_sig'} } );
+                                                                                    KindaPerl6::Grammar::declare_parameters( $env,
+                                                                                        [ Var->new( 'sigil' => '@', 'twigil' => '', 'name' => '_', 'namespace' => [], ), @{ [ map { $_->key() } @{ ${ $MATCH->{'sub_sig'} }->positional() } ] } ] );
                                                                                     return (
-                                                                                        Sub->new( 'name' => ${ $MATCH->{'opt_name'} }, 'block' => Lit::Code->new( 'pad' => $env, 'state' => {}, 'sig' => ${ $MATCH->{'sub_sig'} }, 'body' => $block, ), )
+                                                                                        Sub->new(
+                                                                                            'name'  => ${ $MATCH->{'opt_name'} },
+                                                                                            'block' => Lit::Code->new( 'pad' => $env, 'state' => {}, 'sig' => ${ $MATCH->{'sub_sig'} }, 'body' => ${ $MATCH->{'exp_stmts'} }, ),
+                                                                                        )
                                                                                     );
                                                                                 };
                                                                                 '974^213';
@@ -530,12 +533,12 @@ sub coro {
                                                                                     do {
                                                                                         my $env = COMPILER::current_pad();
                                                                                         COMPILER::drop_pad();
-                                                                                        my $block = ${ $MATCH->{'exp_stmts'} };
-                                                                                        KindaPerl6::Grammar::declare_parameters( $env, $block, ${ $MATCH->{'sub_sig'} } );
+                                                                                        KindaPerl6::Grammar::declare_parameters( $env,
+                                                                                            [ Var->new( 'sigil' => '@', 'twigil' => '', 'name' => '_', 'namespace' => [], ), @{ [ map { $_->key() } @{ ${ $MATCH->{'sub_sig'} }->positional() } ] } ] );
                                                                                         return (
                                                                                             Coro->new(
                                                                                                 'name'  => ${ $MATCH->{'opt_name'} },
-                                                                                                'block' => Lit::Code->new( 'pad' => $env, 'state' => {}, 'sig' => ${ $MATCH->{'sub_sig'} }, 'body' => $block, ),
+                                                                                                'block' => Lit::Code->new( 'pad' => $env, 'state' => {}, 'sig' => ${ $MATCH->{'sub_sig'} }, 'body' => ${ $MATCH->{'exp_stmts'} }, ),
                                                                                             )
                                                                                         );
                                                                                     };
@@ -668,9 +671,9 @@ sub arrow_sub {
                                                                 do {
                                                                     my $env = COMPILER::current_pad();
                                                                     COMPILER::drop_pad();
-                                                                    my $block = ${ $MATCH->{'exp_stmts'} };
-                                                                    KindaPerl6::Grammar::declare_parameters( $env, $block, ${ $MATCH->{'arrow_sub_sig'} } );
-                                                                    return ( Sub->new( 'name' => (undef), 'block' => Lit::Code->new( 'pad' => $env, 'state' => {}, 'sig' => ${ $MATCH->{'arrow_sub_sig'} }, 'body' => $block, ), ) );
+                                                                    KindaPerl6::Grammar::declare_parameters( $env,
+                                                                        [ Var->new( 'sigil' => '@', 'twigil' => '', 'name' => '_', 'namespace' => [], ), @{ [ map { $_->key() } @{ ${ $MATCH->{'arrow_sub_sig'} }->positional() } ] } ] );
+                                                                    return ( Sub->new( 'name' => (undef), 'block' => Lit::Code->new( 'pad' => $env, 'state' => {}, 'sig' => ${ $MATCH->{'arrow_sub_sig'} }, 'body' => ${ $MATCH->{'exp_stmts'} }, ), ) );
                                                                 };
                                                                 '974^213';
                                                                 }
@@ -697,7 +700,7 @@ sub arrow_sub {
     return ($MATCH);
 }
 
-sub sub_block {
+sub bare_block {
     my $grammar = shift;
     my $List__  = \@_;
     my $str;
@@ -709,89 +712,79 @@ sub sub_block {
         do {
             my $pos1 = $MATCH->to();
             do {
-                (   ( ( '{' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
+                (   do {
+                        my $ret = sub {
+                            my $List__ = \@_;
+                            do { [] };
+                            do { COMPILER::add_pad() };
+                            '974^213';
+                            }
+                            ->();
                         do {
-                            my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
+                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                            else                         { }
+                        };
+                        1;
+                        }
+                        && (
+                        do {
+                            my $m2 = $grammar->exp_stmts( $str, $MATCH->to() );
                             do {
-                                if ($m2) { $MATCH->to( $m2->to() ); 1 }
+                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'exp_stmts'} = $m2; 1 }
                                 else     {0}
                                 }
                         }
                         && (do {
-                                my $ret = sub {
-                                    my $List__ = \@_;
-                                    do { [] };
-                                    do { COMPILER::add_pad() };
-                                    '974^213';
-                                    }
-                                    ->();
+                                my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
                                 do {
-                                    if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                    else                         { }
-                                };
-                                1;
+                                    if ($m2) { $MATCH->to( $m2->to() ); 1 }
+                                    else     {0}
+                                    }
                             }
                             && (do {
-                                    my $m2 = $grammar->exp_stmts( $str, $MATCH->to() );
-                                    do {
-                                        if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'exp_stmts'} = $m2; 1 }
-                                        else     {0}
-                                        }
-                                }
-                                && (do {
-                                        my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
-                                        do {
-                                            if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                            else     {0}
-                                            }
-                                    }
-                                    && (do {
-                                            my $pos1 = $MATCH->to();
-                                            (   do { ( ( '}' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) }
-                                                    || do {
-                                                    $MATCH->to($pos1);
-                                                    do {
-                                                        my $ret = sub {
-                                                            my $List__ = \@_;
-                                                            do { [] };
-                                                            do { Main::say('*** Syntax Error in sub '); die('error in Block') };
-                                                            '974^213';
-                                                            }
-                                                            ->();
-                                                        do {
-                                                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                            else                         { }
-                                                        };
-                                                        1;
-                                                        }
-                                                    }
-                                            );
-                                        }
-                                        && do {
-                                            my $ret = sub {
-                                                my $List__ = \@_;
-                                                do { [] };
-                                                do {
-                                                    my $env = COMPILER::current_pad();
-                                                    COMPILER::drop_pad();
-                                                    my $block = ${ $MATCH->{'exp_stmts'} };
-                                                    KindaPerl6::Grammar::declare_parameters( $env, $block, Sig->new( 'invocant' => (undef), 'positional' => [], ) );
-                                                    return ( Sub->new( 'name' => (undef), 'block' => Lit::Code->new( 'pad' => $env, 'state' => {}, 'sig' => Sig->new( 'invocant' => (undef), 'positional' => [], ), 'body' => $block, ), ) );
-                                                };
-                                                '974^213';
-                                                }
-                                                ->();
+                                    my $pos1 = $MATCH->to();
+                                    (   do { ( ( '}' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) }
+                                            || do {
+                                            $MATCH->to($pos1);
                                             do {
-                                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                else                         { }
-                                            };
-                                            1;
+                                                my $ret = sub {
+                                                    my $List__ = \@_;
+                                                    do { [] };
+                                                    do { Main::say('*** Syntax Error in Block '); die('error in Block') };
+                                                    '974^213';
+                                                    }
+                                                    ->();
+                                                do {
+                                                    if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                                                    else                         { }
+                                                };
+                                                1;
+                                                }
+                                            }
+                                    );
+                                }
+                                && do {
+                                    my $ret = sub {
+                                        my $List__ = \@_;
+                                        do { [] };
+                                        do {
+                                            my $env = COMPILER::current_pad();
+                                            COMPILER::drop_pad();
+                                            KindaPerl6::Grammar::declare_parameters( $env, [] );
+                                            return ( Lit::Code->new( 'pad' => $env, 'state' => {}, 'sig' => Sig->new( 'invocant' => (undef), 'positional' => [], ), 'body' => ${ $MATCH->{'exp_stmts'} }, ) );
+                                        };
+                                        '974^213';
                                         }
-                                    )
-                                )
+                                        ->();
+                                    do {
+                                        if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                                        else                         { }
+                                    };
+                                    1;
+                                }
                             )
                         )
-                    )
+                        )
                 );
                 }
             }
@@ -1075,14 +1068,19 @@ sub method {
                                                                                             my $List__ = \@_;
                                                                                             do { [] };
                                                                                             do {
-                                                                                                my $env   = COMPILER::current_pad();
-                                                                                                my $block = ${ $MATCH->{'exp_stmts'} };
-                                                                                                KindaPerl6::Grammar::declare_parameters( $env, $block, ${ $MATCH->{'method_sig'} } );
+                                                                                                my $env = COMPILER::current_pad();
+                                                                                                KindaPerl6::Grammar::declare_parameters(
+                                                                                                    $env,
+                                                                                                    [   Var->new( 'sigil' => '@', 'twigil' => '', 'name' => '_', 'namespace' => [], ),
+                                                                                                        ${ $MATCH->{'method_sig'} }->invocant(),
+                                                                                                        @{ [ map { $_->key() } @{ ${ $MATCH->{'method_sig'} }->positional() } ] }
+                                                                                                    ]
+                                                                                                );
                                                                                                 COMPILER::drop_pad();
                                                                                                 return (
                                                                                                     Method->new(
                                                                                                         'name'  => ${ $MATCH->{'opt_name'} },
-                                                                                                        'block' => Lit::Code->new( 'pad' => $env, 'state' => {}, 'sig' => ${ $MATCH->{'method_sig'} }, 'body' => $block, ),
+                                                                                                        'block' => Lit::Code->new( 'pad' => $env, 'state' => {}, 'sig' => ${ $MATCH->{'method_sig'} }, 'body' => ${ $MATCH->{'exp_stmts'} }, ),
                                                                                                     )
                                                                                                 );
                                                                                             };
@@ -1260,9 +1258,14 @@ sub multi_method {
                                                                                                                         my $List__ = \@_;
                                                                                                                         do { [] };
                                                                                                                         do {
-                                                                                                                            my $env   = COMPILER::current_pad();
-                                                                                                                            my $block = ${ $MATCH->{'exp_stmts'} };
-                                                                                                                            KindaPerl6::Grammar::declare_parameters( $env, $block, ${ $MATCH->{'method_sig'} } );
+                                                                                                                            my $env = COMPILER::current_pad();
+                                                                                                                            KindaPerl6::Grammar::declare_parameters(
+                                                                                                                                $env,
+                                                                                                                                [   Var->new( 'sigil' => '@', 'twigil' => '', 'name' => '_', 'namespace' => [], ),
+                                                                                                                                    ${ $MATCH->{'method_sig'} }->invocant(),
+                                                                                                                                    @{ [ map { $_->key() } @{ ${ $MATCH->{'method_sig'} }->positional() } ] }
+                                                                                                                                ]
+                                                                                                                            );
                                                                                                                             COMPILER::drop_pad();
                                                                                                                             return (
                                                                                                                                 Call->new(
@@ -1276,9 +1279,13 @@ sub multi_method {
                                                                                                                                     ),
                                                                                                                                     'arguments' => [
                                                                                                                                         Method->new(
-                                                                                                                                            'name' => '',
-                                                                                                                                            'block' =>
-                                                                                                                                                Lit::Code->new( 'pad' => $env, 'state' => {}, 'sig' => ${ $MATCH->{'method_sig'} }, 'body' => $block, ),
+                                                                                                                                            'name'  => '',
+                                                                                                                                            'block' => Lit::Code->new(
+                                                                                                                                                'pad'   => $env,
+                                                                                                                                                'state' => {},
+                                                                                                                                                'sig'   => ${ $MATCH->{'method_sig'} },
+                                                                                                                                                'body'  => ${ $MATCH->{'exp_stmts'} },
+                                                                                                                                            ),
                                                                                                                                         )
                                                                                                                                     ],
                                                                                                                                 )
@@ -1467,9 +1474,13 @@ sub multi_sub {
                                                                                                 my $List__ = \@_;
                                                                                                 do { [] };
                                                                                                 do {
-                                                                                                    my $env   = COMPILER::current_pad();
-                                                                                                    my $block = ${ $MATCH->{'exp_stmts'} };
-                                                                                                    KindaPerl6::Grammar::declare_parameters( $env, $block, ${ $MATCH->{'sub_sig'} } );
+                                                                                                    my $env = COMPILER::current_pad();
+                                                                                                    KindaPerl6::Grammar::declare_parameters(
+                                                                                                        $env,
+                                                                                                        [   Var->new( 'sigil' => '@', 'twigil' => '', 'name' => '_', 'namespace' => [], ),
+                                                                                                            @{ [ map { $_->key() } @{ ${ $MATCH->{'sub_sig'} }->positional() } ] }
+                                                                                                        ]
+                                                                                                    );
                                                                                                     COMPILER::drop_pad();
                                                                                                     return (
                                                                                                         Call->new(
@@ -1479,7 +1490,7 @@ sub multi_sub {
                                                                                                             'arguments' => [
                                                                                                                 Sub->new(
                                                                                                                     'name'  => '',
-                                                                                                                    'block' => Lit::Code->new( 'pad' => $env, 'state' => {}, 'sig' => ${ $MATCH->{'sub_sig'} }, 'body' => $block, ),
+                                                                                                                    'block' => Lit::Code->new( 'pad' => $env, 'state' => {}, 'sig' => ${ $MATCH->{'sub_sig'} }, 'body' => ${ $MATCH->{'exp_stmts'} }, ),
                                                                                                                 )
                                                                                                             ],
                                                                                                         )
@@ -1959,12 +1970,13 @@ sub macro {
                                                                                         do {
                                                                                             my $env = COMPILER::current_pad();
                                                                                             COMPILER::drop_pad();
-                                                                                            my $block = ${ $MATCH->{'exp_stmts'} };
-                                                                                            KindaPerl6::Grammar::declare_parameters( $env, $block, ${ $MATCH->{'sub_sig'} } );
+                                                                                            KindaPerl6::Grammar::declare_parameters( $env,
+                                                                                                [ Var->new( 'sigil' => '@', 'twigil' => '', 'name' => '_', 'namespace' => [], ), @{ [ map { $_->key() } @{ ${ $MATCH->{'sub_sig'} }->positional() } ] } ]
+                                                                                            );
                                                                                             return (
                                                                                                 Macro->new(
                                                                                                     'name'  => ${ $MATCH->{'opt_name'} },
-                                                                                                    'block' => Lit::Code->new( 'pad' => $env, 'state' => {}, 'sig' => ${ $MATCH->{'sub_sig'} }, 'body' => $block, ),
+                                                                                                    'block' => Lit::Code->new( 'pad' => $env, 'state' => {}, 'sig' => ${ $MATCH->{'sub_sig'} }, 'body' => ${ $MATCH->{'exp_stmts'} }, ),
                                                                                                 )
                                                                                             );
                                                                                         };

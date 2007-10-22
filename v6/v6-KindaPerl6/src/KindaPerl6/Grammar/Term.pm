@@ -24,15 +24,24 @@ token term {
             { return ::Lit::Pair( key => ($$<pair>)[0], value => ($$<pair>)[1] ) }
         |   <pair> <?opt_ws> \} 
             { 
-                die "TODO: bare block";
-                return ::Lit::Pair( key => ($$<pair>)[0], value => ($$<pair>)[1] );
+                return ::Lit::Code(
+                    pad   => COMPILER::current_pad(),
+                    state => { },
+                    sig   =>
+                        ::Sig( 
+                            'invocant' => undef, 
+                            'positional' => [ ], 
+                        ),
+                    body  => [
+                            ::Lit::Pair( key => ($$<pair>)[0], value => ($$<pair>)[1] )
+                        ],
+                );
             }
         |   <exp_mapping> <?opt_ws> \}
             { return ::Lit::Hash( 'hash' => $$<exp_mapping> ) }   # { exp => exp, ... }
-        |   <exp_stmts> <?opt_ws> <?opt_ws> \} 
+        |   <bare_block> 
             { 
-                die "TODO: bare block";
-                return ::Lit::Pair( key => ($$<pair>)[0], value => ($$<pair>)[1] );
+                return $$<bare_block>;
             }
         |
             { 
@@ -244,11 +253,16 @@ token term {
                 { return $$<begin_block> }  # BEGIN { code... }
     | <check_block> 
                 { return $$<check_block> }  # CHECK { code... }
-    | gather <?ws> <sub_block>              # gather { code... }
+    | gather <?ws> \{ <?opt_ws> <bare_block>      # gather { code... }
         { return
             ::Call(
                 hyper     => '',
-                arguments => [ $$<sub_block> ],
+                arguments => [ 
+                    ::Sub( 
+                        'name'  => undef, 
+                        'block' => $$<bare_block>,
+                    ),
+                ],
                 method   => 'new',
                 invocant => ::Proto( name => 'Gather', ),
             );

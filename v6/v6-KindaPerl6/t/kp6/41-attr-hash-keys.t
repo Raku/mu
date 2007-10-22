@@ -1,7 +1,7 @@
 class MyClass {
     has %.somehash;
     method test {
-        %.somehash = { a => 1 };
+        %.somehash = { a => 1 ,};
         for %.somehash.keys -> $key {
             say 'ok ' ~ %.somehash{$key};
         }

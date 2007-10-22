@@ -17,4 +17,10 @@ class Pair is Value {
     method array {
         [ $.key, $.value ]
     };
+    method keys {
+        [ $.key ]
+    };
+    method values {
+        [ $.value ]
+    };
 }

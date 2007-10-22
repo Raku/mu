@@ -10,14 +10,11 @@ sub new { shift; bless {@_}, "KindaPerl6::Grammar" }
 sub declare_parameters {
     my $List__ = \@_;
     my $env;
-    my $block;
-    my $sig;
-    do { $env = $List__->[0]; $block = $List__->[1]; $sig = $List__->[2]; [ $env, $block, $sig ] };
-    my $vars = [ Var->new( 'sigil' => '@', 'twigil' => '', 'name' => '_', 'namespace' => [], ), $sig->invocant(), @{ [ map { $_->key() } @{ $sig->positional() } ] } ];
+    my $vars;
+    do { $env = $List__->[0]; $vars = $List__->[1]; [ $env, $vars ] };
     my $decl;
     my $var;
     do {
-
         for my $var ( @{$vars} ) {
             do {
                 if ( Main::isa( $var, 'Var' ) ) { push( @{$decl}, Decl->new( 'decl' => 'my', 'var' => $var, 'type' => '', ) ) }

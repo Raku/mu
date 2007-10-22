@@ -50,11 +50,13 @@ token sub {
     { 
         my $env := COMPILER::current_pad();
         COMPILER::drop_pad();
-        my $block := $$<exp_stmts>;
         KindaPerl6::Grammar::declare_parameters(
             $env,
-            $block,
-            $$<sub_sig>,
+            [
+                ::Var( sigil => '@', twigil => '', name => '_', namespace => [ ] ),
+                # ($$<sub_sig>).invocant,
+                @(($$<sub_sig>).positional).>>key,
+            ]
         );    
         return ::Sub( 
             'name'  => $$<opt_name>, 
@@ -62,7 +64,7 @@ token sub {
                 pad   => $env,
                 state => { },
                 sig   => $$<sub_sig>,
-                body  => $block,
+                body  => $$<exp_stmts>,
             ),
         );
     }
@@ -83,11 +85,13 @@ token coro {
     { 
         my $env := COMPILER::current_pad();
         COMPILER::drop_pad();
-        my $block := $$<exp_stmts>;
         KindaPerl6::Grammar::declare_parameters(
             $env,
-            $block,
-            $$<sub_sig>,
+            [
+                ::Var( sigil => '@', twigil => '', name => '_', namespace => [ ] ),
+                # ($$<sub_sig>).invocant,
+                @(($$<sub_sig>).positional).>>key,
+            ]
         );    
         return ::Coro( 
             'name'  => $$<opt_name>, 
@@ -95,7 +99,7 @@ token coro {
                 pad   => $env,
                 state => { },
                 sig   => $$<sub_sig>,
-                body  => $block,
+                body  => $$<exp_stmts>,
             ),
         );
     }
@@ -116,11 +120,13 @@ token arrow_sub {
     { 
         my $env := COMPILER::current_pad();
         COMPILER::drop_pad();
-        my $block := $$<exp_stmts>;
         KindaPerl6::Grammar::declare_parameters(
             $env,
-            $block,
-            $$<arrow_sub_sig>,
+            [
+                ::Var( sigil => '@', twigil => '', name => '_', namespace => [ ] ),
+                # ($$<sub_sig>).invocant,
+                @(($$<arrow_sub_sig>).positional).>>key,
+            ]
         );    
         return ::Sub( 
             'name'  => undef, 
@@ -128,37 +134,33 @@ token arrow_sub {
                 pad   => $env,
                 state => { },
                 sig   => $$<arrow_sub_sig>,
-                body  => $block,
+                body  => $$<exp_stmts>,
             ),
         );
     }
 };
 
-token sub_block {
+token bare_block {
     # used by gather { ... }
-    \{ 
-        <?opt_ws>  
+    # \{ <?opt_ws>  
         { 
             COMPILER::add_pad();
         }
         <exp_stmts> 
         <?opt_ws> 
-    [   \}     | { say '*** Syntax Error in sub '; die 'error in Block'; } ]
+    [   \}     | { say '*** Syntax Error in Block '; die 'error in Block'; } ]
     { 
         my $env := COMPILER::current_pad();
         COMPILER::drop_pad();
-        my $block := $$<exp_stmts>;
         KindaPerl6::Grammar::declare_parameters(
             $env,
-            $block,
-            ::Sig( 
-                'invocant' => undef, 
-                'positional' => [ ], 
-            ),
+            [
+                # ::Var( sigil => '@', twigil => '', name => '_', namespace => [ ] ),
+                # ($$<sub_sig>).invocant,
+                # @(($$<sub_sig>).positional).>>key,
+            ]
         );    
-        return ::Sub( 
-            'name'  => undef, 
-            'block' => ::Lit::Code(
+        return ::Lit::Code(
                 pad   => $env,
                 state => { },
                 sig   =>
@@ -166,9 +168,8 @@ token sub_block {
                         'invocant' => undef, 
                         'positional' => [ ], 
                     ),
-                body  => $block,
-            ),
-        );
+                body  => $$<exp_stmts>,
+            );
     }
 };
 
@@ -217,11 +218,13 @@ token method {
         # say ' block: ', ($$<exp_stmts>).perl;
         
         my $env   := COMPILER::current_pad();
-        my $block := $$<exp_stmts>;
         KindaPerl6::Grammar::declare_parameters(
             $env,
-            $block,
-            $$<method_sig>,
+            [
+                ::Var( sigil => '@', twigil => '', name => '_', namespace => [ ] ),
+                ($$<method_sig>).invocant,
+                @(($$<method_sig>).positional).>>key,
+            ]
         );    
         COMPILER::drop_pad();
         return ::Method( 
@@ -230,7 +233,7 @@ token method {
                 pad   => $env,
                 state => { },
                 sig   => $$<method_sig>,
-                body  => $block,
+                body  => $$<exp_stmts>,
             ),
         );
     }
@@ -259,11 +262,13 @@ token multi_method {
             # say ' block: ', ($$<exp_stmts>).perl;
             
             my $env   := COMPILER::current_pad();
-            my $block := $$<exp_stmts>;
             KindaPerl6::Grammar::declare_parameters(
                 $env,
-                $block,
-                $$<method_sig>,
+                [
+                    ::Var( sigil => '@', twigil => '', name => '_', namespace => [ ] ),
+                    ($$<method_sig>).invocant,
+                    @(($$<method_sig>).positional).>>key,
+                ]
             );    
             COMPILER::drop_pad();
             return 
@@ -283,7 +288,7 @@ token multi_method {
                                 pad   => $env,
                                 state => { },
                                 sig   => $$<method_sig>,
-                                body  => $block,
+                                body  => $$<exp_stmts>,
                             ),
                         ),
                     ],
@@ -308,11 +313,13 @@ token multi_sub {
             # say ' block: ', ($$<exp_stmts>).perl;
             
             my $env   := COMPILER::current_pad();
-            my $block := $$<exp_stmts>;
             KindaPerl6::Grammar::declare_parameters(
                 $env,
-                $block,
-                $$<sub_sig>,
+                [
+                    ::Var( sigil => '@', twigil => '', name => '_', namespace => [ ] ),
+                    # ($$<sub_sig>).invocant,
+                    @(($$<sub_sig>).positional).>>key,
+                ]
             );    
             COMPILER::drop_pad();
             return 
@@ -332,7 +339,7 @@ token multi_sub {
                                 pad   => $env,
                                 state => { },
                                 sig   => $$<sub_sig>,
-                                body  => $block,
+                                body  => $$<exp_stmts>,
                             ),
                         ),
                     ],
@@ -410,11 +417,13 @@ token macro {
     { 
         my $env := COMPILER::current_pad();
         COMPILER::drop_pad();
-        my $block := $$<exp_stmts>;
         KindaPerl6::Grammar::declare_parameters(
             $env,
-            $block,
-            $$<sub_sig>,
+            [
+                ::Var( sigil => '@', twigil => '', name => '_', namespace => [ ] ),
+                # ($$<sub_sig>).invocant,
+                @(($$<sub_sig>).positional).>>key,
+            ]
         );    
         return ::Macro( 
             'name'  => $$<opt_name>, 
@@ -422,7 +431,7 @@ token macro {
                 pad   => $env,
                 state => { },
                 sig   => $$<sub_sig>,
-                body  => $block,
+                body  => $$<exp_stmts>,
             ),
         );
     }
