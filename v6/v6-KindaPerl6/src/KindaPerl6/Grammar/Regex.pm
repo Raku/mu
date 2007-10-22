@@ -50,7 +50,7 @@ token parsed_code {
     <?KindaPerl6::Grammar.opt_ws>
     '}'
     {
-        my $env := @COMPILER::PAD[0];
+        my $env := COMPILER::current_pad();
         COMPILER::drop_pad();
         return ::Lit::Code(
                     pad   => $env,

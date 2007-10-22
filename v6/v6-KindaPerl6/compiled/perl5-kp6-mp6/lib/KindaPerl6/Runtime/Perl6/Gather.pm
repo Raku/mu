@@ -10,38 +10,96 @@
     use KindaPerl6::Runtime::Perl5::Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
-    BEGIN { $_ = ::DISPATCH( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
+
+    BEGIN {
+        $_ =
+          ::DISPATCH( $::Scalar, "new",
+            { modified => $_MODIFIED, name => "$_" } );
+    }
     {
         do {
-            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Gather ), "true" ), "p5landish" ) ) { }
+            if (
+                ::DISPATCH(
+                    ::DISPATCH(
+                        ::DISPATCH(
+                            $GLOBAL::Code_VAR_defined, 'APPLY', $::Gather
+                        ),
+                        "true"
+                    ),
+                    "p5landish"
+                )
+              )
+            {
+            }
             else {
                 {
                     do {
                         ::MODIFIED($::Gather);
-                        $::Gather = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Gather' ) ), 'PROTOTYPE', );
-                        }
+                        $::Gather = ::DISPATCH(
+                            ::DISPATCH(
+                                $::Class, 'new',
+                                ::DISPATCH( $::Str, 'new', 'Gather' )
+                            ),
+                            'PROTOTYPE',
+                        );
+                      }
                 }
             }
         };
-        ::DISPATCH( ::DISPATCH( $::Gather, 'HOW', ), 'add_parent',    ::DISPATCH( $::Array, 'HOW', ) );
-        ::DISPATCH( ::DISPATCH( $::Gather, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str,   'new', 'code' ) );
-        ::DISPATCH( ::DISPATCH( $::Gather, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str,   'new', 'buf' ) );
-        ::DISPATCH( ::DISPATCH( $::Gather, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str,   'new', 'finished' ) );
+        ::DISPATCH(
+            ::DISPATCH( $::Gather, 'HOW', ),
+            'add_parent',
+            ::DISPATCH( $::Array, 'HOW', )
+        );
+        ::DISPATCH(
+            ::DISPATCH( $::Gather, 'HOW', ),
+            'add_attribute',
+            ::DISPATCH( $::Str, 'new', 'code' )
+        );
+        ::DISPATCH(
+            ::DISPATCH( $::Gather, 'HOW', ),
+            'add_attribute',
+            ::DISPATCH( $::Str, 'new', 'buf' )
+        );
+        ::DISPATCH(
+            ::DISPATCH( $::Gather, 'HOW', ),
+            'add_attribute',
+            ::DISPATCH( $::Str, 'new', 'finished' )
+        );
         ::DISPATCH(
             ::DISPATCH( $::Gather, 'HOW', ),
             'add_method',
             ::DISPATCH( $::Str, 'new', 'perl' ),
             ::DISPATCH(
                 $::Code, 'new',
-                {   code => sub {
-                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                {
+                    code => sub {
+                        my $List__ =
+                          ::DISPATCH( $::Array, 'new',
+                            { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        $self =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$self' } )
+                          unless defined $self;
+
+                        BEGIN {
+                            $self =
+                              ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$self' } );
+                        }
                         $self = shift;
                         my $CAPTURE;
-                        $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
-                        BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+                        $CAPTURE =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$CAPTURE' } )
+                          unless defined $CAPTURE;
+
+                        BEGIN {
+                            $CAPTURE = ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$CAPTURE' }
+                            );
+                        }
                         ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
                         do {
                             ::MODIFIED($List__);
@@ -55,16 +113,32 @@
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
                             ::DISPATCH( $::Str, 'new', '( gather ' ),
-                            ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "code" ), 'perl', ), ::DISPATCH( $::Str, 'new', ' )' ) )
+                            ::DISPATCH(
+                                $GLOBAL::Code_infix_58__60__126__62_,
+                                'APPLY',
+                                ::DISPATCH(
+                                    ::DISPATCH( $self, "code" ), 'perl',
+                                ),
+                                ::DISPATCH( $::Str, 'new', ' )' )
+                            )
                         );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {
+                            invocant => bless(
+                                {
+                                    'namespace' => [],
+                                    'name'      => 'self',
+                                    'twigil'    => '',
+                                    'sigil'     => '$'
+                                },
+                                'Var'
+                            ),
+                            array =>
+                              ::DISPATCH( $::Array, "new", { _array => [] } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -76,15 +150,34 @@
             ::DISPATCH( $::Str, 'new', 'Str' ),
             ::DISPATCH(
                 $::Code, 'new',
-                {   code => sub {
-                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                {
+                    code => sub {
+                        my $List__ =
+                          ::DISPATCH( $::Array, 'new',
+                            { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        $self =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$self' } )
+                          unless defined $self;
+
+                        BEGIN {
+                            $self =
+                              ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$self' } );
+                        }
                         $self = shift;
                         my $CAPTURE;
-                        $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
-                        BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+                        $CAPTURE =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$CAPTURE' } )
+                          unless defined $CAPTURE;
+
+                        BEGIN {
+                            $CAPTURE = ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$CAPTURE' }
+                            );
+                        }
                         ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
                         do {
                             ::MODIFIED($List__);
@@ -99,10 +192,19 @@
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {
+                            invocant => bless(
+                                {
+                                    'namespace' => [],
+                                    'name'      => 'self',
+                                    'twigil'    => '',
+                                    'sigil'     => '$'
+                                },
+                                'Var'
+                            ),
+                            array =>
+                              ::DISPATCH( $::Array, "new", { _array => [] } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -114,15 +216,34 @@
             ::DISPATCH( $::Str, 'new', 'true' ),
             ::DISPATCH(
                 $::Code, 'new',
-                {   code => sub {
-                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                {
+                    code => sub {
+                        my $List__ =
+                          ::DISPATCH( $::Array, 'new',
+                            { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        $self =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$self' } )
+                          unless defined $self;
+
+                        BEGIN {
+                            $self =
+                              ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$self' } );
+                        }
                         $self = shift;
                         my $CAPTURE;
-                        $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
-                        BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+                        $CAPTURE =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$CAPTURE' } )
+                          unless defined $CAPTURE;
+
+                        BEGIN {
+                            $CAPTURE = ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$CAPTURE' }
+                            );
+                        }
                         ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
                         do {
                             ::MODIFIED($List__);
@@ -133,15 +254,25 @@
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         ::DISPATCH( $self, '_more', );
-                        return ( ::DISPATCH( ::DISPATCH( $self, "buf" ), 'true', ) );
+                        return (
+                            ::DISPATCH( ::DISPATCH( $self, "buf" ), 'true', ) );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {
+                            invocant => bless(
+                                {
+                                    'namespace' => [],
+                                    'name'      => 'self',
+                                    'twigil'    => '',
+                                    'sigil'     => '$'
+                                },
+                                'Var'
+                            ),
+                            array =>
+                              ::DISPATCH( $::Array, "new", { _array => [] } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -153,15 +284,34 @@
             ::DISPATCH( $::Str, 'new', 'eager' ),
             ::DISPATCH(
                 $::Code, 'new',
-                {   code => sub {
-                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                {
+                    code => sub {
+                        my $List__ =
+                          ::DISPATCH( $::Array, 'new',
+                            { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        $self =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$self' } )
+                          unless defined $self;
+
+                        BEGIN {
+                            $self =
+                              ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$self' } );
+                        }
                         $self = shift;
                         my $CAPTURE;
-                        $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
-                        BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+                        $CAPTURE =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$CAPTURE' } )
+                          unless defined $CAPTURE;
+
+                        BEGIN {
+                            $CAPTURE = ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$CAPTURE' }
+                            );
+                        }
                         ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
                         do {
                             ::MODIFIED($List__);
@@ -172,7 +322,20 @@
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         do {
-                            while ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $self, "finished" ) ), "true" ), "p5landish" ) ) {
+                            while (
+                                ::DISPATCH(
+                                    ::DISPATCH(
+                                        ::DISPATCH(
+                                            $GLOBAL::Code_prefix_58__60__33__62_,
+                                            'APPLY',
+                                            ::DISPATCH( $self, "finished" )
+                                        ),
+                                        "true"
+                                    ),
+                                    "p5landish"
+                                )
+                              )
+                            {
                                 {
                                     ::DISPATCH( $self, '_more', )
                                 }
@@ -183,10 +346,19 @@
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {
+                            invocant => bless(
+                                {
+                                    'namespace' => [],
+                                    'name'      => 'self',
+                                    'twigil'    => '',
+                                    'sigil'     => '$'
+                                },
+                                'Var'
+                            ),
+                            array =>
+                              ::DISPATCH( $::Array, "new", { _array => [] } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -198,15 +370,34 @@
             ::DISPATCH( $::Str, 'new', 'lazy' ),
             ::DISPATCH(
                 $::Code, 'new',
-                {   code => sub {
-                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                {
+                    code => sub {
+                        my $List__ =
+                          ::DISPATCH( $::Array, 'new',
+                            { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        $self =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$self' } )
+                          unless defined $self;
+
+                        BEGIN {
+                            $self =
+                              ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$self' } );
+                        }
                         $self = shift;
                         my $CAPTURE;
-                        $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
-                        BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+                        $CAPTURE =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$CAPTURE' } )
+                          unless defined $CAPTURE;
+
+                        BEGIN {
+                            $CAPTURE = ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$CAPTURE' }
+                            );
+                        }
                         ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
                         do {
                             ::MODIFIED($List__);
@@ -221,10 +412,19 @@
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {
+                            invocant => bless(
+                                {
+                                    'namespace' => [],
+                                    'name'      => 'self',
+                                    'twigil'    => '',
+                                    'sigil'     => '$'
+                                },
+                                'Var'
+                            ),
+                            array =>
+                              ::DISPATCH( $::Array, "new", { _array => [] } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -236,15 +436,34 @@
             ::DISPATCH( $::Str, 'new', 'elems' ),
             ::DISPATCH(
                 $::Code, 'new',
-                {   code => sub {
-                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                {
+                    code => sub {
+                        my $List__ =
+                          ::DISPATCH( $::Array, 'new',
+                            { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        $self =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$self' } )
+                          unless defined $self;
+
+                        BEGIN {
+                            $self =
+                              ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$self' } );
+                        }
                         $self = shift;
                         my $CAPTURE;
-                        $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
-                        BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+                        $CAPTURE =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$CAPTURE' } )
+                          unless defined $CAPTURE;
+
+                        BEGIN {
+                            $CAPTURE = ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$CAPTURE' }
+                            );
+                        }
                         ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
                         do {
                             ::MODIFIED($List__);
@@ -259,10 +478,19 @@
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {
+                            invocant => bless(
+                                {
+                                    'namespace' => [],
+                                    'name'      => 'self',
+                                    'twigil'    => '',
+                                    'sigil'     => '$'
+                                },
+                                'Var'
+                            ),
+                            array =>
+                              ::DISPATCH( $::Array, "new", { _array => [] } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -274,15 +502,34 @@
             ::DISPATCH( $::Str, 'new', 'hash' ),
             ::DISPATCH(
                 $::Code, 'new',
-                {   code => sub {
-                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                {
+                    code => sub {
+                        my $List__ =
+                          ::DISPATCH( $::Array, 'new',
+                            { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        $self =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$self' } )
+                          unless defined $self;
+
+                        BEGIN {
+                            $self =
+                              ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$self' } );
+                        }
                         $self = shift;
                         my $CAPTURE;
-                        $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
-                        BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+                        $CAPTURE =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$CAPTURE' } )
+                          unless defined $CAPTURE;
+
+                        BEGIN {
+                            $CAPTURE = ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$CAPTURE' }
+                            );
+                        }
                         ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
                         do {
                             ::MODIFIED($List__);
@@ -297,10 +544,19 @@
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {
+                            invocant => bless(
+                                {
+                                    'namespace' => [],
+                                    'name'      => 'self',
+                                    'twigil'    => '',
+                                    'sigil'     => '$'
+                                },
+                                'Var'
+                            ),
+                            array =>
+                              ::DISPATCH( $::Array, "new", { _array => [] } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -312,15 +568,34 @@
             ::DISPATCH( $::Str, 'new', 'array' ),
             ::DISPATCH(
                 $::Code, 'new',
-                {   code => sub {
-                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                {
+                    code => sub {
+                        my $List__ =
+                          ::DISPATCH( $::Array, 'new',
+                            { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        $self =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$self' } )
+                          unless defined $self;
+
+                        BEGIN {
+                            $self =
+                              ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$self' } );
+                        }
                         $self = shift;
                         my $CAPTURE;
-                        $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
-                        BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+                        $CAPTURE =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$CAPTURE' } )
+                          unless defined $CAPTURE;
+
+                        BEGIN {
+                            $CAPTURE = ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$CAPTURE' }
+                            );
+                        }
                         ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
                         do {
                             ::MODIFIED($List__);
@@ -335,10 +610,19 @@
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {
+                            invocant => bless(
+                                {
+                                    'namespace' => [],
+                                    'name'      => 'self',
+                                    'twigil'    => '',
+                                    'sigil'     => '$'
+                                },
+                                'Var'
+                            ),
+                            array =>
+                              ::DISPATCH( $::Array, "new", { _array => [] } ),
+                            return => $::Undef,
                         }
                     ),
                 }
@@ -350,18 +634,45 @@
             ::DISPATCH( $::Str, 'new', 'INDEX' ),
             ::DISPATCH(
                 $::Code, 'new',
-                {   code => sub {
+                {
+                    code => sub {
                         my $obj;
-                        $obj = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$obj' } ) unless defined $obj;
-                        BEGIN { $obj = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$obj' } ) }
-                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        $obj =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$obj' } )
+                          unless defined $obj;
+
+                        BEGIN {
+                            $obj =
+                              ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$obj' } );
+                        }
+                        my $List__ =
+                          ::DISPATCH( $::Array, 'new',
+                            { modified => $_MODIFIED, name => '$List__' } );
                         my $i;
-                        $i = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$i' } ) unless defined $i;
-                        BEGIN { $i = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$i' } ) }
+                        $i =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$i' } )
+                          unless defined $i;
+
+                        BEGIN {
+                            $i =
+                              ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$i' } );
+                        }
                         $self = shift;
                         my $CAPTURE;
-                        $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
-                        BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+                        $CAPTURE =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$CAPTURE' } )
+                          unless defined $CAPTURE;
+
+                        BEGIN {
+                            $CAPTURE = ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$CAPTURE' }
+                            );
+                        }
                         ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
                         do {
                             ::MODIFIED($List__);
@@ -373,16 +684,56 @@
                         };
                         do {
                             ::MODIFIED($i);
-                            $i = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                            $i =
+                              ::DISPATCH( $List__, 'INDEX',
+                                ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         ::DISPATCH_VAR( $obj, 'STORE', $self );
                         do {
-                            while ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $obj, 'finished', ) ), "true" ), "p5landish" ) ) {
+                            while (
+                                ::DISPATCH(
+                                    ::DISPATCH(
+                                        ::DISPATCH(
+                                            $GLOBAL::Code_prefix_58__60__33__62_,
+                                            'APPLY',
+                                            ::DISPATCH( $obj, 'finished', )
+                                        ),
+                                        "true"
+                                    ),
+                                    "p5landish"
+                                )
+                              )
+                            {
                                 {
                                     do {
-                                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60__60__62_, 'APPLY', $i, ::DISPATCH( ::DISPATCH( $obj, 'buf', ), 'elems', ) ), "true" ), "p5landish" ) ) {
+                                        if (
+                                            ::DISPATCH(
+                                                ::DISPATCH(
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__60__62_,
+                                                        'APPLY', $i,
+                                                        ::DISPATCH(
+                                                            ::DISPATCH(
+                                                                $obj, 'buf',
+                                                            ),
+                                                            'elems',
+                                                        )
+                                                    ),
+                                                    "true"
+                                                ),
+                                                "p5landish"
+                                            )
+                                          )
+                                        {
                                             {
-                                                return ( ::DISPATCH( ::DISPATCH( $obj, 'buf', ), 'INDEX', $i ) )
+                                                return (
+                                                    ::DISPATCH(
+                                                        ::DISPATCH(
+                                                            $obj, 'buf',
+                                                        ),
+                                                        'INDEX', $i
+                                                    )
+                                                  )
                                             }
                                         }
                                         else { ::DISPATCH( $::Bit, "new", 0 ) }
@@ -391,14 +742,54 @@
                                 }
                             }
                         };
-                        return ( ::DISPATCH( ::DISPATCH( $obj, 'buf', ), 'INDEX', $i ) );
+                        return (
+                            ::DISPATCH(
+                                ::DISPATCH( $obj, 'buf', ),
+                                'INDEX', $i
+                            )
+                        );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => $::Undef,
-                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '$', twigil => '', name => 'i', namespace => [], } ), ] } ),
-                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                        {
+                            invocant => $::Undef,
+                            array    => ::DISPATCH(
+                                $::Array, "new",
+                                {
+                                    _array => [
+                                        ::DISPATCH(
+                                            $::Signature::Item,
+                                            'new',
+                                            {
+                                                sigil         => '$',
+                                                twigil        => '',
+                                                name          => 'i',
+                                                value         => undef,
+                                                is_named_only => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
+                                                is_optional => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
+                                                is_slurpy => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
+                                                is_multidimensional =>
+                                                  ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                  ),
+                                                is_rw => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
+                                                is_copy => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
+                                            }
+                                        ),
+                                    ]
+                                }
+                            ),
                             return => $::Undef,
                         }
                     ),
@@ -411,18 +802,50 @@
             ::DISPATCH( $::Str, 'new', 'map' ),
             ::DISPATCH(
                 $::Code, 'new',
-                {   code => sub {
+                {
+                    code => sub {
                         my $obj;
-                        $obj = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$obj' } ) unless defined $obj;
-                        BEGIN { $obj = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$obj' } ) }
-                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                        $obj =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$obj' } )
+                          unless defined $obj;
+
+                        BEGIN {
+                            $obj =
+                              ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$obj' } );
+                        }
+                        my $List__ =
+                          ::DISPATCH( $::Array, 'new',
+                            { modified => $_MODIFIED, name => '$List__' } );
                         my $Code_code;
-                        $Code_code = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_code' } ) unless defined $Code_code;
-                        BEGIN { $Code_code = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_code' } ) }
+                        $Code_code =
+                          ::DISPATCH( $::Routine, 'new',
+                            { modified => $_MODIFIED, name => '$Code_code' } )
+                          unless defined $Code_code;
+
+                        BEGIN {
+                            $Code_code = ::DISPATCH(
+                                $::Routine,
+                                'new',
+                                {
+                                    modified => $_MODIFIED,
+                                    name     => '$Code_code'
+                                }
+                            );
+                        }
                         $self = shift;
                         my $CAPTURE;
-                        $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
-                        BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+                        $CAPTURE =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$CAPTURE' } )
+                          unless defined $CAPTURE;
+
+                        BEGIN {
+                            $CAPTURE = ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$CAPTURE' }
+                            );
+                        }
                         ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
                         do {
                             ::MODIFIED($List__);
@@ -434,7 +857,9 @@
                         };
                         do {
                             ::MODIFIED($Code_code);
-                            $Code_code = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) );
+                            $Code_code =
+                              ::DISPATCH( $List__, 'INDEX',
+                                ::DISPATCH( $::Int, 'new', 0 ) );
                         };
                         ::DISPATCH_VAR( $obj, 'STORE', $self );
                         ::DISPATCH(
@@ -442,42 +867,178 @@
                             'new',
                             ::DISPATCH(
                                 $::Code, 'new',
-                                {   code => sub {
+                                {
+                                    code => sub {
                                         my $i;
-                                        $i = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$i' } ) unless defined $i;
-                                        BEGIN { $i = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$i' } ) }
-                                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                                        $i = ::DISPATCH(
+                                            $::Scalar,
+                                            'new',
+                                            {
+                                                modified => $_MODIFIED,
+                                                name     => '$i'
+                                            }
+                                        ) unless defined $i;
+
+                                        BEGIN {
+                                            $i = ::DISPATCH(
+                                                $::Scalar,
+                                                'new',
+                                                {
+                                                    modified => $_MODIFIED,
+                                                    name     => '$i'
+                                                }
+                                            );
+                                        }
+                                        my $List__ = ::DISPATCH(
+                                            $::Array, 'new',
+                                            {
+                                                modified => $_MODIFIED,
+                                                name     => '$List__'
+                                            }
+                                        );
                                         my $CAPTURE;
-                                        $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
-                                        BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
-                                        ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                                        $CAPTURE = ::DISPATCH(
+                                            $::Scalar,
+                                            'new',
+                                            {
+                                                modified => $_MODIFIED,
+                                                name     => '$CAPTURE'
+                                            }
+                                        ) unless defined $CAPTURE;
+
+                                        BEGIN {
+                                            $CAPTURE = ::DISPATCH(
+                                                $::Scalar,
+                                                'new',
+                                                {
+                                                    modified => $_MODIFIED,
+                                                    name     => '$CAPTURE'
+                                                }
+                                            );
+                                        }
+                                        ::DISPATCH_VAR( $CAPTURE, "STORE",
+                                            ::CAPTURIZE( \@_ ) );
                                         do {
                                             ::MODIFIED($List__);
-                                            $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                                            $List__ =
+                                              ::DISPATCH( $CAPTURE, 'array', );
                                         };
                                         do {
                                             ::MODIFIED($Hash__);
-                                            $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                                            $Hash__ =
+                                              ::DISPATCH( $CAPTURE, 'hash', );
                                         };
-                                        ::DISPATCH_VAR( $i, 'STORE', ::DISPATCH( $::Int, 'new', 0 ) );
+                                        ::DISPATCH_VAR( $i, 'STORE',
+                                            ::DISPATCH( $::Int, 'new', 0 ) );
                                         do {
-                                            while ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $obj, 'finished', ) ), "true" ), "p5landish" ) ) {
+                                            while (
+                                                ::DISPATCH(
+                                                    ::DISPATCH(
+                                                        ::DISPATCH(
+                                                            $GLOBAL::Code_prefix_58__60__33__62_,
+                                                            'APPLY',
+                                                            ::DISPATCH(
+                                                                $obj,
+                                                                'finished',
+                                                            )
+                                                        ),
+                                                        "true"
+                                                    ),
+                                                    "p5landish"
+                                                )
+                                              )
+                                            {
                                                 {
-                                                    ::DISPATCH( $GLOBAL::Code_take, 'APPLY', ::DISPATCH( $Code_code, 'APPLY', ::DISPATCH( $obj, 'INDEX', $i ) ) );
-                                                    ::DISPATCH_VAR( $i, 'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $i, ::DISPATCH( $::Int, 'new', 1 ) ) )
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_take,
+                                                        'APPLY',
+                                                        ::DISPATCH(
+                                                            $Code_code,
+                                                            'APPLY',
+                                                            ::DISPATCH(
+                                                                $obj, 'INDEX',
+                                                                $i
+                                                            )
+                                                        )
+                                                    );
+                                                    ::DISPATCH_VAR(
+                                                        $i, 'STORE',
+                                                        ::DISPATCH(
+                                                            $GLOBAL::Code_infix_58__60__43__62_,
+                                                            'APPLY',
+                                                            $i,
+                                                            ::DISPATCH(
+                                                                $::Int, 'new',
+                                                                1
+                                                            )
+                                                        )
+                                                      )
                                                 }
                                             }
                                         };
                                         do {
-                                            while ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_infix_58__60__60__62_, 'APPLY', $i, ::DISPATCH( ::DISPATCH( $obj, 'buf', ), 'elems', ) ), "true" ), "p5landish" ) ) {
+                                            while (
+                                                ::DISPATCH(
+                                                    ::DISPATCH(
+                                                        ::DISPATCH(
+                                                            $GLOBAL::Code_infix_58__60__60__62_,
+                                                            'APPLY',
+                                                            $i,
+                                                            ::DISPATCH(
+                                                                ::DISPATCH(
+                                                                    $obj,
+                                                                    'buf',
+                                                                ),
+                                                                'elems',
+                                                            )
+                                                        ),
+                                                        "true"
+                                                    ),
+                                                    "p5landish"
+                                                )
+                                              )
+                                            {
                                                 {
-                                                    ::DISPATCH( $GLOBAL::Code_take, 'APPLY', ::DISPATCH( $Code_code, 'APPLY', ::DISPATCH( $obj, 'INDEX', $i ) ) );
-                                                    ::DISPATCH_VAR( $i, 'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $i, ::DISPATCH( $::Int, 'new', 1 ) ) )
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_take,
+                                                        'APPLY',
+                                                        ::DISPATCH(
+                                                            $Code_code,
+                                                            'APPLY',
+                                                            ::DISPATCH(
+                                                                $obj, 'INDEX',
+                                                                $i
+                                                            )
+                                                        )
+                                                    );
+                                                    ::DISPATCH_VAR(
+                                                        $i, 'STORE',
+                                                        ::DISPATCH(
+                                                            $GLOBAL::Code_infix_58__60__43__62_,
+                                                            'APPLY',
+                                                            $i,
+                                                            ::DISPATCH(
+                                                                $::Int, 'new',
+                                                                1
+                                                            )
+                                                        )
+                                                      )
                                                 }
                                             }
-                                            }
+                                          }
                                     },
-                                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), hash => ::DISPATCH( $::Hash, "new", { _hash => {} } ), return => $::Undef, } ),
+                                    signature => ::DISPATCH(
+                                        $::Signature,
+                                        "new",
+                                        {
+                                            invocant => $::Undef,
+                                            array    => ::DISPATCH(
+                                                $::Array, "new",
+                                                { _array => [] }
+                                            ),
+                                            return => $::Undef,
+                                        }
+                                    ),
                                 }
                             )
                         );
@@ -485,15 +1046,50 @@
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => $::Undef,
-                            array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, "new", { sigil => '&', twigil => '', name => 'code', namespace => [], } ), ] } ),
-                            hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                        {
+                            invocant => $::Undef,
+                            array    => ::DISPATCH(
+                                $::Array, "new",
+                                {
+                                    _array => [
+                                        ::DISPATCH(
+                                            $::Signature::Item,
+                                            'new',
+                                            {
+                                                sigil         => '&',
+                                                twigil        => '',
+                                                name          => 'code',
+                                                value         => undef,
+                                                is_named_only => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
+                                                is_optional => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
+                                                is_slurpy => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
+                                                is_multidimensional =>
+                                                  ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                  ),
+                                                is_rw => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
+                                                is_copy => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
+                                            }
+                                        ),
+                                    ]
+                                }
+                            ),
                             return => $::Undef,
                         }
                     ),
                 }
             )
-            )
+          )
     };
     1
 }

@@ -302,8 +302,6 @@
                             ),
                             array =>
                               ::DISPATCH( $::Array, "new", { _array => [] } ),
-                            hash =>
-                              ::DISPATCH( $::Hash, "new", { _hash => {} } ),
                             return => $::Undef,
                         }
                     ),
@@ -474,8 +472,6 @@
                             ),
                             array =>
                               ::DISPATCH( $::Array, "new", { _array => [] } ),
-                            hash =>
-                              ::DISPATCH( $::Hash, "new", { _hash => {} } ),
                             return => $::Undef,
                         }
                     ),
@@ -648,8 +644,6 @@
                             ),
                             array =>
                               ::DISPATCH( $::Array, "new", { _array => [] } ),
-                            hash =>
-                              ::DISPATCH( $::Hash, "new", { _hash => {} } ),
                             return => $::Undef,
                         }
                     ),
@@ -716,8 +710,6 @@
                             ),
                             array =>
                               ::DISPATCH( $::Array, "new", { _array => [] } ),
-                            hash =>
-                              ::DISPATCH( $::Hash, "new", { _hash => {} } ),
                             return => $::Undef,
                         }
                     ),

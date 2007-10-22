@@ -134,7 +134,7 @@ token comp_unit {
     <'}'>
     <?opt_ws> [\; <?opt_ws> | <''> ]
     {
-        my $env := @COMPILER::PAD[0];
+        my $env := COMPILER::current_pad();
         COMPILER::drop_pad();
         return ::CompUnit(
             'unit_type'   => $$<unit_type>,
@@ -158,7 +158,7 @@ token comp_unit {
     }
     <exp_stmts2>
     {
-        my $env := @COMPILER::PAD[0];
+        my $env := COMPILER::current_pad();
         COMPILER::drop_pad();
         return ::CompUnit(
             'unit_type'   => 'module',
@@ -232,7 +232,7 @@ token exp {
             my $macro := COMPILER::get_var( $macro_ast );
             if defined($macro) {
                 # fetch the macro 
-                my $sub := ( @COMPILER::PAD[0] ).eval_ast( $macro_ast );
+                my $sub := ( COMPILER::current_pad() ).eval_ast( $macro_ast );
                 Main::expand_macro( $sub, $$<term_meth>, $$<exp>, $$<exp2> );
                 # say "# ternary macro = ", $sub.perl;
             }
@@ -597,7 +597,7 @@ token subset {
     [   \}     | { say '*** Syntax Error in subset \'', get_class_name(), '.', $$<name>, '\' near pos=', $/.to; die 'error in Block'; } ]
     {
         # say ' block: ', ($$<exp_stmts>).perl;
-        my $env := @COMPILER::PAD[0];
+        my $env := COMPILER::current_pad();
         COMPILER::drop_pad();
         return ::Subset( 
             'name'  => $$<full_ident>, 
@@ -630,7 +630,7 @@ token begin_block {
     [   \}     | { say '*** Syntax Error in BEGIN near pos=', $/.to; die 'error in Block'; } ]
     {
         # say ' block: ', ($$<exp_stmts>).perl;
-        my $env := @COMPILER::PAD[0];
+        my $env := COMPILER::current_pad();
         #print "  grammar: dropping pad\n";
         COMPILER::drop_pad();
         #say "BEGIN block";

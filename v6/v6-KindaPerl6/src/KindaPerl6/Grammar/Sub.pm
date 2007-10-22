@@ -47,7 +47,7 @@ token sub {
         <?opt_ws> 
     [   \}     | { say '*** Syntax Error in sub \'', $$<name>, '\''; die 'error in Block'; } ]
     { 
-        my $env := @COMPILER::PAD[0];
+        my $env := COMPILER::current_pad();
         COMPILER::drop_pad();
         my $block := $$<exp_stmts>;
         KindaPerl6::Grammar::declare_parameters(
@@ -80,7 +80,7 @@ token coro {
         <?opt_ws> 
     [   \}     | { say '*** Syntax Error in coro \'', $$<name>, '\''; die 'error in Block'; } ]
     { 
-        my $env := @COMPILER::PAD[0];
+        my $env := COMPILER::current_pad();
         COMPILER::drop_pad();
         my $block := $$<exp_stmts>;
         KindaPerl6::Grammar::declare_parameters(
@@ -113,7 +113,7 @@ token arrow_sub {
         <?opt_ws> 
     [   \}     | { say '*** Syntax Error in sub '; die 'error in Block'; } ]
     { 
-        my $env := @COMPILER::PAD[0];
+        my $env := COMPILER::current_pad();
         COMPILER::drop_pad();
         my $block := $$<exp_stmts>;
         KindaPerl6::Grammar::declare_parameters(
@@ -144,7 +144,7 @@ token sub_block {
         <?opt_ws> 
     [   \}     | { say '*** Syntax Error in sub '; die 'error in Block'; } ]
     { 
-        my $env := @COMPILER::PAD[0];
+        my $env := COMPILER::current_pad();
         COMPILER::drop_pad();
         my $block := $$<exp_stmts>;
         KindaPerl6::Grammar::declare_parameters(
@@ -217,7 +217,7 @@ token method {
     {
         # say ' block: ', ($$<exp_stmts>).perl;
         
-        my $env   := @COMPILER::PAD[0];
+        my $env   := COMPILER::current_pad();
         my $block := $$<exp_stmts>;
         KindaPerl6::Grammar::declare_parameters(
             $env,
@@ -259,7 +259,7 @@ token multi_method {
         {
             # say ' block: ', ($$<exp_stmts>).perl;
             
-            my $env   := @COMPILER::PAD[0];
+            my $env   := COMPILER::current_pad();
             my $block := $$<exp_stmts>;
             KindaPerl6::Grammar::declare_parameters(
                 $env,
@@ -308,7 +308,7 @@ token multi_sub {
         {
             # say ' block: ', ($$<exp_stmts>).perl;
             
-            my $env   := @COMPILER::PAD[0];
+            my $env   := COMPILER::current_pad();
             my $block := $$<exp_stmts>;
             KindaPerl6::Grammar::declare_parameters(
                 $env,
@@ -409,7 +409,7 @@ token macro {
         <?opt_ws> 
     [   \}     | { say '*** Syntax Error in macro \'', $$<name>, '\''; die 'error in Block'; } ]
     { 
-        my $env := @COMPILER::PAD[0];
+        my $env := COMPILER::current_pad();
         COMPILER::drop_pad();
         my $block := $$<exp_stmts>;
         KindaPerl6::Grammar::declare_parameters(

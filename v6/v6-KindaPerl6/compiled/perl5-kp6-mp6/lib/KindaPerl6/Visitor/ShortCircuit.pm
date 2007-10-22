@@ -11,7 +11,7 @@ sub new_pad {
     my $List__ = \@_;
     do { [] };
     COMPILER::add_pad();
-    my $pad = $List_COMPILER::PAD->[0];
+    my $pad = COMPILER::current_pad();
     COMPILER::drop_pad();
     return ($pad);
 }

@@ -4,7 +4,7 @@ use v6-alpha;
 class KindaPerl6::Visitor::ShortCircuit {
     sub new_pad {
         COMPILER::add_pad();
-        my $pad := @COMPILER::PAD[0];
+        my $pad := COMPILER::current_pad();
         COMPILER::drop_pad();
         return $pad;
     };

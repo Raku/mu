@@ -392,7 +392,7 @@ sub parsed_code {
                                             my $List__ = \@_;
                                             do { [] };
                                             do {
-                                                my $env = $List_COMPILER::PAD->[0];
+                                                my $env = COMPILER::current_pad();
                                                 COMPILER::drop_pad();
                                                 return ( Lit::Code->new( 'pad' => $env, 'state' => {}, 'sig' => Sig->new( 'invocant' => (undef), 'positional' => [], 'named' => {}, ), 'body' => ${ $MATCH->{'KindaPerl6::Grammar.exp_stmts'} }, ) );
                                             };

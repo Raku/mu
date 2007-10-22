@@ -92,7 +92,7 @@ token term {
             } else {
                 $decl := $$<opt_declarator>;
             };
-            (@COMPILER::PAD[0]).add_lexicals( [
+            ( COMPILER::current_pad() ).add_lexicals( [
                 ::Decl(  
                     decl  => $decl,  
                     var   => ::Var(  
@@ -133,7 +133,7 @@ token term {
             } else {
                 $decl := $$<opt_declarator>;
             };
-            (@COMPILER::PAD[0]).add_lexicals( [
+            ( COMPILER::current_pad() ).add_lexicals( [
                 ::Decl(  
                     decl  => $decl,  
                     var   => ::Var(  
@@ -174,7 +174,7 @@ token term {
             } else {
                 $decl := $$<opt_declarator>;
             };
-            (@COMPILER::PAD[0]).add_lexicals( [
+            ( COMPILER::current_pad() ).add_lexicals( [
                 ::Decl(  
                     decl  => $decl,  
                     var   => ::Var(  
@@ -202,15 +202,15 @@ token term {
     | <declarator> <?ws> <opt_type> <?opt_ws> <undeclared_var>   # my Int $variable
         { 
             if ($$<declarator>) eq 'my' {
-                (@COMPILER::PAD[0]).add_lexicals( [
+                ( COMPILER::current_pad() ).add_lexicals( [
                     ::Decl( 'decl' => $$<declarator>, 'type' => $$<opt_type>, 'var' => $$<undeclared_var> ),
                 ] );
                 return $$<undeclared_var>;
             };
             if ($$<declarator>) eq 'our' {
                 # TODO - bind to namespace
-                #say 'our declaration in namespace: ', (@COMPILER::PAD[0]).namespace;
-                (@COMPILER::PAD[0]).add_lexicals( [
+                #say 'our declaration in namespace: ', ( COMPILER::current_pad() ).namespace;
+                ( COMPILER::current_pad() ).add_lexicals( [
                     ::Decl( 'decl' => $$<declarator>, 'type' => $$<opt_type>, 'var' => $$<undeclared_var> ),
                 ] );
                 return $$<undeclared_var>;

@@ -10,37 +10,91 @@
     use KindaPerl6::Runtime::Perl5::Runtime;
     my $_MODIFIED;
     BEGIN { $_MODIFIED = {} }
-    BEGIN { $_ = ::DISPATCH( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
+
+    BEGIN {
+        $_ =
+          ::DISPATCH( $::Scalar, "new",
+            { modified => $_MODIFIED, name => "$_" } );
+    }
     {
         do {
-            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Pad ), "true" ), "p5landish" ) ) { }
+            if (
+                ::DISPATCH(
+                    ::DISPATCH(
+                        ::DISPATCH(
+                            $GLOBAL::Code_VAR_defined, 'APPLY', $::Pad
+                        ),
+                        "true"
+                    ),
+                    "p5landish"
+                )
+              )
+            {
+            }
             else {
                 {
                     do {
                         ::MODIFIED($::Pad);
-                        $::Pad = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Pad' ) ), 'PROTOTYPE', );
-                        }
+                        $::Pad = ::DISPATCH(
+                            ::DISPATCH(
+                                $::Class, 'new',
+                                ::DISPATCH( $::Str, 'new', 'Pad' )
+                            ),
+                            'PROTOTYPE',
+                        );
+                      }
                 }
             }
         };
-        ::DISPATCH( ::DISPATCH( $::Pad, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'namespace' ) );
-        ::DISPATCH( ::DISPATCH( $::Pad, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'outer' ) );
-        ::DISPATCH( ::DISPATCH( $::Pad, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'lexicals' ) );
+        ::DISPATCH(
+            ::DISPATCH( $::Pad, 'HOW', ),
+            'add_attribute',
+            ::DISPATCH( $::Str, 'new', 'namespace' )
+        );
+        ::DISPATCH(
+            ::DISPATCH( $::Pad, 'HOW', ),
+            'add_attribute',
+            ::DISPATCH( $::Str, 'new', 'outer' )
+        );
+        ::DISPATCH(
+            ::DISPATCH( $::Pad, 'HOW', ),
+            'add_attribute',
+            ::DISPATCH( $::Str, 'new', 'lexicals' )
+        );
         ::DISPATCH(
             ::DISPATCH( $::Pad, 'HOW', ),
             'add_method',
             ::DISPATCH( $::Str, 'new', 'emit' ),
             ::DISPATCH(
                 $::Code, 'new',
-                {   code => sub {
-                        my $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } );
+                {
+                    code => sub {
+                        my $List__ =
+                          ::DISPATCH( $::Array, 'new',
+                            { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
-                        $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) unless defined $self;
-                        BEGIN { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
+                        $self =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$self' } )
+                          unless defined $self;
+
+                        BEGIN {
+                            $self =
+                              ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$self' } );
+                        }
                         $self = shift;
                         my $CAPTURE;
-                        $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
-                        BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+                        $CAPTURE =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$CAPTURE' } )
+                          unless defined $CAPTURE;
+
+                        BEGIN {
+                            $CAPTURE = ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$CAPTURE' }
+                            );
+                        }
                         ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
                         do {
                             ::MODIFIED($List__);
@@ -54,15 +108,24 @@
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
-                        {   invocant => ::DISPATCH( $::Signature::Item, "new", { sigil  => '$', twigil => '', name => 'self', namespace => [], } ),
-                            array    => ::DISPATCH( $::Array,           "new", { _array => [] } ),
-                            hash     => ::DISPATCH( $::Hash,            "new", { _hash  => {} } ),
-                            return   => $::Undef,
+                        {
+                            invocant => bless(
+                                {
+                                    'namespace' => [],
+                                    'name'      => 'self',
+                                    'twigil'    => '',
+                                    'sigil'     => '$'
+                                },
+                                'Var'
+                            ),
+                            array =>
+                              ::DISPATCH( $::Array, "new", { _array => [] } ),
+                            return => $::Undef,
                         }
                     ),
                 }
             )
-            )
+          )
     };
     1
 }

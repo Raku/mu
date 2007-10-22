@@ -25,7 +25,7 @@ token block1 {
         <?opt_ws> 
     \} 
         {
-            my $env := @COMPILER::PAD[0];
+            my $env := COMPILER::current_pad();
             COMPILER::drop_pad();
             return ::Lit::Code(
                     pad   => $env,
@@ -104,14 +104,14 @@ token for {
     for <?ws> <exp> <?opt_ws> <'->'> <?opt_ws> <var> 
         { 
             COMPILER::add_pad();
-            my $env := @COMPILER::PAD[0];
+            my $env := COMPILER::current_pad();
             push @($env.lexicals),::Decl(type=>'',decl=>'my',var=>$$<var>);
         }
     
     <?ws> <block1>
 
     { 
-            my $env := @COMPILER::PAD[0];
+            my $env := COMPILER::current_pad();
             COMPILER::drop_pad();
             my $block := $$<block1>;
             return ::Lit::Code(

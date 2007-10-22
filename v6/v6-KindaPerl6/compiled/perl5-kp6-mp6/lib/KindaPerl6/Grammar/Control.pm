@@ -283,7 +283,7 @@ sub block1 {
                                                 my $List__ = \@_;
                                                 do { [] };
                                                 do {
-                                                    my $env = $List_COMPILER::PAD->[0];
+                                                    my $env = COMPILER::current_pad();
                                                     COMPILER::drop_pad();
                                                     return ( Lit::Code->new( 'pad' => $env, 'state' => {}, 'sig' => Sig->new( 'invocant' => (undef), 'positional' => [], 'named' => {}, ), 'body' => ${ $MATCH->{'exp_stmts'} }, ) );
                                                 };
@@ -731,7 +731,7 @@ sub for {
                                                             my $ret = sub {
                                                                 my $List__ = \@_;
                                                                 do { [] };
-                                                                do { COMPILER::add_pad(); my $env = $List_COMPILER::PAD->[0]; push( @{ $env->lexicals() }, Decl->new( 'type' => '', 'decl' => 'my', 'var' => ${ $MATCH->{'var'} }, ) ) };
+                                                                do { COMPILER::add_pad(); my $env = COMPILER::current_pad(); push( @{ $env->lexicals() }, Decl->new( 'type' => '', 'decl' => 'my', 'var' => ${ $MATCH->{'var'} }, ) ) };
                                                                 '974^213';
                                                                 }
                                                                 ->();
@@ -760,7 +760,7 @@ sub for {
                                                                         my $List__ = \@_;
                                                                         do { [] };
                                                                         do {
-                                                                            my $env = $List_COMPILER::PAD->[0];
+                                                                            my $env = COMPILER::current_pad();
                                                                             COMPILER::drop_pad();
                                                                             my $block = ${ $MATCH->{'block1'} };
                                                                             return (

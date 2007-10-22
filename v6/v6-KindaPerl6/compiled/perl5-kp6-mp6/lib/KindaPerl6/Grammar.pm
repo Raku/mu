@@ -1187,7 +1187,7 @@ sub comp_unit {
                                                                                                             my $List__ = \@_;
                                                                                                             do { [] };
                                                                                                             do {
-                                                                                                                my $env = $List_COMPILER::PAD->[0];
+                                                                                                                my $env = COMPILER::current_pad();
                                                                                                                 COMPILER::drop_pad();
                                                                                                                 return (
                                                                                                                     CompUnit->new(
@@ -1274,7 +1274,7 @@ sub comp_unit {
                                                 my $List__ = \@_;
                                                 do { [] };
                                                 do {
-                                                    my $env = $List_COMPILER::PAD->[0];
+                                                    my $env = COMPILER::current_pad();
                                                     COMPILER::drop_pad();
                                                     return (
                                                         CompUnit->new(
@@ -1696,7 +1696,7 @@ sub exp {
                                                                                         my $macro = COMPILER::get_var($macro_ast);
                                                                                         do {
                                                                                             if ( defined($macro) ) {
-                                                                                                my $sub = $List_COMPILER::PAD->[0]->eval_ast($macro_ast);
+                                                                                                my $sub = COMPILER::current_pad()->eval_ast($macro_ast);
                                                                                                 Main::expand_macro( $sub, ${ $MATCH->{'term_meth'} }, ${ $MATCH->{'exp'} }, ${ $MATCH->{'exp2'} } );
                                                                                             }
                                                                                             else { }
@@ -4216,7 +4216,7 @@ sub subset {
                                                                                                                                 my $List__ = \@_;
                                                                                                                                 do { [] };
                                                                                                                                 do {
-                                                                                                                                    my $env = $List_COMPILER::PAD->[0];
+                                                                                                                                    my $env = COMPILER::current_pad();
                                                                                                                                     COMPILER::drop_pad();
                                                                                                                                     return (
                                                                                                                                         Subset->new(
@@ -4362,7 +4362,7 @@ sub begin_block {
                                                                         my $List__ = \@_;
                                                                         do { [] };
                                                                         do {
-                                                                            my $env = $List_COMPILER::PAD->[0];
+                                                                            my $env = COMPILER::current_pad();
                                                                             COMPILER::drop_pad();
                                                                             return (
                                                                                 COMPILER::begin_block(

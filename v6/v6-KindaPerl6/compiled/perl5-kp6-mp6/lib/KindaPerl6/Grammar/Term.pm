@@ -842,7 +842,7 @@ sub term {
                                                                                                                                         if   ( ( ${ $MATCH->{'opt_declarator'} } eq '' ) ) { $decl = 'our' }
                                                                                                                                         else                                               { $decl = ${ $MATCH->{'opt_declarator'} } }
                                                                                                                                     };
-                                                                                                                                    $List_COMPILER::PAD->[0]->add_lexicals(
+                                                                                                                                    COMPILER::current_pad()->add_lexicals(
                                                                                                                                         [   Decl->new(
                                                                                                                                                 'decl' => $decl,
                                                                                                                                                 'var'  => Var->new(
@@ -913,7 +913,7 @@ sub term {
                                                                                                                                             if   ( ( ${ $MATCH->{'opt_declarator'} } eq '' ) ) { $decl = 'our' }
                                                                                                                                             else                                               { $decl = ${ $MATCH->{'opt_declarator'} } }
                                                                                                                                         };
-                                                                                                                                        $List_COMPILER::PAD->[0]->add_lexicals(
+                                                                                                                                        COMPILER::current_pad()->add_lexicals(
                                                                                                                                             [   Decl->new(
                                                                                                                                                     'decl' => $decl,
                                                                                                                                                     'var'  => Var->new(
@@ -984,7 +984,7 @@ sub term {
                                                                                                                                                 if   ( ( ${ $MATCH->{'opt_declarator'} } eq '' ) ) { $decl = 'our' }
                                                                                                                                                 else                                               { $decl = ${ $MATCH->{'opt_declarator'} } }
                                                                                                                                             };
-                                                                                                                                            $List_COMPILER::PAD->[0]->add_lexicals(
+                                                                                                                                            COMPILER::current_pad()->add_lexicals(
                                                                                                                                                 [   Decl->new(
                                                                                                                                                         'decl' => $decl,
                                                                                                                                                         'var'  => Var->new(
@@ -1065,7 +1065,7 @@ sub term {
                                                                                                                                                         do {
                                                                                                                                                             do {
                                                                                                                                                                 if ( ( ${ $MATCH->{'declarator'} } eq 'my' ) ) {
-                                                                                                                                                                    $List_COMPILER::PAD->[0]->add_lexicals(
+                                                                                                                                                                    COMPILER::current_pad()->add_lexicals(
                                                                                                                                                                         [   Decl->new(
                                                                                                                                                                                 'decl' => ${ $MATCH->{'declarator'} },
                                                                                                                                                                                 'type' => ${ $MATCH->{'opt_type'} },
@@ -1079,7 +1079,7 @@ sub term {
                                                                                                                                                             };
                                                                                                                                                             do {
                                                                                                                                                                 if ( ( ${ $MATCH->{'declarator'} } eq 'our' ) ) {
-                                                                                                                                                                    $List_COMPILER::PAD->[0]->add_lexicals(
+                                                                                                                                                                    COMPILER::current_pad()->add_lexicals(
                                                                                                                                                                         [   Decl->new(
                                                                                                                                                                                 'decl' => ${ $MATCH->{'declarator'} },
                                                                                                                                                                                 'type' => ${ $MATCH->{'opt_type'} },

@@ -228,6 +228,9 @@ compiled/perl5-kp6-mp6/lib/%.pm: src-modules/%.pm
 compiled/perl5-kp6-mp6/lib/KindaPerl6/Runtime/Perl5/%.pm: src/KindaPerl6/Runtime/Perl5/%.pm
 	$(CP) $< $@
 
+compiled/perl5-kp6-mp6/lib/KindaPerl6.pm: src/KindaPerl6.pm
+	$(CP) $< $@
+
 compiled/perl5-kp6-mp6/lib/%.pm: src/%.pm
 	$(PERL) script/mp6.pl < $< | perltidy -pro=util/perltidyrc > $@
 
@@ -250,6 +253,9 @@ compiled/perl5-kp6-kp6/%.pm: src-modules/%.pm
 		fi
 
 compiled/perl5-kp6-kp6/KindaPerl6/Runtime/Perl5/%.pm: src/KindaPerl6/Runtime/Perl5/%.pm
+	$(CP) $< $@
+
+compiled/perl5-kp6-kp6/lib/KindaPerl6.pm: src/KindaPerl6.pm
 	$(CP) $< $@
 
 compiled/perl5-kp6-kp6/%.pm: src/%.pm

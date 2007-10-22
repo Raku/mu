@@ -377,7 +377,7 @@ sub sub {
                                                                                 my $List__ = \@_;
                                                                                 do { [] };
                                                                                 do {
-                                                                                    my $env = $List_COMPILER::PAD->[0];
+                                                                                    my $env = COMPILER::current_pad();
                                                                                     COMPILER::drop_pad();
                                                                                     my $block = ${ $MATCH->{'exp_stmts'} };
                                                                                     KindaPerl6::Grammar::declare_parameters( $env, $block, ${ $MATCH->{'sub_sig'} } );
@@ -528,7 +528,7 @@ sub coro {
                                                                                     my $List__ = \@_;
                                                                                     do { [] };
                                                                                     do {
-                                                                                        my $env = $List_COMPILER::PAD->[0];
+                                                                                        my $env = COMPILER::current_pad();
                                                                                         COMPILER::drop_pad();
                                                                                         my $block = ${ $MATCH->{'exp_stmts'} };
                                                                                         KindaPerl6::Grammar::declare_parameters( $env, $block, ${ $MATCH->{'sub_sig'} } );
@@ -666,7 +666,7 @@ sub arrow_sub {
                                                                 my $List__ = \@_;
                                                                 do { [] };
                                                                 do {
-                                                                    my $env = $List_COMPILER::PAD->[0];
+                                                                    my $env = COMPILER::current_pad();
                                                                     COMPILER::drop_pad();
                                                                     my $block = ${ $MATCH->{'exp_stmts'} };
                                                                     KindaPerl6::Grammar::declare_parameters( $env, $block, ${ $MATCH->{'arrow_sub_sig'} } );
@@ -772,7 +772,7 @@ sub sub_block {
                                                 my $List__ = \@_;
                                                 do { [] };
                                                 do {
-                                                    my $env = $List_COMPILER::PAD->[0];
+                                                    my $env = COMPILER::current_pad();
                                                     COMPILER::drop_pad();
                                                     my $block = ${ $MATCH->{'exp_stmts'} };
                                                     KindaPerl6::Grammar::declare_parameters( $env, $block, Sig->new( 'invocant' => (undef), 'positional' => [], 'named' => {}, ) );
@@ -1076,7 +1076,7 @@ sub method {
                                                                                             my $List__ = \@_;
                                                                                             do { [] };
                                                                                             do {
-                                                                                                my $env   = $List_COMPILER::PAD->[0];
+                                                                                                my $env   = COMPILER::current_pad();
                                                                                                 my $block = ${ $MATCH->{'exp_stmts'} };
                                                                                                 KindaPerl6::Grammar::declare_parameters( $env, $block, ${ $MATCH->{'method_sig'} } );
                                                                                                 COMPILER::drop_pad();
@@ -1261,7 +1261,7 @@ sub multi_method {
                                                                                                                         my $List__ = \@_;
                                                                                                                         do { [] };
                                                                                                                         do {
-                                                                                                                            my $env   = $List_COMPILER::PAD->[0];
+                                                                                                                            my $env   = COMPILER::current_pad();
                                                                                                                             my $block = ${ $MATCH->{'exp_stmts'} };
                                                                                                                             KindaPerl6::Grammar::declare_parameters( $env, $block, ${ $MATCH->{'method_sig'} } );
                                                                                                                             COMPILER::drop_pad();
@@ -1468,7 +1468,7 @@ sub multi_sub {
                                                                                                 my $List__ = \@_;
                                                                                                 do { [] };
                                                                                                 do {
-                                                                                                    my $env   = $List_COMPILER::PAD->[0];
+                                                                                                    my $env   = COMPILER::current_pad();
                                                                                                     my $block = ${ $MATCH->{'exp_stmts'} };
                                                                                                     KindaPerl6::Grammar::declare_parameters( $env, $block, ${ $MATCH->{'sub_sig'} } );
                                                                                                     COMPILER::drop_pad();
@@ -1958,7 +1958,7 @@ sub macro {
                                                                                         my $List__ = \@_;
                                                                                         do { [] };
                                                                                         do {
-                                                                                            my $env = $List_COMPILER::PAD->[0];
+                                                                                            my $env = COMPILER::current_pad();
                                                                                             COMPILER::drop_pad();
                                                                                             my $block = ${ $MATCH->{'exp_stmts'} };
                                                                                             KindaPerl6::Grammar::declare_parameters( $env, $block, ${ $MATCH->{'sub_sig'} } );
