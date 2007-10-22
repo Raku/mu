@@ -16,7 +16,7 @@
           ::DISPATCH( $::Scalar, "new",
             { modified => $_MODIFIED, name => "$_" } );
     }
-    {
+    do {
         do {
             if (
                 ::DISPATCH(
@@ -32,7 +32,7 @@
             {
             }
             else {
-                {
+                do {
                     do {
                         ::MODIFIED($::Match);
                         $::Match = ::DISPATCH(
@@ -43,7 +43,7 @@
                             'PROTOTYPE',
                         );
                       }
-                }
+                  }
             }
         };
         ::DISPATCH(
@@ -129,14 +129,14 @@
                                 )
                               )
                             {
-                                {
+                                do {
                                     return (
                                         ::DISPATCH(
                                             ::DISPATCH( $self, "result" ),
                                             'Str',
                                         )
-                                      )
-                                }
+                                    );
+                                  }
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
@@ -233,14 +233,14 @@
                                 )
                               )
                             {
-                                {
-                                    return ( ::DISPATCH( $self, "result" ) )
-                                }
+                                do {
+                                    return ( ::DISPATCH( $self, "result" ) );
+                                  }
                             }
                             else {
-                                {
-                                    return ( ::DISPATCH( $self, 'Str', ) )
-                                }
+                                do {
+                                    return ( ::DISPATCH( $self, 'Str', ) );
+                                  }
                             }
                           }
                     },
@@ -620,7 +620,7 @@
                     ),
                 }
             )
-          )
+        );
     };
     1
 }

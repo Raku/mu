@@ -16,7 +16,7 @@
           ::DISPATCH( $::Scalar, "new",
             { modified => $_MODIFIED, name => "$_" } );
     }
-    {
+    do {
         do {
             if (
                 ::DISPATCH(
@@ -32,7 +32,7 @@
             {
             }
             else {
-                {
+                do {
                     do {
                         ::MODIFIED($::Gather);
                         $::Gather = ::DISPATCH(
@@ -43,7 +43,7 @@
                             'PROTOTYPE',
                         );
                       }
-                }
+                  }
             }
         };
         ::DISPATCH(
@@ -336,9 +336,9 @@
                                 )
                               )
                             {
-                                {
-                                    ::DISPATCH( $self, '_more', )
-                                }
+                                do {
+                                    ::DISPATCH( $self, '_more', );
+                                  }
                             }
                         };
                         ::DISPATCH( $self, 'buf', );
@@ -704,7 +704,7 @@
                                 )
                               )
                             {
-                                {
+                                do {
                                     do {
                                         if (
                                             ::DISPATCH(
@@ -725,7 +725,7 @@
                                             )
                                           )
                                         {
-                                            {
+                                            do {
                                                 return (
                                                     ::DISPATCH(
                                                         ::DISPATCH(
@@ -733,13 +733,13 @@
                                                         ),
                                                         'INDEX', $i
                                                     )
-                                                  )
-                                            }
+                                                );
+                                              }
                                         }
                                         else { ::DISPATCH( $::Bit, "new", 0 ) }
                                     };
-                                    ::DISPATCH( $obj, '_more', )
-                                }
+                                    ::DISPATCH( $obj, '_more', );
+                                  }
                             }
                         };
                         return (
@@ -762,10 +762,13 @@
                                             $::Signature::Item,
                                             'new',
                                             {
-                                                sigil         => '$',
-                                                twigil        => '',
-                                                name          => 'i',
-                                                value         => undef,
+                                                sigil       => '$',
+                                                twigil      => '',
+                                                name        => 'i',
+                                                value       => $::Undef,
+                                                has_default => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
                                                 is_named_only => ::DISPATCH(
                                                     $::Bit, 'new', 0
                                                 ),
@@ -889,13 +892,6 @@
                                                 }
                                             );
                                         }
-                                        my $List__ = ::DISPATCH(
-                                            $::Array, 'new',
-                                            {
-                                                modified => $_MODIFIED,
-                                                name     => '$List__'
-                                            }
-                                        );
                                         my $CAPTURE;
                                         $CAPTURE = ::DISPATCH(
                                             $::Scalar,
@@ -948,7 +944,7 @@
                                                 )
                                               )
                                             {
-                                                {
+                                                do {
                                                     ::DISPATCH(
                                                         $GLOBAL::Code_take,
                                                         'APPLY',
@@ -972,8 +968,8 @@
                                                                 1
                                                             )
                                                         )
-                                                      )
-                                                }
+                                                    );
+                                                  }
                                             }
                                         };
                                         do {
@@ -998,7 +994,7 @@
                                                 )
                                               )
                                             {
-                                                {
+                                                do {
                                                     ::DISPATCH(
                                                         $GLOBAL::Code_take,
                                                         'APPLY',
@@ -1022,8 +1018,8 @@
                                                                 1
                                                             )
                                                         )
-                                                      )
-                                                }
+                                                    );
+                                                  }
                                             }
                                           }
                                     },
@@ -1056,10 +1052,13 @@
                                             $::Signature::Item,
                                             'new',
                                             {
-                                                sigil         => '&',
-                                                twigil        => '',
-                                                name          => 'code',
-                                                value         => undef,
+                                                sigil       => '&',
+                                                twigil      => '',
+                                                name        => 'code',
+                                                value       => $::Undef,
+                                                has_default => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
                                                 is_named_only => ::DISPATCH(
                                                     $::Bit, 'new', 0
                                                 ),
@@ -1089,7 +1088,7 @@
                     ),
                 }
             )
-          )
+        );
     };
     1
 }

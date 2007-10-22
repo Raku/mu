@@ -16,7 +16,7 @@
           ::DISPATCH( $::Scalar, "new",
             { modified => $_MODIFIED, name => "$_" } );
     }
-    {
+    do {
         do {
             if (
                 ::DISPATCH(
@@ -30,7 +30,7 @@
             {
             }
             else {
-                {
+                do {
                     do {
                         ::MODIFIED($::IO);
                         $::IO = ::DISPATCH(
@@ -41,7 +41,7 @@
                             'PROTOTYPE',
                         );
                       }
-                }
+                  }
             }
         };
         ::DISPATCH(
@@ -120,7 +120,7 @@
                     ),
                 }
             )
-          )
+        );
     };
     1
 }

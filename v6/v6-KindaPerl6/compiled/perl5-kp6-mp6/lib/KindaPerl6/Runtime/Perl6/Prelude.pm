@@ -16,7 +16,7 @@
           ::DISPATCH( $::Scalar, "new",
             { modified => $_MODIFIED, name => "$_" } );
     }
-    {
+    do {
         our $Code_all =
           ::DISPATCH( $::Routine, 'new',
             { modified => $_MODIFIED, name => '$Code_all' } );
@@ -93,7 +93,7 @@
             {
             }
             else {
-                {
+                do {
                     our $Code_all =
                       ::DISPATCH( $::Routine, 'new',
                         { modified => $_MODIFIED, name => '$Code_all' } );
@@ -179,7 +179,7 @@
                             'PROTOTYPE',
                         );
                       }
-                }
+                  }
             }
         };
         do {
@@ -520,10 +520,13 @@
                                             $::Signature::Item,
                                             'new',
                                             {
-                                                sigil         => '$',
-                                                twigil        => '',
-                                                name          => 'a',
-                                                value         => undef,
+                                                sigil       => '$',
+                                                twigil      => '',
+                                                name        => 'a',
+                                                value       => $::Undef,
+                                                has_default => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
                                                 is_named_only => ::DISPATCH(
                                                     $::Bit, 'new', 0
                                                 ),
@@ -549,10 +552,13 @@
                                             $::Signature::Item,
                                             'new',
                                             {
-                                                sigil         => '$',
-                                                twigil        => '',
-                                                name          => 'b',
-                                                value         => undef,
+                                                sigil       => '$',
+                                                twigil      => '',
+                                                name        => 'b',
+                                                value       => $::Undef,
+                                                has_default => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
                                                 is_named_only => ::DISPATCH(
                                                     $::Bit, 'new', 0
                                                 ),
@@ -661,10 +667,13 @@
                                             $::Signature::Item,
                                             'new',
                                             {
-                                                sigil         => '$',
-                                                twigil        => '',
-                                                name          => 'a',
-                                                value         => undef,
+                                                sigil       => '$',
+                                                twigil      => '',
+                                                name        => 'a',
+                                                value       => $::Undef,
+                                                has_default => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
                                                 is_named_only => ::DISPATCH(
                                                     $::Bit, 'new', 0
                                                 ),
@@ -690,10 +699,13 @@
                                             $::Signature::Item,
                                             'new',
                                             {
-                                                sigil         => '$',
-                                                twigil        => '',
-                                                name          => 'b',
-                                                value         => undef,
+                                                sigil       => '$',
+                                                twigil      => '',
+                                                name        => 'b',
+                                                value       => $::Undef,
+                                                has_default => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
                                                 is_named_only => ::DISPATCH(
                                                     $::Bit, 'new', 0
                                                 ),
@@ -802,10 +814,13 @@
                                             $::Signature::Item,
                                             'new',
                                             {
-                                                sigil         => '$',
-                                                twigil        => '',
-                                                name          => 'a',
-                                                value         => undef,
+                                                sigil       => '$',
+                                                twigil      => '',
+                                                name        => 'a',
+                                                value       => $::Undef,
+                                                has_default => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
                                                 is_named_only => ::DISPATCH(
                                                     $::Bit, 'new', 0
                                                 ),
@@ -831,10 +846,13 @@
                                             $::Signature::Item,
                                             'new',
                                             {
-                                                sigil         => '$',
-                                                twigil        => '',
-                                                name          => 'b',
-                                                value         => undef,
+                                                sigil       => '$',
+                                                twigil      => '',
+                                                name        => 'b',
+                                                value       => $::Undef,
+                                                has_default => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
                                                 is_named_only => ::DISPATCH(
                                                     $::Bit, 'new', 0
                                                 ),
@@ -963,10 +981,13 @@
                                             $::Signature::Item,
                                             'new',
                                             {
-                                                sigil         => '$',
-                                                twigil        => '',
-                                                name          => 'from',
-                                                value         => undef,
+                                                sigil       => '$',
+                                                twigil      => '',
+                                                name        => 'from',
+                                                value       => $::Undef,
+                                                has_default => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
                                                 is_named_only => ::DISPATCH(
                                                     $::Bit, 'new', 0
                                                 ),
@@ -992,10 +1013,13 @@
                                             $::Signature::Item,
                                             'new',
                                             {
-                                                sigil         => '$',
-                                                twigil        => '',
-                                                name          => 'to',
-                                                value         => undef,
+                                                sigil       => '$',
+                                                twigil      => '',
+                                                name        => 'to',
+                                                value       => $::Undef,
+                                                has_default => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
                                                 is_named_only => ::DISPATCH(
                                                     $::Bit, 'new', 0
                                                 ),
@@ -1118,12 +1142,12 @@
                                 )
                               )
                             {
-                                {
-                                    ::DISPATCH( $right_thunk, 'APPLY', )
-                                }
+                                do {
+                                    ::DISPATCH( $right_thunk, 'APPLY', );
+                                  }
                             }
                             else {
-                                { $left }
+                                do { $left }
                             }
                           }
                     },
@@ -1140,10 +1164,13 @@
                                             $::Signature::Item,
                                             'new',
                                             {
-                                                sigil         => '$',
-                                                twigil        => '',
-                                                name          => 'left_thunk',
-                                                value         => undef,
+                                                sigil       => '$',
+                                                twigil      => '',
+                                                name        => 'left_thunk',
+                                                value       => $::Undef,
+                                                has_default => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
                                                 is_named_only => ::DISPATCH(
                                                     $::Bit, 'new', 0
                                                 ),
@@ -1169,10 +1196,13 @@
                                             $::Signature::Item,
                                             'new',
                                             {
-                                                sigil         => '$',
-                                                twigil        => '',
-                                                name          => 'right_thunk',
-                                                value         => undef,
+                                                sigil       => '$',
+                                                twigil      => '',
+                                                name        => 'right_thunk',
+                                                value       => $::Undef,
+                                                has_default => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
                                                 is_named_only => ::DISPATCH(
                                                     $::Bit, 'new', 0
                                                 ),
@@ -1295,12 +1325,12 @@
                                 )
                               )
                             {
-                                { $left }
+                                do { $left }
                             }
                             else {
-                                {
-                                    ::DISPATCH( $right_thunk, 'APPLY', )
-                                }
+                                do {
+                                    ::DISPATCH( $right_thunk, 'APPLY', );
+                                  }
                             }
                           }
                     },
@@ -1317,10 +1347,13 @@
                                             $::Signature::Item,
                                             'new',
                                             {
-                                                sigil         => '$',
-                                                twigil        => '',
-                                                name          => 'left_thunk',
-                                                value         => undef,
+                                                sigil       => '$',
+                                                twigil      => '',
+                                                name        => 'left_thunk',
+                                                value       => $::Undef,
+                                                has_default => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
                                                 is_named_only => ::DISPATCH(
                                                     $::Bit, 'new', 0
                                                 ),
@@ -1346,10 +1379,13 @@
                                             $::Signature::Item,
                                             'new',
                                             {
-                                                sigil         => '$',
-                                                twigil        => '',
-                                                name          => 'right_thunk',
-                                                value         => undef,
+                                                sigil       => '$',
+                                                twigil      => '',
+                                                name        => 'right_thunk',
+                                                value       => $::Undef,
+                                                has_default => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
                                                 is_named_only => ::DISPATCH(
                                                     $::Bit, 'new', 0
                                                 ),
@@ -1742,10 +1778,10 @@
                                             )
                                           )
                                         {
-                                            {
+                                            do {
                                                 ::DISPATCH_VAR( $str, 'STORE',
-                                                    $_ )
-                                            }
+                                                    $_ );
+                                              }
                                         }
                                         else { ::DISPATCH( $::Bit, "new", 0 ) }
                                     };
@@ -1772,7 +1808,12 @@
                                                             sigil  => '$',
                                                             twigil => '',
                                                             name   => 'self',
-                                                            value  => undef,
+                                                            value  => $::Undef,
+                                                            has_default =>
+                                                              ::DISPATCH(
+                                                                $::Bit, 'new',
+                                                                0
+                                                              ),
                                                             is_named_only =>
                                                               ::DISPATCH(
                                                                 $::Bit, 'new',
@@ -1811,7 +1852,12 @@
                                                             sigil  => '$',
                                                             twigil => '',
                                                             name   => 'str',
-                                                            value  => undef,
+                                                            value  => $::Undef,
+                                                            has_default =>
+                                                              ::DISPATCH(
+                                                                $::Bit, 'new',
+                                                                0
+                                                              ),
                                                             is_named_only =>
                                                               ::DISPATCH(
                                                                 $::Bit, 'new',
@@ -1850,7 +1896,12 @@
                                                             sigil  => '$',
                                                             twigil => '',
                                                             name   => 'pos',
-                                                            value  => undef,
+                                                            value  => $::Undef,
+                                                            has_default =>
+                                                              ::DISPATCH(
+                                                                $::Bit, 'new',
+                                                                0
+                                                              ),
                                                             is_named_only =>
                                                               ::DISPATCH(
                                                                 $::Bit, 'new',
@@ -1904,10 +1955,13 @@
                                             $::Signature::Item,
                                             'new',
                                             {
-                                                sigil         => '$',
-                                                twigil        => '',
-                                                name          => 'regex',
-                                                value         => undef,
+                                                sigil       => '$',
+                                                twigil      => '',
+                                                name        => 'regex',
+                                                value       => $::Undef,
+                                                has_default => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
                                                 is_named_only => ::DISPATCH(
                                                     $::Bit, 'new', 0
                                                 ),

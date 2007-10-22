@@ -16,7 +16,7 @@
           ::DISPATCH( $::Scalar, "new",
             { modified => $_MODIFIED, name => "$_" } );
     }
-    {
+    do {
         do {
             if (
                 ::DISPATCH(
@@ -33,7 +33,7 @@
             {
             }
             else {
-                {
+                do {
                     do {
                         ::MODIFIED($::KindaPerl6::Grammar);
                         $::KindaPerl6::Grammar = ::DISPATCH(
@@ -46,7 +46,7 @@
                             'PROTOTYPE',
                         );
                       }
-                }
+                  }
             }
         };
         ::DISPATCH(
@@ -144,7 +144,7 @@
                                 )
                               )
                             {
-                                {
+                                do {
                                     ::DISPATCH(
                                         $GLOBAL::Code_say,
                                         'APPLY',
@@ -176,8 +176,8 @@
                                                 )
                                             )
                                         )
-                                      )
-                                }
+                                    );
+                                  }
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
@@ -199,9 +199,9 @@
                                 )
                               )
                             {
-                                {
-                                    ::DISPATCH_VAR( $str, 'STORE', $_ )
-                                }
+                                do {
+                                    ::DISPATCH_VAR( $str, 'STORE', $_ );
+                                  }
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
@@ -229,7 +229,7 @@
                             ::DISPATCH( $MATCH, 'bool', ),
                             'STORE',
                             do {
-                                {
+                                do {
                                     my $m2;
                                     $m2 = ::DISPATCH(
                                         $::Scalar,
@@ -276,7 +276,7 @@
                                             )
                                           )
                                         {
-                                            {
+                                            do {
                                                 ::DISPATCH_VAR(
                                                     ::DISPATCH( $MATCH, 'to', ),
                                                     'STORE',
@@ -292,16 +292,16 @@
                                                         )
                                                     )
                                                 );
-                                                ::DISPATCH( $::Int, 'new', 1 )
-                                            }
+                                                ::DISPATCH( $::Int, 'new', 1 );
+                                              }
                                         }
                                         else {
-                                            {
-                                                ::DISPATCH( $::Int, 'new', 0 )
-                                            }
+                                            do {
+                                                ::DISPATCH( $::Int, 'new', 0 );
+                                              }
                                         }
                                       }
-                                }
+                                  }
                               }
                         );
                         do {
@@ -322,7 +322,7 @@
                                 )
                               )
                             {
-                                {
+                                do {
                                     do {
                                         if (
                                             ::DISPATCH(
@@ -335,7 +335,7 @@
                                             )
                                           )
                                         {
-                                            {
+                                            do {
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_say,
                                                     'APPLY',
@@ -359,11 +359,11 @@
                                                             )
                                                         )
                                                     )
-                                                  )
-                                            }
+                                                );
+                                              }
                                         }
                                         else {
-                                            {
+                                            do {
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_say,
                                                     'APPLY',
@@ -372,11 +372,11 @@
                                                         'new',
 '<<< token space returned false '
                                                     )
-                                                  )
-                                            }
+                                                );
+                                              }
                                         }
                                       }
-                                }
+                                  }
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
@@ -395,10 +395,13 @@
                                             $::Signature::Item,
                                             'new',
                                             {
-                                                sigil         => '$',
-                                                twigil        => '',
-                                                name          => 'str',
-                                                value         => undef,
+                                                sigil       => '$',
+                                                twigil      => '',
+                                                name        => 'str',
+                                                value       => $::Undef,
+                                                has_default => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
                                                 is_named_only => ::DISPATCH(
                                                     $::Bit, 'new', 0
                                                 ),
@@ -424,10 +427,13 @@
                                             $::Signature::Item,
                                             'new',
                                             {
-                                                sigil         => '$',
-                                                twigil        => '',
-                                                name          => 'pos',
-                                                value         => undef,
+                                                sigil       => '$',
+                                                twigil      => '',
+                                                name        => 'pos',
+                                                value       => $::Undef,
+                                                has_default => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
                                                 is_named_only => ::DISPATCH(
                                                     $::Bit, 'new', 0
                                                 ),
@@ -553,7 +559,7 @@
                                 )
                               )
                             {
-                                {
+                                do {
                                     ::DISPATCH(
                                         $GLOBAL::Code_say,
                                         'APPLY',
@@ -585,8 +591,8 @@
                                                 )
                                             )
                                         )
-                                      )
-                                }
+                                    );
+                                  }
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
@@ -608,9 +614,9 @@
                                 )
                               )
                             {
-                                {
-                                    ::DISPATCH_VAR( $str, 'STORE', $_ )
-                                }
+                                do {
+                                    ::DISPATCH_VAR( $str, 'STORE', $_ );
+                                  }
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
@@ -638,7 +644,7 @@
                             ::DISPATCH( $MATCH, 'bool', ),
                             'STORE',
                             do {
-                                {
+                                do {
                                     my $m2;
                                     $m2 = ::DISPATCH(
                                         $::Scalar,
@@ -684,7 +690,7 @@
                                             )
                                           )
                                         {
-                                            {
+                                            do {
                                                 ::DISPATCH_VAR(
                                                     ::DISPATCH( $MATCH, 'to', ),
                                                     'STORE',
@@ -700,16 +706,16 @@
                                                         )
                                                     )
                                                 );
-                                                ::DISPATCH( $::Int, 'new', 1 )
-                                            }
+                                                ::DISPATCH( $::Int, 'new', 1 );
+                                              }
                                         }
                                         else {
-                                            {
-                                                ::DISPATCH( $::Int, 'new', 0 )
-                                            }
+                                            do {
+                                                ::DISPATCH( $::Int, 'new', 0 );
+                                              }
                                         }
                                       }
-                                }
+                                  }
                               }
                         );
                         do {
@@ -730,7 +736,7 @@
                                 )
                               )
                             {
-                                {
+                                do {
                                     do {
                                         if (
                                             ::DISPATCH(
@@ -743,7 +749,7 @@
                                             )
                                           )
                                         {
-                                            {
+                                            do {
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_say,
                                                     'APPLY',
@@ -767,11 +773,11 @@
                                                             )
                                                         )
                                                     )
-                                                  )
-                                            }
+                                                );
+                                              }
                                         }
                                         else {
-                                            {
+                                            do {
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_say,
                                                     'APPLY',
@@ -780,11 +786,11 @@
                                                         'new',
 '<<< token word returned false '
                                                     )
-                                                  )
-                                            }
+                                                );
+                                              }
                                         }
                                       }
-                                }
+                                  }
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
@@ -803,10 +809,13 @@
                                             $::Signature::Item,
                                             'new',
                                             {
-                                                sigil         => '$',
-                                                twigil        => '',
-                                                name          => 'str',
-                                                value         => undef,
+                                                sigil       => '$',
+                                                twigil      => '',
+                                                name        => 'str',
+                                                value       => $::Undef,
+                                                has_default => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
                                                 is_named_only => ::DISPATCH(
                                                     $::Bit, 'new', 0
                                                 ),
@@ -832,10 +841,13 @@
                                             $::Signature::Item,
                                             'new',
                                             {
-                                                sigil         => '$',
-                                                twigil        => '',
-                                                name          => 'pos',
-                                                value         => undef,
+                                                sigil       => '$',
+                                                twigil      => '',
+                                                name        => 'pos',
+                                                value       => $::Undef,
+                                                has_default => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
                                                 is_named_only => ::DISPATCH(
                                                     $::Bit, 'new', 0
                                                 ),
@@ -961,7 +973,7 @@
                                 )
                               )
                             {
-                                {
+                                do {
                                     ::DISPATCH(
                                         $GLOBAL::Code_say,
                                         'APPLY',
@@ -993,8 +1005,8 @@
                                                 )
                                             )
                                         )
-                                      )
-                                }
+                                    );
+                                  }
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
@@ -1016,9 +1028,9 @@
                                 )
                               )
                             {
-                                {
-                                    ::DISPATCH_VAR( $str, 'STORE', $_ )
-                                }
+                                do {
+                                    ::DISPATCH_VAR( $str, 'STORE', $_ );
+                                  }
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
@@ -1046,7 +1058,7 @@
                             ::DISPATCH( $MATCH, 'bool', ),
                             'STORE',
                             do {
-                                {
+                                do {
                                     my $m2;
                                     $m2 = ::DISPATCH(
                                         $::Scalar,
@@ -1093,7 +1105,7 @@
                                             )
                                           )
                                         {
-                                            {
+                                            do {
                                                 ::DISPATCH_VAR(
                                                     ::DISPATCH( $MATCH, 'to', ),
                                                     'STORE',
@@ -1109,16 +1121,16 @@
                                                         )
                                                     )
                                                 );
-                                                ::DISPATCH( $::Int, 'new', 1 )
-                                            }
+                                                ::DISPATCH( $::Int, 'new', 1 );
+                                              }
                                         }
                                         else {
-                                            {
-                                                ::DISPATCH( $::Int, 'new', 0 )
-                                            }
+                                            do {
+                                                ::DISPATCH( $::Int, 'new', 0 );
+                                              }
                                         }
                                       }
-                                }
+                                  }
                               }
                         );
                         do {
@@ -1139,7 +1151,7 @@
                                 )
                               )
                             {
-                                {
+                                do {
                                     do {
                                         if (
                                             ::DISPATCH(
@@ -1152,7 +1164,7 @@
                                             )
                                           )
                                         {
-                                            {
+                                            do {
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_say,
                                                     'APPLY',
@@ -1176,11 +1188,11 @@
                                                             )
                                                         )
                                                     )
-                                                  )
-                                            }
+                                                );
+                                              }
                                         }
                                         else {
-                                            {
+                                            do {
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_say,
                                                     'APPLY',
@@ -1189,11 +1201,11 @@
                                                         'new',
 '<<< token digit returned false '
                                                     )
-                                                  )
-                                            }
+                                                );
+                                              }
                                         }
                                       }
-                                }
+                                  }
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
@@ -1212,10 +1224,13 @@
                                             $::Signature::Item,
                                             'new',
                                             {
-                                                sigil         => '$',
-                                                twigil        => '',
-                                                name          => 'str',
-                                                value         => undef,
+                                                sigil       => '$',
+                                                twigil      => '',
+                                                name        => 'str',
+                                                value       => $::Undef,
+                                                has_default => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
                                                 is_named_only => ::DISPATCH(
                                                     $::Bit, 'new', 0
                                                 ),
@@ -1241,10 +1256,13 @@
                                             $::Signature::Item,
                                             'new',
                                             {
-                                                sigil         => '$',
-                                                twigil        => '',
-                                                name          => 'pos',
-                                                value         => undef,
+                                                sigil       => '$',
+                                                twigil      => '',
+                                                name        => 'pos',
+                                                value       => $::Undef,
+                                                has_default => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
                                                 is_named_only => ::DISPATCH(
                                                     $::Bit, 'new', 0
                                                 ),
@@ -1370,7 +1388,7 @@
                                 )
                               )
                             {
-                                {
+                                do {
                                     ::DISPATCH(
                                         $GLOBAL::Code_say,
                                         'APPLY',
@@ -1402,8 +1420,8 @@
                                                 )
                                             )
                                         )
-                                      )
-                                }
+                                    );
+                                  }
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
@@ -1425,9 +1443,9 @@
                                 )
                               )
                             {
-                                {
-                                    ::DISPATCH_VAR( $str, 'STORE', $_ )
-                                }
+                                do {
+                                    ::DISPATCH_VAR( $str, 'STORE', $_ );
+                                  }
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
@@ -1455,7 +1473,7 @@
                             ::DISPATCH( $MATCH, 'bool', ),
                             'STORE',
                             do {
-                                {
+                                do {
                                     my $m2;
                                     $m2 = ::DISPATCH(
                                         $::Scalar,
@@ -1501,7 +1519,7 @@
                                             )
                                           )
                                         {
-                                            {
+                                            do {
                                                 ::DISPATCH_VAR(
                                                     ::DISPATCH( $MATCH, 'to', ),
                                                     'STORE',
@@ -1517,16 +1535,16 @@
                                                         )
                                                     )
                                                 );
-                                                ::DISPATCH( $::Int, 'new', 1 )
-                                            }
+                                                ::DISPATCH( $::Int, 'new', 1 );
+                                              }
                                         }
                                         else {
-                                            {
-                                                ::DISPATCH( $::Int, 'new', 0 )
-                                            }
+                                            do {
+                                                ::DISPATCH( $::Int, 'new', 0 );
+                                              }
                                         }
                                       }
-                                }
+                                  }
                               }
                         );
                         do {
@@ -1547,7 +1565,7 @@
                                 )
                               )
                             {
-                                {
+                                do {
                                     do {
                                         if (
                                             ::DISPATCH(
@@ -1560,7 +1578,7 @@
                                             )
                                           )
                                         {
-                                            {
+                                            do {
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_say,
                                                     'APPLY',
@@ -1584,11 +1602,11 @@
                                                             )
                                                         )
                                                     )
-                                                  )
-                                            }
+                                                );
+                                              }
                                         }
                                         else {
-                                            {
+                                            do {
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_say,
                                                     'APPLY',
@@ -1597,11 +1615,11 @@
                                                         'new',
 '<<< token backslash returned false '
                                                     )
-                                                  )
-                                            }
+                                                );
+                                              }
                                         }
                                       }
-                                }
+                                  }
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
@@ -1620,10 +1638,13 @@
                                             $::Signature::Item,
                                             'new',
                                             {
-                                                sigil         => '$',
-                                                twigil        => '',
-                                                name          => 'str',
-                                                value         => undef,
+                                                sigil       => '$',
+                                                twigil      => '',
+                                                name        => 'str',
+                                                value       => $::Undef,
+                                                has_default => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
                                                 is_named_only => ::DISPATCH(
                                                     $::Bit, 'new', 0
                                                 ),
@@ -1649,10 +1670,13 @@
                                             $::Signature::Item,
                                             'new',
                                             {
-                                                sigil         => '$',
-                                                twigil        => '',
-                                                name          => 'pos',
-                                                value         => undef,
+                                                sigil       => '$',
+                                                twigil      => '',
+                                                name        => 'pos',
+                                                value       => $::Undef,
+                                                has_default => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
                                                 is_named_only => ::DISPATCH(
                                                     $::Bit, 'new', 0
                                                 ),
@@ -1778,7 +1802,7 @@
                                 )
                               )
                             {
-                                {
+                                do {
                                     ::DISPATCH(
                                         $GLOBAL::Code_say,
                                         'APPLY',
@@ -1810,8 +1834,8 @@
                                                 )
                                             )
                                         )
-                                      )
-                                }
+                                    );
+                                  }
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
@@ -1833,9 +1857,9 @@
                                 )
                               )
                             {
-                                {
-                                    ::DISPATCH_VAR( $str, 'STORE', $_ )
-                                }
+                                do {
+                                    ::DISPATCH_VAR( $str, 'STORE', $_ );
+                                  }
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
@@ -1863,7 +1887,7 @@
                             ::DISPATCH( $MATCH, 'bool', ),
                             'STORE',
                             do {
-                                {
+                                do {
                                     my $m2;
                                     $m2 = ::DISPATCH(
                                         $::Scalar,
@@ -1960,7 +1984,7 @@
                                             )
                                           )
                                         {
-                                            {
+                                            do {
                                                 ::DISPATCH_VAR(
                                                     ::DISPATCH( $MATCH, 'to', ),
                                                     'STORE',
@@ -1976,16 +2000,16 @@
                                                         )
                                                     )
                                                 );
-                                                ::DISPATCH( $::Int, 'new', 1 )
-                                            }
+                                                ::DISPATCH( $::Int, 'new', 1 );
+                                              }
                                         }
                                         else {
-                                            {
-                                                ::DISPATCH( $::Int, 'new', 0 )
-                                            }
+                                            do {
+                                                ::DISPATCH( $::Int, 'new', 0 );
+                                              }
                                         }
                                       }
-                                }
+                                  }
                               }
                         );
                         do {
@@ -2006,7 +2030,7 @@
                                 )
                               )
                             {
-                                {
+                                do {
                                     do {
                                         if (
                                             ::DISPATCH(
@@ -2019,7 +2043,7 @@
                                             )
                                           )
                                         {
-                                            {
+                                            do {
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_say,
                                                     'APPLY',
@@ -2043,11 +2067,11 @@
                                                             )
                                                         )
                                                     )
-                                                  )
-                                            }
+                                                );
+                                              }
                                         }
                                         else {
-                                            {
+                                            do {
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_say,
                                                     'APPLY',
@@ -2056,11 +2080,11 @@
                                                         'new',
 '<<< token newline returned false '
                                                     )
-                                                  )
-                                            }
+                                                );
+                                              }
                                         }
                                       }
-                                }
+                                  }
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
@@ -2079,10 +2103,13 @@
                                             $::Signature::Item,
                                             'new',
                                             {
-                                                sigil         => '$',
-                                                twigil        => '',
-                                                name          => 'str',
-                                                value         => undef,
+                                                sigil       => '$',
+                                                twigil      => '',
+                                                name        => 'str',
+                                                value       => $::Undef,
+                                                has_default => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
                                                 is_named_only => ::DISPATCH(
                                                     $::Bit, 'new', 0
                                                 ),
@@ -2108,10 +2135,13 @@
                                             $::Signature::Item,
                                             'new',
                                             {
-                                                sigil         => '$',
-                                                twigil        => '',
-                                                name          => 'pos',
-                                                value         => undef,
+                                                sigil       => '$',
+                                                twigil      => '',
+                                                name        => 'pos',
+                                                value       => $::Undef,
+                                                has_default => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
                                                 is_named_only => ::DISPATCH(
                                                     $::Bit, 'new', 0
                                                 ),
@@ -2237,7 +2267,7 @@
                                 )
                               )
                             {
-                                {
+                                do {
                                     ::DISPATCH(
                                         $GLOBAL::Code_say,
                                         'APPLY',
@@ -2269,8 +2299,8 @@
                                                 )
                                             )
                                         )
-                                      )
-                                }
+                                    );
+                                  }
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
@@ -2292,9 +2322,9 @@
                                 )
                               )
                             {
-                                {
-                                    ::DISPATCH_VAR( $str, 'STORE', $_ )
-                                }
+                                do {
+                                    ::DISPATCH_VAR( $str, 'STORE', $_ );
+                                  }
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
@@ -2322,7 +2352,7 @@
                             ::DISPATCH( $MATCH, 'bool', ),
                             'STORE',
                             do {
-                                {
+                                do {
                                     my $m2;
                                     $m2 = ::DISPATCH(
                                         $::Scalar,
@@ -2366,7 +2396,7 @@
                                             )
                                           )
                                         {
-                                            {
+                                            do {
                                                 ::DISPATCH_VAR(
                                                     ::DISPATCH( $MATCH, 'to', ),
                                                     'STORE',
@@ -2382,16 +2412,16 @@
                                                         )
                                                     )
                                                 );
-                                                ::DISPATCH( $::Int, 'new', 1 )
-                                            }
+                                                ::DISPATCH( $::Int, 'new', 1 );
+                                              }
                                         }
                                         else {
-                                            {
-                                                ::DISPATCH( $::Int, 'new', 0 )
-                                            }
+                                            do {
+                                                ::DISPATCH( $::Int, 'new', 0 );
+                                              }
                                         }
                                       }
-                                }
+                                  }
                               }
                         );
                         do {
@@ -2412,7 +2442,7 @@
                                 )
                               )
                             {
-                                {
+                                do {
                                     do {
                                         if (
                                             ::DISPATCH(
@@ -2425,7 +2455,7 @@
                                             )
                                           )
                                         {
-                                            {
+                                            do {
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_say,
                                                     'APPLY',
@@ -2449,11 +2479,11 @@
                                                             )
                                                         )
                                                     )
-                                                  )
-                                            }
+                                                );
+                                              }
                                         }
                                         else {
-                                            {
+                                            do {
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_say,
                                                     'APPLY',
@@ -2462,11 +2492,11 @@
                                                         'new',
 '<<< token not_newline returned false '
                                                     )
-                                                  )
-                                            }
+                                                );
+                                              }
                                         }
                                       }
-                                }
+                                  }
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
@@ -2485,10 +2515,13 @@
                                             $::Signature::Item,
                                             'new',
                                             {
-                                                sigil         => '$',
-                                                twigil        => '',
-                                                name          => 'str',
-                                                value         => undef,
+                                                sigil       => '$',
+                                                twigil      => '',
+                                                name        => 'str',
+                                                value       => $::Undef,
+                                                has_default => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
                                                 is_named_only => ::DISPATCH(
                                                     $::Bit, 'new', 0
                                                 ),
@@ -2514,10 +2547,13 @@
                                             $::Signature::Item,
                                             'new',
                                             {
-                                                sigil         => '$',
-                                                twigil        => '',
-                                                name          => 'pos',
-                                                value         => undef,
+                                                sigil       => '$',
+                                                twigil      => '',
+                                                name        => 'pos',
+                                                value       => $::Undef,
+                                                has_default => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
                                                 is_named_only => ::DISPATCH(
                                                     $::Bit, 'new', 0
                                                 ),
@@ -2547,7 +2583,7 @@
                     ),
                 }
             )
-          )
+        );
     };
     1
 }

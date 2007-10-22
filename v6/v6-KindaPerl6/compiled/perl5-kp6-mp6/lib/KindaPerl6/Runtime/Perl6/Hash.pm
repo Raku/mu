@@ -16,7 +16,7 @@
           ::DISPATCH( $::Scalar, "new",
             { modified => $_MODIFIED, name => "$_" } );
     }
-    {
+    do {
         do {
             if (
                 ::DISPATCH(
@@ -32,7 +32,7 @@
             {
             }
             else {
-                {
+                do {
                     do {
                         ::MODIFIED($::Hash);
                         $::Hash = ::DISPATCH(
@@ -43,7 +43,7 @@
                             'PROTOTYPE',
                         );
                       }
-                }
+                  }
             }
         };
         ::DISPATCH(
@@ -107,69 +107,192 @@
                         };
                         ::DISPATCH_VAR( $s, 'STORE',
                             ::DISPATCH( $::Str, 'new', '{ ' ) );
-                        {
-                            my $pair;
-                            $pair =
-                              ::DISPATCH( $::Scalar, 'new',
-                                { modified => $_MODIFIED, name => '$pair' } )
-                              unless defined $pair;
-
-                            BEGIN {
-                                $pair = ::DISPATCH( $::Scalar, 'new',
-                                    { modified => $_MODIFIED, name => '$pair' }
-                                );
-                            }
-                            for $pair (
-                                @{ ::DISPATCH(
-                                        $GLOBAL::Code_prefix_58__60__64__62_,
-                                        'APPLY',
-                                        ::DISPATCH( $self, 'pairs', )
-                                      )->{_value}{_array}
-                                }
-                              )
-                            {
+                        ::DISPATCH(
+                            ::DISPATCH( $self, 'pairs', ),
+                            'for',
+                            ::DISPATCH(
+                                $::Code, 'new',
                                 {
-                                    ::DISPATCH_VAR(
-                                        $s, 'STORE',
-                                        ::DISPATCH(
-                                            $GLOBAL::Code_infix_58__60__126__62_,
-                                            'APPLY', $s,
+                                    code => sub {
+                                        my $List__ = ::DISPATCH(
+                                            $::Array, 'new',
+                                            {
+                                                modified => $_MODIFIED,
+                                                name     => '$List__'
+                                            }
+                                        );
+                                        my $pair;
+                                        $pair = ::DISPATCH(
+                                            $::Scalar,
+                                            'new',
+                                            {
+                                                modified => $_MODIFIED,
+                                                name     => '$pair'
+                                            }
+                                        ) unless defined $pair;
+
+                                        BEGIN {
+                                            $pair = ::DISPATCH(
+                                                $::Scalar,
+                                                'new',
+                                                {
+                                                    modified => $_MODIFIED,
+                                                    name     => '$pair'
+                                                }
+                                            );
+                                        }
+                                        my $CAPTURE;
+                                        $CAPTURE = ::DISPATCH(
+                                            $::Scalar,
+                                            'new',
+                                            {
+                                                modified => $_MODIFIED,
+                                                name     => '$CAPTURE'
+                                            }
+                                        ) unless defined $CAPTURE;
+
+                                        BEGIN {
+                                            $CAPTURE = ::DISPATCH(
+                                                $::Scalar,
+                                                'new',
+                                                {
+                                                    modified => $_MODIFIED,
+                                                    name     => '$CAPTURE'
+                                                }
+                                            );
+                                        }
+                                        ::DISPATCH_VAR( $CAPTURE, "STORE",
+                                            ::CAPTURIZE( \@_ ) );
+                                        do {
+                                            ::MODIFIED($List__);
+                                            $List__ =
+                                              ::DISPATCH( $CAPTURE, 'array', );
+                                        };
+                                        do {
+                                            ::MODIFIED($Hash__);
+                                            $Hash__ =
+                                              ::DISPATCH( $CAPTURE, 'hash', );
+                                        };
+                                        do {
+                                            ::MODIFIED($pair);
+                                            $pair = ::DISPATCH(
+                                                $List__,
+                                                'INDEX',
+                                                ::DISPATCH( $::Int, 'new', 0 )
+                                            );
+                                        };
+                                        ::DISPATCH_VAR(
+                                            $s, 'STORE',
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_,
-                                                'APPLY',
-                                                ::DISPATCH(
-                                                    ::DISPATCH( $pair, 'key', ),
-                                                    'perl',
-                                                ),
+                                                'APPLY', $s,
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
                                                     ::DISPATCH(
-                                                        $::Str, 'new',
-                                                        ' => '
+                                                        ::DISPATCH(
+                                                            $pair, 'key',
+                                                        ),
+                                                        'perl',
                                                     ),
                                                     ::DISPATCH(
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
                                                         ::DISPATCH(
-                                                            ::DISPATCH(
-                                                                $pair,
-                                                                'value',
-                                                            ),
-                                                            'perl',
+                                                            $::Str, 'new',
+                                                            ' => '
                                                         ),
                                                         ::DISPATCH(
-                                                            $::Str, 'new',
-                                                            ', '
+                                                            $GLOBAL::Code_infix_58__60__126__62_,
+                                                            'APPLY',
+                                                            ::DISPATCH(
+                                                                ::DISPATCH(
+                                                                    $pair,
+                                                                    'value',
+                                                                ),
+                                                                'perl',
+                                                            ),
+                                                            ::DISPATCH(
+                                                                $::Str, 'new',
+                                                                ', '
+                                                            )
                                                         )
                                                     )
                                                 )
                                             )
-                                        )
-                                      )
+                                        );
+                                    },
+                                    signature => ::DISPATCH(
+                                        $::Signature,
+                                        "new",
+                                        {
+                                            invocant => $::Undef,
+                                            array    => ::DISPATCH(
+                                                $::Array, "new",
+                                                {
+                                                    _array => [
+                                                        ::DISPATCH(
+                                                            $::Signature::Item,
+                                                            'new',
+                                                            {
+                                                                sigil  => '$',
+                                                                twigil => '',
+                                                                name => 'pair',
+                                                                value =>
+                                                                  $::Undef,
+                                                                has_default =>
+                                                                  ::DISPATCH(
+                                                                    $::Bit,
+                                                                    'new',
+                                                                    0
+                                                                  ),
+                                                                is_named_only =>
+                                                                  ::DISPATCH(
+                                                                    $::Bit,
+                                                                    'new',
+                                                                    0
+                                                                  ),
+                                                                is_optional =>
+                                                                  ::DISPATCH(
+                                                                    $::Bit,
+                                                                    'new',
+                                                                    0
+                                                                  ),
+                                                                is_slurpy =>
+                                                                  ::DISPATCH(
+                                                                    $::Bit,
+                                                                    'new',
+                                                                    0
+                                                                  ),
+                                                                is_multidimensional =>
+                                                                  ::DISPATCH(
+                                                                    $::Bit,
+                                                                    'new',
+                                                                    0
+                                                                  ),
+                                                                is_rw =>
+                                                                  ::DISPATCH(
+                                                                    $::Bit,
+                                                                    'new',
+                                                                    0
+                                                                  ),
+                                                                is_copy =>
+                                                                  ::DISPATCH(
+                                                                    $::Bit,
+                                                                    'new',
+                                                                    0
+                                                                  ),
+                                                            }
+                                                        ),
+                                                    ]
+                                                }
+                                            ),
+                                            return => $::Undef,
+                                        }
+                                    ),
                                 }
-                            }
-                        };
+                            )
+                        );
                         return (
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
@@ -355,7 +478,13 @@
                                                                     name =>
                                                                       'pair',
                                                                     value =>
-                                                                      undef,
+                                                                      $::Undef,
+                                                                    has_default =>
+                                                                      ::DISPATCH(
+                                                                        $::Bit,
+                                                                        'new',
+                                                                        0
+                                                                      ),
                                                                     is_named_only =>
                                                                       ::DISPATCH(
                                                                         $::Bit,
@@ -574,8 +703,15 @@
                                                             {
                                                                 sigil  => '$',
                                                                 twigil => '',
-                                                                name  => 'pair',
-                                                                value => undef,
+                                                                name => 'pair',
+                                                                value =>
+                                                                  $::Undef,
+                                                                has_default =>
+                                                                  ::DISPATCH(
+                                                                    $::Bit,
+                                                                    'new',
+                                                                    0
+                                                                  ),
                                                                 is_named_only =>
                                                                   ::DISPATCH(
                                                                     $::Bit,
@@ -791,8 +927,15 @@
                                                             {
                                                                 sigil  => '$',
                                                                 twigil => '',
-                                                                name  => 'pair',
-                                                                value => undef,
+                                                                name => 'pair',
+                                                                value =>
+                                                                  $::Undef,
+                                                                has_default =>
+                                                                  ::DISPATCH(
+                                                                    $::Bit,
+                                                                    'new',
+                                                                    0
+                                                                  ),
                                                                 is_named_only =>
                                                                   ::DISPATCH(
                                                                     $::Bit,
@@ -1064,7 +1207,7 @@
                     ),
                 }
             )
-          )
+        );
     };
     1
 }
