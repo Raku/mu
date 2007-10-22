@@ -7,23 +7,34 @@ use MiniPerl6::Perl5::Match;
 package KindaPerl6::Visitor::ShortCircuit;
 sub new { shift; bless {@_}, "KindaPerl6::Visitor::ShortCircuit" }
 
+sub new_pad {
+    my $List__ = \@_;
+    do { [] };
+    COMPILER::add_pad();
+    my $pad = $List_COMPILER::PAD->[0];
+    COMPILER::drop_pad();
+    return ($pad);
+}
+
+sub thunk {
+    my $List__ = \@_;
+    my $value;
+    do { $value = $List__->[0]; [$value] };
+    Sub->new( 'block' => Lit::Code->new( 'pad' => new_pad(), 'body' => [$value], 'sig' => Sig->new( 'positional' => [], 'named' => [], ), ), );
+}
+
 sub visit {
     my $self   = shift;
     my $List__ = \@_;
     my $node;
     my $node_name;
     do { $node = $List__->[0]; $node_name = $List__->[1]; [ $node, $node_name ] };
+    my $pass_thunks = { 'infix:<&&>' => 1, 'infix:<||>' => 1, 'infix:<//>' => 1, };
     do {
-        if ( ( ( $node_name eq 'Apply' ) && ( $node->code()->name() eq 'infix:<&&>' ) ) ) {
-            COMPILER::add_pad();
-            my $pad = $List_COMPILER::PAD->[0];
-            COMPILER::drop_pad();
-            return (
-                Apply->new(
-                    'code' => Var->new( 'name' => 'infix:<&&>', 'twigil' => '', 'sigil' => '&', 'namespace' => [], ),
-                    'arguments' => [ Sub->new( 'block' => Lit::Code->new( 'pad' => $pad, 'body' => [ $node->arguments()->[0] ], 'sig' => Sig->new( 'positional' => [], 'named' => [], ), ), ) ],
-                )
-            );
+        if ( ( ( $node_name eq 'Apply' ) && $pass_thunks->{ $node->code()->name() } ) ) {
+            my $left  = $node->arguments()->[0]->emit($self);
+            my $right = $node->arguments()->[1]->emit($self);
+            return ( Apply->new( 'code' => Var->new( 'name' => $node->code()->name(), 'twigil' => '', 'sigil' => '&', 'namespace' => [], ), 'arguments' => [ thunk($left), thunk($right) ], ) );
         }
         else { }
     };
