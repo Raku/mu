@@ -1199,7 +1199,7 @@ sub comp_unit {
                                                                                                                         'body'       => Lit::Code->new(
                                                                                                                             'pad'   => $env,
                                                                                                                             'state' => {},
-                                                                                                                            'sig'   => Sig->new( 'invocant' => (undef), 'positional' => [], 'named' => {}, ),
+                                                                                                                            'sig'   => Sig->new( 'invocant' => (undef), 'positional' => [], ),
                                                                                                                             'body'  => ${ $MATCH->{'exp_stmts'} },
                                                                                                                         ),
                                                                                                                     )
@@ -1283,7 +1283,7 @@ sub comp_unit {
                                                             'traits'     => [],
                                                             'attributes' => {},
                                                             'methods'    => {},
-                                                            'body'       => Lit::Code->new( 'pad' => $env, 'state' => {}, 'sig' => Sig->new( 'invocant' => (undef), 'positional' => [], 'named' => {}, ), 'body' => ${ $MATCH->{'exp_stmts2'} }, ),
+                                                            'body'       => Lit::Code->new( 'pad' => $env, 'state' => {}, 'sig' => Sig->new( 'invocant' => (undef), 'positional' => [], ), 'body' => ${ $MATCH->{'exp_stmts2'} }, ),
                                                         )
                                                     );
                                                 };
@@ -4227,7 +4227,7 @@ sub subset {
                                                                                                                                                 'block' => Lit::Code->new(
                                                                                                                                                     'pad'   => $env,
                                                                                                                                                     'state' => {},
-                                                                                                                                                    'sig'   => Sig->new( 'invocant' => (undef), 'positional' => [], 'named' => {}, ),
+                                                                                                                                                    'sig'   => Sig->new( 'invocant' => (undef), 'positional' => [], ),
                                                                                                                                                     'body'  => ${ $MATCH->{'exp_stmts'} },
                                                                                                                                                 ),
                                                                                                                                             ),
@@ -4366,7 +4366,7 @@ sub begin_block {
                                                                             COMPILER::drop_pad();
                                                                             return (
                                                                                 COMPILER::begin_block(
-                                                                                    Lit::Code->new( 'pad' => $env, 'state' => {}, 'sig' => Sig->new( 'invocant' => (undef), 'positional' => [], 'named' => {}, ), 'body' => ${ $MATCH->{'exp_stmts'} }, )
+                                                                                    Lit::Code->new( 'pad' => $env, 'state' => {}, 'sig' => Sig->new( 'invocant' => (undef), 'positional' => [], ), 'body' => ${ $MATCH->{'exp_stmts'} }, )
                                                                                 )
                                                                             );
                                                                         };

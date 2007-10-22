@@ -145,7 +145,7 @@ token comp_unit {
             'body'        => ::Lit::Code(
                 pad   => $env,
                 state => { },
-                sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
+                sig   => ::Sig( 'invocant' => undef, 'positional' => [ ] ),
                 body  => $$<exp_stmts>,
             ),
         )
@@ -169,7 +169,7 @@ token comp_unit {
             'body'        => ::Lit::Code(
                 pad   => $env,
                 state => { },
-                sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
+                sig   => ::Sig( 'invocant' => undef, 'positional' => [ ] ),
                 body  => $$<exp_stmts2>,
             ),
         )
@@ -567,15 +567,10 @@ token invocant {
 
 token capture {
     # TODO - exp_seq / exp_mapping == positional / named 
-    # XXX use exp_parameter_list instead
     |  <exp>\:  <?opt_ws> <exp_parameter_list> 
         { return ::Capture( 'invocant' => $$<exp>, 'array' => $$<exp_parameter_list>, 'hash' => [ ] ); }
     |  <exp_mapping> 
         { return ::Capture( 'invocant' => undef, 'array' => [ ], 'hash' => $$<exp_mapping> ); }
-        
-    # ??? doesn't work here
-    #|  <exp_parameter_list>
-    #    { return ::Capture( 'invocant' => undef, 'array' => $$<exp_parameter_list>, 'hash' => [ ] ); }
 };
 
 token base_class { <full_ident> }
@@ -609,7 +604,7 @@ token subset {
                     'block' => ::Lit::Code(
                         pad   => $env,
                         state => { },
-                        sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
+                        sig   => ::Sig( 'invocant' => undef, 'positional' => [ ] ),
                         body  => $$<exp_stmts>,
                 ),
             ),
@@ -640,7 +635,7 @@ token begin_block {
             ::Lit::Code(
                 pad   => $env,
                 state => { },
-                sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
+                sig   => ::Sig( 'invocant' => undef, 'positional' => [ ] ),
                 body  => $$<exp_stmts>,
             ),
         );

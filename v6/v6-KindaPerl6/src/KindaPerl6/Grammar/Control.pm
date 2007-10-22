@@ -30,7 +30,7 @@ token block1 {
             return ::Lit::Code(
                     pad   => $env,
                     state => { },
-                    sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
+                    sig   => ::Sig( 'invocant' => undef, 'positional' => [ ] ),
                     body  => $$<exp_stmts>,
                 );
         }
@@ -117,7 +117,7 @@ token for {
             return ::Lit::Code(
                     pad   => $env,
                     state => { },
-                    sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
+                    sig   => ::Sig( 'invocant' => undef, 'positional' => [ ] ),
                     body  => [
                         ::For( 
                             'cond'  => $$<exp>, 

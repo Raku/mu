@@ -48,7 +48,7 @@ sub visit {
                             'body'      => '',
                             'otherwise' => Lit::Code->new(
                                 'body'  => [ Bind->new( 'parameters' => Proto->new( 'name' => $node->name(), ), 'arguments' => Call->new( 'invocant' => $metaobject, 'method' => 'PROTOTYPE', 'hyper' => '', ), ) ],
-                                'sig'   => Sig->new( 'named'         => {},                'invocant'           => '',      'positional'             => [], ),
+                                'sig'   => Sig->new( 'invocant'      => '',                'positional'         => [], ),
                                 'pad'   => $pad,
                                 'state' => {},
                             ),
@@ -181,9 +181,7 @@ sub visit {
                         if ($body) { $pad = $body->pad() }
                         else       { }
                     };
-                    return (
-                        CompUnit->new( 'unit_type' => 'module', 'name' => $node->name(), 'body' => Lit::Code->new( 'pad' => $pad, 'state' => {}, 'sig' => Sig->new( 'invocant' => (undef), 'positional' => [], 'named' => {}, ), 'body' => $module, ), )
-                    );
+                    return ( CompUnit->new( 'unit_type' => 'module', 'name' => $node->name(), 'body' => Lit::Code->new( 'pad' => $pad, 'state' => {}, 'sig' => Sig->new( 'invocant' => (undef), 'positional' => [], ), 'body' => $module, ), ) );
                 }
                 else { }
                 }

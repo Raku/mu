@@ -27,7 +27,7 @@ class KindaPerl6::Visitor::Hyper {
                 code      => 'map',
                 arguments => [
                     ::Sub( 
-                        sig   => ::Sig( positional => [ ], named => [ ] ),  
+                        sig   => ::Sig( invocant => undef, positional => [ ] ),  
                         block => [
                             ::Call( 
                                 invocant  => ::Var( sigil => '$', twigil => '', name => '_' ),

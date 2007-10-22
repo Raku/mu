@@ -20,7 +20,7 @@ sub visit {
                     'code'      => 'map',
                     'arguments' => [
                         Sub->new(
-                            'sig' => Sig->new( 'positional' => [], 'named' => [], ),
+                            'sig' => Sig->new( 'invocant' => (undef), 'positional' => [], ),
                             'block' => [ Call->new( 'invocant' => Var->new( 'sigil' => '$', 'twigil' => '', 'name' => '_', ), 'method' => $node->method(), 'arguments' => $node->arguments(), ) ],
                         ),
                         $node->invocant()

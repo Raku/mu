@@ -78,7 +78,7 @@ class KindaPerl6::Visitor::MetaClass {
                                     )
                                 ],
                                 sig   =>
-                                  ::Sig( named => {}, invocant => '', positional => [], ),
+                                  ::Sig( invocant => '', positional => [], ),
                                 pad   => $pad,
                                 state => { },
                             ),
@@ -260,7 +260,7 @@ class KindaPerl6::Visitor::MetaClass {
                 body => ::Lit::Code(
                     pad   => $pad,
                     state => { },
-                    sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
+                    sig   => ::Sig( 'invocant' => undef, 'positional' => [ ] ),
                     body  => $module,
                 ),
             );

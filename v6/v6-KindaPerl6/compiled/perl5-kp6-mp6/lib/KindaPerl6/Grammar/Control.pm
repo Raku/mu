@@ -285,7 +285,7 @@ sub block1 {
                                                 do {
                                                     my $env = COMPILER::current_pad();
                                                     COMPILER::drop_pad();
-                                                    return ( Lit::Code->new( 'pad' => $env, 'state' => {}, 'sig' => Sig->new( 'invocant' => (undef), 'positional' => [], 'named' => {}, ), 'body' => ${ $MATCH->{'exp_stmts'} }, ) );
+                                                    return ( Lit::Code->new( 'pad' => $env, 'state' => {}, 'sig' => Sig->new( 'invocant' => (undef), 'positional' => [], ), 'body' => ${ $MATCH->{'exp_stmts'} }, ) );
                                                 };
                                                 '974^213';
                                                 }
@@ -767,7 +767,7 @@ sub for {
                                                                                 Lit::Code->new(
                                                                                     'pad'   => $env,
                                                                                     'state' => {},
-                                                                                    'sig'   => Sig->new( 'invocant' => (undef), 'positional' => [], 'named' => {}, ),
+                                                                                    'sig'   => Sig->new( 'invocant' => (undef), 'positional' => [], ),
                                                                                     'body'  => [ For->new( 'cond' => ${ $MATCH->{'exp'} }, 'topic' => ${ $MATCH->{'var'} }, 'body' => $block, ) ],
                                                                                 )
                                                                             );

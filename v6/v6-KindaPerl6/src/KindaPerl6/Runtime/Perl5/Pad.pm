@@ -270,7 +270,6 @@ sub begin_block {
     my $begin_ast = BEGIN->new(
         block => Lit::Code->new(
             sig   => Sig->new(
-                                 'named' => {},
                                  'invocant' => undef,
                                  'positional' => []
                              ),
@@ -298,7 +297,7 @@ sub begin_block {
             'block' => Lit::Code->new(
                 pad   => $COMPILER::PAD[0],
                 state => { },
-                sig   => Sig->new( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
+                sig   => Sig->new( 'invocant' => undef, 'positional' => [ ] ),
                 body  => [ $begin_ast, $$p ],
             ),
     );

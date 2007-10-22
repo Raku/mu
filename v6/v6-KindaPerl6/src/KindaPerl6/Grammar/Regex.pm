@@ -55,7 +55,7 @@ token parsed_code {
         return ::Lit::Code(
                     pad   => $env,
                     state => { },
-                    sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
+                    sig   => ::Sig( 'invocant' => undef, 'positional' => [ ] ),
                     body  => $$<KindaPerl6::Grammar.exp_stmts>,
                 );
     }

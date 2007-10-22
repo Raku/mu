@@ -20,7 +20,7 @@ sub thunk {
     my $List__ = \@_;
     my $value;
     do { $value = $List__->[0]; [$value] };
-    Sub->new( 'block' => Lit::Code->new( 'pad' => new_pad(), 'body' => [$value], 'sig' => Sig->new( 'positional' => [], 'named' => [], ), ), );
+    Sub->new( 'block' => Lit::Code->new( 'pad' => new_pad(), 'body' => [$value], 'sig' => Sig->new( 'invocant' => (undef), 'positional' => [], ), ), );
 }
 
 sub visit {

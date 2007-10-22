@@ -13,7 +13,7 @@ class KindaPerl6::Visitor::ShortCircuit {
                 block => ::Lit::Code(
                     pad => new_pad(),
                     body => [$value],
-                    sig => ::Sig( positional => [ ], named => [ ] )
+                    sig => ::Sig( invocant => undef, positional => [ ] )
                 )
         );
     };
