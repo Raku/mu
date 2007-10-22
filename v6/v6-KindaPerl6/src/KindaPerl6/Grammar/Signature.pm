@@ -9,7 +9,7 @@ grammar KindaPerl6::Grammar {
         |   <''>                                   { return '' }
     }
     token sig_default_value {
-        |   <?opt_ws> '=>' <?opt_ws> <exp> <?opt_ws> { return { has_default => 1, default => $$<exp>, } }
+        |   <?opt_ws> '=' <?opt_ws> <exp> <?opt_ws> { return { has_default => 1, default => $$<exp>, } }
         |   <''>                                     { return { has_default => 0, default => ::Val::Undef( ), } }
     }
     token sig_named_only       { ':' { return 1 } | { return 0 } }

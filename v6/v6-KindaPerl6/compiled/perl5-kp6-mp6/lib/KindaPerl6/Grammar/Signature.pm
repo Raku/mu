@@ -102,7 +102,7 @@ sub sig_default_value {
                                 }
                             }
                             && (
-                            ( ( '=>' eq substr( $str, $MATCH->to(), 2 ) ) ? ( 1 + $MATCH->to( ( 2 + $MATCH->to() ) ) ) : 0 ) && (
+                            ( ( '=' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
                                 do {
                                     my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
                                     do {
