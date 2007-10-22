@@ -65,6 +65,16 @@ $::Array = KindaPerl6::Runtime::Perl5::MOP::make_class(
                     }
             );
         },
+    for =>sub {
+            my $sub = $_[1];
+            for my $v ( @{$_[0]{_value}{_array}} ) {
+                ::DISPATCH(
+                    $sub,
+                    "APPLY", 
+                    $v
+                );
+            }
+        },
 });
 
 1;

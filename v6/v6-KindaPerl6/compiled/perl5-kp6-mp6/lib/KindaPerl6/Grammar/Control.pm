@@ -712,80 +712,27 @@ sub for {
                                                 else     {0}
                                                 }
                                         }
-                                        && (( ( '->' eq substr( $str, $MATCH->to(), 2 ) ) ? ( 1 + $MATCH->to( ( 2 + $MATCH->to() ) ) ) : 0 ) && (
+                                        && (do {
+                                                my $m2 = $grammar->arrow_sub( $str, $MATCH->to() );
                                                 do {
-                                                    my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
-                                                    do {
-                                                        if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                                        else     {0}
-                                                        }
-                                                }
-                                                && (do {
-                                                        my $m2 = $grammar->var( $str, $MATCH->to() );
-                                                        do {
-                                                            if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'var'} = $m2; 1 }
-                                                            else     {0}
-                                                            }
+                                                    if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'arrow_sub'} = $m2; 1 }
+                                                    else     {0}
                                                     }
-                                                    && (do {
-                                                            my $ret = sub {
-                                                                my $List__ = \@_;
-                                                                do { [] };
-                                                                do { COMPILER::add_pad(); my $env = COMPILER::current_pad(); push( @{ $env->lexicals() }, Decl->new( 'type' => '', 'decl' => 'my', 'var' => ${ $MATCH->{'var'} }, ) ) };
-                                                                '974^213';
-                                                                }
-                                                                ->();
-                                                            do {
-                                                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                                else                         { }
-                                                            };
-                                                            1;
-                                                        }
-                                                        && (do {
-                                                                my $m2 = $grammar->ws( $str, $MATCH->to() );
-                                                                do {
-                                                                    if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                                                    else     {0}
-                                                                    }
-                                                            }
-                                                            && (do {
-                                                                    my $m2 = $grammar->block1( $str, $MATCH->to() );
-                                                                    do {
-                                                                        if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'block1'} = $m2; 1 }
-                                                                        else     {0}
-                                                                        }
-                                                                }
-                                                                && do {
-                                                                    my $ret = sub {
-                                                                        my $List__ = \@_;
-                                                                        do { [] };
-                                                                        do {
-                                                                            my $env = COMPILER::current_pad();
-                                                                            COMPILER::drop_pad();
-                                                                            my $block = ${ $MATCH->{'block1'} };
-                                                                            return (
-                                                                                Lit::Code->new(
-                                                                                    'pad'   => $env,
-                                                                                    'state' => {},
-                                                                                    'sig'   => Sig->new( 'invocant' => (undef), 'positional' => [], ),
-                                                                                    'body'  => [ For->new( 'cond' => ${ $MATCH->{'exp'} }, 'topic' => ${ $MATCH->{'var'} }, 'body' => $block, ) ],
-                                                                                )
-                                                                            );
-                                                                        };
-                                                                        '974^213';
-                                                                        }
-                                                                        ->();
-                                                                    do {
-                                                                        if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                                        else                         { }
-                                                                    };
-                                                                    1;
-                                                                }
-                                                            )
-                                                        )
-                                                    )
-                                                )
-                                            )
+                                            }
+                                            && do {
+                                                my $ret = sub {
+                                                    my $List__ = \@_;
+                                                    do { [] };
+                                                    do { return ( Call->new( 'hyper' => '', 'arguments' => [ ${ $MATCH->{'arrow_sub'} } ], 'method' => 'for', 'invocant' => ${ $MATCH->{'exp'} }, ) ) };
+                                                    '974^213';
+                                                    }
+                                                    ->();
+                                                do {
+                                                    if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                                                    else                         { }
+                                                };
+                                                1;
+                                            }
                                         )
                                     )
                                 )

@@ -345,7 +345,7 @@ sub emit_perl5 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( '{ ' . ( $self->emit_declarations() . ( $self->emit_body() . ' }' ) ) );
+    ( 'do { ' . ( $self->emit_declarations() . ( $self->emit_body() . ' }' ) ) );
 }
 
 sub emit_body {

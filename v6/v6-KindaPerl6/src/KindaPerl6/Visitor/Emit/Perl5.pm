@@ -166,7 +166,7 @@ class Lit::SigArgument {
 
 class Lit::Code {
     method emit_perl5 {
-          '{ ' 
+          'do { ' 
         ~ self.emit_declarations ~ self.emit_body
         ~ ' }';
     };

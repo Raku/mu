@@ -101,31 +101,14 @@ token when {
 };
 
 token for {
-    for <?ws> <exp> <?opt_ws> <'->'> <?opt_ws> <var> 
-        { 
-            COMPILER::add_pad();
-            my $env := COMPILER::current_pad();
-            push @($env.lexicals),::Decl(type=>'',decl=>'my',var=>$$<var>);
-        }
-    
-    <?ws> <block1>
-
+    for <?ws> <exp> <?opt_ws> <arrow_sub>
     { 
-            my $env := COMPILER::current_pad();
-            COMPILER::drop_pad();
-            my $block := $$<block1>;
-            return ::Lit::Code(
-                    pad   => $env,
-                    state => { },
-                    sig   => ::Sig( 'invocant' => undef, 'positional' => [ ] ),
-                    body  => [
-                        ::For( 
-                            'cond'  => $$<exp>, 
-                            'topic' => $$<var>, 
-                            'body'  => $block,
-                            ),                    
-                    ],
-                );
+            return ::Call(
+                hyper     => '',
+                arguments => [ $$<arrow_sub> ],
+                method   => 'for',
+                invocant => $$<exp>,
+            );
     }
 };
 
