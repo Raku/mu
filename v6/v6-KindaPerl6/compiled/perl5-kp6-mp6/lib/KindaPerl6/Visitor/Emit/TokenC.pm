@@ -4,8 +4,8 @@ use strict;
 use MiniPerl6::Perl5::Runtime;
 use MiniPerl6::Perl5::Match;
 
-package KindaPerl6::Visitor::EmitTokenC;
-sub new { shift; bless {@_}, "KindaPerl6::Visitor::EmitTokenC" }
+package KindaPerl6::Visitor::Emit::TokenC;
+sub new { shift; bless {@_}, "KindaPerl6::Visitor::Emit::TokenC" }
 
 sub visit {
     my $self   = shift;
@@ -25,7 +25,7 @@ sub emit_c {
     do { [] };
     (   'match* '
             . (
-            Main::mangle_ident( ( $KindaPerl6::Visitor::EmitPerl5::current_compunit . ( '::' . $self->{name} ) ) )
+            Main::mangle_ident( ( $KindaPerl6::Visitor::Emit::Perl5::current_compunit . ( '::' . $self->{name} ) ) )
                 . ( ' (char *str,int pos) {match* m = new_match(str,pos);m->boolean = (' . ( $self->{regex}->emit_c() . ( ');m->to = pos;return m;}' . Main::newline() ) ) )
             )
     );
@@ -38,7 +38,7 @@ sub emit_c {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    $KindaPerl6::Visitor::EmitPerl5::current_compunit = $self->{name};
+    $KindaPerl6::Visitor::Emit::Perl5::current_compunit = $self->{name};
     $self->{body}->emit_c();
 }
 
@@ -108,7 +108,7 @@ sub emit_c {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( '({match* submatch=' . ( Main::mangle_ident( ( $KindaPerl6::Visitor::EmitPerl5::current_compunit . ( '::' . $self->{metasyntax} ) ) ) . '(str,pos);pos = submatch->to;int boolean = submatch->boolean;free(submatch);boolean;})' ) );
+    ( '({match* submatch=' . ( Main::mangle_ident( ( $KindaPerl6::Visitor::Emit::Perl5::current_compunit . ( '::' . $self->{metasyntax} ) ) ) . '(str,pos);pos = submatch->to;int boolean = submatch->boolean;free(submatch);boolean;})' ) );
 }
 
 package Rule::SubruleNoCapture;
@@ -118,7 +118,7 @@ sub emit_c {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( '({match* submatch=' . ( Main::mangle_ident( ( $KindaPerl6::Visitor::EmitPerl5::current_compunit . ( '::' . $self->{metasyntax} ) ) ) . '(str,pos);pos = submatch->to;int boolean = submatch->boolean;free(submatch);boolean;})' ) );
+    ( '({match* submatch=' . ( Main::mangle_ident( ( $KindaPerl6::Visitor::Emit::Perl5::current_compunit . ( '::' . $self->{metasyntax} ) ) ) . '(str,pos);pos = submatch->to;int boolean = submatch->boolean;free(submatch);boolean;})' ) );
 }
 
 package Rule::Dot;

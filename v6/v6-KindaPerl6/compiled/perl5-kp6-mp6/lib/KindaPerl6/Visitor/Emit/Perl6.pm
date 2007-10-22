@@ -4,8 +4,8 @@ use strict;
 use MiniPerl6::Perl5::Runtime;
 use MiniPerl6::Perl5::Match;
 
-package KindaPerl6::Visitor::EmitPerl6;
-sub new { shift; bless {@_}, "KindaPerl6::Visitor::EmitPerl6" }
+package KindaPerl6::Visitor::Emit::Perl6;
+sub new { shift; bless {@_}, "KindaPerl6::Visitor::Emit::Perl6" }
 
 sub visit {
     my $self   = shift;

@@ -1,6 +1,6 @@
 use v6-alpha;
 
-class KindaPerl6::Visitor::EmitLisp {
+class KindaPerl6::Visitor::Emit::Lisp {
 
     # This visitor is a list emitter
     # TODO !!!

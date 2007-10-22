@@ -4,9 +4,9 @@ use strict;
 use MiniPerl6::Perl5::Runtime;
 use MiniPerl6::Perl5::Match;
 
-package KindaPerl6::Visitor::EmitPerl5Regex;
-sub new { shift; bless {@_}, "KindaPerl6::Visitor::EmitPerl5Regex" }
-use KindaPerl6::Visitor::EmitPerl5;
+package KindaPerl6::Visitor::Emit::Perl5Regex;
+sub new { shift; bless {@_}, "KindaPerl6::Visitor::Emit::Perl5Regex" }
+use KindaPerl6::Visitor::Emit::Perl5;
 
 sub visit {
     my $self   = shift;
@@ -61,7 +61,7 @@ sub emit_perl5 {
                                                                             . (
                                                                             '::DISPATCH(::DISPATCH($::'
                                                                                 . (
-                                                                                $KindaPerl6::Visitor::EmitPerl5::current_compunit
+                                                                                $KindaPerl6::Visitor::Emit::Perl5::current_compunit
                                                                                     . (
                                                                                     ',"HOW"),'
                                                                                         . (

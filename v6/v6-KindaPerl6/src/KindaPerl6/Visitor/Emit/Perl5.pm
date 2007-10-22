@@ -1,7 +1,7 @@
 
 use v6-alpha;
 
-class KindaPerl6::Visitor::EmitPerl5 {
+class KindaPerl6::Visitor::Emit::Perl5 {
     has $.visitor_args;
     # This visitor is a perl5 emitter
     
@@ -18,7 +18,7 @@ class CompUnit {
         return 'use constant KP6_DISABLE_INSECURE_CODE => ' ~ $value ~ ';' ~ Main::newline();
     };
     method emit_perl5( $args_secure ) {
-        $KindaPerl6::Visitor::EmitPerl5::current_compunit := $.name;
+        $KindaPerl6::Visitor::Emit::Perl5::current_compunit := $.name;
         my $source := '';
         if ($.body) {
             $source := $.body.emit_perl5;
@@ -742,7 +742,7 @@ class Use {
 
 =head1 NAME 
 
-KindaPerl6::Perl5::EmitPerl5 - Code generator for KindaPerl6-in-Perl5
+KindaPerl6::Perl5::Emit::Perl5 - Code generator for KindaPerl6-in-Perl5
 
 =head1 DESCRIPTION
 

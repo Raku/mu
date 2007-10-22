@@ -1,7 +1,7 @@
 
 use v6-alpha;
 
-class KindaPerl6::Visitor::EmitHTML {
+class KindaPerl6::Visitor::Emit::HTML {
 
     # This visitor is a perl6 emitter
     
@@ -409,7 +409,7 @@ class Use {
 
 =head1 NAME 
 
-KindaPerl6::Visitor::EmitPerl6 - Code generator for KindaPerl6
+KindaPerl6::Visitor::Emit::Perl6 - Code generator for KindaPerl6
 
 =head1 DESCRIPTION
 

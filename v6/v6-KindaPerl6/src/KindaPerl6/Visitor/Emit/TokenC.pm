@@ -1,6 +1,6 @@
 use v6-alpha;
 
-class KindaPerl6::Visitor::EmitTokenC {
+class KindaPerl6::Visitor::Emit::TokenC {
 
     method visit ( $node, $node_name ) {
         $node.emit_c;
@@ -9,12 +9,12 @@ class KindaPerl6::Visitor::EmitTokenC {
 }
 class Token {
     method emit_c {
-        'match* ' ~ Main::mangle_ident($KindaPerl6::Visitor::EmitPerl5::current_compunit~'::'~$.name) ~ ' (char *str,int pos) {match* m = new_match(str,pos);m->boolean = (' ~ ($.regex).emit_c ~ ');m->to = pos;return m;}' ~ Main::newline();
+        'match* ' ~ Main::mangle_ident($KindaPerl6::Visitor::Emit::Perl5::current_compunit~'::'~$.name) ~ ' (char *str,int pos) {match* m = new_match(str,pos);m->boolean = (' ~ ($.regex).emit_c ~ ');m->to = pos;return m;}' ~ Main::newline();
     }
 }
 class CompUnit {
     method emit_c {
-        $KindaPerl6::Visitor::EmitPerl5::current_compunit := $.name;
+        $KindaPerl6::Visitor::Emit::Perl5::current_compunit := $.name;
         $.body.emit_c;
     }
 }
@@ -51,12 +51,12 @@ class Rule::Block {
 }
 class Rule::Subrule {
     method emit_c {
-        '({match* submatch='~Main::mangle_ident($KindaPerl6::Visitor::EmitPerl5::current_compunit~'::'~$.metasyntax)~'(str,pos);pos = submatch->to;int boolean = submatch->boolean;free(submatch);boolean;})';
+        '({match* submatch='~Main::mangle_ident($KindaPerl6::Visitor::Emit::Perl5::current_compunit~'::'~$.metasyntax)~'(str,pos);pos = submatch->to;int boolean = submatch->boolean;free(submatch);boolean;})';
     }
 }
 class Rule::SubruleNoCapture {
     method emit_c {
-        '({match* submatch='~Main::mangle_ident($KindaPerl6::Visitor::EmitPerl5::current_compunit~'::'~$.metasyntax)~'(str,pos);pos = submatch->to;int boolean = submatch->boolean;free(submatch);boolean;})';
+        '({match* submatch='~Main::mangle_ident($KindaPerl6::Visitor::Emit::Perl5::current_compunit~'::'~$.metasyntax)~'(str,pos);pos = submatch->to;int boolean = submatch->boolean;free(submatch);boolean;})';
     }
 }
 class Rule::Dot {

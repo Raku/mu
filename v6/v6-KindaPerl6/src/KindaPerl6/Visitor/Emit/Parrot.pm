@@ -1,6 +1,6 @@
 use v6-alpha;
 
-class KindaPerl6::Visitor::EmitParrot {
+class KindaPerl6::Visitor::Emit::Parrot {
     method visit ( $node ) {
         $node.emit_parrot;
     };
@@ -918,7 +918,7 @@ class Use {
 
 =head1 NAME
 
-MiniPerl6::Parrot::Emit_parrot - Code generator for MiniPerl6-in-Parrot
+MiniPerl6::Parrot::Emit::Parrot - Code generator for MiniPerl6-in-Parrot
 
 =head1 SYNOPSIS
 

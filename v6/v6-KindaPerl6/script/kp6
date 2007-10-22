@@ -42,7 +42,7 @@ option will go away when the compiler has been bootstraped to kp6.
 
 =item --secure
 
-Tell the emitter L<KindaPerl6::Visitor::Emit*> emitter being used to
+Tell the emitter L<KindaPerl6::Visitor::Emit::*> emitter being used to
 disable any unsafe features (e.g. C<system>).
 
 =item --do
@@ -55,7 +55,7 @@ Example:
     # process the ast by expanding 'token' into plain Perl;
     # then replace method calls with MO calls;
     # then emit Perl 5 code
-    kp6 --do Token,MetaClass,EmitPerl5 < examples/token.pl | perltidy
+    kp6 --do Token,MetaClass,Emit::Perl5 < examples/token.pl | perltidy
 
 =item --ast
 
@@ -64,16 +64,16 @@ and L<KindaPerl::Visitor::Perl>.
 
 =item --perl5
 
-Emit Perl 5 code via L<KindaPerl::Visitor::EmitPerl5>, this is not the
+Emit Perl 5 code via L<KindaPerl::Visitor::Emit::Perl5>, this is not the
 same thing as the default Perl 5 sequence which has more visitors.
 
 =item --perl5rx
 
-Use the L<KindaPerl6::Visitor::EmitPerl5Regex> Perl 6 to Perl 5 regex emitter.
+Use the L<KindaPerl6::Visitor::Emit::Perl5Regex> Perl 6 to Perl 5 regex emitter.
 
 =item --perl6
 
-Emit Perl 6 via L<KindaPerl6::Visitor::EmitPerl6>.
+Emit Perl 6 via L<KindaPerl6::Visitor::Emit::Perl6>.
 
 =item --parrot
 
@@ -81,7 +81,7 @@ Emit PIR via L<KindaPerl6::Visitor::Parrot>, currently broken.
 
 =item --lisp
 
-Emit Common Lisp via L<KindaPerl6::Visitor::EmitLisp>.
+Emit Common Lisp via L<KindaPerl6::Visitor::Emit::Lisp>.
 
 =back
 
@@ -210,32 +210,32 @@ my @visitors;
     push @visitor_sequence, split /[\s,]/, $opt{do} if $opt{do};
 
     if (grep { $_ eq 'perl6' } @opt{qw(C B)}) {
-        push @visitor_sequence, qw( EmitPerl6 )
-            unless @visitor_sequence && $visitor_sequence[-1] eq 'EmitPerl6';
+        push @visitor_sequence, qw( Emit::Perl6 )
+            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Perl6';
     }
     elsif (grep { $_ eq 'ast' } @opt{qw(C B)}) {
         push @visitor_sequence, qw( Perl )
             unless @visitor_sequence && $visitor_sequence[-1] eq 'Perl';
     }
     elsif (grep { $_ eq 'perl5' } @opt{qw(C B)}) {
-        push @visitor_sequence, qw( ExtractRuleBlock Token MetaClass Global EmitPerl5 )
-            unless @visitor_sequence && $visitor_sequence[-1] eq 'EmitPerl5';
+        push @visitor_sequence, qw( ExtractRuleBlock Token MetaClass Global Emit::Perl5 )
+            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Perl5';
     }
     elsif (grep { $_ eq 'parrot' } @opt{qw(C B)}) {
-        push @visitor_sequence, qw( EmitParrot )
-            unless @visitor_sequence && $visitor_sequence[-1] eq 'EmitParrot';
+        push @visitor_sequence, qw( Emit::Parrot )
+            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Parrot';
     }
     elsif (grep { $_ =~ /^cl/ } @opt{qw(C B)}) {
-        push @visitor_sequence, qw( Global EmitLisp )
-            unless @visitor_sequence && $visitor_sequence[-1] eq 'EmitLisp';
+        push @visitor_sequence, qw( Global Emit::Lisp )
+            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Lisp';
     }
     elsif (grep { $_ eq 'perl5rx' } @opt{qw(C B)}) {
-        push @visitor_sequence, qw( RegexCapture MetaClass Global EmitPerl5Regex )
-            unless @visitor_sequence && $visitor_sequence[-1] eq 'EmitPerl5Regex';
+        push @visitor_sequence, qw( RegexCapture MetaClass Global Emit::Perl5Regex )
+            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Perl5Regex';
     }
     elsif ( ! @visitor_sequence ) {
         # this is the default sequence
-        push @visitor_sequence, qw( ExtractRuleBlock Token MetaClass Global EmitPerl5 )
+        push @visitor_sequence, qw( ExtractRuleBlock Token MetaClass Global Emit::Perl5 )
     }
 
     push @visitor_sequence, 'Perl'

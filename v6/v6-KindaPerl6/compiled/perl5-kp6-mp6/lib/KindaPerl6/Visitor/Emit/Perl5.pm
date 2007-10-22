@@ -4,8 +4,8 @@ use strict;
 use MiniPerl6::Perl5::Runtime;
 use MiniPerl6::Perl5::Match;
 
-package KindaPerl6::Visitor::EmitPerl5;
-sub new { shift; bless {@_}, "KindaPerl6::Visitor::EmitPerl5" }
+package KindaPerl6::Visitor::Emit::Perl5;
+sub new { shift; bless {@_}, "KindaPerl6::Visitor::Emit::Perl5" }
 sub visitor_args { @_ == 1 ? ( $_[0]->{visitor_args} ) : ( $_[0]->{visitor_args} = $_[1] ) }
 
 sub visit {
@@ -36,7 +36,7 @@ sub emit_perl5 {
     my $List__ = \@_;
     my $args_secure;
     do { $args_secure = $List__->[0]; [$args_secure] };
-    $KindaPerl6::Visitor::EmitPerl5::current_compunit = $self->{name};
+    $KindaPerl6::Visitor::Emit::Perl5::current_compunit = $self->{name};
     my $source = '';
     do {
         if ( $self->{body} ) { $source = $self->{body}->emit_perl5() }

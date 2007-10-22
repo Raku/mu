@@ -7,10 +7,10 @@ use v6-alpha;
 
 # See: temp/backtracking-recursive-subrule.pl
     
-class KindaPerl6::Visitor::EmitPerl5Regex {
+class KindaPerl6::Visitor::Emit::Perl5Regex {
 
-    # 'EmitPerl5' predefines all nodes, except 'Token'
-    use KindaPerl6::Visitor::EmitPerl5;
+    # 'Emit::Perl5' predefines all nodes, except 'Token'
+    use KindaPerl6::Visitor::Emit::Perl5;
 
     method visit ( $node ) {
         $node.emit_perl5;
@@ -42,7 +42,7 @@ class Token {
             # create the method, using the OO metamodel
             # OUTER::<$_> := string to match
             # OUTER::<$/> := match result
-            ~ '::DISPATCH(::DISPATCH($::' ~ $KindaPerl6::Visitor::EmitPerl5::current_compunit ~ ',"HOW"),'         
+            ~ '::DISPATCH(::DISPATCH($::' ~ $KindaPerl6::Visitor::Emit::Perl5::current_compunit ~ ',"HOW"),'         
                 ~ '"add_method", '
                 ~ '::DISPATCH( $::Str, "new", "' ~ $.name ~ '" ), '
 
@@ -391,7 +391,7 @@ KindaPerl6::Visitor::Token - AST processor for P6-Regex to P5-Regex transformati
 
 =head1 SYNOPSIS
 
-    my $visitor_token := KindaPerl6::Visitor::EmitPerl5Regex.new();
+    my $visitor_token := KindaPerl6::Visitor::Emit::Perl5Regex.new();
     $ast = $ast.emit( $visitor_token );
 
 =head1 DESCRIPTION

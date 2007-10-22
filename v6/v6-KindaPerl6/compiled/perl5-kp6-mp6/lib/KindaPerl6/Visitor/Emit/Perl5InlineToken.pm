@@ -4,10 +4,10 @@ use strict;
 use MiniPerl6::Perl5::Runtime;
 use MiniPerl6::Perl5::Match;
 
-package KindaPerl6::Visitor::EmitPerl5InlineToken;
-sub new { shift; bless {@_}, "KindaPerl6::Visitor::EmitPerl5InlineToken" }
-use KindaPerl6::Visitor::EmitPerl5;
-use KindaPerl6::Visitor::EmitTokenC;
+package KindaPerl6::Visitor::Emit::Perl5InlineToken;
+sub new { shift; bless {@_}, "KindaPerl6::Visitor::Emit::Perl5InlineToken" }
+use KindaPerl6::Visitor::Emit::Perl5;
+use KindaPerl6::Visitor::Emit::TokenC;
 
 sub visit {
     my $self   = shift;
@@ -44,7 +44,7 @@ sub emit_perl5 {
     do { [] };
     (   '::DISPATCH(::DISPATCH($::'
             . (
-            $KindaPerl6::Visitor::EmitPerl5::current_compunit
+            $KindaPerl6::Visitor::Emit::Perl5::current_compunit
                 . (
                 ',"HOW"),"add_method",::DISPATCH($::Str,"new",\''
                     . (
@@ -52,7 +52,7 @@ sub emit_perl5 {
                         . (
                         '\'),::DISPATCH($::Method,"new",sub {my $match = '
                             . (
-                            Main::mangle_ident( ( $KindaPerl6::Visitor::EmitPerl5::current_compunit . ( '::' . $self->{name} ) ) )
+                            Main::mangle_ident( ( $KindaPerl6::Visitor::Emit::Perl5::current_compunit . ( '::' . $self->{name} ) ) )
                                 . '(GLOBAL::_str($_[1]),GLOBAL::_int($_[2]));::DISPATCH($::Match,"new",{match_str=>$_[1],bool=>::DISPATCH($::Bit,"new",$match->boolean),from=>::DISPATCH($::Int,"new",$match->from),to=>::DISPATCH($::Int,"new",$match->to)})}))'
                             )
                         )

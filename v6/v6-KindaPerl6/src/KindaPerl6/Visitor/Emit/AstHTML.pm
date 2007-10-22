@@ -1,7 +1,7 @@
 
 use v6-alpha;
 
-class KindaPerl6::Visitor::EmitAstHTML {
+class KindaPerl6::Visitor::Emit::AstHTML {
 
     # This visitor builds a html version of the ".perl" representation of the AST
 
