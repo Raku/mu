@@ -26,8 +26,22 @@ sub visit {
                 Method->new(
                     'block' => Lit::Code->new(
                         'body' => $node->closure()->body(),
-                        'sig'  => Sig->new( 'named' => {}, 'invocant' => '', 'positional' => [ Var->new( 'namespace' => [], 'name' => 'MATCH', 'twigil' => '', 'sigil' => '$', ) ], ),
-                        'pad'  => Pad->new(
+                        'sig'  => Sig->new(
+                            'invocant'   => '',
+                            'positional' => [
+                                Lit::SigArgument->new(
+                                    'key'   => Var->new( 'namespace' => [], 'name' => 'MATCH', 'twigil' => '', 'sigil' => '$', ),
+                                    'value' => (undef),
+                                    'is_multidimensional' => Val::Bit->new( 'bit' => '0', ),
+                                    'is_slurpy'           => Val::Bit->new( 'bit' => '0', ),
+                                    'is_optional'         => Val::Bit->new( 'bit' => '0', ),
+                                    'is_named_only'       => Val::Bit->new( 'bit' => '0', ),
+                                    'is_copy'             => Val::Bit->new( 'bit' => '0', ),
+                                    'is_rw'               => Val::Bit->new( 'bit' => '0', ),
+                                )
+                            ],
+                        ),
+                        'pad' => Pad->new(
                             'lexicals' => [
                                 Decl->new( 'decl' => 'my', 'var' => Var->new( 'namespace' => [], 'name' => '_',     'twigil' => '', 'sigil' => '@', ), 'type' => '', ),
                                 Decl->new( 'decl' => 'my', 'var' => Var->new( 'namespace' => [], 'name' => 'MATCH', 'twigil' => '', 'sigil' => '$', ), 'type' => '', )

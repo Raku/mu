@@ -17,14 +17,22 @@ class KindaPerl6::Visitor::ExtractRuleBlock {
             push @(($comp_unit.body).body), ::Method(block=> ::Lit::Code(
                     body => ($node.closure).body,
                     sig => ::Sig(
-                        named      => {},
                         invocant   => '',
                         positional => [
-                            ::Var(
-                                namespace => [],
-                                name      => 'MATCH',
-                                twigil    => '',
-                                sigil     => '$',
+                            ::Lit::SigArgument(
+                                key           => ::Var(
+                                    namespace   => [],
+                                    name        => 'MATCH',
+                                    twigil      => '',
+                                    sigil       => '$',
+                                ),
+                                value         => undef,
+                                is_multidimensional => ::Val::Bit( bit => '0', ),
+                                is_slurpy     => ::Val::Bit( bit => '0', ),
+                                is_optional   => ::Val::Bit( bit => '0', ),
+                                is_named_only => ::Val::Bit( bit => '0', ),
+                                is_copy       => ::Val::Bit( bit => '0', ),
+                                is_rw         => ::Val::Bit( bit => '0', ),
                             ),
                         ],
                     ),
