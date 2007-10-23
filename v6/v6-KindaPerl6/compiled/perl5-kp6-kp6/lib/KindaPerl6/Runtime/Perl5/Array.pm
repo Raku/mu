@@ -65,6 +65,20 @@ $::Array = KindaPerl6::Runtime::Perl5::MOP::make_class(
                     }
             );
         },
+    for =>sub {
+            my $sub = $_[1];
+            my $arity = ::DISPATCH( ::DISPATCH( $sub, 'signature' ), 'arity' )->{_value};
+            #print "ARITY: $arity\n";
+            my @list = @{$_[0]{_value}{_array}};
+            while ( @list ) {
+                my @params = splice( @list, 0, $arity );
+                ::DISPATCH(
+                    $sub,
+                    "APPLY", 
+                    @params
+                );
+            }
+        },
 });
 
 1;

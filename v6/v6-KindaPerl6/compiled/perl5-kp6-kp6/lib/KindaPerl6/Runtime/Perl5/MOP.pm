@@ -140,6 +140,7 @@ my $dispatch = sub {
     
     # low-level Method - APPLY can't dispatch itself!
     # warn 'LOW-LEVEL APPLY '.$method_name."\n".join("\n", map { join ",", caller($_) } 1..6)."\n";
+    #local $::ROUTINE = $meth;  # XXX 
     return $meth->{_value}->( $self, @_ );
 };
 
@@ -342,6 +343,19 @@ $meta_Class->add_method( 'methods',
                     { _array => [ 
                             map { ::DISPATCH( $::Str, 'new', $_ ) } 
                                 keys %{ $_[0]{_value}{methods} } 
+                        ] }  
+            );
+        } } )
+);
+$meta_Class->add_method( 'attributes',
+    ::DISPATCH( $::Method, 'new', 
+        { code => sub {
+            # TODO - show inherited methods
+            # ??? - should this return the Methods and they stringify to method name ???
+            ::DISPATCH( $::Array, 'new', 
+                    { _array => [ 
+                            map { ::DISPATCH( $::Str, 'new', $_ ) } 
+                                keys %{ $_[0]{_value}{attributes} } 
                         ] }  
             );
         } } )
@@ -648,7 +662,8 @@ $meta_Code->add_method( 'APPLY',
               } 
             }
 
-           $self->{_value}{code}->(@_);
+            local $::ROUTINE = $self;
+            $self->{_value}{code}->(@_);
         } 
     ) 
 ) );
@@ -766,7 +781,11 @@ $meta_Routine->add_method( 'STORE', $method_readonly );
 $meta_Routine->add_method(
     'APPLY',
     ::DISPATCH( $::Method, 'new', 
-        sub { my $self = shift; $self->{_value}{cell}{_value}{code}->(@_) }
+        sub { 
+            my $self = shift; 
+            local $::ROUTINE = $self->{_value}{cell};
+            $self->{_value}{cell}{_value}{code}->(@_) 
+        }
     )
 );
 $meta_Routine->add_method(
@@ -827,10 +846,11 @@ $::Hash
     = make_class( proto => $::Hash, name=>"Hash", methods=>{} );
 
 require KindaPerl6::Runtime::Perl6::Pair;
+require KindaPerl6::Runtime::Perl5::Pair;
 require KindaPerl6::Runtime::Perl6::NamedArgument;
 
-require KindaPerl6::Runtime::Perl6::Pair;
-require KindaPerl6::Runtime::Perl6::NamedArgument;
+#require KindaPerl6::Runtime::Perl6::Pair;
+#require KindaPerl6::Runtime::Perl6::NamedArgument;
 
 
 $::Cell = make_class( proto => $::Cell, name=>"Cell",parent=>[$::meta_Container],methods=>{
@@ -906,7 +926,18 @@ require KindaPerl6::Runtime::Perl6::Match;
 sub ::CAPTURIZE {
     my @array;
     my %hash;
-    for my $p ( @{ $_[0] } ) {
+    
+    #print "# CAPTURIZE: now at Code == $::ROUTINE \n";
+    #my $signature = ::DISPATCH( ::DISPATCH( $::ROUTINE, 'signature' ), 'array' );
+    # -- get the signature specification
+    #my @sigs = @{ $signature->{_value}{_array} };
+    #print "# sig = @{[ keys %{ $sigs[0] } ]} \n";
+    # -- get the runtime parameter list
+    my @params = @{ $_[0] }; 
+    
+    # match the parameter list to the signature specification
+    # XXX TODO
+    for my $p ( @params ) {
         #print "param @{[ keys( %{ $p->{_value} } ) ]} \n";
         if (
 
@@ -925,6 +956,7 @@ sub ::CAPTURIZE {
                 #print "return\n";
         }
         else {
+                #print "positional: ", ::DISPATCH( $p, 'Str' )->{_value} ," \n";
                 push @array, $p;
         }
     }
