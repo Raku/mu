@@ -3,9 +3,6 @@
 
 # Documentation in the __END__
 
-
-# XXX TODO - create {_dispatch} key for P6-MOP bridge
-
 use strict;
 
 package Match;
@@ -16,28 +13,26 @@ package Match;
     my $perl6_dispatcher =  sub { 
                 my ($self, $method, @param) = @_;
                 
-                return ::DISPATCH( $::Bit, 'new', $_[0]->{bool} )
-                    if $method eq 'true';
-                
+                if ( $method eq 'true' ) {
+                    return ::DISPATCH( $::Bit, 'new', $_[0]->{bool} )
+                }
                 if ( $method eq 'LOOKUP' ) {
                     my $what = ::DISPATCH( $param[0], 'Str' )->{_value}; 
                     return $_[0]->{hash}{$what}; 
                 }
-                
                 if ( $method eq 'does' ) {
                     my $what = ::DISPATCH( $param[0], 'Str' )->{_value};                    
                     return ::DISPATCH( $::Bit, 'new', 0 )
                         if $what eq 'Junction';
-                    print "MATCH DOES $what ???\n";
+                    #print "MATCH DOES $what ???\n";
                     return ::DISPATCH( $::Bit, 'new', 1 );  # it probably does
                 }
-                
                 if ( $method eq 'scalar' ) {
                     return $_[0]->result;
                 }
                 
                 $self->$method( @param );
-            };
+        };
     
     sub new {
         bless { 
@@ -66,22 +61,12 @@ package Match;
     sub array  :lvalue { $_[0]->{array} }
     sub hash   :lvalue { $_[0]->{hash} }
     
-    # deprecated
-    #sub bool   :lvalue { $_[0]->{bool} }
-    
     sub true   :lvalue { $_[0]->{bool} }
     sub result :lvalue { $_[0]->{result} }
     sub from   :lvalue { $_[0]->{from} }
     sub to     :lvalue { $_[0]->{to} }
     sub match_str :lvalue { $_[0]->{match_str} }
 
-    # deprecated
-    #sub str {
-    #      $_[0]->true 
-    #    ? substr( ${$_[0]->match_str}, $_[0]->from, $_[0]->to - $_[0]->from )
-    #    : undef;
-    #}
-    
     sub Str {
           $_[0]->true 
         ? substr( ${$_[0]->match_str}, $_[0]->from, $_[0]->to - $_[0]->from )
@@ -173,7 +158,7 @@ If there is no capture, return the matched substring
 - return the capture object
 If there is no capture, return the matched substring
 
-* bool
+* true
 
 - return whether there was a match
 
@@ -185,60 +170,9 @@ If there is no capture, return the matched substring
 
 - return the string position immediately after where the match finished
 
-=head1 "Hash" methods
-
-* elems
-
-* kv
-
-* keys
-
-* values
-
-=head1 "Str" methods
-
-* chars
-
-=head1 OVERLOADS
-
-* $match->()
-
-- return the capture object
-
-* $match->[$n]
-
-- return the positional matches
-
-* $match->{$n}
-
-- return the named matches
-
-* $match ? 1 : 0
-
-- return whether there was a match
-
-=head1 Dumper methods
-
-* data
-
-- return the internal representation as a data structure.
-
 * perl
 
 - return the internal representation as Perl source code. 
-
-* yaml
-
-- return the internal representation as YAML. 
-Requires the C<YAML::Syck> module.
-
-* dump_hs
-
-- for Pugs interoperability
-
-=head1 SEE ALSO
-
-C<v6> on CPAN
 
 =head1 AUTHORS
 
@@ -246,7 +180,7 @@ The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
 
 =head1 COPYRIGHT
 
-Copyright 2006 by Flavio Soibelmann Glock, Audrey Tang and others.
+Copyright 2006, 2007 by Flavio Soibelmann Glock, Audrey Tang and others.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
