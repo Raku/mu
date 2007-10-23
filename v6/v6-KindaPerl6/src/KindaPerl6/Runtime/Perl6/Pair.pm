@@ -11,9 +11,9 @@ class Pair is Value {
     method true { true };
     #method kv   { ( $.key, $.value ) };
     method Int  { $.value.Int };
-    method hash {
-        { $.key => $.value, }
-    };
+    #method hash {
+    #    { $.key => $.value, }
+    #};
     method array {
         [ $.key, $.value ]
     };

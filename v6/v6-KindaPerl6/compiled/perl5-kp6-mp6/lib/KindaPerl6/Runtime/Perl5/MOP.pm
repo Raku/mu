@@ -846,10 +846,11 @@ $::Hash
     = make_class( proto => $::Hash, name=>"Hash", methods=>{} );
 
 require KindaPerl6::Runtime::Perl6::Pair;
+require KindaPerl6::Runtime::Perl5::Pair;
 require KindaPerl6::Runtime::Perl6::NamedArgument;
 
-require KindaPerl6::Runtime::Perl6::Pair;
-require KindaPerl6::Runtime::Perl6::NamedArgument;
+#require KindaPerl6::Runtime::Perl6::Pair;
+#require KindaPerl6::Runtime::Perl6::NamedArgument;
 
 
 $::Cell = make_class( proto => $::Cell, name=>"Cell",parent=>[$::meta_Container],methods=>{
