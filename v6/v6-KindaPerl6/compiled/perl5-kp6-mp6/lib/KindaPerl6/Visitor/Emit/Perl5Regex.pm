@@ -183,6 +183,10 @@ sub emit_perl5 {
     do { [] };
     my $str = $self->{constant};
     do {
+        if   ( ( $str eq ' ' ) ) { return ('\\ ') }
+        else                     { }
+    };
+    do {
         if   ( ( $str eq '\\' ) ) { return ('\\\\') }
         else                      { }
     };

@@ -108,6 +108,9 @@ class Rule::Var {
 class Rule::Constant {
     method emit_perl5 {
         my $str := $.constant; 
+        if $str eq ' ' {
+            return '\\ ';
+        };
         if $str eq '\\' {
             return '\\\\';
         };

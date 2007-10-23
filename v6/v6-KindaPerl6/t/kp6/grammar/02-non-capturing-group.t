@@ -1,5 +1,5 @@
 grammar MyGrammar {
-    token ws { <' '> };
+    token ws { ' ' };
     token alpha { 'a' | 'b' };
     token opt_alfanum  { [ <?ws> | <?alpha> ] |  '' };
 };
