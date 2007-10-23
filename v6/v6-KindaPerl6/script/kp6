@@ -60,7 +60,7 @@ Example:
 =item --ast
 
 Dump the Abstract Syntax Tree of the program, see L<KindaPerl::Ast>
-and L<KindaPerl::Visitor::Perl>.
+and L<KindaPerl::Visitor::Emit::AstPerl>.
 
 =item --perl5
 
@@ -214,8 +214,8 @@ my @visitors;
             unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Perl6';
     }
     elsif (grep { $_ eq 'ast' } @opt{qw(C B)}) {
-        push @visitor_sequence, qw( Perl )
-            unless @visitor_sequence && $visitor_sequence[-1] eq 'Perl';
+        push @visitor_sequence, qw( Emit::AstPerl )
+            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::AstPerl';
     }
     elsif (grep { $_ eq 'perl5' } @opt{qw(C B)}) {
         push @visitor_sequence, qw( ExtractRuleBlock Token MetaClass ShortCircuit Global Emit::Perl5 )
@@ -238,9 +238,8 @@ my @visitors;
         push @visitor_sequence, qw( ExtractRuleBlock Token MetaClass ShortCircuit Global Emit::Perl5 )
     }
 
-    push @visitor_sequence, 'Perl'
-        unless $visitor_sequence[-1] eq 'Perl'
-            || $visitor_sequence[-1] =~ /^Emit/;
+    push @visitor_sequence, 'Emit::AstPerl'
+        unless $visitor_sequence[-1] =~ /^Emit/;
 
     for ( @visitor_sequence ) {
         my $module_name = 'KindaPerl6::Visitor::' . $_;

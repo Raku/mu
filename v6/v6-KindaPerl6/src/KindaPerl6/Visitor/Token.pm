@@ -28,7 +28,7 @@ class KindaPerl6::Visitor::Token {
             #say $source;
             my $ast := KindaPerl6::Grammar.term( $source );
             
-            #    my $visitor_dump_ast := KindaPerl6::Visitor::Perl.new();
+            #    my $visitor_dump_ast := KindaPerl6::Visitor::Emit::AstPerl.new();
             #    say 'Intermediate ast: ', ($$ast).emit( $visitor_dump_ast );
 
             # Return Perl 6 AST

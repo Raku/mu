@@ -66,7 +66,7 @@ compiled/perl5-kp6-kp6/lib/KindaPerl6/Visitor/Global.pm
 compiled/perl5-kp6-kp6/lib/KindaPerl6/Visitor/Hyper.pm
 compiled/perl5-kp6-kp6/lib/KindaPerl6/Visitor/MetaClass.pm
 compiled/perl5-kp6-kp6/lib/KindaPerl6/Visitor/Namespace.pm
-compiled/perl5-kp6-kp6/lib/KindaPerl6/Visitor/Perl.pm
+compiled/perl5-kp6-kp6/lib/KindaPerl6/Visitor/Emit/AstPerl.pm
 compiled/perl5-kp6-kp6/lib/KindaPerl6/Visitor/RegexCapture.pm
 compiled/perl5-kp6-kp6/lib/KindaPerl6/Visitor/Scope.pm
 compiled/perl5-kp6-kp6/lib/KindaPerl6/Visitor/Token.pm
@@ -138,7 +138,7 @@ compiled/perl5-kp6-mp6/lib/KindaPerl6/Visitor/Global.pm
 compiled/perl5-kp6-mp6/lib/KindaPerl6/Visitor/Hyper.pm
 compiled/perl5-kp6-mp6/lib/KindaPerl6/Visitor/MetaClass.pm
 compiled/perl5-kp6-mp6/lib/KindaPerl6/Visitor/Namespace.pm
-compiled/perl5-kp6-mp6/lib/KindaPerl6/Visitor/Perl.pm
+compiled/perl5-kp6-mp6/lib/KindaPerl6/Visitor/Emit/AstPerl.pm
 compiled/perl5-kp6-mp6/lib/KindaPerl6/Visitor/RegexCapture.pm
 compiled/perl5-kp6-mp6/lib/KindaPerl6/Visitor/Scope.pm
 compiled/perl5-kp6-mp6/lib/KindaPerl6/Visitor/Token.pm
@@ -313,7 +313,7 @@ src/KindaPerl6/Visitor/Global.pm
 src/KindaPerl6/Visitor/Hyper.pm
 src/KindaPerl6/Visitor/MetaClass.pm
 src/KindaPerl6/Visitor/Namespace.pm
-src/KindaPerl6/Visitor/Perl.pm
+src/KindaPerl6/Visitor/Emit/AstPerl.pm
 src/KindaPerl6/Visitor/RegexCapture.pm
 src/KindaPerl6/Visitor/Scope.pm
 src/KindaPerl6/Visitor/Token.pm

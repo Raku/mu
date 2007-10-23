@@ -1,7 +1,7 @@
 
 use v6-alpha;
 
-class KindaPerl6::Visitor::Perl {
+class KindaPerl6::Visitor::Emit::AstPerl {
 
     # This visitor builds a ".perl" representation of the AST
 
@@ -75,7 +75,7 @@ class KindaPerl6::Visitor::Perl {
 
 =head1 NAME
 
-KindaPerl6::Visitor::Perl - Build a C<.perl> representation of the AST
+KindaPerl6::Visitor::Emit::AstPerl - Build a C<.perl> representation of the AST
 
 =head1 DESCRIPTION
 
