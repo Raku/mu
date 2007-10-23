@@ -69,7 +69,11 @@ package Match;
 
     sub Str {
           $_[0]->true 
-        ? substr( ${$_[0]->match_str}, $_[0]->from, $_[0]->to - $_[0]->from )
+        ? (
+              defined $_[0]->{result}
+            ? ::DISPATCH( $_[0]->{result}, 'Str', )
+            : substr( ${$_[0]->match_str}, $_[0]->from, $_[0]->to - $_[0]->from )
+          )
         : undef;
     }
     sub perl {
