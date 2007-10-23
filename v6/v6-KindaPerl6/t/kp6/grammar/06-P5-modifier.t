@@ -11,22 +11,26 @@ grammar Test {
     token foo :Perl5 {foo}
 }
 say "1..4";
-if (Test.foo("foo")) {
+$_ = "foo";
+if (Test.foo()) {
     say "ok 1";
 } else {
     say "not ok 1";
 }
-if (Test.foo("bar")) {
+$_ = "bar";
+if (Test.foo()) {
     say "not ok 2";
 } else {
     say "ok 2";
 }
-if (Test.foobar("foobar")) {
+$_ = "foobar";
+if (Test.foobar()) {
     say "ok 3";
 } else {
     say "not ok 3";
 }
-if (Test.foobar("barbaz")) {
+$_ = "barbaz";
+if (Test.foobar()) {
     say "not ok 4";
 } else {
     say "ok 4";
