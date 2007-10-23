@@ -81,7 +81,7 @@ sub emit_perl5 {
                                                                                                                     . (
                                                                                                                     'undef $GLOBAL::_M2; '
                                                                                                                         . (
-                                                                                                                        '( ref($_) ? $_->{_dispatch}( $_, "str" )->{_value} : $_ ) =~ '
+                                                                                                                        '( ref($_) ? $_->{_dispatch}( $_, "Str" )->{_value} : $_ ) =~ '
                                                                                                                             . (
                                                                                                                             '/$_rule_'
                                                                                                                                 . (

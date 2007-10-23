@@ -50,7 +50,7 @@ class Token {
                     ~ 'sub { '
                     ~    'local $GLOBAL::_Class = shift; '
                     ~    'undef $GLOBAL::_M2; '
-                    ~    '( ref($_) ? $_->{_dispatch}( $_, "str" )->{_value} : $_ ) =~ '
+                    ~    '( ref($_) ? $_->{_dispatch}( $_, "Str" )->{_value} : $_ ) =~ '
                     ~      '/$_rule_' ~ $.name ~ '/; '
                     ~    'Match::from_global_data( $GLOBAL::_M2 ); '
                     
