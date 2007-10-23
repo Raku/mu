@@ -230,7 +230,7 @@ my @visitors;
             unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Lisp';
     }
     elsif (grep { $_ eq 'perl5rx' } @opt{qw(C B)}) {
-        push @visitor_sequence, qw( RegexCapture MetaClass Global Emit::Perl5Regex )
+        push @visitor_sequence, qw( RegexCapture MetaClass ShortCircuit Global Emit::Perl5Regex )
             unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Perl5Regex';
     }
     elsif ( ! @visitor_sequence ) {
