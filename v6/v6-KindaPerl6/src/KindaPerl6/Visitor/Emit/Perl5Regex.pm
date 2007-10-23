@@ -52,12 +52,16 @@ class Token {
                     ~    'undef $GLOBAL::_M2; '
                     ~    '( ref($_) ? $_->{_dispatch}( $_, "Str" )->{_value} : $_ ) =~ '
                     ~      '/$_rule_' ~ $.name ~ '/; '
-                    ~    'Match::from_global_data( $GLOBAL::_M2 ); '
                     
+                    ~    'if ( $GLOBAL::_M2->[1] eq \'to\' ) { '
+                    ~        'Match::from_global_data( $GLOBAL::_M2 ); '
                     # XXX TODO - modify outer $/
-                    ~    '$MATCH = '
+                    ~        '$MATCH = $GLOBAL::MATCH = pop @Match::Matches; '
+                    ~    '} '
+                    ~    'else { '
+                    ~        '$MATCH = $GLOBAL::MATCH = Match->new(); '
+                    ~    '} '
                     
-                    ~    '$GLOBAL::MATCH = pop @Match::Matches; '
                     ~    '@Match::Matches = (); '   # discard outer matches, if any
                     ~    'return $MATCH; '
                     ~ '} '

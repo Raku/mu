@@ -89,12 +89,23 @@ sub emit_perl5 {
                                                                                                                                     . (
                                                                                                                                     '/; '
                                                                                                                                         . (
-                                                                                                                                        'Match::from_global_data( $GLOBAL::_M2 ); '
+                                                                                                                                        'if ( $GLOBAL::_M2->[1] eq \'to\' ) { '
                                                                                                                                             . (
-                                                                                                                                            '$MATCH = '
+                                                                                                                                            'Match::from_global_data( $GLOBAL::_M2 ); '
                                                                                                                                                 . (
-                                                                                                                                                '$GLOBAL::MATCH = pop @Match::Matches; '
-                                                                                                                                                    . ( '@Match::Matches = (); ' . ( 'return $MATCH; ' . ( '} ' . ( '), ' . '); ' ) ) ) )
+                                                                                                                                                '$MATCH = $GLOBAL::MATCH = pop @Match::Matches; '
+                                                                                                                                                    . (
+                                                                                                                                                    '} '
+                                                                                                                                                        . (
+                                                                                                                                                        'else { '
+                                                                                                                                                            . (
+                                                                                                                                                            '$MATCH = $GLOBAL::MATCH = Match->new(); '
+                                                                                                                                                                . (
+                                                                                                                                                                '} ' . ( '@Match::Matches = (); ' . ( 'return $MATCH; ' . ( '} ' . ( '), ' . '); ' ) ) ) )
+                                                                                                                                                                )
+                                                                                                                                                            )
+                                                                                                                                                        )
+                                                                                                                                                    )
                                                                                                                                                 )
                                                                                                                                             )
                                                                                                                                         )
