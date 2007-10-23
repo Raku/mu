@@ -443,9 +443,11 @@ if it should call a method on the Junction object or on the Junction elements.
 
 - Lisp style call/cc is implementable in Perl 5. The AST transformation would take a while to implement.
 
-- Perl 6 on Parrot would be nice to have.
+- Implemented on the Perl 5 backend. Gather returns a lazy list.
 
 =item * given / when
+
+* Status: not implemented.
 
 =item * IO
 
@@ -483,6 +485,51 @@ is difficult to do in Perl 5.
 The goal for this phase is to upgrade kp6 to Perl-6.0.0-STD Grammar
 
 
-=head2 Milestone 5.1 - ...
+=head2 Milestone 5.1 - Upgrade the regex engine to the current specification
+
+The regex engine in KindaPerl6 will be refactored.
+The regex engine was implemented a while ago, and the regex language specification has changed since then.
+
+=head3 Status
+
+KindaPerl6 can now do proper parameter passing.
+It is now possible to implement parameters in regexes.
+
+=head3 Dependencies
+
+=over
+
+=item * Improved parameter handling
+
+* near finished
+
+=item * Improved "perl5rx" backend
+
+* needs more tests; needs Makefile support.
+
+=back
+
+=head3 Tasks
+
+=over
+
+=item * Upgrade the grammar engine in MiniPerl6
+
+* we need MiniPerl6 in order to compile KindaPerl6
+
+=item * Upgrade the KindaPerl6 grammar source code
+
+* ...
+
+=item * Add "perl5rx" support to Makefile
+
+* ...
+
+=back
 
 
+=head3 Test Plan
+
+The resulting code will be tested by running the existing test suite.
+
+* unfinished
