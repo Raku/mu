@@ -26,6 +26,18 @@ package Match;
                 return ::DISPATCH( $::Bit, 'new', $_[0]->{bool} )
                     if $method eq 'true';
                 
+                if ( $method eq 'does' ) {
+                    my $what = ::DISPATCH( $param[0], 'Str' )->{_value};                    
+                    return ::DISPATCH( $::Bit, 'new', 0 )
+                        if $what eq 'Junction';
+                    print "MATCH DOES $what ???\n";
+                    return ::DISPATCH( $::Bit, 'new', 1 );  # it probably does
+                }
+                
+                if ( $method eq 'scalar' ) {
+                    return $_[0]->result;
+                }
+                
                 $self->$method( @param );
             },
         }, $_[0];
