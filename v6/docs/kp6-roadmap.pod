@@ -437,13 +437,17 @@ if it should call a method on the Junction object or on the Junction elements.
 
 =item * gather / take
 
-* Status: studying and testing lots of thread implementations.
+* Status: lazy gather/take is implemented on P5 backend
+
+=item * Threads
+
 
 - TimToady and ruoso asked to avoid using Perl 5 threads.
 
 - Lisp style call/cc is implementable in Perl 5. The AST transformation would take a while to implement.
 
-- Implemented on the Perl 5 backend. Gather returns a lazy list.
+- Threads implementation is defered, and probably be a task of the respective
+backend
 
 =item * given / when
 
