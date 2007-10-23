@@ -22,6 +22,10 @@ package Match;
             match_str => undef,
             _dispatch => sub { 
                 my ($self, $method, @param) = @_;
+                
+                return ::DISPATCH( $::Bit, 'new', $_[0]->{bool} )
+                    if $method eq 'true';
+                
                 $self->$method( @param );
             },
         }, $_[0];
