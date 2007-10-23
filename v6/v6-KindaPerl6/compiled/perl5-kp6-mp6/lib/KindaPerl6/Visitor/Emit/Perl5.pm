@@ -406,30 +406,21 @@ sub emit_arguments {
     do {
 
         for my $field ( @{ $self->{sig}->positional() } ) {
-            my $bind;
+            my $bind_positional = Bind->new( 'parameters' => $field->key(), 'arguments' => Call->new( 'invocant' => $array_, 'arguments' => [ Val::Int->new( 'int' => $i, ) ],                    'method' => 'INDEX', ), );
+            my $bind_named      = Bind->new( 'parameters' => $field->key(), 'arguments' => Call->new( 'invocant' => $hash_,  'arguments' => [ Val::Buf->new( 'buf' => $field->key()->name(), ) ], 'method' => 'LOOKUP', ), );
+            my $bind_default    = Bind->new( 'parameters' => $field->key(), 'arguments' => $field->value(), );
+            $str = (
+                $str
+                    . (
+                    ' if ( exists $List__->{_value}{_array}['
+                        . (
+                        $i . ( '] ) ' . ( ' { ' . ( $bind_positional->emit_perl5() . ( ' } ' . ( ' elsif ( exists $Hash__->{_value}{_hash}{\'' . ( $field->key()->name() . ( '\'} ) ' . ( ' { ' . ( $bind_named->emit_perl5() . ' } ' ) ) ) ) ) ) ) ) )
+                        )
+                    )
+            );
             do {
-                if ( $field->has_default()->bit() ) {
-                    $str = (
-                        $str
-                            . (
-                            ' if ( exists $List__->{_value}{_array}['
-                                . (
-                                $i
-                                    . (
-                                    '] ) '
-                                        . (
-                                        ' { '
-                                            . (
-                                            Bind->new( 'parameters' => $field->key(), 'arguments' => Call->new( 'invocant' => $array_, 'arguments' => [ Val::Int->new( 'int' => $i, ) ], 'method' => 'INDEX', ), )->emit_perl5()
-                                                . ( ' } ' . ( ' else { ' . ( Bind->new( 'parameters' => $field->key(), 'arguments' => $field->value(), )->emit_perl5() . ' };' ) ) )
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                    );
-                }
-                else { $bind = Bind->new( 'parameters' => $field->key(), 'arguments' => Call->new( 'invocant' => $array_, 'arguments' => [ Val::Int->new( 'int' => $i, ) ], 'method' => 'INDEX', ), ); $str = ( $str . ( $bind->emit_perl5() . ';' ) ) }
+                if ( $field->has_default()->bit() ) { $str = ( $str . ( ' else { ' . ( $bind_default->emit_perl5() . ' } ' ) ) ) }
+                else                                { }
             };
             $i = ( $i + 1 );
         }

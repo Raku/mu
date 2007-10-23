@@ -214,37 +214,42 @@ class Lit::Code {
         my $i := 0;
         my $field;
         for @($.sig.positional) -> $field { 
-            my $bind;
-            if ($field.has_default).bit {
-                $str := $str 
-                    ~ ' if ( exists $List__->{_value}{_array}[' ~ $i ~ '] ) '
-                    ~ ' { '
-                    ~ ::Bind(
-                            parameters => $field.key,
-                            arguments  => ::Call(
-                                invocant => $array_ , 
-                                arguments=>[::Val::Int(int=>$i)],
-                                method   =>'INDEX',
-                            ), 
-                        ).emit_perl5 
-                    ~ ' } '
-                    ~ ' else { ' 
-                    ~ ::Bind(
-                            parameters => $field.key,
-                            arguments  => $field.value, 
-                        ).emit_perl5 
-                    ~ ' };';
-            }
-            else {
-                $bind := ::Bind(
+        
+            my $bind_positional := ::Bind(
                     parameters => $field.key,
                     arguments  => ::Call(
-                            invocant => $array_ , 
-                            arguments=>[::Val::Int(int=>$i)],
-                            method   =>'INDEX',
+                            invocant  => $array_, 
+                            arguments => [ ::Val::Int( int => $i ) ],
+                            method    => 'INDEX',
                         ), 
                 );
-                $str := $str ~ $bind.emit_perl5 ~ ';';
+            my $bind_named := ::Bind(
+                    parameters => $field.key,
+                    arguments  => ::Call(
+                            invocant  => $hash_, 
+                            arguments => [ ::Val::Buf( buf => ($field.key).name ) ],
+                            method    => 'LOOKUP',
+                        ), 
+                );
+            my $bind_default := ::Bind(
+                    parameters => $field.key,
+                    arguments  => $field.value, 
+                );
+                
+            $str := $str 
+                    ~ ' if ( exists $List__->{_value}{_array}[' ~ $i ~ '] ) '
+                    ~ ' { '
+                    ~     $bind_positional.emit_perl5 
+                    ~ ' } '
+                    ~ ' elsif ( exists $Hash__->{_value}{_hash}{\'' ~ ($field.key).name ~ '\'} ) '
+                    ~ ' { '
+                    ~     $bind_named.emit_perl5 
+                    ~ ' } ';
+            if ($field.has_default).bit {
+                $str := $str 
+                    ~ ' else { ' 
+                    ~     $bind_default.emit_perl5 
+                    ~ ' } ';
             }
             $i := $i + 1;
         };
