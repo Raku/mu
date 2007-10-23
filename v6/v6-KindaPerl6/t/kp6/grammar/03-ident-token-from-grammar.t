@@ -1,6 +1,6 @@
 grammar MyGrammar {
     token ident {
-       <'infix:<'> <infix_op> <'>'>
+       'infix:<' <infix_op> '>'
        |
        [
           <!before \d>
