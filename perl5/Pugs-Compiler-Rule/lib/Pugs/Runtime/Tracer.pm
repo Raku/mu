@@ -22,8 +22,7 @@ sub trace_end ($$$) {
 
 sub trace ($@) {
    if (!defined $::PCR_TRACE_FH) {
-       open $::PCR_TRACE_FH, "> $::PCR_TRACE_FILE" or
-           die "Can't open tracing output file $::PCR_TRACE_FILE: $!";
+       $::PCR_TRACE_FH = \*STDOUT;
    }
    print $::PCR_TRACE_FH @_;
 }
@@ -31,18 +30,18 @@ sub trace ($@) {
 sub expand_tracing_code {
     my $s = shift;
     open my $in, '<', \$s or die;
-    my @names;
-    my $name;
-    my $new;
+    my (@names, $name, $new, @has_pos);
     while (<$in>) {
         chomp;
         if (/^\s*## <(\w+)>$/) {
             $name = $1;
             push @names, $name;
+            push @has_pos, 0;
             ### begin: $name
             $new .= $_ . "\n";
         } elsif (/^(\s*)## pos: (\d+) (\d+)/) {
             my ($tab, $from, $to) = ($1, $2, $3);
+            $has_pos[-1] = 1;
             $new .= <<"_EOC_";
 $_
 $tab do {
@@ -52,17 +51,21 @@ _EOC_
         } elsif (/^(\s*)## <\/(\w+)>$/) {
             my ($tab, $n) = ($1, $2);
             $name = pop @names;
+            my $has_pos = pop @has_pos;
             ### end: $n . "<=>" . $name
             if (!defined $name || $n ne $name) {
                 die "ERROR: unexpected closing tag </$n>";
-            } else {
+            } elsif ($has_pos) {
                 $new .= <<"_EOC_";
 $_
 $tab ;
 $tab   trace_end('$name', \$retval, \$pos);
-$tab   return \$retval;
+$tab   \$retval;
 $tab }
 _EOC_
+            }
+            if (!$has_pos) {
+                warn "No pos info found for <$n>";
             }
         } else {
             $new .= $_ . "\n";

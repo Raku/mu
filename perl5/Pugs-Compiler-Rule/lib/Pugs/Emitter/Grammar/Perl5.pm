@@ -62,6 +62,7 @@ ${prefix}use base 'Pugs::Grammar::Base';
 
 use Pugs::Runtime::Match;
 use Pugs::Runtime::Regex;
+use Pugs::Runtime::Tracer;
 
 $p5_methods
 

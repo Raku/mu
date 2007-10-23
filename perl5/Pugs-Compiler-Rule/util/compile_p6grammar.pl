@@ -29,7 +29,7 @@ use warnings;
 
 EOC
     if ($opts{D}) {
-        print "use Pugs::Runtime::Tracer;\n";
+        #print "use Pugs::Runtime::Tracer;\n";
         $perl5 = expand_tracing_code($perl5);
     }
     print $perl5;
