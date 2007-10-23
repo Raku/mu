@@ -338,6 +338,20 @@ for ( @COMPILER::CHECK ) {
             exit 0;
         }
     }
+    elsif (grep { $_ eq 'perl5rx' } @opt{qw(C B)}) {
+        if ($opt{B}) {
+          perl5_B:
+            # Execute!
+            open my $fh, "|$^X -I$lib -I lib5regex - -- @ARGV" or die $!;
+            local $/;
+            print $fh $out;
+            close $fh;
+            exit 0;
+        } elsif ($opt{C}) {
+            print_perl($out);
+            exit 0;
+        }
+    }
     elsif (grep { $_ =~ /^cl/ } @opt{qw(C B)}) {
         if ($opt{C}) {
             print $out;
