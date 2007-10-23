@@ -177,13 +177,19 @@ sub constants
     my $inherited = $self->SUPER::constants(@_);
     $inherited    .= "\n";
 
-    # FIXME: while this supports nmake, some people will have strawberry perl
-    # or gnumake on their system.  Other "make" programs may support gnuisms.
+    # FIXME: There needs to be a better way to make "nmake" include code
+    # dynamically.  nmake supports an inline file (microsoft specific) however,
+    # this may break other program's make programs.
 
-    # possible fixes
+    # inline file documentation for nmake
+    # http://msdn2.microsoft.com/en-us/library/seaaew50(VS.71).aspx
+
+    # Possible fixes:
     # attempt to execute make -help, nmake -help, dmake -help and see what
     # reports back as working
 
+    # if you have a make program that supports gnuism's you can just force
+    # the below line to false.
     if ( $^O eq 'MSWin32' ) {
         # nmake (Microsoft nmake doesn't support the gnuism's
         # $(patsubst search, replace, text)
@@ -191,13 +197,12 @@ sub constants
 
         my $warning = <<"END";
 # WARNING: You will have to rebuild Makefile when ever you add a file to
-# this list.  This is due to Microsoft's nmake not supporting features that
-# gnu make supports.
+# the directories listed in Makefile.PL sub constats().  This is due to
+# Microsoft's nmake not supporting features that gnu make supports.
 
-# The specific problem that will arise is that if you add a file to a directory
-# however, make will not "add" that file to the list of files to be compiled.
-# To fix this you will have to rebuild the Makefile.  "perl Makefile.PL"
-# this is specific ONLY to MS Windows.
+# The problem that will arise is that if you add a file to a directory however,
+# make will not "add" that file to the list of files to be compiled. To fix
+# this you will have to rebuild the Makefile: "perl Makefile.PL"
 END
 
         warn $warning;
