@@ -22,7 +22,8 @@ class Token {
     method emit_perl5 {
         my $regex_source := ($.regex).emit_perl5;
         my $source := 
-              'use vars qw($_rule_' ~ $.name ~ '); ' 
+          'do { '
+            ~ 'use vars qw($_rule_' ~ $.name ~ '); ' 
             ~ '$_rule_' ~ $.name ~ ' = qr/' 
             
             ~ '(?{ '
@@ -68,6 +69,7 @@ class Token {
                 ~ '), '
 
             ~ '); '
+          ~ '} '  # /do
                         
         return $source;
     }
