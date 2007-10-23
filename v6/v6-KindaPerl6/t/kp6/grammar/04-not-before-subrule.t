@@ -1,14 +1,14 @@
 grammar MyGrammar {
     token myrule {
-       <'1'> <ident1> .
+       '1' <ident1> .
     }
 
     token ident1 {
-      <before 'a'> <'ab'>
+      <before 'a'> 'ab'
     };
 
     token ident3 {
-      <!before \"> . <ident3> | <''>
+      <!before \"> . <ident3> | ''
     };
     token ident2 {
       \" <ident3> \"
