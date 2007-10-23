@@ -11,20 +11,18 @@ use strict;
 package Match;
 
     use Data::Dumper;
-    sub new {
-        bless { 
-            array  => [], 
-            hash   => {}, 
-            bool   => 0, 
-            result => undef,
-            from   => undef, 
-            to     => undef, 
-            match_str => undef,
-            _dispatch => sub { 
+    
+    # This is the Perl 5 <--> Perl 6 bridge code
+    my $perl6_dispatcher =  sub { 
                 my ($self, $method, @param) = @_;
                 
                 return ::DISPATCH( $::Bit, 'new', $_[0]->{bool} )
                     if $method eq 'true';
+                
+                if ( $method eq 'LOOKUP' ) {
+                    my $what = ::DISPATCH( $param[0], 'Str' )->{_value}; 
+                    return $_[0]->{hash}{$what}; 
+                }
                 
                 if ( $method eq 'does' ) {
                     my $what = ::DISPATCH( $param[0], 'Str' )->{_value};                    
@@ -39,7 +37,18 @@ package Match;
                 }
                 
                 $self->$method( @param );
-            },
+            };
+    
+    sub new {
+        bless { 
+            array  => [], 
+            hash   => {}, 
+            bool   => 0, 
+            result => undef,
+            from   => undef, 
+            to     => undef, 
+            match_str => undef,
+            _dispatch => $perl6_dispatcher,
         }, $_[0];
     }
     sub clone {

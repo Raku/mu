@@ -230,7 +230,8 @@ sub emit_token {
                         . (
                         '($MATCH);'
                             . (
-                            'if $ret ne "sTrNgE V4l" {' . ( 'if (%*ENV{"KP6_TOKEN_DEBUGGER"}) { say "<<< some closure returing... " }; ' . ( '$MATCH.result = $ret; ' . ( '$MATCH.bool = 1; ' . ( 'return $MATCH;' . ( '};' . ( '1' . '}' ) ) ) ) ) ) )
+                            'if $ret ne "sTrNgE V4l" {' . ( 'if (%*ENV{"KP6_TOKEN_DEBUGGER"}) { say "<<< some closure returning... " }; ' . ( '$MATCH.result = $ret; ' . ( '$MATCH.bool = 1; ' . ( 'return $MATCH;' . ( '};' . ( '1' . '}' ) ) ) ) ) )
+                            )
                         )
                     )
                 )
