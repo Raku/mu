@@ -219,7 +219,7 @@ class Rule::Block {
         return 'do { ' ~ 
              'my $ret = self.'~$.closure ~ '($MATCH);' ~
              'if $ret ne "sTrNgE V4l" {' ~
-                'if (%*ENV{"KP6_TOKEN_DEBUGGER"}) { say "<<< some closure returing... " }; ' ~
+                'if (%*ENV{"KP6_TOKEN_DEBUGGER"}) { say "<<< some closure returning... " }; ' ~
                 '$MATCH.result = $ret; ' ~
                 '$MATCH.bool = 1; ' ~
                 'return $MATCH;' ~
