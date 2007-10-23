@@ -342,7 +342,7 @@ for ( @COMPILER::CHECK ) {
         if ($opt{B}) {
           perl5_B:
             # Execute!
-            open my $fh, "|$^X -I$lib -I lib5regex - -- @ARGV" or die $!;
+            open my $fh, "|$^X -I lib5regex -I$lib - -- @ARGV" or die $!;
             local $/;
             print $fh $out;
             close $fh;
