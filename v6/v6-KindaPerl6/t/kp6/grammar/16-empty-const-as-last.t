@@ -1,9 +1,9 @@
 grammar MyGrammar {
     token always_true {
-        <''>
+        ''
     };
     token myTok {
-        <'a'> <always_true> <'b'> <always_true> <'c'>
+        'a' <always_true> 'b' <always_true> 'c'
     };
 };
 module Main {
