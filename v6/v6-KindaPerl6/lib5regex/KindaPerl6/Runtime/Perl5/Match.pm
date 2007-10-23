@@ -40,21 +40,25 @@ package Match;
     }
     sub array  :lvalue { $_[0]->{array} }
     sub hash   :lvalue { $_[0]->{hash} }
-    sub bool   :lvalue { $_[0]->{bool} }
+    
+    # deprecated
+    #sub bool   :lvalue { $_[0]->{bool} }
+    
+    sub true   :lvalue { $_[0]->{bool} }
     sub result :lvalue { $_[0]->{result} }
     sub from   :lvalue { $_[0]->{from} }
     sub to     :lvalue { $_[0]->{to} }
     sub match_str :lvalue { $_[0]->{match_str} }
 
     # deprecated
-    sub str {
-          $_[0]->bool 
-        ? substr( ${$_[0]->match_str}, $_[0]->from, $_[0]->to - $_[0]->from )
-        : undef;
-    }
+    #sub str {
+    #      $_[0]->true 
+    #    ? substr( ${$_[0]->match_str}, $_[0]->from, $_[0]->to - $_[0]->from )
+    #    : undef;
+    #}
     
     sub Str {
-          $_[0]->bool 
+          $_[0]->true 
         ? substr( ${$_[0]->match_str}, $_[0]->from, $_[0]->to - $_[0]->from )
         : undef;
     }
@@ -66,7 +70,7 @@ package Match;
     my %actions = (
         create => sub {
             push @Matches, Match->new();
-            $Matches[-1]->bool = 1;
+            $Matches[-1]->true = 1;
             $Matches[-1]->from = $_[0];
             $Matches[-1]->match_str = $_[1];
         },

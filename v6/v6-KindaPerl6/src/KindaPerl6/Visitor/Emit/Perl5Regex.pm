@@ -59,6 +59,7 @@ class Token {
                     
                     ~    '$GLOBAL::MATCH = pop @Match::Matches; '
                     ~    '@Match::Matches = (); '   # discard outer matches, if any
+                    ~    'return $MATCH; '
                     ~ '} '
                 ~ '), '
 

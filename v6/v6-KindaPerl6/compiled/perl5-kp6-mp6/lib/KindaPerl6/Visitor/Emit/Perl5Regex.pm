@@ -93,7 +93,8 @@ sub emit_perl5 {
                                                                                                                                             . (
                                                                                                                                             '$MATCH = '
                                                                                                                                                 . (
-                                                                                                                                                '$GLOBAL::MATCH = pop @Match::Matches; ' . ( '@Match::Matches = (); ' . ( '} ' . ( '), ' . '); ' ) ) )
+                                                                                                                                                '$GLOBAL::MATCH = pop @Match::Matches; '
+                                                                                                                                                    . ( '@Match::Matches = (); ' . ( 'return $MATCH; ' . ( '} ' . ( '), ' . '); ' ) ) ) )
                                                                                                                                                 )
                                                                                                                                             )
                                                                                                                                         )
