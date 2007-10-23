@@ -24,7 +24,7 @@ sub set_secure_mode {
     do { $args_secure = $List__->[0]; [$args_secure] };
     do {
         if ( ( $args_secure != 0 ) ) { return ( ( '(pushnew :kp6-lisp-secure *features*)' . Main::newline() ) ) }
-        else                         { return ('') }
+        else { return ('') }
         }
 }
 
@@ -332,7 +332,7 @@ sub emit_declarations {
             my $decl = Decl->new( 'decl' => 'my', 'type' => '', 'var' => Var->new( 'sigil' => '', 'twigil' => '', 'name' => $name, 'namespace' => [], ), );
             do {
                 if ( ( $s ne '' ) ) { $s = ( $s . Main::newline() ) }
-                else                { }
+                else { }
             };
             $s = ( $s . $name->emit_lisp( $interpreter, $indent ) );
         }
@@ -388,7 +388,7 @@ sub emit_lisp {
     my $node = $self->{parameters};
     do {
         if ( Main::isa( $node, 'Var' ) ) { return ( $node->emit_lisp_assignment( $self->{arguments}->emit_lisp( $interpreter, $indent ) ) ) }
-        else                             { }
+        else { }
     };
     do {
         if ( ( ( Main::isa( $node, 'Lookup' ) || Main::isa( $node, 'Index' ) ) && Main::isa( $node->obj(), 'Var' ) ) ) {
@@ -446,7 +446,7 @@ sub emit_lisp_lookup {
     my $variant = ( $cell ? '/c' : '' );
     do {
         if ( @{ $self->{namespace} } ) { return ( ( '(lookup-package-variable' . ( $variant . ( ' ' . ( $self->emit_lisp_name() . ( ' ' . ( $self->emit_lisp_namespace() . ')' ) ) ) ) ) ) ) }
-        else                           { return ( ( '(lookup-lexical-variable' . ( $variant . ( ' ' . ( $self->emit_lisp_name() . ')' ) ) ) ) ) }
+        else { return ( ( '(lookup-lexical-variable' . ( $variant . ( ' ' . ( $self->emit_lisp_name() . ')' ) ) ) ) ) }
         }
 }
 
@@ -462,7 +462,7 @@ sub emit_lisp_assignment {
     $maybe_boxed_value = $value;
     do {
         if ( @{ $self->{namespace} } ) { return ( ( '(set-package-variable' . ( $variant . ( ' ' . ( $self->emit_lisp_name() . ( ' ' . ( $maybe_boxed_value . ( ' ' . ( $self->emit_lisp_namespace() . ')' ) ) ) ) ) ) ) ) ) }
-        else                           { return ( ( '(set-lexical-variable' . ( $variant . ( ' ' . ( $self->emit_lisp_name() . ( ' ' . ( $maybe_boxed_value . ')' ) ) ) ) ) ) ) }
+        else { return ( ( '(set-lexical-variable' . ( $variant . ( ' ' . ( $self->emit_lisp_name() . ( ' ' . ( $maybe_boxed_value . ')' ) ) ) ) ) ) ) }
         }
 }
 
@@ -477,11 +477,11 @@ sub emit_lisp {
     do { $interpreter = $List__->[0]; $indent = $List__->[1]; [ $interpreter, $indent ] };
     do {
         if ( Main::isa( $self->{arguments}, 'Var' ) ) { return ( $self->{parameters}->emit_lisp_assignment( $self->{arguments}->emit_lisp_lookup(1), 1 ) ) }
-        else                                          { }
+        else { }
     };
     do {
         if ( Main::isa( $self->{arguments}, 'Sub' ) ) { return ( $self->{parameters}->emit_lisp_assignment( $self->{arguments}->emit_lisp( $interpreter, $indent ) ) ) }
-        else                                          { }
+        else { }
     };
     return ( $self->{parameters}->emit_lisp_assignment( $self->{arguments}->emit_lisp( $interpreter, $indent ), 1, 1 ) );
 }
@@ -525,12 +525,12 @@ sub emit_lisp {
     };
     do {
         if ( ( $invocant eq 'self' ) ) { $invocant = '$self' }
-        else                           { }
+        else { }
     };
     my $meth = $self->{method};
     do {
         if ( ( $meth eq 'postcircumfix:<( )>' ) ) { $meth = '' }
-        else                                      { }
+        else { }
     };
     my $call = Main::join( [ map { $_->emit_lisp( $interpreter, $indent ) } @{ $self->{arguments} } ], ' ' );
     do {
@@ -538,7 +538,7 @@ sub emit_lisp {
         else {
             do {
                 if ( ( $meth eq '' ) ) { ( '(kp6-dispatch ' . ( $invocant . ( ' ' . ( $interpreter . ( ' :APPLY ' . ( $call . ( ')' . Main::newline() ) ) ) ) ) ) ) }
-                else                   { ( '(kp6-dispatch ' . ( $invocant . ( ' ' . ( $interpreter . ( ' ' . ( ':' . ( $meth . ( ' ' . ( $call . ( ')' . Main::newline() ) ) ) ) ) ) ) ) ) ) }
+                else { ( '(kp6-dispatch ' . ( $invocant . ( ' ' . ( $interpreter . ( ' ' . ( ':' . ( $meth . ( ' ' . ( $call . ( ')' . Main::newline() ) ) ) ) ) ) ) ) ) ) }
                 }
         }
         }
@@ -739,7 +739,7 @@ sub emit_lisp {
     };
     do {
         if ( ( $decl eq 'my' ) ) { return ( ( '(define-lexical-variable ' . ( $self->{var}->emit_lisp_name() . ')' ) ) ) }
-        else                     { }
+        else { }
     };
     return ( ( '(kp6-error ' . ( $interpreter . ( ' \'kp6-not-implemented :feature "\\"' . ( $decl . '\\" variables")' ) ) ) ) );
 }
@@ -756,7 +756,7 @@ sub emit_lisp {
     my $str = '(make-instance \'kp6-signature';
     do {
         if ( $self->{invocant} ) { $str = ( $str . ( ' :invocant ' . $self->{invocant}->emit_lisp( $interpreter, $indent ) ) ) }
-        else                     { }
+        else { }
     };
     $str = ( $str . ' :positional (list' );
     do {
@@ -779,7 +779,7 @@ sub emit_lisp {
     my $s = '(kp6-new \'capture ';
     do {
         if ( defined( $self->{invocant} ) ) { $s = ( $s . ( 'invocant: ' . ( $self->{invocant}->emit_lisp( $interpreter, $indent ) . ', ' ) ) ) }
-        else                                { $s = ( $s . 'invocant: $::Undef, ' ) }
+        else { $s = ( $s . 'invocant: $::Undef, ' ) }
     };
     do {
         if ( defined( $self->{array} ) ) {
@@ -877,7 +877,7 @@ sub emit_lisp {
     do { $interpreter = $List__->[0]; $indent = $List__->[1]; [ $interpreter, $indent ] };
     do {
         if ( ( $self->{mod} eq 'v6' ) ) { return ( (undef) ) }
-        else                            { }
+        else { }
     };
     return ( ( '(kp6-error ' . ( $interpreter . ' \'kp6-not-implemented :feature "importing modules")' ) ) );
 }

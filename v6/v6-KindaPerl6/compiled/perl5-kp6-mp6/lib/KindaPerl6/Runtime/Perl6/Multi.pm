@@ -99,12 +99,22 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        do {
-                            ::MODIFIED($code);
-                            $code =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 0 ) );
-                        };
+                        if ( exists $List__->{_value}{_array}[0] ) {
+                            do {
+                                ::MODIFIED($code);
+                                $code =
+                                  ::DISPATCH( $List__, 'INDEX',
+                                    ::DISPATCH( $::Int, 'new', 0 ) );
+                              }
+                        }
+                        elsif ( exists $Hash__->{_value}{_hash}{'code'} ) {
+                            do {
+                                ::MODIFIED($code);
+                                $code =
+                                  ::DISPATCH( $Hash__, 'LOOKUP',
+                                    ::DISPATCH( $::Str, 'new', 'code' ) );
+                              }
+                        }
                         do {
                             if (
                                 ::DISPATCH(
@@ -242,12 +252,22 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        do {
-                            ::MODIFIED($capture);
-                            $capture =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 0 ) );
-                        };
+                        if ( exists $List__->{_value}{_array}[0] ) {
+                            do {
+                                ::MODIFIED($capture);
+                                $capture =
+                                  ::DISPATCH( $List__, 'INDEX',
+                                    ::DISPATCH( $::Int, 'new', 0 ) );
+                              }
+                        }
+                        elsif ( exists $Hash__->{_value}{_hash}{'capture'} ) {
+                            do {
+                                ::MODIFIED($capture);
+                                $capture =
+                                  ::DISPATCH( $Hash__, 'LOOKUP',
+                                    ::DISPATCH( $::Str, 'new', 'capture' ) );
+                              }
+                        }
                         do {
                             if (
                                 ::DISPATCH(
@@ -366,12 +386,35 @@
                                             $Hash__ =
                                               ::DISPATCH( $CAPTURE, 'hash', );
                                         };
-                                        do {
-                                            ::MODIFIED($sub);
-                                            $sub = ::DISPATCH( $List__, 'INDEX',
-                                                ::DISPATCH( $::Int, 'new', 0 )
-                                            );
-                                        };
+                                        if (
+                                            exists $List__->{_value}{_array}[0]
+                                          )
+                                        {
+                                            do {
+                                                ::MODIFIED($sub);
+                                                $sub = ::DISPATCH(
+                                                    $List__, 'INDEX',
+                                                    ::DISPATCH(
+                                                        $::Int, 'new', 0
+                                                    )
+                                                );
+                                              }
+                                        }
+                                        elsif (
+                                            exists $Hash__->{_value}{_hash}
+                                            {'sub'} )
+                                        {
+                                            do {
+                                                ::MODIFIED($sub);
+                                                $sub = ::DISPATCH(
+                                                    $Hash__, 'LOOKUP',
+                                                    ::DISPATCH(
+                                                        $::Str, 'new',
+                                                        'sub'
+                                                    )
+                                                );
+                                              }
+                                        }
                                         do {
                                             if (
                                                 ::DISPATCH(
@@ -771,18 +814,38 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        do {
-                            ::MODIFIED($code);
-                            $code =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 0 ) );
-                        };
-                        do {
-                            ::MODIFIED($sym);
-                            $sym =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 1 ) );
-                        };
+                        if ( exists $List__->{_value}{_array}[0] ) {
+                            do {
+                                ::MODIFIED($code);
+                                $code =
+                                  ::DISPATCH( $List__, 'INDEX',
+                                    ::DISPATCH( $::Int, 'new', 0 ) );
+                              }
+                        }
+                        elsif ( exists $Hash__->{_value}{_hash}{'code'} ) {
+                            do {
+                                ::MODIFIED($code);
+                                $code =
+                                  ::DISPATCH( $Hash__, 'LOOKUP',
+                                    ::DISPATCH( $::Str, 'new', 'code' ) );
+                              }
+                        }
+                        if ( exists $List__->{_value}{_array}[1] ) {
+                            do {
+                                ::MODIFIED($sym);
+                                $sym =
+                                  ::DISPATCH( $List__, 'INDEX',
+                                    ::DISPATCH( $::Int, 'new', 1 ) );
+                              }
+                        }
+                        elsif ( exists $Hash__->{_value}{_hash}{'sym'} ) {
+                            do {
+                                ::MODIFIED($sym);
+                                $sym =
+                                  ::DISPATCH( $Hash__, 'LOOKUP',
+                                    ::DISPATCH( $::Str, 'new', 'sym' ) );
+                              }
+                        }
                         ::DISPATCH_VAR( $len, 'STORE',
                             ::DISPATCH( $sym, 'chars', ) );
                         do {
@@ -1007,12 +1070,22 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        do {
-                            ::MODIFIED($capture);
-                            $capture =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 0 ) );
-                        };
+                        if ( exists $List__->{_value}{_array}[0] ) {
+                            do {
+                                ::MODIFIED($capture);
+                                $capture =
+                                  ::DISPATCH( $List__, 'INDEX',
+                                    ::DISPATCH( $::Int, 'new', 0 ) );
+                              }
+                        }
+                        elsif ( exists $Hash__->{_value}{_hash}{'capture'} ) {
+                            do {
+                                ::MODIFIED($capture);
+                                $capture =
+                                  ::DISPATCH( $Hash__, 'LOOKUP',
+                                    ::DISPATCH( $::Str, 'new', 'capture' ) );
+                              }
+                        }
                         do {
                             if (
                                 ::DISPATCH(
@@ -1067,7 +1140,7 @@
                                                             }
                                                           )
                                                           unless
-                                                            defined $CAPTURE;
+                                                          defined $CAPTURE;
 
                                                         BEGIN {
                                                             $CAPTURE =
@@ -1147,7 +1220,7 @@
                                                             }
                                                           )
                                                           unless
-                                                            defined $CAPTURE;
+                                                          defined $CAPTURE;
 
                                                         BEGIN {
                                                             $CAPTURE =
@@ -1266,7 +1339,7 @@
                                                             }
                                                           )
                                                           unless
-                                                            defined $CAPTURE;
+                                                          defined $CAPTURE;
 
                                                         BEGIN {
                                                             $CAPTURE =
@@ -1420,17 +1493,40 @@
                                                           ::DISPATCH( $CAPTURE,
                                                             'hash', );
                                                     };
-                                                    do {
-                                                        ::MODIFIED($len);
-                                                        $len = ::DISPATCH(
-                                                            $List__,
-                                                            'INDEX',
-                                                            ::DISPATCH(
-                                                                $::Int, 'new',
-                                                                0
-                                                            )
-                                                        );
-                                                    };
+                                                    if (
+                                                        exists $List__->{_value}
+                                                        {_array}[0] )
+                                                    {
+                                                        do {
+                                                            ::MODIFIED($len);
+                                                            $len = ::DISPATCH(
+                                                                $List__,
+                                                                'INDEX',
+                                                                ::DISPATCH(
+                                                                    $::Int,
+                                                                    'new',
+                                                                    0
+                                                                )
+                                                            );
+                                                          }
+                                                    }
+                                                    elsif (
+                                                        exists $Hash__->{_value}
+                                                        {_hash}{'len'} )
+                                                    {
+                                                        do {
+                                                            ::MODIFIED($len);
+                                                            $len = ::DISPATCH(
+                                                                $Hash__,
+                                                                'LOOKUP',
+                                                                ::DISPATCH(
+                                                                    $::Str,
+                                                                    'new',
+                                                                    'len'
+                                                                )
+                                                            );
+                                                          }
+                                                    }
                                                     do {
                                                         if (
                                                             ::DISPATCH(
@@ -1463,7 +1559,7 @@
                                                                     }
                                                                   )
                                                                   unless
-                                                                    defined $s;
+                                                                  defined $s;
 
                                                                 BEGIN {
                                                                     $s =
@@ -1556,8 +1652,8 @@
                                                                                     }
                                                                                   )
                                                                                   unless
-                                                                                    defined
-                                                                                      $sym;
+                                                                                  defined
+                                                                                  $sym;
 
                                                                                 BEGIN
                                                                                 {
@@ -1589,8 +1685,8 @@
                                                                                     }
                                                                                   )
                                                                                   unless
-                                                                                    defined
-                                                                                      $CAPTURE;
+                                                                                  defined
+                                                                                  $CAPTURE;
 
                                                                                 BEGIN
                                                                                 {
@@ -1645,25 +1741,70 @@
                                                                                       )
                                                                                       ;
                                                                                 };
-                                                                                do
+                                                                                if
+                                                                                  (
+                                                                                    exists
+                                                                                    $List__
+                                                                                    ->
+                                                                                    {_value}
+                                                                                    {_array}
+                                                                                    [
+                                                                                    0
+                                                                                    ]
+                                                                                  )
                                                                                 {
-                                                                                    ::MODIFIED(
+                                                                                    do
+                                                                                    {
+                                                                                        ::MODIFIED(
+                                                                                            $sym
+                                                                                          )
+                                                                                          ;
                                                                                         $sym
-                                                                                      )
-                                                                                      ;
-                                                                                    $sym
-                                                                                      =
-                                                                                      ::DISPATCH(
-                                                                                        $List__,
+                                                                                          =
+                                                                                          ::DISPATCH(
+                                                                                            $List__,
 'INDEX',
-                                                                                        ::DISPATCH(
-                                                                                            $::Int,
+                                                                                            ::DISPATCH(
+                                                                                                $::Int,
 'new',
-                                                                                            0
-                                                                                        )
-                                                                                      )
-                                                                                      ;
-                                                                                };
+                                                                                                0
+                                                                                            )
+                                                                                          )
+                                                                                          ;
+                                                                                      }
+                                                                                }
+                                                                                elsif
+                                                                                  (
+                                                                                    exists
+                                                                                    $Hash__
+                                                                                    ->
+                                                                                    {_value}
+                                                                                    {_hash}
+                                                                                    {
+'sym'
+                                                                                    }
+                                                                                  )
+                                                                                {
+                                                                                    do
+                                                                                    {
+                                                                                        ::MODIFIED(
+                                                                                            $sym
+                                                                                          )
+                                                                                          ;
+                                                                                        $sym
+                                                                                          =
+                                                                                          ::DISPATCH(
+                                                                                            $Hash__,
+'LOOKUP',
+                                                                                            ::DISPATCH(
+                                                                                                $::Str,
+'new',
+'sym'
+                                                                                            )
+                                                                                          )
+                                                                                          ;
+                                                                                      }
+                                                                                }
                                                                                 do
                                                                                 {
                                                                                     if

@@ -17,7 +17,7 @@ sub visit {
         if ( ( $node_name eq 'CompUnit' ) ) {
             do {
                 if ( $node->body() ) { $node->body()->emit($self); return ($node) }
-                else                 { }
+                else { }
                 }
         }
         else { }

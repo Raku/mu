@@ -302,11 +302,11 @@ sub emit_perl5 {
     do { [] };
     do {
         if ( ( $self->{assertion_modifier} eq '!' ) ) { return ( ( '(?<!' . ( $self->{rule}->emit_perl5() . ')' ) ) ) }
-        else                                          { }
+        else { }
     };
     do {
         if ( ( $self->{assertion_modifier} eq '?' ) ) { return ( ( '(?<=' . ( $self->{rule}->emit_perl5() . ')' ) ) ) }
-        else                                          { }
+        else { }
     };
     do {
         if ( $self->{capture_to_array} ) {
@@ -343,11 +343,11 @@ sub emit_perl5 {
     do { [] };
     do {
         if ( ( $self->{assertion_modifier} eq '!' ) ) { return ( ( '(?!' . ( $self->{rule}->emit_perl5() . ')' ) ) ) }
-        else                                          { }
+        else { }
     };
     do {
         if ( ( $self->{assertion_modifier} eq '?' ) ) { return ( ( '(?=' . ( $self->{rule}->emit_perl5() . ')' ) ) ) }
-        else                                          { }
+        else { }
     };
     do {
         if ( $self->{capture_to_array} ) {

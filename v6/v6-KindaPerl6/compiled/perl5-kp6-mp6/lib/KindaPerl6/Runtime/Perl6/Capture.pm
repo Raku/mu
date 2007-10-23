@@ -312,12 +312,34 @@
                                             $Hash__ =
                                               ::DISPATCH( $CAPTURE, 'hash', );
                                         };
-                                        do {
-                                            ::MODIFIED($v);
-                                            $v = ::DISPATCH( $List__, 'INDEX',
-                                                ::DISPATCH( $::Int, 'new', 0 )
-                                            );
-                                        };
+                                        if (
+                                            exists $List__->{_value}{_array}[0]
+                                          )
+                                        {
+                                            do {
+                                                ::MODIFIED($v);
+                                                $v = ::DISPATCH(
+                                                    $List__, 'INDEX',
+                                                    ::DISPATCH(
+                                                        $::Int, 'new', 0
+                                                    )
+                                                );
+                                              }
+                                        }
+                                        elsif (
+                                            exists $Hash__->{_value}{_hash}
+                                            {'v'} )
+                                        {
+                                            do {
+                                                ::MODIFIED($v);
+                                                $v = ::DISPATCH(
+                                                    $Hash__, 'LOOKUP',
+                                                    ::DISPATCH(
+                                                        $::Str, 'new', 'v'
+                                                    )
+                                                );
+                                              }
+                                        }
                                         ::DISPATCH_VAR(
                                             $s, 'STORE',
                                             ::DISPATCH(
@@ -542,12 +564,22 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        do {
-                            ::MODIFIED($key);
-                            $key =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 0 ) );
-                        };
+                        if ( exists $List__->{_value}{_array}[0] ) {
+                            do {
+                                ::MODIFIED($key);
+                                $key =
+                                  ::DISPATCH( $List__, 'INDEX',
+                                    ::DISPATCH( $::Int, 'new', 0 ) );
+                              }
+                        }
+                        elsif ( exists $Hash__->{_value}{_hash}{'key'} ) {
+                            do {
+                                ::MODIFIED($key);
+                                $key =
+                                  ::DISPATCH( $Hash__, 'LOOKUP',
+                                    ::DISPATCH( $::Str, 'new', 'key' ) );
+                              }
+                        }
                         do {
                             if (
                                 ::DISPATCH(

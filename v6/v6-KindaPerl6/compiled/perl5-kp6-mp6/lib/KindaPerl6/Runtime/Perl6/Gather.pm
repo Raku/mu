@@ -682,12 +682,22 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        do {
-                            ::MODIFIED($i);
-                            $i =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 0 ) );
-                        };
+                        if ( exists $List__->{_value}{_array}[0] ) {
+                            do {
+                                ::MODIFIED($i);
+                                $i =
+                                  ::DISPATCH( $List__, 'INDEX',
+                                    ::DISPATCH( $::Int, 'new', 0 ) );
+                              }
+                        }
+                        elsif ( exists $Hash__->{_value}{_hash}{'i'} ) {
+                            do {
+                                ::MODIFIED($i);
+                                $i =
+                                  ::DISPATCH( $Hash__, 'LOOKUP',
+                                    ::DISPATCH( $::Str, 'new', 'i' ) );
+                              }
+                        }
                         ::DISPATCH_VAR( $obj, 'STORE', $self );
                         do {
                             while (
@@ -858,12 +868,22 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        do {
-                            ::MODIFIED($Code_code);
-                            $Code_code =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 0 ) );
-                        };
+                        if ( exists $List__->{_value}{_array}[0] ) {
+                            do {
+                                ::MODIFIED($Code_code);
+                                $Code_code =
+                                  ::DISPATCH( $List__, 'INDEX',
+                                    ::DISPATCH( $::Int, 'new', 0 ) );
+                              }
+                        }
+                        elsif ( exists $Hash__->{_value}{_hash}{'code'} ) {
+                            do {
+                                ::MODIFIED($Code_code);
+                                $Code_code =
+                                  ::DISPATCH( $Hash__, 'LOOKUP',
+                                    ::DISPATCH( $::Str, 'new', 'code' ) );
+                              }
+                        }
                         ::DISPATCH_VAR( $obj, 'STORE', $self );
                         ::DISPATCH(
                             $::Gather,

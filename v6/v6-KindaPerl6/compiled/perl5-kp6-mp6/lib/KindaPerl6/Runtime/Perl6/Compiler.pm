@@ -166,12 +166,22 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        do {
-                            ::MODIFIED($node);
-                            $node =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 0 ) );
-                        };
+                        if ( exists $List__->{_value}{_array}[0] ) {
+                            do {
+                                ::MODIFIED($node);
+                                $node =
+                                  ::DISPATCH( $List__, 'INDEX',
+                                    ::DISPATCH( $::Int, 'new', 0 ) );
+                              }
+                        }
+                        elsif ( exists $Hash__->{_value}{_hash}{'node'} ) {
+                            do {
+                                ::MODIFIED($node);
+                                $node =
+                                  ::DISPATCH( $Hash__, 'LOOKUP',
+                                    ::DISPATCH( $::Str, 'new', 'node' ) );
+                              }
+                        }
                         ::DISPATCH_VAR(
                             $perl6, 'STORE',
                             ::DISPATCH(
@@ -374,12 +384,22 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        do {
-                            ::MODIFIED($namespace);
-                            $namespace =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 0 ) );
-                        };
+                        if ( exists $List__->{_value}{_array}[0] ) {
+                            do {
+                                ::MODIFIED($namespace);
+                                $namespace =
+                                  ::DISPATCH( $List__, 'INDEX',
+                                    ::DISPATCH( $::Int, 'new', 0 ) );
+                              }
+                        }
+                        elsif ( exists $Hash__->{_value}{_hash}{'namespace'} ) {
+                            do {
+                                ::MODIFIED($namespace);
+                                $namespace =
+                                  ::DISPATCH( $Hash__, 'LOOKUP',
+                                    ::DISPATCH( $::Str, 'new', 'namespace' ) );
+                              }
+                        }
                         ::DISPATCH_VAR( $pad, 'STORE',
                             ::DISPATCH( $::Pad, 'new', ) );
                         ::DISPATCH_VAR(
@@ -533,12 +553,22 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        do {
-                            ::MODIFIED($pad);
-                            $pad =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 0 ) );
-                        };
+                        if ( exists $List__->{_value}{_array}[0] ) {
+                            do {
+                                ::MODIFIED($pad);
+                                $pad =
+                                  ::DISPATCH( $List__, 'INDEX',
+                                    ::DISPATCH( $::Int, 'new', 0 ) );
+                              }
+                        }
+                        elsif ( exists $Hash__->{_value}{_hash}{'pad'} ) {
+                            do {
+                                ::MODIFIED($pad);
+                                $pad =
+                                  ::DISPATCH( $Hash__, 'LOOKUP',
+                                    ::DISPATCH( $::Str, 'new', 'pad' ) );
+                              }
+                        }
                         ::DISPATCH( $COMPILER::List_PAD, 'unshift', $pad );
                     },
                     signature => ::DISPATCH(
@@ -680,12 +710,22 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        do {
-                            ::MODIFIED($ast);
-                            $ast =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 0 ) );
-                        };
+                        if ( exists $List__->{_value}{_array}[0] ) {
+                            do {
+                                ::MODIFIED($ast);
+                                $ast =
+                                  ::DISPATCH( $List__, 'INDEX',
+                                    ::DISPATCH( $::Int, 'new', 0 ) );
+                              }
+                        }
+                        elsif ( exists $Hash__->{_value}{_hash}{'ast'} ) {
+                            do {
+                                ::MODIFIED($ast);
+                                $ast =
+                                  ::DISPATCH( $Hash__, 'LOOKUP',
+                                    ::DISPATCH( $::Str, 'new', 'ast' ) );
+                              }
+                        }
                         ::DISPATCH( $Pad::Code_begin_block, 'APPLY', $ast );
                     },
                     signature => ::DISPATCH(
@@ -789,12 +829,22 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        do {
-                            ::MODIFIED($ast);
-                            $ast =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 0 ) );
-                        };
+                        if ( exists $List__->{_value}{_array}[0] ) {
+                            do {
+                                ::MODIFIED($ast);
+                                $ast =
+                                  ::DISPATCH( $List__, 'INDEX',
+                                    ::DISPATCH( $::Int, 'new', 0 ) );
+                              }
+                        }
+                        elsif ( exists $Hash__->{_value}{_hash}{'ast'} ) {
+                            do {
+                                ::MODIFIED($ast);
+                                $ast =
+                                  ::DISPATCH( $Hash__, 'LOOKUP',
+                                    ::DISPATCH( $::Str, 'new', 'ast' ) );
+                              }
+                        }
                         ::DISPATCH_VAR(
                             $pad, 'STORE',
                             ::DISPATCH(
@@ -947,24 +997,54 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        do {
-                            ::MODIFIED($sigil);
-                            $sigil =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 0 ) );
-                        };
-                        do {
-                            ::MODIFIED($twigil);
-                            $twigil =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 1 ) );
-                        };
-                        do {
-                            ::MODIFIED($name);
-                            $name =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 2 ) );
-                        };
+                        if ( exists $List__->{_value}{_array}[0] ) {
+                            do {
+                                ::MODIFIED($sigil);
+                                $sigil =
+                                  ::DISPATCH( $List__, 'INDEX',
+                                    ::DISPATCH( $::Int, 'new', 0 ) );
+                              }
+                        }
+                        elsif ( exists $Hash__->{_value}{_hash}{'sigil'} ) {
+                            do {
+                                ::MODIFIED($sigil);
+                                $sigil =
+                                  ::DISPATCH( $Hash__, 'LOOKUP',
+                                    ::DISPATCH( $::Str, 'new', 'sigil' ) );
+                              }
+                        }
+                        if ( exists $List__->{_value}{_array}[1] ) {
+                            do {
+                                ::MODIFIED($twigil);
+                                $twigil =
+                                  ::DISPATCH( $List__, 'INDEX',
+                                    ::DISPATCH( $::Int, 'new', 1 ) );
+                              }
+                        }
+                        elsif ( exists $Hash__->{_value}{_hash}{'twigil'} ) {
+                            do {
+                                ::MODIFIED($twigil);
+                                $twigil =
+                                  ::DISPATCH( $Hash__, 'LOOKUP',
+                                    ::DISPATCH( $::Str, 'new', 'twigil' ) );
+                              }
+                        }
+                        if ( exists $List__->{_value}{_array}[2] ) {
+                            do {
+                                ::MODIFIED($name);
+                                $name =
+                                  ::DISPATCH( $List__, 'INDEX',
+                                    ::DISPATCH( $::Int, 'new', 2 ) );
+                              }
+                        }
+                        elsif ( exists $Hash__->{_value}{_hash}{'name'} ) {
+                            do {
+                                ::MODIFIED($name);
+                                $name =
+                                  ::DISPATCH( $Hash__, 'LOOKUP',
+                                    ::DISPATCH( $::Str, 'new', 'name' ) );
+                              }
+                        }
                         ::DISPATCH_VAR( $var, 'STORE',
                             ::DISPATCH( $::Var, 'new', ) );
                         ::DISPATCH_VAR( ::DISPATCH( $var, 'sigil', ),

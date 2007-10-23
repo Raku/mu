@@ -353,7 +353,7 @@ sub emit_parrot {
                         for my $var2 ( @{$b} ) {
                             do {
                                 if ( ( $var2->[0]->buf() eq $var->[0]->buf() ) ) { $arg = $var2->[1] }
-                                else                                             { }
+                                else { }
                                 }
                         }
                     };
@@ -381,7 +381,7 @@ sub emit_parrot {
     };
     do {
         if ( Main::isa( $self->{parameters}, 'Var' ) ) { return ( ( $self->{arguments}->emit_parrot() . ( '  ' . ( $self->{parameters}->full_name() . ( ' = $P0' . Main::newline() ) ) ) ) ) }
-        else                                           { }
+        else { }
     };
     do {
         if ( Main::isa( $self->{parameters}, 'Decl' ) ) {
@@ -513,12 +513,12 @@ sub emit_parrot {
     my $meth = $self->{method};
     do {
         if ( ( $meth eq 'postcircumfix:<( )>' ) ) { $meth = '' }
-        else                                      { }
+        else { }
     };
     my $call = ( '->' . ( $meth . ( '(' . ( Main::join( [ map { $_->emit_parrot() } @{ $self->{arguments} } ], '' ) . ')' ) ) ) );
     do {
         if ( $self->{hyper} ) { return ( ( '[ map { $_' . ( $call . ( ' } @{ ' . ( $self->{invocant}->emit_parrot() . ' } ]' ) ) ) ) ) }
-        else                  { }
+        else { }
     };
     my $List_args = $self->{arguments};
     my $str       = '';
@@ -584,31 +584,31 @@ sub emit_parrot {
     };
     do {
         if ( ( $code eq 'array' ) ) { return ( ( '  # TODO - array() is no-op' . Main::newline() ) ) }
-        else                        { }
+        else { }
     };
     do {
         if ( ( $code eq 'prefix:<~>' ) ) { return ( ( $self->{arguments}->[0]->emit_parrot() . ( '  $S0 = $P0' . ( Main::newline() . ( '  $P0 = $S0' . Main::newline() ) ) ) ) ) }
-        else                             { }
+        else { }
     };
     do {
         if ( ( $code eq 'prefix:<!>' ) ) { return ( If->new( 'cond' => $self->{arguments}->[0], 'body' => [ Val::Bit->new( 'bit' => 0, ) ], 'otherwise' => [ Val::Bit->new( 'bit' => 1, ) ], )->emit_parrot() ) }
-        else                             { }
+        else { }
     };
     do {
         if ( ( $code eq 'prefix:<?>' ) ) { return ( If->new( 'cond' => $self->{arguments}->[0], 'body' => [ Val::Bit->new( 'bit' => 1, ) ], 'otherwise' => [ Val::Bit->new( 'bit' => 0, ) ], )->emit_parrot() ) }
-        else                             { }
+        else { }
     };
     do {
         if ( ( $code eq 'prefix:<$>' ) ) { return ( ( '  # TODO - prefix:<$> is no-op' . Main::newline() ) ) }
-        else                             { }
+        else { }
     };
     do {
         if ( ( $code eq 'prefix:<@>' ) ) { return ( ( '  # TODO - prefix:<@> is no-op' . Main::newline() ) ) }
-        else                             { }
+        else { }
     };
     do {
         if ( ( $code eq 'prefix:<%>' ) ) { return ( ( '  # TODO - prefix:<%> is no-op' . Main::newline() ) ) }
-        else                             { }
+        else { }
     };
     do {
         if ( ( $code eq 'infix:<~>' ) ) {
@@ -663,11 +663,11 @@ sub emit_parrot {
     };
     do {
         if ( ( $code eq 'infix:<&&>' ) ) { return ( If->new( 'cond' => $self->{arguments}->[0], 'body' => [ $self->{arguments}->[1] ], 'otherwise' => [], )->emit_parrot() ) }
-        else                             { }
+        else { }
     };
     do {
         if ( ( $code eq 'infix:<||>' ) ) { return ( If->new( 'cond' => $self->{arguments}->[0], 'body' => [], 'otherwise' => [ $self->{arguments}->[1] ], )->emit_parrot() ) }
-        else                             { }
+        else { }
     };
     do {
         if ( ( $code eq 'infix:<eq>' ) ) {
@@ -913,11 +913,11 @@ sub emit_parrot {
     };
     do {
         if ( ( $code eq 'ternary:<?? !!>' ) ) { return ( If->new( 'cond' => $self->{arguments}->[0], 'body' => [ $self->{arguments}->[1] ], 'otherwise' => [ $self->{arguments}->[2] ], )->emit_parrot() ) }
-        else                                  { }
+        else { }
     };
     do {
         if ( ( $code eq 'defined' ) ) { return ( ( $self->{arguments}->[0]->emit_parrot() . ( '  $I0 = defined $P0' . ( Main::newline() . ( '  $P0 = $I0' . Main::newline() ) ) ) ) ) }
-        else                          { }
+        else { }
     };
     do {
         if ( ( $code eq 'substr' ) ) {

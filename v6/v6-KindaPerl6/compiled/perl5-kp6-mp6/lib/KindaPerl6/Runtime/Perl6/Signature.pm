@@ -651,12 +651,34 @@
                                             $Hash__ =
                                               ::DISPATCH( $CAPTURE, 'hash', );
                                         };
-                                        do {
-                                            ::MODIFIED($v);
-                                            $v = ::DISPATCH( $List__, 'INDEX',
-                                                ::DISPATCH( $::Int, 'new', 0 )
-                                            );
-                                        };
+                                        if (
+                                            exists $List__->{_value}{_array}[0]
+                                          )
+                                        {
+                                            do {
+                                                ::MODIFIED($v);
+                                                $v = ::DISPATCH(
+                                                    $List__, 'INDEX',
+                                                    ::DISPATCH(
+                                                        $::Int, 'new', 0
+                                                    )
+                                                );
+                                              }
+                                        }
+                                        elsif (
+                                            exists $Hash__->{_value}{_hash}
+                                            {'v'} )
+                                        {
+                                            do {
+                                                ::MODIFIED($v);
+                                                $v = ::DISPATCH(
+                                                    $Hash__, 'LOOKUP',
+                                                    ::DISPATCH(
+                                                        $::Str, 'new', 'v'
+                                                    )
+                                                );
+                                              }
+                                        }
                                         ::DISPATCH_VAR(
                                             $s, 'STORE',
                                             ::DISPATCH(

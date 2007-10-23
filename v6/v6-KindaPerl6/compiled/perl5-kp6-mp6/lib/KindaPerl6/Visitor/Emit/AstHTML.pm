@@ -46,7 +46,7 @@ sub visit {
                         else {
                             do {
                                 if ( Main::isa( $data->{$item}, 'Str' ) ) { $result = ( $result . ( '\'' . ( $data->{$item} . '\', ' ) ) ) }
-                                else                                      { $result = ( $result . ( $data->{$item}->emit($self) . ', ' ) ) }
+                                else { $result = ( $result . ( $data->{$item}->emit($self) . ', ' ) ) }
                                 }
                         }
                         }

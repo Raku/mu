@@ -30,14 +30,14 @@ sub sig_type {
                                 my $m2 = $grammar->full_ident( $str, $MATCH->to() );
                                 do {
                                     if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'full_ident'} = $m2; 1 }
-                                    else     {0}
+                                    else {0}
                                     }
                             }
                             && (do {
                                     my $m2 = $grammar->ws( $str, $MATCH->to() );
                                     do {
                                         if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                        else     {0}
+                                        else {0}
                                         }
                                 }
                                 && do {
@@ -50,7 +50,7 @@ sub sig_type {
                                         ->();
                                     do {
                                         if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                        else                         { }
+                                        else { }
                                     };
                                     1;
                                 }
@@ -70,7 +70,7 @@ sub sig_type {
                                 ->();
                             do {
                                 if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                else                         { }
+                                else { }
                             };
                             1;
                             }
@@ -98,7 +98,7 @@ sub sig_default_value {
                             my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
                             do {
                                 if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                else     {0}
+                                else {0}
                                 }
                             }
                             && (
@@ -107,21 +107,21 @@ sub sig_default_value {
                                     my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
                                     do {
                                         if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                        else     {0}
+                                        else {0}
                                         }
                                 }
                                 && (do {
                                         my $m2 = $grammar->exp( $str, $MATCH->to() );
                                         do {
                                             if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'exp'} = $m2; 1 }
-                                            else     {0}
+                                            else {0}
                                             }
                                     }
                                     && (do {
                                             my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
                                             do {
                                                 if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                                else     {0}
+                                                else {0}
                                                 }
                                         }
                                         && do {
@@ -134,7 +134,7 @@ sub sig_default_value {
                                                 ->();
                                             do {
                                                 if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                else                         { }
+                                                else { }
                                             };
                                             1;
                                         }
@@ -156,7 +156,7 @@ sub sig_default_value {
                                 ->();
                             do {
                                 if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                else                         { }
+                                else { }
                             };
                             1;
                             }
@@ -190,7 +190,7 @@ sub sig_named_only {
                                 ->();
                             do {
                                 if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                else                         { }
+                                else { }
                             };
                             1;
                             }
@@ -208,7 +208,7 @@ sub sig_named_only {
                             ->();
                         do {
                             if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                            else                         { }
+                            else { }
                         };
                         1;
                         }
@@ -241,7 +241,7 @@ sub sig_optional {
                                 ->();
                             do {
                                 if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                else                         { }
+                                else { }
                             };
                             1;
                             }
@@ -259,7 +259,7 @@ sub sig_optional {
                             ->();
                         do {
                             if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                            else                         { }
+                            else { }
                         };
                         1;
                         }
@@ -292,7 +292,7 @@ sub sig_slurpy {
                                 ->();
                             do {
                                 if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                else                         { }
+                                else { }
                             };
                             1;
                             }
@@ -310,7 +310,7 @@ sub sig_slurpy {
                             ->();
                         do {
                             if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                            else                         { }
+                            else { }
                         };
                         1;
                         }
@@ -343,7 +343,7 @@ sub sig_multidimensional {
                                 ->();
                             do {
                                 if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                else                         { }
+                                else { }
                             };
                             1;
                             }
@@ -361,7 +361,7 @@ sub sig_multidimensional {
                             ->();
                         do {
                             if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                            else                         { }
+                            else { }
                         };
                         1;
                         }
@@ -388,7 +388,7 @@ sub sig_rw {
                             my $m2 = $grammar->ws( $str, $MATCH->to() );
                             do {
                                 if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                else     {0}
+                                else {0}
                                 }
                             }
                             && (
@@ -397,7 +397,7 @@ sub sig_rw {
                                     my $m2 = $grammar->ws( $str, $MATCH->to() );
                                     do {
                                         if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                        else     {0}
+                                        else {0}
                                         }
                                 }
                                 && (( ( 'rw' eq substr( $str, $MATCH->to(), 2 ) ) ? ( 1 + $MATCH->to( ( 2 + $MATCH->to() ) ) ) : 0 ) && do {
@@ -410,7 +410,7 @@ sub sig_rw {
                                             ->();
                                         do {
                                             if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                            else                         { }
+                                            else { }
                                         };
                                         1;
                                     }
@@ -431,7 +431,7 @@ sub sig_rw {
                             ->();
                         do {
                             if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                            else                         { }
+                            else { }
                         };
                         1;
                         }
@@ -458,7 +458,7 @@ sub sig_copy {
                             my $m2 = $grammar->ws( $str, $MATCH->to() );
                             do {
                                 if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                else     {0}
+                                else {0}
                                 }
                             }
                             && (
@@ -467,7 +467,7 @@ sub sig_copy {
                                     my $m2 = $grammar->ws( $str, $MATCH->to() );
                                     do {
                                         if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                        else     {0}
+                                        else {0}
                                         }
                                 }
                                 && (( ( 'copy' eq substr( $str, $MATCH->to(), 4 ) ) ? ( 1 + $MATCH->to( ( 4 + $MATCH->to() ) ) ) : 0 ) && do {
@@ -480,7 +480,7 @@ sub sig_copy {
                                             ->();
                                         do {
                                             if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                            else                         { }
+                                            else { }
                                         };
                                         1;
                                     }
@@ -501,7 +501,7 @@ sub sig_copy {
                             ->();
                         do {
                             if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                            else                         { }
+                            else { }
                         };
                         1;
                         }
@@ -528,7 +528,7 @@ sub exp_sig_item {
                         my $m2 = $grammar->sig_type( $str, $MATCH->to() );
                         do {
                             if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'sig_type'} = $m2; 1 }
-                            else     {0}
+                            else {0}
                             }
                         }
                         && (
@@ -536,63 +536,63 @@ sub exp_sig_item {
                             my $m2 = $grammar->sig_named_only( $str, $MATCH->to() );
                             do {
                                 if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'sig_named_only'} = $m2; 1 }
-                                else     {0}
+                                else {0}
                                 }
                         }
                         && (do {
                                 my $m2 = $grammar->sig_slurpy( $str, $MATCH->to() );
                                 do {
                                     if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'sig_slurpy'} = $m2; 1 }
-                                    else     {0}
+                                    else {0}
                                     }
                             }
                             && (do {
                                     my $m2 = $grammar->sig_multidimensional( $str, $MATCH->to() );
                                     do {
                                         if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'sig_multidimensional'} = $m2; 1 }
-                                        else     {0}
+                                        else {0}
                                         }
                                 }
                                 && (do {
                                         my $m2 = $grammar->sigil( $str, $MATCH->to() );
                                         do {
                                             if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'sigil'} = $m2; 1 }
-                                            else     {0}
+                                            else {0}
                                             }
                                     }
                                     && (do {
                                             my $m2 = $grammar->ident( $str, $MATCH->to() );
                                             do {
                                                 if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'ident'} = $m2; 1 }
-                                                else     {0}
+                                                else {0}
                                                 }
                                         }
                                         && (do {
                                                 my $m2 = $grammar->sig_optional( $str, $MATCH->to() );
                                                 do {
                                                     if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'sig_optional'} = $m2; 1 }
-                                                    else     {0}
+                                                    else {0}
                                                     }
                                             }
                                             && (do {
                                                     my $m2 = $grammar->sig_default_value( $str, $MATCH->to() );
                                                     do {
                                                         if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'sig_default_value'} = $m2; 1 }
-                                                        else     {0}
+                                                        else {0}
                                                         }
                                                 }
                                                 && (do {
                                                         my $m2 = $grammar->sig_rw( $str, $MATCH->to() );
                                                         do {
                                                             if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'sig_rw'} = $m2; 1 }
-                                                            else     {0}
+                                                            else {0}
                                                             }
                                                     }
                                                     && (do {
                                                             my $m2 = $grammar->sig_copy( $str, $MATCH->to() );
                                                             do {
                                                                 if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'sig_copy'} = $m2; 1 }
-                                                                else     {0}
+                                                                else {0}
                                                                 }
                                                         }
                                                         && do {
@@ -620,7 +620,7 @@ sub exp_sig_item {
                                                                 ->();
                                                             do {
                                                                 if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                                else                         { }
+                                                                else { }
                                                             };
                                                             1;
                                                         }
@@ -656,7 +656,7 @@ sub exp_sig_list {
                             my $m2 = $grammar->exp_sig_item( $str, $MATCH->to() );
                             do {
                                 if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'exp_sig_item'} = $m2; 1 }
-                                else     {0}
+                                else {0}
                                 }
                             }
                             && do {
@@ -666,7 +666,7 @@ sub exp_sig_list {
                                             my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
                                             do {
                                                 if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                                else     {0}
+                                                else {0}
                                                 }
                                             }
                                             && (
@@ -675,14 +675,14 @@ sub exp_sig_list {
                                                     my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
                                                     do {
                                                         if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                                        else     {0}
+                                                        else {0}
                                                         }
                                                 }
                                                 && (do {
                                                         my $m2 = $grammar->exp_sig_list( $str, $MATCH->to() );
                                                         do {
                                                             if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'exp_sig_list'} = $m2; 1 }
-                                                            else     {0}
+                                                            else {0}
                                                             }
                                                     }
                                                     && do {
@@ -695,7 +695,7 @@ sub exp_sig_list {
                                                             ->();
                                                         do {
                                                             if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                            else                         { }
+                                                            else { }
                                                         };
                                                         1;
                                                     }
@@ -710,7 +710,7 @@ sub exp_sig_list {
                                             my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
                                             do {
                                                 if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                                else     {0}
+                                                else {0}
                                                 }
                                             }
                                             && (
@@ -721,7 +721,7 @@ sub exp_sig_list {
                                                                 my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
                                                                 do {
                                                                     if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                                                    else     {0}
+                                                                    else {0}
                                                                     }
                                                                 }
                                                         );
@@ -739,7 +739,7 @@ sub exp_sig_list {
                                                     ->();
                                                 do {
                                                     if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                    else                         { }
+                                                    else { }
                                                 };
                                                 1;
                                             }
@@ -762,7 +762,7 @@ sub exp_sig_list {
                             ->();
                         do {
                             if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                            else                         { }
+                            else { }
                         };
                         1;
                         }
@@ -789,7 +789,7 @@ sub sig {
                         my $m2 = $grammar->invocant( $str, $MATCH->to() );
                         do {
                             if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'invocant'} = $m2; 1 }
-                            else     {0}
+                            else {0}
                             }
                         }
                         && (
@@ -797,14 +797,14 @@ sub sig {
                             my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
                             do {
                                 if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                else     {0}
+                                else {0}
                                 }
                         }
                         && (do {
                                 my $m2 = $grammar->exp_sig_list( $str, $MATCH->to() );
                                 do {
                                     if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'exp_sig_list'} = $m2; 1 }
-                                    else     {0}
+                                    else {0}
                                     }
                             }
                             && do {
@@ -817,7 +817,7 @@ sub sig {
                                     ->();
                                 do {
                                     if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                    else                         { }
+                                    else { }
                                 };
                                 1;
                             }

@@ -43,7 +43,7 @@ sub token_p5_body {
                                 my $m2 = $grammar->token_p5_body( $str, $MATCH->to() );
                                 do {
                                     if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'token_p5_body'} = $m2; 1 }
-                                    else     {0}
+                                    else {0}
                                     }
                             }
                         )
@@ -70,7 +70,7 @@ sub token_p5_body {
                                     my $m2 = $grammar->token_p5_body( $str, $MATCH->to() );
                                     do {
                                         if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'token_p5_body'} = $m2; 1 }
-                                        else     {0}
+                                        else {0}
                                         }
                                 }
                                 )
@@ -105,35 +105,35 @@ sub token_P5 {
                                             my $m2 = $grammar->ws( $str, $MATCH->to() );
                                             do {
                                                 if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                                else     {0}
+                                                else {0}
                                                 }
                                         }
                                         && (do {
                                                 my $m2 = $grammar->opt_name( $str, $MATCH->to() );
                                                 do {
                                                     if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'opt_name'} = $m2; 1 }
-                                                    else     {0}
+                                                    else {0}
                                                     }
                                             }
                                             && (do {
                                                     my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
                                                     do {
                                                         if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                                        else     {0}
+                                                        else {0}
                                                         }
                                                 }
                                                 && (do {
                                                         my $m2 = $grammar->token_p5_modifier( $str, $MATCH->to() );
                                                         do {
                                                             if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'token_p5_modifier'} = $m2; 1 }
-                                                            else     {0}
+                                                            else {0}
                                                             }
                                                     }
                                                     && (do {
                                                             my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
                                                             do {
                                                                 if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                                                else     {0}
+                                                                else {0}
                                                                 }
                                                         }
                                                         && (( ( '{' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
@@ -141,7 +141,7 @@ sub token_P5 {
                                                                     my $m2 = $grammar->token_p5_body( $str, $MATCH->to() );
                                                                     do {
                                                                         if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'token_p5_body'} = $m2; 1 }
-                                                                        else     {0}
+                                                                        else {0}
                                                                         }
                                                                 }
                                                                 && (( ( '}' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
@@ -154,7 +154,7 @@ sub token_P5 {
                                                                             ->();
                                                                         do {
                                                                             if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                                            else                         { }
+                                                                            else { }
                                                                         };
                                                                         1;
                                                                     }

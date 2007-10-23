@@ -493,18 +493,38 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        do {
-                            ::MODIFIED($a);
-                            $a =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 0 ) );
-                        };
-                        do {
-                            ::MODIFIED($b);
-                            $b =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 1 ) );
-                        };
+                        if ( exists $List__->{_value}{_array}[0] ) {
+                            do {
+                                ::MODIFIED($a);
+                                $a =
+                                  ::DISPATCH( $List__, 'INDEX',
+                                    ::DISPATCH( $::Int, 'new', 0 ) );
+                              }
+                        }
+                        elsif ( exists $Hash__->{_value}{_hash}{'a'} ) {
+                            do {
+                                ::MODIFIED($a);
+                                $a =
+                                  ::DISPATCH( $Hash__, 'LOOKUP',
+                                    ::DISPATCH( $::Str, 'new', 'a' ) );
+                              }
+                        }
+                        if ( exists $List__->{_value}{_array}[1] ) {
+                            do {
+                                ::MODIFIED($b);
+                                $b =
+                                  ::DISPATCH( $List__, 'INDEX',
+                                    ::DISPATCH( $::Int, 'new', 1 ) );
+                              }
+                        }
+                        elsif ( exists $Hash__->{_value}{_hash}{'b'} ) {
+                            do {
+                                ::MODIFIED($b);
+                                $b =
+                                  ::DISPATCH( $Hash__, 'LOOKUP',
+                                    ::DISPATCH( $::Str, 'new', 'b' ) );
+                              }
+                        }
                         ::DISPATCH( $Code_any, 'APPLY', $a, $b );
                     },
                     signature => ::DISPATCH(
@@ -640,18 +660,38 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        do {
-                            ::MODIFIED($a);
-                            $a =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 0 ) );
-                        };
-                        do {
-                            ::MODIFIED($b);
-                            $b =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 1 ) );
-                        };
+                        if ( exists $List__->{_value}{_array}[0] ) {
+                            do {
+                                ::MODIFIED($a);
+                                $a =
+                                  ::DISPATCH( $List__, 'INDEX',
+                                    ::DISPATCH( $::Int, 'new', 0 ) );
+                              }
+                        }
+                        elsif ( exists $Hash__->{_value}{_hash}{'a'} ) {
+                            do {
+                                ::MODIFIED($a);
+                                $a =
+                                  ::DISPATCH( $Hash__, 'LOOKUP',
+                                    ::DISPATCH( $::Str, 'new', 'a' ) );
+                              }
+                        }
+                        if ( exists $List__->{_value}{_array}[1] ) {
+                            do {
+                                ::MODIFIED($b);
+                                $b =
+                                  ::DISPATCH( $List__, 'INDEX',
+                                    ::DISPATCH( $::Int, 'new', 1 ) );
+                              }
+                        }
+                        elsif ( exists $Hash__->{_value}{_hash}{'b'} ) {
+                            do {
+                                ::MODIFIED($b);
+                                $b =
+                                  ::DISPATCH( $Hash__, 'LOOKUP',
+                                    ::DISPATCH( $::Str, 'new', 'b' ) );
+                              }
+                        }
                         ::DISPATCH( $Code_all, 'APPLY', $a, $b );
                     },
                     signature => ::DISPATCH(
@@ -787,18 +827,38 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        do {
-                            ::MODIFIED($a);
-                            $a =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 0 ) );
-                        };
-                        do {
-                            ::MODIFIED($b);
-                            $b =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 1 ) );
-                        };
+                        if ( exists $List__->{_value}{_array}[0] ) {
+                            do {
+                                ::MODIFIED($a);
+                                $a =
+                                  ::DISPATCH( $List__, 'INDEX',
+                                    ::DISPATCH( $::Int, 'new', 0 ) );
+                              }
+                        }
+                        elsif ( exists $Hash__->{_value}{_hash}{'a'} ) {
+                            do {
+                                ::MODIFIED($a);
+                                $a =
+                                  ::DISPATCH( $Hash__, 'LOOKUP',
+                                    ::DISPATCH( $::Str, 'new', 'a' ) );
+                              }
+                        }
+                        if ( exists $List__->{_value}{_array}[1] ) {
+                            do {
+                                ::MODIFIED($b);
+                                $b =
+                                  ::DISPATCH( $List__, 'INDEX',
+                                    ::DISPATCH( $::Int, 'new', 1 ) );
+                              }
+                        }
+                        elsif ( exists $Hash__->{_value}{_hash}{'b'} ) {
+                            do {
+                                ::MODIFIED($b);
+                                $b =
+                                  ::DISPATCH( $Hash__, 'LOOKUP',
+                                    ::DISPATCH( $::Str, 'new', 'b' ) );
+                              }
+                        }
                         ::DISPATCH( $Code_one, 'APPLY', $a, $b );
                     },
                     signature => ::DISPATCH(
@@ -934,18 +994,38 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        do {
-                            ::MODIFIED($from);
-                            $from =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 0 ) );
-                        };
-                        do {
-                            ::MODIFIED($to);
-                            $to =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 1 ) );
-                        };
+                        if ( exists $List__->{_value}{_array}[0] ) {
+                            do {
+                                ::MODIFIED($from);
+                                $from =
+                                  ::DISPATCH( $List__, 'INDEX',
+                                    ::DISPATCH( $::Int, 'new', 0 ) );
+                              }
+                        }
+                        elsif ( exists $Hash__->{_value}{_hash}{'from'} ) {
+                            do {
+                                ::MODIFIED($from);
+                                $from =
+                                  ::DISPATCH( $Hash__, 'LOOKUP',
+                                    ::DISPATCH( $::Str, 'new', 'from' ) );
+                              }
+                        }
+                        if ( exists $List__->{_value}{_array}[1] ) {
+                            do {
+                                ::MODIFIED($to);
+                                $to =
+                                  ::DISPATCH( $List__, 'INDEX',
+                                    ::DISPATCH( $::Int, 'new', 1 ) );
+                              }
+                        }
+                        elsif ( exists $Hash__->{_value}{_hash}{'to'} ) {
+                            do {
+                                ::MODIFIED($to);
+                                $to =
+                                  ::DISPATCH( $Hash__, 'LOOKUP',
+                                    ::DISPATCH( $::Str, 'new', 'to' ) );
+                              }
+                        }
                         ::DISPATCH(
                             $::Range, 'new',
                             ::DISPATCH(
@@ -1121,18 +1201,40 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        do {
-                            ::MODIFIED($left_thunk);
-                            $left_thunk =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 0 ) );
-                        };
-                        do {
-                            ::MODIFIED($right_thunk);
-                            $right_thunk =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 1 ) );
-                        };
+                        if ( exists $List__->{_value}{_array}[0] ) {
+                            do {
+                                ::MODIFIED($left_thunk);
+                                $left_thunk =
+                                  ::DISPATCH( $List__, 'INDEX',
+                                    ::DISPATCH( $::Int, 'new', 0 ) );
+                              }
+                        }
+                        elsif ( exists $Hash__->{_value}{_hash}{'left_thunk'} )
+                        {
+                            do {
+                                ::MODIFIED($left_thunk);
+                                $left_thunk =
+                                  ::DISPATCH( $Hash__, 'LOOKUP',
+                                    ::DISPATCH( $::Str, 'new', 'left_thunk' ) );
+                              }
+                        }
+                        if ( exists $List__->{_value}{_array}[1] ) {
+                            do {
+                                ::MODIFIED($right_thunk);
+                                $right_thunk =
+                                  ::DISPATCH( $List__, 'INDEX',
+                                    ::DISPATCH( $::Int, 'new', 1 ) );
+                              }
+                        }
+                        elsif ( exists $Hash__->{_value}{_hash}{'right_thunk'} )
+                        {
+                            do {
+                                ::MODIFIED($right_thunk);
+                                $right_thunk = ::DISPATCH( $Hash__, 'LOOKUP',
+                                    ::DISPATCH( $::Str, 'new', 'right_thunk' )
+                                );
+                              }
+                        }
                         ::DISPATCH_VAR( $left, 'STORE',
                             ::DISPATCH( $left_thunk, 'APPLY', ) );
                         do {
@@ -1304,18 +1406,40 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        do {
-                            ::MODIFIED($left_thunk);
-                            $left_thunk =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 0 ) );
-                        };
-                        do {
-                            ::MODIFIED($right_thunk);
-                            $right_thunk =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 1 ) );
-                        };
+                        if ( exists $List__->{_value}{_array}[0] ) {
+                            do {
+                                ::MODIFIED($left_thunk);
+                                $left_thunk =
+                                  ::DISPATCH( $List__, 'INDEX',
+                                    ::DISPATCH( $::Int, 'new', 0 ) );
+                              }
+                        }
+                        elsif ( exists $Hash__->{_value}{_hash}{'left_thunk'} )
+                        {
+                            do {
+                                ::MODIFIED($left_thunk);
+                                $left_thunk =
+                                  ::DISPATCH( $Hash__, 'LOOKUP',
+                                    ::DISPATCH( $::Str, 'new', 'left_thunk' ) );
+                              }
+                        }
+                        if ( exists $List__->{_value}{_array}[1] ) {
+                            do {
+                                ::MODIFIED($right_thunk);
+                                $right_thunk =
+                                  ::DISPATCH( $List__, 'INDEX',
+                                    ::DISPATCH( $::Int, 'new', 1 ) );
+                              }
+                        }
+                        elsif ( exists $Hash__->{_value}{_hash}{'right_thunk'} )
+                        {
+                            do {
+                                ::MODIFIED($right_thunk);
+                                $right_thunk = ::DISPATCH( $Hash__, 'LOOKUP',
+                                    ::DISPATCH( $::Str, 'new', 'right_thunk' )
+                                );
+                              }
+                        }
                         ::DISPATCH_VAR( $left, 'STORE',
                             ::DISPATCH( $left_thunk, 'APPLY', ) );
                         do {
@@ -1632,12 +1756,22 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        do {
-                            ::MODIFIED($regex);
-                            $regex =
-                              ::DISPATCH( $List__, 'INDEX',
-                                ::DISPATCH( $::Int, 'new', 0 ) );
-                        };
+                        if ( exists $List__->{_value}{_array}[0] ) {
+                            do {
+                                ::MODIFIED($regex);
+                                $regex =
+                                  ::DISPATCH( $List__, 'INDEX',
+                                    ::DISPATCH( $::Int, 'new', 0 ) );
+                              }
+                        }
+                        elsif ( exists $Hash__->{_value}{_hash}{'regex'} ) {
+                            do {
+                                ::MODIFIED($regex);
+                                $regex =
+                                  ::DISPATCH( $Hash__, 'LOOKUP',
+                                    ::DISPATCH( $::Str, 'new', 'regex' ) );
+                              }
+                        }
                         ::DISPATCH(
                             $::Code, 'new',
                             {
@@ -1741,24 +1875,72 @@
                                         $Hash__ =
                                           ::DISPATCH( $CAPTURE, 'hash', );
                                     };
-                                    do {
-                                        ::MODIFIED($self);
-                                        $self =
-                                          ::DISPATCH( $List__, 'INDEX',
-                                            ::DISPATCH( $::Int, 'new', 0 ) );
-                                    };
-                                    do {
-                                        ::MODIFIED($str);
-                                        $str =
-                                          ::DISPATCH( $List__, 'INDEX',
-                                            ::DISPATCH( $::Int, 'new', 1 ) );
-                                    };
-                                    do {
-                                        ::MODIFIED($pos);
-                                        $pos =
-                                          ::DISPATCH( $List__, 'INDEX',
-                                            ::DISPATCH( $::Int, 'new', 2 ) );
-                                    };
+                                    if ( exists $List__->{_value}{_array}[0] ) {
+                                        do {
+                                            ::MODIFIED($self);
+                                            $self = ::DISPATCH(
+                                                $List__,
+                                                'INDEX',
+                                                ::DISPATCH( $::Int, 'new', 0 )
+                                            );
+                                          }
+                                    }
+                                    elsif (
+                                        exists $Hash__->{_value}{_hash}
+                                        {'self'} )
+                                    {
+                                        do {
+                                            ::MODIFIED($self);
+                                            $self = ::DISPATCH(
+                                                $Hash__, 'LOOKUP',
+                                                ::DISPATCH(
+                                                    $::Str, 'new', 'self'
+                                                )
+                                            );
+                                          }
+                                    }
+                                    if ( exists $List__->{_value}{_array}[1] ) {
+                                        do {
+                                            ::MODIFIED($str);
+                                            $str = ::DISPATCH( $List__, 'INDEX',
+                                                ::DISPATCH( $::Int, 'new', 1 )
+                                            );
+                                          }
+                                    }
+                                    elsif (
+                                        exists $Hash__->{_value}{_hash}{'str'} )
+                                    {
+                                        do {
+                                            ::MODIFIED($str);
+                                            $str = ::DISPATCH(
+                                                $Hash__, 'LOOKUP',
+                                                ::DISPATCH(
+                                                    $::Str, 'new', 'str'
+                                                )
+                                            );
+                                          }
+                                    }
+                                    if ( exists $List__->{_value}{_array}[2] ) {
+                                        do {
+                                            ::MODIFIED($pos);
+                                            $pos = ::DISPATCH( $List__, 'INDEX',
+                                                ::DISPATCH( $::Int, 'new', 2 )
+                                            );
+                                          }
+                                    }
+                                    elsif (
+                                        exists $Hash__->{_value}{_hash}{'pos'} )
+                                    {
+                                        do {
+                                            ::MODIFIED($pos);
+                                            $pos = ::DISPATCH(
+                                                $Hash__, 'LOOKUP',
+                                                ::DISPATCH(
+                                                    $::Str, 'new', 'pos'
+                                                )
+                                            );
+                                          }
+                                    }
                                     do {
                                         if (
                                             ::DISPATCH(

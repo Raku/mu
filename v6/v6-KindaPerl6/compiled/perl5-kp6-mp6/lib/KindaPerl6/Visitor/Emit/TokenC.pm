@@ -54,7 +54,7 @@ sub emit_c {
         for my $node ( @{ $self->{body} } ) {
             do {
                 if ( Main::isa( $node, 'Token' ) ) { $source = ( $source . $node->emit_c() ) }
-                else                               { }
+                else { }
                 }
         }
     };
