@@ -4,21 +4,14 @@ grammar MyGrammar {
     };
 }
 module Main {
-  say '1..2';
+  say '1..1';
 
-  my $a = 'test';
+  $_ = 'test';
 
-  # This is probably a bad idea, but as it works that way, here it is.
-  if MyGrammar.mytok($a) {
+  if MyGrammar.mytok() {
       say 'ok 1';
   } else {
       say 'not ok 1';
   };
 
-  $_ := $a;
-  if MyGrammar.mytok() {
-      say 'ok 2';
-  } else {
-      say 'not ok 2';
-  };
 }
