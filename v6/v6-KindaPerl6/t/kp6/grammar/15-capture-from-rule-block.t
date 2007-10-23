@@ -1,9 +1,9 @@
 grammar MyGrammar {
     token tok1 {
-        'a' { return Array.new(); };
+        'a' { return Array.new(); }
     };
     token tok2 {
-        <tok1> { return $$<tok1>; };
+        <tok1> { return $$<tok1>; }
     };
 };
 module Main {
