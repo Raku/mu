@@ -20,6 +20,19 @@ sub visit {
     return ( (undef) );
 }
 
+package P5Token;
+sub new { shift; bless {@_}, "P5Token" }
+
+sub capture_count {
+    my $self   = shift;
+    my $List__ = \@_;
+    my $count;
+    my $quantified;
+    my $seen;
+    do { $count = $List__->[0]; $quantified = $List__->[1]; $seen = $List__->[2]; [ $count, $quantified, $seen ] };
+    $count;
+}
+
 package Rule::Quantifier;
 sub new { shift; bless {@_}, "Rule::Quantifier" }
 

@@ -69,6 +69,14 @@ class Token {
     }
 }
 
+class P5Token {
+    method emit_perl5 {
+        # XXX this should be parsed to detect captures !!!
+        $.regex
+        # 'do { my $m2 = match_p5rx("' ~ $.regex ~ '",$str,($pos+0)); if ($m2) { $MATCH.to = $m2.to + 0; 1 } else { 0 } }';
+    }
+}
+
 class Rule::Quantifier {
     method emit_perl5 {
         # TODO

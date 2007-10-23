@@ -33,6 +33,13 @@ class KindaPerl6::Visitor::RegexCapture {
 
 # node "aspects"
 
+class P5Token {
+    # XXX this should be parsed to detect captures !!!
+    method capture_count( $count, $quantified, $seen ) {
+        $count;
+    }
+}
+
 class Rule::Quantifier {
     method capture_count( $count, $quantified, $seen ) {
         $.term.capture_count( $count, 1, $seen );
