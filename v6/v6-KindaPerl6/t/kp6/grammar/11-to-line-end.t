@@ -1,7 +1,7 @@
 grammar MyGrammar {
     token to_line_end {
-        |  <'a'> <?to_line_end>
-        |  <''> 
+        |  'a' <?to_line_end>
+        |  '' 
     };
 };
 module Main {
