@@ -213,16 +213,9 @@ class Lit::Code {
 
         my $i := 0;
         my $field;
+        $str := $str ~ '{ my $_param_index = 0; ';
         for @($.sig.positional) -> $field { 
         
-            my $bind_positional := ::Bind(
-                    parameters => $field.key,
-                    arguments  => ::Call(
-                            invocant  => $array_, 
-                            arguments => [ ::Val::Int( int => $i ) ],
-                            method    => 'INDEX',
-                        ), 
-                );
             my $bind_named := ::Bind(
                     parameters => $field.key,
                     arguments  => ::Call(
@@ -237,13 +230,14 @@ class Lit::Code {
                 );
                 
             $str := $str 
-                    ~ ' if ( exists $List__->{_value}{_array}[' ~ $i ~ '] ) '
-                    ~ ' { '
-                    ~     $bind_positional.emit_perl5 
-                    ~ ' } '
-                    ~ ' elsif ( exists $Hash__->{_value}{_hash}{\'' ~ ($field.key).name ~ '\'} ) '
+                    ~ ' if ( exists $Hash__->{_value}{_hash}{\'' ~ ($field.key).name ~ '\'} ) '
                     ~ ' { '
                     ~     $bind_named.emit_perl5 
+                    ~ ' } '
+                    ~ ' elsif ( exists $List__->{_value}{_array}[ $_param_index ] ) '
+                    ~ ' { '
+                    ~     ($field.key).emit_perl5
+                    ~         ' = $List__->{_value}{_array}[ $_param_index++ ]; '
                     ~ ' } ';
             if ($field.has_default).bit {
                 $str := $str 
@@ -253,6 +247,7 @@ class Lit::Code {
             }
             $i := $i + 1;
         };
+        $str := $str ~ '} ';
 
         return $str;
     };
