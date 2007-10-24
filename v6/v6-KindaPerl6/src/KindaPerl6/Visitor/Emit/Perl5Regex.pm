@@ -69,7 +69,7 @@ class Token {
                 ~ '), '
 
             ~ '); '
-          ~ '} '  # /do
+          ~ '} ';  # /do
                         
         return $source;
     }
