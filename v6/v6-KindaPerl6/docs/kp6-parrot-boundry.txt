@@ -1,0 +1,75 @@
+
+During my quest to figure out where the difficult programming of perl6
+implementation is done, I asked a few questions and received a few responses.
+I have cleaned up the questions and responses and documented them here.  The
+question is "Where is the programming that makes programmer's work a lot
+easier"; Method overloading, namespace resolution ( global / file / lexical ),
+objects and so on.
+
+I had to figure out what code does what?  The AST (footnote #2) / Emit(ers)
+(footnote #1) are too small to be doing the work, thus some other code had to be
+doing the majority of the work.
+
+When thinking about the kindaperl6 compilation process; think of kindaperl6 as
+being a translator rather than a compiler.  kindaperl6's AST uses a visitor
+pattern to convert [emit] perl6 code into perl5, parrot, or lisp. (footnote #1,
+#7)
+
+One method to write the compiler would be to write a compiler in perl5 that
+reads in the perl6 code and produces parrot PIR.  While this is straight forward
+process, writing a perl6 compiler in perl5 to compile perl6 provides a very
+good self test.  If the perl6 can compile itself, then the perl6 compiler
+probably is correct.
+
+However, while looking at the perl6 compiler I realized that there is not enough
+code in there to be a true compiler.  There are whole blocks of code missing
+that should be handling a lot of the difficult programming.  Method overloading,
+namespace resolution (lexical (my) / file (our) / global (local)), object
+handling and so on.
+
+The majority of the missing code is in the Parrot op code. (footnote #5) When
+thinking about perl6/parrot, think of parrot as being a virtual machine that
+that executes a subset of perl6 in an macro language.  Kindaperl6 converts
+perl6 code into Parrot PIR (future: convert perl6 code into a Parrot AST)
+(footnote #4, #8). Parrot provides it's own object method handling code
+(footnote #9).
+
+However, some perl6 code will be have to expanded into Parrot PIR such as the
+regular expressions and grammars.  Junctions where also noted as part of the
+work that kindaperl6 would have to write out its own Parrot code to do
+(footnote #6).
+
+Notable links:
+
+Parrot op code:
+    http://www.parrotcode.org/docs/ops/
+Description of parrot processing:
+    http://www.oreillynet.com/onlamp/blog/2006/03/inside_parrots_compiler_tools.html
+
+Footnotes:
+
+ 0. Bulk of the conversation:
+    http://irclog.perlgeek.de/out.pl?channel=perl6;date=2007-10-24
+
+ 1. AST/Emit(ers):
+    http://svn.pugscode.org/pugs/v6/v6-KindaPerl6/src/KindaPerl6/Visitor/Emit
+
+ 2. kindaperl6 AST
+        http://svn.pugscode.org/pugs/v6/v6-KindaPerl6/src/KindaPerl6/Ast.pm
+    Abstract Syntax Tree
+        http://en.wikipedia.org/wiki/Abstract_syntax_tree
+ 3. visitor pattern:
+    http://en.wikipedia.org/wiki/Visitor_pattern
+
+ 4. http://irclog.perlgeek.de/perl6/2007-10-24#i_131304
+
+ 5. http://irclog.perlgeek.de/perl6/2007-10-24#i_131284
+
+ 6. http://irclog.perlgeek.de/perl6/2007-10-24#i_131293
+    http://search.cpan.org/dist/Perl6-Junction/lib/Perl6/Junction.pm
+
+ 7. http://irclog.perlgeek.de/perl6/2007-10-24#i_131293
+
+ 8. http://irclog.perlgeek.de/perl6/2007-10-24#i_131350
+
+ 9. http://www.parrotcode.org/docs/ops/object.html
