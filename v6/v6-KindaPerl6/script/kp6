@@ -45,6 +45,10 @@ option will go away when the compiler has been bootstraped to kp6.
 Tell the emitter L<KindaPerl6::Visitor::Emit::*> emitter being used to
 disable any unsafe features (e.g. C<system>).
 
+=item --noperltidy
+
+Don't try to emit pretty code.
+
 =item --do
 
 A comma seperated list of L<KindaPerl6::Visitor>s to use, some
@@ -55,7 +59,7 @@ Example:
     # process the ast by expanding 'token' into plain Perl;
     # then replace method calls with MO calls;
     # then emit Perl 5 code
-    kp6 --do Token,MetaClass,Emit::Perl5 < examples/token.pl | perltidy
+    kp6 --do Token,MetaClass,Emit::Perl5 < examples/token.pl
 
 =item --ast
 
@@ -99,6 +103,7 @@ modify it under the same terms as Perl itself.
 #
 
 my %opt;
+$opt{perltidy} = 1;
 Getopt::Long::Parser->new(
     config => [ qw( bundling no_ignore_case pass_through require_order) ],
 )->getoptions(
@@ -111,6 +116,9 @@ Getopt::Long::Parser->new(
     # Compile or execute
     'C=s' => \$opt{C},
     'B=s' => \$opt{B},
+
+    # Prettify the code
+    'perltidy!' => \$opt{perltidy},
 
     # the visitor sequence to use
     'do=s'      => \$opt{do},
@@ -453,10 +461,12 @@ sub report_error
     . $whitespace . "^ HERE\n";
 }
 
-# Print perl code, use perltidy if we have it
+# Print perl code, use perltidy if we have it; disable with --noperltidy
 sub print_perl
 {
     my ($out) = @_;
+    return $out 
+        unless $opt{perltidy};
     eval { require Perl::Tidy };
     unless ($@) {
         my @dest;
