@@ -1,3 +1,5 @@
+#!/usr/bin/env perl
+
 use strict;
 use warnings;
 
@@ -72,6 +74,7 @@ $html = to_html($str, \@str_pos);
 $outfile = File::Spec->catfile($outdir, 'str.html');
 print "Write $outfile\n";
 write_file($outfile, $html);
+my $tracer_js = read_file('tracer/tracer.js');
 
 $html = <<"_EOC_";
 <html>
@@ -83,10 +86,10 @@ $html = <<"_EOC_";
         var Id = '$id';
         var regexPos = $js_regex_pos;
         var strPos = $js_str_pos;
+        $tracer_js
     </script>
     </head>
 <body>
-<script src="tracer/tracer.js"></script>
 \&nbsp;
 <button id="reset">Reset</button>
 <button id="next">Next</button>
@@ -101,7 +104,7 @@ $outfile = File::Spec->catfile($outdir, 'index.html');
 print "Write $outfile\n";
 write_file($outfile, $html);
 
-my $tracer_js = File::Spec->catfile($outdir, 'tracer/tracer.js');
+#my $tracer_js = File::Spec->catfile($outdir, 'tracer/tracer.js');
 my $jquery_js = File::Spec->catfile($outdir, 'tracer/jquery.js');
 
 if ($outdir ne '.') {
@@ -110,8 +113,8 @@ if ($outdir ne '.') {
     }
     print "Write $jquery_js\n";
     copy('tracer/jquery.js', $jquery_js);
-    print "Write $tracer_js\n";
-    copy('tracer/tracer.js', $tracer_js);
+    #print "Write $tracer_js\n";
+    #copy('tracer/tracer.js', $tracer_js);
 }
 
 sub escape ($) {

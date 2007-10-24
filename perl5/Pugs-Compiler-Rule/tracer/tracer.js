@@ -132,7 +132,7 @@ function renderStr (pos, setter) {
         //alert(strDoc);
         var node = $("#" + id, strDoc)[0];
         if (!node) {
-            alert("Sorry, no node found in renderStr");
+            //alert("Sorry, no node found in renderStr");
             return;
         }
         setter(node);
@@ -147,7 +147,7 @@ function renderStrFwd (pos, setter) {
             //alert(strDoc);
             var node = $("#" + id, strDoc)[0];
             if (!node) {
-                alert("Sorry, no node found in renderStr");
+                //alert("Sorry, no node found in renderStr");
                 return;
             }
             setter(node);
