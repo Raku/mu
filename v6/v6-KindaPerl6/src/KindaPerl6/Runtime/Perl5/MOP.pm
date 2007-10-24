@@ -918,6 +918,9 @@ require KindaPerl6::Runtime::Perl5::Hash;
 require KindaPerl6::Runtime::Perl6::Array;
 require KindaPerl6::Runtime::Perl5::Array;
 
+require KindaPerl6::Runtime::Perl6::List;
+require KindaPerl6::Runtime::Perl5::List;
+
 require KindaPerl6::Runtime::Perl6::Capture;
 require KindaPerl6::Runtime::Perl6::Signature;
 require KindaPerl6::Runtime::Perl6::Match;

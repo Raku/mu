@@ -3,12 +3,12 @@ TODO list for KindaPerl6
 - Bug (luqui++): 
   foo(); sub foo() { say 'hi' }
   my &x; sub y { say 123 }; x(); BEGIN { &x := &y }
-  my @x = (1,2,3); say @x
+  # done my @x = (1,2,3); say @x
   {a => "b"}.{"a"}
-  {a => "b"}{"a"}  # Pair LOOKUP
+  # done {a => "b"}{"a"}  # Pair LOOKUP
 
 - move &say() to Prelude
-- make [...] generate an Array object, (...) is List
+- # done make [...] generate an Array object, (...) is List
 
 * Phase 3 "regex compiler refactoring"
 
