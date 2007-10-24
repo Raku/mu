@@ -197,9 +197,9 @@ inc/v6-MiniPerl6-lib5/MiniPerl6/Python/Emitter.pm
 inc/v6-MiniPerl6-lib5/MiniPerl6/Python/Match.pm
 inc/v6-MiniPerl6-lib5/MiniPerl6/Python/Runtime.py
 inc/v6-MiniPerl6-lib5/Test.pm
-kp6-kp6.pl
+script/kp6-kp6.pl
+src-script/kp6-kp6.pl
 kp6-token-debug
-kp6.p6
 lib5regex/KindaPerl6/Runtime/Perl5/Match.pm
 Makefile.PL
 MANIFEST			This list of files
