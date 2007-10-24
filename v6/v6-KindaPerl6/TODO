@@ -4,7 +4,7 @@ TODO list for KindaPerl6
   foo(); sub foo() { say 'hi' }
   my &x; sub y { say 123 }; x(); BEGIN { &x := &y }
   # done my @x = (1,2,3); say @x
-  {a => "b"}.{"a"}
+  # done {a => "b"}.{"a"}
   # done {a => "b"}{"a"}  # Pair LOOKUP
 
 - move &say() to Prelude
