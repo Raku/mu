@@ -15,7 +15,7 @@ sub visit {
     do { $node = $List__->[0]; $node_name = $List__->[1]; [ $node, $node_name ] };
     do {
         if ( ( $node_name eq 'Token' ) ) { $node->regex()->capture_count( 0, 0, {} ); return ($node) }
-        else { }
+        else                             { }
     };
     return ( (undef) );
 }
@@ -64,7 +64,7 @@ sub capture_count {
             my $last = $regex->capture_count( $count, $quantified, $seen );
             do {
                 if ( ( $last > $max ) ) { $max = $last }
-                else { }
+                else                    { }
                 }
         }
     };

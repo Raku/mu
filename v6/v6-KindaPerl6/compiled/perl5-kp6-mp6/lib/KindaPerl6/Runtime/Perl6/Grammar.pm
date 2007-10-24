@@ -114,37 +114,38 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        if ( exists $List__->{_value}{_array}[0] ) {
-                            do {
-                                ::MODIFIED($str);
+                        {
+                            my $_param_index = 0;
+                            if ( exists $Hash__->{_value}{_hash}{'str'} ) {
+                                do {
+                                    ::MODIFIED($str);
+                                    $str =
+                                      ::DISPATCH( $Hash__, 'LOOKUP',
+                                        ::DISPATCH( $::Str, 'new', 'str' ) );
+                                  }
+                            }
+                            elsif (
+                                exists $List__->{_value}{_array}[$_param_index]
+                              )
+                            {
                                 $str =
-                                  ::DISPATCH( $List__, 'INDEX',
-                                    ::DISPATCH( $::Int, 'new', 0 ) );
-                              }
-                        }
-                        elsif ( exists $Hash__->{_value}{_hash}{'str'} ) {
-                            do {
-                                ::MODIFIED($str);
-                                $str =
-                                  ::DISPATCH( $Hash__, 'LOOKUP',
-                                    ::DISPATCH( $::Str, 'new', 'str' ) );
-                              }
-                        }
-                        if ( exists $List__->{_value}{_array}[1] ) {
-                            do {
-                                ::MODIFIED($pos);
+                                  $List__->{_value}{_array}[ $_param_index++ ];
+                            }
+                            if ( exists $Hash__->{_value}{_hash}{'pos'} ) {
+                                do {
+                                    ::MODIFIED($pos);
+                                    $pos =
+                                      ::DISPATCH( $Hash__, 'LOOKUP',
+                                        ::DISPATCH( $::Str, 'new', 'pos' ) );
+                                  }
+                            }
+                            elsif (
+                                exists $List__->{_value}{_array}[$_param_index]
+                              )
+                            {
                                 $pos =
-                                  ::DISPATCH( $List__, 'INDEX',
-                                    ::DISPATCH( $::Int, 'new', 1 ) );
-                              }
-                        }
-                        elsif ( exists $Hash__->{_value}{_hash}{'pos'} ) {
-                            do {
-                                ::MODIFIED($pos);
-                                $pos =
-                                  ::DISPATCH( $Hash__, 'LOOKUP',
-                                    ::DISPATCH( $::Str, 'new', 'pos' ) );
-                              }
+                                  $List__->{_value}{_array}[ $_param_index++ ];
+                            }
                         }
                         do {
                             if (
@@ -549,37 +550,38 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        if ( exists $List__->{_value}{_array}[0] ) {
-                            do {
-                                ::MODIFIED($str);
+                        {
+                            my $_param_index = 0;
+                            if ( exists $Hash__->{_value}{_hash}{'str'} ) {
+                                do {
+                                    ::MODIFIED($str);
+                                    $str =
+                                      ::DISPATCH( $Hash__, 'LOOKUP',
+                                        ::DISPATCH( $::Str, 'new', 'str' ) );
+                                  }
+                            }
+                            elsif (
+                                exists $List__->{_value}{_array}[$_param_index]
+                              )
+                            {
                                 $str =
-                                  ::DISPATCH( $List__, 'INDEX',
-                                    ::DISPATCH( $::Int, 'new', 0 ) );
-                              }
-                        }
-                        elsif ( exists $Hash__->{_value}{_hash}{'str'} ) {
-                            do {
-                                ::MODIFIED($str);
-                                $str =
-                                  ::DISPATCH( $Hash__, 'LOOKUP',
-                                    ::DISPATCH( $::Str, 'new', 'str' ) );
-                              }
-                        }
-                        if ( exists $List__->{_value}{_array}[1] ) {
-                            do {
-                                ::MODIFIED($pos);
+                                  $List__->{_value}{_array}[ $_param_index++ ];
+                            }
+                            if ( exists $Hash__->{_value}{_hash}{'pos'} ) {
+                                do {
+                                    ::MODIFIED($pos);
+                                    $pos =
+                                      ::DISPATCH( $Hash__, 'LOOKUP',
+                                        ::DISPATCH( $::Str, 'new', 'pos' ) );
+                                  }
+                            }
+                            elsif (
+                                exists $List__->{_value}{_array}[$_param_index]
+                              )
+                            {
                                 $pos =
-                                  ::DISPATCH( $List__, 'INDEX',
-                                    ::DISPATCH( $::Int, 'new', 1 ) );
-                              }
-                        }
-                        elsif ( exists $Hash__->{_value}{_hash}{'pos'} ) {
-                            do {
-                                ::MODIFIED($pos);
-                                $pos =
-                                  ::DISPATCH( $Hash__, 'LOOKUP',
-                                    ::DISPATCH( $::Str, 'new', 'pos' ) );
-                              }
+                                  $List__->{_value}{_array}[ $_param_index++ ];
+                            }
                         }
                         do {
                             if (
@@ -983,37 +985,38 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        if ( exists $List__->{_value}{_array}[0] ) {
-                            do {
-                                ::MODIFIED($str);
+                        {
+                            my $_param_index = 0;
+                            if ( exists $Hash__->{_value}{_hash}{'str'} ) {
+                                do {
+                                    ::MODIFIED($str);
+                                    $str =
+                                      ::DISPATCH( $Hash__, 'LOOKUP',
+                                        ::DISPATCH( $::Str, 'new', 'str' ) );
+                                  }
+                            }
+                            elsif (
+                                exists $List__->{_value}{_array}[$_param_index]
+                              )
+                            {
                                 $str =
-                                  ::DISPATCH( $List__, 'INDEX',
-                                    ::DISPATCH( $::Int, 'new', 0 ) );
-                              }
-                        }
-                        elsif ( exists $Hash__->{_value}{_hash}{'str'} ) {
-                            do {
-                                ::MODIFIED($str);
-                                $str =
-                                  ::DISPATCH( $Hash__, 'LOOKUP',
-                                    ::DISPATCH( $::Str, 'new', 'str' ) );
-                              }
-                        }
-                        if ( exists $List__->{_value}{_array}[1] ) {
-                            do {
-                                ::MODIFIED($pos);
+                                  $List__->{_value}{_array}[ $_param_index++ ];
+                            }
+                            if ( exists $Hash__->{_value}{_hash}{'pos'} ) {
+                                do {
+                                    ::MODIFIED($pos);
+                                    $pos =
+                                      ::DISPATCH( $Hash__, 'LOOKUP',
+                                        ::DISPATCH( $::Str, 'new', 'pos' ) );
+                                  }
+                            }
+                            elsif (
+                                exists $List__->{_value}{_array}[$_param_index]
+                              )
+                            {
                                 $pos =
-                                  ::DISPATCH( $List__, 'INDEX',
-                                    ::DISPATCH( $::Int, 'new', 1 ) );
-                              }
-                        }
-                        elsif ( exists $Hash__->{_value}{_hash}{'pos'} ) {
-                            do {
-                                ::MODIFIED($pos);
-                                $pos =
-                                  ::DISPATCH( $Hash__, 'LOOKUP',
-                                    ::DISPATCH( $::Str, 'new', 'pos' ) );
-                              }
+                                  $List__->{_value}{_array}[ $_param_index++ ];
+                            }
                         }
                         do {
                             if (
@@ -1418,37 +1421,38 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        if ( exists $List__->{_value}{_array}[0] ) {
-                            do {
-                                ::MODIFIED($str);
+                        {
+                            my $_param_index = 0;
+                            if ( exists $Hash__->{_value}{_hash}{'str'} ) {
+                                do {
+                                    ::MODIFIED($str);
+                                    $str =
+                                      ::DISPATCH( $Hash__, 'LOOKUP',
+                                        ::DISPATCH( $::Str, 'new', 'str' ) );
+                                  }
+                            }
+                            elsif (
+                                exists $List__->{_value}{_array}[$_param_index]
+                              )
+                            {
                                 $str =
-                                  ::DISPATCH( $List__, 'INDEX',
-                                    ::DISPATCH( $::Int, 'new', 0 ) );
-                              }
-                        }
-                        elsif ( exists $Hash__->{_value}{_hash}{'str'} ) {
-                            do {
-                                ::MODIFIED($str);
-                                $str =
-                                  ::DISPATCH( $Hash__, 'LOOKUP',
-                                    ::DISPATCH( $::Str, 'new', 'str' ) );
-                              }
-                        }
-                        if ( exists $List__->{_value}{_array}[1] ) {
-                            do {
-                                ::MODIFIED($pos);
+                                  $List__->{_value}{_array}[ $_param_index++ ];
+                            }
+                            if ( exists $Hash__->{_value}{_hash}{'pos'} ) {
+                                do {
+                                    ::MODIFIED($pos);
+                                    $pos =
+                                      ::DISPATCH( $Hash__, 'LOOKUP',
+                                        ::DISPATCH( $::Str, 'new', 'pos' ) );
+                                  }
+                            }
+                            elsif (
+                                exists $List__->{_value}{_array}[$_param_index]
+                              )
+                            {
                                 $pos =
-                                  ::DISPATCH( $List__, 'INDEX',
-                                    ::DISPATCH( $::Int, 'new', 1 ) );
-                              }
-                        }
-                        elsif ( exists $Hash__->{_value}{_hash}{'pos'} ) {
-                            do {
-                                ::MODIFIED($pos);
-                                $pos =
-                                  ::DISPATCH( $Hash__, 'LOOKUP',
-                                    ::DISPATCH( $::Str, 'new', 'pos' ) );
-                              }
+                                  $List__->{_value}{_array}[ $_param_index++ ];
+                            }
                         }
                         do {
                             if (
@@ -1852,37 +1856,38 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        if ( exists $List__->{_value}{_array}[0] ) {
-                            do {
-                                ::MODIFIED($str);
+                        {
+                            my $_param_index = 0;
+                            if ( exists $Hash__->{_value}{_hash}{'str'} ) {
+                                do {
+                                    ::MODIFIED($str);
+                                    $str =
+                                      ::DISPATCH( $Hash__, 'LOOKUP',
+                                        ::DISPATCH( $::Str, 'new', 'str' ) );
+                                  }
+                            }
+                            elsif (
+                                exists $List__->{_value}{_array}[$_param_index]
+                              )
+                            {
                                 $str =
-                                  ::DISPATCH( $List__, 'INDEX',
-                                    ::DISPATCH( $::Int, 'new', 0 ) );
-                              }
-                        }
-                        elsif ( exists $Hash__->{_value}{_hash}{'str'} ) {
-                            do {
-                                ::MODIFIED($str);
-                                $str =
-                                  ::DISPATCH( $Hash__, 'LOOKUP',
-                                    ::DISPATCH( $::Str, 'new', 'str' ) );
-                              }
-                        }
-                        if ( exists $List__->{_value}{_array}[1] ) {
-                            do {
-                                ::MODIFIED($pos);
+                                  $List__->{_value}{_array}[ $_param_index++ ];
+                            }
+                            if ( exists $Hash__->{_value}{_hash}{'pos'} ) {
+                                do {
+                                    ::MODIFIED($pos);
+                                    $pos =
+                                      ::DISPATCH( $Hash__, 'LOOKUP',
+                                        ::DISPATCH( $::Str, 'new', 'pos' ) );
+                                  }
+                            }
+                            elsif (
+                                exists $List__->{_value}{_array}[$_param_index]
+                              )
+                            {
                                 $pos =
-                                  ::DISPATCH( $List__, 'INDEX',
-                                    ::DISPATCH( $::Int, 'new', 1 ) );
-                              }
-                        }
-                        elsif ( exists $Hash__->{_value}{_hash}{'pos'} ) {
-                            do {
-                                ::MODIFIED($pos);
-                                $pos =
-                                  ::DISPATCH( $Hash__, 'LOOKUP',
-                                    ::DISPATCH( $::Str, 'new', 'pos' ) );
-                              }
+                                  $List__->{_value}{_array}[ $_param_index++ ];
+                            }
                         }
                         do {
                             if (
@@ -2337,37 +2342,38 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        if ( exists $List__->{_value}{_array}[0] ) {
-                            do {
-                                ::MODIFIED($str);
+                        {
+                            my $_param_index = 0;
+                            if ( exists $Hash__->{_value}{_hash}{'str'} ) {
+                                do {
+                                    ::MODIFIED($str);
+                                    $str =
+                                      ::DISPATCH( $Hash__, 'LOOKUP',
+                                        ::DISPATCH( $::Str, 'new', 'str' ) );
+                                  }
+                            }
+                            elsif (
+                                exists $List__->{_value}{_array}[$_param_index]
+                              )
+                            {
                                 $str =
-                                  ::DISPATCH( $List__, 'INDEX',
-                                    ::DISPATCH( $::Int, 'new', 0 ) );
-                              }
-                        }
-                        elsif ( exists $Hash__->{_value}{_hash}{'str'} ) {
-                            do {
-                                ::MODIFIED($str);
-                                $str =
-                                  ::DISPATCH( $Hash__, 'LOOKUP',
-                                    ::DISPATCH( $::Str, 'new', 'str' ) );
-                              }
-                        }
-                        if ( exists $List__->{_value}{_array}[1] ) {
-                            do {
-                                ::MODIFIED($pos);
+                                  $List__->{_value}{_array}[ $_param_index++ ];
+                            }
+                            if ( exists $Hash__->{_value}{_hash}{'pos'} ) {
+                                do {
+                                    ::MODIFIED($pos);
+                                    $pos =
+                                      ::DISPATCH( $Hash__, 'LOOKUP',
+                                        ::DISPATCH( $::Str, 'new', 'pos' ) );
+                                  }
+                            }
+                            elsif (
+                                exists $List__->{_value}{_array}[$_param_index]
+                              )
+                            {
                                 $pos =
-                                  ::DISPATCH( $List__, 'INDEX',
-                                    ::DISPATCH( $::Int, 'new', 1 ) );
-                              }
-                        }
-                        elsif ( exists $Hash__->{_value}{_hash}{'pos'} ) {
-                            do {
-                                ::MODIFIED($pos);
-                                $pos =
-                                  ::DISPATCH( $Hash__, 'LOOKUP',
-                                    ::DISPATCH( $::Str, 'new', 'pos' ) );
-                              }
+                                  $List__->{_value}{_array}[ $_param_index++ ];
+                            }
                         }
                         do {
                             if (

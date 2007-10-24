@@ -228,11 +228,11 @@ sub emit_html {
     my $table = { '$' => '$', '@' => '$List_', '%' => '$Hash_', '&' => '$Code_', };
     do {
         if ( ( $self->{twigil} eq '.' ) ) { return ( ( '<span class="variable">$self->{' . ( $self->{name} . '}</span>' ) ) ) }
-        else { }
+        else                              { }
     };
     do {
         if ( ( $self->{name} eq '/' ) ) { return ( ( $table->{ $self->{sigil} } . 'MATCH' ) ) }
-        else { }
+        else                            { }
     };
     return ( ( '<span class="variable">' . ( Main::mangle_name( $self->{sigil}, $self->{twigil}, $self->{name} ) . '</span>' ) ) );
 }
@@ -276,7 +276,7 @@ sub emit_html {
     };
     do {
         if ( ( $invocant eq 'self' ) ) { $invocant = '$self' }
-        else { }
+        else                           { }
     };
     do {
         if ( ( ( $self->{method} eq 'perl' ) || ( ( $self->{method} eq 'yaml' ) || ( ( $self->{method} eq 'say' ) || ( ( $self->{method} eq 'join' ) || ( ( $self->{method} eq 'chars' ) || ( $self->{method} eq 'isa' ) ) ) ) ) ) ) {
@@ -296,7 +296,7 @@ sub emit_html {
     my $meth = $self->{method};
     do {
         if ( ( $meth eq 'postcircumfix:<( )>' ) ) { $meth = '' }
-        else { }
+        else                                      { }
     };
     my $call = Main::join( [ map { $_->emit_html() } @{ $self->{arguments} } ], ', ' );
     do {
@@ -428,7 +428,7 @@ sub emit_html {
     my $code = ( 'sub { ' . ( $str . ( $self->{block}->emit_html() . ' }' ) ) );
     do {
         if ( $self->{name} ) { return ( ( '$Code_' . ( $self->{name} . ( ' :=  ' . ( $code . '' ) ) ) ) ) }
-        else { }
+        else                 { }
     };
     return ($code);
 }

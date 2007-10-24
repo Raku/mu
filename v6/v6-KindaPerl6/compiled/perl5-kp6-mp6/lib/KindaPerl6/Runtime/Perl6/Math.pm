@@ -94,6 +94,7 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        { my $_param_index = 0; }
                         return (
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__45__62_,

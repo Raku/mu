@@ -119,6 +119,7 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        { my $_param_index = 0; }
                         do {
                             if (
                                 ::DISPATCH(
@@ -223,6 +224,7 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        { my $_param_index = 0; }
                         do {
                             if (
                                 ::DISPATCH(
@@ -308,6 +310,7 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        { my $_param_index = 0; }
                         return (
                             ::DISPATCH( ::DISPATCH( $self, "bool" ), 'true', )
                         );
@@ -376,6 +379,7 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        { my $_param_index = 0; }
                         ::DISPATCH_VAR(
                             ::DISPATCH( $self, "from" ),
                             'STORE',
@@ -448,6 +452,7 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        { my $_param_index = 0; }
                         ::DISPATCH_VAR(
                             ::DISPATCH( $self, "to" ),
                             'STORE',
@@ -520,6 +525,7 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        { my $_param_index = 0; }
                         ::DISPATCH_VAR(
                             ::DISPATCH( $self, "bool" ),
                             'STORE',
@@ -592,6 +598,7 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        { my $_param_index = 0; }
                         ::DISPATCH_VAR(
                             ::DISPATCH( $self, "match_str" ),
                             'STORE',

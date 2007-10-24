@@ -100,6 +100,7 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        { my $_param_index = 0; }
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
@@ -180,6 +181,7 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        { my $_param_index = 0; }
                         ::DISPATCH( $self, 'perl', );
                     },
                     signature => ::DISPATCH(

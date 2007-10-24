@@ -102,11 +102,12 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        { my $_param_index = 0; }
                         ::DISPATCH_VAR(
                             $Hash_sep,
                             'STORE',
                             ::DISPATCH(
-                                $::Hash, "new",
+                                $::Hash, 'new',
                                 {
                                     _hash => {
                                         ::DISPATCH( $::Str, 'new', 'any' )
@@ -239,6 +240,7 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        { my $_param_index = 0; }
                         $thing;
                         do {
                             if (
@@ -336,39 +338,40 @@
                                                           ::DISPATCH( $CAPTURE,
                                                             'hash', );
                                                     };
-                                                    if (
-                                                        exists $List__->{_value}
-                                                        {_array}[0] )
                                                     {
-                                                        do {
-                                                            ::MODIFIED($thing);
-                                                            $thing = ::DISPATCH(
-                                                                $List__,
-                                                                'INDEX',
-                                                                ::DISPATCH(
-                                                                    $::Int,
-                                                                    'new',
-                                                                    0
-                                                                )
-                                                            );
-                                                          }
-                                                    }
-                                                    elsif (
-                                                        exists $Hash__->{_value}
-                                                        {_hash}{'thing'} )
-                                                    {
-                                                        do {
-                                                            ::MODIFIED($thing);
-                                                            $thing = ::DISPATCH(
-                                                                $Hash__,
-                                                                'LOOKUP',
-                                                                ::DISPATCH(
-                                                                    $::Str,
-                                                                    'new',
-                                                                    'thing'
-                                                                )
-                                                            );
-                                                          }
+                                                        my $_param_index = 0;
+                                                        if (
+                                                            exists
+                                                            $Hash__->{_value}
+                                                            {_hash}{'thing'} )
+                                                        {
+                                                            do {
+                                                                ::MODIFIED(
+                                                                    $thing);
+                                                                $thing =
+                                                                  ::DISPATCH(
+                                                                    $Hash__,
+                                                                    'LOOKUP',
+                                                                    ::DISPATCH(
+                                                                        $::Str,
+                                                                        'new',
+                                                                        'thing'
+                                                                    )
+                                                                  );
+                                                              }
+                                                        }
+                                                        elsif (
+                                                            exists
+                                                            $List__->{_value}
+                                                            {_array}
+                                                            [$_param_index] )
+                                                        {
+                                                            $thing =
+                                                              $List__->{_value}
+                                                              {_array}
+                                                              [ $_param_index++
+                                                              ];
+                                                        }
                                                     }
                                                     do {
                                                         if (
@@ -573,39 +576,40 @@
                                                           ::DISPATCH( $CAPTURE,
                                                             'hash', );
                                                     };
-                                                    if (
-                                                        exists $List__->{_value}
-                                                        {_array}[0] )
                                                     {
-                                                        do {
-                                                            ::MODIFIED($thing);
-                                                            $thing = ::DISPATCH(
-                                                                $List__,
-                                                                'INDEX',
-                                                                ::DISPATCH(
-                                                                    $::Int,
-                                                                    'new',
-                                                                    0
-                                                                )
-                                                            );
-                                                          }
-                                                    }
-                                                    elsif (
-                                                        exists $Hash__->{_value}
-                                                        {_hash}{'thing'} )
-                                                    {
-                                                        do {
-                                                            ::MODIFIED($thing);
-                                                            $thing = ::DISPATCH(
-                                                                $Hash__,
-                                                                'LOOKUP',
-                                                                ::DISPATCH(
-                                                                    $::Str,
-                                                                    'new',
-                                                                    'thing'
-                                                                )
-                                                            );
-                                                          }
+                                                        my $_param_index = 0;
+                                                        if (
+                                                            exists
+                                                            $Hash__->{_value}
+                                                            {_hash}{'thing'} )
+                                                        {
+                                                            do {
+                                                                ::MODIFIED(
+                                                                    $thing);
+                                                                $thing =
+                                                                  ::DISPATCH(
+                                                                    $Hash__,
+                                                                    'LOOKUP',
+                                                                    ::DISPATCH(
+                                                                        $::Str,
+                                                                        'new',
+                                                                        'thing'
+                                                                    )
+                                                                  );
+                                                              }
+                                                        }
+                                                        elsif (
+                                                            exists
+                                                            $List__->{_value}
+                                                            {_array}
+                                                            [$_param_index] )
+                                                        {
+                                                            $thing =
+                                                              $List__->{_value}
+                                                              {_array}
+                                                              [ $_param_index++
+                                                              ];
+                                                        }
                                                     }
                                                     do {
                                                         if (
@@ -814,39 +818,40 @@
                                                           ::DISPATCH( $CAPTURE,
                                                             'hash', );
                                                     };
-                                                    if (
-                                                        exists $List__->{_value}
-                                                        {_array}[0] )
                                                     {
-                                                        do {
-                                                            ::MODIFIED($thing);
-                                                            $thing = ::DISPATCH(
-                                                                $List__,
-                                                                'INDEX',
-                                                                ::DISPATCH(
-                                                                    $::Int,
-                                                                    'new',
-                                                                    0
-                                                                )
-                                                            );
-                                                          }
-                                                    }
-                                                    elsif (
-                                                        exists $Hash__->{_value}
-                                                        {_hash}{'thing'} )
-                                                    {
-                                                        do {
-                                                            ::MODIFIED($thing);
-                                                            $thing = ::DISPATCH(
-                                                                $Hash__,
-                                                                'LOOKUP',
-                                                                ::DISPATCH(
-                                                                    $::Str,
-                                                                    'new',
-                                                                    'thing'
-                                                                )
-                                                            );
-                                                          }
+                                                        my $_param_index = 0;
+                                                        if (
+                                                            exists
+                                                            $Hash__->{_value}
+                                                            {_hash}{'thing'} )
+                                                        {
+                                                            do {
+                                                                ::MODIFIED(
+                                                                    $thing);
+                                                                $thing =
+                                                                  ::DISPATCH(
+                                                                    $Hash__,
+                                                                    'LOOKUP',
+                                                                    ::DISPATCH(
+                                                                        $::Str,
+                                                                        'new',
+                                                                        'thing'
+                                                                    )
+                                                                  );
+                                                              }
+                                                        }
+                                                        elsif (
+                                                            exists
+                                                            $List__->{_value}
+                                                            {_array}
+                                                            [$_param_index] )
+                                                        {
+                                                            $thing =
+                                                              $List__->{_value}
+                                                              {_array}
+                                                              [ $_param_index++
+                                                              ];
+                                                        }
                                                     }
                                                     do {
                                                         if (
@@ -1073,39 +1078,40 @@
                                                           ::DISPATCH( $CAPTURE,
                                                             'hash', );
                                                     };
-                                                    if (
-                                                        exists $List__->{_value}
-                                                        {_array}[0] )
                                                     {
-                                                        do {
-                                                            ::MODIFIED($thing);
-                                                            $thing = ::DISPATCH(
-                                                                $List__,
-                                                                'INDEX',
-                                                                ::DISPATCH(
-                                                                    $::Int,
-                                                                    'new',
-                                                                    0
-                                                                )
-                                                            );
-                                                          }
-                                                    }
-                                                    elsif (
-                                                        exists $Hash__->{_value}
-                                                        {_hash}{'thing'} )
-                                                    {
-                                                        do {
-                                                            ::MODIFIED($thing);
-                                                            $thing = ::DISPATCH(
-                                                                $Hash__,
-                                                                'LOOKUP',
-                                                                ::DISPATCH(
-                                                                    $::Str,
-                                                                    'new',
-                                                                    'thing'
-                                                                )
-                                                            );
-                                                          }
+                                                        my $_param_index = 0;
+                                                        if (
+                                                            exists
+                                                            $Hash__->{_value}
+                                                            {_hash}{'thing'} )
+                                                        {
+                                                            do {
+                                                                ::MODIFIED(
+                                                                    $thing);
+                                                                $thing =
+                                                                  ::DISPATCH(
+                                                                    $Hash__,
+                                                                    'LOOKUP',
+                                                                    ::DISPATCH(
+                                                                        $::Str,
+                                                                        'new',
+                                                                        'thing'
+                                                                    )
+                                                                  );
+                                                              }
+                                                        }
+                                                        elsif (
+                                                            exists
+                                                            $List__->{_value}
+                                                            {_array}
+                                                            [$_param_index] )
+                                                        {
+                                                            $thing =
+                                                              $List__->{_value}
+                                                              {_array}
+                                                              [ $_param_index++
+                                                              ];
+                                                        }
                                                     }
                                                     do {
                                                         if (

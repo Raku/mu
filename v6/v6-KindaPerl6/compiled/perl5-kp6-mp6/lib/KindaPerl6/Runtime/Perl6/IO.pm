@@ -97,6 +97,7 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        { my $_param_index = 0; }
                         ::DISPATCH( $::Kp6Security, 'guard_unsecure_code', );
                         ::DISPATCH( $::Int, 'new', 42 );
                     },

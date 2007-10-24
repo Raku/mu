@@ -99,6 +99,7 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        { my $_param_index = 0; }
                         ::DISPATCH( $::Str, 'new', 'sub { ... }' );
                     },
                     signature => ::DISPATCH(
@@ -165,6 +166,7 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        { my $_param_index = 0; }
                         ::DISPATCH( $::Str, 'new', 'sub { ... }' );
                     },
                     signature => ::DISPATCH(

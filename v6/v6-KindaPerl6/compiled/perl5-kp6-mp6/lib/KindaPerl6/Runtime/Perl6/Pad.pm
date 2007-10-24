@@ -104,6 +104,7 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        { my $_param_index = 0; }
                     },
                     signature => ::DISPATCH(
                         $::Signature,

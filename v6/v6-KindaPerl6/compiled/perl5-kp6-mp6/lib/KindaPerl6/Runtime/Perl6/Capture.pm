@@ -109,6 +109,7 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        { my $_param_index = 0; }
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__43__62_,
                             'APPLY',
@@ -204,6 +205,7 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        { my $_param_index = 0; }
                         $v;
                         ::DISPATCH_VAR( $s, 'STORE',
                             ::DISPATCH( $::Str, 'new', '\\\\( ' ) );
@@ -312,33 +314,31 @@
                                             $Hash__ =
                                               ::DISPATCH( $CAPTURE, 'hash', );
                                         };
-                                        if (
-                                            exists $List__->{_value}{_array}[0]
-                                          )
                                         {
-                                            do {
-                                                ::MODIFIED($v);
-                                                $v = ::DISPATCH(
-                                                    $List__, 'INDEX',
-                                                    ::DISPATCH(
-                                                        $::Int, 'new', 0
-                                                    )
-                                                );
-                                              }
-                                        }
-                                        elsif (
-                                            exists $Hash__->{_value}{_hash}
-                                            {'v'} )
-                                        {
-                                            do {
-                                                ::MODIFIED($v);
-                                                $v = ::DISPATCH(
-                                                    $Hash__, 'LOOKUP',
-                                                    ::DISPATCH(
-                                                        $::Str, 'new', 'v'
-                                                    )
-                                                );
-                                              }
+                                            my $_param_index = 0;
+                                            if (
+                                                exists $Hash__->{_value}{_hash}
+                                                {'v'} )
+                                            {
+                                                do {
+                                                    ::MODIFIED($v);
+                                                    $v = ::DISPATCH(
+                                                        $Hash__, 'LOOKUP',
+                                                        ::DISPATCH(
+                                                            $::Str, 'new',
+                                                            'v'
+                                                        )
+                                                    );
+                                                  }
+                                            }
+                                            elsif (
+                                                exists $List__->{_value}{_array}
+                                                [$_param_index] )
+                                            {
+                                                $v =
+                                                  $List__->{_value}{_array}
+                                                  [ $_param_index++ ];
+                                            }
                                         }
                                         ::DISPATCH_VAR(
                                             $s, 'STORE',
@@ -498,6 +498,7 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        { my $_param_index = 0; }
                         ::DISPATCH( $self, 'perl', );
                     },
                     signature => ::DISPATCH(
@@ -564,21 +565,23 @@
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        if ( exists $List__->{_value}{_array}[0] ) {
-                            do {
-                                ::MODIFIED($key);
+                        {
+                            my $_param_index = 0;
+                            if ( exists $Hash__->{_value}{_hash}{'key'} ) {
+                                do {
+                                    ::MODIFIED($key);
+                                    $key =
+                                      ::DISPATCH( $Hash__, 'LOOKUP',
+                                        ::DISPATCH( $::Str, 'new', 'key' ) );
+                                  }
+                            }
+                            elsif (
+                                exists $List__->{_value}{_array}[$_param_index]
+                              )
+                            {
                                 $key =
-                                  ::DISPATCH( $List__, 'INDEX',
-                                    ::DISPATCH( $::Int, 'new', 0 ) );
-                              }
-                        }
-                        elsif ( exists $Hash__->{_value}{_hash}{'key'} ) {
-                            do {
-                                ::MODIFIED($key);
-                                $key =
-                                  ::DISPATCH( $Hash__, 'LOOKUP',
-                                    ::DISPATCH( $::Str, 'new', 'key' ) );
-                              }
+                                  $List__->{_value}{_array}[ $_param_index++ ];
+                            }
                         }
                         do {
                             if (
@@ -604,7 +607,7 @@
                                         ::DISPATCH( $self, "hash" ),
                                         'STORE',
                                         ::DISPATCH(
-                                            $::Hash, "new", { _hash => {} }
+                                            $::Hash, 'new', { _hash => {} }
                                         )
                                     );
                                   }
