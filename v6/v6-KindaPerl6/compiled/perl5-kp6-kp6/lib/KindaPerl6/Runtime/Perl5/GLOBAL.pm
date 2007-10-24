@@ -8,7 +8,6 @@ package GLOBAL;
     our @EXPORT = qw( 
         VAR
         print 
-        say
         warn
         die
         exit
@@ -177,7 +176,6 @@ package GLOBAL;
     sub true     { ::DISPATCH( $_[0], 'true' ) }  
     sub not      { ::DISPATCH( $::Bit, 'new', ! ( ::DISPATCH( $_[0], 'true' )->{_value} ) ) }  
     sub True     { ::DISPATCH( $::Bit, 'new',1 ) }  
-    sub say      { GLOBAL::print( @_, ::DISPATCH( $::Str, 'new', "\n" ));return True;}
     sub warn     { CORE::warn( join '', map { _str($_) } @_ )}
     sub die      { confess( join '', map { _str($_) } @_ )}
     sub exit     { CORE::exit() }

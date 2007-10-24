@@ -408,12 +408,6 @@ $::Value = $meta_Value->PROTOTYPE();
 $meta_Value->add_method( 'WHICH', ::DISPATCH( $::Method, 'new', { code => sub { ::DISPATCH( $::Str, 'new', "$_[0]{_value}" ) } } ) );
 $meta_Value->add_method( 'p5landish', ::DISPATCH( $::Method, 'new', { code => sub { $_[0]{_value} } } ) );
 $meta_Value->add_method(
-    'say',
-    ::DISPATCH( $::Method, 'new', 
-        { code => sub { print $_[0]{_value}, "\n" } }
-    )
-);
-$meta_Value->add_method(
     'print',
     ::DISPATCH( $::Method, 'new', 
         { code => sub { print $_[0]{_value} } }
@@ -917,6 +911,9 @@ require KindaPerl6::Runtime::Perl5::Hash;
 
 require KindaPerl6::Runtime::Perl6::Array;
 require KindaPerl6::Runtime::Perl5::Array;
+
+require KindaPerl6::Runtime::Perl6::List;
+require KindaPerl6::Runtime::Perl5::List;
 
 require KindaPerl6::Runtime::Perl6::Capture;
 require KindaPerl6::Runtime::Perl6::Signature;
