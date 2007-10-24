@@ -3,7 +3,7 @@ use warnings;
 
 use JSON::Syck;
 use File::Slurp;
-use Smart::Comments;
+#use Smart::Comments;
 use List::MoreUtils qw( uniq );
 
 my $gmr_file = shift or die "No grammar file given";
@@ -39,19 +39,21 @@ while (<STDIN>) {
 
 my $gmr = read_file($gmr_file);
 my $id = "R" . $regex_pos[0] . "-" . $regex_pos[1];
-warn $id;
+#warn $id;
 
 my $js_ops = JSON::Syck::Dump(\@ops);
 my $js_regex_pos = JSON::Syck::Dump(\@regex_pos);
 my $js_str_pos = JSON::Syck::Dump(\@str_pos);
 
 #warn scalar(@ops);
-warn $js_ops;
+#warn $js_ops;
 my $html = to_html($gmr, \@regex_pos);
+print "Write gmr.html\n";
 write_file('gmr.html', $html);
 
 my $str = read_file($str_file);
 $html = to_html($str, \@str_pos);
+print "Write str.html\n";
 write_file('str.html', $html);
 
 my $main_html = <<"_EOC_";
@@ -77,7 +79,8 @@ my $main_html = <<"_EOC_";
 </body>
 </html>
 _EOC_
-write_file('main.html', $main_html);
+print "Write index.html\n";
+write_file('index.html', $main_html);
 
 sub escape ($) {
     my $s = shift;
@@ -93,15 +96,15 @@ sub to_html {
     my ($str, $list) = @_;
     my @pos = @$list;
     return unless @pos;
-    my ($from, $to);
-    $to = $pos[0];
+    my $to = $pos[0];
+    my $from = 0;
     my $out = escape substr($str, $from, $to - $from);
     for my $i (1..$#pos) {
         $from = $to;
         $to = $pos[$i];
         #warn "$from <=> $to";
         my $id = "R" . $from . "-" . $to;
-        warn $id;
+        #warn $id;
         my $content = escape substr($str, $from, $to - $from);
         $out .= qq{<span id="$id">$content</span>};
     }
