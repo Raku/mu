@@ -21,6 +21,12 @@ token pair {
                 ::Val::Buf( 'buf' => ~$<ident> ), 
                 ::Val::Buf( 'buf' => ~$<angle_quoted> ) ] 
         } 
+    |   \: <ident> \( <?opt_ws> <exp> <?opt_ws> \)              #  :key(value)
+        { 
+            return [ 
+                ::Val::Buf( 'buf' => ~$<ident> ), 
+                $$<exp> ] 
+        } 
     |   \: <ident>                          #  :key
         { 
             return [ 
