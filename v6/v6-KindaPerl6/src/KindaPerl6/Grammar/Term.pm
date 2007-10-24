@@ -11,13 +11,22 @@ token term {
             'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'prefix:<' ~ $<prefix_op> ~ '>', namespace => [ ] ),
             'arguments' => [ $$<exp> ],
           ) }
-    | \( <?opt_ws> <exp> <?opt_ws> \)
-        { return $$<exp> }   # ( exp )
+
+    # Parenthesis, List
+    | \( <?opt_ws> 
+        [
+
+        | <exp> <?opt_ws> \)
+            { return $$<exp> }   # ( exp )        
+        | <pair> <?opt_ws> [ ',' <?opt_ws> | '' ] \) 
+            # special case - just for testing
+            { return ::Lit::Pair( key => ($$<pair>)[0], value => ($$<pair>)[1] ) }
+        | <exp_seq> <?opt_ws> \)
+            # TODO - List is not Array
+            { return ::Lit::Array( 'array' => $$<exp_seq> ) }     # ( exp, ... )
+        ]
         
     # Pair, Hash, Bare block
-    | \( <?opt_ws> <pair> <?opt_ws> [ ',' <?opt_ws> | '' ] \) 
-        # special case - just for testing
-        { return ::Lit::Pair( key => ($$<pair>)[0], value => ($$<pair>)[1] ) }
     | \{ <?opt_ws> 
         [
         |   <pair> <?opt_ws> , <?opt_ws> \} 
