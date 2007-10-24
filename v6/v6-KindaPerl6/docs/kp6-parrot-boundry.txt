@@ -3,8 +3,10 @@ During my quest to figure out where the difficult programming of perl6
 implementation is done, I asked a few questions and received a few responses.
 I have cleaned up the questions and responses and documented them here.  The
 question is "Where is the programming that makes programmer's work a lot
-easier"; Method overloading, namespace resolution ( global / file / lexical ),
-objects and so on.
+easier"; Method overloading, objects and so on.
+
+namespace resolution (lexical (my) / file (our) / global (local)) is partly done
+in Runtime/Perl5/Pad.pm (footnote #11)
 
 I had to figure out what code does what?  The AST (footnote #2) / Emit(ers)
 (footnote #1) are too small to be doing the work, thus some other code had to be
@@ -24,15 +26,16 @@ probably is correct.
 However, while looking at the perl6 compiler I realized that there is not enough
 code in there to be a true compiler.  There are whole blocks of code missing
 that should be handling a lot of the difficult programming.  Method overloading,
-namespace resolution (lexical (my) / file (our) / global (local)), object
-handling and so on.
+object handling and so on.
 
 The majority of the missing code is in the Parrot op code. (footnote #5) When
 thinking about perl6/parrot, think of parrot as being a virtual machine that
 that executes a subset of perl6 in an macro language.  Kindaperl6 converts
 perl6 code into Parrot PIR (future: convert perl6 code into a Parrot AST)
 (footnote #4, #8). Parrot provides it's own object method handling code
-(footnote #9).
+(footnote #9) however that is not completed.  However, Parrot Object code is
+not done yet (footnote #10), and Object inheritance / virtual methods is
+currently (Oct. 14 2007) done in the kp6 compiler/runtime (footnote #12).
 
 However, some perl6 code will be have to expanded into Parrot PIR such as the
 regular expressions and grammars.  Junctions where also noted as part of the
@@ -73,3 +76,11 @@ Footnotes:
  8. http://irclog.perlgeek.de/perl6/2007-10-24#i_131350
 
  9. http://www.parrotcode.org/docs/ops/object.html
+
+10. http://irclog.perlgeek.de/perl6/2007-10-24#i_131401
+
+11. http://svn.pugscode.org/pugs/v6/v6-KindaPerl6/src/KindaPerl6/Runtime/Perl5/Pad.pm
+    http://svn.pugscode.org/pugs/v6/v6-KindaPerl6/src/KindaPerl6/Runtime/Perl6/Pad.pm
+    http://irclog.perlgeek.de/perl6/2007-10-24#i_131403
+
+12. http://irclog.perlgeek.de/perl6/2007-10-24#i_131400
