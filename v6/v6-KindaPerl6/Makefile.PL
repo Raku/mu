@@ -358,7 +358,7 @@ sub top_targets
     $inherited =~ s/perldoc ExtUtils::MakeMaker/perldoc Makefile.PL/;
 
     # Add the kp6 targets
-    $inherited =~ s/^(all (.*))/$1 \$(kp6_mp6_OBJ) \$(kp6_mp6_modules_OBJ) kp6-kp6.pl/m;
+    $inherited =~ s/^(all (.*))/$1 \$(kp6_mp6_OBJ) \$(kp6_mp6_modules_OBJ) script\/kp6-kp6.pl/m;
 
     # Add kp6_mp6 only targets, not pure_all or manifypods
     $inherited .= "\nkp6_mp6 :: \$(kp6_mp6_OBJ) \$(kp6_mp6_modules_OBJ)\n\t\$(NOECHO) \$(NOOP)\n";
