@@ -7,6 +7,9 @@ TODO list for KindaPerl6
   {a => "b"}.{"a"}
   {a => "b"}{"a"}  # Pair LOOKUP
 
+- move &say() to Prelude
+- make [...] generate an Array object, (...) is List
+
 * Phase 3 "regex compiler refactoring"
 
 - (DONE) add command-line selection of plugins 
