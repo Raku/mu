@@ -301,7 +301,24 @@ token term_meth {
     ]
     |
     <term>
-    [ \.
+    [ 
+    | [ '[' | '.[' ]  <?opt_ws> <exp> <?opt_ws> \]   # $a[exp]
+         { return ::Call(
+                 'invocant' => $$<term>,
+                 'arguments' => [$$<exp>],
+                 'method' => 'INDEX',
+                 'hyper' => '' 
+           )
+         }
+    | [ '{' | '.{' ] <?opt_ws> <exp> <?opt_ws> \}   # $a{exp}
+         { return ::Call(
+                 'invocant' => $$<term>,
+                 'arguments' => [$$<exp>],
+                 'method' => 'LOOKUP',
+                 'hyper' => ''
+           )
+         }
+    | \.
         <hyper_op>
         <opt_ident>   # $obj.(42)
             [ \( 
@@ -327,22 +344,6 @@ token term_meth {
                     'hyper'     => $$<hyper_op>,
                 )
             }
-    | \[ <?opt_ws> <exp> <?opt_ws> \]   # $a[exp]
-         { return ::Call(
-                 'invocant' => $$<term>,
-                 'arguments' => [$$<exp>],
-                 'method' => 'INDEX',
-                 'hyper' => '' 
-           )
-         }
-    | \{ <?opt_ws> <exp> <?opt_ws> \}   # $a{exp}
-         { return ::Call(
-                 'invocant' => $$<term>,
-                 'arguments' => [$$<exp>],
-                 'method' => 'LOOKUP',
-                 'hyper' => ''
-           )
-         }
     | \< <angle_quoted> \>   # $a{exp}
          { return ::Call(
                  'invocant' => $$<term>,
