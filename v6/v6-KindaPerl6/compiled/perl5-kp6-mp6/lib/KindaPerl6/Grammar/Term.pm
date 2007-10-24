@@ -372,7 +372,16 @@ sub term {
                                                                                 my $ret = sub {
                                                                                     my $List__ = \@_;
                                                                                     do { [] };
-                                                                                    do { return ( Lit::Hash->new( 'hash' => ${ $MATCH->{'exp_mapping'} }, ) ) };
+                                                                                    do {
+                                                                                        return (
+                                                                                            Call->new(
+                                                                                                'invocant'  => Proto->new( 'name'       => 'Hash', ),
+                                                                                                'hyper'     => '',
+                                                                                                'method'    => 'new',
+                                                                                                'arguments' => [ Lit::Hash->new( 'hash' => ${ $MATCH->{'exp_mapping'} }, ) ],
+                                                                                            )
+                                                                                        );
+                                                                                    };
                                                                                     '974^213';
                                                                                     }
                                                                                     ->();

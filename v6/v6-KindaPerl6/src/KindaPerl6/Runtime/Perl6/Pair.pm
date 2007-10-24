@@ -23,4 +23,9 @@ class Pair is Value {
     method values {
         [ $.value ]
     };
+    method LOOKUP {
+           ( @_[0] eq $.key )   # XXX use === instead
+        ?? $.value
+        !! undef;
+    };
 }

@@ -114,13 +114,14 @@ class Lit::Array {
 
 class Lit::Hash {
     method emit_perl5 {
+        # this is not a Perl 6 object, objects are created with a high-level Hash.new 
         my $fields := @.hash;
         my $str := '';
         my $field;
         for @$fields -> $field { 
             $str := $str ~ ($field[0]).emit_perl5 ~ '->{_value} => ' ~ ($field[1]).emit_perl5 ~ ',';
         }; 
-        '::DISPATCH( $::Hash, "new", { _hash => { ' ~ $str ~ ' } } )' ~ Main::newline();
+        '{ _hash => { ' ~ $str ~ ' } }' ~ Main::newline();
     }
 }
 

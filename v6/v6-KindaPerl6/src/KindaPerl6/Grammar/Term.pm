@@ -53,7 +53,14 @@ token term {
                 );
             }
         |   <exp_mapping> <?opt_ws> \}
-            { return ::Lit::Hash( 'hash' => $$<exp_mapping> ) }   # { exp => exp, ... }
+            { return 
+                ::Call( 
+                    'invocant'  => ::Proto( name => 'Hash' ), 
+                    'hyper'     => '',
+                    'method'    => 'new',
+                    'arguments' => [ ::Lit::Hash( 'hash' => $$<exp_mapping> ) ] 
+                );
+            }
         |   <bare_block> 
             { 
                 return $$<bare_block>;

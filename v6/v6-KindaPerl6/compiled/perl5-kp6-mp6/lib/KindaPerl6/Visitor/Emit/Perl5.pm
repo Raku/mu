@@ -223,7 +223,7 @@ sub emit_perl5 {
     do {
         for my $field ( @{$fields} ) { $str = ( $str . ( $field->[0]->emit_perl5() . ( '->{_value} => ' . ( $field->[1]->emit_perl5() . ',' ) ) ) ) }
     };
-    ( '::DISPATCH( $::Hash, "new", { _hash => { ' . ( $str . ( ' } } )' . Main::newline() ) ) );
+    ( '{ _hash => { ' . ( $str . ( ' } }' . Main::newline() ) ) );
 }
 
 package Lit::Pair;
