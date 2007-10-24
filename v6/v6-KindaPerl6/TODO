@@ -7,7 +7,7 @@ TODO list for KindaPerl6
   # done {a => "b"}.{"a"}
   # done {a => "b"}{"a"}  # Pair LOOKUP
 
-- move &say() to Prelude
+- # done move &say() to Prelude
 - # done make [...] generate an Array object, (...) is List
 
 * Phase 3 "regex compiler refactoring"

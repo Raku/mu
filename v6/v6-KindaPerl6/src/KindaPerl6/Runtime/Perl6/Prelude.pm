@@ -1,4 +1,9 @@
 class GLOBAL {
+
+    sub say {
+        print(@_, "\n");
+    }
+
     sub all {
         Junction.new( things => @_, type => 'all' );
     };
