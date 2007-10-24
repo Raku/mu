@@ -1,5 +1,8 @@
 TODO list for KindaPerl6
 
+- Bug (luqui++): 
+  foo(); sub foo() { say 'hi' }
+  my &x; sub y { say 123 }; x(); BEGIN { &x := &y }
 
 * Phase 3 "regex compiler refactoring"
 
