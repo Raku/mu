@@ -3,25 +3,24 @@ use v6-alpha;
 
 grammar KindaPerl6::Grammar {
 
-token key { 
-    |  <ident> <before <'=>'> | <?ws> > 
-       { return ::Val::Buf( 'buf' => ~$<ident> ) }  # autoquote
-    |  <exp>   
-       { return $$<exp> } 
-};
+token exp2 {  <exp> { return $$<exp> }  };
 
 token pair {
-    |   <key>                               #  key => value
-        <?opt_ws> <'=>'> <?opt_ws>
+    |   <ident>                             #  key => value
+        <?opt_ws> '=>' <?opt_ws>
         <exp>
-        { return [ $$<key>, $$<exp> ] }
+        { return [ ::Val::Buf( 'buf' => ~$<ident> ), $$<exp> ] }
+    |   <exp2>                              #  key => value
+        <?opt_ws> '=>' <?opt_ws>
+        <exp>
+        { return [ $$<exp2>, $$<exp> ] }
     |   \: <ident> \< <angle_quoted> \>     #  :key<value>
         { 
             return [ 
                 ::Val::Buf( 'buf' => ~$<ident> ), 
                 ::Val::Buf( 'buf' => ~$<angle_quoted> ) ] 
         } 
-    |   \: <ident> \( <?opt_ws> <exp> <?opt_ws> \)              #  :key(value)
+    |   \: <ident> \( <?opt_ws> <exp> <?opt_ws> \)   #  :key(value)
         { 
             return [ 
                 ::Val::Buf( 'buf' => ~$<ident> ), 

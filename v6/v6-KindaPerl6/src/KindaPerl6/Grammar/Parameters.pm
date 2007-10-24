@@ -30,13 +30,46 @@ grammar KindaPerl6::Grammar {
         $env.add_lexicals( $decl );
     }
 
+    token exp_parameter_named {
+        |   <ident>                             #  key => value
+            <?opt_ws> '=>' <?opt_ws>
+            <exp>
+            { return [ ::Val::Buf( 'buf' => ~$<ident> ), $$<exp> ] }
+        |   \: <ident> \< <angle_quoted> \>     #  :key<value>
+            { 
+                return [ 
+                    ::Val::Buf( 'buf' => ~$<ident> ), 
+                    ::Val::Buf( 'buf' => ~$<angle_quoted> ) ] 
+            } 
+        |   \: <ident> \( <?opt_ws> <exp> <?opt_ws> \)   #  :key(value)
+            { 
+                return [ 
+                    ::Val::Buf( 'buf' => ~$<ident> ), 
+                    $$<exp> ] 
+            } 
+        |   \: <ident>                          #  :key
+            { 
+                return [ 
+                    ::Val::Buf( 'buf' => ~$<ident> ), 
+                    ::Val::Bit( 'bit' => 1 ) ] 
+            } 
+        |   \: <sigil> <ident>                  #  :$var
+            { 
+                return [ 
+                    ::Val::Buf( 'buf' => ~$<ident> ), 
+                    ::Var( 'sigil' => ~$$<sigil>, 'twigil' => '', 'name' => $$<ident>, namespace => [ ] ) ] 
+            } 
+    };
+
+
     token exp_parameter_item {
-        |   <pair>  
+        |   <exp_parameter_named>  
             { return ::Lit::NamedArgument( 
-                    key           => ($$<pair>)[0], 
-                    value         => ($$<pair>)[1],
+                    key           => ($$<exp_parameter_named>)[0], 
+                    value         => ($$<exp_parameter_named>)[1],
                 ) }
-        |   <exp>  { return $$<exp> }
+        |   <pair>  { return ::Lit::Pair( key => ($$<pair>)[0], value => ($$<pair>)[1] ) }   
+        |   <exp>   { return $$<exp>  }
     }
 
     token exp_parameter_list {
