@@ -3,8 +3,23 @@ use warnings;
 
 use JSON::Syck;
 use File::Slurp;
+use Getopt::Long;
+use File::Spec ();
+use File::Path 'mkpath';
+use File::Copy 'copy';
+
 #use Smart::Comments;
 use List::MoreUtils qw( uniq );
+
+my $outdir = '.';
+GetOptions(
+    'outdir=s' => \$outdir
+) or die help();
+if (!-d $outdir) { mkpath $outdir; }
+
+sub help {
+    die "Usage: $0 [--outdir=.] grammar_file input_file  < trace.out\n";
+}
 
 my $gmr_file = shift or die "No grammar file given";
 my $str_file = shift or die "No str file given";
@@ -48,15 +63,17 @@ my $js_str_pos = JSON::Syck::Dump(\@str_pos);
 #warn scalar(@ops);
 #warn $js_ops;
 my $html = to_html($gmr, \@regex_pos);
-print "Write gmr.html\n";
-write_file('gmr.html', $html);
+my $outfile = File::Spec->catfile($outdir, 'gmr.html');
+print "Write $outfile\n";
+write_file($outfile, $html);
 
 my $str = read_file($str_file);
 $html = to_html($str, \@str_pos);
-print "Write str.html\n";
-write_file('str.html', $html);
+$outfile = File::Spec->catfile($outdir, 'str.html');
+print "Write $outfile\n";
+write_file($outfile, $html);
 
-my $main_html = <<"_EOC_";
+$html = <<"_EOC_";
 <html>
     <head>
     <title>Test</title>
@@ -79,8 +96,23 @@ my $main_html = <<"_EOC_";
 </body>
 </html>
 _EOC_
-print "Write index.html\n";
-write_file('index.html', $main_html);
+
+$outfile = File::Spec->catfile($outdir, 'index.html');
+print "Write $outfile\n";
+write_file($outfile, $html);
+
+my $tracer_js = File::Spec->catfile($outdir, 'tracer/tracer.js');
+my $jquery_js = File::Spec->catfile($outdir, 'tracer/jquery.js');
+
+if ($outdir ne '.') {
+    if (!-d "$outdir/tracer") {
+        mkpath("$outdir/tracer");
+    }
+    print "Write $jquery_js\n";
+    copy('tracer/jquery.js', $jquery_js);
+    print "Write $tracer_js\n";
+    copy('tracer/tracer.js', $tracer_js);
+}
 
 sub escape ($) {
     my $s = shift;
