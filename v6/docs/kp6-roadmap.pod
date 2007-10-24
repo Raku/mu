@@ -505,11 +505,11 @@ It is now possible to implement parameters in regexes.
 
 =item * Improved parameter handling
 
-* near finished
+* Status: near finished
 
 =item * Improved "perl5rx" backend
 
-* needs more tests; needs Makefile support.
+* Status: passes all tests
 
 =back
 
@@ -517,17 +517,23 @@ It is now possible to implement parameters in regexes.
 
 =over
 
-=item * Upgrade the grammar engine in MiniPerl6
+=item * Upgrade the grammar engine in MiniPerl6 to the regex new syntax
 
 * we need MiniPerl6 in order to compile KindaPerl6
 
-=item * Upgrade the KindaPerl6 grammar source code
+=item * Upgrade the KindaPerl6 grammar source code to the new regex syntax
+
+* ...
+
+=item * Upgrade the KindaPerl6 regex engine to the new regex syntax
 
 * ...
 
 =item * Add "perl5rx" support to Makefile
 
 * ...
+
+* Status: added "scripts/run_tests_kp6_mp6_perl5rx.pl"
 
 =back
 
