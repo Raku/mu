@@ -1,0 +1,12 @@
+This is the placeholder for v6-Onion.
+
+v6-Onion (On6) is a Perl 6 compiler written in Perl 6
+
+On6 is bootstrapped with v6-KindaPerl6 (KP6).
+Unlike KP6, the On6 source code can use plain Perl 6.
+However, there are some language features that On6 should probably not use,
+because they are hard to support in some backends.
+
+Otherwise, On6 is the same project as KP6, and it follows the same roadmap.
+See v6/docs/kp6-roadmap.pod
+
