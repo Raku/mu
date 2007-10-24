@@ -221,7 +221,16 @@ sub term {
                                                                         my $ret = sub {
                                                                             my $List__ = \@_;
                                                                             do { [] };
-                                                                            do { return ( Lit::Array->new( 'array' => ${ $MATCH->{'exp_seq'} }, ) ) };
+                                                                            do {
+                                                                                return (
+                                                                                    Call->new(
+                                                                                        'invocant'  => Proto->new( 'name'         => 'List', ),
+                                                                                        'hyper'     => '',
+                                                                                        'method'    => 'new',
+                                                                                        'arguments' => [ Lit::Array->new( 'array' => ${ $MATCH->{'exp_seq'} }, ) ],
+                                                                                    )
+                                                                                );
+                                                                            };
                                                                             '974^213';
                                                                             }
                                                                             ->();
@@ -455,7 +464,10 @@ sub term {
                                                                 my $ret = sub {
                                                                     my $List__ = \@_;
                                                                     do { [] };
-                                                                    do { return ( Lit::Array->new( 'array' => ${ $MATCH->{'exp_seq'} }, ) ) };
+                                                                    do {
+                                                                        return (
+                                                                            Call->new( 'invocant' => Proto->new( 'name' => 'Array', ), 'hyper' => '', 'method' => 'new', 'arguments' => [ Lit::Array->new( 'array' => ${ $MATCH->{'exp_seq'} }, ) ], ) );
+                                                                    };
                                                                     '974^213';
                                                                     }
                                                                     ->();

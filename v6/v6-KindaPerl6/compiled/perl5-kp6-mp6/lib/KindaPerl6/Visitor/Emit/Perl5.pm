@@ -207,7 +207,7 @@ sub emit_perl5 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( '::DISPATCH( $::Array, "new", { _array => [' . ( Main::join( [ map { $_->emit_perl5() } @{ $self->{array} } ], ', ' ) . ( '] } )' . Main::newline() ) ) );
+    ( '{ _array => [' . ( Main::join( [ map { $_->emit_perl5() } @{ $self->{array} } ], ', ' ) . ( '] }' . Main::newline() ) ) );
 }
 
 package Lit::Hash;

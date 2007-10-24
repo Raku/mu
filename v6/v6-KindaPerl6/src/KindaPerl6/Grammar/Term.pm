@@ -22,8 +22,14 @@ token term {
             # special case - just for testing
             { return ::Lit::Pair( key => ($$<pair>)[0], value => ($$<pair>)[1] ) }
         | <exp_seq> <?opt_ws> \)
-            # TODO - List is not Array
-            { return ::Lit::Array( 'array' => $$<exp_seq> ) }     # ( exp, ... )
+            { return 
+                ::Call( 
+                    'invocant'  => ::Proto( name => 'List' ), 
+                    'hyper'     => '',
+                    'method'    => 'new',
+                    'arguments' => [ ::Lit::Array( 'array' => $$<exp_seq> ) ] 
+                );
+            }
         ]
         
     # Pair, Hash, Bare block
@@ -59,7 +65,14 @@ token term {
         ]    
         
     | \[ <?opt_ws> <exp_seq> <?opt_ws> \]
-        { return ::Lit::Array( 'array' => $$<exp_seq> ) }     # [ exp, ... ]
+            { return 
+                ::Call( 
+                    'invocant'  => ::Proto( name => 'Array' ), 
+                    'hyper'     => '',
+                    'method'    => 'new',
+                    'arguments' => [ ::Lit::Array( 'array' => $$<exp_seq> ) ] 
+                );
+            }
 
     # Capture
     | \\ \( <?opt_ws> <capture> <?opt_ws> \)

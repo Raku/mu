@@ -107,7 +107,8 @@ class Lit::Seq {
 
 class Lit::Array {
     method emit_perl5 {
-        '::DISPATCH( $::Array, "new", { _array => [' ~ (@.array.>>emit_perl5).join(', ') ~ '] } )' ~ Main::newline();
+        # this is not a Perl 6 object, objects are created with a high-level Array.new or List.new
+        '{ _array => [' ~ (@.array.>>emit_perl5).join(', ') ~ '] }' ~ Main::newline();
     }
 }
 
