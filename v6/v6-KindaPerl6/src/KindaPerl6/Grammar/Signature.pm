@@ -13,7 +13,10 @@ grammar KindaPerl6::Grammar {
         |   <''>                                     { return { has_default => 0, default => ::Val::Undef( ), } }
     }
     token sig_named_only       { ':' { return 1 } | { return 0 } }
-    token sig_optional         { '?' { return 1 } | { return 0 } }
+    token sig_optional         { 
+        |   '?'            { return 1 } 
+        |   [ '!' | '' ]   { return 0 } 
+    }
     token sig_slurpy           { '*' { return 1 } | { return 0 } }
     token sig_multidimensional { '@' { return 1 } | { return 0 } }
     token sig_rw               { <?ws> 'is' <?ws> 'rw'   { return 1 } | { return 0 } }
