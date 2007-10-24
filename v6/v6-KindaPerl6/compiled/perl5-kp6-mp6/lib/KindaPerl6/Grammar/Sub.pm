@@ -359,7 +359,7 @@ sub sub {
                                                                                         my $ret = sub {
                                                                                             my $List__ = \@_;
                                                                                             do { [] };
-                                                                                            do { Main::say( '*** Syntax Error in sub \'', ${ $MATCH->{'name'} }, '\'' ); die('error in Block') };
+                                                                                            do { Main::say( '*** Syntax Error in sub \'', ${ $MATCH->{'name'} }, '\': missing closing curly bracket }' ); die('error in Block') };
                                                                                             '974^213';
                                                                                             }
                                                                                             ->();
@@ -513,7 +513,7 @@ sub coro {
                                                                                             my $ret = sub {
                                                                                                 my $List__ = \@_;
                                                                                                 do { [] };
-                                                                                                do { Main::say( '*** Syntax Error in coro \'', ${ $MATCH->{'name'} }, '\'' ); die('error in Block') };
+                                                                                                do { Main::say( '*** Syntax Error in coro \'', ${ $MATCH->{'name'} }, '\': missing closing curly bracket }' ); die('error in Block') };
                                                                                                 '974^213';
                                                                                                 }
                                                                                                 ->();
@@ -651,7 +651,7 @@ sub arrow_sub {
                                                                         my $ret = sub {
                                                                             my $List__ = \@_;
                                                                             do { [] };
-                                                                            do { Main::say('*** Syntax Error in sub '); die('error in Block') };
+                                                                            do { Main::say('*** Syntax Error in sub: missing closing curly bracket } '); die('error in Block') };
                                                                             '974^213';
                                                                             }
                                                                             ->();
@@ -750,7 +750,7 @@ sub bare_block {
                                                 my $ret = sub {
                                                     my $List__ = \@_;
                                                     do { [] };
-                                                    do { Main::say('*** Syntax Error in Block '); die('error in Block') };
+                                                    do { Main::say('*** Syntax Error in Block: missing closing curly bracket } '); die('error in Block') };
                                                     '974^213';
                                                     }
                                                     ->();

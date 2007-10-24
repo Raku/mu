@@ -45,7 +45,7 @@ token sub {
         }
         <exp_stmts> 
         <?opt_ws> 
-    [   \}     | { say '*** Syntax Error in sub \'', $$<name>, '\''; die 'error in Block'; } ]
+    [   \}     | { say '*** Syntax Error in sub \'', $$<name>, '\': missing closing curly bracket }'; die 'error in Block'; } ]
     { 
         my $env := COMPILER::current_pad();
         COMPILER::drop_pad();
@@ -80,7 +80,7 @@ token coro {
         }
         <exp_stmts> 
         <?opt_ws> 
-    [   \}     | { say '*** Syntax Error in coro \'', $$<name>, '\''; die 'error in Block'; } ]
+    [   \}     | { say '*** Syntax Error in coro \'', $$<name>, '\': missing closing curly bracket }'; die 'error in Block'; } ]
     { 
         my $env := COMPILER::current_pad();
         COMPILER::drop_pad();
@@ -115,7 +115,7 @@ token arrow_sub {
         }
         <exp_stmts> 
         <?opt_ws> 
-    [   \}     | { say '*** Syntax Error in sub '; die 'error in Block'; } ]
+    [   \}     | { say '*** Syntax Error in sub: missing closing curly bracket } '; die 'error in Block'; } ]
     { 
         my $env := COMPILER::current_pad();
         COMPILER::drop_pad();
@@ -147,7 +147,7 @@ token bare_block {
         }
         <exp_stmts> 
         <?opt_ws> 
-    [   \}     | { say '*** Syntax Error in Block '; die 'error in Block'; } ]
+    [   \}     | { say '*** Syntax Error in Block: missing closing curly bracket } '; die 'error in Block'; } ]
     { 
         my $env := COMPILER::current_pad();
         COMPILER::drop_pad();
