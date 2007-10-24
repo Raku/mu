@@ -58,7 +58,7 @@ my $main_html = <<"_EOC_";
 <html>
     <head>
     <title>Test</title>
-    <script src="jquery.js"></script>
+    <script src="tracer/jquery.js"></script>
     <script type="application/javascript">
         var Ops = $js_ops;
         var Id = '$id';
@@ -67,7 +67,7 @@ my $main_html = <<"_EOC_";
     </script>
     </head>
 <body>
-<script src="tracer.js"></script>
+<script src="tracer/tracer.js"></script>
 \&nbsp;
 <button id="reset">Reset</button>
 <button id="next">Next</button>
