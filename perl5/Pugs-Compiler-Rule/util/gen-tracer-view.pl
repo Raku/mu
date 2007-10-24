@@ -145,3 +145,30 @@ sub to_html {
     return "<code>$out</code>";
 }
 
+__END__
+
+=head1 NAME
+
+gen-tracer-view.pl - Generate the HTML view for the PCR tracer
+
+=head1 SYNOPSIS
+
+  $ perl util/compile_p6grammar.pl -D examples/digits.grammar > Digits.pm
+  $ echo '7c3d54' > digits.input
+  $ perl -Ilib -MDigits -e 'print Digits->count(<>)->(), "\n"' digits.input > trace.out
+  $ perl util/gen-tracer-view.pl --outdir tmp/digits examples/digits.grammar digits.input < trace.out
+  $ firefox tmp/digits/index.html
+
+=head1 AUTHOR
+
+Agent Zhang E<gt>yichun.zhang@alibaba-inc.comE<lt>
+
+=head1 COPYRIGHT
+
+Copyright (c) 2007 by Yahoo! China Inc.
+
+=head1 LICENSE
+
+This library is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
