@@ -58,11 +58,11 @@ elsif ( $KP6_TARGET eq "KP6-KP6" ) {
         make        => 
 <<'END',
 compiled/perl5-kp6-kp6/lib/KindaPerl6/Runtime/Perl6/%.pm: src/KindaPerl6/Runtime/Perl6/%.pm
-	$(PERL) script/kp6 -r kp6 < $< | perltidy -pro=util/perltidyrc > $@
+	$(PERL) script/kp6-kp6.pl -Cperl5rx < $< | perltidy -pro=util/perltidyrc > $@
 
 compiled/perl5-kp6-kp6/lib/%.pm: src-modules/%.pm
 	@echo COMPILE $< $@
-	@$(PERL) script/kp6 -r kp6 < $< | perltidy -pro=util/perltidyrc > $@.temp ; \
+	@$(PERL) script/kp6-kp6.pl -Cperl5rx < $< | perltidy -pro=util/perltidyrc > $@.temp ; \
 		res=$$? ; \
 		if [ $$res = 0 -a -s $@.temp ] ; then \
 			mv $@.temp $@ ; \
@@ -78,7 +78,7 @@ compiled/perl5-kp6-kp6/lib/KindaPerl6.pm: src/KindaPerl6.pm
 	$(CP) $< $@
 
 compiled/perl5-kp6-kp6/lib/%.pm: src/%.pm
-	$(PERL) script/kp6 -r kp6 < $< | perltidy -pro=util/perltidyrc > $@
+	$(PERL) script/kp6-kp6.pl -Cperl5rx < $< | perltidy -pro=util/perltidyrc > $@
 
 END
 
