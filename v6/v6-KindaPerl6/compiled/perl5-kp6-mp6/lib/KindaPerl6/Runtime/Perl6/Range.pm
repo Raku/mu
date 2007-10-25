@@ -232,6 +232,151 @@
         ::DISPATCH(
             ::DISPATCH( $::Range, 'HOW', ),
             'add_method',
+            ::DISPATCH( $::Str, 'new', 'INDEX' ),
+            ::DISPATCH(
+                $::Code, 'new',
+                {
+                    code => sub {
+                        my $v;
+                        $v =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$v' } )
+                          unless defined $v;
+
+                        BEGIN {
+                            $v =
+                              ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$v' } );
+                        }
+                        my $List__ =
+                          ::DISPATCH( $::Array, 'new',
+                            { modified => $_MODIFIED, name => '$List__' } );
+                        my $i;
+                        $i =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$i' } )
+                          unless defined $i;
+
+                        BEGIN {
+                            $i =
+                              ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$i' } );
+                        }
+                        $self = shift;
+                        my $CAPTURE;
+                        $CAPTURE =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$CAPTURE' } )
+                          unless defined $CAPTURE;
+
+                        BEGIN {
+                            $CAPTURE = ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$CAPTURE' }
+                            );
+                        }
+                        ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                        do {
+                            ::MODIFIED($List__);
+                            $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                        };
+                        do {
+                            ::MODIFIED($Hash__);
+                            $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        {
+                            my $_param_index = 0;
+                            if ( exists $Hash__->{_value}{_hash}{'i'} ) {
+                                do {
+                                    ::MODIFIED($i);
+                                    $i =
+                                      ::DISPATCH( $Hash__, 'LOOKUP',
+                                        ::DISPATCH( $::Str, 'new', 'i' ) );
+                                  }
+                            }
+                            elsif (
+                                exists $List__->{_value}{_array}[$_param_index]
+                              )
+                            {
+                                $i =
+                                  $List__->{_value}{_array}[ $_param_index++ ];
+                            }
+                        }
+                        ::DISPATCH_VAR(
+                            $v, 'STORE',
+                            ::DISPATCH(
+                                $GLOBAL::Code_infix_58__60__43__62_,
+                                'APPLY', $i,
+                                ::DISPATCH(
+                                    $GLOBAL::Code_infix_58__60__45__62_,
+                                    'APPLY',
+                                    ::DISPATCH( $self, "start" ),
+                                    ::DISPATCH( $::Int, 'new', 1 )
+                                )
+                            )
+                        );
+                        ::DISPATCH(
+                            $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
+                            'APPLY',
+                            ::DISPATCH(
+                                $GLOBAL::Code_infix_58__60__126__126__62_,
+                                'APPLY', $v, $self
+                            ),
+                            $v, $::Undef
+                        );
+                    },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {
+                            invocant => $::Undef,
+                            array    => ::DISPATCH(
+                                $::Array, "new",
+                                {
+                                    _array => [
+                                        ::DISPATCH(
+                                            $::Signature::Item,
+                                            'new',
+                                            {
+                                                sigil       => '$',
+                                                twigil      => '',
+                                                name        => 'i',
+                                                value       => $::Undef,
+                                                has_default => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
+                                                is_named_only => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
+                                                is_optional => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
+                                                is_slurpy => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
+                                                is_multidimensional =>
+                                                  ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                  ),
+                                                is_rw => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
+                                                is_copy => ::DISPATCH(
+                                                    $::Bit, 'new', 0
+                                                ),
+                                            }
+                                        ),
+                                    ]
+                                }
+                            ),
+                            return => $::Undef,
+                        }
+                    ),
+                }
+            )
+        );
+        ::DISPATCH(
+            ::DISPATCH( $::Range, 'HOW', ),
+            'add_method',
             ::DISPATCH( $::Str, 'new', 'for' ),
             ::DISPATCH(
                 $::Code, 'new',

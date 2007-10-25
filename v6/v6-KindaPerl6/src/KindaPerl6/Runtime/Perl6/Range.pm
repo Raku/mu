@@ -16,6 +16,10 @@ class Range is Value {
     #method array {
     #    [ $.start, $.end ]
     #};
+    method INDEX ( $i ) {
+        my $v = $i + $.start - 1;
+        ( $v ~~ self ) ?? $v !! undef;
+    };
     method for ( &code ) {
         my $arity = (&code.signature).arity;
         my $v = $.start;
