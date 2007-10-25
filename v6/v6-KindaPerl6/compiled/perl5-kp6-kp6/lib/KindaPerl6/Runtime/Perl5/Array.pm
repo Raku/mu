@@ -8,9 +8,12 @@ $::Array = KindaPerl6::Runtime::Perl5::MOP::make_class(
     new => sub {
             my $v = {
                 %{ $_[0] },
-                _value => ( $_[1] || { _array => [] } ),  
+                _value => $_[1],  
                 _dispatch_VAR => $::dispatch_VAR,
             };
+            $v->{_value}{_array} = [] 
+                unless defined $v->{_value}{_array};
+            $v;
         },
     INDEX=>sub {
             my $key = ::DISPATCH(::DISPATCH($_[1],"Int"),"p5landish");
@@ -35,7 +38,8 @@ $::Array = KindaPerl6::Runtime::Perl5::MOP::make_class(
         },
     push =>sub {
             my $self = shift;
-            ::DISPATCH($::Int, 'new', push @{ $self->{_value}{_array} }, @_);  # XXX process List properly
+            my @param = map { ::DISPATCH( $_, 'FETCH' ) } @_;
+            ::DISPATCH($::Int, 'new', push @{ $self->{_value}{_array} }, @param);
         },
     pop =>sub {
             my $self = shift;
@@ -48,7 +52,8 @@ $::Array = KindaPerl6::Runtime::Perl5::MOP::make_class(
         },
     unshift =>sub {
             my $self = shift;
-            ::DISPATCH($::Int, 'new', unshift @{ $self->{_value}{_array} }, @_);
+            my @param = map { ::DISPATCH( $_, 'FETCH' ) } @_;
+            ::DISPATCH($::Int, 'new', unshift @{ $self->{_value}{_array} }, @param);
         },
     sort =>sub {
             my $sub = $_[1];

@@ -232,6 +232,140 @@
         ::DISPATCH(
             ::DISPATCH( $::Range, 'HOW', ),
             'add_method',
+            ::DISPATCH( $::Str, 'new', 'min' ),
+            ::DISPATCH(
+                $::Code, 'new',
+                {
+                    code => sub {
+                        my $List__ =
+                          ::DISPATCH( $::Array, 'new',
+                            { modified => $_MODIFIED, name => '$List__' } );
+                        my $self;
+                        $self =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$self' } )
+                          unless defined $self;
+
+                        BEGIN {
+                            $self =
+                              ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$self' } );
+                        }
+                        $self = shift;
+                        my $CAPTURE;
+                        $CAPTURE =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$CAPTURE' } )
+                          unless defined $CAPTURE;
+
+                        BEGIN {
+                            $CAPTURE = ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$CAPTURE' }
+                            );
+                        }
+                        ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                        do {
+                            ::MODIFIED($List__);
+                            $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                        };
+                        do {
+                            ::MODIFIED($Hash__);
+                            $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        { my $_param_index = 0; }
+                        ::DISPATCH( $self, "start" );
+                    },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {
+                            invocant => bless(
+                                {
+                                    'namespace' => [],
+                                    'name'      => 'self',
+                                    'twigil'    => '',
+                                    'sigil'     => '$'
+                                },
+                                'Var'
+                            ),
+                            array =>
+                              ::DISPATCH( $::Array, "new", { _array => [] } ),
+                            return => $::Undef,
+                        }
+                    ),
+                }
+            )
+        );
+        ::DISPATCH(
+            ::DISPATCH( $::Range, 'HOW', ),
+            'add_method',
+            ::DISPATCH( $::Str, 'new', 'max' ),
+            ::DISPATCH(
+                $::Code, 'new',
+                {
+                    code => sub {
+                        my $List__ =
+                          ::DISPATCH( $::Array, 'new',
+                            { modified => $_MODIFIED, name => '$List__' } );
+                        my $self;
+                        $self =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$self' } )
+                          unless defined $self;
+
+                        BEGIN {
+                            $self =
+                              ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$self' } );
+                        }
+                        $self = shift;
+                        my $CAPTURE;
+                        $CAPTURE =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$CAPTURE' } )
+                          unless defined $CAPTURE;
+
+                        BEGIN {
+                            $CAPTURE = ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$CAPTURE' }
+                            );
+                        }
+                        ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                        do {
+                            ::MODIFIED($List__);
+                            $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                        };
+                        do {
+                            ::MODIFIED($Hash__);
+                            $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        { my $_param_index = 0; }
+                        ::DISPATCH( $self, "end" );
+                    },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {
+                            invocant => bless(
+                                {
+                                    'namespace' => [],
+                                    'name'      => 'self',
+                                    'twigil'    => '',
+                                    'sigil'     => '$'
+                                },
+                                'Var'
+                            ),
+                            array =>
+                              ::DISPATCH( $::Array, "new", { _array => [] } ),
+                            return => $::Undef,
+                        }
+                    ),
+                }
+            )
+        );
+        ::DISPATCH(
+            ::DISPATCH( $::Range, 'HOW', ),
+            'add_method',
             ::DISPATCH( $::Str, 'new', 'INDEX' ),
             ::DISPATCH(
                 $::Code, 'new',

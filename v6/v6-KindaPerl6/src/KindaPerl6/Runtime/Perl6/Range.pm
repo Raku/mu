@@ -8,6 +8,8 @@ class Range is Value {
     method Str {
         $.start ~ ".." ~ $.end 
     };
+    method min { $.start };
+    method max { $.end };
     #method true { true };
     #method Int  { $.start.Int };
     #method hash {

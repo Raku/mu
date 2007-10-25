@@ -45,11 +45,13 @@ package GLOBAL;
         infix_58__60__47__62_
         infix_58__60__60__61__62__62_
         infix_58__60__62__61__62_
+        infix_58__60__60__61__62_
         infix_58__60__62__62_
         infix_58__60__60__62_
         infix_58__60_but_62_
         infix_58__60_x_62_
         infix_58__60__47__47__62_
+        infix_58__60__126__126__62_
         
         prefix_58__60__33__62_
         prefix_58__60__36__62_
@@ -231,6 +233,8 @@ package GLOBAL;
     { ::DISPATCH( $::Int, 'new', (_int($_[0]) <=> _int($_[1]))) }  # infix:<<=>>
     sub infix_58__60__62__61__62_
     { ::DISPATCH( $::Bit, 'new', (_int($_[0]) >= _int($_[1])) ? 1 : 0 ) } # infix: <>=>
+    sub infix_58__60__60__61__62_
+    { ::DISPATCH( $::Bit, 'new', (_int($_[0]) <= _int($_[1])) ? 1 : 0 ) } # infix: <<=>
     sub infix_58__60__60__62_
     { ::DISPATCH( $::Bit, 'new', (_int($_[0]) < _int($_[1])) ? 1 : 0 ) } # infix: <<>
     sub infix_58__60__33__61__62_ {
@@ -292,6 +296,9 @@ package GLOBAL;
         return ::DISPATCH( $::Str, 'new', 
                 _str( $_[0] ) x _int( $_[1] ) 
         );
+    }
+    sub infix_58__60__126__126__62_ {  # ~~
+        return ::DISPATCH( $_[1], 'smartmatch', $_[0] );
     }
 
     sub substr      
