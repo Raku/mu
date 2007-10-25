@@ -35,6 +35,8 @@ $(document).ready(function () {
 });
 
 function displayStep () {
+    gmrDoc = $("#gmr")[0].contentDocument;
+    strDoc = $("#str")[0].contentDocument;
     //alert("Click!");
     //if (curStep == 0 && direction == -1) { alert("Boundary!"); }
     if (regexFrom.length && regexTo.length) {
@@ -132,7 +134,7 @@ function renderStr (pos, setter) {
         //alert(strDoc);
         var node = $("#" + id, strDoc)[0];
         if (!node) {
-            //alert("Sorry, no node found in renderStr");
+            alert("Sorry, no node found in renderStr");
             return;
         }
         setter(node);

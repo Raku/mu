@@ -33,13 +33,13 @@ sub expand_tracing_code {
     my (@names, $name, $new, @has_pos);
     while (<$in>) {
         chomp;
-        if (/^\s*## <(\w+)>$/) {
+        if (/\s+## <(\w+)>$/) {
             $name = $1;
             push @names, $name;
             push @has_pos, 0;
             ### begin: $name
             $new .= $_ . "\n";
-        } elsif (/^(\s*)## pos: (\d+) (\d+)/) {
+        } elsif (/(\s+)## pos: (\d+) (\d+)$/) {
             my ($tab, $from, $to) = ($1, $2, $3);
             $has_pos[-1] = 1;
             $new .= <<"_EOC_";
@@ -48,7 +48,7 @@ $tab do {
 $tab   trace_begin('$name', $from, $to, \$pos);
 $tab   my \$retval =
 _EOC_
-        } elsif (/^(\s*)## <\/(\w+)>$/) {
+        } elsif (/(\s+)## <\/(\w+)>$/) {
             my ($tab, $n) = ($1, $2);
             $name = pop @names;
             my $has_pos = pop @has_pos;

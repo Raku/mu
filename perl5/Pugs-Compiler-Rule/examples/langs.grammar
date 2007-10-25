@@ -1,6 +1,7 @@
 # Usage:
 #   util/compile_p6grammar.pl examples/langs.grammar > Langs.pm
 #   perl -MLangs -e 'print My::VB->def("Dim a, b As double")->{"My::C.var_list"}, "\n"'
+#   perl -MLangs -e 'print My::VB->def("Dim a, b As double")->{"My::C.var_list"}, "\n"'
 
 grammar My::C;
 
