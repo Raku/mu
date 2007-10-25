@@ -56,19 +56,27 @@ class Array is Container {
         ( self.grep: sub { $v ~~ $_ } ).true
     };
 
-    # XXX waits for infix <
-#    method min {
-#        my $res;
-#        $res = @(self)[0];
-#        my $v;
-#        for @(self) -> $v {
-#            # XXX no infix c
-#            if $v < $res {
-#                $res = $v;
-#            }
-#        }
-#        return $res;
-#    };
+    method min {
+        my $res = self.[0];
+        my $v;
+        for @(self) -> $v {
+            if $v < $res {
+                $res = $v;
+            }
+        }
+        return $res;
+    };
+
+    method max {
+        my $res = self.[0];
+        my $v;
+        for @(self) -> $v {
+            if $v > $res {
+                $res = $v;
+            }
+        }
+        return $res;
+    };
 
 }
 
