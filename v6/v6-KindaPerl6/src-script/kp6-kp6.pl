@@ -11,15 +11,15 @@ module Main {
     use KindaPerl6::Visitor::Token;
     use KindaPerl6::Visitor::MetaClass;
     use KindaPerl6::Visitor::Global;
-    use KindaPerl6::Visitor::EmitPerl5;
-    use KindaPerl6::Visitor::Perl;
+    use KindaPerl6::Visitor::Emit::Perl5;
+    use KindaPerl6::Visitor::Emit::AstPerl;
 
     my @visitors;
     @visitors.push(KindaPerl6::Visitor::ExtractRuleBlock.new());
     @visitors.push(KindaPerl6::Visitor::Token.new());
     @visitors.push(KindaPerl6::Visitor::MetaClass.new());
     @visitors.push(KindaPerl6::Visitor::Global.new())
-    my $emit_p5 = KindaPerl6::Visitor::EmitPerl5.new();
+    my $emit_p5 = KindaPerl6::Visitor::Emit::Perl5.new();
     $emit_p5.visitor_args = { secure => 1 };
     @visitors.push($emit_p5);
 
@@ -42,7 +42,7 @@ module Main {
             die 'AST IS:(' ~ $ast.result ~ ')';
         };
 
-        say $ast.emit(KindaPerl6::Visitor::Perl.new());
+        say $ast.emit(KindaPerl6::Visitor::Emit::AstPerl.new());
         exit;
 
         my $res;

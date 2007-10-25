@@ -80,6 +80,17 @@ compiled/perl5-kp6-kp6/lib/KindaPerl6.pm: src/KindaPerl6.pm
 compiled/perl5-kp6-kp6/lib/%.pm: src/%.pm
 	$(PERL) script/kp6-kp6.pl -Cperl5rx < $< | perltidy -pro=util/perltidyrc > $@
 
+script/kp6-kp6.pl: src-script/kp6-kp6.pl
+	@echo COMPILE $< $@
+	@$(PERL) script/kp6-kp6.pl -Cperl5rx < $< | perltidy -pro=util/perltidyrc > $@.temp ; \
+		res=$$? ; \
+		if [ $$res = 0 -a -s $@.temp ] ; then \
+			mv $@.temp $@ ; \
+		else \
+			echo "*** Compilation failed with exit code: $$res!" ; \
+			exit; \
+		fi
+
 END
 
     );
@@ -112,6 +123,9 @@ compiled/perl5-kp6-kp6/lib/KindaPerl6.pm: src/KindaPerl6.pm
 	$(CP) $< $@
 
 compiled/perl5-kp6-kp6/lib/%.pm: src/%.pm
+	$(PERL) script/kp6 -Cperl5rx --noperltidy < $< > $@
+
+script/kp6-kp6.pl: src-script/kp6-kp6.pl
 	$(PERL) script/kp6 -Cperl5rx --noperltidy < $< > $@
 
 END
