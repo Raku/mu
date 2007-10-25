@@ -1,7 +1,7 @@
 class GLOBAL {
 
     sub say {
-        print(@_, "\n");
+        print( |@_, "\n" );
     }
 
     sub all {

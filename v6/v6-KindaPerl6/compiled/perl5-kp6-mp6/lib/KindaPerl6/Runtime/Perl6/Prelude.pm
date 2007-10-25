@@ -218,8 +218,15 @@
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         { my $_param_index = 0; }
-                        ::DISPATCH( $GLOBAL::Code_print, 'APPLY', $List__,
-                            ::DISPATCH( $::Str, 'new', chr(10) ) );
+                        ::DISPATCH(
+                            $GLOBAL::Code_print,
+                            'APPLY',
+                            ::DISPATCH(
+                                $GLOBAL::Code_prefix_58__60__124__62_,
+                                'APPLY', $List__
+                            ),
+                            ::DISPATCH( $::Str, 'new', chr(10) )
+                        );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
