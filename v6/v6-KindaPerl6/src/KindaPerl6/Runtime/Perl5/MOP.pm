@@ -768,6 +768,26 @@ $meta_Scalar->add_method(
     )
 );
 
+my $meta_ArrayContainer = ::DISPATCH( $::Class, 'new', "ArrayContainer");
+$::ArrayContainer = $meta_ArrayContainer->PROTOTYPE();
+$meta_ArrayContainer->add_parent($::meta_Container);
+$meta_ArrayContainer->add_method(
+    'new',
+    ::DISPATCH( $::Method, 'new', 
+        sub {
+            my $v = {
+                %{ $_[0] },
+                _value => $_[1],    # { %{$_[1]}, cell => undef },
+                _roles        => { 'container' => 1, 'auto_deref' => 1 },
+                _dispatch_VAR => $::dispatch_VAR,
+            };
+            $v->{_value}{cell} = ::DISPATCH($::Array,"new")
+                unless exists $v->{_value}{cell};
+            $v;
+        },
+    )
+);
+
 my $meta_Routine = ::DISPATCH( $::Class, 'new', "Routine");
 $::Routine = $meta_Routine->PROTOTYPE();
 $meta_Routine->add_parent($::meta_Container);

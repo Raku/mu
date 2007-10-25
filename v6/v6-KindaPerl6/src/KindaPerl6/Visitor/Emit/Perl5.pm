@@ -519,7 +519,7 @@ class Decl {
             };
             if ($.var).sigil eq '@' {
                 return $s ~ $.var.emit_perl5
-                    ~ ' = ::DISPATCH( $::Array' ~ $create ~ ';' ~ Main::newline();
+                    ~ ' = ::DISPATCH( $::ArrayContainer' ~ $create ~ ';' ~ Main::newline();
             };
             return $s ~ $.var.emit_perl5 ~ Main::newline();
         };
@@ -564,7 +564,7 @@ class Decl {
             return $.decl ~ ' ' 
                 # ~ $.type 
                 ~ ' ' ~ $.var.emit_perl5
-                ~ ' = ::DISPATCH( $::Array' ~ $create ~ '; '
+                ~ ' = ::DISPATCH( $::ArrayContainer' ~ $create ~ '; '
                 ~ Main::newline();
         };
         return $.decl ~ ' ' 
