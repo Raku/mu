@@ -38,7 +38,7 @@ while (<STDIN>) {
         push @regex_pos, $from, $to;
         push @str_pos, $pos;
         push @ops, ['begin', $symbol, $from, $to, $pos];
-    } elsif (/^>>END (\w+)<< (\w+) at (\d)/) {
+    } elsif (/^>>END (\w+)<< (\w+) at (\d+)/) {
         my ($symbol, $res, $pos) = ($1, $2, $3);
         ## $symbol
         ## $res
