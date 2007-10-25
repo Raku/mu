@@ -51,6 +51,7 @@ package GLOBAL;
         infix_58__60_but_62_
         infix_58__60_x_62_
         infix_58__60__47__47__62_
+        infix_58__60__126__126__62_
         
         prefix_58__60__33__62_
         prefix_58__60__36__62_
@@ -295,6 +296,9 @@ package GLOBAL;
         return ::DISPATCH( $::Str, 'new', 
                 _str( $_[0] ) x _int( $_[1] ) 
         );
+    }
+    sub infix_58__60__126__126__62_ {  # ~~
+        return ::DISPATCH( $_[1], 'smartmatch', $_[0] );
     }
 
     sub substr      

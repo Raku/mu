@@ -28,4 +28,10 @@ class Range is Value {
             code( |@param );
         };
     };
+    method smartmatch ( $v ) {
+        # XXX && bug -- ( $v >= $.start ) && ( $v <= $.end )
+        if $v < $.start { return False }
+        if $v > $.end   { return False }
+        return True;
+    };
 }
