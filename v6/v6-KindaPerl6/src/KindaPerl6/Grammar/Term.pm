@@ -4,6 +4,17 @@ use v6-alpha;
 grammar KindaPerl6::Grammar {
 
 token term {
+    | Inf  <!before <?word> | _ | <?digit> >
+        { return ::Apply(
+            'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'Inf', namespace => [ ] ),
+            'arguments' => [],
+          ) }
+    | NaN  <!before <?word> | _ | <?digit> >
+        { return ::Apply(
+            'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'NaN', namespace => [ ] ),
+            'arguments' => [],
+          ) }
+
     | <var>     { return $$<var> }     # $variable
     | <arrow_sub> { return $$<arrow_sub> }     # -> $param { code... }
     | <prefix_op> <exp> 
@@ -304,6 +315,7 @@ token term {
     | <control> { return $$<control> } # Various control structures.  Does _not_ appear in binding LHS
 #   | <index>     # $obj[1, 2, 3]
 #   | <lookup>    # $obj{'1', '2', '3'}
+
     | <apply>   { return $$<apply>  }  # self; print 1,2,3
     | \<  <angle_quoted>  \>
         { return ::Apply(

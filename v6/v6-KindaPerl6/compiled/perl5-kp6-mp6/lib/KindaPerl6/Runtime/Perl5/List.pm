@@ -8,9 +8,12 @@ $::List = KindaPerl6::Runtime::Perl5::MOP::make_class(
     new => sub {
             my $v = {
                 %{ $_[0] },
-                _value => ( $_[1] || { _array => [] } ),  
+                _value => $_[1],  
                 _dispatch_VAR => $::dispatch_VAR,
             };
+            $v->{_value}{_array} = [] 
+                unless defined $v->{_value}{_array};
+            $v;
         },
     INDEX=>sub {
             # XXX TODO - readonly!
