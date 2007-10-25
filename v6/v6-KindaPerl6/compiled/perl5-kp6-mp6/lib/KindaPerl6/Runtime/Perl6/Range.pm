@@ -248,17 +248,6 @@
                               ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$arity' } );
                         }
-                        my $i;
-                        $i =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$i' } )
-                          unless defined $i;
-
-                        BEGIN {
-                            $i =
-                              ::DISPATCH( $::Scalar, 'new',
-                                { modified => $_MODIFIED, name => '$i' } );
-                        }
                         my $v;
                         $v =
                           ::DISPATCH( $::Scalar, 'new',
@@ -334,8 +323,6 @@
                                 ::DISPATCH( $Code_code, 'signature', ), 'arity',
                             )
                         );
-                        ::DISPATCH_VAR( $i, 'STORE',
-                            ::DISPATCH( $::Int, 'new', 0 ) );
                         ::DISPATCH_VAR( $v, 'STORE',
                             ::DISPATCH( $self, "start" ) );
                         do {

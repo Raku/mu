@@ -18,7 +18,6 @@ class Range is Value {
     #};
     method for ( &code ) {
         my $arity = (&code.signature).arity;
-        my $i = 0;
         my $v = $.start;
         while $v <= $.end {
             my @param;
