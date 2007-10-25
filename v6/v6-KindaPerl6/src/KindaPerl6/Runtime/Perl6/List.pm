@@ -1,7 +1,7 @@
 use v6-alpha;
 class List is Value {
     method perl {
-        '[ ' ~ (self.map( sub { $_.perl } )).join(', ') ~ ' ]' 
+        '( ' ~ (self.map( sub { $_.perl } )).join(', ') ~ ' )' 
     };
     method Str {
         self.join( ' ' );
@@ -10,7 +10,6 @@ class List is Value {
     method Int  { self.elems };
     method array { self };
 
-    # belongs to List
     method grep(&test) {
         my @result;
         for @(self) -> $v { 
@@ -51,6 +50,10 @@ class List is Value {
             %h{$v} = 1;
         };
         @res;
+    };
+
+    method smartmatch ( $v ) {
+        ( self.grep: sub { $v ~~ $_ } ).true
     };
 
     # XXX waits for infix <

@@ -10,7 +10,6 @@ class Array is Container {
     method Int  { self.elems };
     method array { self };
 
-    # belongs to List
     method grep(&test) {
         my @result;
         for @(self) -> $v { 
@@ -51,6 +50,10 @@ class Array is Container {
             %h{$v} = 1;
         };
         @res;
+    };
+
+    method smartmatch ( $v ) {
+        ( self.grep: sub { $v ~~ $_ } ).true
     };
 
     # XXX waits for infix <

@@ -918,6 +918,7 @@ require KindaPerl6::Runtime::Perl5::List;
 require KindaPerl6::Runtime::Perl6::Capture;
 require KindaPerl6::Runtime::Perl6::Signature;
 require KindaPerl6::Runtime::Perl6::Match;
+require KindaPerl6::Runtime::Perl6::Int;
 
 
 sub ::CAPTURIZE {
