@@ -18,6 +18,20 @@ class Range is Value {
     #method array {
     #    [ $.start, $.end ]
     #};
+    method map ( &code ) {
+        my @res;
+        my $arity = (&code.signature).arity;
+        my $v = $.start;
+        while $v <= $.end {
+            my @param;
+            while @param.elems < $arity {
+                @param.push( ( $v <= $.end ) ?? $v !! undef );
+                $v = $v + 1;
+            }
+            @res.push( code( |@param ) );
+        };
+        @res;
+    };
     method INDEX ( $i ) {
         my $v = $i + $.start - 1;
         ( $v ~~ self ) ?? $v !! undef;
