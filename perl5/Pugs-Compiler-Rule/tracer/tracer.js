@@ -104,6 +104,7 @@ function displayStep () {
 
 function renderRegex (from, to, setter) {
     var started = false;
+    var firstTime = true;
     for (var i = 0; i < regexPos.length; i++) {
         if (regexPos[i] == to) {
             break;
@@ -114,6 +115,10 @@ function renderRegex (from, to, setter) {
             var id = 'R' + regexPos[i] + '-' + regexPos[i+1];
             //alert("Id: " + id);
             var node = $("#" + id, gmrDoc)[0];
+            if (firstTime) {
+                gmrDoc.location.hash = "#" + id;
+                firstTime = false;
+            }
             if (!node) {
                 alert("Sorry, no node found in renderRegex");
                 return;
