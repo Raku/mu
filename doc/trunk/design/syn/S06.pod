@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 4 Aug 2007
+  Last Modified: 26 Oct 2007
   Number: 6
-  Version: 89
+  Version: 90
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -108,7 +108,11 @@ The general syntax for anonymous subroutines is:
 But one can also use a scope modifier to introduce the return type first:
 
      my RETTYPE sub ( PARAMS ) TRAITS {...}
-    our RETTYPE sub ( PARAMS ) TRAITS {...} # means the same as "my" here
+    our RETTYPE sub ( PARAMS ) TRAITS {...}
+
+In this case there is no effective difference, since the distinction between
+C<my> and C<our> is only in the handling of the name, and in the case of
+an anonymous sub, there's isn't one.
 
 B<Trait> is the name for a compile-time (C<is>) property.
 See L<"Properties and traits">.
@@ -138,20 +142,32 @@ with the C<is rw> trait:
 Raw blocks are also executable code structures in Perl 6.
 
 Every block defines an object of type C<Code>, which may either be
-executed immediately or passed on as a C<Code> object.  A
-bare block where an operator is expected is bound to the current
-statement level control syntax.  A bare block where a term is expected
-merely produces a C<Code> object.  If the term bare block occurs in a list,
-it is considered the final element of that list unless followed immediately
-by a comma or comma surrogate (intervening C<\h*> or "unspace" is allowed).
+executed immediately or passed on as a C<Code> object.  How a block is
+parsed is context dependent.
+
+A bare block where an operator is expected terminates the current
+expression and will presumably be parsed as a block by the current
+statement-level construct, such as an C<if> or C<while>.  (If no
+statement construct is looking for a block there, it's a syntax error.)
+This form of bare block requires leading whitespace because a bare
+block where a postfix is expected is treated as a hash subscript.
+
+
+A bare block where a term is expected merely produces a C<Code> object.
+If the term bare block occurs in a list, it is considered the final
+element of that list unless followed immediately by a comma or colon
+(intervening C<\h*> or "unspace" is allowed).
 
 =head2 "Pointy blocks"
 
-Semantically the arrow operator C<< -> >> is almost a synonym for
-the anonymous C<sub> keyword, except that the parameter list of a
-pointy block does not require parentheses, and a pointy block may not be
-given traits.  Syntactically, a pointy block is parsed exactly like a
-bare block:
+Semantically the arrow operator C<< -> >> is almost a synonym for the
+C<sub> keyword as used to declare an anonymous subroutine, insofar as
+it allows you to declare a signature for a block of code. However,
+the parameter list of a pointy block does not require parentheses,
+and a pointy block may not be given traits.  In most respects,
+though, a pointy block is treated more like a bare block than like
+an official subroutine.  Syntactically, a pointy block may be used
+anywhere a bare block could be used:
 
     my $sq = -> $val { $val**2 };
     say $sq(10); # 100
@@ -161,10 +177,11 @@ bare block:
         say $elem; # prints "1\n2\n3\n"
     }
 
-It also behaves like a block with respect to control exceptions.  If you
-C<return> from within a pointy block, it will return from the innermost
-enclosing C<sub> or C<method>, not the block itself.  It is referenced
-by C<&?BLOCK>, not C<&?ROUTINE>.
+It also behaves like a block with respect to control exceptions.
+If you C<return> from within a pointy block, the block is transparent
+to the return; it will return from the innermost enclosing C<sub> or
+C<method>, not from the block itself.  It is referenced by C<&?BLOCK>,
+not C<&?ROUTINE>.
 
 A normal pointy block's parameters default to C<readonly>, just like
 parameters to a normal sub declaration.  However, the double-pointy variant
@@ -172,6 +189,13 @@ defaults parameters to C<rw>:
 
     for @list <-> $elem {
         $elem++;
+    }
+
+This form applies C<rw> to all the arguments:
+
+    for @kv <-> $key, $value {
+        $key ~= ".jpg";
+        $value *= 2 if $key ~~ :e;
     }
 
 =head2 Stub declarations
@@ -198,6 +222,15 @@ a failure.  You can also use C<???> to produce a warning, or C<!!!> to
 always die.  These also officially define stub blocks if used as the
 only expression in the block.
 
+It has been argued that C<...> as literal syntax is confusing when
+you might also want to use it for metasyntax within a document.
+Generally this is not an issue in context; it's never an issue in the
+program itself, and the few places where it could be an issue in the
+documentation, a comment will serve to clarify the intent, as above.
+The rest of the time, it doesn't really matter whether the reader
+takes C<...> as literal or not, since the purpose of C<...> is to
+indicate that something is missing whichever way you take it.
+
 
 =head2 Globally scoped subroutines
 
@@ -206,8 +239,9 @@ thereafter visible everywhere in a program.
 
 Global subroutines and variables are normally referred to by prefixing
 their identifiers with C<*> (short for "C<GLOBAL::>").   The C<*>
-is normally required on the declaration but may be omitted on use if
-the reference is unambiguous:
+is required on the declaration unless the C<GLOBAL> namespace can be
+inferred some other way, but the C<*> may be omitted on use if the
+reference is unambiguous:
 
     $*next_id = 0;
     sub *saith($text)  { print "Yea verily, $text" }
@@ -221,6 +255,18 @@ the reference is unambiguous:
     module B {
         saith($next_id);    # Unambiguously the global $next_id
     }
+
+However, under stricture (the default for most code), the C<*> is required
+on variable references.  It's never required on sub calls, and in fact,
+the syntax
+
+    $x = *saith($y);
+
+is illegal, because a C<*> where a term is expected is always parsed
+as the "whatever" token.  If you really want to use a C<*>, you must
+also use the sigil along with the twigil:
+
+    $x = &*saith($y);
 
 Only the name is installed into the C<GLOBAL> package by C<*>.  To define
 subs completely within the scope of the C<GLOBAL> namespace you should
@@ -349,9 +395,43 @@ Perl 6 subroutines may be declared with parameter lists.
 
 By default, all parameters are readonly aliases to their corresponding
 arguments--the parameter is just another name for the original
-argument, but the argument can't be modified through it. To allow
-modification, use the C<is rw> trait. To pass-by-copy, use the C<is copy>
-trait.
+argument, but the argument can't be modified through it.  This is
+vacuously true for value arguments, since they may not be modified in
+any case.  However, the default forces any container argument to also
+be treated as an immutable value.  This extends down only one level;
+an immutable container may always return an element that is mutable if
+it so chooses.  (For this purpose a scalar variable is not considered
+a container of its singular object, though, so the top-level object
+within a scalar variable is considered immutable by default.  Perl 6
+does not have references in the same sense that Perl 5 does.)
+
+To allow modification, use the C<is rw> trait.  This requires a mutable
+object or container as an argument (or some kind of protoobject that
+can be converted to a mutable object, such as might be returned
+by an array or hash that knows how to autovivify new elements).
+Otherwise the signature fails to bind, and this candidate routine
+cannot be considered for servicing this particular call.  (Other multi
+candidates, if any, may succeed if the don't require C<rw> for this
+parameter.)  In any case, failure to bind does not by itself cause
+an exception to be thrown; that is completely up to the dispatcher.
+
+To pass-by-copy, use the C<is copy> trait.  An object container will
+be cloned whether or not the original is mutable, while an (immutable)
+value will be copied into a suitably mutable container.  The parameter
+may bind to any argument that meets the other typological constraints
+of the parameter.
+
+If you have a readonly parameter C<$ro>, it may never be passed on to
+a C<rw> parameter of a subcall, whether or not C<$ro> is currently
+bound to a mutable object.  It may only be rebound to readonly or
+copy parameters.  It may also be rebound to a C<ref> parameter (see
+"C<is ref>" below), but modification will fail as in the case where
+an immutable value is bound to a C<ref> parameter.
+
+Aliases of C<$ro> are also readonly, whether generated explicitly with C<:=>
+or implicitly within a C<Capture> object (which are themselves immutable).
+
+Also, C<$ro> may not be returned from an lvalue subroutine or method.
 
 Parameters may be required or optional. They may be passed by position,
 or by name. Individual parameters may confer a scalar or list context
@@ -632,11 +712,14 @@ different:
 
 so that you can use more descriptive internal parameter names without
 imposing inconveniently long external labels on named arguments.
-If a named argument does not match any label, it is matched against
-the variable names as a fallback.  This allows you to give both a
-short and a long name:
+Multiple name wrappings may be given; this allows you to give both a
+short and a long external name:
 
-    sub globalize (:g($global)) {...}
+    sub globalize (:g(:global($gl))) {...}
+
+Or equivalently:
+
+    sub globalize (:g(:$global)) {...}
 
 Arguments that correspond to named parameters are evaluated in scalar
 context. They can only be passed by name, so it doesn't matter what
@@ -646,6 +729,8 @@ order you pass them in:
     $formal = formalize($title, justify=>'left');
     $formal = formalize($title, :justify<right>, :case<title>);
 
+See S02 for the correspondence between adverbial form and arrow notation.
+
 While named and position arguments may be intermixed, it is suggested
 that you keep all the positionals in one place for clarity unless you
 have a good reason not to.  This is likely bad style:
@@ -653,16 +738,25 @@ have a good reason not to.  This is likely bad style:
     $formal = formalize(:justify<right>, $title, :case<title>, $date);
 
 Named parameters are optional unless marked with a following C<!>.
-Default values for
-optional named parameters are defined in the same way as for positional
-parameters, but may depend only on the values of parameters that have
-already been bound.  (Note that binding happens in the call order,
-not declaration order.)  Named optional parameters default to C<undef> if they
-have no default.  Named required parameters fail unless an argument pair
+Default values for optional named parameters are defined in the same
+way as for positional parameters, but may depend only on existing
+values, including the values of parameters that have already been
+bound.  Named optional parameters default to C<undef> if they have
+no default.  Named required parameters fail unless an argument pair
 of that name is supplied.
 
-Again, note the use of adverbial pairs in the argument list.  See S02 for
-the correspondence between adverbial form and arrow notation.
+Bindings happen in declaration order, not call order, so any default
+may reliably depend on formal parameters to its left in the signature.
+In other words, if the first parameter is C<$a>, it will bind to
+a C<:a()> argument in preference to the first positional argument.
+It might seem that performance of binding would suffer by requiring
+a named lookup before a positional lookup, but the compiler is able
+to guarantee that subs with known fixed signatures (both onlys and
+multis with protos) translate named arguments to positional in the
+first N positions.  Also, purely positional calls may obviously omit any
+named lookups, as may bindings that have already used up all the named
+arguments.  The compiler is also free to intuit proto signatures for
+a given sub or method name as long as the candidate list is stable..
 
 =head2 List parameters
 
@@ -882,7 +976,7 @@ erroneous, and will produce undefined results when parallelized.)
 
 However, feeds go a bit further than ordinary lazy lists in enforcing
 the parallel discipline: they explicitly treat the blunt end as a
-cloned closure that starts a subthread.  The only variables shared
+cloned closure that starts a subthread (presumably cooperative).  The only variables shared
 by the inner scope with the outer scope are those lexical variables
 declared in the outer scope that are visible at the time the closure is
 cloned and the subthread spawned.  Use of such shared variables will
@@ -925,8 +1019,17 @@ chain of operations, to make it read left-to-right:
         @nums ==> grep { $_ % 2 } ==> sort ==> map { $_**2 };
     }
 
-Note that the C<do> is necessary because feeds operate at the statement
-level.  (Parens would also work, since a "do" is assumed there.)
+Note that something like the C<do> is necessary because feeds operate
+at the statement level.  Parens would also work, since a statement is
+expected inside:
+
+    @oddsquares = (
+        @nums ==> grep { $_ % 2 } ==> sort ==> map { $_**2 };
+    );
+
+But as described below, you can also just write:
+
+    @nums ==> grep { $_ % 2 } ==> sort ==> map { $_**2 } ==> @oddsquares;
 
 If the operand on the sharp end of a feed is not a call to a variadic
 operation, it must be something else that can be interpreted as a list
@@ -1273,15 +1376,19 @@ the reverse transformation is not derivable.  For instance, to bind to
 an array of children named C<.kids> or C<< .<kids> >>, use something
 like:
 
-    sub traverse ( NAry $top ( :kids [$eldest, *@siblings] ) ) {
+    multi traverse ( NAry $top ( :kids [$eldest, *@siblings] ) ) {
         traverse($eldest);
-        traverse(@siblings);
+        traverse(:kids(@siblings));  # (binds @siblings to $top)
     }
+    multi traverse ( $leaf ) {...}
+
+The second candidate is called only if the parameter cannot be bound to
+both $top and to the "kids" parsing subparameter.
 
 Likewise, to bind to a hash element of the node and then bind to
 keys in that hash by name:
 
-    sub traverse ( AttrNode $top ( :%attr{ :$vocalic, :$tense } ) {
+    sub traverse ( AttrNode $top ( :%attr{ :$vocalic, :$tense } ) ) {
         say "Has {+%attr} attributes, of which";
         say "vocalic = $vocalic";
         say "tense = $tense";
@@ -1527,7 +1634,8 @@ achieving the same effect.  To gain more control, write your own
 trait handler to allow the use of a more specific trait, such as
 "C<is lru(42)>".  Alternately, just use a state hash keyed on the
 sub's argument capture to write your own memoization with complete
-control from within the subroutine itself.
+control from within the subroutine itself, or from within a wrapper
+around your subroutine.
 
 =item C<is inline>
 
@@ -1633,17 +1741,47 @@ Mark blocks that are to be unconditionally executed before/after
 the subroutine's C<do> block. These blocks must return a true value,
 otherwise an exception is thrown.
 
-When applied to a method, a C<PRE> block automatically also calls all
-C<PRE> blocks on any method of the same long name in each parent class.
-The precondition is satisfied if either the method's own C<PRE> block
-returns true, or I<all> of its parents' C<PRE> blocks return true. This
-"me-or-all-my-parents" requirement applies recursively to each parent's
-C<PRE> block as well.
+When applied to a method, the semantics provide support for the
+"Design by Contract" style of OO programming: a precondition of
+a particular method is met if all the C<PRE> blocks associated
+with that method return true.  Otherwise, the precondition is met
+if C<all> of the parent classes' preconditions are met (which may
+include the preconditions of I<their> parent classes if they fail,
+and so on recursively.)
 
-When applied to a method, a C<POST> block automatically also calls all
-C<POST> blocks on any method of the same long name in every ancestral
-class. The postcondition is satisfied only if the method's own C<POST>
-block I<and> every one of its ancestral C<POST> blocks all return true.
+In contrast, a method's postcondition is met if all the method's C<POST> blocks
+return true I<and> all its parents' postconditions are also met recursively.
+
+C<POST> blocks (and "C<will post>" block traits) declared within a C<PRE>
+or C<ENTER> block are automatically hoisted outward to be called at the
+same time as other C<POST> blocks.  This conveniently gives "circum"
+semantics by virtue of wrapping the post lexical scope within the pre
+lexical scope.
+
+    method push ($new_item) {
+        ENTER {
+            my $old_height = self.height;
+            POST { self.height == $old_height + 1 }
+        }
+
+        $new_item ==> push @.items;
+    }
+
+    method pop () {
+        ENTER {
+            my $old_height = self.height;
+            POST { self.height == $old_height - 1 }
+        }
+
+        return pop @.items;
+    }
+
+[Conjecture: class and module invariants can similarly be supplied
+by embedding C<POST>/C<post> declarations in a C<FOREIGN> block that
+only runs when any routine of this module is called from "outside"
+the current module or type, however that's defined.  The C<FOREIGN> block
+itself could perhaps refine the concept of what is foreign, much like
+an exception handler.]
 
 =item C<ENTER>/C<LEAVE>/C<KEEP>/C<UNDO>/etc.
 
@@ -1665,7 +1803,11 @@ The following traits can be applied to many types of parameters.
 =item C<is readonly>
 
 Specifies that the parameter cannot be modified (e.g. assigned to,
-incremented). It is the default for parameters.
+incremented). It is the default for parameters.  On arguments which
+are already immutable values it is a no-op at run time; on mutable
+containers it may need to create an immutable alias to the mutable object
+if the constraint cannot be enforced entirely at compile time.  Binding
+to a readonly parameter never triggers autovivification.
 
 =item C<is rw>
 
@@ -1686,7 +1828,7 @@ modifications have no effect on the original argument list.)
 Specifies that the parameter is passed by reference. Unlike C<is rw>, the
 corresponding argument must already be a suitable lvalue. No attempt at
 coercion or autovivification is made, so unsuitable values throw an
-exception when you try to modify them.
+exception if you try to modify them within the body of the routine.
 
 =item C<is copy>
 
@@ -1696,6 +1838,8 @@ original argument. This is commonly known as "pass-by-value".
     sub reprint ($text, $count is copy) {
         print $text while $count-- > 0;
     }
+
+Binding to a copy parameter never triggers autovivification.
 
 =item C<is context(I<ACCESS>)>
 
@@ -1711,13 +1855,17 @@ any portions of the dynamic scope outside the current lexical scope.
 
 =head2 The C<return> function
 
-The C<return> function notionally throws a control exception that is caught
-by the current lexically enclosing C<Routine> to force a return through
-the control logic code of any intermediate block constructs.  With normal
-blocks this can be optimized away to a "goto".  All C<Routine> declarations
-have an explicit declarator such as C<sub> or C<method>; bare blocks and
-"pointy" blocks are never considered to be routines in that sense.  To return
-from a block, use C<leave> instead--see below.
+The C<return> function notionally throws a control exception that is
+caught by the current lexically enclosing C<Routine> to force a return
+through the control logic code of any intermediate block constructs.
+(That is, it must unwind the stack of dynamic scopes to the proper
+lexical scope belonging to this routine.)  With normal blocks
+(those that are autoexecuted in place because they're known to the
+compiler) this unwinding can likely be optimized away to a "goto".
+All C<Routine> declarations have an explicit declarator such as C<sub>
+or C<method>; bare blocks and "pointy" blocks are never considered
+to be routines in that sense.  To return from a block, use C<leave>
+instead--see below.
 
 The C<return> function preserves its argument list as a C<Capture> object, and
 responds to the left-hand C<Signature> in a binding.  This allows named return
@@ -2459,20 +2607,20 @@ So you may use C<sub> or C<hash> or C<pair> to disambiguate:
 
 =head2 Pairs as lvalues
 
-Pairs can be used as lvalues. The value of the pair is the recipient of
-the assignment:
+Since they are immutable, Pair objects may not be directly assigned:
 
-    (key => $var) = "value";
+    (key => $var) = "value";    # ERROR
 
-When binding pairs, names can be used to "match up" lvalues and rvalues,
-provided you write the left side as a signature using C<:(...)> notation:
+However, when binding pairs, names can be used to "match up" lvalues
+and rvalues, provided you write the left side as a signature using
+C<:(...)> notation:
 
     :(:who($name), :why($reason)) := (why => $because, who => "me");
 
 (Otherwise the parser doesn't know it should parse the insides as a
 signature and not as an ordinary expression until it gets to the C<:=>,
-and that would be bad.  Possibly we should require a "C<my>" out front
-as well...)
+and that would be bad.  Alternately, the C<my> declarator can also
+force treatment of its argument as a signature.)
 
 =head2 Out-of-scope names
 

@@ -384,7 +384,7 @@ if you mean the other thing.
 Also note that if any term in a list is a bare closure or pointy
 sub, it will be considered to be the final argument of its list
 unless the closure's right curly is followed immediately by comma
-or comma surrogate.  In particular, a method call does *not* extend
+or colon.  In particular, a method call does *not* extend
 the list, so you can say:
 
     @list.grep: { $_ % 2 }.map: { $_ - 1 }.say
