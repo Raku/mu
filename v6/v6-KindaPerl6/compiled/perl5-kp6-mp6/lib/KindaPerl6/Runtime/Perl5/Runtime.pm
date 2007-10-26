@@ -1,8 +1,45 @@
 
 use v5;
+use strict;
+#use FindBin;
 
-use KindaPerl6::Runtime::Perl5::Match;
 use KindaPerl6::Runtime::Perl5::MOP;
+use KindaPerl6::Runtime::Perl5::Match;
+
+# try to load gather/take (depends on 'Coro')
+eval {
+    require KindaPerl6::Runtime::Perl6::Gather;
+    require KindaPerl6::Runtime::Perl5::Gather;
+};
+
+# load the runtime
+
+for ( qw( IO Math Kp6Security ) ) {
+    eval "require KindaPerl6::Runtime::Perl5::$_";
+    warn "*** Could not load runtime class $_: $@" if $@;
+}
+for ( qw( IO Math Multi Junction Range ) ) {
+    eval "require KindaPerl6::Runtime::Perl6::$_";
+    warn "*** Could not load runtime class $_: $@" if $@;
+}
+
+#my $libpath  = $FindBin::Bin."/lib";
+#my $runtime5 = 'KindaPerl6/Runtime/Perl5';
+#my $runtime6 = 'KindaPerl6/Runtime/Perl6';
+#my @runtime5 = <$libpath/$runtime5/{IO,Math,Kp6Security}.pm>;
+#my @runtime6 = <$libpath/$runtime6/{IO,Math,Multi,Junction,Range}.pm>;
+
+#foreach (map { s,^.*($runtime5/.*)\.pm,$1,; s,/,::,g; $_ } @runtime5) {
+#    eval "require $_";
+#    warn "*** Could not load runtime class $_" if $@;
+#}
+#foreach (map { s,^.*($runtime6/.*)\.pm,$1,; s,/,::,g; $_ } @runtime6) {
+#    eval "require $_";
+#    warn "*** Could not load runtime class $_" if $@;
+#}
+
+require KindaPerl6::Runtime::Perl6::Prelude;
+
 use KindaPerl6::Runtime::Perl5::MP6Runtime;
 use KindaPerl6::Runtime::Perl5::Pad;
 use KindaPerl6::Runtime::Perl5::Wrap;

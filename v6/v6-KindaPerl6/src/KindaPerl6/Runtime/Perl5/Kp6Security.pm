@@ -1,6 +1,6 @@
 # low level IO module
 
-$::Kp6Security = make_class(name=>"Kp6Security",parent=>[$meta_Value],methods=>{
+$::Kp6Security = KindaPerl6::Runtime::Perl5::MOP::make_class(name=>"Kp6Security",parent=>[$meta_Value],methods=>{
     guard_insecure_code => sub {
                                 if (Main::KP6_DISABLE_INSECURE_CODE) {
                                     my ($package, $filename, $line) = caller(5);
