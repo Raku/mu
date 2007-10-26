@@ -313,7 +313,7 @@ perl5_init ( int argc, char **argv )
     PERL_GPROF_MONCONTROL(0);
 #endif
 #ifdef PERL_SYS_INIT3
-    PERL_SYS_INIT3(&argc,&argv,&env);
+    PERL_SYS_INIT3(&argc,&argv,&environ);
 #endif
 
 #if (defined(USE_5005THREADS) || defined(USE_ITHREADS)) && defined(HAS_PTHREAD_ATFORK)

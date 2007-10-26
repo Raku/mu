@@ -47,6 +47,8 @@ tightOperators = do
         ++ symbLevel)
     : multLevel                     -- Multiplicative
     : Map.foldWithKey foldInfix addiLevel (r_infix tights) -- Additive (user-definable)
+    : replLevel                     -- Replication
+    : concLevel                     -- Concatenation
     : junaLevel                     -- Junctive And
     : junoLevel                     -- Junctive Or
     : (optOps (r_opt tights)        -- Named Unary (user-definable)
@@ -65,14 +67,16 @@ tightOperators = do
         _       -> leftOps op'  ++ xs   -- Default to left-assoc
         -- _ -> error $ "Impossible: " ++ show op ++ " has no assoc?"
 
-termLevel, methLevel, incrLevel, expoLevel, symbLevel, multLevel, addiLevel, junaLevel, junoLevel :: [RuleOperator Exp]
+termLevel, methLevel, incrLevel, expoLevel, symbLevel, multLevel, addiLevel, replLevel, concLevel, junaLevel, junoLevel :: [RuleOperator Exp]
 termLevel = circumOps (Set.singleton (MkOpName (cast "\\( )")))
 methLevel = methOps (opWords " . .+ .? .* .+ .() .[] .{} .<<>> .= ")
 incrLevel = postOps incrOpsPost ++ preOps incrOpsPre
 expoLevel = rightOps (opWords " ** ")
 symbLevel = preSyn (Set.singleton (MkOpName (cast "|"))) ++ preOps symbPreops
-multLevel = leftOps (opWords " * / % x xx +& +< +> ~& ~< ~> ?& ")
-addiLevel = leftOps (opWords " + - ~ +| +^ ~| ~^ ?| ")
+multLevel = leftOps (opWords " * / % +& +< +> ~& ~< ~> ?& ")
+addiLevel = leftOps (opWords " + - +| +^ ~| ~^ ?| ")
+replLevel = leftOps (opWords " x xx ")
+concLevel = leftOps (opWords " ~ ")
 junaLevel = listOps (opWords " & ")
 junoLevel = listOps (opWords " ^ | ")
 
