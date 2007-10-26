@@ -536,6 +536,8 @@ $meta_Object->add_method(
                 # Str                
                 # the call to .Str is needed in order to stringify the ::Str prototype
                 $obj = eval '$::' . ::DISPATCH( $obj, "Str" )->{_value};
+                return ::DISPATCH( $::Bit, 'new', 0 )
+                    unless defined $obj;
             }
 
             if ( ::DISPATCH( $obj, 'isa', 
