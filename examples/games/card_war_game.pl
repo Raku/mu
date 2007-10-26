@@ -19,7 +19,7 @@ It was written to test, show and explain some cool PERL6 features:
 
 =item conditional '??/!!' operator
 
-=item Array.uniq operator
+=item Array.uniq method
 
 =item definition of own operators
 
@@ -188,7 +188,7 @@ sub draw_cards (Bool $visible) {
 
 # player that won the round gets both stacks to his hand
 sub collect_cards(HashRef $winner) {
-    # PERL6 uniq operator is used to get array
+    # PERL6 uniq method is used to get array
     # containing winner and the other player
     for @($winner, $player1, $player2).uniq -> $player {
         for @($player.{'stack'}) -> $card {
