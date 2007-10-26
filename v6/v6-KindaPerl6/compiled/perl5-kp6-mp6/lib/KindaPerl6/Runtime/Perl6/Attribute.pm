@@ -9,9 +9,8 @@
     use constant KP6_DISABLE_INSECURE_CODE => 0;
     use KindaPerl6::Runtime::Perl5::Runtime;
     my $_MODIFIED;
-    BEGIN { $_MODIFIED = {} }
-
-    BEGIN {
+    INIT { $_MODIFIED = {} }
+    INIT {
         $_ =
           ::DISPATCH( $::Scalar, "new",
             { modified => $_MODIFIED, name => "$_" } );

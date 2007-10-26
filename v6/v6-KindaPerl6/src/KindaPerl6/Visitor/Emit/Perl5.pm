@@ -32,10 +32,10 @@ class CompUnit {
         ~ set_secure_mode($args_secure)
         ~ 'use '~ Main::get_compiler_target_runtime() ~';' ~ Main::newline()
         #~ 'use KindaPerl6::Runtime::Perl6::Hash; '
-        ~ 'my $_MODIFIED; BEGIN { $_MODIFIED = {} }' ~ Main::newline()
+        ~ 'my $_MODIFIED; INIT { $_MODIFIED = {} }' ~ Main::newline()
 
         # XXX - not sure about $_ scope
-        ~ 'BEGIN { '
+        ~ 'INIT { '
         ~   '$_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); '
         ~ '}' ~ Main::newline()
 
@@ -502,7 +502,7 @@ class Decl {
                     ~ $.var.emit_perl5
                     ~ ' = ::DISPATCH( $::Scalar' ~ $create
                     ~ ' unless defined ' ~ $.var.emit_perl5 ~ '; '
-                    ~ 'BEGIN { '
+                    ~ 'INIT { '
                     ~     $.var.emit_perl5
                     ~     ' = ::DISPATCH( $::Scalar' ~ $create
                     ~     ' unless defined ' ~ $.var.emit_perl5 ~ '; '
@@ -531,7 +531,7 @@ class Decl {
                 ~ $.var.emit_perl5
                 ~ ' = ::DISPATCH( $::Scalar' ~ $create
                 ~ ' unless defined ' ~ $.var.emit_perl5 ~ '; '
-                ~ 'BEGIN { '
+                ~ 'INIT { '
                 ~     $.var.emit_perl5
                 ~     ' = ::DISPATCH( $::Scalar' ~ $create
                 ~ '}'
@@ -546,7 +546,7 @@ class Decl {
                 ~ $.var.emit_perl5
                 ~ ' = ::DISPATCH( $::Routine' ~ $create
                 ~ ' unless defined ' ~ $.var.emit_perl5 ~ '; '
-                ~ 'BEGIN { '
+                ~ 'INIT { '
                 ~     $.var.emit_perl5
                 ~     ' = ::DISPATCH( $::Routine' ~ $create
                 ~ '}'
@@ -698,7 +698,7 @@ class Do {
 
 class BEGIN {
     method emit_perl5 {
-        'BEGIN { ' ~ 
+        'INIT { ' ~ 
           $.block.emit_perl5 ~ 
         ' }'
     }

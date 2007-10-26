@@ -9,9 +9,8 @@
     use constant KP6_DISABLE_INSECURE_CODE => 0;
     use KindaPerl6::Runtime::Perl5::Runtime;
     my $_MODIFIED;
-    BEGIN { $_MODIFIED = {} }
-
-    BEGIN {
+    INIT { $_MODIFIED = {} }
+    INIT {
         $_ =
           ::DISPATCH( $::Scalar, "new",
             { modified => $_MODIFIED, name => "$_" } );
@@ -126,8 +125,7 @@
                           ::DISPATCH( $::Scalar, 'new',
                             { modified => $_MODIFIED, name => '$perl6' } )
                           unless defined $perl6;
-
-                        BEGIN {
+                        INIT {
                             $perl6 =
                               ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$perl6' } );
@@ -140,8 +138,7 @@
                           ::DISPATCH( $::Scalar, 'new',
                             { modified => $_MODIFIED, name => '$node' } )
                           unless defined $node;
-
-                        BEGIN {
+                        INIT {
                             $node =
                               ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$node' } );
@@ -151,8 +148,7 @@
                           ::DISPATCH( $::Scalar, 'new',
                             { modified => $_MODIFIED, name => '$CAPTURE' } )
                           unless defined $CAPTURE;
-
-                        BEGIN {
+                        INIT {
                             $CAPTURE = ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$CAPTURE' }
                             );
@@ -254,8 +250,7 @@
                           ::DISPATCH( $::Scalar, 'new',
                             { modified => $_MODIFIED, name => '$pad' } )
                           unless defined $pad;
-
-                        BEGIN {
+                        INIT {
                             $pad =
                               ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$pad' } );
@@ -268,8 +263,7 @@
                           ::DISPATCH( $::Scalar, 'new',
                             { modified => $_MODIFIED, name => '$CAPTURE' } )
                           unless defined $CAPTURE;
-
-                        BEGIN {
+                        INIT {
                             $CAPTURE = ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$CAPTURE' }
                             );
@@ -342,8 +336,7 @@
                           ::DISPATCH( $::Scalar, 'new',
                             { modified => $_MODIFIED, name => '$pad' } )
                           unless defined $pad;
-
-                        BEGIN {
+                        INIT {
                             $pad =
                               ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$pad' } );
@@ -356,8 +349,7 @@
                           ::DISPATCH( $::Scalar, 'new',
                             { modified => $_MODIFIED, name => '$namespace' } )
                           unless defined $namespace;
-
-                        BEGIN {
+                        INIT {
                             $namespace = ::DISPATCH(
                                 $::Scalar,
                                 'new',
@@ -372,8 +364,7 @@
                           ::DISPATCH( $::Scalar, 'new',
                             { modified => $_MODIFIED, name => '$CAPTURE' } )
                           unless defined $CAPTURE;
-
-                        BEGIN {
+                        INIT {
                             $CAPTURE = ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$CAPTURE' }
                             );
@@ -492,8 +483,7 @@
                           ::DISPATCH( $::Scalar, 'new',
                             { modified => $_MODIFIED, name => '$CAPTURE' } )
                           unless defined $CAPTURE;
-
-                        BEGIN {
+                        INIT {
                             $CAPTURE = ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$CAPTURE' }
                             );
@@ -537,8 +527,7 @@
                           ::DISPATCH( $::Scalar, 'new',
                             { modified => $_MODIFIED, name => '$pad' } )
                           unless defined $pad;
-
-                        BEGIN {
+                        INIT {
                             $pad =
                               ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$pad' } );
@@ -548,8 +537,7 @@
                           ::DISPATCH( $::Scalar, 'new',
                             { modified => $_MODIFIED, name => '$CAPTURE' } )
                           unless defined $CAPTURE;
-
-                        BEGIN {
+                        INIT {
                             $CAPTURE = ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$CAPTURE' }
                             );
@@ -647,8 +635,7 @@
                           ::DISPATCH( $::Scalar, 'new',
                             { modified => $_MODIFIED, name => '$CAPTURE' } )
                           unless defined $CAPTURE;
-
-                        BEGIN {
+                        INIT {
                             $CAPTURE = ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$CAPTURE' }
                             );
@@ -697,8 +684,7 @@
                           ::DISPATCH( $::Scalar, 'new',
                             { modified => $_MODIFIED, name => '$ast' } )
                           unless defined $ast;
-
-                        BEGIN {
+                        INIT {
                             $ast =
                               ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$ast' } );
@@ -708,8 +694,7 @@
                           ::DISPATCH( $::Scalar, 'new',
                             { modified => $_MODIFIED, name => '$CAPTURE' } )
                           unless defined $CAPTURE;
-
-                        BEGIN {
+                        INIT {
                             $CAPTURE = ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$CAPTURE' }
                             );
@@ -804,8 +789,7 @@
                           ::DISPATCH( $::Scalar, 'new',
                             { modified => $_MODIFIED, name => '$pad' } )
                           unless defined $pad;
-
-                        BEGIN {
+                        INIT {
                             $pad =
                               ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$pad' } );
@@ -818,8 +802,7 @@
                           ::DISPATCH( $::Scalar, 'new',
                             { modified => $_MODIFIED, name => '$ast' } )
                           unless defined $ast;
-
-                        BEGIN {
+                        INIT {
                             $ast =
                               ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$ast' } );
@@ -829,8 +812,7 @@
                           ::DISPATCH( $::Scalar, 'new',
                             { modified => $_MODIFIED, name => '$CAPTURE' } )
                           unless defined $CAPTURE;
-
-                        BEGIN {
+                        INIT {
                             $CAPTURE = ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$CAPTURE' }
                             );
@@ -941,8 +923,7 @@
                           ::DISPATCH( $::Scalar, 'new',
                             { modified => $_MODIFIED, name => '$var' } )
                           unless defined $var;
-
-                        BEGIN {
+                        INIT {
                             $var =
                               ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$var' } );
@@ -952,8 +933,7 @@
                           ::DISPATCH( $::Scalar, 'new',
                             { modified => $_MODIFIED, name => '$pad' } )
                           unless defined $pad;
-
-                        BEGIN {
+                        INIT {
                             $pad =
                               ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$pad' } );
@@ -966,8 +946,7 @@
                           ::DISPATCH( $::Scalar, 'new',
                             { modified => $_MODIFIED, name => '$sigil' } )
                           unless defined $sigil;
-
-                        BEGIN {
+                        INIT {
                             $sigil =
                               ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$sigil' } );
@@ -977,8 +956,7 @@
                           ::DISPATCH( $::Scalar, 'new',
                             { modified => $_MODIFIED, name => '$twigil' } )
                           unless defined $twigil;
-
-                        BEGIN {
+                        INIT {
                             $twigil =
                               ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$twigil' } );
@@ -988,8 +966,7 @@
                           ::DISPATCH( $::Scalar, 'new',
                             { modified => $_MODIFIED, name => '$name' } )
                           unless defined $name;
-
-                        BEGIN {
+                        INIT {
                             $name =
                               ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$name' } );
@@ -999,8 +976,7 @@
                           ::DISPATCH( $::Scalar, 'new',
                             { modified => $_MODIFIED, name => '$CAPTURE' } )
                           unless defined $CAPTURE;
-
-                        BEGIN {
+                        INIT {
                             $CAPTURE = ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$CAPTURE' }
                             );
