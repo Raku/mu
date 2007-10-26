@@ -69,7 +69,7 @@
                                 { modified => $_MODIFIED, name => '$MATCH' } );
                         }
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $str;
                         $str =
@@ -505,7 +505,7 @@
                                 { modified => $_MODIFIED, name => '$MATCH' } );
                         }
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $str;
                         $str =
@@ -940,7 +940,7 @@
                                 { modified => $_MODIFIED, name => '$MATCH' } );
                         }
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $str;
                         $str =
@@ -1376,7 +1376,7 @@
                                 { modified => $_MODIFIED, name => '$MATCH' } );
                         }
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $str;
                         $str =
@@ -1811,7 +1811,7 @@
                                 { modified => $_MODIFIED, name => '$MATCH' } );
                         }
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $str;
                         $str =
@@ -2297,7 +2297,7 @@
                                 { modified => $_MODIFIED, name => '$MATCH' } );
                         }
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $str;
                         $str =

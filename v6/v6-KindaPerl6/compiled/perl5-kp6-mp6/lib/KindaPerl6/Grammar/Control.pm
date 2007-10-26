@@ -723,7 +723,7 @@ sub for {
                                                 my $ret = sub {
                                                     my $List__ = \@_;
                                                     do { [] };
-                                                    do { return ( Call->new( 'hyper' => '', 'arguments' => [ ${ $MATCH->{'arrow_sub'} } ], 'method' => 'for', 'invocant' => ${ $MATCH->{'exp'} }, ) ) };
+                                                    do { return ( Call->new( 'hyper' => '', 'arguments' => [ ${ $MATCH->{'arrow_sub'} } ], 'method' => 'map', 'invocant' => ${ $MATCH->{'exp'} }, ) ) };
                                                     '974^213';
                                                     }
                                                     ->();

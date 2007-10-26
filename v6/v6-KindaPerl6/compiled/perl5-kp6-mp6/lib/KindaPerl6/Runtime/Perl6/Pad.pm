@@ -70,7 +70,7 @@
                 {
                     code => sub {
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
                         $self =

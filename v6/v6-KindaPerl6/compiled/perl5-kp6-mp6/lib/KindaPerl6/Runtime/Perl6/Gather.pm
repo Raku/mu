@@ -75,7 +75,7 @@
                 {
                     code => sub {
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
                         $self =
@@ -154,7 +154,7 @@
                 {
                     code => sub {
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
                         $self =
@@ -221,7 +221,7 @@
                 {
                     code => sub {
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
                         $self =
@@ -290,7 +290,7 @@
                 {
                     code => sub {
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
                         $self =
@@ -377,7 +377,7 @@
                 {
                     code => sub {
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
                         $self =
@@ -444,7 +444,7 @@
                 {
                     code => sub {
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
                         $self =
@@ -511,7 +511,7 @@
                 {
                     code => sub {
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
                         $self =
@@ -578,7 +578,7 @@
                 {
                     code => sub {
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
                         $self =
@@ -656,7 +656,7 @@
                                 { modified => $_MODIFIED, name => '$obj' } );
                         }
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $i;
                         $i =
@@ -838,8 +838,33 @@
                               ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$obj' } );
                         }
+                        my $List_res =
+                          ::DISPATCH( $::ArrayContainer, 'new',
+                            { modified => $_MODIFIED, name => '$List_res' } );
+                        my $arity;
+                        $arity =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$arity' } )
+                          unless defined $arity;
+
+                        BEGIN {
+                            $arity =
+                              ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$arity' } );
+                        }
+                        my $v;
+                        $v =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$v' } )
+                          unless defined $v;
+
+                        BEGIN {
+                            $v =
+                              ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$v' } );
+                        }
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $Code_code;
                         $Code_code =
@@ -897,180 +922,100 @@
                             }
                         }
                         ::DISPATCH_VAR( $obj, 'STORE', $self );
-                        ::DISPATCH(
-                            $::Gather,
-                            'new',
+                        ::DISPATCH_VAR( $List_res, 'STORE',
+                            ::DISPATCH( $::Array, 'new', { _array => [] } ) );
+                        ::DISPATCH_VAR(
+                            $arity, 'STORE',
                             ::DISPATCH(
-                                $::Code, 'new',
-                                {
-                                    code => sub {
-                                        my $i;
-                                        $i = ::DISPATCH(
-                                            $::Scalar,
-                                            'new',
-                                            {
-                                                modified => $_MODIFIED,
-                                                name     => '$i'
-                                            }
-                                        ) unless defined $i;
-
-                                        BEGIN {
-                                            $i = ::DISPATCH(
-                                                $::Scalar,
-                                                'new',
-                                                {
-                                                    modified => $_MODIFIED,
-                                                    name     => '$i'
-                                                }
-                                            );
-                                        }
-                                        my $CAPTURE;
-                                        $CAPTURE = ::DISPATCH(
-                                            $::Scalar,
-                                            'new',
-                                            {
-                                                modified => $_MODIFIED,
-                                                name     => '$CAPTURE'
-                                            }
-                                        ) unless defined $CAPTURE;
-
-                                        BEGIN {
-                                            $CAPTURE = ::DISPATCH(
-                                                $::Scalar,
-                                                'new',
-                                                {
-                                                    modified => $_MODIFIED,
-                                                    name     => '$CAPTURE'
-                                                }
-                                            );
-                                        }
-                                        ::DISPATCH_VAR( $CAPTURE, "STORE",
-                                            ::CAPTURIZE( \@_ ) );
-                                        do {
-                                            ::MODIFIED($List__);
-                                            $List__ =
-                                              ::DISPATCH( $CAPTURE, 'array', );
-                                        };
-                                        do {
-                                            ::MODIFIED($Hash__);
-                                            $Hash__ =
-                                              ::DISPATCH( $CAPTURE, 'hash', );
-                                        };
-                                        { my $_param_index = 0; }
-                                        ::DISPATCH_VAR( $i, 'STORE',
-                                            ::DISPATCH( $::Int, 'new', 0 ) );
-                                        do {
-                                            while (
-                                                ::DISPATCH(
-                                                    ::DISPATCH(
-                                                        ::DISPATCH(
-                                                            $GLOBAL::Code_prefix_58__60__33__62_,
-                                                            'APPLY',
-                                                            ::DISPATCH(
-                                                                $obj,
-                                                                'finished',
-                                                            )
-                                                        ),
-                                                        "true"
-                                                    ),
-                                                    "p5landish"
-                                                )
-                                              )
-                                            {
-                                                do {
-                                                    ::DISPATCH(
-                                                        $GLOBAL::Code_take,
-                                                        'APPLY',
-                                                        ::DISPATCH(
-                                                            $Code_code,
-                                                            'APPLY',
-                                                            ::DISPATCH(
-                                                                $obj, 'INDEX',
-                                                                $i
-                                                            )
-                                                        )
-                                                    );
-                                                    ::DISPATCH_VAR(
-                                                        $i, 'STORE',
-                                                        ::DISPATCH(
-                                                            $GLOBAL::Code_infix_58__60__43__62_,
-                                                            'APPLY',
-                                                            $i,
-                                                            ::DISPATCH(
-                                                                $::Int, 'new',
-                                                                1
-                                                            )
-                                                        )
-                                                    );
-                                                  }
-                                            }
-                                        };
-                                        do {
-                                            while (
-                                                ::DISPATCH(
-                                                    ::DISPATCH(
-                                                        ::DISPATCH(
-                                                            $GLOBAL::Code_infix_58__60__60__62_,
-                                                            'APPLY',
-                                                            $i,
-                                                            ::DISPATCH(
-                                                                ::DISPATCH(
-                                                                    $obj,
-                                                                    'buf',
-                                                                ),
-                                                                'elems',
-                                                            )
-                                                        ),
-                                                        "true"
-                                                    ),
-                                                    "p5landish"
-                                                )
-                                              )
-                                            {
-                                                do {
-                                                    ::DISPATCH(
-                                                        $GLOBAL::Code_take,
-                                                        'APPLY',
-                                                        ::DISPATCH(
-                                                            $Code_code,
-                                                            'APPLY',
-                                                            ::DISPATCH(
-                                                                $obj, 'INDEX',
-                                                                $i
-                                                            )
-                                                        )
-                                                    );
-                                                    ::DISPATCH_VAR(
-                                                        $i, 'STORE',
-                                                        ::DISPATCH(
-                                                            $GLOBAL::Code_infix_58__60__43__62_,
-                                                            'APPLY',
-                                                            $i,
-                                                            ::DISPATCH(
-                                                                $::Int, 'new',
-                                                                1
-                                                            )
-                                                        )
-                                                    );
-                                                  }
-                                            }
-                                          }
-                                    },
-                                    signature => ::DISPATCH(
-                                        $::Signature,
-                                        "new",
-                                        {
-                                            invocant => $::Undef,
-                                            array    => ::DISPATCH(
-                                                $::Array, "new",
-                                                { _array => [] }
-                                            ),
-                                            return => $::Undef,
-                                        }
-                                    ),
-                                }
+                                ::DISPATCH( $Code_code, 'signature', ), 'arity',
                             )
                         );
+                        ::DISPATCH_VAR( $v, 'STORE',
+                            ::DISPATCH( $::Int, 'new', 0 ) );
+                        do {
+                            while (
+                                ::DISPATCH(
+                                    ::DISPATCH(
+                                        ::DISPATCH(
+                                            $GLOBAL::Code_infix_58__60__60__61__62_,
+                                            'APPLY',
+                                            $v,
+                                            ::DISPATCH( $obj, 'elems', )
+                                        ),
+                                        "true"
+                                    ),
+                                    "p5landish"
+                                )
+                              )
+                            {
+                                do {
+                                    my $List_param = ::DISPATCH(
+                                        $::ArrayContainer,
+                                        'new',
+                                        {
+                                            modified => $_MODIFIED,
+                                            name     => '$List_param'
+                                        }
+                                    );
+                                    $List_param;
+                                    do {
+                                        while (
+                                            ::DISPATCH(
+                                                ::DISPATCH(
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__60__62_,
+                                                        'APPLY',
+                                                        ::DISPATCH(
+                                                            $List_param,
+                                                            'elems',
+                                                        ),
+                                                        $arity
+                                                    ),
+                                                    "true"
+                                                ),
+                                                "p5landish"
+                                            )
+                                          )
+                                        {
+                                            do {
+                                                ::DISPATCH(
+                                                    $List_param,
+                                                    'push',
+                                                    ::DISPATCH(
+                                                        $obj, 'INDEX', $v
+                                                    )
+                                                );
+                                                ::DISPATCH_VAR(
+                                                    $v, 'STORE',
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__43__62_,
+                                                        'APPLY', $v,
+                                                        ::DISPATCH(
+                                                            $::Int, 'new',
+                                                            1
+                                                        )
+                                                    )
+                                                );
+                                              }
+                                        }
+                                    };
+                                    ::DISPATCH(
+                                        $List_res,
+                                        'push',
+                                        ::DISPATCH(
+                                            $Code_code,
+                                            'APPLY',
+                                            ::DISPATCH(
+                                                $GLOBAL::Code_prefix_58__60__124__62_,
+                                                'APPLY',
+                                                $List_param
+                                            )
+                                        )
+                                    );
+                                  }
+                            }
+                        };
+                        $List_res;
                     },
                     signature => ::DISPATCH(
                         $::Signature,

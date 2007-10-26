@@ -81,7 +81,7 @@
                                 { modified => $_MODIFIED, name => '$inner' } );
                         }
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
                         $self =
@@ -174,7 +174,7 @@
                 {
                     code => sub {
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
                         $self =
@@ -241,7 +241,7 @@
                 {
                     code => sub {
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $key;
                         $key =
@@ -409,7 +409,7 @@
                 {
                     code => sub {
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $key;
                         $key =
@@ -577,7 +577,7 @@
                 {
                     code => sub {
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $key;
                         $key =
@@ -736,7 +736,7 @@
                                 { modified => $_MODIFIED, name => '$s' } );
                         }
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
                         $self =
@@ -775,13 +775,14 @@
                             ::DISPATCH( $::Str, 'new', '{ ' ) );
                         ::DISPATCH(
                             ::DISPATCH( $self, 'pairs', ),
-                            'for',
+                            'map',
                             ::DISPATCH(
                                 $::Code, 'new',
                                 {
                                     code => sub {
                                         my $List__ = ::DISPATCH(
-                                            $::Array, 'new',
+                                            $::ArrayContainer,
+                                            'new',
                                             {
                                                 modified => $_MODIFIED,
                                                 name     => '$List__'
@@ -1014,7 +1015,7 @@
                 {
                     code => sub {
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
                         $self =
@@ -1058,7 +1059,8 @@
                                     {
                                         code => sub {
                                             my $List__ = ::DISPATCH(
-                                                $::Array, 'new',
+                                                $::ArrayContainer,
+                                                'new',
                                                 {
                                                     modified => $_MODIFIED,
                                                     name     => '$List__'
@@ -1280,7 +1282,7 @@
                                 { modified => $_MODIFIED, name => '$pairs' } );
                         }
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
                         $self =
@@ -1324,7 +1326,8 @@
                                 {
                                     code => sub {
                                         my $List__ = ::DISPATCH(
-                                            $::Array, 'new',
+                                            $::ArrayContainer,
+                                            'new',
                                             {
                                                 modified => $_MODIFIED,
                                                 name     => '$List__'
@@ -1523,7 +1526,7 @@
                                 { modified => $_MODIFIED, name => '$pairs' } );
                         }
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
                         $self =
@@ -1567,7 +1570,8 @@
                                 {
                                     code => sub {
                                         my $List__ = ::DISPATCH(
-                                            $::Array, 'new',
+                                            $::ArrayContainer,
+                                            'new',
                                             {
                                                 modified => $_MODIFIED,
                                                 name     => '$List__'
@@ -1755,7 +1759,7 @@
                 {
                     code => sub {
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
                         $self =
@@ -1827,7 +1831,7 @@
                 {
                     code => sub {
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
                         $self =

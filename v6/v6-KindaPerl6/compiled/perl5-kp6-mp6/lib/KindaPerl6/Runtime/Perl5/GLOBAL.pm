@@ -158,6 +158,7 @@ package GLOBAL;
         CORE::print join( '',  map { 
                 _str( $_ )
         } @_ );
+        True();
     }
 
       sub keys { ::DISPATCH( $_[0], 'keys' ) }

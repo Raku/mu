@@ -36,18 +36,6 @@ class Range is Value {
         my $v = $i + $.start - 1;
         ( $v ~~ self ) ?? $v !! undef;
     };
-    method for ( &code ) {
-        my $arity = (&code.signature).arity;
-        my $v = $.start;
-        while $v <= $.end {
-            my @param;
-            while @param.elems < $arity {
-                @param.push( ( $v <= $.end ) ?? $v !! undef );
-                $v = $v + 1;
-            }
-            code( |@param );
-        };
-    };
     method smartmatch ( $v ) {
         # XXX && bug -- ( $v >= $.start ) && ( $v <= $.end )
         if $v < $.start { return False }

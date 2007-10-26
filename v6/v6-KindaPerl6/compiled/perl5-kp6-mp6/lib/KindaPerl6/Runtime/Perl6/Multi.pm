@@ -65,7 +65,7 @@
                 {
                     code => sub {
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $code;
                         $code =
@@ -213,14 +213,15 @@
                 {
                     code => sub {
                         my $List_candidates = ::DISPATCH(
-                            $::Array, 'new',
+                            $::ArrayContainer,
+                            'new',
                             {
                                 modified => $_MODIFIED,
                                 name     => '$List_candidates'
                             }
                         );
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $capture;
                         $capture =
@@ -326,13 +327,14 @@
                                 $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY',
                                 ::DISPATCH( $self, 'long_names', )
                             ),
-                            'for',
+                            'map',
                             ::DISPATCH(
                                 $::Code, 'new',
                                 {
                                     code => sub {
                                         my $List__ = ::DISPATCH(
-                                            $::Array, 'new',
+                                            $::ArrayContainer,
+                                            'new',
                                             {
                                                 modified => $_MODIFIED,
                                                 name     => '$List__'
@@ -631,7 +633,7 @@
                 {
                     code => sub {
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $self;
                         $self =
@@ -771,7 +773,7 @@
                                 { modified => $_MODIFIED, name => '$len' } );
                         }
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $code;
                         $code =
@@ -1039,7 +1041,7 @@
                 {
                     code => sub {
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $capture;
                         $capture =
@@ -1304,7 +1306,8 @@
                             {
                                 do {
                                     my $List_len = ::DISPATCH(
-                                        $::Array, 'new',
+                                        $::ArrayContainer,
+                                        'new',
                                         {
                                             modified => $_MODIFIED,
                                             name     => '$List_len'
@@ -1331,7 +1334,7 @@
                                                 {
                                                     code => sub {
                                                         my $List__ = ::DISPATCH(
-                                                            $::Array,
+                                                            $::ArrayContainer,
                                                             'new',
                                                             {
                                                                 modified =>
@@ -1437,13 +1440,14 @@
                                     );
                                     ::DISPATCH(
                                         $List_len,
-                                        'for',
+                                        'map',
                                         ::DISPATCH(
                                             $::Code, 'new',
                                             {
                                                 code => sub {
                                                     my $List__ = ::DISPATCH(
-                                                        $::Array, 'new',
+                                                        $::ArrayContainer,
+                                                        'new',
                                                         {
                                                             modified =>
                                                               $_MODIFIED,
@@ -1635,7 +1639,7 @@
                                                                         $Hash_syms,
                                                                         'keys',
                                                                     ),
-                                                                    'for',
+                                                                    'map',
                                                                     ::DISPATCH(
                                                                         $::Code,
                                                                         'new',
@@ -1646,7 +1650,7 @@
                                                                                 my $List__
                                                                                   =
                                                                                   ::DISPATCH(
-                                                                                    $::Array,
+                                                                                    $::ArrayContainer,
 'new',
                                                                                     {
                                                                                         modified =>

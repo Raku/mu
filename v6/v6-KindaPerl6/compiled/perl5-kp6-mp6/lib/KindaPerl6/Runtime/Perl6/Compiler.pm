@@ -18,10 +18,10 @@
     }
     do {
         our $List_PAD =
-          ::DISPATCH( $::Array, 'new',
+          ::DISPATCH( $::ArrayContainer, 'new',
             { modified => $_MODIFIED, name => '$List_PAD' } );
         our $List_CHECK =
-          ::DISPATCH( $::Array, 'new',
+          ::DISPATCH( $::ArrayContainer, 'new',
             { modified => $_MODIFIED, name => '$List_CHECK' } );
         our $Code_emit_perl6 =
           ::DISPATCH( $::Routine, 'new',
@@ -68,10 +68,10 @@
             else {
                 do {
                     our $List_PAD =
-                      ::DISPATCH( $::Array, 'new',
+                      ::DISPATCH( $::ArrayContainer, 'new',
                         { modified => $_MODIFIED, name => '$List_PAD' } );
                     our $List_CHECK =
-                      ::DISPATCH( $::Array, 'new',
+                      ::DISPATCH( $::ArrayContainer, 'new',
                         { modified => $_MODIFIED, name => '$List_CHECK' } );
                     our $Code_emit_perl6 = ::DISPATCH( $::Routine, 'new',
                         { modified => $_MODIFIED, name => '$Code_emit_perl6' }
@@ -133,7 +133,7 @@
                                 { modified => $_MODIFIED, name => '$perl6' } );
                         }
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $node;
                         $node =
@@ -261,7 +261,7 @@
                                 { modified => $_MODIFIED, name => '$pad' } );
                         }
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $CAPTURE;
                         $CAPTURE =
@@ -349,7 +349,7 @@
                                 { modified => $_MODIFIED, name => '$pad' } );
                         }
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $namespace;
                         $namespace =
@@ -485,7 +485,7 @@
                 {
                     code => sub {
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $CAPTURE;
                         $CAPTURE =
@@ -530,7 +530,7 @@
                 {
                     code => sub {
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $pad;
                         $pad =
@@ -640,7 +640,7 @@
                 {
                     code => sub {
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $CAPTURE;
                         $CAPTURE =
@@ -690,7 +690,7 @@
                 {
                     code => sub {
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $ast;
                         $ast =
@@ -811,7 +811,7 @@
                                 { modified => $_MODIFIED, name => '$pad' } );
                         }
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $ast;
                         $ast =
@@ -959,7 +959,7 @@
                                 { modified => $_MODIFIED, name => '$pad' } );
                         }
                         my $List__ =
-                          ::DISPATCH( $::Array, 'new',
+                          ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
                         my $sigil;
                         $sigil =

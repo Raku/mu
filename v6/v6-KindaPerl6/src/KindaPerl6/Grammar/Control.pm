@@ -106,7 +106,7 @@ token for {
             return ::Call(
                 hyper     => '',
                 arguments => [ $$<arrow_sub> ],
-                method   => 'for',
+                method   => 'map',
                 invocant => $$<exp>,
             );
     }

@@ -41,16 +41,18 @@ class Gather is Array {
     };
     method map (&code) {
         my $obj = self;
-        gather {
-            my $i = 0;
-            while !$obj.finished { 
-                    take code( $obj[$i] );
-                    $i = $i + 1;
-            };
-            while $i < ($obj.buf).elems { 
-                    take code( $obj[$i] );
-                    $i = $i + 1;
-            };
-        }; 
+        my @res = [];
+        my $arity = (&code.signature).arity;
+        my $v = 0;
+        while $v <= $obj.elems {
+        # while !$obj.finished { 
+            my @param;
+            while @param.elems < $arity {
+                @param.push( $obj[ $v ] );
+                $v = $v + 1;
+            }
+            @res.push( code( |@param ) );
+        };
+        @res;
     };
 }
