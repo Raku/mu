@@ -683,6 +683,38 @@ sub opt_ws3 {
     return ($MATCH);
 }
 
+sub dot {
+    my $grammar = shift;
+    my $List__  = \@_;
+    my $str;
+    my $pos;
+    do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
+    my $MATCH;
+    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH->bool(
+        do {
+            my $pos1 = $MATCH->to();
+            (   do { ( ( '.' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) }
+                    || do {
+                    $MATCH->to($pos1);
+                    (   ( ( '\\' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
+                            do {
+                                my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
+                                do {
+                                    if ($m2) { $MATCH->to( $m2->to() ); 1 }
+                                    else     {0}
+                                    }
+                            }
+                            && ( ( '.' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 )
+                        )
+                    );
+                    }
+            );
+            }
+    );
+    return ($MATCH);
+}
+
 sub parse {
     my $grammar = shift;
     my $List__  = \@_;
@@ -2047,7 +2079,14 @@ sub term_meth {
                             && do {
                             my $pos1 = $MATCH->to();
                             do {
-                                (   ( ( '.' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
+                                (   do {
+                                        my $m2 = $grammar->dot( $str, $MATCH->to() );
+                                        do {
+                                            if ($m2) { $MATCH->to( $m2->to() ); 1 }
+                                            else     {0}
+                                            }
+                                        }
+                                        && (
                                         do {
                                             my $m2 = $grammar->hyper_op( $str, $MATCH->to() );
                                             do {
@@ -2176,7 +2215,7 @@ sub term_meth {
                                                 }
                                             )
                                         )
-                                    )
+                                        )
                                 );
                                 }
                             }
@@ -2295,7 +2334,14 @@ sub term_meth {
                                     }
                                     || (do {
                                             $MATCH->to($pos1);
-                                            (   ( ( '.' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
+                                            (   do {
+                                                    my $m2 = $grammar->dot( $str, $MATCH->to() );
+                                                    do {
+                                                        if ($m2) { $MATCH->to( $m2->to() ); 1 }
+                                                        else     {0}
+                                                        }
+                                                    }
+                                                    && (
                                                     do {
                                                         my $m2 = $grammar->hyper_op( $str, $MATCH->to() );
                                                         do {
@@ -2418,7 +2464,7 @@ sub term_meth {
                                                             }
                                                         )
                                                     )
-                                                )
+                                                    )
                                             );
                                         }
                                         || (do {
@@ -2504,7 +2550,14 @@ sub sub_or_method_name {
                         && do {
                         my $pos1 = $MATCH->to();
                         (   do {
-                                (   ( ( '.' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
+                                (   do {
+                                        my $m2 = $grammar->dot( $str, $MATCH->to() );
+                                        do {
+                                            if ($m2) { $MATCH->to( $m2->to() ); 1 }
+                                            else     {0}
+                                            }
+                                        }
+                                        && do {
                                         my $m2 = $grammar->ident( $str, $MATCH->to() );
                                         do {
                                             if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'ident'} = $m2; 1 }
@@ -3698,8 +3751,14 @@ sub call {
                             }
                         }
                         && (
-                        ( ( '.' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
+                        do {
+                            my $m2 = $grammar->dot( $str, $MATCH->to() );
                             do {
+                                if ($m2) { $MATCH->to( $m2->to() ); 1 }
+                                else     {0}
+                                }
+                        }
+                        && (do {
                                 my $m2 = $grammar->ident( $str, $MATCH->to() );
                                 do {
                                     if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'ident'} = $m2; 1 }

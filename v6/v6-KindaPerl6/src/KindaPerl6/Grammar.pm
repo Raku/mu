@@ -83,6 +83,11 @@ token opt_ws  {  <?ws> | <''>  };
 token opt_ws2 {  <?ws> | <''>  };
 token opt_ws3 {  <?ws> | <''>  };
 
+token dot {
+    | \.
+    | \\ <?opt_ws> \.
+}
+
 token parse {
     | <comp_unit>
         [
@@ -274,7 +279,7 @@ token opt_ident {
 
 token term_meth {
     <full_ident>
-    [ \.
+    [ <?dot>
         <hyper_op>
         <ident>
             [ \( <?opt_ws> <exp_parameter_list> <?opt_ws> \)
@@ -318,7 +323,7 @@ token term_meth {
                  'hyper' => ''
            )
          }
-    | \.
+    | <?dot>
         <hyper_op>
         <opt_ident>   # $obj.(42)
             [ \( 
@@ -357,7 +362,7 @@ token term_meth {
 };
 
 token sub_or_method_name {
-    <full_ident> [ \. <ident> | <''> ]
+    <full_ident> [ <?dot> <ident> | <''> ]
 };
 
 token opt_type {
@@ -514,7 +519,7 @@ token lit_object {
 #};
 
 token call {
-    <exp> \. <ident> \( <?opt_ws> <exp_parameter_list> <?opt_ws> \)
+    <exp> <?dot> <ident> \( <?opt_ws> <exp_parameter_list> <?opt_ws> \)
     {
         return ::Call(
             'invocant'  => $$<exp>,
