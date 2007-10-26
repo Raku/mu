@@ -111,7 +111,22 @@ package GLOBAL;
         for ( @EXPORT ) {
             #print "Init \$GLOBAL::Code_$_ \n";
             ${"GLOBAL::Code_$_"} = ::DISPATCH( $::Code, 'new', 
-                { code => ${"GLOBAL::Code_$_"}, src => '&GLOBAL::'.$_ } ); 
+                    {   code => ${"GLOBAL::Code_$_"}, 
+                        #src  => '&GLOBAL::'.$_,
+                        ast  => bless {
+                                    namespace => [ 'GLOBAL', ],
+                                    name      => $_,
+                                    twigil    => '',
+                                    sigil     => '&',
+                                }, 'Var',
+                        #ast  => ::Var->new(
+                        #            namespace => [ 'GLOBAL', ],
+                        #            name      => $_,
+                        #            twigil    => '',
+                        #            sigil     => '&',
+                        #        ),
+                    },
+                ); 
         }
     }
 

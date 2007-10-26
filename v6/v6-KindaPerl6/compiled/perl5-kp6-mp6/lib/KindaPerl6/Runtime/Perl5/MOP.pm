@@ -620,9 +620,13 @@ $::Undef = make_class( proto => $::Undef, name=>"Undef",parents=>[$meta_Value],m
 my $meta_Code = ::DISPATCH( $::Class, 'new', "Code");
 $::Code = $meta_Code->PROTOTYPE();
 $meta_Code->add_parent($meta_Value);
+$meta_Code->add_attribute( 'code' );  
+$meta_Code->add_attribute( 'signature' );  
+$meta_Code->add_attribute( 'ast' );  
 $meta_Code->add_method( 'perl',
     ::DISPATCH( $::Method, 'new',  sub { 
-        my $v = $::Str->new( $_[0]{_value}{src} );  # XXX ugh - src is gone???
+        # TODO - emit from $.ast
+        my $v = $::Str->new( $_[0]{_value}{src} );  
         return $::Str->new( '{ ... }' );
     } ) );
 my $_apply;
@@ -630,6 +634,8 @@ $meta_Code->add_method( 'APPLY',
     ::DISPATCH( $::Method, 'new',  
     (
         $_apply = sub { 
+           # XXX - use the attributes
+           
            my $self = shift; # the Code object
            my @param = @_;
            #print "param: \n"; #,Dumper(\@param);
@@ -661,10 +667,10 @@ $meta_Code->add_method( 'APPLY',
         } 
     ) 
 ) );
-$meta_Code->add_method( 'signature',
-    ::DISPATCH( $::Method, 'new',  sub { $_[0]{_value}{signature} } ) );
-$meta_Code->add_method( 'code',
-    ::DISPATCH( $::Method, 'new',  sub { $_[0] } ) );
+# $meta_Code->add_method( 'signature',
+#     ::DISPATCH( $::Method, 'new',  sub { $_[0]{_value}{signature} } ) );
+# $meta_Code->add_method( 'code',
+#     ::DISPATCH( $::Method, 'new',  sub { $_[0] } ) );
 $meta_Code->add_method( 'p5landish',
     ::DISPATCH( $::Method, 'new',  sub { $_[0]{_value}{code} } ) );
 
