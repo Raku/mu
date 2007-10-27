@@ -13,56 +13,65 @@ L<S03/Operator precedence>
 
 =cut
 
-plan 45;
+plan 48;
 
 
-# 1. terms
+# terms
 
 # FIXME how do we test this?
 
-# 2. postfix method
+# postfix method
 
 my @a = 1,2,3;
 is(++@a[2], 4, "bare postfix binds tighter than ++");
 is(++@a.[2], 5, "dotted postfix binds tighter than ++");
 
-# 3. autoincrement
+# autoincrement
 
 my $i = 2;
 is(++$i ** 2, 9, "++ bind tighter than **");
 is(--$i ** 2, 4, "-- does too");
 
-# 4. exponentiation
+# exponentiation
 
 is(-2**2, -4, "** bind tighter than unary -");
 isa_ok(~2**4, "Str", "~4**4 is a string");
 
-# 5. symbolic unary
+# symbolic unary
 
-is(-2 x 2, "-2-2", "unary - binds tighter than x");
-is(-(2 x 2), "-22", "beh");
+is(!0 * 2, 2, "unary ! binds tighter than *");
+is(!(0 * 2), 1, "beh");
 is(?2*2, 2, "binary -> numify causes reinterpretation as, binds tighter than *");
 
-# 6. multiplicative
+# multiplicative
 
-is(2 x 2 + 10, 32, "x bind tighter than binary +");
 is(4 + 3 * 2, 10, "* binds tighter than binary +");
-is(2 - 2 / 2, 1, "/ bind tighter than binary -");
+is(2 - 2 / 2, 1, "/ binds tighter than binary -");
 
-# 7. additive
+# additive
 
 is(1 ~ 2 * 3, 16, "~ binds looser than *");
 ok((1 ~ 2 & 12) == 12, "but tighter than &");
-ok((2 + 2 | 4) == 4, "and + binds tigher than |");
+ok((2 + 2 | 4 - 1) == 4, "and + binds tighter than |");
 
-# 8. junctive and
+# replication
+
+is(2 x 2 + 3, "22222", "x binds looser than binary +");
+is((2 x 2) + 3, 25, "doublecheck");
+
+# concatenation
+
+is(2 x 2 ~ 3, "223", "x binds tighter than binary ~");
+ok((2 ~ 2 | 4 ~ 1) == 41, "and ~ binds tighter than |");
+
+# junctive and
 
 ok(       (1 & 2 | 3) !=3, '& binds tighter than |');
 ok((!(1 & 2 | 3) < 2), "ditto");
 ok(((1 & 2 ^ 3) < 3), "and also ^");
 ok(     !(1 & 2 ^ 4) != 3, "blah blah blah");
 
-# 9. junctive or
+# junctive or
 
 { # test that | and ^ are on the same level
     my $a = (1 | 2 ^ 3);
@@ -85,28 +94,28 @@ ok(     !(1 & 2 ^ 4) != 3, "blah blah blah");
     ok($b == 1, "this is true because only one is == 1");
 };
 
-# 10. named unary
+# named unary
 
 is((abs -1 .. 3), (1 .. 3), "abs binds tighter than ..");
 is((rand 3 <=> 5), -1, "rand binds tighter than <=>");
 
-# 11. nonchaining
+# nonchaining
 
 ok(0 < 2 <=> 1 < 2, "0 < 2 <=> 1 < 2 means 0 < 1 < 2");
 
-# 12. chaining
+# chaining
 
-is((0 != 1 && "foo"), "foo", "!= binds tigher than &&");
-ok((0 || 1 == (2-1) == (0+1) || "foo") ne "foo", "== binds tigher than || also when chaning");
+is((0 != 1 && "foo"), "foo", "!= binds tighter than &&");
+ok((0 || 1 == (2-1) == (0+1) || "foo") ne "foo", "== binds tighter than || also when chaning");
 
-# 13. tight and (&&)
+# tight and (&&)
 
-# 14. tight or (||, ^^, //)
+# tight or (||, ^^, //)
 
 is((1 && 0 ?? 2 !! 3), 3, "&& binds tighter than ??");
 ### FIXME - need also ||, otherwise we don't prove || and ?? are diff
 
-# 15. conditional
+# conditional
 
 {
     my $a = 0 ?? "yes" !! "no";
@@ -116,7 +125,7 @@ is((1 && 0 ?? 2 !! 3), 3, "&& binds tighter than ??");
 };
 
 
-# 16. item assignment
+# item assignment
 
 {
     my $c = 1, 2, 3;
@@ -125,16 +134,16 @@ is((1 && 0 ?? 2 !! 3), 3, "&& binds tighter than ??");
     is($a, [1, 3], "= binds tighter than X");
 };
 
-# 17. loose unary
+# loose unary
 
 my $x;
 is((true $x = 42), 1, "item assignment is tighter than true");
 
-# 18. comma
+# comma
 
 is(((not 1,42)[1]), 42, "not is tighter than comma");
 
-# 19. list infix
+# list infix
 
 {
     my @d;
@@ -148,7 +157,7 @@ is(((not 1,42)[1]), 42, "not is tighter than comma");
     is(@b, [1 .. 4], "parens work around this");
 };
 
-# 20. list prefix
+# list prefix
 
 {
     my $c;
@@ -159,11 +168,11 @@ is(((not 1,42)[1]), 42, "not is tighter than comma");
 my @c = 1, 2, 3;
 is(@c, [1,2,3], "@ = binds looser than ,");
 
-# 21. loose and
+# loose and
 
-# 22. loose or
+# loose or
 
-# 23. terminator
+# terminator
 
 # uc|ucfirst|lc|lcfirst
 # t/builtins/strings/uc|ucfirst|lc|lcfirst.t didn't compile because of this bug.
