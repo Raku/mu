@@ -1,6 +1,6 @@
 use v6-alpha;
 
-class KindaPerl6::Traverse {
+class Onion::Traverse {
 
     sub visit ( $visitor, $node, $node_name, $path ) {
         #say "visit " ~ $node ~ ' name ' ~ $node_name;
@@ -77,7 +77,7 @@ class KindaPerl6::Traverse {
 
 =head1 NAME 
 
-KindaPerl6::Traverse - Tree traverser for KindaPerl6 AST
+Onion::Traverse - Tree traverser for Onion AST
 
 =head1 AUTHORS
 

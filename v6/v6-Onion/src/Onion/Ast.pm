@@ -4,7 +4,7 @@ use v6-alpha;
 #    has $.name;
 #    has @.body;
 #    method emit( $visitor, $path ) {
-#        KindaPerl6::Traverse::visit( 
+#        Onion::Traverse::visit( 
 #            $visitor, 
 #            self,
 #            'Module',
@@ -26,7 +26,7 @@ class CompUnit {
     has %.methods;
     has @.body;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'CompUnit',
@@ -48,7 +48,7 @@ class CompUnit {
 class Val::Int {
     has $.int;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Val::Int',
@@ -65,7 +65,7 @@ class Val::Int {
 class Val::Bit {
     has $.bit;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Val::Bit',
@@ -82,7 +82,7 @@ class Val::Bit {
 class Val::Num {
     has $.num;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Val::Num',
@@ -99,7 +99,7 @@ class Val::Num {
 class Val::Buf {
     has $.buf;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Val::Buf',
@@ -119,7 +119,7 @@ class Val::Buf {
 class Val::Char {
     has $.char;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Val::Char',
@@ -135,7 +135,7 @@ class Val::Char {
 
 class Val::Undef {
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Val::Undef',
@@ -152,7 +152,7 @@ class Val::Object {
     has $.class;
     has %.fields;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Val::Object',
@@ -170,7 +170,7 @@ class Val::Object {
 class Lit::Seq {
     has @.seq;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Lit::Seq',
@@ -187,7 +187,7 @@ class Lit::Seq {
 class Lit::Array {
     has @.array;    
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Lit::Array',
@@ -204,7 +204,7 @@ class Lit::Array {
 class Lit::Hash {
     has @.hash;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Lit::Hash',
@@ -221,7 +221,7 @@ class Lit::Pair {
     has $.key;
     has $.value;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Lit::Pair',
@@ -252,7 +252,7 @@ class Lit::SigArgument {
     has $.is_copy;
 
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Lit::SigArgument',
@@ -281,7 +281,7 @@ class Lit::NamedArgument {
     has $.value;
 
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Lit::NamedArgument',
@@ -303,7 +303,7 @@ class Lit::Code {
     has @.body;        #  is Seq of Exp;      # Code body 
     #has @.parameters;  #  is Seq of Exp;      # Signature
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Lit::Code',
@@ -324,7 +324,7 @@ class Lit::Object {
     has $.class;
     has @.fields;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Lit::Object',
@@ -341,11 +341,11 @@ class Lit::Object {
 
 class Var {
     has $.sigil;
-    has $.twigil;
+    has $.twigil = '';
     has $.name;
-    has $.namespace;
+    has $.namespace = [];
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Var',
@@ -366,7 +366,7 @@ class Bind {
     has $.parameters;
     has $.arguments;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Bind',
@@ -385,7 +385,7 @@ class Assign {
     has $.parameters;
     has $.arguments;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Assign',
@@ -403,7 +403,7 @@ class Assign {
 class Proto {
     has $.name;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Proto',
@@ -424,7 +424,7 @@ class Call {
     has @.arguments;
     #has $.hyper;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Call',
@@ -445,7 +445,7 @@ class Apply {
     has $.code;
     has @.arguments;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Apply',
@@ -463,7 +463,7 @@ class Apply {
 class Return {
     has $.result;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Return',
@@ -482,7 +482,7 @@ class If {
     has @.body;
     has @.otherwise;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'If',
@@ -502,7 +502,7 @@ class While {
     has $.cond;
     has @.body;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit(
+        Onion::Traverse::visit(
             $visitor,
             self,
             'While',
@@ -522,7 +522,7 @@ class Decl {
     has $.type;
     has $.var;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Decl',
@@ -543,7 +543,7 @@ class Sig {
     has $.positional;
     #has $.named;  # XXX obsolete
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Sig',
@@ -564,7 +564,7 @@ class Capture {
     has $.array;
     has $.hash;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Capture',
@@ -585,7 +585,7 @@ class Subset {
     has $.base_class;
     has $.block;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Subset',
@@ -606,7 +606,7 @@ class Method {
     #has $.sig;
     has $.block;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Method',
@@ -627,7 +627,7 @@ class Sub {
     #has $.sig;
     has @.block;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Sub',
@@ -647,7 +647,7 @@ class Macro {
     has $.name;
     has @.block;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Macro',
@@ -666,7 +666,7 @@ class Coro {
     has $.name;
     has @.block;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Coro',
@@ -684,7 +684,7 @@ class Coro {
 class P5Token {
     has $.regex;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'P5Token',
@@ -704,7 +704,7 @@ class Token {
     has $.regex;
     has $.sym;  # token:sym<...>
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Token',
@@ -724,7 +724,7 @@ class Token {
 class Do {
     has @.block;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Do',
@@ -741,7 +741,7 @@ class Do {
 class BEGIN {
     has @.block;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'BEGIN',
@@ -759,7 +759,7 @@ class Use {
     has $.mod;
     has $.perl5;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Use',
@@ -780,7 +780,7 @@ class Use {
 
 class Rule {
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Rule',
@@ -801,7 +801,7 @@ class Rule::Quantifier {
     has $.ws2;
     has $.ws3;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Rule::Quantifier',
@@ -823,7 +823,7 @@ class Rule::Quantifier {
 class Rule::Or {
     has @.or;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Rule::Or',
@@ -840,7 +840,7 @@ class Rule::Or {
 class Rule::Concat {
     has @.concat;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Rule::Concat',
@@ -859,7 +859,7 @@ class Rule::Subrule {
     has $.ident;
     has $.capture_to_array;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Rule::Subrule',
@@ -878,7 +878,7 @@ class Rule::Subrule {
 class Rule::SubruleNoCapture {
     has $.metasyntax;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Rule::SubruleNoCapture',
@@ -897,7 +897,7 @@ class Rule::Var {
     has $.twigil;
     has $.name;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Rule::Var',
@@ -916,7 +916,7 @@ class Rule::Var {
 class Rule::Constant {
     has $.constant;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Rule::Constant',
@@ -932,7 +932,7 @@ class Rule::Constant {
 
 class Rule::Dot {
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Rule::Dot',
@@ -948,7 +948,7 @@ class Rule::Dot {
 class Rule::SpecialChar {
     has $.char;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Rule::SpecialChar',
@@ -965,7 +965,7 @@ class Rule::SpecialChar {
 class Rule::Block {
     has $.closure;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Rule::Block',
@@ -982,7 +982,7 @@ class Rule::Block {
 class Rule::InterpolateVar {
     has $.var;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Rule::InterpolateVar',
@@ -1001,7 +1001,7 @@ class Rule::NamedCapture {
     has $.ident;
     has $.capture_to_array;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Rule::NamedCapture',
@@ -1022,7 +1022,7 @@ class Rule::Before {
     has $.assertion_modifier;
     has $.capture_to_array;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Rule::Before',
@@ -1043,7 +1043,7 @@ class Rule::After {
     has $.assertion_modifier;
     has $.capture_to_array;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Rule::After',
@@ -1062,7 +1062,7 @@ class Rule::After {
 class Rule::NegateCharClass {
     has $.chars;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Rule::NegateCharClass',
@@ -1079,7 +1079,7 @@ class Rule::NegateCharClass {
 class Rule::CharClass {
     has $.chars;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Rule::CharClass',
@@ -1098,7 +1098,7 @@ class Rule::Capture {
     has $.position;
     has $.capture_to_array;
     method emit( $visitor, $path ) {
-        KindaPerl6::Traverse::visit( 
+        Onion::Traverse::visit( 
             $visitor, 
             self,
             'Rule::Capture',
@@ -1118,15 +1118,15 @@ class Rule::Capture {
 
 =head1 NAME 
 
-KindaPerl6::Ast - KindaPerl6 Abstract Syntax Tree
+Onion::Ast - Onion Abstract Syntax Tree
 
 =head1 DESCRIPTION
 
-This file houses the classes which define nodes in the KindaPerl6
+This file houses the classes which define nodes in the Onion
 Abstract Syntax Tree. The AST is generated be the parser (currently
-L<KindaPerl6::Grammar>), it is then munged in various ways be classes
-in the L<KindaPerl6::Visitor> namespace before being emitted by
-C<KindaPerl6::Visitor::Emit*>.
+L<Onion::Grammar>), it is then munged in various ways be classes
+in the L<Onion::Visitor> namespace before being emitted by
+C<Onion::Visitor::Emit*>.
 
 =head1 Syntax Nodes
 

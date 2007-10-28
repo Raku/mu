@@ -1,46 +1,38 @@
 
 use v6-alpha;
 
-class KindaPerl6::Visitor::Emit::AstPerl {
+class Onion::Visitor::Emit::AstPerl {
 
     # This visitor builds a ".perl" representation of the AST
 
-    method visit ( $node, $node_name ) {
+    method visit ( $node ) {
 
         if $node.isa('Array') {
             my $result := '';
             $result := $result ~ "[ ";
             my $subitem;
             for @($node) -> $subitem {
-                if $subitem.isa('Array') {
-                    $result := $result ~ self.visit( $subitem, 'Array' ) ~ ', ';
-                }
-                else {
-                if $subitem.isa('Str') {
-                    $result := $result ~ "\'" ~ $subitem ~ "\', ";
-                }
-                else {
-                    if ($subitem) {
-                        $result := $result ~ $subitem.emit( self ) ~ ", ";
-                    }
-                };
-                };
-            };
+                $result := $result ~ self.visit($subitem) ~ ', ';
+            }
             return $result ~ " ]";
         };
     
         if $node.isa('Str') {
             return "\'" ~ $node ~ "\'";
         };
+
+        if $node.isa('Int') {
+            return $node;
+        };
         
         my $result := '';
-        $result := $result ~ "::" ~ $node_name ~ "( ";
+        $result := $result ~ "::" ~ '???' ~ "( ";
         my $data := $node.attribs;
         my $item;
         for keys %($data) -> $item {
             $result := $result ~ " " ~ $item ~ " => ";
             if ($data{$item}).isa('Array') {
-                $result := $result ~ self.visit( $data{$item}, 'Array' ) ~ ", ";
+                $result := $result ~ self.visit( $data{$item}) ~ ", ";
             }
             else { 
             if ($data{$item}).isa('Hash') {
@@ -50,18 +42,18 @@ class KindaPerl6::Visitor::Emit::AstPerl {
                     $result := $result 
                         ~ $subitem 
                         ~ ' => '
-                        ~ (($data{$item}){$subitem}).emit( self ) 
+                        ~ self.visit(($data{$item}){$subitem}) 
                         ~ ", ";
                 };
                 $result := $result ~ " }, ";
             } 
             else {
-            if ($data{$item}).isa('Str') {
-                $result := $result ~ self.visit( $data{$item}, 'Str' ) ~ ", ";
+            if (($data{$item}).isa('Str')) || (($data{$item}).isa('Int')) {
+                $result := $result ~ self.visit( $data{$item}) ~ ", ";
             } 
             else {
                 if ($data{$item}) {
-                $result := $result ~ ($data{$item}).emit( self ) ~ ", "; 
+                $result := $result ~ self.visit($data{$item}) ~ ", "; 
                 }
             };
             };
@@ -75,7 +67,7 @@ class KindaPerl6::Visitor::Emit::AstPerl {
 
 =head1 NAME
 
-KindaPerl6::Visitor::Emit::AstPerl - Build a C<.perl> representation of the AST
+Onion::Visitor::Emit::AstPerl - Build a C<.perl> representation of the AST
 
 =head1 DESCRIPTION
 
