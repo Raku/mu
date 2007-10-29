@@ -53,17 +53,17 @@ sub sugar_off {
 
 This package uses AUTOLOAD to call _dispatch in a hash reference in effect does the following
 
-my $method = sugar {
-    _dispatch => sub {
-        my ( $self, $subroutine, @args ) = @_
-        if ( $subroutine eq 'unknown_sub' ) {
-            do_something( @args );
-        } elsif { # .. we get switch in perl6!
-        }
-    }
-};
+ my $method = sugar {
+     _dispatch => sub {
+         my ( $self, $subroutine, @args ) = @_
+         if ( $subroutine eq 'unknown_sub' ) {
+             do_something( @args );
+         } elsif { # .. we get switch in perl6!
+         }
+     }
+ };
 
-$method->unknown_sub(@args);
+ $method->unknown_sub(@args);
 
 =cut
 
