@@ -11,7 +11,7 @@ token double_quoted {
 token quoted_any { . }
 
 token quoted_array {
-    <before \@ > <var> \[ <?opt_ws> \]  
+    <before \@ > <var> \[ <.opt_ws> \]  
         { 
             return ::Apply(
                 'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'prefix:<~>', namespace => [ ] ),
@@ -21,7 +21,7 @@ token quoted_array {
 }
 
 token quoted_hash {
-    <before \% > <var> \{ <?opt_ws> \}  
+    <before \% > <var> \{ <.opt_ws> \}  
         { 
             return ::Apply(
                 'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'prefix:<~>', namespace => [ ] ),

@@ -5,11 +5,11 @@ grammar KindaPerl6::Grammar {
 
     # has $.is_longname; ???
     token sig_type {
-        |   [ <'::'> | <''> ]  <full_ident> <?ws>  { return $$<full_ident> }
+        |   [ <'::'> | <''> ]  <full_ident> <.ws>  { return $$<full_ident> }
         |   <''>                                   { return '' }
     }
     token sig_default_value {
-        |   <?opt_ws> '=' <?opt_ws> <exp> <?opt_ws> { return { has_default => 1, default => $$<exp>, } }
+        |   <.opt_ws> '=' <.opt_ws> <exp> <.opt_ws> { return { has_default => 1, default => $$<exp>, } }
         |   <''>                                     { return { has_default => 0, default => ::Val::Undef( ), } }
     }
     token sig_named_only       { ':' { return 1 } | { return 0 } }
@@ -19,8 +19,8 @@ grammar KindaPerl6::Grammar {
     }
     token sig_slurpy           { '*' { return 1 } | { return 0 } }
     token sig_multidimensional { '@' { return 1 } | { return 0 } }
-    token sig_rw               { <?ws> 'is' <?ws> 'rw'   { return 1 } | { return 0 } }
-    token sig_copy             { <?ws> 'is' <?ws> 'copy' { return 1 } | { return 0 } }
+    token sig_rw               { <.ws> 'is' <.ws> 'rw'   { return 1 } | { return 0 } }
+    token sig_copy             { <.ws> 'is' <.ws> 'copy' { return 1 } | { return 0 } }
 
     token exp_sig_item {
             <sig_type>
@@ -56,9 +56,9 @@ grammar KindaPerl6::Grammar {
     token exp_sig_list {
         |   <exp_sig_item> 
             [
-            |   <?opt_ws> \, <?opt_ws> <exp_sig_list> 
+            |   <.opt_ws> \, <.opt_ws> <exp_sig_list> 
                 { return [ $$<exp_sig_item>, @( $$<exp_sig_list> ) ] }
-            |   <?opt_ws> [ \, <?opt_ws> | '' ]
+            |   <.opt_ws> [ \, <.opt_ws> | '' ]
                 { return [ $$<exp_sig_item> ] }
             ]
         |
@@ -67,7 +67,7 @@ grammar KindaPerl6::Grammar {
 
     token sig {
         <invocant>
-        <?opt_ws> 
+        <.opt_ws> 
         <exp_sig_list> 
         {
             # say ' invocant: ', ($$<invocant>).perl;

@@ -11,7 +11,7 @@ token token_p5_body {
     |  <''>    
 };
 token token_P5 {
-    token <?ws> <opt_name> <?opt_ws> <token_p5_modifier> <?opt_ws> \{
+    token <.ws> <opt_name> <.opt_ws> <token_p5_modifier> <.opt_ws> \{
         <token_p5_body>
     \}
     {

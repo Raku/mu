@@ -5,9 +5,9 @@ grammar KindaPerl6::Grammar::Regex {
 
 my %rule_terms;
 
-token ws {  <?KindaPerl6::Grammar.ws>  };
+token ws {  <.KindaPerl6::Grammar.ws>  };
 
-token ident {  <?KindaPerl6::Grammar.full_ident> | <digit> };
+token ident {  <.KindaPerl6::Grammar.full_ident> | <digit> };
 
 token any { . };
 
@@ -20,9 +20,9 @@ token literal {
 token metasyntax {
     [ 
     |  \\ .
-    |  \'  <?literal>     \'
-    |  \{  <?parsed_code>     
-    |  \<  <?metasyntax>  \>
+    |  \'  <.literal>     \'
+    |  \{  <.parsed_code>     
+    |  \<  <.metasyntax>  \>
     |  <!before \> > . 
     ]
     [ <metasyntax> | '' ]
@@ -37,17 +37,17 @@ token char_range {
 };
 
 token char_class {
-    |  <?ident>
-    |  \[  <?char_range>  \]
+    |  <.ident>
+    |  \[  <.char_range>  \]
 };
 
 token parsed_code {
-    <?KindaPerl6::Grammar.opt_ws>
+    <.KindaPerl6::Grammar.opt_ws>
     { 
         COMPILER::add_pad( $KindaPerl6::Grammar::Class_name );
     }
     <KindaPerl6::Grammar.exp_stmts>
-    <?KindaPerl6::Grammar.opt_ws>
+    <.KindaPerl6::Grammar.opt_ws>
     '}'
     {
         my $env := COMPILER::current_pad();
@@ -102,13 +102,13 @@ token rule_terms {
         <rule>  ')>'
         { return ::Rule::CaptureResult( 'rule' => $$<rule> ) }
     |   '<' <assertion_modifier> 'after'
-        <?ws> <rule> \> 
+        <.ws> <rule> \> 
         { return ::Rule::After( 'rule' => $$<rule>, 'assertion_modifier' => $$<assertion_modifier> ) }
     |   '<' <assertion_modifier> 'before'
-        <?ws> <rule> \> 
+        <.ws> <rule> \> 
         { return ::Rule::Before( 'rule' => $$<rule>, 'assertion_modifier' => $$<assertion_modifier> ) }
     # |   '<!before'
-    #    <?ws> <rule> \> 
+    #    <.ws> <rule> \> 
     #    { return ::Rule::NotBefore( 'rule' => $$<rule> ) }
     |   '<!'
         # TODO
@@ -135,7 +135,11 @@ token rule_terms {
             }
         |
             \?
-            # TODO 
+            { warn "<? ...> not implemented - maybe you mean <. ...> ?" }
+            <metasyntax>  \>
+            { return ::Rule::SubruleNoCapture( 'metasyntax' => $$<metasyntax> ) }
+        |
+            \.
             <metasyntax>  \>
             { return ::Rule::SubruleNoCapture( 'metasyntax' => $$<metasyntax> ) }
         |
@@ -174,7 +178,7 @@ token rule_terms {
 token term {
     |  
        # XXX special case for $<xxx> := (...) 
-       '$<' <ident> '>' <?ws>? ':=' <?ws>? '(' <rule> ')'
+       '$<' <ident> '>' <.ws>? ':=' <.ws>? '(' <rule> ')'
           { 
             return ::Rule::NamedCapture(
                 'rule' =>  $$<rule>,
@@ -184,7 +188,7 @@ token term {
     | 
        # { say 'matching variables' } 
        <variables>
-       [  <?ws>? ':=' <?ws>? <named_capture_body>
+       [  <.ws>? ':=' <.ws>? <named_capture_body>
           { 
             return ::Rule::NamedCapture(
                 'rule' =>  $$<named_capture_body>,
@@ -208,7 +212,7 @@ token term {
 };
 
 token quant {
-    |   '**' <?KindaPerl6::Grammar.opt_ws> \{  <parsed_code>  
+    |   '**' <.KindaPerl6::Grammar.opt_ws> \{  <parsed_code>  
         { return { 'closure' => $$<parsed_code> } }
     |   [  \? | \* | \+  ]
 };
@@ -216,16 +220,16 @@ token quant {
 token greedy {   \?  |  \+  |  ''  };
 
 token quantifier {
-    #|   <?KindaPerl6::Grammar.opt_ws>
+    #|   <.KindaPerl6::Grammar.opt_ws>
     #    <before   \}  |  \]   |  \)   >
     #    XXX   # fail
     #|
-        <?KindaPerl6::Grammar.opt_ws>
+        <.KindaPerl6::Grammar.opt_ws>
         <term> 
-        <?KindaPerl6::Grammar.opt_ws2>
+        <.KindaPerl6::Grammar.opt_ws2>
         [
             <quant> <greedy>
-            <?KindaPerl6::Grammar.opt_ws3>
+            <.KindaPerl6::Grammar.opt_ws3>
             { return ::Rule::Quantifier(
                     'term'    => $$<term>,
                     'quant'   => $$<quant>,
@@ -271,7 +275,7 @@ token or_list {
 };
 
 token rule {
-    [ <?ws>? '|' | '' ]
+    [ <.ws>? '|' | '' ]
     # { say 'trying M::G::Rule on ', $s }
     <or_list>
     { 

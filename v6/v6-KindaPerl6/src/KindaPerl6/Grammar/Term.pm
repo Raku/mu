@@ -4,12 +4,12 @@ use v6-alpha;
 grammar KindaPerl6::Grammar {
 
 token term {
-    | Inf  <!before <?word> | _ | <?digit> >
+    | Inf  <!before <.word> | _ | <.digit> >
         { return ::Apply(
             'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'Inf', namespace => [ ] ),
             'arguments' => [],
           ) }
-    | NaN  <!before <?word> | _ | <?digit> >
+    | NaN  <!before <.word> | _ | <.digit> >
         { return ::Apply(
             'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'NaN', namespace => [ ] ),
             'arguments' => [],
@@ -24,15 +24,15 @@ token term {
           ) }
 
     # Parenthesis, List
-    | \( <?opt_ws> 
+    | \( <.opt_ws> 
         [
 
-        | <exp> <?opt_ws> \)
+        | <exp> <.opt_ws> \)
             { return $$<exp> }   # ( exp )        
-        | <pair> <?opt_ws> [ ',' <?opt_ws> | '' ] \) 
+        | <pair> <.opt_ws> [ ',' <.opt_ws> | '' ] \) 
             # special case - just for testing
             { return ::Lit::Pair( key => ($$<pair>)[0], value => ($$<pair>)[1] ) }
-        | <exp_seq> <?opt_ws> \)
+        | <exp_seq> <.opt_ws> \)
             { return 
                 ::Call( 
                     'invocant'  => ::Proto( name => 'List' ), 
@@ -44,11 +44,11 @@ token term {
         ]
         
     # Pair, Hash, Bare block
-    | \{ <?opt_ws> 
+    | \{ <.opt_ws> 
         [
-        |   <pair> <?opt_ws> , <?opt_ws> \} 
+        |   <pair> <.opt_ws> , <.opt_ws> \} 
             { return ::Lit::Pair( key => ($$<pair>)[0], value => ($$<pair>)[1] ) }
-        |   <pair> <?opt_ws> \} 
+        |   <pair> <.opt_ws> \} 
             { 
                 return ::Lit::Code(
                     pad   => COMPILER::current_pad(),
@@ -63,7 +63,7 @@ token term {
                         ],
                 );
             }
-        |   <exp_mapping> <?opt_ws> \}
+        |   <exp_mapping> <.opt_ws> \}
             { return 
                 ::Call( 
                     'invocant'  => ::Proto( name => 'Hash' ), 
@@ -82,7 +82,7 @@ token term {
             }
         ]    
         
-    | \[ <?opt_ws> <exp_seq> <?opt_ws> \]
+    | \[ <.opt_ws> <exp_seq> <.opt_ws> \]
             { return 
                 ::Call( 
                     'invocant'  => ::Proto( name => 'Array' ), 
@@ -93,9 +93,9 @@ token term {
             }
 
     # Capture
-    | \\ \( <?opt_ws> <capture> <?opt_ws> \)
+    | \\ \( <.opt_ws> <capture> <.opt_ws> \)
         { return $$<capture> }                                # \( exp, ... )
-    | \\ \( <?opt_ws> <exp_seq> <?opt_ws> \)
+    | \\ \( <.opt_ws> <exp_seq> <.opt_ws> \)
         { return ::Capture( 'invocant' => undef, 'array' => $$<exp_seq>, 'hash' => [ ] ); }
     | \\ <var>
         { return ::Capture( 'invocant' => undef, 'array' => [ $$<var> ], 'hash' => [ ] ); }
@@ -107,10 +107,10 @@ token term {
             'method' => 'LOOKUP',
             'arguments' => [::Val::Buf( 'buf' => $$<sub_or_method_name> )] 
         ) }   # $<ident>
-    | do <?opt_ws> <block1>
+    | do <.opt_ws> <block1>
         # block1 is defined in the Grammar::Control module
         { return ::Do( 'block' => $$<block1> ) }
-    | use <?ws> <full_ident> <use_from_perl5> [ - <ident> | <''> ]
+    | use <.ws> <full_ident> <use_from_perl5> [ - <ident> | <''> ]
         { return ::Use( 'mod' => $$<full_ident>,'perl5' => $$<use_from_perl5> ) }
     | <val>      { return $$<val> }     # 'value'
     | <lit>      { return $$<lit> }     # [literal construct]
@@ -270,7 +270,7 @@ token term {
             return $bind;                         # :=    run-time
         }  
 
-    | <declarator> <?ws> <opt_type> <?opt_ws> <undeclared_var>   # my Int $variable
+    | <declarator> <.ws> <opt_type> <.opt_ws> <undeclared_var>   # my Int $variable
         { 
             if ($$<declarator>) eq 'my' {
                 ( COMPILER::current_pad() ).add_lexicals( [
@@ -293,7 +293,7 @@ token term {
                 { return $$<begin_block> }  # BEGIN { code... }
     | <check_block> 
                 { return $$<check_block> }  # CHECK { code... }
-    | gather <?ws> \{ <?opt_ws> <bare_block>      # gather { code... }
+    | gather <.ws> \{ <.opt_ws> <bare_block>      # gather { code... }
         { return
             ::Call(
                 hyper     => '',
@@ -307,9 +307,9 @@ token term {
                 invocant => ::Proto( name => 'Gather', ),
             );
         } 
-    | is <?ws> <full_ident> 
+    | is <.ws> <full_ident> 
         { die "<is> not implemented" }
-    | does <?ws> <full_ident> 
+    | does <.ws> <full_ident> 
         { die "<does> not implemented" }
 
     | <control> { return $$<control> } # Various control structures.  Does _not_ appear in binding LHS

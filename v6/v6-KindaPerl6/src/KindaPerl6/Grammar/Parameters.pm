@@ -32,7 +32,7 @@ grammar KindaPerl6::Grammar {
 
     token exp_parameter_named {
         |   <ident>                             #  key => value
-            <?opt_ws> '=>' <?opt_ws>
+            <.opt_ws> '=>' <.opt_ws>
             <exp>
             { return [ ::Val::Buf( 'buf' => ~$<ident> ), $$<exp> ] }
         |   \: <ident> \< <angle_quoted> \>     #  :key<value>
@@ -41,7 +41,7 @@ grammar KindaPerl6::Grammar {
                     ::Val::Buf( 'buf' => ~$<ident> ), 
                     ::Val::Buf( 'buf' => ~$<angle_quoted> ) ] 
             } 
-        |   \: <ident> \( <?opt_ws> <exp> <?opt_ws> \)   #  :key(value)
+        |   \: <ident> \( <.opt_ws> <exp> <.opt_ws> \)   #  :key(value)
             { 
                 return [ 
                     ::Val::Buf( 'buf' => ~$<ident> ), 
@@ -75,9 +75,9 @@ grammar KindaPerl6::Grammar {
     token exp_parameter_list {
         |   <exp_parameter_item> 
             [
-            |   <?opt_ws> \, <?opt_ws> <exp_parameter_list> 
+            |   <.opt_ws> \, <.opt_ws> <exp_parameter_list> 
                 { return [ $$<exp_parameter_item>, @( $$<exp_parameter_list> ) ] }
-            |   <?opt_ws> [ \, <?opt_ws> | '' ]
+            |   <.opt_ws> [ \, <.opt_ws> | '' ]
                 { return [ $$<exp_parameter_item> ] }
             ]
         |

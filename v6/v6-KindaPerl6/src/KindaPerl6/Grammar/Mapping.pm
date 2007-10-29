@@ -7,11 +7,11 @@ token exp2 {  <exp> { return $$<exp> }  };
 
 token pair {
     |   <ident>                             #  key => value
-        <?opt_ws> '=>' <?opt_ws>
+        <.opt_ws> '=>' <.opt_ws>
         <exp>
         { return [ ::Val::Buf( 'buf' => ~$<ident> ), $$<exp> ] }
     |   <exp2>                              #  key => value
-        <?opt_ws> '=>' <?opt_ws>
+        <.opt_ws> '=>' <.opt_ws>
         <exp>
         { return [ $$<exp2>, $$<exp> ] }
     |   \: <ident> \< <angle_quoted> \>     #  :key<value>
@@ -20,7 +20,7 @@ token pair {
                 ::Val::Buf( 'buf' => ~$<ident> ), 
                 ::Val::Buf( 'buf' => ~$<angle_quoted> ) ] 
         } 
-    |   \: <ident> \( <?opt_ws> <exp> <?opt_ws> \)   #  :key(value)
+    |   \: <ident> \( <.opt_ws> <exp> <.opt_ws> \)   #  :key(value)
         { 
             return [ 
                 ::Val::Buf( 'buf' => ~$<ident> ), 
@@ -43,9 +43,9 @@ token pair {
 token exp_mapping {
     |   <pair> 
         [
-        |   <?opt_ws> \, <?opt_ws> <exp_mapping> 
+        |   <.opt_ws> \, <.opt_ws> <exp_mapping> 
             { return [ $$<pair>, @( $$<exp_mapping> ) ] }
-        |   <?opt_ws> [ \, <?opt_ws> | <''> ]
+        |   <.opt_ws> [ \, <.opt_ws> | <''> ]
             { return [ $$<pair> ] }
         ]
     |

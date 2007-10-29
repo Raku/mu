@@ -1,7 +1,7 @@
 grammar MyGrammar {
     token ws { ' ' };
     token alpha { 'a' | 'b' };
-    token opt_alfanum  { [ <?ws> | <?alpha> ] |  '' };
+    token opt_alfanum  { [ <.ws> | <.alpha> ] |  '' };
 };
 module Main {
     say '1..3';

@@ -3,7 +3,7 @@ use v6-alpha;
 grammar KindaPerl6::Grammar {
 
 token method_sig {
-    |   <?opt_ws> \( <?opt_ws>  <sig>  <?opt_ws>  \)
+    |   <.opt_ws> \( <.opt_ws>  <sig>  <.opt_ws>  \)
         { return $$<sig> }
     |   { return ::Sig( 
             'invocant' => ::Var( 
@@ -16,7 +16,7 @@ token method_sig {
             ) }
 };
 token sub_sig {
-    |   <?opt_ws> \( <?opt_ws>  <sig>  <?opt_ws>  \)
+    |   <.opt_ws> \( <.opt_ws>  <sig>  <.opt_ws>  \)
         { return $$<sig> }
     |   { return ::Sig( 
             'invocant' => undef,
@@ -30,21 +30,21 @@ token arrow_sub_sig {
             'invocant' =>   ::Val::Undef(),
             'positional' => $$<exp_sig_list>, 
             ) }
-    |   \( <?opt_ws>  <sig>  <?opt_ws>  \)
+    |   \( <.opt_ws>  <sig>  <.opt_ws>  \)
         { return $$<sig> }
 }
 
 token sub {
     sub
-    <?ws>  <opt_name>  <?opt_ws> 
+    <.ws>  <opt_name>  <.opt_ws> 
     <sub_sig>
-    <?opt_ws> \{ 
-        <?opt_ws>  
+    <.opt_ws> \{ 
+        <.opt_ws>  
         { 
             COMPILER::add_pad();
         }
         <exp_stmts> 
-        <?opt_ws> 
+        <.opt_ws> 
     [   \}     | { say '*** Syntax Error in sub \'', $$<name>, '\': missing closing curly bracket }'; die 'error in Block'; } ]
     { 
         my $env := COMPILER::current_pad();
@@ -71,15 +71,15 @@ token sub {
 
 token coro {
     coro
-    <?ws>  <opt_name>  <?opt_ws> 
+    <.ws>  <opt_name>  <.opt_ws> 
     <sub_sig>
-    <?opt_ws> \{ 
-        <?opt_ws>  
+    <.opt_ws> \{ 
+        <.opt_ws>  
         { 
             COMPILER::add_pad();
         }
         <exp_stmts> 
-        <?opt_ws> 
+        <.opt_ws> 
     [   \}     | { say '*** Syntax Error in coro \'', $$<name>, '\': missing closing curly bracket }'; die 'error in Block'; } ]
     { 
         my $env := COMPILER::current_pad();
@@ -106,15 +106,15 @@ token coro {
 
 token arrow_sub {
     '->'
-    <?opt_ws> 
+    <.opt_ws> 
     <arrow_sub_sig>
-    <?opt_ws> \{ 
-        <?opt_ws>  
+    <.opt_ws> \{ 
+        <.opt_ws>  
         { 
             COMPILER::add_pad();
         }
         <exp_stmts> 
-        <?opt_ws> 
+        <.opt_ws> 
     [   \}     | { say '*** Syntax Error in sub: missing closing curly bracket } '; die 'error in Block'; } ]
     { 
         my $env := COMPILER::current_pad();
@@ -141,12 +141,12 @@ token arrow_sub {
 
 token bare_block {
     # used by gather { ... }
-    # \{ <?opt_ws>  
+    # \{ <.opt_ws>  
         { 
             COMPILER::add_pad();
         }
         <exp_stmts> 
-        <?opt_ws> 
+        <.opt_ws> 
     [   \}     | { say '*** Syntax Error in Block: missing closing curly bracket } '; die 'error in Block'; } ]
     { 
         my $env := COMPILER::current_pad();
@@ -173,8 +173,8 @@ token bare_block {
 };
 
 token proto {
-    proto <?ws> [ [ method | token | rule | sub ] <?ws> | '' ] 
-        <namespace> <ident> <?ws> '{' <?opt_ws> '}'    
+    proto <.ws> [ [ method | token | rule | sub ] <.ws> | '' ] 
+        <namespace> <ident> <.ws> '{' <.opt_ws> '}'    
         { 
             # proto token x { }
             my $bind := ::Bind(  
@@ -202,16 +202,16 @@ token proto {
 
 token method {
     method
-    <?ws>  <opt_name>  <?opt_ws> 
+    <.ws>  <opt_name>  <.opt_ws> 
     <method_sig>
-    <?opt_ws> \{ <?opt_ws>  
+    <.opt_ws> \{ <.opt_ws>  
         # { say ' parsing statement list ' }
         { 
             COMPILER::add_pad();
         }
         <exp_stmts> 
         # { say ' got statement list ', ($$<exp_stmts>).perl } 
-        <?opt_ws> 
+        <.opt_ws> 
     [   \}     | { say '*** Syntax Error in method \'', get_class_name(), '.', $$<name>, '\' near pos=', $/.to; die 'error in Block'; } ]
     {
         # say ' block: ', ($$<exp_stmts>).perl;
@@ -239,7 +239,7 @@ token method {
 };
 
 token multi_method {
-    multi <?ws> method 
+    multi <.ws> method 
     
             # multi method { code... }
             # &multi.add_variant( 
@@ -248,14 +248,14 @@ token multi_method {
             #    }
             # );
 
-        <?ws>  <namespace> <ident>  <?opt_ws> 
+        <.ws>  <namespace> <ident>  <.opt_ws> 
         <method_sig>
-        <?opt_ws> \{ <?opt_ws>  
+        <.opt_ws> \{ <.opt_ws>  
             { 
                 COMPILER::add_pad();
             }
             <exp_stmts> 
-            <?opt_ws> 
+            <.opt_ws> 
         [   \}     | { say '*** Syntax Error in method \'', get_class_name(), '.', $$<ident>, '\' near pos=', $/.to; die 'error in Block'; } ]
         {
             # say ' block: ', ($$<exp_stmts>).perl;
@@ -297,16 +297,16 @@ token multi_method {
 }
 
 token multi_sub {
-    multi <?ws> [ sub <?ws> | '' ]
+    multi <.ws> [ sub <.ws> | '' ]
     
-        <namespace> <ident>  <?opt_ws> 
+        <namespace> <ident>  <.opt_ws> 
         <sub_sig>
-        <?opt_ws> \{ <?opt_ws>  
+        <.opt_ws> \{ <.opt_ws>  
             { 
                 COMPILER::add_pad();
             }
             <exp_stmts> 
-            <?opt_ws> 
+            <.opt_ws> 
         [   \}     | { say '*** Syntax Error in sub \'', get_class_name(), ' ', $$<ident>, '\' near pos=', $/.to; die 'error in Block'; } ]
         {
             # say ' block: ', ($$<exp_stmts>).perl;
@@ -349,7 +349,7 @@ token multi_sub {
 token token {
     # { say 'parsing Token' }
     token
-    <?ws>  <opt_name>  <?opt_ws> \{
+    <.ws>  <opt_name>  <.opt_ws> \{
         <KindaPerl6::Grammar::Regex.rule>
     \}
     {
@@ -372,9 +372,9 @@ token token_sym_ident {
 
 token token_sym {
     # { say 'parsing Token:sym' }
-    [ multi <?ws> | '' ]
+    [ multi <.ws> | '' ]
     token
-    <?ws> <namespace> <ident> \: <token_sym_ident> <?opt_ws> \{
+    <.ws> <namespace> <ident> \: <token_sym_ident> <.opt_ws> \{
         <KindaPerl6::Grammar::Regex.rule>
     \}
     {
@@ -403,15 +403,15 @@ token token_sym {
 
 token macro {
     macro
-    <?ws>  <opt_name>  <?opt_ws> 
+    <.ws>  <opt_name>  <.opt_ws> 
     <sub_sig>
-    <?opt_ws> \{ 
-        <?opt_ws>  
+    <.opt_ws> \{ 
+        <.opt_ws>  
         { 
             COMPILER::add_pad();
         }
         <exp_stmts> 
-        <?opt_ws> 
+        <.opt_ws> 
     [   \}     | { say '*** Syntax Error in macro \'', $$<name>, '\''; die 'error in Block'; } ]
     { 
         my $env := COMPILER::current_pad();

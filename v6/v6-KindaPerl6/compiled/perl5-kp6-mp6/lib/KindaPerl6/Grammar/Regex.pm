@@ -994,45 +994,10 @@ sub rule_terms {
                                                                         $MATCH->to($pos1);
                                                                         (   ( ( '?' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
                                                                                 do {
-                                                                                    my $m2 = $grammar->metasyntax( $str, $MATCH->to() );
-                                                                                    do {
-                                                                                        if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'metasyntax'} = $m2; 1 }
-                                                                                        else     {0}
-                                                                                        }
-                                                                                }
-                                                                                && (( ( '>' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
-                                                                                        my $ret = sub {
-                                                                                            my $List__ = \@_;
-                                                                                            do { [] };
-                                                                                            do { return ( Rule::SubruleNoCapture->new( 'metasyntax' => ${ $MATCH->{'metasyntax'} }, ) ) };
-                                                                                            '974^213';
-                                                                                            }
-                                                                                            ->();
-                                                                                        do {
-                                                                                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                                                            else                         { }
-                                                                                        };
-                                                                                        1;
-                                                                                    }
-                                                                                )
-                                                                            )
-                                                                        );
-                                                                    }
-                                                                    || do {
-                                                                        $MATCH->to($pos1);
-                                                                        (   do {
-                                                                                my $m2 = $grammar->metasyntax( $str, $MATCH->to() );
-                                                                                do {
-                                                                                    if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'metasyntax'} = $m2; 1 }
-                                                                                    else     {0}
-                                                                                    }
-                                                                                }
-                                                                                && (
-                                                                                ( ( '>' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
                                                                                     my $ret = sub {
                                                                                         my $List__ = \@_;
                                                                                         do { [] };
-                                                                                        do { return ( Rule::Subrule->new( 'metasyntax' => ${ $MATCH->{'metasyntax'} }, ) ) };
+                                                                                        do { warn('<? ...> not implemented - maybe you mean <. ...> ?') };
                                                                                         '974^213';
                                                                                         }
                                                                                         ->();
@@ -1042,9 +1007,88 @@ sub rule_terms {
                                                                                     };
                                                                                     1;
                                                                                 }
+                                                                                && (do {
+                                                                                        my $m2 = $grammar->metasyntax( $str, $MATCH->to() );
+                                                                                        do {
+                                                                                            if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'metasyntax'} = $m2; 1 }
+                                                                                            else     {0}
+                                                                                            }
+                                                                                    }
+                                                                                    && (( ( '>' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
+                                                                                            my $ret = sub {
+                                                                                                my $List__ = \@_;
+                                                                                                do { [] };
+                                                                                                do { return ( Rule::SubruleNoCapture->new( 'metasyntax' => ${ $MATCH->{'metasyntax'} }, ) ) };
+                                                                                                '974^213';
+                                                                                                }
+                                                                                                ->();
+                                                                                            do {
+                                                                                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                                                                                                else                         { }
+                                                                                            };
+                                                                                            1;
+                                                                                        }
+                                                                                    )
                                                                                 )
+                                                                            )
                                                                         );
                                                                     }
+                                                                    || (do {
+                                                                            $MATCH->to($pos1);
+                                                                            (   ( ( '.' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
+                                                                                    do {
+                                                                                        my $m2 = $grammar->metasyntax( $str, $MATCH->to() );
+                                                                                        do {
+                                                                                            if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'metasyntax'} = $m2; 1 }
+                                                                                            else     {0}
+                                                                                            }
+                                                                                    }
+                                                                                    && (( ( '>' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
+                                                                                            my $ret = sub {
+                                                                                                my $List__ = \@_;
+                                                                                                do { [] };
+                                                                                                do { return ( Rule::SubruleNoCapture->new( 'metasyntax' => ${ $MATCH->{'metasyntax'} }, ) ) };
+                                                                                                '974^213';
+                                                                                                }
+                                                                                                ->();
+                                                                                            do {
+                                                                                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                                                                                                else                         { }
+                                                                                            };
+                                                                                            1;
+                                                                                        }
+                                                                                    )
+                                                                                )
+                                                                            );
+                                                                        }
+                                                                        || do {
+                                                                            $MATCH->to($pos1);
+                                                                            (   do {
+                                                                                    my $m2 = $grammar->metasyntax( $str, $MATCH->to() );
+                                                                                    do {
+                                                                                        if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'metasyntax'} = $m2; 1 }
+                                                                                        else     {0}
+                                                                                        }
+                                                                                    }
+                                                                                    && (
+                                                                                    ( ( '>' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
+                                                                                        my $ret = sub {
+                                                                                            my $List__ = \@_;
+                                                                                            do { [] };
+                                                                                            do { return ( Rule::Subrule->new( 'metasyntax' => ${ $MATCH->{'metasyntax'} }, ) ) };
+                                                                                            '974^213';
+                                                                                            }
+                                                                                            ->();
+                                                                                        do {
+                                                                                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                                                                                            else                         { }
+                                                                                        };
+                                                                                        1;
+                                                                                    }
+                                                                                    )
+                                                                            );
+                                                                        }
+                                                                    )
                                                                     )
                                                             );
                                                             }

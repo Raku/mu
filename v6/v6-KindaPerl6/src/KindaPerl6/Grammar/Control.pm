@@ -17,12 +17,12 @@ token control {
 };
 
 token block1 {
-    \{  <?opt_ws> 
+    \{  <.opt_ws> 
         { 
             COMPILER::add_pad();
         }
         <exp_stmts> 
-        <?opt_ws> 
+        <.opt_ws> 
     \} 
         {
             my $env := COMPILER::current_pad();
@@ -42,11 +42,11 @@ token block2 {
 };
 
 token if {
-    if <?ws>  <exp>  <?opt_ws>
+    if <.ws>  <exp>  <.opt_ws>
     <block1>
     [
-        <?opt_ws>
-        else <?opt_ws> 
+        <.opt_ws>
+        else <.opt_ws> 
         <block2>
         { 
             return ::If( 
@@ -67,11 +67,11 @@ token if {
 };
 
 token unless {
-    unless <?ws>  <exp>  <?opt_ws>
+    unless <.ws>  <exp>  <.opt_ws>
     <block1>
     [
-        <?opt_ws>
-        else <?opt_ws> 
+        <.opt_ws>
+        else <.opt_ws> 
         <block2>
         { 
             return ::If( 
@@ -92,7 +92,7 @@ token unless {
 };
 
 token when {
-    when <?ws> <exp_seq> <?opt_ws> <block1>
+    when <.ws> <exp_seq> <.opt_ws> <block1>
     { 
         return ::When( 
             'parameters' => $$<exp_seq>, 
@@ -101,7 +101,7 @@ token when {
 };
 
 token for {
-    for <?ws> <exp> <?opt_ws> <arrow_sub>
+    for <.ws> <exp> <.opt_ws> <arrow_sub>
     { 
             return ::Call(
                 hyper     => '',
@@ -113,7 +113,7 @@ token for {
 };
 
 token while {
-    while <?ws> <exp> <?ws> <block1>
+    while <.ws> <exp> <.ws> <block1>
     { 
         return ::While( 
             'cond' => $$<exp>, 
@@ -127,7 +127,7 @@ token ctrl_leave {
 };
 
 token ctrl_return {
-    return <?ws> <exp>
+    return <.ws> <exp>
     { return ::Return( 'result' => $$<exp> ) }
     |
     return 

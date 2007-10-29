@@ -13,8 +13,6 @@ sub new {
     return KindaPerl6::Perl5::Match->new( @_[1..$#_] );
 }
 
-1;
-
 
 package KindaPerl6::Grammar;
 

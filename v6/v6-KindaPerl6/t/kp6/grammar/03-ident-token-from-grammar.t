@@ -4,11 +4,11 @@ grammar MyGrammar {
        |
        [
           <!before \d>
-          <?word>
+          <.word>
          |
           _
        ]
-       <?ident_digit>
+       <.ident_digit>
     };
 };
 module Main {
