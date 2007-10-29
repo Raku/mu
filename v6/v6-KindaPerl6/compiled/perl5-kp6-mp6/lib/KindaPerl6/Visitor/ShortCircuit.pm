@@ -7,20 +7,12 @@ use MiniPerl6::Perl5::Match;
 package KindaPerl6::Visitor::ShortCircuit;
 sub new { shift; bless {@_}, "KindaPerl6::Visitor::ShortCircuit" }
 
-sub new_pad {
-    my $List__ = \@_;
-    do { [] };
-    COMPILER::add_pad();
-    my $pad = COMPILER::current_pad();
-    COMPILER::drop_pad();
-    return ($pad);
-}
-
 sub thunk {
     my $List__ = \@_;
     my $value;
-    do { $value = $List__->[0]; [$value] };
-    Sub->new( 'block' => Lit::Code->new( 'pad' => new_pad(), 'body' => [$value], 'sig' => Sig->new( 'invocant' => (undef), 'positional' => [], ), ), );
+    my $pad;
+    do { $value = $List__->[0]; $pad = $List__->[1]; [ $value, $pad ] };
+    Sub->new( 'block' => Lit::Code->new( 'pad' => COMPILER::inner_pad($KindaPerl6::Visitor::ShortCircuit::last_pad), 'body' => [$value], 'sig' => Sig->new( 'invocant' => (undef), 'positional' => [], ), ), );
 }
 
 sub visit {
@@ -37,6 +29,10 @@ sub visit {
             return ( Apply->new( 'code' => $node->code(), 'arguments' => [ thunk($left), thunk($right) ], ) );
         }
         else { }
+    };
+    do {
+        if ( ( $node_name eq 'Lit::Code' ) ) { $KindaPerl6::Visitor::ShortCircuit::last_pad = $node->pad() }
+        else                                 { }
     };
     return ( (undef) );
 }

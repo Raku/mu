@@ -27,6 +27,12 @@ sub add_pad {
         namespace => $_[0],  # optional
     ); 
 }
+sub inner_pad {
+    return Pad->new( 
+        outer     => $_[0], 
+        lexicals  => [ ], 
+    ); 
+}
 
 sub drop_pad {
     #print "drop_pad\n";

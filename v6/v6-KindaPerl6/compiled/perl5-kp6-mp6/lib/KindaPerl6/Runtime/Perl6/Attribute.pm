@@ -15,7 +15,7 @@
           ::DISPATCH( $::Scalar, "new",
             { modified => $_MODIFIED, name => "$_" } );
     }
-    do {
+    {
         do {
             if (
                 ::DISPATCH(
@@ -32,7 +32,7 @@
             {
             }
             else {
-                do {
+                {
                     do {
                         ::MODIFIED($::Attribute);
                         $::Attribute = ::DISPATCH(
@@ -43,7 +43,7 @@
                             'PROTOTYPE',
                         );
                       }
-                  }
+                }
             }
         };
         ::DISPATCH(
@@ -85,7 +85,7 @@
             ::DISPATCH( $::Attribute, 'HOW', ),
             'add_attribute',
             ::DISPATCH( $::Str, 'new', 'readonly' )
-        );
+          )
     };
     1
 }
