@@ -65,6 +65,13 @@ This package uses AUTOLOAD to call _dispatch in a hash reference in effect does 
 
  $method->unknown_sub(@args);
 
+=head1 INTENTION
+
+to replace $object->{_dispatch}($object,'method_name',...)
+with $object->method_name(...)
+
+::DISPATCH does it better
+
 =cut
 
 package KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch;
