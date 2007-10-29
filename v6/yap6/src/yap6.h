@@ -16,6 +16,9 @@ struct YAP6__CORE__Dispatcher; typedef struct YAP6__CORE__Dispatcher YAP6__CORE_
 struct YAP6__CORE__ScalarDispatcher; typedef struct YAP6__CORE__ScalarDispatcher YAP6__CORE__ScalarDispatcher;
 struct YAP6__CORE__Capture; typedef struct YAP6__CORE__Capture YAP6__CORE__Capture;
 struct YAP6__CORE__CaptureDispatcher; typedef struct YAP6__CORE__CaptureDispatcher YAP6__CORE__CaptureDispatcher;
+struct YAP6__CORE__string; typedef struct YAP6__CORE__string YAP6__CORE__string;
+struct YAP6__CORE__int; typedef struct YAP6__CORE__int YAP6__CORE__int;
+struct YAP6__CORE__bool; typedef struct YAP6__CORE__bool YAP6__CORE__bool;
 
 /*
  * The YAP6__CORE__Oject struct represents any object in the YAP6 runtime.
@@ -29,11 +32,13 @@ struct YAP6__CORE__Value {
 };
 
 /*
- * The YAP6__CORE__Dispatcher struct is the superclass of all dispatchers
- * implemented. As a dispatcher, it should have the member
+ * The YAP6__CORE__Dispatcher struct is the superclass of all
+ * dispatchers implemented. As a dispatcher, it should have the member
  * "dispatcher" as null, and should have the member APPLY just after
  * it which is itself a pointer to the APPLY function of the
- * dispatcher.
+ * dispatcher.  Every object returned by this methods leave the
+ * refcount counting the reference returned, so you must always
+ * decrement de refcount for the values returned.
  */
 struct YAP6__CORE__Dispatcher {
   pthread_rwlock_t* rwlock; int ref_cnt;
@@ -44,16 +49,21 @@ struct YAP6__CORE__Dispatcher {
                                YAP6__CORE__Value* wants);
   void               (*DESTR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
-  int                (*COMPR)(YAP6__CORE__Dispatcher* self,
-                               YAP6__CORE__Value* value, 
-                               YAP6__CORE__Value* other);
+  YAP6__CORE__string* (*STRNG)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
+  YAP6__CORE__int*   (*INTGR)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
+  YAP6__CORE__bool*  (*BOOLN)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
+  YAP6__CORE__string* (*WHICH)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
 };
 
-typedef struct YAP6__CORE__int {
+struct YAP6__CORE__int {
   pthread_rwlock_t* rwlock; int ref_cnt;
   YAP6__CORE__Dispatcher* dispatcher;
   int value;  
-} YAP6__CORE__int;
+};
 
 /* int support */
 extern YAP6__CORE__Dispatcher* yap6_const_int_dispatcher;
@@ -62,19 +72,25 @@ extern YAP6__CORE__int* yap6_int_create(int initialvalue);
 extern int yap6_int_lowlevel(YAP6__CORE__int* value);
 extern void yap6_int_dispatcher_destr();
 
+/** booleans are two constants, be it true or false */
+struct YAP6__CORE__bool {
+  pthread_rwlock_t* rwlock; int ref_cnt;
+  YAP6__CORE__Dispatcher* dispatcher;
+};
+
 typedef struct YAP6__CORE__double {
   pthread_rwlock_t* rwlock; int ref_cnt;
   YAP6__CORE__Dispatcher* dispatcher;
   double value;  
 } YAP6__CORE__double;
 
-typedef struct YAP6__CORE__string {
+struct YAP6__CORE__string {
   pthread_rwlock_t* rwlock; int ref_cnt;
   YAP6__CORE__Dispatcher* dispatcher;
   char encoding[16];
   int byte_length;
   char content[];
-} YAP6__CORE__String;
+};
 
 typedef struct YAP6__CORE__blob {
   pthread_rwlock_t* rwlock; int ref_cnt;
@@ -106,9 +122,14 @@ struct YAP6__CORE__ScalarDispatcher {
                                YAP6__CORE__Value* wants);
   void               (*DESTR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
-  int                (*COMPR)(YAP6__CORE__Dispatcher* self,
-                               YAP6__CORE__Value* value, 
-                               YAP6__CORE__Value* other);
+  YAP6__CORE__string* (*STRNG)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
+  YAP6__CORE__int*   (*INTGR)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
+  YAP6__CORE__bool*  (*BOOLN)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
+  YAP6__CORE__string* (*WHICH)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
   // REFCOUNT: the return of this method is counted as a refcount
   YAP6__CORE__Value* (*FETCH)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
@@ -134,9 +155,14 @@ typedef struct YAP6__CORE__ListDispatcher {
                                YAP6__CORE__Value* wants);
   void               (*DESTR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
-  int                (*COMPR)(YAP6__CORE__Dispatcher* self,
-                               YAP6__CORE__Value* value, 
-                               YAP6__CORE__Value* other);
+  YAP6__CORE__string* (*STRNG)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
+  YAP6__CORE__int*   (*INTGR)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
+  YAP6__CORE__bool*  (*BOOLN)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
+  YAP6__CORE__string* (*WHICH)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
   // Lookup returns the value or the proxy value
   // REFCOUNT: the return of this method is counted as a refcount
   YAP6__CORE__Scalar* (*LOOKP)(YAP6__CORE__Dispatcher* self,
@@ -193,9 +219,14 @@ typedef struct YAP6__CORE__HashDispatcher {
                                YAP6__CORE__Value* wants);
   void               (*DESTR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
-  int                (*COMPR)(YAP6__CORE__Dispatcher* self,
-                               YAP6__CORE__Value* value, 
-                               YAP6__CORE__Value* other);
+  YAP6__CORE__string* (*STRNG)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
+  YAP6__CORE__int*   (*INTGR)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
+  YAP6__CORE__bool*  (*BOOLN)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
+  YAP6__CORE__string* (*WHICH)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
   // REFCOUNT: the return of this method is counted as a refcount
   // Lookup returns the value or the proxy value
   YAP6__CORE__Scalar* (*LOOKP)(YAP6__CORE__Dispatcher* self,
@@ -233,9 +264,14 @@ struct YAP6__CORE__CaptureDispatcher {
                                YAP6__CORE__Value* wants);
   void               (*DESTR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
-  int                (*COMPR)(YAP6__CORE__Dispatcher* self,
-                               YAP6__CORE__Value* value, 
-                               YAP6__CORE__Value* other);
+  YAP6__CORE__string* (*STRNG)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
+  YAP6__CORE__int*   (*INTGR)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
+  YAP6__CORE__bool*  (*BOOLN)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
+  YAP6__CORE__string* (*WHICH)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
   // REFCOUNT: the return of this method is counted as a refcount
   // Gets a positional value
   YAP6__CORE__Scalar* (*LOOKP)(YAP6__CORE__Dispatcher* self,
@@ -269,8 +305,8 @@ extern void yap6_ident_dispatcher_destr();
 
 // const values
 extern YAP6__CORE__Value* yap6_const_undef;
-extern YAP6__CORE__Value* yap6_const_true;
-extern YAP6__CORE__Value* yap6_const_false;
+extern YAP6__CORE__bool* yap6_bool_true;
+extern YAP6__CORE__bool* yap6_bool_false;
 extern void yap6_const_init();
 extern void yap6_const_destr();
 

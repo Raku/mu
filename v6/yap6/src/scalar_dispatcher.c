@@ -22,12 +22,6 @@ static void scalar_dispatcher_DESTR(YAP6__CORE__Dispatcher* self,
   }
 }
 
-static int scalar_dispatcher_COMPR(YAP6__CORE__Dispatcher* self,
-                                          YAP6__CORE__Value* value,
-                                          YAP6__CORE__Value* other) {
-  // TODO
-  return 0;
-}
 
 static YAP6__CORE__Value* scalar_dispatcher_FETCH(YAP6__CORE__Dispatcher* self,
                                           YAP6__CORE__Value* value,
@@ -62,7 +56,6 @@ void yap6_scalar_dispatcher_init() {
 
   yap6_const_scalar_dispatcher->APPLY = &scalar_dispatcher_APPLY;
   yap6_const_scalar_dispatcher->DESTR = &scalar_dispatcher_DESTR;
-  yap6_const_scalar_dispatcher->COMPR = &scalar_dispatcher_COMPR;
   yap6_const_scalar_dispatcher->FETCH = &scalar_dispatcher_FETCH;
   yap6_const_scalar_dispatcher->STORE = &scalar_dispatcher_STORE;
 

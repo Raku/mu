@@ -30,6 +30,8 @@ refcount garbage collection is implemented.
 
 0.0.1.12 - Scalar Dispatcher.
 
+0.0.1.12.1 - COMPR no longer exists, low-level objects always must implement STRNG, INTGR, BOOLN and WHICH.
+
 ROADMAP
 
 0.0.1.13 - Pair Dispatcher.
