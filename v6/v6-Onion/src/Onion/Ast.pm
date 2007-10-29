@@ -341,9 +341,9 @@ class Lit::Object {
 
 class Var {
     has $.sigil;
-    has $.twigil = '';
+    has $.twigil;
     has $.name;
-    has $.namespace = [];
+    has $.namespace;
     method emit( $visitor, $path ) {
         Onion::Traverse::visit( 
             $visitor, 
