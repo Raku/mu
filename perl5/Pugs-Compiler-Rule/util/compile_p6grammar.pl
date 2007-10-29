@@ -7,15 +7,21 @@ use Pugs::Compiler::Grammar;
 use Pugs::Runtime::Tracer;
 
 my %opts;
-getopts("Ds:", \%opts) or help();
+getopts("TDs:", \%opts) or help();
+my $safe_mode = 0;
+if ($opts{T}) {
+    $safe_mode = 1;
+}
 if (defined $opts{s}) {
     $::PCR_SEED = $opts{s};
 }
 
 my $infile = shift or help();
 my $grammar = slurp($infile);
-my $compiler = Pugs::Compiler::Grammar->compile($grammar) or
-    die;
+my $compiler = Pugs::Compiler::Grammar->compile(
+    $grammar,
+    { safe_mode => $safe_mode }
+) or die;
 if ($compiler) {
     my $perl5 = $compiler->perl5;
     my $localtime = localtime;

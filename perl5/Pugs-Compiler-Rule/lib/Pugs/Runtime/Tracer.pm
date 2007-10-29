@@ -45,7 +45,7 @@ sub expand_tracing_code {
             $new .= <<"_EOC_";
 $_
 $tab do {
-$tab   trace_begin('$name', $from, $to, \$pos);
+$tab   Pugs::Runtime::Tracer::trace_begin('$name', $from, $to, \$pos);
 $tab   my \$retval =
 _EOC_
         } elsif (/(\s+)## <\/(\w+)>$/) {
@@ -59,7 +59,7 @@ _EOC_
                 $new .= <<"_EOC_";
 $_
 $tab ;
-$tab   trace_end('$name', \$retval, \$pos);
+$tab   Pugs::Runtime::Tracer::trace_end('$name', \$retval, \$pos);
 $tab   \$retval;
 $tab }
 _EOC_

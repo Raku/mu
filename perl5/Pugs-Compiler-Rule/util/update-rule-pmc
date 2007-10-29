@@ -6,13 +6,13 @@
 # util/update-rule-pmc revert
 # util/udpate-rule-pmc update
 
-
+echo "WARNING: This script is out-of-date; please use util/update-rule-pmc-new instead"
 if [ "$1" == "install" ]; then
     echo "cp tmp/Rule.pmc lib/Pugs/Grammar/Rule.pmc"
     cp tmp/Rule.pmc lib/Pugs/Grammar/Rule.pmc
     exit
 elif [ "$1" == "revert" ]; then
-    svn revert lib/Pugs/Grammar/Rule.pmc
+    git checkout lib/Pugs/Grammar/Rule.pmc
     exit
 elif [ "$1" != "update" ] && [ -n "$1" ]; then
     echo "Unknown operation $1 (only 'install', 'revert', and 'update' are supported)"

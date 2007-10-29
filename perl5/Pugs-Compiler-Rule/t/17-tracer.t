@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More 'no_plan';
+use Test::More tests => 9;
 use Pugs::Runtime::Tracer;
 
 my $buf;
@@ -42,36 +42,36 @@ is $out, <<'_EOC_';
     ## <constant>
     ## pos: 25 32
      do {
-       trace_begin('constant', 25, 32, $pos);
+       Pugs::Runtime::Tracer::trace_begin('constant', 25, 32, $pos);
        my $retval =
     ...
     ## </constant>
      ;
-       trace_end('constant', $retval, $pos);
-       return $retval;
+       Pugs::Runtime::Tracer::trace_end('constant', $retval, $pos);
+       $retval;
      }
 _EOC_
 
 $out = expand_tracing_code(<<'_EOC_');
-## <a>
-## <b>
-## </b>
-## <c>
-## </c>
-## </a>
+ ## <a>
+ ## <b>
+ ## </b>
+ ## <c>
+ ## </c>
+ ## </a>
 _EOC_
+ok $out, 'expand okay';
 
 eval {
-$out = expand_tracing_code(<<'_EOC_');
-## <a>
-## <b>
-## </b>
-## <c>
-## </d>
-## </a>
+    $out = expand_tracing_code(<<'_EOC_');
+ ## <a>
+ ## <b>
+ ## </b>
+ ## <c>
+ ## </d>
+ ## </a>
 _EOC_
 };
-
 ok $@, 'unmatched tag';
 like($@, qr{unexpected closing tag </d>}, 'unmatched tags');
 

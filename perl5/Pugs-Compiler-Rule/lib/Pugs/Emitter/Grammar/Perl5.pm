@@ -7,8 +7,27 @@ use strict;
 use warnings;
 use Pugs::Emitter::Rule::Perl5::Ratchet;
 
+# for safe mode
+sub _prune_actions {
+    my ($ast) = @_;
+    while (my ($key, $node) = each %$ast) {
+        next if $key =~ /^_/;
+        if ($key eq 'closure') {
+            my $code = $node->{closure};
+            if ($code and !ref $code and $code =~ /\w+/) {
+                die "ERROR: code blocks not allowed in safe mode: \"$code\"\n";
+            }
+        }
+        if (ref $node and ref $node eq 'HASH') {
+            _prune_actions($node); 
+        }
+    }
+}
+
 sub emit {
     my $ast = shift;
+    my $opts = shift;
+    $opts ||= {};
     ## $ast
     my ($name, $stmts) = each %$ast;
     my $p5_methods = '';
@@ -18,9 +37,13 @@ sub emit {
         my $type = $regex->{type};
         ## $regex
         if ($type eq 'block') {
+            my $code = $regex->{value};
+            if ($opts->{safe_mode} && $code =~ /\w+/) {
+                die "ERROR: verbatim Perl 5 blocks not allowed in safe mode: \"$code\"\n";
+            }
             $p5_methods .= <<"_EOC_";
 # Code block from grammar spec
-$regex->{value}
+$code
 
 _EOC_
             next;
@@ -32,15 +55,21 @@ _EOC_
             $params->{sigspace} = 1;
         }
         my $body;
+
+        my $ast = $regex->{ast};
+        if ($opts->{safe_mode}) {
+            _prune_actions($ast);
+        }
+
         if ($type eq 'regex') {
             $body = Pugs::Emitter::Rule::Perl5::emit(
                 'Pugs::Grammar::Rule',
-                $regex->{ast},
+                $ast,
             )
         } else {
             $body = Pugs::Emitter::Rule::Perl5::Ratchet::emit(
                 'Pugs::Grammar::Rule',
-                $regex->{ast},
+                $ast,
                 $params,
             );
         }
@@ -62,7 +91,7 @@ ${prefix}use base 'Pugs::Grammar::Base';
 
 use Pugs::Runtime::Match;
 use Pugs::Runtime::Regex;
-use Pugs::Runtime::Tracer;
+use Pugs::Runtime::Tracer ();
 
 $p5_methods
 
