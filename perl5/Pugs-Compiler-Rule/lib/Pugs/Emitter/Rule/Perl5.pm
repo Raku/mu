@@ -598,12 +598,12 @@ sub metasyntax {
             call_subrule( $name, $_[1]."  ", "", @param ) .
             "$_[1] )\n";
     }
-    if ( $prefix eq '.' ) {
-        my ( $method, $param_list ) = split( /[\(\)]/, $cmd );
-        $method =~ s/^\.//;
-        $param_list ||= '';
-        return "$_[1] try_method( '$method', '$param_list' ) ";
-    }
+    #if ( $prefix eq '.' ) {
+    #    my ( $method, $param_list ) = split( /[\(\)]/, $cmd );
+    #    $method =~ s/^\.//;
+    #    $param_list ||= '';
+    #    return "$_[1] try_method( '$method', '$param_list' ) ";
+    #}
     die "<$cmd> not implemented";
 }
 

@@ -29,14 +29,15 @@ is $match, 'hello', 'capture okay';
 $obj = Pugs::Compiler::Grammar->compile(<<'_EOC_');
 grammar MyLang;
 token def {
-    <type> <?ws> <var_list> <?ws>? ';'
+    <type> <.ws> <var_list> <.ws>? ';'
 }
 token type { int | float | double | char }
-token var_list { <ident>**{1} <?ws>? [ ',' <?ws>? <ident> ]* }
+token var_list { <ident>**{1} <.ws>? [ ',' <.ws>? <ident> ]* }
 _EOC_
 ok $obj;
 isa_ok $obj, 'Pugs::Compiler::Grammar';
 ok $obj->{perl5}, 'p5 code okay';
+print "grammar: // $obj->{perl5} //\n";
 eval $obj->{perl5};
 $match = MyLang->def('int a, b, c;');
 ok $match->bool, 'matched';
@@ -55,20 +56,20 @@ is $match->{var_list}->{ident}->[0], 'd';
         grammar My::C;
 
         token def {
-            <type> <?ws> <var_list> <?ws>? ';'
+            <type> <.ws> <var_list> <.ws>? ';'
         }
 
         token type { int | float | double | char }
 
         token var_list {
-            <ident>**{1} <?ws>? [ ',' <?ws>? <ident> ]*
+            <ident>**{1} <.ws>? [ ',' <.ws>? <ident> ]*
         }
 
         grammar My::VB;
 
         token def {
-            'Dim' <?ws> <My::C.var_list>
-            [ <?ws> 'As' <?ws> <My::C.type> ]? <?ws>? ';'
+            'Dim' <.ws> <My::C.var_list>
+            [ <.ws> 'As' <.ws> <My::C.type> ]? <.ws>? ';'
         }
     };
     my $obj = Pugs::Compiler::Grammar->compile($grammar);

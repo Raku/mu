@@ -1,6 +1,6 @@
 
 #use Smart::Comments;
-use Test::More tests => 167;
+use Test::More tests => 166;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -1007,6 +1007,7 @@ TODO:
 }
 
 # L<S05/Matching against non-strings/"<.can('scratch')>">
+# XXX obsolete
 {
 
     {
@@ -1014,14 +1015,14 @@ TODO:
         sub meth { $_[0]{v} eq 'True' }
     }
 
-    my $rule = Pugs::Compiler::Token->compile( '<.can("meth")>' );
+    #my $rule = Pugs::Compiler::Token->compile( '<.can("meth")>' );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
 
-    my $object = bless { v => 'True' }, 'Test1';
+    #my $object = bless { v => 'True' }, 'Test1';
 
-    my $match = $rule->match( $object );
+    #my $match = $rule->match( $object );
     #print "Match: ", $match->perl;
-    is( ( $match ? 1 : 0 ) , 1, 'object matches' );
+    #is( ( $match ? 1 : 0 ) , 1, 'object matches' );
 }
 
 # L<S05/"Extensible metasyntax (C<< <...> >>)"/

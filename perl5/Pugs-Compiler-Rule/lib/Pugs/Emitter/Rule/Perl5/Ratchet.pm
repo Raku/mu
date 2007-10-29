@@ -198,7 +198,7 @@ sub quant {
     #print "QUANT: ",Dumper($_[0]);
     my $id = id();
     my $tab = ( $quantifier eq '' ) ? $_[1] : $_[1] . "  ";
-    my $ws = metasyntax( { metasyntax => 'ws', modifier => '?' }, $tab );
+    my $ws = metasyntax( { metasyntax => 'ws', modifier => '.' }, $tab );
     my $ws3 = ( $sigspace && $_[0]->{ws3} ne '' ) ? " &&\n$ws" : '';
 
     my $rul;
@@ -614,6 +614,9 @@ sub closure {
     #print "closure: ",Dumper($_[0]);
     my $code     = $_[0]{closure};
     my $modifier = $_[0]{modifier};  # 'plain', '', '?', '!'
+
+    die "invalid closure modifier: . "
+        if $modifier eq '.';
 
     #die "closure modifier not implemented '$modifier'"
     #    unless $modifier eq 'plain';
@@ -1080,7 +1083,11 @@ $_[1] do{
         warn "<\"...\"> not implemented";
         return;
     }
-    if ( $modifier eq '?' ) {   # non_capturing_subrule / code assertion
+    if  ( 
+           $modifier eq '.' 
+        || $modifier eq '?'   # XXX FIXME
+        )
+    {   # non_capturing_subrule / code assertion
         #$cmd = substr( $cmd, 1 );
         if ( $cmd =~ /^{/ ) {
             warn "code assertion not implemented";
@@ -1131,12 +1138,12 @@ $_[1] ## </metasyntax>\n";
             $_[1],
         );
     }
-    if ( $prefix eq '.' ) {
-        my ( $method, $param_list ) = split( /[\(\)]/, $cmd );
-        $method =~ s/^\.//;
-        $param_list ||= '';
-        return " ( \$s->$method( $param_list ) ? 1 : 0 ) ";
-    }
+    #if ( $prefix eq '.' ) {
+    #    my ( $method, $param_list ) = split( /[\(\)]/, $cmd );
+    #    $method =~ s/^\.//;
+    #    $param_list ||= '';
+    #    return " ( \$s->$method( $param_list ) ? 1 : 0 ) ";
+    #}
     die "<$cmd> not implemented";
 }
 
