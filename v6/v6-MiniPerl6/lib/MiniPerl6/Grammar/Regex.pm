@@ -5,9 +5,9 @@ grammar MiniPerl6::Grammar::Regex {
 
 my %rule_terms;
 
-token ws {  <?MiniPerl6::Grammar.ws>  }
+token ws {  <.MiniPerl6::Grammar.ws>  }
 
-token ident {  <?MiniPerl6::Grammar.full_ident> | <digit> }
+token ident {  <.MiniPerl6::Grammar.full_ident> | <digit> }
 
 token any { . }
 
@@ -20,9 +20,9 @@ token literal {
 token metasyntax {
     [ 
     |  \\ .
-    |  \'  <?literal>     \'
-    |  \{  <?string_code> \}
-    |  \<  <?metasyntax>  \>
+    |  \'  <.literal>     \'
+    |  \{  <.string_code> \}
+    |  \<  <.metasyntax>  \>
     |  <!before \> > . 
     ]
     [ <metasyntax> | '' ]
@@ -37,8 +37,8 @@ token char_range {
 }
 
 token char_class {
-    |  <?ident>
-    |  \[  <?char_range>  \]
+    |  <.ident>
+    |  \[  <.char_range>  \]
 }
 
 # XXX - not needed
@@ -46,8 +46,8 @@ token string_code {
     # bootstrap 'code'
     [ 
     |  \\ .
-    |  \'  <?literal>     \'
-    |  \{  <?string_code> \}
+    |  \'  <.literal>     \'
+    |  \{  <.string_code> \}
     |  <!before \} > . 
     ]
     [ <string_code> | '' ]
@@ -56,7 +56,7 @@ token string_code {
 token parsed_code {
     # this subrule is overridden inside the perl6 compiler
     # XXX - call MiniPerl6 'Statement List'
-    <?string_code>
+    <.string_code>
     { return ~$/ }
 }
 
@@ -99,13 +99,13 @@ token rule_terms {
         <rule>  ')>'
         { return ::Rul::CaptureResult( 'rule' => $$<rule> ) }
     |   '<after'
-        <?ws> <rule> \> 
+        <.ws> <rule> \> 
         { return ::Rul::After( 'rule' => $$<rule> ) }
     |   '<before'
-        <?ws> <rule> \> 
+        <.ws> <rule> \> 
         { return ::Rul::Before( 'rule' => $$<rule> ) }
     |   '<!before'
-        <?ws> <rule> \> 
+        <.ws> <rule> \> 
         { return ::Rul::NotBefore( 'rule' => $$<rule> ) }
     |   '<!'
         # TODO
@@ -137,6 +137,10 @@ token rule_terms {
         |
             \?
             # TODO 
+            <metasyntax>  \>
+            { return ::Rul::SubruleNoCapture( 'metasyntax' => $$<metasyntax> ) }
+        |
+            \.
             <metasyntax>  \>
             { return ::Rul::SubruleNoCapture( 'metasyntax' => $$<metasyntax> ) }
         |
@@ -190,34 +194,34 @@ token rule_terms {
     |   '<<'  { return { 'colon' => '<<' ,} }     
     |   '>>'  { return { 'colon' => '>>' ,} }     
     |   ':i' 
-        <?ws> <rule> 
+        <.ws> <rule> 
         { return { 'modifier' => 'ignorecase', 'rule' => $$<rule>, } }     
     |   ':ignorecase' 
-        <?ws> <rule> 
+        <.ws> <rule> 
         { return { 'modifier' => 'ignorecase', 'rule' => $$<rule>, } }     
     |   ':s' 
-        <?ws> <rule> 
+        <.ws> <rule> 
         { return { 'modifier' => 'sigspace',   'rule' => $$<rule>, } }     
     |   ':sigspace' 
-        <?ws> <rule> 
+        <.ws> <rule> 
         { return { 'modifier' => 'sigspace',   'rule' => $$<rule>, } }     
     |   ':P5' 
-        <?ws> <rule> 
+        <.ws> <rule> 
         { return { 'modifier' => 'Perl5',  'rule' => $$<rule>, } }     
     |   ':Perl5' 
-        <?ws> <rule> 
+        <.ws> <rule> 
         { return { 'modifier' => 'Perl5',  'rule' => $$<rule>, } }     
     |   ':bytes' 
-        <?ws> <rule> 
+        <.ws> <rule> 
         { return { 'modifier' => 'bytes',  'rule' => $$<rule>, } }     
     |   ':codes' 
-        <?ws> <rule> 
+        <.ws> <rule> 
         { return { 'modifier' => 'codes',  'rule' => $$<rule>, } }     
     |   ':graphs' 
-        <?ws> <rule> 
+        <.ws> <rule> 
         { return { 'modifier' => 'graphs', 'rule' => $$<rule>, } }     
     |   ':langs' 
-        <?ws> <rule> 
+        <.ws> <rule> 
         { return { 'modifier' => 'langs',  'rule' => $$<rule>, } } }
 }
 =cut
@@ -226,7 +230,7 @@ token term {
     |  
        # { say 'matching variables' } 
        <variables>
-       [  <?ws>? <':='> <?ws>? <named_capture_body>
+       [  <.ws>? <':='> <.ws>? <named_capture_body>
           { 
             return ::Rul::NamedCapture(
                 'rule' =>  $$<named_capture_body>,
@@ -250,7 +254,7 @@ token term {
 }
 
 token quant {
-    |   <'**'> <?MiniPerl6::Grammar.opt_ws> \{  <parsed_code>  \}
+    |   <'**'> <.MiniPerl6::Grammar.opt_ws> \{  <parsed_code>  \}
         { return { 'closure' => $$<parsed_code> } }
     |   [  \? | \* | \+  ]
 }
@@ -258,16 +262,16 @@ token quant {
 token greedy {   \?  |  \+  |  ''  }
 
 token quantifier {
-    #|   <?MiniPerl6::Grammar.opt_ws>
+    #|   <.MiniPerl6::Grammar.opt_ws>
     #    <before   \}  |  \]   |  \)   >
     #    XXX   # fail
     #|
-        <?MiniPerl6::Grammar.opt_ws>
+        <.MiniPerl6::Grammar.opt_ws>
         <term> 
-        <?MiniPerl6::Grammar.opt_ws2>
+        <.MiniPerl6::Grammar.opt_ws2>
         [
             <quant> <greedy>
-            <?MiniPerl6::Grammar.opt_ws3>
+            <.MiniPerl6::Grammar.opt_ws3>
             { return ::Rul::Quantifier(
                     'term'    => $$<term>,
                     'quant'   => $$<quant>,
@@ -313,7 +317,7 @@ token or_list {
 }
 
 token rule {
-    [ <?ws>? '|' | '' ]
+    [ <.ws>? '|' | '' ]
     # { say 'trying M::G::Rule on ', $s }
     <or_list>
     { 

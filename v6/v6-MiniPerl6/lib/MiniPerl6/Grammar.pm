@@ -13,56 +13,56 @@ my $Class_name;  # for diagnostic messages
 sub get_class_name { $Class_name } 
 
 token ident_digit {
-    [ [ <?word> | _ | <?digit> ] <?ident_digit>
+    [ [ <.word> | _ | <.digit> ] <.ident_digit>
     |   ''
     ]    
 }
 
 token ident {
-    [ <?word> | _ ] <?ident_digit>
+    [ <.word> | _ ] <.ident_digit>
 }
 
 token full_ident {
-    <?ident>
-    [   <'::'> <?full_ident>
+    <.ident>
+    [   <'::'> <.full_ident>
     |   ''
     ]    
 }
 
 token to_line_end {
-    |  \N <?to_line_end>
+    |  \N <.to_line_end>
     |  ''
 }
 
 token pod_begin {
-    |   \n <'=end'> <?to_line_end>
-    |   . <?to_line_end> <?pod_begin>
+    |   \n <'=end'> <.to_line_end>
+    |   . <.to_line_end> <.pod_begin>
 }
 
 token pod_other {
-    |   \n <'=cut'> <?to_line_end>
-    |   . <?to_line_end> <?pod_other>
+    |   \n <'=cut'> <.to_line_end>
+    |   . <.to_line_end> <.pod_other>
 }
 
 token ws {
     [
-    |    <'#'> <?to_line_end>
+    |    <'#'> <.to_line_end>
     |    \n [
-            |  <'=begin'>  <?pod_begin>
-            |  <'=kwid'>   <?pod_other>
-            |  <'=pod'>    <?pod_other>
-            |  <'=for'>    <?pod_other>
-            |  <'=head1'>  <?pod_other>
+            |  <'=begin'>  <.pod_begin>
+            |  <'=kwid'>   <.pod_other>
+            |  <'=pod'>    <.pod_other>
+            |  <'=for'>    <.pod_other>
+            |  <'=head1'>  <.pod_other>
             |  ''
             ]
     |    \s
     ]
-    [ <?ws> | '' ]
+    [ <.ws> | '' ]
 }
 
-token opt_ws  {  <?ws> | ''  }
-token opt_ws2 {  <?ws> | ''  }
-token opt_ws3 {  <?ws> | ''  }
+token opt_ws  {  <.ws> | ''  }
+token opt_ws2 {  <.ws> | ''  }
+token opt_ws3 {  <.ws> | ''  }
 
 token parse {
     | <comp_unit>
@@ -75,17 +75,17 @@ token parse {
 }
 
 token comp_unit {
-    <?opt_ws> [\; <?opt_ws> | '' ]
-    [ <'use'> <?ws> <'v6-'> <ident> <?opt_ws> \; <?ws>  |  '' ]
+    <.opt_ws> [\; <.opt_ws> | '' ]
+    [ <'use'> <.ws> <'v6-'> <ident> <.opt_ws> \; <.ws>  |  '' ]
     
-    [ <'class'> | <'grammar'> ]  <?opt_ws> <full_ident> <?opt_ws> 
+    [ <'class'> | <'grammar'> ]  <.opt_ws> <full_ident> <.opt_ws> 
     <'{'>
         { $Class_name := ~$<full_ident> }
-        <?opt_ws>
+        <.opt_ws>
         <exp_stmts>
-        <?opt_ws>
+        <.opt_ws>
     <'}'>
-    <?opt_ws> [\; <?opt_ws> | '' ]
+    <.opt_ws> [\; <.opt_ws> | '' ]
     {
         return ::CompUnit(
             'name'        => $$<full_ident>,
@@ -126,12 +126,12 @@ token exp {
     # { say 'exp: going to match <term_meth> at ', $/.to; }
     <term_meth> 
     [
-        <?opt_ws>
+        <.opt_ws>
         <'??'>
         [
-          <?opt_ws>  <exp>
-          <?opt_ws>  <'!!'>
-          <?opt_ws>
+          <.opt_ws>  <exp>
+          <.opt_ws>  <'!!'>
+          <.opt_ws>
           <exp2>
           { return ::Apply(
             'code'      => 'ternary:<?? !!>',
@@ -140,15 +140,15 @@ token exp {
         | { say '*** Syntax error in ternary operation' }
         ]
     |
-        <?opt_ws>
+        <.opt_ws>
         <infix_op>
-        <?opt_ws>
+        <.opt_ws>
         <exp>
           { return ::Apply(
             'code'      => 'infix:<' ~ $<infix_op> ~ '>',
             'arguments' => [ $$<term_meth>, $$<exp> ],
           ) }
-    | <?opt_ws> <':='> <?opt_ws> <exp>
+    | <.opt_ws> <':='> <.opt_ws> <exp>
         { return ::Bind( 'parameters' => $$<term_meth>, 'arguments' => $$<exp>) }
     |   { return $$<term_meth> }
     ]
@@ -165,7 +165,7 @@ token term_meth {
        [ 
             '.new('   
             [ 
- 	                <?opt_ws> <exp_mapping> <?opt_ws> \) 
+ 	                <.opt_ws> <exp_mapping> <.opt_ws> \) 
  	                { 
  	                    # say 'Parsing Lit::Object ', $$<full_ident>, ($$<exp_mapping>).perl; 
  	                    return ::Lit::Object( 
@@ -179,9 +179,9 @@ token term_meth {
         | 
         [ 
             '.' <hyper_op> <ident>
-            [ \( <?opt_ws> <exp_seq> <?opt_ws> \)
+            [ \( <.opt_ws> <exp_seq> <.opt_ws> \)
                 # { say 'found parameter list: ', $<exp_seq>.perl }
-            | \: <?ws> <exp_seq> <?opt_ws>
+            | \: <.ws> <exp_seq> <.opt_ws>
             |
                 {
                     return ::Call(
@@ -209,9 +209,9 @@ token term_meth {
         <opt_ident>   # $obj.(42)
             [ \( 
                 # { say 'testing exp_seq at ', $/.to }
-                <?opt_ws> <exp_seq> <?opt_ws> \)
+                <.opt_ws> <exp_seq> <.opt_ws> \)
                 # { say 'found parameter list: ', $<exp_seq>.perl }
-            | \: <?ws> <exp_seq> <?opt_ws>
+            | \: <.ws> <exp_seq> <.opt_ws>
             |
                 {
                     return ::Call(
@@ -230,9 +230,9 @@ token term_meth {
                     'hyper'     => $$<hyper_op>,
                 )
             }
-    | \[ <?opt_ws> <exp> <?opt_ws> \]
+    | \[ <.opt_ws> <exp> <.opt_ws> \]
          { return ::Index(  'obj' => $$<term>, 'index' => $$<exp> ) }   # $a[exp]
-    | \{ <?opt_ws> <exp> <?opt_ws> \}
+    | \{ <.opt_ws> <exp> <.opt_ws> \}
          { return ::Lookup( 'obj' => $$<term>, 'index' => $$<exp> ) }   # $a{exp}
     |    { return $$<term> }
     ]
@@ -254,22 +254,22 @@ token term {
             'code'      => 'prefix:<' ~ $<prefix_op> ~ '>',
             'arguments' => [ $$<exp> ],
           ) }
-    | \( <?opt_ws> <exp> <?opt_ws> \)
+    | \( <.opt_ws> <exp> <.opt_ws> \)
         { return $$<exp> }   # ( exp )
-    | \{ <?opt_ws> <exp_mapping> <?opt_ws> \}
+    | \{ <.opt_ws> <exp_mapping> <.opt_ws> \}
         { return ::Lit::Hash( 'hash' => $$<exp_mapping> ) }   # { exp => exp, ... }
-    | \[ <?opt_ws> <exp_seq> <?opt_ws> \]
+    | \[ <.opt_ws> <exp_seq> <.opt_ws> \]
         { return ::Lit::Array( 'array' => $$<exp_seq> ) }   # [ exp, ... ]
     | \$ \< <sub_or_method_name> \>
         { return ::Lookup( 
             'obj'   => ::Var( 'sigil' => '$', 'twigil' => '', 'name' => '/' ), 
             'index' => ::Val::Buf( 'buf' => $$<sub_or_method_name> ) 
         ) }   # $<ident>
-    | do <?opt_ws> \{ <?opt_ws> <exp_stmts> <?opt_ws> \}
+    | do <.opt_ws> \{ <.opt_ws> <exp_stmts> <.opt_ws> \}
         { return ::Do( 'block' => $$<exp_stmts> ) }   # do { stmt; ... }
-    | <declarator> <?ws> <opt_type> <?opt_ws> <var>   # my Int $variable
+    | <declarator> <.ws> <opt_type> <.opt_ws> <var>   # my Int $variable
         { return ::Decl( 'decl' => $$<declarator>, 'type' => $$<opt_type>, 'var' => $$<var> ) }
-    | use <?ws> <full_ident>  [ - <ident> | '' ]
+    | use <.ws> <full_ident>  [ - <ident> | '' ]
         { return ::Use( 'mod' => $$<full_ident> ) }
     | <val>     { return $$<val> }     # 'value'
     | <lit>     { return $$<lit> }     # [literal construct]
@@ -363,10 +363,10 @@ token val_int {
 token exp_stmts {
     | <exp>
         [
-        |   <?opt_ws> [ \; | '' ] <?opt_ws> <exp_stmts>
-            <?opt_ws> [ \; <?opt_ws> | '' ]
+        |   <.opt_ws> [ \; | '' ] <.opt_ws> <exp_stmts>
+            <.opt_ws> [ \; <.opt_ws> | '' ]
             { return [ $$<exp>, @( $$<exp_stmts> ) ] }
-        |   <?opt_ws> [ \; <?opt_ws> | '' ]
+        |   <.opt_ws> [ \; <.opt_ws> | '' ]
             { return [ $$<exp> ] }
         ]
     | { return [] }
@@ -376,10 +376,10 @@ token exp_seq {
     | <exp>
         # { say 'exp_seq: matched <exp>' }
         [
-        |   <?opt_ws> \, <?opt_ws> <exp_seq> 
-            <?opt_ws> [ \, <?opt_ws> | '' ]
+        |   <.opt_ws> \, <.opt_ws> <exp_seq> 
+            <.opt_ws> [ \, <.opt_ws> | '' ]
             { return [ $$<exp>, @( $$<exp_seq> ) ] }
-        |   <?opt_ws> [ \, <?opt_ws> | '' ]
+        |   <.opt_ws> [ \, <.opt_ws> | '' ]
             { return [ $$<exp> ] }
         ]
     | 
@@ -409,7 +409,7 @@ token lit_object {
     <full_ident>
     \( 
     [
-        <?opt_ws> <exp_mapping> <?opt_ws> \)
+        <.opt_ws> <exp_mapping> <.opt_ws> \)
         {
             # say 'Parsing Lit::Object ', $$<full_ident>, ($$<exp_mapping>).perl;
             return ::Lit::Object(
@@ -422,7 +422,7 @@ token lit_object {
 }
 
 token bind {
-    <exp>  <?opt_ws> <':='> <?opt_ws>  <exp2>
+    <exp>  <.opt_ws> <':='> <.opt_ws>  <exp2>
     {
         return ::Bind(
             'parameters' => $$<exp>,
@@ -432,7 +432,7 @@ token bind {
 }
 
 token call {
-    <exp> \. <ident> \( <?opt_ws> <exp_seq> <?opt_ws> \)
+    <exp> \. <ident> \( <.opt_ws> <exp_seq> <.opt_ws> \)
     {
         return ::Call(
             'invocant'  => $$<exp>,
@@ -445,8 +445,8 @@ token call {
 token apply {
     <full_ident>
     [
-        [ \( <?opt_ws> <exp_seq> <?opt_ws> \)
-        | <?ws> <exp_seq> <?opt_ws>
+        [ \( <.opt_ws> <exp_seq> <.opt_ws> \)
+        | <.ws> <exp_seq> <.opt_ws>
         ]
         {
             return ::Apply(
@@ -479,7 +479,7 @@ token invocant {
 
 token sig {
         <invocant>
-        <?opt_ws> 
+        <.opt_ws> 
         # TODO - exp_seq / exp_mapping == positional / named 
         <exp_seq> 
         {
@@ -490,7 +490,7 @@ token sig {
 }
 
 token method_sig {
-    |   <?opt_ws> \( <?opt_ws>  <sig>  <?opt_ws>  \)
+    |   <.opt_ws> \( <.opt_ws>  <sig>  <.opt_ws>  \)
         { return $$<sig> }
     |   { return ::Sig( 
             'invocant' => ::Var( 
@@ -503,13 +503,13 @@ token method_sig {
 
 token method {
     method
-    <?ws>  <opt_name>  <?opt_ws> 
+    <.ws>  <opt_name>  <.opt_ws> 
     <method_sig>
-    <?opt_ws> \{ <?opt_ws>  
+    <.opt_ws> \{ <.opt_ws>  
           # { say ' parsing statement list ' }
           <exp_stmts> 
           # { say ' got statement list ', ($$<exp_stmts>).perl } 
-        <?opt_ws> 
+        <.opt_ws> 
     [   \}     | { say '*** Syntax Error in method \'', get_class_name(), '.', $$<name>, '\' near pos=', $/.to; die 'error in Block'; } ]
     {
         # say ' block: ', ($$<exp_stmts>).perl;
@@ -519,10 +519,10 @@ token method {
 
 token sub {
     sub
-    <?ws>  <opt_name>  <?opt_ws> 
+    <.ws>  <opt_name>  <.opt_ws> 
     <method_sig>
-    <?opt_ws> \{ <?opt_ws>  
-          <exp_stmts> <?opt_ws> 
+    <.opt_ws> \{ <.opt_ws>  
+          <exp_stmts> <.opt_ws> 
     [   \}     | { say '*** Syntax Error in sub \'', $$<name>, '\''; die 'error in Block'; } ]
     { return ::Sub( 'name' => $$<opt_name>, 'sig' => $$<method_sig>, 'block' => $$<exp_stmts> ) }
 }
@@ -534,7 +534,7 @@ grammar MiniPerl6::Grammar {
 token token {
     # { say 'parsing Token' }
     token
-    <?ws>  <opt_name>  <?opt_ws> \{
+    <.ws>  <opt_name>  <.opt_ws> \{
         <MiniPerl6::Grammar::Regex.rule>
     \}
     {

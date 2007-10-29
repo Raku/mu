@@ -16,12 +16,12 @@ token control {
 };
 
 token if {
-    if <?ws>  <exp>  <?opt_ws>
-    \{ <?opt_ws> <exp_stmts> <?opt_ws> \} 
+    if <.ws>  <exp>  <.opt_ws>
+    \{ <.opt_ws> <exp_stmts> <.opt_ws> \} 
     [
-        <?opt_ws>
-        else <?opt_ws> 
-        \{ <?opt_ws> <exp_stmts2> <?opt_ws> \}
+        <.opt_ws>
+        else <.opt_ws> 
+        \{ <.opt_ws> <exp_stmts2> <.opt_ws> \}
         { 
             return ::If( 
                 'cond' => $$<exp>, 
@@ -41,17 +41,17 @@ token if {
 };
 
 token when {
-    when <?ws> <exp_seq> <?opt_ws> \{ <?opt_ws> <exp_stmts> <?opt_ws> \}
+    when <.ws> <exp_seq> <.opt_ws> \{ <.opt_ws> <exp_stmts> <.opt_ws> \}
     { return ::When( 'parameters' => $$<exp_seq>, 'body' => $$<exp_stmts> ) }
 };
 
 token for {
-    for <?ws> <exp> <?opt_ws> <'->'> <?opt_ws> <var> <?ws> \{ <?opt_ws> <exp_stmts> <?opt_ws> \}
+    for <.ws> <exp> <.opt_ws> <'->'> <.opt_ws> <var> <.ws> \{ <.opt_ws> <exp_stmts> <.opt_ws> \}
     { return ::For( 'cond' => $$<exp>, 'topic' => $$<var>, 'body' => $$<exp_stmts> ) }
 };
 
 token while {
-    while <?ws> <exp> <?ws> \{ <?opt_ws> <exp_stmts> <?opt_ws> \}
+    while <.ws> <exp> <.ws> \{ <.opt_ws> <exp_stmts> <.opt_ws> \}
     { return ::While( 'cond' => $$<exp>, 'body' => $$<exp_stmts> ) }
 };
 
@@ -61,7 +61,7 @@ token ctrl_leave {
 };
 
 token ctrl_return {
-    return <?ws> <exp>
+    return <.ws> <exp>
     { return ::Return( 'result' => $$<exp> ) }
     |
     return 

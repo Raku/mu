@@ -4,7 +4,7 @@ use v6-alpha;
 grammar MiniPerl6::Grammar {
 
 token key { 
-    |  <ident> <before <'=>'> | <?ws> > 
+    |  <ident> <before <'=>'> | <.ws> > 
        { return ::Val::Buf( 'buf' => ~$<ident> ) }  # autoquote
     |  <exp>   
        { return $$<exp> } 
@@ -12,7 +12,7 @@ token key {
 
 token pair {
     |   <key> 
-        <?opt_ws> <'=>'> <?opt_ws>
+        <.opt_ws> <'=>'> <.opt_ws>
         <exp>
         { return [ $$<key>, $$<exp> ] }
     |   \: <sigil> <ident>                  #  :$var
@@ -26,9 +26,9 @@ token pair {
 token exp_mapping {
     |   <pair> 
         [
-        |   <?opt_ws> \, <?opt_ws> <exp_mapping> 
+        |   <.opt_ws> \, <.opt_ws> <exp_mapping> 
             { return [ $$<pair>, @( $$<exp_mapping> ) ] }
-        |   <?opt_ws> [ \, <?opt_ws> | '' ]
+        |   <.opt_ws> [ \, <.opt_ws> | '' ]
             { return [ $$<pair> ] }
         ]
     |
