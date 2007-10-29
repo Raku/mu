@@ -1,5 +1,7 @@
 TODO list for KindaPerl6
 
+- undefined global variables are perl5 undef not perl6 Undef instances
+- remove KindaPerl6::Runtime::Perl5::DispatchSugar
 - Bug (luqui++): 
   foo(); sub foo() { say 'hi' }
   my &x; sub y { say 123 }; x(); BEGIN { &x := &y }
