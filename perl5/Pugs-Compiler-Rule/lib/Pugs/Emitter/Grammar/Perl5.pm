@@ -11,15 +11,27 @@ use Pugs::Emitter::Rule::Perl5::Ratchet;
 sub _prune_actions {
     my ($ast) = @_;
     while (my ($key, $node) = each %$ast) {
-        next if $key =~ /^_/;
+        next if $key =~ /^_/ or !ref $node;
+        #warn $key;
         if ($key eq 'closure') {
+            #die "Found closures!";
+            next if ref $node ne 'HASH';
             my $code = $node->{closure};
             if ($code and !ref $code and $code =~ /\w+/) {
                 die "ERROR: code blocks not allowed in safe mode: \"$code\"\n";
             }
         }
-        if (ref $node and ref $node eq 'HASH') {
-            _prune_actions($node); 
+        if (ref $node) {
+            my $ref = ref $node;
+            if ($ref eq 'HASH') {
+                _prune_actions($node); 
+            } elsif ($ref eq 'ARRAY') {
+                for my $child (@$node) {
+                    if (ref $child and ref $child eq 'HASH') {
+                        _prune_actions($child);
+                    }
+                }
+            }
         }
     }
 }

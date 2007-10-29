@@ -42,7 +42,14 @@ EOC
 }
 
 sub help {
-    die "Usage: $0 [-s seed] [-D] foo.grammar > Foo.pm\n";
+    die <<"_EOC_";
+Usage: $0 [-s seed] [-D] [-T] foo.grammar > Foo.pm
+Options:
+    -D      Specify the safe mode in which no action blocks are allowed
+            in the grammar spec.
+    -T      Specify the tracing mode in which the parser generated will
+            emit tracing info to stdout.
+_EOC_
 }
 
 __END__
@@ -62,6 +69,13 @@ compile_p6grammar.pl - Compile Perl 6 Grammars to Perl 5 Modules
           (\d+) <?ws>? '+' <?ws>? (\d+) { return $/[0] + $/[1] }
       }
     $
+
+=head1 OPTIONS
+
+    -D      Specify the safe mode in which no action blocks are allowed
+            in the grammar spec.
+    -T      Specify the tracing mode in which the parser generated will
+            emit tracing info to stdout.
 
 =head1 DESCRIPTION
 
