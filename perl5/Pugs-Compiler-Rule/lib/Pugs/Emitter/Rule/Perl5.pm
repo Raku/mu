@@ -557,7 +557,16 @@ sub metasyntax {
         warn "<\"...\"> not implemented";
         return;
     }
+    if ( $prefix eq '.' ) {   # non_capturing_subrule / code assertion
+        $cmd = substr( $cmd, 1 );
+        if ( $cmd =~ /^{/ ) {
+            warn "code assertion not implemented";
+            return;
+        }
+        return call_subrule_no_capture( $cmd, $_[1], '' );
+    }
     if ( $prefix eq '?' ) {   # non_capturing_subrule / code assertion
+        # XXX FIXME
         $cmd = substr( $cmd, 1 );
         if ( $cmd =~ /^{/ ) {
             warn "code assertion not implemented";

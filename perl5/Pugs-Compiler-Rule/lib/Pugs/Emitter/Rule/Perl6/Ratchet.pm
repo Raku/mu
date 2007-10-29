@@ -786,7 +786,11 @@ sub metasyntax {
         # XXX <[^a]> means [\^a] instead of [^a] in perl5re
         return call_perl5($cmd, $_[1]);
     }
-    if ( $prefix eq '?' ) {   # non_capturing_subrule / code assertion
+    if  ( 
+           $prefix eq '.' 
+        || $prefix eq '?'   # XXX FIXME
+        )
+    {   # non_capturing_subrule / code assertion
         $cmd = substr( $cmd, 1 );
         if ( $cmd =~ /^{/ ) {
             warn "code assertion not implemented";
@@ -838,12 +842,12 @@ $_[1] }";
             $_[1],    
         );
     }
-    if ( $prefix eq '.' ) {  
-        my ( $method, $param_list ) = split( /[\(\)]/, $cmd );
-        $method =~ s/^\.//;
-        $param_list ||= '';
-        return " ( \$str.$method( $param_list ) ? 1 : 0 ) ";
-    }
+    #if ( $prefix eq '.' ) {  
+    #    my ( $method, $param_list ) = split( /[\(\)]/, $cmd );
+    #    $method =~ s/^\.//;
+    #    $param_list ||= '';
+    #    return " ( \$str.$method( $param_list ) ? 1 : 0 ) ";
+    #}
     die "<$cmd> not implemented";
 }
 

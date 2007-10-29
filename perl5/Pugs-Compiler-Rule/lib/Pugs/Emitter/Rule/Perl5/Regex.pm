@@ -224,7 +224,15 @@ sub metasyntax {
         $cmd =~ s/([\$\@\%\[\]\+\*\(\)\?\/])/\\$1/g;
         return $cmd;
     }
+    if ( $prefix eq '.' ) {   # non_capturing_subrule / code assertion
+        $cmd = substr( $cmd, 1 );
+        if ( exists $char_class{$cmd} ) {
+            # XXX - inlined char classes are not inheritable, but this should be ok
+            return "[[:$cmd:]]";
+        }
+    }
     if ( $prefix eq '?' ) {   # non_capturing_subrule / code assertion
+        # XXX FIXME 
         $cmd = substr( $cmd, 1 );
         if ( exists $char_class{$cmd} ) {
             # XXX - inlined char classes are not inheritable, but this should be ok

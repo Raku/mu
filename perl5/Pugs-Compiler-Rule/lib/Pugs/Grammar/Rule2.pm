@@ -172,7 +172,7 @@ token named_capture_body {
 }
 
 token parse_metasyntax {
-        $<modifier> := [ '!' | '?' | '' ]
+        $<modifier> := [ '!' | '?' | '.' | '' ]
     [
         '{'  <parsed_code>  '}>'
         { return { closure => {

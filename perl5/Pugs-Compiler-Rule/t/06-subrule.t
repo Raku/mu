@@ -178,9 +178,9 @@ SKIP: {
         package Test123;
         use base 'Pugs::Grammar::Base';
         *dotdot = Pugs::Compiler::Regex->compile('(.)(.)')->code();
-        *rule2  = Pugs::Compiler::Regex->compile('(a.)<?dotdot>(..)')->code();
+        *rule2  = Pugs::Compiler::Regex->compile('(a.)<.dotdot>(..)')->code();
         
-        # my $dbg = Pugs::Compiler::Regex->compile('(a.)<?dotdot>(..)');
+        # my $dbg = Pugs::Compiler::Regex->compile('(a.)<.dotdot>(..)');
         # print $dbg->perl5;
     }
     my $match = Test123->rule2("zzzabcdefzzz");
