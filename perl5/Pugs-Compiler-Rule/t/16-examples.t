@@ -11,9 +11,10 @@ sub test {
     my $module = ucfirst($name);
     my $pmfile = "tmp/$module.pm";
     unlink $pmfile if -f $pmfile;
-    is system("$^X -Ilib util/compile_p6grammar.pl examples/$name.grammar > $pmfile"), 0, "$name.grammar compiles okay";
+    is system("$^X -Ilib util/compile_p6grammar.pl -D examples/$name.grammar > $pmfile"), 0, "$name.grammar compiles okay";
     my $cmd = "$^X -Ilib -Itmp -M$module -e '$code'";
     my $out = `$cmd`;
+    warn $out;
     chomp($out);
     is $out, $expected, "output of [ $cmd ] okay";
 }

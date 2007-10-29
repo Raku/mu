@@ -65,7 +65,7 @@ $tab }
 _EOC_
             }
             if (!$has_pos) {
-                warn "No pos info found for <$n>";
+                #warn "No pos info found for <$n>";
             }
         } else {
             $new .= $_ . "\n";
