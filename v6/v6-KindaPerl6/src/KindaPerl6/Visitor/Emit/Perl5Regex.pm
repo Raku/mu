@@ -72,7 +72,8 @@ class Token {
                 ~ '), '
 
             ~ '); '
-          ~ '} ';  # /do
+          ~ '} '
+          ~ Main::newline();  # /do
                         
         return $source;
     }

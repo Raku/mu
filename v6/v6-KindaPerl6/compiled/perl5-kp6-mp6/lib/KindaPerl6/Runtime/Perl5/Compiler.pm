@@ -1,8 +1,30 @@
 package COMPILER;
 use Data::Dumper;
 
-# @COMPILER::CHECK  - CHECK blocks
-# @COMPILER::PAD    - Pad structures
+# --- Perl 6 / Perl 5 bridge
+
+    our @EXPORT = qw( 
+        emit_perl6 env_init add_pad inner_pad  
+        drop_pad put_pad current_pad
+        begin_block check_block get_var
+    );
+    sub init_global {
+        for ( @EXPORT ) {
+            ${"COMPILER::Code_$_"} = ::DISPATCH( $::Code, 'new', 
+                    {   code => ${"COMPILER::Code_$_"}, 
+                        ast  => bless {
+                                    namespace => [ 'COMPILER', ],
+                                    name      => $_,
+                                    twigil    => '',
+                                    sigil     => '&',
+                                }, 'Var',
+                    },
+                ); 
+        }
+    }
+
+# --- /bridge
+
 
 sub emit_perl6 {
     # param = AST
@@ -74,6 +96,12 @@ sub get_var {
     # TODO - annotate the variable with: Type, declarator
     return $var;
 }
+
+
+{
+    COMPILER::init_global;
+}
+
 
 1;
 
