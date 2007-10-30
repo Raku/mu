@@ -18,7 +18,7 @@ sub get_class_name { $Class_name };
 
 token ident_digit {
     [ [ <.word> | _ | <.digit> ] <.ident_digit>
-    |   <''>
+    |   ''
     ]    
 };
 
@@ -30,8 +30,8 @@ token ident {
 
 token full_ident {
     <.ident>
-    [   <'::'> <.full_ident>
-    |   <''>
+    [   '::' <.full_ident>
+    |   ''
     ]    
 };
 
@@ -49,39 +49,39 @@ token namespace {
 
 token to_line_end {
     |  \N <.to_line_end>
-    |  <''>
+    |  ''
 };
 
 token pod_begin {
-    |   \n <'=end'> <.to_line_end>
+    |   \n '=end' <.to_line_end>
     |   . <.to_line_end> <.pod_begin>
 };
 
 token pod_other {
-    |   \n <'=cut'> <.to_line_end>   # XXX
-    |   \n <'=end'> <.to_line_end>
+    |   \n '=cut' <.to_line_end>   # XXX
+    |   \n '=end' <.to_line_end>
     |   . <.to_line_end> <.pod_other>
 };
 
 token ws {
     [
-    |    <'#'> <.to_line_end>
+    |    '#' <.to_line_end>
     |    \n [
-            |  <'=begin'>  <.pod_begin>
-            |  <'=kwid'>   <.pod_other>
-            |  <'=pod'>    <.pod_other>
-            |  <'=for'>    <.pod_other>
-            |  <'=head1'>  <.pod_other>
-            |  <''>
+            |  '=begin'  <.pod_begin>
+            |  '=kwid'   <.pod_other>
+            |  '=pod'    <.pod_other>
+            |  '=for'    <.pod_other>
+            |  '=head1'  <.pod_other>
+            |  ''
             ]
     |    \s
     ]
-    [ <.ws> | <''> ]
+    [ <.ws> | '' ]
 };
 
-token opt_ws  {  <.ws> | <''>  };
-token opt_ws2 {  <.ws> | <''>  };
-token opt_ws3 {  <.ws> | <''>  };
+token opt_ws  {  <.ws> | ''  };
+token opt_ws2 {  <.ws> | ''  };
+token opt_ws3 {  <.ws> | ''  };
 
 token dot {
     | \.
@@ -99,7 +99,7 @@ token parse {
 };
 
 token unit_type {
-    <'class'> | <'grammar'> | <'role'> | <'module'>
+    'class' | 'grammar' | 'role' | 'module'
 };
 
 token trait_auxiliary {
@@ -122,13 +122,13 @@ token class_traits {
 };
 
 token comp_unit {
-    <.opt_ws> [\; <.opt_ws> | <''> ]
-    [ <'use'> <.ws> <'v6-'> <ident> <.opt_ws> \; <.ws>  |  <''> ]
+    <.opt_ws> [\; <.opt_ws> | '' ]
+    [ 'use' <.ws> 'v6-' <ident> <.opt_ws> \; <.ws>  |  '' ]
     
     [
     <unit_type> <.opt_ws> <full_ident> <.opt_ws>
     <class_traits> <.opt_ws>
-    <'{'>
+    '{'
         { $Class_name := ~$<full_ident> }
         <.opt_ws>
         { 
@@ -136,8 +136,8 @@ token comp_unit {
         }
         <exp_stmts>
         <.opt_ws>
-    <'}'>
-    <.opt_ws> [\; <.opt_ws> | <''> ]
+    '}'
+    <.opt_ws> [\; <.opt_ws> | '' ]
     {
         my $env := COMPILER::current_pad();
         COMPILER::drop_pad();
@@ -183,7 +183,7 @@ token comp_unit {
 };
 
 token infix_op {
-      <'+'> | <'-'> | <'*'> | <'//'> | <'/'> | eq | ne | <'=='> | <'!='> | <'&&'> | <'||'> | <'~~'> | <'~'> 
+      '+' | '-' | '*' | '//' | '/' | eq | ne | '==' | '!=' | '&&' | '||' | '~~' | '~'
     | '<=>'
     | '<=' | '>=' 
     | '<'  | '>' 
@@ -194,7 +194,7 @@ token infix_op {
 };
 
 token hyper_op {
-    <'>>'> | <''>
+    '>>' | ''
 };
 
 token prefix_op {
@@ -205,7 +205,7 @@ token prefix_op {
 };
 
 token declarator {
-     <'my'> | <'state'> | <'has'> | <'our'>
+     'my' | 'state' | 'has' | 'our'
 };
 token opt_declarator {
     <declarator> <.ws> {return $$<declarator>;} | {return '';}
@@ -258,15 +258,15 @@ token exp {
             'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'infix:<' ~ $<infix_op> ~ '>', namespace => [ ]  ),
             'arguments' => [ $$<term_meth>, $$<exp> ],
           ) }
-    | <.opt_ws> <'::='> <.opt_ws> <exp>
+    | <.opt_ws> '::=' <.opt_ws> <exp>
         { 
             my $bind := ::Bind( 'parameters' => $$<term_meth>, 'arguments' => $$<exp>);
             COMPILER::begin_block( $bind );   # ::=   compile-time
             return $bind;                         # :=    run-time
         }
-    | <.opt_ws> <':='> <.opt_ws> <exp>
+    | <.opt_ws> ':=' <.opt_ws> <exp>
         { return ::Bind( 'parameters' => $$<term_meth>, 'arguments' => $$<exp>) }
-    | <.opt_ws> <'='> <.opt_ws> <exp>
+    | <.opt_ws> '=' <.opt_ws> <exp>
         { return ::Assign( 'parameters' => $$<term_meth>, 'arguments' => $$<exp>) }
     |   { return $$<term_meth> }
     ]
@@ -274,7 +274,7 @@ token exp {
 
 token opt_ident {  
     | <ident>  { return $$<ident> }
-    | <''>     { return 'postcircumfix:<( )>' }
+    | ''     { return 'postcircumfix:<( )>' }
 };
 
 token term_meth {
@@ -362,12 +362,12 @@ token term_meth {
 };
 
 token sub_or_method_name {
-    <full_ident> [ <.dot> <ident> | <''> ]
+    <full_ident> [ <.dot> <ident> | '' ]
 };
 
 token opt_type {
-    |   [ <'::'> | <''> ]  <full_ident>   { return $$<full_ident> }
-    |   <''>                              { return '' }
+    |   [ '::' | '' ]  <full_ident>   { return $$<full_ident> }
+    |   ''                              { return '' }
 };
 
 token use_from_perl5 {
@@ -380,10 +380,10 @@ token use_from_perl5 {
 
 token sigil { \$ |\% |\@ |\& };
 
-token twigil { [ \. | \! | \^ | \* ] | <''> };
+token twigil { [ \. | \! | \^ | \* ] | '' };
 
 # XXX unused?
-# token var_name { <ident> | <'/'> | <digit> };
+# token var_name { <ident> | '/' | <digit> };
 
 # used in Term.pm
 token undeclared_var {
@@ -452,7 +452,7 @@ token val_num {
 };
 
 
-token digits {  \d  [ <digits> | <''> ]  };
+token digits {  \d  [ <digits> | '' ]  };
 
 
 token val_int {
@@ -467,9 +467,9 @@ token exp_seq {
         # { say 'exp_seq: matched <exp>' }
         [
         |   <.opt_ws> \, <.opt_ws> <exp_seq> 
-            <.opt_ws> [ \, <.opt_ws> | <''> ]
+            <.opt_ws> [ \, <.opt_ws> | '' ]
             { return [ $$<exp>, @( $$<exp_seq> ) ] }
-        |   <.opt_ws> [ \, <.opt_ws> | <''> ]
+        |   <.opt_ws> [ \, <.opt_ws> | '' ]
             { return [ $$<exp> ] }
         ]
     | 
@@ -492,7 +492,7 @@ token lit_hash  {  XXX { return 'TODO: lit_hash'   } };
 token lit_code  {  XXX { return 'TODO - Lit::Code' } };
 
 token lit_object {
-    <'::'>
+    '::'
     <full_ident>
     \( 
     [
@@ -509,7 +509,7 @@ token lit_object {
 };
 
 #token bind {
-#    <exp>  <.opt_ws> <':='> <.opt_ws>  <exp2>
+#    <exp>  <.opt_ws> ':=' <.opt_ws>  <exp2>
 #    {
 #        return ::Bind(
 #            'parameters' => $$<exp>,
