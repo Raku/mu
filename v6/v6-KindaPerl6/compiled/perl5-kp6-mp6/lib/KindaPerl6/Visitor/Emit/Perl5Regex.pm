@@ -37,7 +37,7 @@ sub emit_perl5 {
                             . (
                             $self->{name}
                                 . (
-                                ' = qr/'
+                                ' = qr~'
                                     . (
                                     '(?{ '
                                         . (
@@ -57,7 +57,7 @@ sub emit_perl5 {
                                                                     . (
                                                                     '})'
                                                                         . (
-                                                                        '/x; '
+                                                                        '~x; '
                                                                             . (
                                                                             Main::newline()
                                                                                 . (
@@ -212,6 +212,62 @@ sub emit_perl5 {
     my $str = $self->{constant};
     do {
         if   ( ( $str eq ' ' ) ) { return ('\\ ') }
+        else                     { }
+    };
+    do {
+        if   ( ( $str eq '$' ) ) { return ('\\$') }
+        else                     { }
+    };
+    do {
+        if   ( ( $str eq '$<' ) ) { return ('\\$<') }
+        else                      { }
+    };
+    do {
+        if   ( ( $str eq '@' ) ) { return ('\\@') }
+        else                     { }
+    };
+    do {
+        if   ( ( $str eq '%' ) ) { return ('\\%') }
+        else                     { }
+    };
+    do {
+        if   ( ( $str eq '?' ) ) { return ('\\?') }
+        else                     { }
+    };
+    do {
+        if   ( ( $str eq '+' ) ) { return ('\\+') }
+        else                     { }
+    };
+    do {
+        if   ( ( $str eq '*' ) ) { return ('\\*') }
+        else                     { }
+    };
+    do {
+        if   ( ( $str eq '??' ) ) { return ('\\?\\?') }
+        else                      { }
+    };
+    do {
+        if   ( ( $str eq '++' ) ) { return ('\\+\\+') }
+        else                      { }
+    };
+    do {
+        if   ( ( $str eq '**' ) ) { return ('\\*\\*') }
+        else                      { }
+    };
+    do {
+        if   ( ( $str eq '(' ) ) { return ('\\(') }
+        else                     { }
+    };
+    do {
+        if   ( ( $str eq ')' ) ) { return ('\\)') }
+        else                     { }
+    };
+    do {
+        if   ( ( $str eq '[' ) ) { return ('\\[') }
+        else                     { }
+    };
+    do {
+        if   ( ( $str eq ']' ) ) { return ('\\]') }
         else                     { }
     };
     do {

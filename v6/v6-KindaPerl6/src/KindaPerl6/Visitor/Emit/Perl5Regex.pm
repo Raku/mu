@@ -24,7 +24,7 @@ class Token {
         my $source := 
           'do { '
             ~ 'use vars qw($_rule_' ~ $.name ~ '); ' 
-            ~ '$_rule_' ~ $.name ~ ' = qr/' 
+            ~ '$_rule_' ~ $.name ~ ' = qr~' 
             
             ~ '(?{ '
             ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
@@ -38,7 +38,7 @@ class Token {
             ~   '$GLOBAL::_M2 = $GLOBAL::_M; '
             ~ '})'
 
-            ~ '/x; '  ~ Main::newline() 
+            ~ '~x; '  ~ Main::newline() 
 
             # create the method, using the OO metamodel
             # OUTER::<$_> := string to match
@@ -125,6 +125,53 @@ class Rule::Constant {
         if $str eq ' ' {
             return '\\ ';
         };
+
+        if $str eq '$' {
+            return '\\$';
+        };
+        if $str eq '$<' {
+            return '\\$<';
+        };
+        if $str eq '@' {
+            return '\\@';
+        };
+        if $str eq '%' {
+            return '\\%';
+        };
+
+        if $str eq '?' {
+            return '\\?';
+        };
+        if $str eq '+' {
+            return '\\+';
+        };
+        if $str eq '*' {
+            return '\\*';
+        };
+
+        if $str eq '??' {
+            return '\\?\\?';
+        };
+        if $str eq '++' {
+            return '\\+\\+';
+        };
+        if $str eq '**' {
+            return '\\*\\*';
+        };
+
+        if $str eq '(' {
+            return '\\(';
+        };
+        if $str eq ')' {
+            return '\\)';
+        };
+        if $str eq '[' {
+            return '\\[';
+        };
+        if $str eq ']' {
+            return '\\]';
+        };
+
         if $str eq '\\' {
             return '\\\\';
         };
