@@ -10,7 +10,7 @@ no warnings qw( once );
 use Pugs::Runtime::Match; # overload doesn't work without this ???
 
 {
-    #print "Ast: ", Dumper( Pugs::Grammar::Rule->rule( '[<before <?alpha>>|<before <?digit>>].' )->() );
+    #print "Ast: ", Dumper( Pugs::Grammar::Rule->rule( '[<before <.alpha>>|<before <.digit>>].' )->() );
 
     #print "Ast: ", Dumper( Pugs::Grammar::Rule->rule( '<+alpha+digit>+' )->() );
 

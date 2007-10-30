@@ -42,12 +42,12 @@ sub compile {
 }
 
 {
-    my $rule = __PACKAGE__->compile( '<?alpha>.c' );
+    my $rule = __PACKAGE__->compile( '<.alpha>.c' );
     my $match = $rule->match( "xabcde" );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( $match?1:0, 1, 'booleanify' );
-    is( "$match", "abc", 'stringify dot; <?alpha>' );
+    is( "$match", "abc", 'stringify dot; <.alpha>' );
 }
 
 {

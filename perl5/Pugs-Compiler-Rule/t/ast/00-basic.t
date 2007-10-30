@@ -444,8 +444,8 @@ $VAR1 = {
 
 
 
-=== TEST 14: subrule (<?foo>)
---- regex: " <?foo> "
+=== TEST 14: subrule (<.foo>)
+--- regex: " <.foo> "
 --- ast
 $VAR1 = {
           '_pos' => [
@@ -462,7 +462,7 @@ $VAR1 = {
                                        ],
                                'metasyntax' => {
                                                'metasyntax' => 'foo',
-                                               'modifier' => '?'
+                                               'modifier' => '.'
                                              }
                              },
                      'ws1' => ' ',

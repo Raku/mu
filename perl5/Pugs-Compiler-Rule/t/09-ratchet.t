@@ -904,7 +904,7 @@ TODO:
 #   "A leading ?" "not to capture what it matches">
 {
     my $rule = Pugs::Compiler::Token->compile( q(
-        <?alpha>
+        <.alpha>
     ) );
     #print $rule->perl;
     my $match = $rule->match( "aaxxy" );

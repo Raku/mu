@@ -6,19 +6,19 @@
 grammar My::C;
 
 token def {
-    <type> <?ws> <var_list> <?ws>? ';'
+    <type> <.ws> <var_list> <.ws>? ';'
 }
 
 token type { int | float | double | char }
 
 token var_list {
-    <ident>**{1} <?ws>? [ ',' <?ws>? <ident> ]*
+    <ident>**{1} <.ws>? [ ',' <.ws>? <ident> ]*
 }
 
 grammar My::VB;
 
 token def {
-    'Dim' <?ws> <My::C.var_list>
-    [ <?ws> 'As' <?ws> <My::C.type> ]?
+    'Dim' <.ws> <My::C.var_list>
+    [ <.ws> 'As' <.ws> <My::C.type> ]?
 }
 

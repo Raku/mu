@@ -461,8 +461,8 @@ do { my $rule; $rule = sub {
 
 
 
-=== TEST 16: subrule (<?foo>)
---- token: " <?foo> "
+=== TEST 16: subrule (<.foo>)
+--- token: " <.foo> "
 --- Layout
 <global>
        <group>

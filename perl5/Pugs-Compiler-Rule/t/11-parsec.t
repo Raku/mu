@@ -111,7 +111,7 @@ q#do
 
 is_rule_match(
 q#
-	[ , | ; ] <?ws>?
+	[ , | ; ] <.ws>?
 	{ return; }
 #,
 q#do
@@ -126,7 +126,7 @@ q#do
 
 is_rule_match(
 q#
-	[ \\. <!before \\.> | <?longDot> ]
+	[ \\. <!before \\.> | <.longDot> ]
 	[ \\* | \\+ | \\? ]?
 	{ return }
 #,
@@ -161,8 +161,8 @@ q#do
 
 is_rule_match(
 q#
-	('for'|'while'|'until') : <?ws>?
-	$<exp1> := <perl6_expression("no_blocks",0)> <?ws>?
+	('for'|'while'|'until') : <.ws>?
+	$<exp1> := <perl6_expression("no_blocks",0)> <.ws>?
 	$<exp2> := <block>
         { return mkHash([
                     "statement", $0,
