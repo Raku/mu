@@ -18,6 +18,36 @@ my $visitor_metamodel   = ::DISPATCH( $::KindaPerl6::Visitor::MetaClass,     'ne
 my $visitor_token       = ::DISPATCH( $::KindaPerl6::Visitor::Token,         'new' );
 my $visitor_global      = ::DISPATCH( $::KindaPerl6::Visitor::Global,        'new' );
 
+    # This is the Perl 5 <--> Perl 6 bridge code
+    my $perl6_dispatcher =  sub { 
+                my ($self, $method, @param) = @_;
+                
+                print "# Calling Pad.$method \n";
+                return $self->$method( @param );
+                
+                # TODO
+                
+                if ( $method eq 'true' ) {
+                    return ::DISPATCH( $::Bit, 'new', $_[0]->{bool} )
+                }
+                if ( $method eq 'LOOKUP' ) {
+                    my $what = ::DISPATCH( $param[0], 'Str' )->{_value}; 
+                    return $_[0]->{hash}{$what}; 
+                }
+                if ( $method eq 'does' ) {
+                    my $what = ::DISPATCH( $param[0], 'Str' )->{_value};                    
+                    return ::DISPATCH( $::Bit, 'new', 0 )
+                        if $what eq 'Junction';
+                    #print "MATCH DOES $what ???\n";
+                    return ::DISPATCH( $::Bit, 'new', 1 );  # it probably does
+                }
+                if ( $method eq 'scalar' ) {
+                    return $_[0]->result;
+                }
+                
+                $self->$method( @param );
+        };
+    
 
 sub new {
     #print __PACKAGE__,"->new [",Dump(\@_),"]\n";
@@ -61,6 +91,7 @@ sub new {
         variable_names => $data{lexicals},
         namespace      => $namespace,
         parent         => $parent,
+        _dispatch      => $perl6_dispatcher,
     }, $class;
 }
 

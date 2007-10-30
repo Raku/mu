@@ -1,9 +1,6 @@
 package COMPILER;
 use Data::Dumper;
 
-# @COMPILER::CHECK  - CHECK blocks
-# @COMPILER::PAD    - Pad structures
-
 # --- Perl 6 / Perl 5 bridge
 
     our @EXPORT = qw( 
