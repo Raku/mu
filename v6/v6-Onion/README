@@ -10,3 +10,6 @@ because they are hard to support in some backends.
 Otherwise, On6 is the same project as KP6, and it follows the same roadmap.
 See v6/docs/kp6-roadmap.pod
 
+you can have onion dump some AST with
+perl -I compiled/perl5/lib/ -I ../v6-KindaPerl6/compiled/perl5-kp6-mp6/lib/ onion
+
