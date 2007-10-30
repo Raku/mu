@@ -171,6 +171,12 @@ class Rule::Constant {
         if $str eq ']' {
             return '\\]';
         };
+        if $str eq '{' {
+            return '\\{';
+        };
+        if $str eq '}' {
+            return '\\}';
+        };
 
         if $str eq '\\' {
             return '\\\\';

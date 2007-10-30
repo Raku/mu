@@ -5,7 +5,7 @@ grammar KindaPerl6::Grammar {
 
 token double_quoted {
     |  <!before \\ | \' | \" | \$ | \@ | \% > . <double_quoted>
-    |  <''>
+    |  ''
 };
 
 token quoted_any { . }
@@ -80,19 +80,19 @@ token quoted_exp_seq {
 token single_quoted {
     |  \\ .  <single_quoted>
     |  <!before \' > . <single_quoted>
-    |  <''>    
+    |  ''    
 };
 
 token angle_quoted {
     |  \\ .  <angle_quoted>
     |  <!before \> > . <angle_quoted>
-    |  <''>    
+    |  ''    
 };
 
 token french_quoted {
     |  \\ .  <french_quoted>
     |  <!before \» > . <french_quoted>
-    |  <''>    
+    |  ''    
 };
 
 token val_buf {

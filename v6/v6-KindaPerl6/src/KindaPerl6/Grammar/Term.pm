@@ -110,7 +110,7 @@ token term {
     | do <.opt_ws> <block1>
         # block1 is defined in the Grammar::Control module
         { return ::Do( 'block' => $$<block1> ) }
-    | use <.ws> <full_ident> <use_from_perl5> [ - <ident> | <''> ]
+    | use <.ws> <full_ident> <use_from_perl5> [ - <ident> | '' ]
         { return ::Use( 'mod' => $$<full_ident>,'perl5' => $$<use_from_perl5> ) }
     | <val>      { return $$<val> }     # 'value'
     | <lit>      { return $$<lit> }     # [literal construct]

@@ -5,12 +5,12 @@ grammar KindaPerl6::Grammar {
 
     # has $.is_longname; ???
     token sig_type {
-        |   [ <'::'> | <''> ]  <full_ident> <.ws>  { return $$<full_ident> }
-        |   <''>                                   { return '' }
+        |   [ '::' | '' ]  <full_ident> <.ws>  { return $$<full_ident> }
+        |   ''                                 { return '' }
     }
     token sig_default_value {
         |   <.opt_ws> '=' <.opt_ws> <exp> <.opt_ws> { return { has_default => 1, default => $$<exp>, } }
-        |   <''>                                     { return { has_default => 0, default => ::Val::Undef( ), } }
+        |   ''                                      { return { has_default => 0, default => ::Val::Undef( ), } }
     }
     token sig_named_only       { ':' { return 1 } | { return 0 } }
     token sig_optional         { 

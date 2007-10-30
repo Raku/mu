@@ -506,6 +506,16 @@ $str = ::DISPATCH( $self, "constant" )
 ,"true"),"p5landish") ) { do { return(::DISPATCH( $::Str, 'new', '\\\\]' )
 )
  } }  else { ::DISPATCH($::Bit, "new", 0) } }
+; do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $str, ::DISPATCH( $::Str, 'new', '{' )
+ )
+,"true"),"p5landish") ) { do { return(::DISPATCH( $::Str, 'new', '\\\\{' )
+)
+ } }  else { ::DISPATCH($::Bit, "new", 0) } }
+; do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $str, ::DISPATCH( $::Str, 'new', '}' )
+ )
+,"true"),"p5landish") ) { do { return(::DISPATCH( $::Str, 'new', '\\\\}' )
+)
+ } }  else { ::DISPATCH($::Bit, "new", 0) } }
 ; do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $str, ::DISPATCH( $::Str, 'new', '\\\\' )
  )
 ,"true"),"p5landish") ) { do { return(::DISPATCH( $::Str, 'new', '\\\\\\\\' )

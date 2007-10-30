@@ -13,7 +13,7 @@ $::KindaPerl6::Grammar = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $:
  )
 , 'PROTOTYPE',  )
 } } } }
-; do { use vars qw($_rule_term); $_rule_term = qr/(?{ local $GLOBAL::_M = [ $GLOBAL::_M, 'create', pos(), \$_ ]; $GLOBAL::_M2 = $GLOBAL::_M; })(?:(?:Inf(?!(?:(?:(?:(??{ eval '$_rule_word' })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; })))|(?:_)|(?:(?:(??{ eval '$_rule_digit' })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; })))))(?{ local $GLOBAL::_M = $GLOBAL::_M; Match::from_global_data( $GLOBAL::_M ); $MATCH = $GLOBAL::MATCH = pop @Match::Matches; @Match::Matches = (); my $ret = ( sub {do { return(::DISPATCH( $::Apply, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'code' )
+; do { use vars qw($_rule_term); $_rule_term = qr~(?{ local $GLOBAL::_M = [ $GLOBAL::_M, 'create', pos(), \$_ ]; $GLOBAL::_M2 = $GLOBAL::_M; })(?:(?:Inf(?!(?:(?:(?:(??{ eval '$_rule_word' })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; })))|(?:_)|(?:(?:(??{ eval '$_rule_digit' })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; })))))(?{ local $GLOBAL::_M = $GLOBAL::_M; Match::from_global_data( $GLOBAL::_M ); $MATCH = $GLOBAL::MATCH = pop @Match::Matches; @Match::Matches = (); my $ret = ( sub {do { return(::DISPATCH( $::Apply, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'code' )
 , value           => ::DISPATCH( $::Var, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'sigil' )
 , value           => ::DISPATCH( $::Str, 'new', '&' )
 ,  } ), ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'twigil' )
@@ -255,7 +255,7 @@ $::KindaPerl6::Grammar = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $:
  )
 ,  } ),  )
 )
- }; "974^213" } )->();if ( $ret ne "974^213" ) {$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $ret ]; }; }))|(?:use(?:(??{ eval '$_rule_ws' })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; }))(?:(??{ eval '$_rule_full_ident' })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture_to_array", "full_ident" ]; }))(?:(??{ eval '$_rule_use_from_perl5' })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "use_from_perl5" ]; }))(?:(?:-(?:(??{ eval '$_rule_ident' })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "ident" ]; })))|(?:(?:(??{ eval '$_rule_''' })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "''" ]; }))))(?{ local $GLOBAL::_M = $GLOBAL::_M; Match::from_global_data( $GLOBAL::_M ); $MATCH = $GLOBAL::MATCH = pop @Match::Matches; @Match::Matches = (); my $ret = ( sub {do { return(::DISPATCH( $::Use, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'mod' )
+ }; "974^213" } )->();if ( $ret ne "974^213" ) {$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $ret ]; }; }))|(?:use(?:(??{ eval '$_rule_ws' })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; }))(?:(??{ eval '$_rule_full_ident' })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture_to_array", "full_ident" ]; }))(?:(??{ eval '$_rule_use_from_perl5' })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "use_from_perl5" ]; }))(?:(?:-(?:(??{ eval '$_rule_ident' })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "ident" ]; })))|(?:))(?{ local $GLOBAL::_M = $GLOBAL::_M; Match::from_global_data( $GLOBAL::_M ); $MATCH = $GLOBAL::MATCH = pop @Match::Matches; @Match::Matches = (); my $ret = ( sub {do { return(::DISPATCH( $::Use, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'mod' )
 , value           => ::DISPATCH( $GLOBAL::Code_prefix_58__60__36__62_, 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'full_ident' )
  )
  )
@@ -707,6 +707,6 @@ $bind = ::DISPATCH( $::Bind, 'new', ::DISPATCH( $::NamedArgument, "new", { _argu
  )
 ,  } ),  )
 )
- }; "974^213" } )->();if ( $ret ne "974^213" ) {$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $ret ]; }; })))(?{ local $GLOBAL::_M = [ $GLOBAL::_M, 'to', pos() ]; $GLOBAL::_M2 = $GLOBAL::_M; })/x; 
+ }; "974^213" } )->();if ( $ret ne "974^213" ) {$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $ret ]; }; })))(?{ local $GLOBAL::_M = [ $GLOBAL::_M, 'to', pos() ]; $GLOBAL::_M2 = $GLOBAL::_M; })~x; 
 ::DISPATCH(::DISPATCH($::KindaPerl6::Grammar,"HOW"),"add_method", ::DISPATCH( $::Str, "new", "term" ), ::DISPATCH( $::Method, "new", sub { local $GLOBAL::_Class = shift; undef $GLOBAL::_M2; ( ref($_) ? $_->{_dispatch}( $_, "Str" )->{_value} : $_ ) =~ /$_rule_term/; if ( $GLOBAL::_M2->[1] eq 'to' ) { Match::from_global_data( $GLOBAL::_M2 ); $MATCH = $GLOBAL::MATCH = pop @Match::Matches; } else { $MATCH = $GLOBAL::MATCH = Match->new(); } @Match::Matches = (); return $MATCH; } ), ); }  }
 ; 1 }

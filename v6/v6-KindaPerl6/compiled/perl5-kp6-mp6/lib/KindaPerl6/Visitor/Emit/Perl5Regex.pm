@@ -271,6 +271,14 @@ sub emit_perl5 {
         else                     { }
     };
     do {
+        if   ( ( $str eq '{' ) ) { return ('\\{') }
+        else                     { }
+    };
+    do {
+        if   ( ( $str eq '}' ) ) { return ('\\}') }
+        else                     { }
+    };
+    do {
         if   ( ( $str eq '\\' ) ) { return ('\\\\') }
         else                      { }
     };
