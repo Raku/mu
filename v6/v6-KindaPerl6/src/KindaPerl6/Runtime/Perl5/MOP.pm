@@ -4,7 +4,7 @@ MOP = Meta Object Protocol
 
 =head1 SYNOPSIS
 
-Meta Object Protocal provides the basic infrastructure for objects and
+Meta Object Protocol provides the basic infrastructure for objects and
 variables.
 
 =head1 DESCRIPTION
@@ -26,6 +26,10 @@ There are several key functions used though this package.
 =back
 
 =head2 Entities used else where.
+
+These objects are primarly a hash that is accessed via &::DISPATCH, the method
+dispatcher is $object->{'_dispatch'}.   $object is blessed into
+KindaPerl6::Runtime::Perl5::DispatchSugar.
 
 =over
 
@@ -133,6 +137,8 @@ Sample call:
 
 If $object->{ _dispatch } does not exist this object dies with a notice that
 $object is not valid.
+
+ $object->{ _dispatch } is a method dispatcher.
 
  $object = KindaPerl6::Runtime::Perl5::DispatchSugar::sugar {
      _dispatch => sub { ... };
@@ -337,10 +343,10 @@ my $dispatch = sub {
 
 =head2 $::dispatch_VAR
 
-this closure is used in various places for making "variables" work like plain 
-objects. 
+this closure is used in various places for making "variables" work like plain
+objects.
 
-That is, if a method is dispatched through $::dispatch_VAR, it gets executed 
+That is, if a method is dispatched through $::dispatch_VAR, it gets executed
 on the $variable, not on the $variable contents.
 
 used in KindaPerl6/Runtime/Perl5/
@@ -448,7 +454,11 @@ my $method_APPLY = sugar {
 
 =head2 $meta_Method
 
-TODO: Needs to be filled out
+$meta_Method contains the "Class" object for Method.
+$::Method contains the "Prototype object" for Method
+which means it is a Method object with value "undef"
+
+# http://irclog.perlgeek.de/perl6/2007-10-30#i_134420
 
 =cut
 
@@ -510,6 +520,10 @@ $::Method = sugar {
 };
 
 # add new & APPY methods into the parent list. (Defaults?)
+# (14:54:54) fglock: at lines 513, 514 - the two Methods in the Method Class are
+# told that they belong themselves to the Method class
+# http://irclog.perlgeek.de/perl6/2007-10-30#i_134431
+
 push @{ $method_new->{_isa} },   $meta_Method;
 push @{ $method_APPLY->{_isa} }, $meta_Method;
 
@@ -748,6 +762,10 @@ $meta_Class->add_method(
 
 $::Class is a KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch object
 consisting of multiple nested KindaPerl6::..::Dispatch objects.
+
+A $::Class object consists of $::Methods ($meta_Method?) objects
+
+Note: The method dispatcher in Class knows how to handle inheritance and roles.
 
 =head3 Parents
 
