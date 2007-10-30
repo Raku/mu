@@ -45,7 +45,7 @@ token exp_mapping {
         [
         |   <.opt_ws> \, <.opt_ws> <exp_mapping> 
             { return [ $$<pair>, @( $$<exp_mapping> ) ] }
-        |   <.opt_ws> [ \, <.opt_ws> | <''> ]
+        |   <.opt_ws> [ \, <.opt_ws> | '' ]
             { return [ $$<pair> ] }
         ]
     |
