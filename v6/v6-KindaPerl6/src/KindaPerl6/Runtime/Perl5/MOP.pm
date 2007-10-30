@@ -337,7 +337,11 @@ my $dispatch = sub {
 
 =head2 $::dispatch_VAR
 
-this closure is used in various places for ???
+this closure is used in various places for making "variables" work like plain 
+objects. 
+
+That is, if a method is dispatched through $::dispatch_VAR, it gets executed 
+on the $variable, not on the $variable contents.
 
 used in KindaPerl6/Runtime/Perl5/
  Hash.pm
@@ -345,6 +349,8 @@ used in KindaPerl6/Runtime/Perl5/
  Array.pm
  GLOBAL.pm
  MOP.pm
+
+The &GLOBAL::VAR function in GLOBAL.pm provides a Perl 6 API for dispatch_VAR
 
 =cut
 
