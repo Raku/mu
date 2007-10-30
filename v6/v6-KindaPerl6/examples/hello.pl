@@ -1,1 +1,1 @@
-class Main { say "hello, World" }
+say "hello, World";
