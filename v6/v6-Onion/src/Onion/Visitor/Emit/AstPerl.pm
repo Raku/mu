@@ -26,7 +26,7 @@ class Onion::Visitor::Emit::AstPerl {
         };
         
         my $result := '';
-        $result := $result ~ "::" ~ '???' ~ "( ";
+        $result := $result ~ "::" ~ ($node.WHAT) ~ "( ";
         my $data := $node.attribs;
         my $item;
         for keys %($data) -> $item {

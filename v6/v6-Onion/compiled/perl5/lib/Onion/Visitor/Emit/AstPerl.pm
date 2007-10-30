@@ -93,7 +93,7 @@ $result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::
 $result = ::DISPATCH( $::Str, 'new', '' )
 }; do {::MODIFIED($result);
 $result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '::' )
-, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '???' )
+, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $node, 'WHAT',  )
 , ::DISPATCH( $::Str, 'new', '( ' )
  )
  )
@@ -181,7 +181,7 @@ $result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } ::DISPATCH( ::DISPATCH( $GLOBAL::data, 'LOOKUP', $GLOBAL::item )
+};{ my $_param_index = 0; } ::DISPATCH( ::DISPATCH( $data, 'LOOKUP', $item )
 , 'isa', ::DISPATCH( $::Str, 'new', 'Str' )
  )
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [  ] } ), return   => $::Undef, } )
@@ -191,7 +191,7 @@ $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } ::DISPATCH( ::DISPATCH( $GLOBAL::data, 'LOOKUP', $GLOBAL::item )
+};{ my $_param_index = 0; } ::DISPATCH( ::DISPATCH( $data, 'LOOKUP', $item )
 , 'isa', ::DISPATCH( $::Str, 'new', 'Int' )
  )
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [  ] } ), return   => $::Undef, } )

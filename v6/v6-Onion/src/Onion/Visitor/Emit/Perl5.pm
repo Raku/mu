@@ -181,20 +181,20 @@ class Lit::Code {
     };
     method emit_declarations {
         my $s;
-        my $name;
-        for @($.pad.variable_names) -> $name {
-            my $decl := ::Decl(
-                decl => 'my',
-                type => '',
-                var  => ::Var(
-                    sigil     => '',
-                    twigil    => '',
-                    name      => $name,
-                    namespace => [ ],
-                ),
-            );
-            $s := $s ~ $name.emit_perl5 ~ ';' ~ Main::newline();
-        };
+        #my $name;
+        #for @($.pad.variable_names) -> $name {
+        #    my $decl := ::Decl(
+        #        decl => 'my',
+        #        type => '',
+        #        var  => ::Var(
+        #            sigil     => '',
+        #            twigil    => '',
+        #            name      => $name,
+        #            namespace => [ ],
+        #        ),
+        #    );
+        #    $s := $s ~ $name.emit_perl5 ~ ';' ~ Main::newline();
+        #};
         return $s;
     };
     method emit_arguments {

@@ -1042,8 +1042,6 @@ $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
 , 'add_method', ::DISPATCH( $::Str, 'new', 'emit_declarations' )
 , ::DISPATCH( $::Code, 'new', { code => sub { my $s; $s = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$s' } )  unless defined $s; INIT { $s = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$s' } ) }
 ;
-my $name; $name = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$name' } )  unless defined $name; INIT { $name = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$name' } ) }
-;
 my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
 my $self; $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } )  unless defined $self; INIT { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
@@ -1053,58 +1051,7 @@ $self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified 
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } $s; $name; ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "pad" )
-, 'variable_names',  )
- )
-, 'map', ::DISPATCH( $::Code, 'new', { code => sub { my $decl; $decl = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$decl' } )  unless defined $decl; INIT { $decl = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$decl' } ) }
-;
-my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
-;
-my $name; $name = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$name' } )  unless defined $name; INIT { $name = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$name' } ) }
-;
-my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
-::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
-$List__ = ::DISPATCH( $CAPTURE, 'array',  )
-};do {::MODIFIED($Hash__);
-$Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0;  if ( exists $Hash__->{_value}{_hash}{'name'} )  { do {::MODIFIED($name);
-$name = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'name' )
- )
-} }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $name = $List__->{_value}{_array}[ $_param_index++ ];  } } do {::MODIFIED($decl);
-$decl = ::DISPATCH( $::Decl, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'decl' )
-, value           => ::DISPATCH( $::Str, 'new', 'my' )
-,  } ), ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'type' )
-, value           => ::DISPATCH( $::Str, 'new', '' )
-,  } ), ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'var' )
-, value           => ::DISPATCH( $::Var, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'sigil' )
-, value           => ::DISPATCH( $::Str, 'new', '' )
-,  } ), ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'twigil' )
-, value           => ::DISPATCH( $::Str, 'new', '' )
-,  } ), ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'name' )
-, value           => $name,  } ), ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'namespace' )
-, value           => ::DISPATCH( $::Array, 'new', { _array => [] }
- )
-,  } ),  )
-,  } ),  )
-}; do {::MODIFIED($s);
-$s = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $s, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $name, 'emit_perl5',  )
-, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ';' )
-, ::DISPATCH( $Main::Code_newline, 'APPLY',  )
- )
- )
- )
-} }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, 'new', { sigil  => '$', twigil => '', name   => 'name', value  => $::Undef, has_default    => ::DISPATCH( $::Bit, 'new', 0 )
-, is_named_only  => ::DISPATCH( $::Bit, 'new', 0 )
-, is_optional    => ::DISPATCH( $::Bit, 'new', 0 )
-, is_slurpy      => ::DISPATCH( $::Bit, 'new', 0 )
-, is_multidimensional  => ::DISPATCH( $::Bit, 'new', 0 )
-, is_rw          => ::DISPATCH( $::Bit, 'new', 0 )
-, is_copy        => ::DISPATCH( $::Bit, 'new', 0 )
-,  } )
-,  ] } ), return   => $::Undef, } )
-,  } )
- )
-; return($s)
+};{ my $_param_index = 0; } $s; return($s)
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => bless( {
                  'namespace' => [],
                  'name' => 'self',
@@ -1472,7 +1419,7 @@ $node = ::DISPATCH( $self, "parameters" )
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } ::DISPATCH( $GLOBAL::node, 'isa', ::DISPATCH( $::Str, 'new', 'Var' )
+};{ my $_param_index = 0; } ::DISPATCH( $node, 'isa', ::DISPATCH( $::Str, 'new', 'Var' )
  )
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [  ] } ), return   => $::Undef, } )
 ,  } )
@@ -1481,7 +1428,7 @@ $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::node, 'namespace',  )
+};{ my $_param_index = 0; } ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $node, 'namespace',  )
  )
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [  ] } ), return   => $::Undef, } )
 ,  } )
@@ -2092,7 +2039,7 @@ $cond = ::DISPATCH( $self, "cond" )
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } ::DISPATCH( $GLOBAL::cond, 'isa', ::DISPATCH( $::Str, 'new', 'Var' )
+};{ my $_param_index = 0; } ::DISPATCH( $cond, 'isa', ::DISPATCH( $::Str, 'new', 'Var' )
  )
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [  ] } ), return   => $::Undef, } )
 ,  } )
@@ -2101,7 +2048,7 @@ $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $GLOBAL::cond, 'sigil',  )
+};{ my $_param_index = 0; } ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $cond, 'sigil',  )
 , ::DISPATCH( $::Str, 'new', '@' )
  )
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [  ] } ), return   => $::Undef, } )

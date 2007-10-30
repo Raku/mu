@@ -56,7 +56,7 @@ $pass_thunks = ::DISPATCH( $::Hash, 'new', { _hash => { ::DISPATCH( $::Str, 'new
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $GLOBAL::node_name, ::DISPATCH( $::Str, 'new', 'Apply' )
+};{ my $_param_index = 0; } ::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $node_name, ::DISPATCH( $::Str, 'new', 'Apply' )
  )
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [  ] } ), return   => $::Undef, } )
 ,  } )
@@ -65,7 +65,7 @@ $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } ::DISPATCH( $GLOBAL::pass_thunks, 'LOOKUP', ::DISPATCH( ::DISPATCH( $GLOBAL::node, 'code',  )
+};{ my $_param_index = 0; } ::DISPATCH( $pass_thunks, 'LOOKUP', ::DISPATCH( ::DISPATCH( $node, 'code',  )
 , 'name',  )
  )
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [  ] } ), return   => $::Undef, } )
