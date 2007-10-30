@@ -5,28 +5,28 @@ use strict;
 no strict "vars";
 use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
-my $_MODIFIED; BEGIN { $_MODIFIED = {} }
-BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
-do { my  $List_visitors = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List_visitors' } ) ; 
+my $_MODIFIED; INIT { $_MODIFIED = {} }
+INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
+do { my  $List_visitors = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List_visitors' } ) ; 
 ;
-my $emit_p5; $emit_p5 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$emit_p5' } )  unless defined $emit_p5; BEGIN { $emit_p5 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$emit_p5' } ) }
+my $emit_p5; $emit_p5 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$emit_p5' } )  unless defined $emit_p5; INIT { $emit_p5 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$emit_p5' } ) }
 ;
-my $code; $code = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$code' } )  unless defined $code; BEGIN { $code = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$code' } ) }
+my $code; $code = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$code' } )  unless defined $code; INIT { $code = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$code' } ) }
 ;
-my $pos; $pos = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos' } )  unless defined $pos; BEGIN { $pos = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos' } ) }
+my $pos; $pos = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos' } )  unless defined $pos; INIT { $pos = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos' } ) }
 ;
-my $len; $len = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$len' } )  unless defined $len; BEGIN { $len = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$len' } ) }
+my $len; $len = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$len' } )  unless defined $len; INIT { $len = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$len' } ) }
 ;
 do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Main )
-,"true"),"p5landish") ) { }  else { do { my  $List_visitors = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List_visitors' } ) ; 
+,"true"),"p5landish") ) { }  else { do { my  $List_visitors = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List_visitors' } ) ; 
 ;
-my $emit_p5; $emit_p5 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$emit_p5' } )  unless defined $emit_p5; BEGIN { $emit_p5 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$emit_p5' } ) }
+my $emit_p5; $emit_p5 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$emit_p5' } )  unless defined $emit_p5; INIT { $emit_p5 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$emit_p5' } ) }
 ;
-my $code; $code = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$code' } )  unless defined $code; BEGIN { $code = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$code' } ) }
+my $code; $code = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$code' } )  unless defined $code; INIT { $code = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$code' } ) }
 ;
-my $pos; $pos = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos' } )  unless defined $pos; BEGIN { $pos = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos' } ) }
+my $pos; $pos = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos' } )  unless defined $pos; INIT { $pos = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos' } ) }
 ;
-my $len; $len = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$len' } )  unless defined $len; BEGIN { $len = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$len' } ) }
+my $len; $len = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$len' } )  unless defined $len; INIT { $len = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$len' } ) }
 ;
 do {::MODIFIED($::Main);
 $::Main = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Main' )
@@ -44,15 +44,15 @@ $::Main = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'M
 ; ::DISPATCH_VAR( $emit_p5, 'STORE', ::DISPATCH( $::KindaPerl6::Visitor::Emit::Perl5, 'new',  )
  )
 ; ::DISPATCH_VAR( ::DISPATCH( $emit_p5, 'visitor_args',  )
-, 'STORE', do { my  $List_visitors = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List_visitors' } ) ; 
+, 'STORE', do { my  $List_visitors = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List_visitors' } ) ; 
 ;
-my $emit_p5; $emit_p5 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$emit_p5' } )  unless defined $emit_p5; BEGIN { $emit_p5 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$emit_p5' } ) }
+my $emit_p5; $emit_p5 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$emit_p5' } )  unless defined $emit_p5; INIT { $emit_p5 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$emit_p5' } ) }
 ;
-my $code; $code = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$code' } )  unless defined $code; BEGIN { $code = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$code' } ) }
+my $code; $code = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$code' } )  unless defined $code; INIT { $code = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$code' } ) }
 ;
-my $pos; $pos = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos' } )  unless defined $pos; BEGIN { $pos = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos' } ) }
+my $pos; $pos = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos' } )  unless defined $pos; INIT { $pos = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pos' } ) }
 ;
-my $len; $len = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$len' } )  unless defined $len; BEGIN { $len = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$len' } ) }
+my $len; $len = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$len' } )  unless defined $len; INIT { $len = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$len' } ) }
 ;
 ::DISPATCH( $::Pair, 'new', { key => ::DISPATCH( $::Str, 'new', 'secure' )
 , value => ::DISPATCH( $::Int, 'new', 1 )
@@ -73,11 +73,11 @@ $COMPILER::source_md5 = ::DISPATCH( $::Scalar, 'new',  )
 ; ::DISPATCH_VAR( $len, 'STORE', ::DISPATCH( $GLOBAL::Code_length, 'APPLY', $code )
  )
 ; do { while (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60__62__62_, 'APPLY', $len, $pos )
-,"true"),"p5landish") )  { do { my $match; $match = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$match' } )  unless defined $match; BEGIN { $match = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$match' } ) }
+,"true"),"p5landish") )  { do { my $match; $match = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$match' } )  unless defined $match; INIT { $match = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$match' } ) }
 ;
-my $ast; $ast = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ast' } )  unless defined $ast; BEGIN { $ast = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ast' } ) }
+my $ast; $ast = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ast' } )  unless defined $ast; INIT { $ast = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ast' } ) }
 ;
-my $res; $res = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$res' } )  unless defined $res; BEGIN { $res = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$res' } ) }
+my $res; $res = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$res' } )  unless defined $res; INIT { $res = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$res' } ) }
 ;
 ::DISPATCH_VAR( $match, 'STORE', ::DISPATCH( $::KindaPerl6::Grammar, 'comp_unit', $code, $pos )
  )
@@ -97,11 +97,11 @@ my $res; $res = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => 
  )
  )
 ; ::DISPATCH( $GLOBAL::Code_exit, 'APPLY',  )
-; $res; ::DISPATCH( $List_visitors, 'for', ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
+; $res; ::DISPATCH( $List_visitors, 'map', ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
-my $visitor; $visitor = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$visitor' } )  unless defined $visitor; BEGIN { $visitor = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$visitor' } ) }
+my $visitor; $visitor = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$visitor' } )  unless defined $visitor; INIT { $visitor = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$visitor' } ) }
 ;
-my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);

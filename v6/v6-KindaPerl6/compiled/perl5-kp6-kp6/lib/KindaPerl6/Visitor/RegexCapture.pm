@@ -5,8 +5,8 @@ use strict;
 no strict "vars";
 use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
-my $_MODIFIED; BEGIN { $_MODIFIED = {} }
-BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
+my $_MODIFIED; INIT { $_MODIFIED = {} }
+INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do { do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::KindaPerl6::Visitor::RegexCapture )
 ,"true"),"p5landish") ) { }  else { do { do {::MODIFIED($::KindaPerl6::Visitor::RegexCapture);
 $::KindaPerl6::Visitor::RegexCapture = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'KindaPerl6::Visitor::RegexCapture' )
@@ -15,13 +15,13 @@ $::KindaPerl6::Visitor::RegexCapture = ::DISPATCH( ::DISPATCH( $::Class, 'new', 
 } } } }
 ; ::DISPATCH( ::DISPATCH( $::KindaPerl6::Visitor::RegexCapture, 'HOW',  )
 , 'add_method', ::DISPATCH( $::Str, 'new', 'visit' )
-, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
+, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
-my $node; $node = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$node' } )  unless defined $node; BEGIN { $node = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$node' } ) }
+my $node; $node = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$node' } )  unless defined $node; INIT { $node = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$node' } ) }
 ;
-my $node_name; $node_name = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$node_name' } )  unless defined $node_name; BEGIN { $node_name = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$node_name' } ) }
+my $node_name; $node_name = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$node_name' } )  unless defined $node_name; INIT { $node_name = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$node_name' } ) }
 ;
-$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
@@ -71,8 +71,8 @@ use strict;
 no strict "vars";
 use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
-my $_MODIFIED; BEGIN { $_MODIFIED = {} }
-BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
+my $_MODIFIED; INIT { $_MODIFIED = {} }
+INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do { do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::P5Token )
 ,"true"),"p5landish") ) { }  else { do { do {::MODIFIED($::P5Token);
 $::P5Token = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'P5Token' )
@@ -81,15 +81,15 @@ $::P5Token = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new',
 } } } }
 ; ::DISPATCH( ::DISPATCH( $::P5Token, 'HOW',  )
 , 'add_method', ::DISPATCH( $::Str, 'new', 'capture_count' )
-, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
+, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
-my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; BEGIN { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
+my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; INIT { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
 ;
-my $quantified; $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } )  unless defined $quantified; BEGIN { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
+my $quantified; $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } )  unless defined $quantified; INIT { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
 ;
-my $seen; $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } )  unless defined $seen; BEGIN { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
+my $seen; $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } )  unless defined $seen; INIT { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
 ;
-$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
@@ -139,8 +139,8 @@ use strict;
 no strict "vars";
 use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
-my $_MODIFIED; BEGIN { $_MODIFIED = {} }
-BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
+my $_MODIFIED; INIT { $_MODIFIED = {} }
+INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do { do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Rule::Quantifier )
 ,"true"),"p5landish") ) { }  else { do { do {::MODIFIED($::Rule::Quantifier);
 $::Rule::Quantifier = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Rule::Quantifier' )
@@ -149,15 +149,15 @@ $::Rule::Quantifier = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::St
 } } } }
 ; ::DISPATCH( ::DISPATCH( $::Rule::Quantifier, 'HOW',  )
 , 'add_method', ::DISPATCH( $::Str, 'new', 'capture_count' )
-, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
+, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
-my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; BEGIN { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
+my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; INIT { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
 ;
-my $quantified; $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } )  unless defined $quantified; BEGIN { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
+my $quantified; $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } )  unless defined $quantified; INIT { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
 ;
-my $seen; $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } )  unless defined $seen; BEGIN { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
+my $seen; $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } )  unless defined $seen; INIT { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
 ;
-$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
@@ -210,8 +210,8 @@ use strict;
 no strict "vars";
 use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
-my $_MODIFIED; BEGIN { $_MODIFIED = {} }
-BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
+my $_MODIFIED; INIT { $_MODIFIED = {} }
+INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do { do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Rule::Or )
 ,"true"),"p5landish") ) { }  else { do { do {::MODIFIED($::Rule::Or);
 $::Rule::Or = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Rule::Or' )
@@ -220,17 +220,17 @@ $::Rule::Or = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new'
 } } } }
 ; ::DISPATCH( ::DISPATCH( $::Rule::Or, 'HOW',  )
 , 'add_method', ::DISPATCH( $::Str, 'new', 'capture_count' )
-, ::DISPATCH( $::Code, 'new', { code => sub { my $max; $max = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$max' } )  unless defined $max; BEGIN { $max = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$max' } ) }
+, ::DISPATCH( $::Code, 'new', { code => sub { my $max; $max = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$max' } )  unless defined $max; INIT { $max = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$max' } ) }
 ;
-my  $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
+my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
-my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; BEGIN { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
+my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; INIT { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
 ;
-my $quantified; $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } )  unless defined $quantified; BEGIN { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
+my $quantified; $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } )  unless defined $quantified; INIT { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
 ;
-my $seen; $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } )  unless defined $seen; BEGIN { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
+my $seen; $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } )  unless defined $seen; INIT { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
 ;
-$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
@@ -246,13 +246,13 @@ $seen = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'seen' )
  )
 } }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $seen = $List__->{_value}{_array}[ $_param_index++ ];  } } do {::MODIFIED($max);
 $max = $count}; ::DISPATCH( ::DISPATCH( $self, "or" )
-, 'for', ::DISPATCH( $::Code, 'new', { code => sub { my $last; $last = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$last' } )  unless defined $last; BEGIN { $last = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$last' } ) }
+, 'map', ::DISPATCH( $::Code, 'new', { code => sub { my $last; $last = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$last' } )  unless defined $last; INIT { $last = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$last' } ) }
 ;
-my  $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
+my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
-my $regex; $regex = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$regex' } )  unless defined $regex; BEGIN { $regex = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$regex' } ) }
+my $regex; $regex = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$regex' } )  unless defined $regex; INIT { $regex = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$regex' } ) }
 ;
-my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
@@ -312,8 +312,8 @@ use strict;
 no strict "vars";
 use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
-my $_MODIFIED; BEGIN { $_MODIFIED = {} }
-BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
+my $_MODIFIED; INIT { $_MODIFIED = {} }
+INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do { do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Rule::Concat )
 ,"true"),"p5landish") ) { }  else { do { do {::MODIFIED($::Rule::Concat);
 $::Rule::Concat = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Rule::Concat' )
@@ -322,15 +322,15 @@ $::Rule::Concat = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, '
 } } } }
 ; ::DISPATCH( ::DISPATCH( $::Rule::Concat, 'HOW',  )
 , 'add_method', ::DISPATCH( $::Str, 'new', 'capture_count' )
-, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
+, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
-my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; BEGIN { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
+my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; INIT { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
 ;
-my $quantified; $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } )  unless defined $quantified; BEGIN { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
+my $quantified; $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } )  unless defined $quantified; INIT { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
 ;
-my $seen; $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } )  unless defined $seen; BEGIN { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
+my $seen; $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } )  unless defined $seen; INIT { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
 ;
-$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
@@ -345,11 +345,11 @@ $quantified = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'quantif
 $seen = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'seen' )
  )
 } }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $seen = $List__->{_value}{_array}[ $_param_index++ ];  } } ::DISPATCH( ::DISPATCH( $self, "concat" )
-, 'for', ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
+, 'map', ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
-my $regex; $regex = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$regex' } )  unless defined $regex; BEGIN { $regex = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$regex' } ) }
+my $regex; $regex = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$regex' } )  unless defined $regex; INIT { $regex = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$regex' } ) }
 ;
-my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
@@ -406,8 +406,8 @@ use strict;
 no strict "vars";
 use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
-my $_MODIFIED; BEGIN { $_MODIFIED = {} }
-BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
+my $_MODIFIED; INIT { $_MODIFIED = {} }
+INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do { do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Rule::SubruleNoCapture )
 ,"true"),"p5landish") ) { }  else { do { do {::MODIFIED($::Rule::SubruleNoCapture);
 $::Rule::SubruleNoCapture = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Rule::SubruleNoCapture' )
@@ -416,15 +416,15 @@ $::Rule::SubruleNoCapture = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH(
 } } } }
 ; ::DISPATCH( ::DISPATCH( $::Rule::SubruleNoCapture, 'HOW',  )
 , 'add_method', ::DISPATCH( $::Str, 'new', 'capture_count' )
-, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
+, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
-my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; BEGIN { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
+my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; INIT { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
 ;
-my $quantified; $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } )  unless defined $quantified; BEGIN { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
+my $quantified; $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } )  unless defined $quantified; INIT { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
 ;
-my $seen; $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } )  unless defined $seen; BEGIN { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
+my $seen; $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } )  unless defined $seen; INIT { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
 ;
-$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
@@ -474,8 +474,8 @@ use strict;
 no strict "vars";
 use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
-my $_MODIFIED; BEGIN { $_MODIFIED = {} }
-BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
+my $_MODIFIED; INIT { $_MODIFIED = {} }
+INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do { do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Rule::Var )
 ,"true"),"p5landish") ) { }  else { do { do {::MODIFIED($::Rule::Var);
 $::Rule::Var = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Rule::Var' )
@@ -484,15 +484,15 @@ $::Rule::Var = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new
 } } } }
 ; ::DISPATCH( ::DISPATCH( $::Rule::Var, 'HOW',  )
 , 'add_method', ::DISPATCH( $::Str, 'new', 'capture_count' )
-, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
+, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
-my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; BEGIN { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
+my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; INIT { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
 ;
-my $quantified; $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } )  unless defined $quantified; BEGIN { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
+my $quantified; $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } )  unless defined $quantified; INIT { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
 ;
-my $seen; $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } )  unless defined $seen; BEGIN { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
+my $seen; $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } )  unless defined $seen; INIT { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
 ;
-$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
@@ -542,8 +542,8 @@ use strict;
 no strict "vars";
 use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
-my $_MODIFIED; BEGIN { $_MODIFIED = {} }
-BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
+my $_MODIFIED; INIT { $_MODIFIED = {} }
+INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do { do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Rule::Constant )
 ,"true"),"p5landish") ) { }  else { do { do {::MODIFIED($::Rule::Constant);
 $::Rule::Constant = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Rule::Constant' )
@@ -552,15 +552,15 @@ $::Rule::Constant = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str,
 } } } }
 ; ::DISPATCH( ::DISPATCH( $::Rule::Constant, 'HOW',  )
 , 'add_method', ::DISPATCH( $::Str, 'new', 'capture_count' )
-, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
+, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
-my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; BEGIN { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
+my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; INIT { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
 ;
-my $quantified; $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } )  unless defined $quantified; BEGIN { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
+my $quantified; $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } )  unless defined $quantified; INIT { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
 ;
-my $seen; $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } )  unless defined $seen; BEGIN { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
+my $seen; $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } )  unless defined $seen; INIT { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
 ;
-$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
@@ -610,8 +610,8 @@ use strict;
 no strict "vars";
 use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
-my $_MODIFIED; BEGIN { $_MODIFIED = {} }
-BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
+my $_MODIFIED; INIT { $_MODIFIED = {} }
+INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do { do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Rule::Dot )
 ,"true"),"p5landish") ) { }  else { do { do {::MODIFIED($::Rule::Dot);
 $::Rule::Dot = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Rule::Dot' )
@@ -620,15 +620,15 @@ $::Rule::Dot = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new
 } } } }
 ; ::DISPATCH( ::DISPATCH( $::Rule::Dot, 'HOW',  )
 , 'add_method', ::DISPATCH( $::Str, 'new', 'capture_count' )
-, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
+, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
-my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; BEGIN { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
+my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; INIT { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
 ;
-my $quantified; $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } )  unless defined $quantified; BEGIN { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
+my $quantified; $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } )  unless defined $quantified; INIT { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
 ;
-my $seen; $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } )  unless defined $seen; BEGIN { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
+my $seen; $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } )  unless defined $seen; INIT { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
 ;
-$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
@@ -678,8 +678,8 @@ use strict;
 no strict "vars";
 use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
-my $_MODIFIED; BEGIN { $_MODIFIED = {} }
-BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
+my $_MODIFIED; INIT { $_MODIFIED = {} }
+INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do { do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Rule::SpecialChar )
 ,"true"),"p5landish") ) { }  else { do { do {::MODIFIED($::Rule::SpecialChar);
 $::Rule::SpecialChar = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Rule::SpecialChar' )
@@ -688,15 +688,15 @@ $::Rule::SpecialChar = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::S
 } } } }
 ; ::DISPATCH( ::DISPATCH( $::Rule::SpecialChar, 'HOW',  )
 , 'add_method', ::DISPATCH( $::Str, 'new', 'capture_count' )
-, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
+, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
-my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; BEGIN { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
+my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; INIT { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
 ;
-my $quantified; $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } )  unless defined $quantified; BEGIN { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
+my $quantified; $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } )  unless defined $quantified; INIT { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
 ;
-my $seen; $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } )  unless defined $seen; BEGIN { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
+my $seen; $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } )  unless defined $seen; INIT { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
 ;
-$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
@@ -746,8 +746,8 @@ use strict;
 no strict "vars";
 use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
-my $_MODIFIED; BEGIN { $_MODIFIED = {} }
-BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
+my $_MODIFIED; INIT { $_MODIFIED = {} }
+INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do { do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Rule::Block )
 ,"true"),"p5landish") ) { }  else { do { do {::MODIFIED($::Rule::Block);
 $::Rule::Block = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Rule::Block' )
@@ -756,15 +756,15 @@ $::Rule::Block = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'n
 } } } }
 ; ::DISPATCH( ::DISPATCH( $::Rule::Block, 'HOW',  )
 , 'add_method', ::DISPATCH( $::Str, 'new', 'capture_count' )
-, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
+, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
-my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; BEGIN { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
+my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; INIT { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
 ;
-my $quantified; $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } )  unless defined $quantified; BEGIN { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
+my $quantified; $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } )  unless defined $quantified; INIT { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
 ;
-my $seen; $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } )  unless defined $seen; BEGIN { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
+my $seen; $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } )  unless defined $seen; INIT { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
 ;
-$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
@@ -814,8 +814,8 @@ use strict;
 no strict "vars";
 use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
-my $_MODIFIED; BEGIN { $_MODIFIED = {} }
-BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
+my $_MODIFIED; INIT { $_MODIFIED = {} }
+INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do { do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Rule::InterpolateVar )
 ,"true"),"p5landish") ) { }  else { do { do {::MODIFIED($::Rule::InterpolateVar);
 $::Rule::InterpolateVar = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Rule::InterpolateVar' )
@@ -824,15 +824,15 @@ $::Rule::InterpolateVar = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $
 } } } }
 ; ::DISPATCH( ::DISPATCH( $::Rule::InterpolateVar, 'HOW',  )
 , 'add_method', ::DISPATCH( $::Str, 'new', 'capture_count' )
-, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
+, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
-my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; BEGIN { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
+my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; INIT { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
 ;
-my $quantified; $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } )  unless defined $quantified; BEGIN { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
+my $quantified; $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } )  unless defined $quantified; INIT { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
 ;
-my $seen; $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } )  unless defined $seen; BEGIN { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
+my $seen; $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } )  unless defined $seen; INIT { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
 ;
-$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
@@ -882,8 +882,8 @@ use strict;
 no strict "vars";
 use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
-my $_MODIFIED; BEGIN { $_MODIFIED = {} }
-BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
+my $_MODIFIED; INIT { $_MODIFIED = {} }
+INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do { do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Rule::Before )
 ,"true"),"p5landish") ) { }  else { do { do {::MODIFIED($::Rule::Before);
 $::Rule::Before = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Rule::Before' )
@@ -892,15 +892,15 @@ $::Rule::Before = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, '
 } } } }
 ; ::DISPATCH( ::DISPATCH( $::Rule::Before, 'HOW',  )
 , 'add_method', ::DISPATCH( $::Str, 'new', 'capture_count' )
-, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
+, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
-my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; BEGIN { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
+my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; INIT { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
 ;
-my $quantified; $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } )  unless defined $quantified; BEGIN { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
+my $quantified; $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } )  unless defined $quantified; INIT { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
 ;
-my $seen; $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } )  unless defined $seen; BEGIN { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
+my $seen; $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } )  unless defined $seen; INIT { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
 ;
-$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
@@ -922,28 +922,28 @@ $seen = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'seen' )
 ; do {::MODIFIED(::DISPATCH( $self, "capture_to_array" )
 );
 ::DISPATCH( $self, "capture_to_array" )
- = ::DISPATCH( $GLOBAL::Code_infix_58__60__124__124__62_, 'APPLY', ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+ = ::DISPATCH( $GLOBAL::Code_infix_58__60__124__124__62_, 'APPLY', ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } $GLOBAL::quantified }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [  ] } ), return   => $::Undef, } )
+};{ my $_param_index = 0; } $quantified }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [  ] } ), return   => $::Undef, } )
 ,  } )
-, ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+, ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } ::DISPATCH( $GLOBAL::Code_infix_58__60__38__38__62_, 'APPLY', ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+};{ my $_param_index = 0; } ::DISPATCH( $GLOBAL::Code_infix_58__60__38__38__62_, 'APPLY', ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } ::DISPATCH( $GLOBAL::seen, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'before' )
+};{ my $_param_index = 0; } ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'before' )
  )
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [  ] } ), return   => $::Undef, } )
 ,  } )
-, ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+, ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
@@ -1007,8 +1007,8 @@ use strict;
 no strict "vars";
 use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
-my $_MODIFIED; BEGIN { $_MODIFIED = {} }
-BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
+my $_MODIFIED; INIT { $_MODIFIED = {} }
+INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do { do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Rule::After )
 ,"true"),"p5landish") ) { }  else { do { do {::MODIFIED($::Rule::After);
 $::Rule::After = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Rule::After' )
@@ -1017,15 +1017,15 @@ $::Rule::After = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'n
 } } } }
 ; ::DISPATCH( ::DISPATCH( $::Rule::After, 'HOW',  )
 , 'add_method', ::DISPATCH( $::Str, 'new', 'capture_count' )
-, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
+, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
-my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; BEGIN { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
+my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; INIT { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
 ;
-my $quantified; $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } )  unless defined $quantified; BEGIN { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
+my $quantified; $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } )  unless defined $quantified; INIT { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
 ;
-my $seen; $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } )  unless defined $seen; BEGIN { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
+my $seen; $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } )  unless defined $seen; INIT { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
 ;
-$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
@@ -1047,28 +1047,28 @@ $seen = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'seen' )
 ; do {::MODIFIED(::DISPATCH( $self, "capture_to_array" )
 );
 ::DISPATCH( $self, "capture_to_array" )
- = ::DISPATCH( $GLOBAL::Code_infix_58__60__124__124__62_, 'APPLY', ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+ = ::DISPATCH( $GLOBAL::Code_infix_58__60__124__124__62_, 'APPLY', ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } $GLOBAL::quantified }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [  ] } ), return   => $::Undef, } )
+};{ my $_param_index = 0; } $quantified }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [  ] } ), return   => $::Undef, } )
 ,  } )
-, ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+, ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } ::DISPATCH( $GLOBAL::Code_infix_58__60__38__38__62_, 'APPLY', ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+};{ my $_param_index = 0; } ::DISPATCH( $GLOBAL::Code_infix_58__60__38__38__62_, 'APPLY', ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } ::DISPATCH( $GLOBAL::seen, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'after' )
+};{ my $_param_index = 0; } ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'after' )
  )
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [  ] } ), return   => $::Undef, } )
 ,  } )
-, ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+, ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
@@ -1132,8 +1132,8 @@ use strict;
 no strict "vars";
 use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
-my $_MODIFIED; BEGIN { $_MODIFIED = {} }
-BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
+my $_MODIFIED; INIT { $_MODIFIED = {} }
+INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do { do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Rule::NegateCharClass )
 ,"true"),"p5landish") ) { }  else { do { do {::MODIFIED($::Rule::NegateCharClass);
 $::Rule::NegateCharClass = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Rule::NegateCharClass' )
@@ -1142,15 +1142,15 @@ $::Rule::NegateCharClass = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( 
 } } } }
 ; ::DISPATCH( ::DISPATCH( $::Rule::NegateCharClass, 'HOW',  )
 , 'add_method', ::DISPATCH( $::Str, 'new', 'capture_count' )
-, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
+, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
-my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; BEGIN { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
+my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; INIT { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
 ;
-my $quantified; $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } )  unless defined $quantified; BEGIN { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
+my $quantified; $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } )  unless defined $quantified; INIT { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
 ;
-my $seen; $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } )  unless defined $seen; BEGIN { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
+my $seen; $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } )  unless defined $seen; INIT { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
 ;
-$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
@@ -1200,8 +1200,8 @@ use strict;
 no strict "vars";
 use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
-my $_MODIFIED; BEGIN { $_MODIFIED = {} }
-BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
+my $_MODIFIED; INIT { $_MODIFIED = {} }
+INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do { do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Rule::CharClass )
 ,"true"),"p5landish") ) { }  else { do { do {::MODIFIED($::Rule::CharClass);
 $::Rule::CharClass = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Rule::CharClass' )
@@ -1210,15 +1210,15 @@ $::Rule::CharClass = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str
 } } } }
 ; ::DISPATCH( ::DISPATCH( $::Rule::CharClass, 'HOW',  )
 , 'add_method', ::DISPATCH( $::Str, 'new', 'capture_count' )
-, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
+, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
-my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; BEGIN { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
+my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; INIT { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
 ;
-my $quantified; $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } )  unless defined $quantified; BEGIN { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
+my $quantified; $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } )  unless defined $quantified; INIT { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
 ;
-my $seen; $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } )  unless defined $seen; BEGIN { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
+my $seen; $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } )  unless defined $seen; INIT { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
 ;
-$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
@@ -1268,8 +1268,8 @@ use strict;
 no strict "vars";
 use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
-my $_MODIFIED; BEGIN { $_MODIFIED = {} }
-BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
+my $_MODIFIED; INIT { $_MODIFIED = {} }
+INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do { do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Rule::Subrule )
 ,"true"),"p5landish") ) { }  else { do { do {::MODIFIED($::Rule::Subrule);
 $::Rule::Subrule = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Rule::Subrule' )
@@ -1278,17 +1278,17 @@ $::Rule::Subrule = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 
 } } } }
 ; ::DISPATCH( ::DISPATCH( $::Rule::Subrule, 'HOW',  )
 , 'add_method', ::DISPATCH( $::Str, 'new', 'capture_count' )
-, ::DISPATCH( $::Code, 'new', { code => sub { my $meth; $meth = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$meth' } )  unless defined $meth; BEGIN { $meth = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$meth' } ) }
+, ::DISPATCH( $::Code, 'new', { code => sub { my $meth; $meth = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$meth' } )  unless defined $meth; INIT { $meth = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$meth' } ) }
 ;
-my  $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
+my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
-my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; BEGIN { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
+my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; INIT { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
 ;
-my $quantified; $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } )  unless defined $quantified; BEGIN { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
+my $quantified; $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } )  unless defined $quantified; INIT { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
 ;
-my $seen; $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } )  unless defined $seen; BEGIN { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
+my $seen; $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } )  unless defined $seen; INIT { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
 ;
-$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
@@ -1324,28 +1324,28 @@ $meth = ::DISPATCH( $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_, 'APPL
 }; do {::MODIFIED(::DISPATCH( $self, "capture_to_array" )
 );
 ::DISPATCH( $self, "capture_to_array" )
- = ::DISPATCH( $GLOBAL::Code_infix_58__60__124__124__62_, 'APPLY', ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+ = ::DISPATCH( $GLOBAL::Code_infix_58__60__124__124__62_, 'APPLY', ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } $GLOBAL::quantified }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [  ] } ), return   => $::Undef, } )
+};{ my $_param_index = 0; } $quantified }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [  ] } ), return   => $::Undef, } )
 ,  } )
-, ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+, ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } ::DISPATCH( $GLOBAL::Code_infix_58__60__38__38__62_, 'APPLY', ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+};{ my $_param_index = 0; } ::DISPATCH( $GLOBAL::Code_infix_58__60__38__38__62_, 'APPLY', ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } ::DISPATCH( $GLOBAL::seen, 'LOOKUP', ::DISPATCH( $self, "ident" )
+};{ my $_param_index = 0; } ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $self, "ident" )
  )
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [  ] } ), return   => $::Undef, } )
 ,  } )
-, ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+, ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
@@ -1403,8 +1403,8 @@ use strict;
 no strict "vars";
 use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
-my $_MODIFIED; BEGIN { $_MODIFIED = {} }
-BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
+my $_MODIFIED; INIT { $_MODIFIED = {} }
+INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do { do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Rule::NamedCapture )
 ,"true"),"p5landish") ) { }  else { do { do {::MODIFIED($::Rule::NamedCapture);
 $::Rule::NamedCapture = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Rule::NamedCapture' )
@@ -1413,15 +1413,15 @@ $::Rule::NamedCapture = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::
 } } } }
 ; ::DISPATCH( ::DISPATCH( $::Rule::NamedCapture, 'HOW',  )
 , 'add_method', ::DISPATCH( $::Str, 'new', 'capture_count' )
-, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
+, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
-my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; BEGIN { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
+my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; INIT { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
 ;
-my $quantified; $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } )  unless defined $quantified; BEGIN { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
+my $quantified; $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } )  unless defined $quantified; INIT { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
 ;
-my $seen; $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } )  unless defined $seen; BEGIN { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
+my $seen; $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } )  unless defined $seen; INIT { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
 ;
-$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
@@ -1438,28 +1438,28 @@ $seen = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'seen' )
 } }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $seen = $List__->{_value}{_array}[ $_param_index++ ];  } } do {::MODIFIED(::DISPATCH( $self, "capture_to_array" )
 );
 ::DISPATCH( $self, "capture_to_array" )
- = ::DISPATCH( $GLOBAL::Code_infix_58__60__124__124__62_, 'APPLY', ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+ = ::DISPATCH( $GLOBAL::Code_infix_58__60__124__124__62_, 'APPLY', ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } $GLOBAL::quantified }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [  ] } ), return   => $::Undef, } )
+};{ my $_param_index = 0; } $quantified }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [  ] } ), return   => $::Undef, } )
 ,  } )
-, ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+, ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } ::DISPATCH( $GLOBAL::Code_infix_58__60__38__38__62_, 'APPLY', ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+};{ my $_param_index = 0; } ::DISPATCH( $GLOBAL::Code_infix_58__60__38__38__62_, 'APPLY', ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } ::DISPATCH( $GLOBAL::seen, 'LOOKUP', ::DISPATCH( $self, "ident" )
+};{ my $_param_index = 0; } ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $self, "ident" )
  )
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [  ] } ), return   => $::Undef, } )
 ,  } )
-, ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+, ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
@@ -1523,8 +1523,8 @@ use strict;
 no strict "vars";
 use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
-my $_MODIFIED; BEGIN { $_MODIFIED = {} }
-BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
+my $_MODIFIED; INIT { $_MODIFIED = {} }
+INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do { do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Rule::Capture )
 ,"true"),"p5landish") ) { }  else { do { do {::MODIFIED($::Rule::Capture);
 $::Rule::Capture = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Rule::Capture' )
@@ -1533,15 +1533,15 @@ $::Rule::Capture = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 
 } } } }
 ; ::DISPATCH( ::DISPATCH( $::Rule::Capture, 'HOW',  )
 , 'add_method', ::DISPATCH( $::Str, 'new', 'capture_count' )
-, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
+, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
-my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; BEGIN { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
+my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; INIT { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
 ;
-my $quantified; $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } )  unless defined $quantified; BEGIN { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
+my $quantified; $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } )  unless defined $quantified; INIT { $quantified = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$quantified' } ) }
 ;
-my $seen; $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } )  unless defined $seen; BEGIN { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
+my $seen; $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } )  unless defined $seen; INIT { $seen = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$seen' } ) }
 ;
-$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
@@ -1561,28 +1561,28 @@ $seen = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'seen' )
  = $count}; do {::MODIFIED(::DISPATCH( $self, "capture_to_array" )
 );
 ::DISPATCH( $self, "capture_to_array" )
- = ::DISPATCH( $GLOBAL::Code_infix_58__60__124__124__62_, 'APPLY', ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+ = ::DISPATCH( $GLOBAL::Code_infix_58__60__124__124__62_, 'APPLY', ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } $GLOBAL::quantified }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [  ] } ), return   => $::Undef, } )
+};{ my $_param_index = 0; } $quantified }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [  ] } ), return   => $::Undef, } )
 ,  } )
-, ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+, ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } ::DISPATCH( $GLOBAL::Code_infix_58__60__38__38__62_, 'APPLY', ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+};{ my $_param_index = 0; } ::DISPATCH( $GLOBAL::Code_infix_58__60__38__38__62_, 'APPLY', ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } ::DISPATCH( $GLOBAL::seen, 'LOOKUP', ::DISPATCH( $self, "ident" )
+};{ my $_param_index = 0; } ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $self, "ident" )
  )
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [  ] } ), return   => $::Undef, } )
 ,  } )
-, ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+, ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);

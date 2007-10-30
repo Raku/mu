@@ -116,6 +116,9 @@ compiled/perl5-kp6-kp6/lib/%.pm: src-modules/%.pm
 			exit; \
 		fi
 
+compiled/perl5-kp6-kp6/lib/KindaPerl6/Runtime/Perl5/Match.pm: lib5regex/KindaPerl6/Runtime/Perl5/Match.pm
+	$(CP) $< $@
+
 compiled/perl5-kp6-kp6/lib/KindaPerl6/Runtime/Perl5/%.pm: src/KindaPerl6/Runtime/Perl5/%.pm
 	$(CP) $< $@
 

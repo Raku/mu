@@ -1,6 +1,6 @@
 # low level IO module
 
-$::IO = make_class(name=>"IO",parent=>[$meta_Value],methods=>{
+$::IO = KindaPerl6::Runtime::Perl5::MOP::make_class(name=>"IO",parent=>[$meta_Value],methods=>{
     mkdir => sub {
                   $::Kp6Security->guard_insecure_code;
                   my $self = shift;

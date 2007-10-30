@@ -2,7 +2,11 @@ use strict;
 
 $::Array = KindaPerl6::Runtime::Perl5::MOP::make_class(
     proto => $::Array, 
-    name=>"Array",parent=>[$::meta_Container],methods=>
+    name=>"Array",
+    parent=>[ 
+            # $::meta_List ???
+        ],
+    methods=>
     {
     
     new => sub {
@@ -23,15 +27,6 @@ $::Array = KindaPerl6::Runtime::Perl5::MOP::make_class(
                     cell=> $_[0]{_value}{_array},
                     key => $key,
                 });
-        },
-    FETCH=>sub {
-            $_[0];
-        },
-    STORE=>sub {
-            $_[0]{_value}{_array} = [ 
-                @{ ::DISPATCH($_[1],"array")->{_value}{_array} }
-            ];
-            $_[0];
         },
     elems =>sub {
             ::DISPATCH($::Int, "new", scalar @{ $_[0]{_value}{_array} } );
@@ -70,19 +65,29 @@ $::Array = KindaPerl6::Runtime::Perl5::MOP::make_class(
                     }
             );
         },
-    for =>sub {
+    map =>sub {
             my $sub = $_[1];
             my $arity = ::DISPATCH( ::DISPATCH( $sub, 'signature' ), 'arity' )->{_value};
-            #print "ARITY: $arity\n";
+            #print "Array.map arity: $arity\n";
+            my $result = ::DISPATCH( $::Array, 'new' );
             my @list = @{$_[0]{_value}{_array}};
+            my @params;
             while ( @list ) {
-                my @params = splice( @list, 0, $arity );
-                ::DISPATCH(
-                    $sub,
-                    "APPLY", 
-                    @params
+                if ( $arity ) {
+                    @params = splice( @list, 0, $arity );
+                }
+                else {
+                    $_ = shift @list;   # ???
+                }
+                ::DISPATCH( $result, 'push',
+                    ::DISPATCH(
+                        $sub,
+                        "APPLY", 
+                        @params,
+                    )
                 );
-            }
+            };
+            $result;
         },
 });
 
