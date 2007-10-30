@@ -48,23 +48,26 @@ class Token {
                 ~ '::DISPATCH( $::Str, "new", "' ~ $.name ~ '" ), '
 
                 ~ '::DISPATCH( $::Method, "new", '
-                    ~ 'sub { '
-                    ~    'local $GLOBAL::_Class = shift; '
-                    ~    'undef $GLOBAL::_M2; '
-                    ~    '( ref($_) ? $_->{_dispatch}( $_, "Str" )->{_value} : $_ ) =~ '
-                    ~      '/$_rule_' ~ $.name ~ '/; '
-                    
-                    ~    'if ( $GLOBAL::_M2->[1] eq \'to\' ) { '
-                    ~        'Match::from_global_data( $GLOBAL::_M2 ); '
-                    # XXX TODO - modify outer $/
-                    ~        '$MATCH = $GLOBAL::MATCH = pop @Match::Matches; '
-                    ~    '} '
-                    ~    'else { '
-                    ~        '$MATCH = $GLOBAL::MATCH = Match->new(); '
-                    ~    '} '
-                    
-                    ~    '@Match::Matches = (); '   # discard outer matches, if any
-                    ~    'return $MATCH; '
+                    ~ '{ code => '
+                        ~ 'sub { '
+                        ~    'local $GLOBAL::_Class = shift; '
+                        ~    'undef $GLOBAL::_M2; '
+                        ~    '( ref($_) ? $_->{_dispatch}( $_, "Str" )->{_value} : $_ ) =~ '
+                        ~      '/$_rule_' ~ $.name ~ '/; '
+                        
+                        ~    'if ( $GLOBAL::_M2->[1] eq \'to\' ) { '
+                        ~        'Match::from_global_data( $GLOBAL::_M2 ); '
+                        # XXX TODO - modify outer $/
+                        ~        '$MATCH = $GLOBAL::MATCH = pop @Match::Matches; '
+                        ~    '} '
+                        ~    'else { '
+                        ~        '$MATCH = $GLOBAL::MATCH = Match->new(); '
+                        ~    '} '
+                        
+                        ~    '@Match::Matches = (); '   # discard outer matches, if any
+                        ~    'return $MATCH; '
+                        ~ '} '
+                    # TODO Signature
                     ~ '} '
                 ~ '), '
 
