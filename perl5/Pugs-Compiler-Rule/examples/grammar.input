@@ -1,0 +1,19 @@
+grammar My::C;
+
+rule def {
+    <type> <var_list> ';'
+}
+
+token type { int | float | double | char }
+
+rule var_list {
+    <ident>**{1} [ ',' <ident> ]*
+}
+
+grammar My::VB;
+
+rule def {
+    'Dim' <My::C.var_list>
+    [ 'As' <My::C.type> ]?
+}
+
