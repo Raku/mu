@@ -170,37 +170,37 @@ package GLOBAL;
     }
 
     sub print { 
-        CORE::print join( '',  map { 
+        CORE::print map { 
                 _str( $_ )
-        } @_ );
+            } @_;
         True();
     }
 
-      sub keys { ::DISPATCH( $_[0], 'keys' ) }
-      sub GLOBAL::push { ::DISPATCH( $_[0], 'push' ) }
+    sub keys     { ::DISPATCH( $_[0], 'keys' ) }
+    sub push     { my $self = shift; ::DISPATCH( $self, 'push', @_ ) }
 
     my $undef = ::DISPATCH( $::Undef, 'new', 0 );
     sub undef    { $undef }
     sub undefine { ::DISPATCH( $_[0], 'STORE', $undef ) }
     sub defined  { 
         #print "DEFINED? \n";
-        return ::DISPATCH( $::Bit, 'new',0 )
+        return ::DISPATCH( $::Bit, 'new', 0 )
             unless defined $_[0];
         ::DISPATCH( $_[0], 'defined' ) 
     } 
-    sub exists  { 
+    sub exists   { 
         ::DISPATCH( VAR($_[0]), 'exists' );
     } 
     sub true     { ::DISPATCH( $_[0], 'true' ) }  
     sub not      { ::DISPATCH( $::Bit, 'new', ! ( ::DISPATCH( $_[0], 'true' )->{_value} ) ) }  
     sub True     { ::DISPATCH( $::Bit, 'new',1 ) }  
-    sub warn     { CORE::warn( join '', map { _str($_) } @_ )}
-    sub die      { confess( join '', map { _str($_) } @_ )}
+    sub warn     { CORE::warn( map { _str($_) } @_ ) }
+    sub die      { Carp::confess( map { _str($_) } @_ ) }
     sub exit     { CORE::exit() }
-    sub sleep    { CORE::sleep(_int($_[0]));return True;}
-    sub False    { ::DISPATCH( $::Bit, 'new',0 ) }  
-    sub TODO     {confess("TODO");}
-    sub qw {
+    sub sleep    { CORE::sleep(_int($_[0])); return True; }
+    sub False    { ::DISPATCH( $::Bit, 'new', 0 ) }  
+    sub TODO     { confess("TODO"); }
+    sub qw       {
         ::DISPATCH( $::Array, 'new', { 
                 _array => [ 
                     map {
@@ -256,14 +256,14 @@ package GLOBAL;
     sub infix_58__60__33__61__62_ {
         ::DISPATCH( $::Bit, 'new', (_int($_[0]) != _int($_[1])) ? 1 : 0 ); }  # infix:<!=>
 
-    sub GLOBAL::require {
-        eval "require "._str($_[0]);
+    sub require {
+        eval "CORE::require "._str($_[0]);
         die $@ if $@;
     }
 
     sub slurp {
         warn '#XXX# Slurp only a prototype here!';
-        return ::DISPATCH($::Str, 'new', join '', <>);
+        return ::DISPATCH($::Str, 'new', (join '', <>) );
     }
 
 
