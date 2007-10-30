@@ -728,8 +728,8 @@ $self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified 
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } ::DISPATCH( [ map { $_->emit_parrot() } @{ ::DISPATCH( $self, "body" )
- } ]
+};{ my $_param_index = 0; } ::DISPATCH( ::DISPATCH( $::Array, "new", { _array => [ map { ::DISPATCH( $_, "emit_parrot", ) } @{ ::DISPATCH( ::DISPATCH( $self, "body" )
+, "array" )->{_value}{_array} } ] } )
 , 'join', ::DISPATCH( $::Str, 'new', ' ' )
  )
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => bless( {
@@ -2013,8 +2013,8 @@ $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $self, "method" )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '( $_, ' )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ', ' )
-, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( [ map { $_->emit_parrot() } @{ ::DISPATCH( $self, "arguments" )
- } ]
+, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $::Array, "new", { _array => [ map { ::DISPATCH( $_, "emit_parrot", ) } @{ ::DISPATCH( ::DISPATCH( $self, "arguments" )
+, "array" )->{_value}{_array} } ] } )
 , 'join', ::DISPATCH( $::Str, 'new', '' )
  )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ')' )
@@ -2037,8 +2037,8 @@ $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "invocant" )
 , 'emit_parrot',  )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ', ' )
-, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( [ map { $_->emit_parrot() } @{ ::DISPATCH( $self, "arguments" )
- } ]
+, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $::Array, "new", { _array => [ map { ::DISPATCH( $_, "emit_parrot", ) } @{ ::DISPATCH( ::DISPATCH( $self, "arguments" )
+, "array" )->{_value}{_array} } ] } )
 , 'join', ::DISPATCH( $::Str, 'new', '' )
  )
 , ::DISPATCH( $::Str, 'new', ')' )
@@ -2061,8 +2061,8 @@ $meth = ::DISPATCH( $::Str, 'new', '' )
 ; do {::MODIFIED($call);
 $call = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '->' )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $meth, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '(' )
-, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( [ map { $_->emit_parrot() } @{ ::DISPATCH( $self, "arguments" )
- } ]
+, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $::Array, "new", { _array => [ map { ::DISPATCH( $_, "emit_parrot", ) } @{ ::DISPATCH( ::DISPATCH( $self, "arguments" )
+, "array" )->{_value}{_array} } ] } )
 , 'join', ::DISPATCH( $::Str, 'new', '' )
  )
 , ::DISPATCH( $::Str, 'new', ')' )
@@ -2336,8 +2336,8 @@ $code = ::DISPATCH( $self, "code" )
  } }  else { ::DISPATCH($::Bit, "new", 0) } }
 ; do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $code, ::DISPATCH( $::Str, 'new', 'say' )
  )
-,"true"),"p5landish") ) { do { return(::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( [ map { $_->emit_parrot() } @{ ::DISPATCH( $self, "arguments" )
- } ]
+,"true"),"p5landish") ) { do { return(::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $::Array, "new", { _array => [ map { ::DISPATCH( $_, "emit_parrot", ) } @{ ::DISPATCH( ::DISPATCH( $self, "arguments" )
+, "array" )->{_value}{_array} } ] } )
 , 'join', ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '  print $P0' )
 , ::DISPATCH( $Main::Code_newline, 'APPLY',  )
  )
@@ -2362,8 +2362,8 @@ $code = ::DISPATCH( $self, "code" )
  } }  else { ::DISPATCH($::Bit, "new", 0) } }
 ; do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $code, ::DISPATCH( $::Str, 'new', 'print' )
  )
-,"true"),"p5landish") ) { do { return(::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( [ map { $_->emit_parrot() } @{ ::DISPATCH( $self, "arguments" )
- } ]
+,"true"),"p5landish") ) { do { return(::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $::Array, "new", { _array => [ map { ::DISPATCH( $_, "emit_parrot", ) } @{ ::DISPATCH( ::DISPATCH( $self, "arguments" )
+, "array" )->{_value}{_array} } ] } )
 , 'join', ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '  print $P0' )
 , ::DISPATCH( $Main::Code_newline, 'APPLY',  )
  )
@@ -3213,8 +3213,8 @@ $id = $label}; return(::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
 , 'emit_parrot',  )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '  unless $P0 goto ifelse' )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $id, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $Main::Code_newline, 'APPLY',  )
-, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( [ map { $_->emit_parrot() } @{ ::DISPATCH( $self, "body" )
- } ]
+, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $::Array, "new", { _array => [ map { ::DISPATCH( $_, "emit_parrot", ) } @{ ::DISPATCH( ::DISPATCH( $self, "body" )
+, "array" )->{_value}{_array} } ] } )
 , 'join', ::DISPATCH( $::Str, 'new', '' )
  )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '  goto ifend' )
@@ -3222,8 +3222,8 @@ $id = $label}; return(::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', 'ifelse' )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $id, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ':' )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $Main::Code_newline, 'APPLY',  )
-, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( [ map { $_->emit_parrot() } @{ ::DISPATCH( $self, "otherwise" )
- } ]
+, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $::Array, "new", { _array => [ map { ::DISPATCH( $_, "emit_parrot", ) } @{ ::DISPATCH( ::DISPATCH( $self, "otherwise" )
+, "array" )->{_value}{_array} } ] } )
 , 'join', ::DISPATCH( $::Str, 'new', '' )
  )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', 'ifend' )
@@ -3552,8 +3552,8 @@ $i = ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $i, ::DISPATCH( $
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $invocant, 'full_name',  )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '\\\', self' )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $Main::Code_newline, 'APPLY',  )
-, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( [ map { $_->emit_parrot() } @{ ::DISPATCH( $self, "block" )
- } ]
+, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $::Array, "new", { _array => [ map { ::DISPATCH( $_, "emit_parrot", ) } @{ ::DISPATCH( ::DISPATCH( $self, "block" )
+, "array" )->{_value}{_array} } ] } )
 , 'join', ::DISPATCH( $::Str, 'new', '' )
  )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '.end' )
@@ -3703,8 +3703,8 @@ $i = ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $i, ::DISPATCH( $
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $Main::Code_newline, 'APPLY',  )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '  .param pmc params  :slurpy' )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $Main::Code_newline, 'APPLY',  )
-, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( [ map { $_->emit_parrot() } @{ ::DISPATCH( $self, "block" )
- } ]
+, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $::Array, "new", { _array => [ map { ::DISPATCH( $_, "emit_parrot", ) } @{ ::DISPATCH( ::DISPATCH( $self, "block" )
+, "array" )->{_value}{_array} } ] } )
 , 'join', ::DISPATCH( $::Str, 'new', '' )
  )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '.end' )
@@ -3767,8 +3767,8 @@ $self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified 
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } ::DISPATCH( [ map { $_->emit_parrot() } @{ ::DISPATCH( $self, "block" )
- } ]
+};{ my $_param_index = 0; } ::DISPATCH( ::DISPATCH( $::Array, "new", { _array => [ map { ::DISPATCH( $_, "emit_parrot", ) } @{ ::DISPATCH( ::DISPATCH( $self, "block" )
+, "array" )->{_value}{_array} } ] } )
 , 'join', ::DISPATCH( $::Str, 'new', '' )
  )
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => bless( {
