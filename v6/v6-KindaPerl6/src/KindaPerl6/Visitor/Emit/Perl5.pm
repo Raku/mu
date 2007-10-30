@@ -406,7 +406,7 @@ class Call {
         my $call := (@.arguments.>>emit_perl5).join(', ');
         if ($.hyper) {
             # TODO - hyper + role
-            '[ map { $_' ~ '->' ~ $meth ~ '(' ~ $call ~ ') } @{ ' ~ $invocant ~ ' } ]' ~ Main::newline();
+            '[ map { ::DISPATCH( $_, "' ~ $meth ~ '", ' ~ $call ~ ') } @{ ' ~ $invocant ~ ' } ]' ~ Main::newline();
         }
         else {
             if ( $meth eq '' ) {

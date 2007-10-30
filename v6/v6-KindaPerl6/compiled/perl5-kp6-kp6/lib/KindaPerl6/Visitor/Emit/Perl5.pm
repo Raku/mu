@@ -562,7 +562,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
 };{ my $_param_index = 0; } ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '(' )
-, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( [ map { $_->emit_perl5() } @{ ::DISPATCH( $self, "seq" )
+, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( [ map { ::DISPATCH( $_, "emit_perl5", ) } @{ ::DISPATCH( $self, "seq" )
  } ]
 , 'join', ::DISPATCH( $::Str, 'new', ', ' )
  )
@@ -607,7 +607,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
 };{ my $_param_index = 0; } ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '{ _array => [' )
-, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( [ map { $_->emit_perl5() } @{ ::DISPATCH( $self, "array" )
+, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( [ map { ::DISPATCH( $_, "emit_perl5", ) } @{ ::DISPATCH( $self, "array" )
  } ]
 , 'join', ::DISPATCH( $::Str, 'new', ', ' )
  )
@@ -1003,7 +1003,7 @@ $self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified 
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } ::DISPATCH( [ map { $_->emit_perl5() } @{ ::DISPATCH( $self, "body" )
+};{ my $_param_index = 0; } ::DISPATCH( [ map { ::DISPATCH( $_, "emit_perl5", ) } @{ ::DISPATCH( $self, "body" )
  } ]
 , 'join', ::DISPATCH( $::Str, 'new', '; ' )
  )
@@ -1827,18 +1827,16 @@ $meth = ::DISPATCH( $self, "method" )
 $meth = ::DISPATCH( $::Str, 'new', '' )
 } } }  else { ::DISPATCH($::Bit, "new", 0) } }
 ; do {::MODIFIED($call);
-$call = ::DISPATCH( [ map { $_->emit_perl5() } @{ ::DISPATCH( $self, "arguments" )
+$call = ::DISPATCH( [ map { ::DISPATCH( $_, "emit_perl5", ) } @{ ::DISPATCH( $self, "arguments" )
  } ]
 , 'join', ::DISPATCH( $::Str, 'new', ', ' )
  )
 }; do { if (::DISPATCH(::DISPATCH(::DISPATCH( $self, "hyper" )
-,"true"),"p5landish") ) { do { ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '[ map { $_' )
-, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '->' )
-, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $meth, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '(' )
+,"true"),"p5landish") ) { do { ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '[ map { ::DISPATCH( $_, "' )
+, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $meth, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '", ' )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $call, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ') } @{ ' )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $invocant, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' } ]' )
 , ::DISPATCH( $Main::Code_newline, 'APPLY',  )
- )
  )
  )
  )
@@ -1921,7 +1919,7 @@ $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "code" )
 , 'emit_perl5',  )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ', \\\'APPLY\\\', ' )
-, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( [ map { $_->emit_perl5() } @{ ::DISPATCH( $self, "arguments" )
+, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( [ map { ::DISPATCH( $_, "emit_perl5", ) } @{ ::DISPATCH( $self, "arguments" )
  } ]
 , 'join', ::DISPATCH( $::Str, 'new', ', ' )
  )

@@ -557,7 +557,7 @@ sub emit_perl5 {
     };
     my $call = Main::join( [ map { $_->emit_perl5() } @{ $self->{arguments} } ], ', ' );
     do {
-        if ( $self->{hyper} ) { ( '[ map { $_' . ( '->' . ( $meth . ( '(' . ( $call . ( ') } @{ ' . ( $invocant . ( ' } ]' . Main::newline() ) ) ) ) ) ) ) ) }
+        if ( $self->{hyper} ) { ( '[ map { ::DISPATCH( $_, "' . ( $meth . ( '", ' . ( $call . ( ') } @{ ' . ( $invocant . ( ' } ]' . Main::newline() ) ) ) ) ) ) ) }
         else {
             do {
                 if ( ( $meth eq '' ) ) { ( '::DISPATCH( ' . ( $invocant . ( ', \'APPLY\', ' . ( $call . ( ' )' . Main::newline() ) ) ) ) ) }
