@@ -1,3 +1,6 @@
+# WARNING: This file is no longer used by PCR itself;
+# we're using examples/Grammar.grammar to generate Pugs::Grammar::Rule.pmc
+# instead.
 
 use v6-alpha;
 use utf8;

@@ -993,7 +993,7 @@ sub metasyntax {
     # <cmd>
     #print Dumper(\@_);
     my $cmd = $_[0]{metasyntax};
-    my $modifier = delete $_[0]{modifier} || '';   # ? !
+    my $modifier = delete $_[0]{modifier} || '';   # . ? !
     return negate( { metasyntax => $_[0], _pos => $_[0]{_pos} }, $_[1] ) if $modifier eq '!';
 
     my $prefix = substr( $cmd, 0, 1 );
@@ -1138,6 +1138,8 @@ $_[1] ## </metasyntax>\n";
             $_[1],
         );
     }
+    #### $prefix
+    #### $modifier
     #if ( $prefix eq '.' ) {
     #    my ( $method, $param_list ) = split( /[\(\)]/, $cmd );
     #    $method =~ s/^\.//;
