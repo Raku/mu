@@ -19,13 +19,13 @@ There are several key functions used though this package.
 
 =item &::MODIFIED
 
-=item &::CAPTURIZE
+=item &::CAPTURIZE (moved to Runtime::Perl5::GLOBAL.pm)
 
 =item %::PROTO
 
 =back
 
-=head2 Entities used else where.
+=head2 Entities used elsewhere.
 
 These objects are primarly a hash that is accessed via &::DISPATCH, the method
 dispatcher is $object->{'_dispatch'}.   $object is blessed into
@@ -184,6 +184,16 @@ sub ::DISPATCH_VAR {
     confess "DISPATCH_VAR:calling @_ on invalid object:",Dumper($invocant),"\n"
         unless $invocant->{_dispatch_VAR};
     $invocant->{_dispatch_VAR}($invocant,@_);
+}
+
+=head2 ::MODIFIED
+
+ marks the variable as modified, such that we can track side-effects in BEGIN blocks
+
+=cut
+
+sub ::MODIFIED {
+    $_[0]{_value}{modified}{ $_[0]{_value}{name} } = 1;
 }
 
 =head2 make_class
@@ -404,7 +414,7 @@ Basic (private) methods for all objects.
 
 =head2 $method_new
 
-a closure for quickly defining B<new>.
+a Method instance, implements B<.new>.
 
 =cut
 
@@ -438,7 +448,7 @@ my $method_new = sugar {
 
 =head2 $method_APPLY
 
-a closure for quickly defining B<APPLY>.
+a Method instance, implements B<.APPLY>.
 
 =cut
 
@@ -519,7 +529,7 @@ $::Method = sugar {
     _isa => [$meta_Method],
 };
 
-# add new & APPY methods into the parent list. (Defaults?)
+# add .new & .APPLY methods into the parent list. (Defaults?)
 # (14:54:54) fglock: at lines 513, 514 - the two Methods in the Method Class are
 # told that they belong themselves to the Method class
 # http://irclog.perlgeek.de/perl6/2007-10-30#i_134431
@@ -537,7 +547,7 @@ $meta_Method->{_value}{methods}{HOW}  = ::DISPATCH( $::Method, 'new',  sub { $me
 
 =head2 $meta_Object
 
-A meta_Object
+a Class instance, implements Object
 
 =cut
 
@@ -603,9 +613,7 @@ $::Object = sugar {
 
 =head2 $meta_Class
 
-This is what appromixiately $meta_Class looks like after the below editing
-sub { "DUMMY" } was put in by Data::Dumper.
-_isa, shoudl be though of like package @ISA, ie, it looks back though the
+_isa, should be thought of like package @ISA, ie, it looks back though the
 _isa(s), to find a method that actually has the method name needed, before
 calling.  I believe that the method name is called on the current context
 the original $object->{ _dispatch }
@@ -626,6 +634,7 @@ my $meta_Class = sugar {
 # push $meta_Class into it's own parent listing
 push @{ $meta_Class->{_isa} }, $meta_Class;
 
+# adds the 'add_method' method
 $meta_Class->{_value}{methods}{add_method} =
     ::DISPATCH( $::Method, 'new',
     { code => sub {
@@ -866,9 +875,6 @@ $meta_Value->add_method(
     )
 );
 
-# $meta_Value->add_method( 'IS_ARRAY',     ::DISPATCH( $::Method, 'new',  sub { 0 } ) );
-# $meta_Value->add_method( 'IS_HASH',      ::DISPATCH( $::Method, 'new',  sub { 0 } ) );
-# $meta_Value->add_method( 'IS_CONTAINER', ::DISPATCH( $::Method, 'new',  sub { 0 } ) );
 # -- FETCH is implemented in Object
 $meta_Value->add_method( 'FETCH',        ::DISPATCH( $::Method, 'new',  sub { $_[0] } ) );
 
@@ -1137,7 +1143,7 @@ $meta_Object->add_method(
     )
 );
 
-# add new to $meta_Object
+# add .Str to $meta_Object
 $meta_Object->add_method(
     'Str',
     ::DISPATCH( $::Method, 'new',
@@ -1148,7 +1154,7 @@ $meta_Object->add_method(
     )
 );
 
-# new for Int
+# add .Int
 $meta_Object->add_method(
     'Int',
     ::DISPATCH( $::Method, 'new',
@@ -1158,7 +1164,7 @@ $meta_Object->add_method(
     )
 );
 
-# new for "true" (bit)
+# add .true (Bit)
 $meta_Object->add_method(
     'true',
     ::DISPATCH( $::Method, 'new',
@@ -1168,7 +1174,7 @@ $meta_Object->add_method(
     )
 );
 
-# new for defined (bit)
+# add .defined (Bit)
 $meta_Object->add_method(
     'defined',
     ::DISPATCH( $::Method, 'new',
@@ -1320,10 +1326,6 @@ $meta_Code->add_method( 'APPLY',
         }
     )
 ) );
-# $meta_Code->add_method( 'signature',
-#     ::DISPATCH( $::Method, 'new',  sub { $_[0]{_value}{signature} } ) );
-# $meta_Code->add_method( 'code',
-#     ::DISPATCH( $::Method, 'new',  sub { $_[0] } ) );
 $meta_Code->add_method( 'p5landish',
     ::DISPATCH( $::Method, 'new',  sub { $_[0]{_value}{code} } ) );
 
@@ -1453,9 +1455,6 @@ $::meta_Container->add_method(
         } }
     )
 );
-sub ::MODIFIED {
-    $_[0]{_value}{modified}{ $_[0]{_value}{name} } = 1;
-}
 $::meta_Container->add_method(
     'BIND',
     ::DISPATCH( $::Method, 'new',
@@ -1744,13 +1743,6 @@ none
 $::Hash
     = make_class( proto => $::Hash, name=>"Hash", methods=>{} );
 
-require KindaPerl6::Runtime::Perl6::Pair;
-require KindaPerl6::Runtime::Perl5::Pair;
-require KindaPerl6::Runtime::Perl6::NamedArgument;
-
-#require KindaPerl6::Runtime::Perl6::Pair;
-#require KindaPerl6::Runtime::Perl6::NamedArgument;
-
 =head2 $::Cell
 
 =head3 Parents:
@@ -1888,73 +1880,6 @@ $::ArrayCell = make_class( proto => $::ArrayCell, name=>"ArrayCell",parent=>[$::
         },
 });
 
-require KindaPerl6::Runtime::Perl6::Hash;
-require KindaPerl6::Runtime::Perl5::Hash;
-
-require KindaPerl6::Runtime::Perl6::Array;
-require KindaPerl6::Runtime::Perl5::Array;
-
-require KindaPerl6::Runtime::Perl6::List;
-require KindaPerl6::Runtime::Perl5::List;
-
-require KindaPerl6::Runtime::Perl6::Capture;
-require KindaPerl6::Runtime::Perl6::Signature;
-require KindaPerl6::Runtime::Perl6::Match;
-require KindaPerl6::Runtime::Perl6::Int;
-
-
-sub ::CAPTURIZE {
-    my @array;
-    my %hash;
-
-    #print "# CAPTURIZE: now at Code == $::ROUTINE \n";
-    #my $signature = ::DISPATCH( ::DISPATCH( $::ROUTINE, 'signature' ), 'array' );
-    # -- get the signature specification
-    #my @sigs = @{ $signature->{_value}{_array} };
-    #print "# sig = @{[ keys %{ $sigs[0] } ]} \n";
-    # -- get the runtime parameter list
-    my @params = @{ $_[0] };
-
-    # match the parameter list to the signature specification
-    # XXX TODO
-    for my $p ( @params ) {
-        #print "param @{[ keys( %{ $p->{_value} } ) ]} \n";
-        if (
-
-            # XXX .does bug?
-            # ::DISPATCH( $p, 'does', ::DISPATCH( $::Str, 'new', 'Pair' ) )
-            # ::DISPATCH( $p, 'does', $::Pair )
-
-               eval { exists( $p->{_value}{_argument_name_} ) }
-
-           ) {
-                my $key = ::DISPATCH( ::DISPATCH( $p, '_argument_name_' ), 'Str' )->{_value};
-                #print "named: $key \n";
-                my $value = ::DISPATCH( $p, 'value' );
-                #print "value: $value \n";
-                $hash{ $key } = $value;
-                #print "return\n";
-        }
-        else {
-                #print "positional: ", ::DISPATCH( $p, 'Str' )->{_value} ," \n";
-                push @array, $p;
-        }
-    }
-    ::DISPATCH( $::Capture, 'new', {
-            invocant => undef,  # TODO
-            array =>
-                ::DISPATCH( $::Array, 'new', {
-                        _array => \@array,
-                    }
-                ),
-            hash =>
-                ::DISPATCH( $::Hash, 'new', {
-                        _hash => \%hash,
-                    }
-                ),
-        }
-    )
-}
 
 =head2 $::Multi
 

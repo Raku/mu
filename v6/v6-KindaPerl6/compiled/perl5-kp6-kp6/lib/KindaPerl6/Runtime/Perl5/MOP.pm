@@ -1,6 +1,99 @@
-=head1 MOP.pm
+=head1 NAME
 
 MOP = Meta Object Protocol
+
+=head1 SYNOPSIS
+
+Meta Object Protocol provides the basic infrastructure for objects and
+variables.
+
+=head1 DESCRIPTION
+
+There are several key functions used though this package.
+
+=head2 Internal macros
+
+=over
+
+=item &::DISPATCH
+
+=item &::MODIFIED
+
+=item &::CAPTURIZE (moved to Runtime::Perl5::GLOBAL.pm)
+
+=item %::PROTO
+
+=back
+
+=head2 Entities used elsewhere.
+
+These objects are primarly a hash that is accessed via &::DISPATCH, the method
+dispatcher is $object->{'_dispatch'}.   $object is blessed into
+KindaPerl6::Runtime::Perl5::DispatchSugar.
+
+=over
+
+=item $::Class
+
+=item $::Method
+
+=item $::Role
+
+=item $::Object
+
+=item $::List
+
+=item $::Subset
+
+=item $::Array
+
+=item $::ArrayCell
+
+=item $::ArrayContainer
+
+=item $::Hash
+
+=item $::Cell
+
+=item $::HashCell
+
+=item $::Scalar
+
+=item $::Bit
+
+=item $::Code
+
+=item $::Int
+
+=item $::Num
+
+=item $::Str
+
+=item $::Value
+
+=item $::Undef
+
+=item $::Container
+
+=item $::Multi
+
+=item $::Routine
+
+=item $::Signature
+
+=item $::Signature::Item
+
+=back
+
+=head2 Notes
+
+=over
+
+=item .WHAT & .HOW
+
+http://feather.perl6.nl/syn/S12.html#Introspection
+
+=back
 
 =cut
 
@@ -17,7 +110,10 @@ use Data::Dumper;
 use Carp qw(confess);
 use UNIVERSAL;
 
-=for some possible later use
+=begin notes
+
+# for some possible later use
+
     {
         package P6opaque;
         # This is the most minimal object system, which could be used by the high-level implementation
@@ -28,24 +124,91 @@ use UNIVERSAL;
         };
         $methods->{new} = sub { my $class = shift;  my $v = sugar { _dispatch => $dispatch, $_[0]{_value}, @_ } };
     }
+
+=end notes
+
+=head2 ::DISPATCH
+
+This is scoped into the main:: package.
+
+Sample call:
+
+ ::DISPATCH( $object, @args )
+
+If $object->{ _dispatch } does not exist this object dies with a notice that
+$object is not valid.
+
+ $object->{ _dispatch } is a method dispatcher.
+
+ $object = KindaPerl6::Runtime::Perl5::DispatchSugar::sugar {
+     _dispatch => sub { ... };
+
+returns the results of $object->{ _dispatch }( $object, @args )
+
+ Example calls
+
+ ::DISPATCH($::Undef,'new',0);
+
+ Translates to
+
+ return a new Undef class with value 0  or $::Undef->new(0);
+
+ ::DISPATCH( $::Bit, 'new', exists ${ $_[0]{_value}{cell} }{ $_[0]{_value}{key} } ? 1 : 0 )
+
+ Translates to
+
+ return a new Bit class with the result of the expression "exists ${ ... } ? 1 : 0 "
+
 =cut
 
 # sugar routines
 
 sub ::DISPATCH {
     my $invocant = shift;
+
     unless ($invocant->{_dispatch}) {
         confess "DISPATCH: calling @_ on invalid object:",Dumper($invocant),"\n"
     }
     $invocant->{_dispatch}($invocant,@_);
 }
 
+=head2 ::DISPATCH_VAR
+
+ similar to _dispatch, except calls $invocant->_dispatch_VAR()
+
+=cut
+
 sub ::DISPATCH_VAR {
     my $invocant = shift;
+
     confess "DISPATCH_VAR:calling @_ on invalid object:",Dumper($invocant),"\n"
         unless $invocant->{_dispatch_VAR};
     $invocant->{_dispatch_VAR}($invocant,@_);
 }
+
+=head2 ::MODIFIED
+
+ marks the variable as modified, such that we can track side-effects in BEGIN blocks
+
+=cut
+
+sub ::MODIFIED {
+    $_[0]{_value}{modified}{ $_[0]{_value}{name} } = 1;
+}
+
+=head2 make_class
+
+ make_class( methods => { method1 => ???, method2 => ???, ...  },
+             attributes => [ attribute1 => ???, attribute2 => ???, ...  ],
+             parents => [ parent => ???, parent2 => ???, ... ],
+             proto => $proto
+ );
+
+ $proto is created via DispatchSugar, as $proto->{ _dispatch } is required
+
+ See Also: %::PROTO (in this file)
+
+=cut
 
 sub make_class {
     my %args = @_;
@@ -54,23 +217,40 @@ sub make_class {
             defined( $proto ) && ::DISPATCH( $proto, 'HOW' )
         )
         || ::DISPATCH( $::Class, 'new', $args{name});
+
     my %methods = %{$args{methods}};
     while (my ($method_name,$sub) = each %methods) {
         ::DISPATCH($meta,"redefine_method",$method_name,::DISPATCH( $::Method, 'new', { code => $sub } ));
     }
+
     for my $attribute_name (@{$args{attributes}}) {
         ::DISPATCH($meta,"add_attribute",$attribute_name);
     }
+
     for my $parent (@{$args{parents}}) {
         ::DISPATCH($meta,"add_parent",$parent);
     }
+
     return ::DISPATCH($meta,"PROTOTYPE");
 }
 
-
 # MOP implementation
 
+# see below for defintion: search for "$meta_Object = "
 my $meta_Object;
+
+=head2 get_method_from_metaclass
+
+$object->get_method_from_metaclass( $method_name );
+
+returns the method for $method_name will go though the parent(s) B<{ _isa }> to
+find $method_name
+
+returns undef on failure
+
+TODO: Should this "return;" intead of returning undef explicitly?
+
+=cut
 
 sub get_method_from_metaclass {
     my ( $self, $method_name ) = ( shift, shift );
@@ -86,11 +266,27 @@ sub get_method_from_metaclass {
     }
     return undef;
 }
+
+=head2 get_method_from_object
+
+$object->get_method_from_object( $method_name )
+
+returns the method for $method_name will go though the parent(s) AND
+B<$meta_Object> to find $method_name
+
+returns undef on failure
+
+TODO: Should this "return;" intead of returning undef explicitly?
+
+=cut
+
 sub get_method_from_object {
     my ( $self, $method_name ) = ( shift, shift );
+
     # lookup local methods
     return $self->{_methods}{$method_name}
       if exists $self->{_methods}{$method_name};
+
     # lookup method in the metaclass
     for my $parent ( @{ $self->{_isa} }, $meta_Object ) {
         my $m = get_method_from_metaclass( $parent, $method_name );
@@ -100,6 +296,13 @@ sub get_method_from_object {
     }
     return undef;
 }
+
+=head2 $dispatch
+
+This closure is put into %::PROTO = ( _dispatch => $dispatch ).  $dispatch
+is also used in various places to well, dispatch calls.
+
+=cut
 
 my $dispatch = sub {
     # $method_name is unboxed
@@ -148,6 +351,25 @@ my $dispatch = sub {
     return $meth->{_value}->( $self, @_ );
 };
 
+=head2 $::dispatch_VAR
+
+this closure is used in various places for making "variables" work like plain
+objects.
+
+That is, if a method is dispatched through $::dispatch_VAR, it gets executed
+on the $variable, not on the $variable contents.
+
+used in KindaPerl6/Runtime/Perl5/
+ Hash.pm
+ List.pm
+ Array.pm
+ GLOBAL.pm
+ MOP.pm
+
+The &GLOBAL::VAR function in GLOBAL.pm provides a Perl 6 API for dispatch_VAR
+
+=cut
+
 $::dispatch_VAR = sub {
     # VAR() is just like CALL(), but it doesn't call FETCH
     # $method_name is unboxed
@@ -162,13 +384,27 @@ $::dispatch_VAR = sub {
     return $meth->{_value}{code}->( $self, @_ );
 };
 
+=head2 %::PROTO
+
+Basic (private) methods for all objects.
+
+ %::PROTO = {
+     '_methods'    => undef, # hash
+     '_roles'      => undef  # hash
+     '_value'      => undef, # whatever | %attributes
+     '_isa'        => undef, # array
+     '_dispatch'   => $dispatch, # see MOP.pm $dispatch = sub { ...
+ };
+
+=cut
+
 %::PROTO = (
     _methods  => undef,    # hash
     _roles    => undef,    # hash
     # _modified => undef,
     _value    => undef,       # whatever | %attributes
     _isa      => undef,       # array
-    _dispatch => $dispatch,
+    _dispatch => $dispatch,   # obtained from the $dispatch = sub {} above.
 );
 
 #--- Method
@@ -176,8 +412,14 @@ $::dispatch_VAR = sub {
 # XXX 'Method' is actually a container, it should probably inherit from Routine,
 #     and it would be better if the internals matched Routine's
 
+=head2 $method_new
+
+a Method instance, implements B<.new>.
+
+=cut
+
 my $method_new = sugar {
-    %::PROTO,
+    %::PROTO, # provides _methods, _roles, _value, _isa, _dispatch.
     _value => { code =>
             sub {
                 my $v = sugar {
@@ -203,8 +445,15 @@ my $method_new = sugar {
             }
     },
 };
+
+=head2 $method_APPLY
+
+a Method instance, implements B<.APPLY>.
+
+=cut
+
 my $method_APPLY = sugar {
-    %::PROTO,
+    %::PROTO, # provides _methods, _roles, _value, _isa, _dispatch.
     _value => # { code =>
             sub {
                 my $meth = shift;
@@ -213,8 +462,18 @@ my $method_APPLY = sugar {
         # },
 };
 
+=head2 $meta_Method
+
+$meta_Method contains the "Class" object for Method.
+$::Method contains the "Prototype object" for Method
+which means it is a Method object with value "undef"
+
+# http://irclog.perlgeek.de/perl6/2007-10-30#i_134420
+
+=cut
+
 my $meta_Method = sugar {
-    %::PROTO,
+    %::PROTO, # provides _methods, _roles, _value, _isa, _dispatch.
     _value => {
         methods  => {
             new   => $method_new,
@@ -223,30 +482,127 @@ my $meta_Method = sugar {
         class_name => 'Method',
     },
 };
+
+=head2 $::Method
+
+$::Method is a KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch object
+consisting of multiple nested KindaPerl6::..::Dispatch objects.
+
+ $::Method = \bless(
+     {   '_methods' => {},
+         '_value'    => undef,
+         '_roles'    => ${$::Method}->{'_isa'}->[0]->{'_isa'}->[0]->{'_value'}->{'methods'}->{'add_role'}->{'_roles'},
+         '_dispatch' => ${$::Method}->{'_isa'}->[0]->{'_isa'}->[0]->{'_value'}->{'methods'}->{'add_role'}->{'_dispatch'},
+         '_isa'     => [ $meta_Method ]
+     },
+     'KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch'
+ );
+
+=head3 Parents:
+
+=over
+
+=item $::meta_Routine
+
+Located near end of file
+
+=back
+
+=head3 Attributes:
+
+none
+
+=head3 Methods:
+
+=over
+
+=item $::Method->signature
+
+Located near end of file
+
+=back
+
+=cut
+
 $::Method = sugar {
-    %::PROTO,
+    %::PROTO, # provides _methods, _roles, _value, _isa, _dispatch.
     _isa => [$meta_Method],
 };
+
+# add .new & .APPLY methods into the parent list. (Defaults?)
+# (14:54:54) fglock: at lines 513, 514 - the two Methods in the Method Class are
+# told that they belong themselves to the Method class
+# http://irclog.perlgeek.de/perl6/2007-10-30#i_134431
+
 push @{ $method_new->{_isa} },   $meta_Method;
 push @{ $method_APPLY->{_isa} }, $meta_Method;
+
 $meta_Method->{_value}{methods}{WHAT} = ::DISPATCH( $::Method, 'new',  sub { $::Method } );
 $meta_Method->{_value}{methods}{HOW}  = ::DISPATCH( $::Method, 'new',  sub { $meta_Method } );
 
 #--- Object
 
+# $meta_Object was declared above.
 # my $meta_Object;
+
+=head2 $meta_Object
+
+a Class instance, implements Object
+
+=cut
+
 $meta_Object = sugar {
-    %::PROTO,
+    %::PROTO, # provides _methods, _roles, _value, _isa, _dispatch.
 
     # _name     => $_[3],
     _value => { class_name => 'Object', },
 };
+
 $meta_Object->{_value}{methods}{WHAT} = ::DISPATCH( $::Method, 'new',  sub { $::Object } );
 $meta_Object->{_value}{methods}{HOW}  = ::DISPATCH( $::Method, 'new',  sub { $meta_Object } );
 $meta_Object->{_value}{methods}{new}  = $method_new;
 
+=head2 $::Object
 
-$::Object                             = sugar {
+$::Object is a KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch object
+
+=head3 Parents
+
+none
+
+=head3 Attributes
+
+none
+
+=head3 Methods
+
+=over
+
+=item isa
+
+=item does
+
+=item Str
+
+=item Int
+
+=item true
+
+=item defined
+
+=item FETCH
+
+no op
+
+=item STORE
+
+will die, this is read only.
+
+=back
+
+=cut
+
+$::Object = sugar {
     %::PROTO,
 
     # _name     => '$::Object',
@@ -255,15 +611,30 @@ $::Object                             = sugar {
 
 #--- Class
 
+=head2 $meta_Class
+
+_isa, should be thought of like package @ISA, ie, it looks back though the
+_isa(s), to find a method that actually has the method name needed, before
+calling.  I believe that the method name is called on the current context
+the original $object->{ _dispatch }
+
+See bottom of document for an example $meta_Class
+
+=cut
+
 my $meta_Class = sugar {
-    %::PROTO,
+    %::PROTO, # provides _methods, _roles, _value, _isa, _dispatch.
       _value => {
         methods    => {},
         roles      => {},
         class_name => 'Class',
       },
 };
+
+# push $meta_Class into it's own parent listing
 push @{ $meta_Class->{_isa} }, $meta_Class;
+
+# adds the 'add_method' method
 $meta_Class->{_value}{methods}{add_method} =
     ::DISPATCH( $::Method, 'new',
     { code => sub {
@@ -273,6 +644,7 @@ $meta_Class->{_value}{methods}{add_method} =
         $_[0]{_value}{methods}{$meth_name} = $_[2];
     } }
 );
+
 $meta_Class->add_method(
     'redefine_method',
     ::DISPATCH( $::Method, 'new',
@@ -282,6 +654,7 @@ $meta_Class->add_method(
         } }
     )
 );
+
 $meta_Class->add_method(
     'add_role',
     ::DISPATCH( $::Method, 'new',
@@ -333,6 +706,8 @@ $meta_Class->add_method(
         } }
     )
 );
+
+# WHAT & HOW ( See: http://feather.perl6.nl/syn/S12.html#Introspection )
 $meta_Class->add_method( 'WHAT', ::DISPATCH( $::Method, 'new', { code => sub { $::Class    } } ) );
 $meta_Class->add_method( 'HOW',  ::DISPATCH( $::Method, 'new', { code => sub { $meta_Class } } ) );
 $meta_Class->add_method( 'add_parent',
@@ -351,6 +726,7 @@ $meta_Class->add_method( 'methods',
             );
         } } )
 );
+
 $meta_Class->add_method( 'attributes',
     ::DISPATCH( $::Method, 'new',
         { code => sub {
@@ -364,6 +740,7 @@ $meta_Class->add_method( 'attributes',
             );
         } } )
 );
+
 $meta_Class->add_method(
     'new',
     ::DISPATCH( $::Method, 'new',
@@ -372,14 +749,14 @@ $meta_Class->add_method(
             my $meta_class = $_[0];
             my $class_name = ref( $_[1] ) ? $_[1]{_value} : $_[1];
             my $self_meta = sugar {
-                      %::PROTO,
+                      %::PROTO, # provides _methods, _roles, _value, _isa, _dispatch.
                       _isa => [$meta_Class],
                       _value => {
                           class_name => $class_name,   # XXX should be ::Str
                       },
                 };
             my $proto = sugar {
-                      %::PROTO,
+                      %::PROTO, # provides _methods, _roles, _value, _isa, _dispatch.
                       _isa => [$self_meta],
                 };
             $self_meta->{_value}{methods}{WHAT} = ::DISPATCH( $::Method, 'new', sub { $proto } );
@@ -389,17 +766,66 @@ $meta_Class->add_method(
         } }
     )
 );
+
+=head2 $::Class
+
+$::Class is a KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch object
+consisting of multiple nested KindaPerl6::..::Dispatch objects.
+
+A $::Class object consists of $::Methods ($meta_Method?) objects
+
+Note: The method dispatcher in Class knows how to handle inheritance and roles.
+
+=head3 Parents
+
+none
+
+=head3 Attributes
+
+none
+
+=head3 Methods
+
+=over
+
+=item TODO: need to find the methods
+
+=back
+
+=cut
+
 $::Class = sugar {
-    %::PROTO,
+    %::PROTO, # provides _methods, _roles, _value, _isa, _dispatch.
       _isa => [$meta_Class],
 };
+
+# add $meta_Class into $meta_Method & $meta_Object parent tree
 push @{ $meta_Method->{_isa} }, $meta_Class;
 push @{ $meta_Object->{_isa} }, $meta_Class;
 #push @{$meta_Class->{_isa}}, $meta_Object;
 
 #--- Roles
 
+=head2 $::Role
+
+$::Role is a $::Class object
+
+=head3 Parents
+
+none
+
+=head3 Attributes
+
+none
+
+=head3 Methods
+
+All methods are the same as the ::Class methods
+
+=cut
+
 my $meta_Role = ::DISPATCH( $::Class, 'new', "Role");
+
 $::Role = $meta_Role->PROTOTYPE();
 
 # copy Class methods
@@ -407,8 +833,39 @@ $meta_Role->{_value}{methods} = { %{ $meta_Class->{_value}{methods} } };
 
 #--- Values
 
+# $meta_Value (sugar created via sugar, though $::Class)
 my $meta_Value = ::DISPATCH( $::Class, 'new', "Value");
+
+=head2 $::Value
+
+$::Value is a $::Class object
+
+=head3 Parents
+
+none
+
+=head3 Attributes
+
+none
+
+=head3 Methods
+
+=over
+
+=item WHICH
+
+=item p5landish
+
+=item print
+
+=item FETCH
+
+=back
+
+=cut
+
 $::Value = $meta_Value->PROTOTYPE();
+
 $meta_Value->add_method( 'WHICH', ::DISPATCH( $::Method, 'new', { code => sub { ::DISPATCH( $::Str, 'new', "$_[0]{_value}" ) } } ) );
 $meta_Value->add_method( 'p5landish', ::DISPATCH( $::Method, 'new', { code => sub { $_[0]{_value} } } ) );
 $meta_Value->add_method(
@@ -418,13 +875,39 @@ $meta_Value->add_method(
     )
 );
 
-# $meta_Value->add_method( 'IS_ARRAY',     ::DISPATCH( $::Method, 'new',  sub { 0 } ) );
-# $meta_Value->add_method( 'IS_HASH',      ::DISPATCH( $::Method, 'new',  sub { 0 } ) );
-# $meta_Value->add_method( 'IS_CONTAINER', ::DISPATCH( $::Method, 'new',  sub { 0 } ) );
 # -- FETCH is implemented in Object
 $meta_Value->add_method( 'FETCH',        ::DISPATCH( $::Method, 'new',  sub { $_[0] } ) );
 
 my $meta_Str = ::DISPATCH( $::Class, 'new', "Str");
+
+=head2 $::Str
+
+$::Str is a $::Class object
+
+=head3 Parents
+
+none
+
+=head3 Attributes
+
+none
+
+=head3 Methods
+
+=over
+
+=item perl
+
+=item Str
+
+=item true
+
+=item chars
+
+=back
+
+=cut
+
 $::Str = $meta_Str->PROTOTYPE();
 $meta_Str->add_parent($meta_Value);
 $meta_Str->add_method(
@@ -433,11 +916,14 @@ $meta_Str->add_method(
         { code => sub { my $v = ::DISPATCH( $::Str, 'new',  '\'' . $_[0]{_value} . '\'' ) } }
     )
 );
+
 $meta_Str->add_method(
     'Str',
     ::DISPATCH( $::Method, 'new',
         { code => sub { $_[0] } }
-    ) );
+    )
+);
+
 $meta_Str->add_method(
     'true',
     ::DISPATCH( $::Method, 'new',
@@ -447,6 +933,7 @@ $meta_Str->add_method(
         } }
     )
 );
+
 $meta_Str->add_method(
     'chars',
     ::DISPATCH( $::Method, 'new',
@@ -457,6 +944,35 @@ $meta_Str->add_method(
 );
 
 my $meta_Int = ::DISPATCH( $::Class, 'new', "Int");
+
+=head2 $::Int
+
+$::Int is a $::Class object
+
+=head3 Parents
+
+none
+
+=head3 Attributes
+
+none
+
+=head3 Methods
+
+=over
+
+=item perl
+
+=item increment
+
+=item Str
+
+=item true
+
+=back
+
+=cut
+
 $::Int = $meta_Int->PROTOTYPE();
 $meta_Int->add_parent($meta_Value);
 $meta_Int->add_method( 'perl',
@@ -470,6 +986,33 @@ $meta_Int->add_method( 'true',
     ::DISPATCH( $::Method, 'new',  sub { $::Bit->new( $_[0]{_value} == 0 ? 0 : 1 ) } ) );
 
 my $meta_Num = ::DISPATCH( $::Class, 'new', "Num");
+
+=head2 $::Num
+
+$::Num is a $::Class object
+
+=head3 Parents
+
+none
+
+=head3 Attributes
+
+none
+
+=head3 Methods
+
+=over
+
+=item perl
+
+=item Str
+
+=item true
+
+=back
+
+=cut
+
 $::Num = $meta_Num->PROTOTYPE();
 $meta_Num->add_parent($meta_Value);
 $meta_Num->add_method( 'perl',
@@ -481,6 +1024,35 @@ $meta_Num->add_method( 'true',
 
 
 my $meta_Bit = ::DISPATCH( $::Class, 'new', "Bit");
+
+=head2 $::Bit
+
+$::Bit is a $::Class object
+
+=head3 Parents
+
+$meta_Value
+
+=head3 Attributes
+
+none
+
+=head3 Methods
+
+=over
+
+=item Str
+
+=item true
+
+=item perl
+
+Note, this returns a string 'True' or 'False'
+
+=back
+
+=cut
+
 $::Bit = $meta_Bit->PROTOTYPE();
 $meta_Bit->add_parent($meta_Value);
 $meta_Bit->add_method(
@@ -570,6 +1142,8 @@ $meta_Object->add_method(
         }
     )
 );
+
+# add .Str to $meta_Object
 $meta_Object->add_method(
     'Str',
     ::DISPATCH( $::Method, 'new',
@@ -579,6 +1153,8 @@ $meta_Object->add_method(
         }
     )
 );
+
+# add .Int
 $meta_Object->add_method(
     'Int',
     ::DISPATCH( $::Method, 'new',
@@ -587,6 +1163,8 @@ $meta_Object->add_method(
         }
     )
 );
+
+# add .true (Bit)
 $meta_Object->add_method(
     'true',
     ::DISPATCH( $::Method, 'new',
@@ -595,6 +1173,8 @@ $meta_Object->add_method(
         }
     )
 );
+
+# add .defined (Bit)
 $meta_Object->add_method(
     'defined',
     ::DISPATCH( $::Method, 'new',
@@ -616,6 +1196,40 @@ $meta_Object->add_method( 'STORE', $method_readonly );
 
 #--- back to Value
 
+=head2 $::Undef
+
+=head3 Parents
+
+none
+
+=head3 Attributes
+
+none
+
+=head3 Methods
+
+=over
+
+=item perl
+
+returns $::Str 'undef' a string
+
+=item Str
+
+returns $::Str '' as a string
+
+=item true
+
+returns $::Bit 0
+
+=item defined
+
+returns $::Bit 0
+
+=back
+
+=cut
+
 $::Undef = make_class( proto => $::Undef, name=>"Undef",parents=>[$meta_Value],methods=>{
     perl    => sub { ::DISPATCH($::Str,'new','undef') },
     Str     => sub { ::DISPATCH($::Str,'new','') },
@@ -623,7 +1237,44 @@ $::Undef = make_class( proto => $::Undef, name=>"Undef",parents=>[$meta_Value],m
     defined => sub { ::DISPATCH($::Bit,'new',0) },
 });
 
+# $meta_code
 my $meta_Code = ::DISPATCH( $::Class, 'new', "Code");
+
+
+=head2 $::Code
+
+$::Code is a $::Class object
+
+=head3 Parents
+
+none
+
+=head3 Attributes
+
+=over
+
+=item code
+
+=item signature
+
+=item ast
+
+=back
+
+=head3 Methods
+
+=over
+
+=item perl
+
+=item APPLY
+
+warning: apply attempts to use $::Junction (not implemeneted (yet))
+
+=back
+
+=cut
+
 $::Code = $meta_Code->PROTOTYPE();
 $meta_Code->add_parent($meta_Value);
 $meta_Code->add_attribute( 'code' );
@@ -635,7 +1286,9 @@ $meta_Code->add_method( 'perl',
         my $v = $::Str->new( $_[0]{_value}{src} );
         return $::Str->new( '{ ... }' );
     } ) );
+
 my $_apply;
+
 $meta_Code->add_method( 'APPLY',
     ::DISPATCH( $::Method, 'new',
     (
@@ -673,14 +1326,17 @@ $meta_Code->add_method( 'APPLY',
         }
     )
 ) );
-# $meta_Code->add_method( 'signature',
-#     ::DISPATCH( $::Method, 'new',  sub { $_[0]{_value}{signature} } ) );
-# $meta_Code->add_method( 'code',
-#     ::DISPATCH( $::Method, 'new',  sub { $_[0] } ) );
 $meta_Code->add_method( 'p5landish',
     ::DISPATCH( $::Method, 'new',  sub { $_[0]{_value}{code} } ) );
 
 my $meta_List = ::DISPATCH( $::Class, 'new', "List");
+
+=head2 $::List
+
+$::List at this time just uses its parent $meta_Value ( $::Value? )
+
+=cut
+
 $::List = $meta_List->PROTOTYPE();
 $meta_List->add_parent($meta_Value);
 # TODO - finish List implementation ...
@@ -691,6 +1347,39 @@ $meta_List->add_parent($meta_Value);
 #    - use a linked list of Subsets ???
 # -> you can't subclass a subset
 my $meta_Subset = ::DISPATCH( $::Class, 'new', "Subset");
+
+=head2 $::Subset
+
+$::Subset is a $::Class object
+
+=head3 Parents:
+
+=over
+
+=item $meta_Value
+
+=back
+
+=head3 Attributes:
+
+=over
+
+=item base_class
+
+=item block
+
+=back
+
+=head3 Methods:
+
+=over
+
+=item perl
+
+=back
+
+=cut
+
 $::Subset = $meta_Subset->PROTOTYPE();
 $meta_Subset->add_parent($meta_Value);
 
@@ -717,6 +1406,35 @@ $meta_Subset->add_method( 'perl',
 #--- Containers
 
 $::meta_Container = ::DISPATCH( $::Class, 'new', "Container");
+
+=head2 $::Container
+
+$::Container is a $::Class object
+
+=head3 Parents:
+
+none
+
+=head3 Attributes:
+
+none
+
+=head3 Methods:
+
+=over
+
+=item FETCH
+
+=item BIND
+
+=item STORE
+
+dies, Read only
+
+=back
+
+=cut
+
 $::Container = $::meta_Container->PROTOTYPE();
 $::meta_Container->add_method(
     'FETCH',
@@ -737,9 +1455,6 @@ $::meta_Container->add_method(
         } }
     )
 );
-sub ::MODIFIED {
-    $_[0]{_value}{modified}{ $_[0]{_value}{name} } = 1;
-}
 $::meta_Container->add_method(
     'BIND',
     ::DISPATCH( $::Method, 'new',
@@ -764,6 +1479,33 @@ $::meta_Container->add_method(
 );
 
 my $meta_Scalar = ::DISPATCH( $::Class, 'new', "Scalar");
+
+=head2 $::Scalar
+
+$::Scalar is a $::Class object
+
+=head3 Parent:
+
+=over
+
+=item $::meta_Container
+
+=back
+
+=head3 Attributes:
+
+none
+
+=head3 Methods:
+
+=over
+
+=item new
+
+=back
+
+=cut
+
 $::Scalar = $meta_Scalar->PROTOTYPE();
 $meta_Scalar->add_parent($::meta_Container);
 $meta_Scalar->add_method(
@@ -781,6 +1523,33 @@ $meta_Scalar->add_method(
 );
 
 my $meta_ArrayContainer = ::DISPATCH( $::Class, 'new', "ArrayContainer");
+
+=head2 $::ArrayContainer
+
+$::ArrayContainer is a $::Class object
+
+=head3 Parent:
+
+=over
+
+=item $::meta_Container
+
+=back
+
+=head3 Attributes:
+
+none
+
+=head3 Methods:
+
+=over
+
+=item $::ArrayContainer->new
+
+=back
+
+=cut
+
 $::ArrayContainer = $meta_ArrayContainer->PROTOTYPE();
 $meta_ArrayContainer->add_parent($::meta_Container);
 $meta_ArrayContainer->add_method(
@@ -801,6 +1570,41 @@ $meta_ArrayContainer->add_method(
 );
 
 my $meta_Routine = ::DISPATCH( $::Class, 'new', "Routine");
+
+=head2 $::Routine
+
+$::Routine is a $::Class object
+
+=head3 Parent:
+
+=over
+
+=item $::meta_Routine
+
+=back
+
+=head3 Attributes:
+
+=over
+
+=item $::ArrayContainer->
+
+=back
+
+=head3 Methods:
+
+=over
+
+=item new
+
+=item APPLY
+
+=item perl
+
+=back
+
+=cut
+
 $::Routine = $meta_Routine->PROTOTYPE();
 $meta_Routine->add_parent($::meta_Container);
 $meta_Routine->add_method( 'STORE', $method_readonly );
@@ -862,22 +1666,106 @@ $GLOBAL::Code_VAR_defined = ::DISPATCH( $::Code, 'new',
 );
 
 # class prototypes are needed because we have circular dependencies
+
+=head2 $::Signature
+
+=head3 Parents:
+
+none
+
+=head3 Attributes:
+
+none
+
+=head3 Methods:
+
+none
+
+=cut
+
 $::Signature
     = make_class( proto => $::Signature, name=>"Signature", methods=>{} );
+
+=head2 $::Signature::Item
+
+=head3 Parents:
+
+none
+
+=head3 Attributes:
+
+none
+
+=head3 Methods:
+
+none
+
+=cut
+
 $::Signature::Item
     = make_class( proto => $::Signature::Item, name=>"Signature::Item", methods=>{} );
+
+=head2 $::Array
+
+=head3 Parents:
+
+none
+
+=head3 Attributes:
+
+none
+
+=head3 Methods:
+
+none
+
+=cut
+
 $::Array
     = make_class( proto => $::Array, name=>"Array", methods=>{} );
+
+=head2 $::Hash
+
+=head3 Parents:
+
+none
+
+=head3 Attributes:
+
+none
+
+=head3 Methods:
+
+none
+
+=cut
+
 $::Hash
     = make_class( proto => $::Hash, name=>"Hash", methods=>{} );
 
-require KindaPerl6::Runtime::Perl6::Pair;
-require KindaPerl6::Runtime::Perl5::Pair;
-require KindaPerl6::Runtime::Perl6::NamedArgument;
+=head2 $::Cell
 
-#require KindaPerl6::Runtime::Perl6::Pair;
-#require KindaPerl6::Runtime::Perl6::NamedArgument;
+=head3 Parents:
 
+none
+
+=head3 Attributes:
+
+none
+
+=head3 Methods:
+
+=over
+
+=item new
+
+=item STORE
+
+=item FETCH
+
+=back
+
+=cut
 
 $::Cell = make_class( proto => $::Cell, name=>"Cell",parent=>[$::meta_Container],methods=>{
     new=>sub {
@@ -895,6 +1783,33 @@ $::Cell = make_class( proto => $::Cell, name=>"Cell",parent=>[$::meta_Container]
            return ${$_[0]{_value}{cell}} || ::DISPATCH($::Undef,'new',0);
         },
 });
+
+=head2 $::HashCell
+
+=head3 Parents:
+
+none
+
+=head3 Attributes:
+
+none
+
+=head3 Methods:
+
+=over
+
+=item new
+
+=item STORE
+
+=item FETCH
+
+=item exists
+
+=back
+
+=cut
+
 $::HashCell = make_class( proto => $::HashCell, name=>"HashCell",parent=>[$::meta_Container],methods=>{
     new=>sub {
             my $v = {
@@ -916,6 +1831,33 @@ $::HashCell = make_class( proto => $::HashCell, name=>"HashCell",parent=>[$::met
            ::DISPATCH( $::Bit, 'new', exists ${ $_[0]{_value}{cell} }{ $_[0]{_value}{key} } ? 1 : 0 )
         },
 });
+
+=head2 $::ArrayCell
+
+=head3 Parents:
+
+none
+
+=head3 Attributes:
+
+none
+
+=head3 Methods:
+
+=over
+
+=item new
+
+=item STORE
+
+=item FETCH
+
+=item exists
+
+=back
+
+=cut
+
 $::ArrayCell = make_class( proto => $::ArrayCell, name=>"ArrayCell",parent=>[$::meta_Container],methods=>{
     new=>sub {
             my $v = {
@@ -938,73 +1880,27 @@ $::ArrayCell = make_class( proto => $::ArrayCell, name=>"ArrayCell",parent=>[$::
         },
 });
 
-require KindaPerl6::Runtime::Perl6::Hash;
-require KindaPerl6::Runtime::Perl5::Hash;
 
-require KindaPerl6::Runtime::Perl6::Array;
-require KindaPerl6::Runtime::Perl5::Array;
+=head2 $::Multi
 
-require KindaPerl6::Runtime::Perl6::List;
-require KindaPerl6::Runtime::Perl5::List;
+=head3 Parents:
 
-require KindaPerl6::Runtime::Perl6::Capture;
-require KindaPerl6::Runtime::Perl6::Signature;
-require KindaPerl6::Runtime::Perl6::Match;
-require KindaPerl6::Runtime::Perl6::Int;
+none
 
+=head3 Attributes:
 
-sub ::CAPTURIZE {
-    my @array;
-    my %hash;
+none
 
-    #print "# CAPTURIZE: now at Code == $::ROUTINE \n";
-    #my $signature = ::DISPATCH( ::DISPATCH( $::ROUTINE, 'signature' ), 'array' );
-    # -- get the signature specification
-    #my @sigs = @{ $signature->{_value}{_array} };
-    #print "# sig = @{[ keys %{ $sigs[0] } ]} \n";
-    # -- get the runtime parameter list
-    my @params = @{ $_[0] };
+=head3 Methods:
 
-    # match the parameter list to the signature specification
-    # XXX TODO
-    for my $p ( @params ) {
-        #print "param @{[ keys( %{ $p->{_value} } ) ]} \n";
-        if (
+=over
 
-            # XXX .does bug?
-            # ::DISPATCH( $p, 'does', ::DISPATCH( $::Str, 'new', 'Pair' ) )
-            # ::DISPATCH( $p, 'does', $::Pair )
+=item APPLY
 
-               eval { exists( $p->{_value}{_argument_name_} ) }
+=back
 
-           ) {
-                my $key = ::DISPATCH( ::DISPATCH( $p, '_argument_name_' ), 'Str' )->{_value};
-                #print "named: $key \n";
-                my $value = ::DISPATCH( $p, 'value' );
-                #print "value: $value \n";
-                $hash{ $key } = $value;
-                #print "return\n";
-        }
-        else {
-                #print "positional: ", ::DISPATCH( $p, 'Str' )->{_value} ," \n";
-                push @array, $p;
-        }
-    }
-    ::DISPATCH( $::Capture, 'new', {
-            invocant => undef,  # TODO
-            array =>
-                ::DISPATCH( $::Array, 'new', {
-                        _array => \@array,
-                    }
-                ),
-            hash =>
-                ::DISPATCH( $::Hash, 'new', {
-                        _hash => \%hash,
-                    }
-                ),
-        }
-    )
-}
+=cut
+
 $::Multi = make_class( proto => $::Multi, name=>"Multi",parent=>[$meta_Code],methods=>{
     APPLY =>sub {
             my $self = shift;
@@ -1013,6 +1909,325 @@ $::Multi = make_class( proto => $::Multi, name=>"Multi",parent=>[$meta_Code],met
         },
 });
 
-
-
 1;
+
+__END__
+
+=head2 Example $meta_Class
+
+See bottom of document for an example $meta_Class
+
+ $meta_Class = \bless(
+     {   '_methods' => {},
+         '_isa'     => [ ${$meta_Class} ],
+         '_value'   => {
+             'class_name' => 'Class',
+             'roles'      => {},
+             'methods'    => {
+                 'add_role' => bless(
+                     {   '_methods' => {},
+                         '_isa'     => [
+                             bless(
+                                 {   '_methods' => {},
+                                     '_isa'     => [ ${$meta_Class} ],
+                                     '_value'   => {
+                                         'class_name' => 'Method',
+                                         'isa'        => [
+                                             bless(
+                                                 {   '_methods' => {
+                                                         'PROTOTYPE' => bless(
+                                                             {   '_methods'  => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_methods'},
+                                                                 '_isa'      => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'},
+                                                                 '_value'    => sub {"DUMMY"},
+                                                                 '_dispatch' => sub {"DUMMY"},
+                                                                 '_roles'    => {}
+                                                             },
+                                                             'KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch'
+                                                         )
+                                                     },
+                                                     '_isa'   => [ ${$meta_Class} ],
+                                                     '_value' => {
+                                                         'class_name' => 'Routine',
+                                                         'isa'        => [
+                                                             bless(
+                                                                 {   '_methods' => {
+                                                                         'PROTOTYPE' => bless(
+                                                                             {   '_methods'  => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_methods'},
+                                                                                 '_isa'      => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'},
+                                                                                 '_value'    => sub {"DUMMY"},
+                                                                                 '_dispatch' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_dispatch'},
+                                                                                 '_roles'    => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_roles'}
+                                                                             },
+                                                                             'KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch'
+                                                                         )
+                                                                     },
+                                                                     '_isa'   => [ ${$meta_Class} ],
+                                                                     '_value' => {
+                                                                         'class_name' => 'Container',
+                                                                         'methods'    => {
+                                                                             'BIND' => bless(
+                                                                                 {   '_methods' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_methods'},
+                                                                                     '_isa'     => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'},
+                                                                                     '_value'   => { 'code' => sub {"DUMMY"} },
+                                                                                     '_dispatch' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_dispatch'},
+                                                                                     '_roles'    => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_roles'}
+                                                                                 },
+                                                                                 'KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch'
+                                                                             ),
+                                                                             'FETCH' => bless(
+                                                                                 {   '_methods' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_methods'},
+                                                                                     '_isa'     => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'},
+                                                                                     '_value'   => { 'code' => sub {"DUMMY"} },
+                                                                                     '_dispatch' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_dispatch'},
+                                                                                     '_roles'    => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_roles'}
+                                                                                 },
+                                                                                 'KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch'
+                                                                             ),
+                                                                             'HOW' => bless(
+                                                                                 {   '_methods'  => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_methods'},
+                                                                                     '_isa'      => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'},
+                                                                                     '_value'    => sub {"DUMMY"},
+                                                                                     '_dispatch' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_dispatch'},
+                                                                                     '_roles'    => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_roles'}
+                                                                                 },
+                                                                                 'KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch'
+                                                                             ),
+                                                                             'STORE' => bless(
+                                                                                 {   '_methods' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_methods'},
+                                                                                     '_isa'     => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'},
+                                                                                     '_value'   => { 'code' => sub {"DUMMY"} },
+                                                                                     '_dispatch' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_dispatch'},
+                                                                                     '_roles'    => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_roles'}
+                                                                                 },
+                                                                                 'KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch'
+                                                                             ),
+                                                                             'WHAT' => bless(
+                                                                                 {   '_methods'  => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_methods'},
+                                                                                     '_isa'      => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'},
+                                                                                     '_value'    => sub {"DUMMY"},
+                                                                                     '_dispatch' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_dispatch'},
+                                                                                     '_roles'    => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_roles'}
+                                                                                 },
+                                                                                 'KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch'
+                                                                             )
+                                                                         }
+                                                                     },
+                                                                     '_roles'    => {},
+                                                                     '_dispatch' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_dispatch'}
+                                                                 },
+                                                                 'KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch'
+                                                             )
+                                                         ],
+                                                         'methods' => {
+                                                             'perl' => bless(
+                                                                 {   '_methods'  => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_methods'},
+                                                                     '_isa'      => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'},
+                                                                     '_value'    => sub {"DUMMY"},
+                                                                     '_dispatch' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_dispatch'},
+                                                                     '_roles'    => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_roles'}
+                                                                 },
+                                                                 'KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch'
+                                                             ),
+                                                             'APPLY' => bless(
+                                                                 {   '_methods'  => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_methods'},
+                                                                     '_isa'      => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'},
+                                                                     '_value'    => sub {"DUMMY"},
+                                                                     '_dispatch' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_dispatch'},
+                                                                     '_roles'    => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_roles'}
+                                                                 },
+                                                                 'KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch'
+                                                             ),
+                                                             'new' => bless(
+                                                                 {   '_methods'  => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_methods'},
+                                                                     '_isa'      => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'},
+                                                                     '_value'    => sub {"DUMMY"},
+                                                                     '_dispatch' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_dispatch'},
+                                                                     '_roles'    => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_roles'}
+                                                                 },
+                                                                 'KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch'
+                                                             ),
+                                                             'HOW' => bless(
+                                                                 {   '_methods'  => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_methods'},
+                                                                     '_isa'      => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'},
+                                                                     '_value'    => sub {"DUMMY"},
+                                                                     '_dispatch' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_dispatch'},
+                                                                     '_roles'    => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_roles'}
+                                                                 },
+                                                                 'KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch'
+                                                             ),
+                                                             'STORE' => bless(
+                                                                 {   '_methods' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_methods'},
+                                                                     '_isa'     => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'},
+                                                                     '_value'   => { 'code' => sub {"DUMMY"} },
+                                                                     '_dispatch' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_dispatch'},
+                                                                     '_roles'    => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_roles'}
+                                                                 },
+                                                                 'KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch'
+                                                             ),
+                                                             'WHAT' => bless(
+                                                                 {   '_methods'  => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_methods'},
+                                                                     '_isa'      => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'},
+                                                                     '_value'    => sub {"DUMMY"},
+                                                                     '_dispatch' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_dispatch'},
+                                                                     '_roles'    => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_roles'}
+                                                                 },
+                                                                 'KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch'
+                                                             )
+                                                         }
+                                                     },
+                                                     '_roles'    => {},
+                                                     '_dispatch' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_dispatch'}
+                                                 },
+                                                 'KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch'
+                                             )
+                                         ],
+                                         'methods' => {
+                                             'signature' => bless(
+                                                 {   '_methods'  => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_methods'},
+                                                     '_isa'      => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'},
+                                                     '_value'    => sub {"DUMMY"},
+                                                     '_dispatch' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_dispatch'},
+                                                     '_roles'    => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_roles'}
+                                                 },
+                                                 'KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch'
+                                             ),
+                                             'APPLY' => bless(
+                                                 {   '_methods'  => undef,
+                                                     '_isa'      => [ ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0] ],
+                                                     '_value'    => sub {"DUMMY"},
+                                                     '_roles'    => undef,
+                                                     '_dispatch' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_dispatch'}
+                                                 },
+                                                 'KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch'
+                                             ),
+                                             'HOW' => bless(
+                                                 {   '_methods'  => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_methods'},
+                                                     '_isa'      => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'},
+                                                     '_value'    => sub {"DUMMY"},
+                                                     '_dispatch' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_dispatch'},
+                                                     '_roles'    => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_roles'}
+                                                 },
+                                                 'KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch'
+                                             ),
+                                             'new' => bless(
+                                                 {   '_methods' => {},
+                                                     '_isa'     => [ ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0] ],
+                                                     '_value'   => { 'code' => sub {"DUMMY"} },
+                                                     '_roles'    => {},
+                                                     '_dispatch' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_dispatch'}
+                                                 },
+                                                 'KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch'
+                                             ),
+                                             'WHAT' => bless(
+                                                 {   '_methods'  => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_methods'},
+                                                     '_isa'      => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'},
+                                                     '_value'    => sub {"DUMMY"},
+                                                     '_dispatch' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_dispatch'},
+                                                     '_roles'    => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_roles'}
+                                                 },
+                                                 'KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch'
+                                             )
+                                         }
+                                     },
+                                     '_roles'    => {},
+                                     '_dispatch' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_dispatch'}
+                                 },
+                                 'KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch'
+                             )
+                         ],
+                         '_value' => { 'code' => sub {"DUMMY"} },
+                         '_dispatch' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_dispatch'},
+                         '_roles'    => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_roles'}
+                     },
+                     'KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch'
+                 ),
+                 'HOW' => bless(
+                     {   '_methods' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_methods'},
+                         '_isa'     => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'},
+                         '_value'   => { 'code' => sub {"DUMMY"} },
+                         '_dispatch' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_dispatch'},
+                         '_roles'    => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_roles'}
+                     },
+                     'KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch'
+                 ),
+                 'add_parent' => bless(
+                     {   '_methods' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_methods'},
+                         '_isa'     => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'},
+                         '_value'   => { 'code' => sub {"DUMMY"} },
+                         '_dispatch' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_dispatch'},
+                         '_roles'    => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_roles'}
+                     },
+                     'KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch'
+                 ),
+                 'redefine_method' => bless(
+                     {   '_methods' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_methods'},
+                         '_isa'     => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'},
+                         '_value'   => { 'code' => sub {"DUMMY"} },
+                         '_dispatch' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_dispatch'},
+                         '_roles'    => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_roles'}
+                     },
+                     'KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch'
+                 ),
+                 'methods' => bless(
+                     {   '_methods' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_methods'},
+                         '_isa'     => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'},
+                         '_value'   => { 'code' => sub {"DUMMY"} },
+                         '_dispatch' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_dispatch'},
+                         '_roles'    => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_roles'}
+                     },
+                     'KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch'
+                 ),
+                 'new' => bless(
+                     {   '_methods' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_methods'},
+                         '_isa'     => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'},
+                         '_value'   => { 'code' => sub {"DUMMY"} },
+                         '_dispatch' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_dispatch'},
+                         '_roles'    => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_roles'}
+                     },
+                     'KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch'
+                 ),
+                 'add_method' => bless(
+                     {   '_methods' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_methods'},
+                         '_isa'     => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'},
+                         '_value'   => { 'code' => sub {"DUMMY"} },
+                         '_dispatch' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_dispatch'},
+                         '_roles'    => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_roles'}
+                     },
+                     'KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch'
+                 ),
+                 'add_attribute' => bless(
+                     {   '_methods' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_methods'},
+                         '_isa'     => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'},
+                         '_value'   => { 'code' => sub {"DUMMY"} },
+                         '_dispatch' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_dispatch'},
+                         '_roles'    => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_roles'}
+                     },
+                     'KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch'
+                 ),
+                 'attributes' => bless(
+                     {   '_methods' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_methods'},
+                         '_isa'     => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'},
+                         '_value'   => { 'code' => sub {"DUMMY"} },
+                         '_dispatch' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_dispatch'},
+                         '_roles'    => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_roles'}
+                     },
+                     'KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch'
+                 ),
+                 'WHAT' => bless(
+                     {   '_methods' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_methods'},
+                         '_isa'     => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'},
+                         '_value'   => { 'code' => sub {"DUMMY"} },
+                         '_dispatch' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_dispatch'},
+                         '_roles'    => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_roles'}
+                     },
+                     'KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch'
+                 )
+             }
+         },
+         '_roles'    => {},
+         '_dispatch' => ${$meta_Class}->{'_value'}->{'methods'}->{'add_role'}->{'_isa'}->[0]->{'_value'}->{'isa'}->[0]->{'_methods'}->{'PROTOTYPE'}->{'_dispatch'}
+     },
+     'KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch'
+ );
+
+=cut
