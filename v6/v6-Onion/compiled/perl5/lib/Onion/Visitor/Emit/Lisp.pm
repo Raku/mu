@@ -725,8 +725,8 @@ $interpreter = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'interp
 $indent = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'indent' )
  )
 } }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $indent = $List__->{_value}{_array}[ $_param_index++ ];  } } ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '(list ' )
-, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( [ map { $_->emit_lisp($interpreter, $indent) } @{ ::DISPATCH( $self, "seq" )
- } ]
+, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $::Array, "new", { _array => [ map { ::DISPATCH( $_, "emit_lisp", $interpreter, $indent) } @{ ::DISPATCH( ::DISPATCH( $self, "seq" )
+, "array" )->{_value}{_array} } ] } )
 , 'join', ::DISPATCH( $::Str, 'new', ' ' )
  )
 , ::DISPATCH( $::Str, 'new', ')' )
@@ -792,8 +792,8 @@ $indent = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'indent' )
 , ::DISPATCH( $::Str, 'new', 'kp6-Array :value (list ' )
  )
  )
-, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( [ map { $_->emit_lisp($interpreter, $indent) } @{ ::DISPATCH( $self, "array" )
- } ]
+, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $::Array, "new", { _array => [ map { ::DISPATCH( $_, "emit_lisp", $interpreter, $indent) } @{ ::DISPATCH( ::DISPATCH( $self, "array" )
+, "array" )->{_value}{_array} } ] } )
 , 'join', ::DISPATCH( $::Str, 'new', ' ' )
  )
 , ::DISPATCH( $::Str, 'new', '))' )
@@ -1223,8 +1223,8 @@ $interpreter = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'interp
 } }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $interpreter = $List__->{_value}{_array}[ $_param_index++ ];  }  if ( exists $Hash__->{_value}{_hash}{'indent'} )  { do {::MODIFIED($indent);
 $indent = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'indent' )
  )
-} }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $indent = $List__->{_value}{_array}[ $_param_index++ ];  } } ::DISPATCH( [ map { $_->emit_lisp($interpreter, $indent) } @{ ::DISPATCH( $self, "body" )
- } ]
+} }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $indent = $List__->{_value}{_array}[ $_param_index++ ];  } } ::DISPATCH( ::DISPATCH( $::Array, "new", { _array => [ map { ::DISPATCH( $_, "emit_lisp", $interpreter, $indent) } @{ ::DISPATCH( ::DISPATCH( $self, "body" )
+, "array" )->{_value}{_array} } ] } )
 , 'join', ::DISPATCH( $Main::Code_newline, 'APPLY',  )
  )
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, 'new', { sigil  => '$', twigil => '', name   => 'interpreter', value  => $::Undef, has_default    => ::DISPATCH( $::Bit, 'new', 0 )
@@ -2314,8 +2314,8 @@ $meth = ::DISPATCH( $self, "method" )
 $meth = ::DISPATCH( $::Str, 'new', '' )
 } } }  else { ::DISPATCH($::Bit, "new", 0) } }
 ; do {::MODIFIED($call);
-$call = ::DISPATCH( [ map { $_->emit_lisp($interpreter, $indent) } @{ ::DISPATCH( $self, "arguments" )
- } ]
+$call = ::DISPATCH( ::DISPATCH( $::Array, "new", { _array => [ map { ::DISPATCH( $_, "emit_lisp", $interpreter, $indent) } @{ ::DISPATCH( ::DISPATCH( $self, "arguments" )
+, "array" )->{_value}{_array} } ] } )
 , 'join', ::DISPATCH( $::Str, 'new', ' ' )
  )
 }; do { if (::DISPATCH(::DISPATCH(::DISPATCH( $self, "hyper" )
@@ -2432,8 +2432,8 @@ $apply_func = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPA
  )
  )
 }; return(::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '(make-instance \\\'kp6-Bit :value (or (kp6-true ' )
-, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $apply_func, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( [ map { $_->emit_lisp($interpreter, $indent) } @{ ::DISPATCH( $self, "arguments" )
- } ]
+, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $apply_func, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $::Array, "new", { _array => [ map { ::DISPATCH( $_, "emit_lisp", $interpreter, $indent) } @{ ::DISPATCH( ::DISPATCH( $self, "arguments" )
+, "array" )->{_value}{_array} } ] } )
 , 'join', ::DISPATCH( $::Str, 'new', '))) (kp6-true ' )
  )
 , ::DISPATCH( $::Str, 'new', ')))' )
@@ -2445,8 +2445,8 @@ $apply_func = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPA
 ; do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $name, ::DISPATCH( $::Str, 'new', 'infix:<&&>' )
  )
 ,"true"),"p5landish") ) { do { return(::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '(make-instance \\\'kp6-Bit :value (and (kp6-dispatch (kp6-dispatch ' )
-, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( [ map { $_->emit_lisp($interpreter, $indent) } @{ ::DISPATCH( $self, "arguments" )
- } ]
+, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $::Array, "new", { _array => [ map { ::DISPATCH( $_, "emit_lisp", $interpreter, $indent) } @{ ::DISPATCH( ::DISPATCH( $self, "arguments" )
+, "array" )->{_value}{_array} } ] } )
 , 'join', ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' ' )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $interpreter, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' :true) ' )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $interpreter, ::DISPATCH( $::Str, 'new', ' :cl-landish) (kp6-dispatch (kp6-dispatch ' )
@@ -2469,8 +2469,8 @@ $apply_func = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPA
 ; do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $name, ::DISPATCH( $::Str, 'new', 'infix:<||>' )
  )
 ,"true"),"p5landish") ) { do { return(::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '(make-instance \\\'kp6-Bit :value (or (kp6-dispatch (kp6-dispatch ' )
-, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( [ map { $_->emit_lisp($interpreter, $indent) } @{ ::DISPATCH( $self, "arguments" )
- } ]
+, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $::Array, "new", { _array => [ map { ::DISPATCH( $_, "emit_lisp", $interpreter, $indent) } @{ ::DISPATCH( ::DISPATCH( $self, "arguments" )
+, "array" )->{_value}{_array} } ] } )
 , 'join', ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' ' )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $interpreter, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' :true) ' )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $interpreter, ::DISPATCH( $::Str, 'new', ' :cl-landish) (kp6-dispatch (kp6-dispatch ' )

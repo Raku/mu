@@ -246,8 +246,8 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
 };{ my $_param_index = 0; } ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '({int saved_pos=pos;' )
-, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( [ map { $_->emit_c() } @{ ::DISPATCH( $self, "or" )
- } ]
+, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $::Array, "new", { _array => [ map { ::DISPATCH( $_, "emit_c", ) } @{ ::DISPATCH( ::DISPATCH( $self, "or" )
+, "array" )->{_value}{_array} } ] } )
 , 'join', ::DISPATCH( $::Str, 'new', '||' )
  )
 , ::DISPATCH( $::Str, 'new', '|| (pos=saved_pos,0);})' )
@@ -291,8 +291,8 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
 };{ my $_param_index = 0; } ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '(' )
-, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( [ map { $_->emit_c() } @{ ::DISPATCH( $self, "concat" )
- } ]
+, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $::Array, "new", { _array => [ map { ::DISPATCH( $_, "emit_c", ) } @{ ::DISPATCH( ::DISPATCH( $self, "concat" )
+, "array" )->{_value}{_array} } ] } )
 , 'join', ::DISPATCH( $::Str, 'new', '&&' )
  )
 , ::DISPATCH( $::Str, 'new', ')' )
