@@ -17,7 +17,14 @@ unless (defined $section)
 { # Perl5 tests
   # Use $ENV{HARNESS_PERL} or $^X
   local $Test::Harness::Switches = "$Test::Harness::Switches -Icompiled/perl5-kp6-mp6/lib";
-  $ok &&= eval { runtests glob("t/p5/*.t") };
+  # t/p5 only had the RuneTime::Perl5::DispatchSugar as of Oct 31, 2007.  I've removed RunTime::Perl5::DispatchSugar (Factored the code out)
+  # thus, I now check for there being test found before running.
+  my @tests = glob("t/p5/*.t");
+  if ( @tests ) {
+      $ok &&= eval { runtests glob("t/p5/*.t") };
+  } else {
+      warn "t/p5/ has no tests, this is not an error, just a warning";
+  }
   warn $@ if $@;
 }
 
