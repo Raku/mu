@@ -38,8 +38,6 @@ sub sugar($) {
 turns off sugar(ing).  any sugaring attempts will die with
 "dispatch sugar turned off"
 
-Oct 29th, 2007: as far as I can tell, (grep -R), no one is using sugar_off
-
 =cut
 
 sub sugar_off {
