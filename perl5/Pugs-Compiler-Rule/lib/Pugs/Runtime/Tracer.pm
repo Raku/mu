@@ -75,4 +75,34 @@ _EOC_
 }
 
 1;
+__END__
+
+=head1 NAME
+
+Pugs::Runtime::Tracer - tracer runtime for Pugs::Compiler::Rule
+
+=head1 SYNOPSIS
+
+    use Pugs::Runtime::Tracer;
+    trace("blah blah blah");
+    trace_begin($regex_name, $regex_pos_from, $regex_pos_to, $input_pos);
+    trace_end($regex_name, $success, $input_pos);
+    $perl5_code_with_tracing_code = expand_tracing_code($perl5_code);
+
+=head1 DESCRIPTION
+
+This module provides tracing facilities for both PCR compile-time and run-time.
+
+=head1 AUTHOR
+
+Agent Zhang E<lt>agentzh@agentzh.orgE<gt>.
+
+=head1 COPYRIGHT
+
+Copyright 2007 by Yahoo! China Inc. L<http://cn.yahoo.com>.
+
+=head1 LICENSE
+
+This module is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
 

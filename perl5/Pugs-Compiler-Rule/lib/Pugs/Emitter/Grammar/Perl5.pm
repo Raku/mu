@@ -156,7 +156,7 @@ The Pugs contributors E<lt>perl6-compiler@perl.orgE<gt>.
 
 =head1 COPYRIGHT
 
-Copyright (c) 2007 by Agent Zhang and others.
+Copyright (c) 2007 by Agent Zhang (E<lt>agentzh@agentzh.orgE<gt>) and others.
 
 This program is free software; you can redistribute it
 and/or modify it under the same terms as Perl itself.
