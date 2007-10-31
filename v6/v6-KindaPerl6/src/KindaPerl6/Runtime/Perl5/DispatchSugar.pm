@@ -63,12 +63,15 @@ This package uses AUTOLOAD to call _dispatch in a hash reference in effect does 
 
  $method->unknown_sub(@args);
 
-=head1 INTENTION
+=head1 NOTES
 
-to replace $object->{_dispatch}($object,'method_name',...)
-with $object->method_name(...)
+DO NOT USE
 
-::DISPATCH does it better
+the aim of this module was to allow $object->method_name(...) as syntax sugar for
+my $object = expr();
+$object->{_dispatch}($object,'method_name',...)
+
+&::DISPATCH() made it unnessary
 
 =cut
 
