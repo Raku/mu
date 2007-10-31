@@ -15,7 +15,6 @@ compiled/perl5-kp6-kp6/lib/KindaPerl6/Grammar/Token.pm
 compiled/perl5-kp6-kp6/lib/KindaPerl6/Runtime/Perl5/Array.pm
 compiled/perl5-kp6-kp6/lib/KindaPerl6/Runtime/Perl5/Code.pm
 compiled/perl5-kp6-kp6/lib/KindaPerl6/Runtime/Perl5/Compiler.pm
-compiled/perl5-kp6-kp6/lib/KindaPerl6/Runtime/Perl5/DispatchSugar.pm
 compiled/perl5-kp6-kp6/lib/KindaPerl6/Runtime/Perl5/Gather.pm
 compiled/perl5-kp6-kp6/lib/KindaPerl6/Runtime/Perl5/GLOBAL.pm
 compiled/perl5-kp6-kp6/lib/KindaPerl6/Runtime/Perl5/Grammar.pm
@@ -87,7 +86,6 @@ compiled/perl5-kp6-mp6/lib/KindaPerl6/Grammar/Token.pm
 compiled/perl5-kp6-mp6/lib/KindaPerl6/Runtime/Perl5/Array.pm
 compiled/perl5-kp6-mp6/lib/KindaPerl6/Runtime/Perl5/Code.pm
 compiled/perl5-kp6-mp6/lib/KindaPerl6/Runtime/Perl5/Compiler.pm
-compiled/perl5-kp6-mp6/lib/KindaPerl6/Runtime/Perl5/DispatchSugar.pm
 compiled/perl5-kp6-mp6/lib/KindaPerl6/Runtime/Perl5/Gather.pm
 compiled/perl5-kp6-mp6/lib/KindaPerl6/Runtime/Perl5/GLOBAL.pm
 compiled/perl5-kp6-mp6/lib/KindaPerl6/Runtime/Perl5/Grammar.pm
@@ -262,7 +260,6 @@ src/KindaPerl6/Runtime/Lisp/var.lisp
 src/KindaPerl6/Runtime/Perl5/Array.pm
 src/KindaPerl6/Runtime/Perl5/Code.pm
 src/KindaPerl6/Runtime/Perl5/Compiler.pm
-src/KindaPerl6/Runtime/Perl5/DispatchSugar.pm
 src/KindaPerl6/Runtime/Perl5/Gather.pm
 src/KindaPerl6/Runtime/Perl5/GLOBAL.pm
 src/KindaPerl6/Runtime/Perl5/Grammar.pm
@@ -396,7 +393,6 @@ t/kp6/internals/02-gather.t
 t/kp6/io/01-dir.t
 t/kp6/math/01-rand.t
 t/kp6/math/02-inf.t
-t/p5/test_dispatch_sugar.t
 t/todo/10-our.t
 t/todo/14-compile-time-bind.t
 t/todo/16-what.t

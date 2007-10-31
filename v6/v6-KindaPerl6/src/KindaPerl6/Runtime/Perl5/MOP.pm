@@ -29,8 +29,7 @@ There are several key functions used though this package.
 =head2 Entities used elsewhere.
 
 These objects are primarly a hash that is accessed via &::DISPATCH, the method
-dispatcher is $object->{'_dispatch'}.   $object is blessed into
-KindaPerl6::Runtime::Perl5::DispatchSugar.
+dispatcher is $object->{'_dispatch'}.
 
 =over
 
@@ -106,7 +105,6 @@ use strict 'vars';
 # my $obj =  ::DISPATCH( $::Object, 'new', $candidate );
 
 package KindaPerl6::Runtime::Perl5::MOP;
-use KindaPerl6::Runtime::Perl5::DispatchSugar;
 use Data::Dumper;
 use Carp qw(confess);
 use UNIVERSAL;
@@ -141,8 +139,9 @@ $object is not valid.
 
  $object->{ _dispatch } is a method dispatcher.
 
- $object = KindaPerl6::Runtime::Perl5::DispatchSugar::sugar {
+ $object = {
      _dispatch => sub { ... };
+ }
 
 returns the results of $object->{ _dispatch }( $object, @args )
 
