@@ -2,7 +2,7 @@ NAME
     Pugs::Compiler::Rule - Compiler for Perl 6 regexes
 
 VERSION
-    This document describes Pugs::Compiler::Rule 0.26 released on 29 July,
+    This document describes Pugs::Compiler::Rule 0.27 released on 11 Oct,
     2007.
 
 SYNOPSIS
@@ -88,7 +88,6 @@ METHODS
         values:
 
         "ratchet => 1"
-            Disables backtracking.
             Here is an example:
 
                 $rule = Pugs::Compiler::Rule->compile(
@@ -99,7 +98,6 @@ METHODS
                 # happened
 
         "sigspace => 1"
-            Inserts a <ws> token for every whitespace in the rule.
             Here is an example:
 
                 my $rule = Pugs::Compiler::Rule->compile(

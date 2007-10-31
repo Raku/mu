@@ -93,9 +93,25 @@ Pugs::Runtime::Tracer - tracer runtime for Pugs::Compiler::Rule
 
 This module provides tracing facilities for both PCR compile-time and run-time.
 
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<compile_p6grammar.pl>
+
+=item *
+
+"A graphical tracer for Perl 6 regexes based on PCR"
+
+L<http://pugs.blogs.com/pugs/2007/10/a-graphical-tra.html>.
+
+=back
+
 =head1 AUTHOR
 
-Agent Zhang E<lt>agentzh@agentzh.orgE<gt>.
+Agent Zhang E<lt>agentzh@yahoo.cnE<gt>.
 
 =head1 COPYRIGHT
 

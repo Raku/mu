@@ -4,7 +4,7 @@ use warnings;
 
 package Pugs::Compiler::Rule;
 
-our $VERSION = '0.26';
+our $VERSION = '0.27';
 
 use base 'Pugs::Compiler::Regex';
 
@@ -28,8 +28,8 @@ Pugs::Compiler::Rule - Compiler for Perl 6 regexes
 
 =head1 VERSION
 
-This document describes Pugs::Compiler::Rule 0.26 released
-on 29 July, 2007.
+This document describes Pugs::Compiler::Rule 0.27 released
+on 11 Oct, 2007.
 
 =head1 SYNOPSIS
 

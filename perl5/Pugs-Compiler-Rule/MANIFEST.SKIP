@@ -1,5 +1,7 @@
 ^t\.sh$
 ^\w+\.pm
+\.html$
+\.txt$
 ^t.sh$
 ^temp/
 ^lrep/
@@ -13,11 +15,13 @@ tmp.txt
 lib/Pugs/Grammar/Rule2.pmc
 trans.pl
 trans2.pl
+trace.out
 tmp
 ^blib/
 ^Makefile$
 ^Makefile\.[a-z]+$
 \.swp$
+Rule2\.pm$
 Pugs-Compiler-Rule-\d+
 ^pm_to_blib$
 CVS/.*

@@ -1,6 +1,6 @@
 package Pugs::Emitter::Grammar::Perl5;
 
-our $VERSION = '0.26';
+our $VERSION = '0.27';
 
 #use Smart::Comments;
 use strict;

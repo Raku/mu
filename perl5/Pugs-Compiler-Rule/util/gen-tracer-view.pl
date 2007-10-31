@@ -164,7 +164,7 @@ gen-tracer-view.pl - Generate the HTML view for the PCR tracer
 
 =head1 AUTHOR
 
-Agent Zhang E<gt>yichun.zhang@alibaba-inc.comE<lt>
+Agent Zhang E<lt>agentzh@yahoo.cnE<gt>
 
 =head1 COPYRIGHT
 

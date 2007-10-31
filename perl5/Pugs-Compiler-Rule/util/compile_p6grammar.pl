@@ -91,7 +91,7 @@ The Perl 6 Rules Spec: L<http://dev.perl.org/perl6/doc/design/syn/S05.html>
 
 =head1 COPYRIGHT
 
-Copyright 2006, 2007 by Nathan Gray and Agent Zhang.
+Copyright 2006, 2007 by Nathan Gray and Agent Zhang (E<lt>agentzh@yahoo.cnE<gt>).
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
@@ -99,6 +99,9 @@ under the same terms as Perl itself.
 See L<http://www.perl.com/perl/misc/Artistic.html>
 
 =head1 SEE ALSO
+
+"A graphical tracer for Perl 6 regexes based on PCR"
+L<http://pugs.blogs.com/pugs/2007/10/a-graphical-tra.html>.
 
 L<Pugs::Compiler::Grammar>, L<Pugs::Compiler::Rule>,
 L<Pugs::Compiler::Regex>,
