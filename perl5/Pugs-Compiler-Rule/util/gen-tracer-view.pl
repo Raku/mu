@@ -162,6 +162,22 @@ gen-tracer-view.pl - Generate the HTML view for the PCR tracer
   $ perl util/gen-tracer-view.pl --outdir tmp/digits examples/digits.grammar digits.input < trace.out
   $ firefox tmp/digits/index.html
 
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<compile_p6grammar.pl>
+
+=item *
+
+"A graphical tracer for Perl 6 regexes based on PCR"
+
+L<http://pugs.blogs.com/pugs/2007/10/a-graphical-tra.html>.
+
+=back
+
 =head1 AUTHOR
 
 Agent Zhang E<lt>agentzh@yahoo.cnE<gt>
