@@ -1805,7 +1805,6 @@ $::ArrayContainer = ::DISPATCH( $meta_ArrayContainer, 'PROTOTYPE' );
     )
 );
 
-my $meta_Routine = ::DISPATCH( $::Class, 'new', "Routine" );
 
 =head2 $::Routine
 
@@ -1841,35 +1840,13 @@ $::Routine is a $::Class object
 
 =cut
 
-$::Routine = ::DISPATCH( $meta_Routine, 'PROTOTYPE' );
-
-::DISPATCH( $meta_Routine, 'add_parent', $::meta_Container );
-
-::DISPATCH( $meta_Routine, 'add_method', 'STORE', $method_readonly );
-
-::DISPATCH(
-    $meta_Routine,
-    'add_method',
-    'APPLY',
-    ::DISPATCH(
-        $::Method,
-        'new',
-        sub {
+$::Routine = make_class(proto=>$::Routine,parents=>[$::meta_Container],methods=>{
+    APPLY=> sub {
             my $self = shift;
             local $::ROUTINE = $self->{_value}{cell};
             $self->{_value}{cell}{_value}{code}->(@_);
-        }
-    )
-);
-
-::DISPATCH(
-    $meta_Routine,
-    'add_method',
-    'new',
-    ::DISPATCH(
-        $::Method,
-        'new',
-        sub {
+        },
+    new => sub {
             my $v = {
                 %{ $_[0] },
                 _value        => $_[1],                                     # { cell => undef },
@@ -1877,21 +1854,12 @@ $::Routine = ::DISPATCH( $meta_Routine, 'PROTOTYPE' );
                 _dispatch_VAR => $::dispatch_VAR,
                 };
         },
-    )
-);
-
-::DISPATCH(
-    $meta_Routine,
-    'add_method',
-    'perl',
-    ::DISPATCH(
-        $::Method,
-        'new',
-        sub {
+    perl => sub {
             ::DISPATCH( $::Str, 'new', $_[0]{_value}{cell}{_value}{src} );
-        },
-    )
-);
+        }
+});
+my $meta_Routine = ::DISPATCH( $::Routine, 'HOW' );
+::DISPATCH( $meta_Routine, 'add_method', 'STORE', $method_readonly );
 
 # Method isa Routine
 ::DISPATCH( $meta_Method, 'add_parent', $meta_Routine );
