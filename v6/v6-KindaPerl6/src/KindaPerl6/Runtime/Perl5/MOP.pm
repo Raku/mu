@@ -1862,8 +1862,6 @@ my $meta_Routine = ::DISPATCH( $::Routine, 'HOW' );
 # Method isa Routine
 ::DISPATCH( $meta_Method, 'add_parent', $meta_Routine );
 
-::DISPATCH( $meta_Method, 'add_parent', $meta_Routine );
-
 # XXX should not need this!
 ::DISPATCH(
     $meta_Method,
@@ -1967,111 +1965,7 @@ none
 
 $::Hash = make_class( proto => $::Hash, name => "Hash", methods => {} );
 
-=head2 $::HashCell
 
-=head3 Parents:
-
-none
-
-=head3 Attributes:
-
-none
-
-=head3 Methods:
-
-=over
-
-=item new
-
-=item STORE
-
-=item FETCH
-
-=item exists
-
-=back
-
-=cut
-
-$::HashCell = make_class(
-    proto   => $::HashCell,
-    name    => "HashCell",
-    parent  => [$::meta_Container],
-    methods => {
-        new => sub {
-            my $v = {
-                %{ $_[0] },
-                _value        => $_[1],
-                _roles        => { 'container' => 1, 'auto_deref' => 1 },
-                _dispatch_VAR => $::dispatch_VAR,
-            };
-        },
-        STORE => sub {
-            ${ $_[0]{_value}{cell} }{ $_[0]{_value}{key} } = $_[1];
-        },
-        FETCH => sub {
-            exists ${ $_[0]{_value}{cell} }{ $_[0]{_value}{key} }
-                ? ${ $_[0]{_value}{cell} }{ $_[0]{_value}{key} }
-                : ::DISPATCH( $::Undef, 'new', 0 );
-        },
-        exists => sub {
-            ::DISPATCH( $::Bit, 'new', exists ${ $_[0]{_value}{cell} }{ $_[0]{_value}{key} } ? 1 : 0 );
-        },
-    }
-);
-
-=head2 $::ArrayCell
-
-=head3 Parents:
-
-none
-
-=head3 Attributes:
-
-none
-
-=head3 Methods:
-
-=over
-
-=item new
-
-=item STORE
-
-=item FETCH
-
-=item exists
-
-=back
-
-=cut
-
-$::ArrayCell = make_class(
-    proto   => $::ArrayCell,
-    name    => "ArrayCell",
-    parent  => [$::meta_Container],
-    methods => {
-        new => sub {
-            my $v = {
-                %{ $_[0] },
-                _value        => $_[1],
-                _roles        => { 'container' => 1, 'auto_deref' => 1 },
-                _dispatch_VAR => $::dispatch_VAR,
-            };
-        },
-        STORE => sub {
-            ${ $_[0]{_value}{cell} }[ $_[0]{_value}{key} ] = $_[1];
-        },
-        FETCH => sub {
-            exists ${ $_[0]{_value}{cell} }[ $_[0]{_value}{key} ]
-                ? ${ $_[0]{_value}{cell} }[ $_[0]{_value}{key} ]
-                : ::DISPATCH( $::Undef, 'new', 0 );
-        },
-        exists => sub {
-            ::DISPATCH( $::Bit, 'new', exists ${ $_[0]{_value}{cell} }[ $_[0]{_value}{key} ] ? 1 : 0 );
-        },
-    }
-);
 
 =head2 $::Multi
 
