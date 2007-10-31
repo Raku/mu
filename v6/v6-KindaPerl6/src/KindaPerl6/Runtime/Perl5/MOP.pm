@@ -197,8 +197,8 @@ sub ::MODIFIED {
 =head2 make_class
 
  make_class( methods => { method1 => ???, method2 => ???, ...  },
-             attributes => [ attribute1 => ???, attribute2 => ???, ...  ],
-             parents => [ parent => ???, parent2 => ???, ... ],
+             attributes => [ attribute1,attribute2, ... ],
+             parents => [ parent1,parent2, ... ],
              proto => $proto
  );
 
@@ -1990,7 +1990,7 @@ none
 $::Multi = make_class(
     proto   => $::Multi,
     name    => "Multi",
-    parent  => [$meta_Code],
+    parents  => [$meta_Code],
     methods => {
         APPLY => sub {
             my $self = shift;
