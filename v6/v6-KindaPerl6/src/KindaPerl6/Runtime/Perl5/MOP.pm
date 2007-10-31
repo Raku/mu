@@ -53,8 +53,6 @@ dispatcher is $object->{'_dispatch'}.
 
 =item $::Hash
 
-=item $::Cell
-
 =item $::HashCell
 
 =item $::Scalar
@@ -1968,52 +1966,6 @@ none
 =cut
 
 $::Hash = make_class( proto => $::Hash, name => "Hash", methods => {} );
-
-=head2 $::Cell
-
-=head3 Parents:
-
-none
-
-=head3 Attributes:
-
-none
-
-=head3 Methods:
-
-=over
-
-=item new
-
-=item STORE
-
-=item FETCH
-
-=back
-
-=cut
-
-$::Cell = make_class(
-    proto   => $::Cell,
-    name    => "Cell",
-    parent  => [$::meta_Container],
-    methods => {
-        new => sub {
-            my $v = {
-                %{ $_[0] },
-                _value        => $_[1],
-                _roles        => { 'container' => 1, 'auto_deref' => 1 },
-                _dispatch_VAR => $::dispatch_VAR,
-            };
-        },
-        STORE => sub {
-            ${ $_[0]{_value}{cell} } = $_[1];
-        },
-        FETCH => sub {
-            return ${ $_[0]{_value}{cell} } || ::DISPATCH( $::Undef, 'new', 0 );
-        },
-    }
-);
 
 =head2 $::HashCell
 
