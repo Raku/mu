@@ -26,6 +26,8 @@ class Junction {
                     ~ " )"  
      };
 
+    method perl { self.Str };
+
     method true {
         my $thing;  # XXX
         if $.type eq 'any' {
