@@ -905,10 +905,10 @@ $::Value = make_class(
         p5landish => sub {
             $_[0]{_value};
         },
-        'print' => sub {
+        print => sub {
             print $_[0]{_value};
         },
-        'FETCH' => sub {
+        FETCH => sub {
 
             # -- FETCH is implemented in Object
             $_[0];
@@ -1400,9 +1400,9 @@ $::Code = make_class(
     proto        => $::Code,
     name         => 'Code',
     parents      => [$meta_Value],
-    'attributes' => [qw | code signature ast |],
+    attributes => [qw | code signature ast |],
     methods      => {
-        'perl' => sub {
+        perl => sub {
 
             # TODO - emit from $.ast
             my $v = ::DISPATCH( $::Str, 'new', $_[0]{_value}{src} );
@@ -1509,7 +1509,7 @@ $::Subset = make_class(
     proto        => $::Subset,
     name         => 'Subset',
     parents      => [$meta_Value],
-    'attributes' => [
+    attributes => [
         'base_class',    # Class
         'block'          # Code
     ],
@@ -1556,16 +1556,16 @@ $::Container = make_class(
     proto   => $::Container,
     name    => 'Container',
     methods => {
-        'FETCH' => sub {
+        FETCH => sub {
             $_[0]{_value}{cell} ? $_[0]{_value}{cell} : ::DISPATCH( $::Undef, "new", 0 );
         },
-        'STORE' => sub {
+        STORE => sub {
             die "attempt to modify a read-only value"
                 if $_[0]{_roles}{readonly};
             $_[0]{_value}{modified}{ $_[0]{_value}{name} } = 1;
             $_[0]{_value}{cell} = $_[1];
         },
-        'BIND' => sub {
+        BIND => sub {
             # XXX - see old 'Type.pm'
             $_[0]{_value}{modified}{ $_[0]{_value}{name} } = 1;
             $_[1]{_value}{modified}{ $_[1]{_value}{name} } = 1;
@@ -1624,7 +1624,7 @@ $::Scalar = make_class(
             my $v = {
                 %{ $_[0] },
                 _value        => $_[1],   # { %{$_[1]}, cell => undef },
-                _roles        => { 'container' => 1, 'auto_deref' => 1 },
+                _roles        => { container => 1, 'auto_deref' => 1 },
                 _dispatch_VAR => $::dispatch_VAR,
             };
         },
@@ -1667,7 +1667,7 @@ $::ArrayContainer = make_class(
             my $v = {
                 %{ $_[0] },
                 _value        => $_[1], # { %{$_[1]}, cell => undef },
-                _roles        => { 'container' => 1, 'auto_deref' => 1 },
+                _roles        => { container => 1, 'auto_deref' => 1 },
                 _dispatch_VAR => $::dispatch_VAR,
             };
             $v->{_value}{cell} = ::DISPATCH( $::Array, "new" )
@@ -1722,15 +1722,14 @@ $::Routine = make_class(
             my $v = {
                 %{ $_[0] },
                 _value        => $_[1],                                     # { cell => undef },
-                _roles        => { 'container' => 1, 'auto_apply' => 1 },
+                _roles        => { container => 1, 'auto_apply' => 1 },
                 _dispatch_VAR => $::dispatch_VAR,
             };
         },
         perl => sub {
             ::DISPATCH( $::Str, 'new', $_[0]{_value}{cell}{_value}{src} );
-            }
-        STORE =>
-            $method_readonly,
+        },
+        STORE => $method_readonly,
     }
 );
 
