@@ -1,5 +1,5 @@
 0.27  2007-10-31
--  updated <?XXX> to the new S05 syntax <.XXX>.
+- updated <?XXX> to the new S05 syntax <.XXX>.
 - added new module Pugs::Runtime::Tracer.
 - added the util/update-tracer-demos script.
 - added the util/gen-tracer-view.pl script for generating tracers like

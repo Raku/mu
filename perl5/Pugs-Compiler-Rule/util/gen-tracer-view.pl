@@ -180,7 +180,7 @@ L<http://pugs.blogs.com/pugs/2007/10/a-graphical-tra.html>.
 
 =head1 AUTHOR
 
-Agent Zhang E<lt>agentzh@yahoo.cnE<gt>
+Agent Zhang E<lt>agentzh@yahoo.cnE<gt>.
 
 =head1 COPYRIGHT
 
