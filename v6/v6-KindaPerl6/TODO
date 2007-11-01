@@ -6,12 +6,12 @@ TODO list for KindaPerl6
 - Bug (luqui++): 
   foo(); sub foo() { say 'hi' }
   my &x; sub y { say 123 }; x(); BEGIN { &x := &y }
-  # done my @x = (1,2,3); say @x
-  # done {a => "b"}.{"a"}
-  # done {a => "b"}{"a"}  # Pair LOOKUP
+  (DONE) my @x = (1,2,3); say @x
+  (DONE) {a => "b"}.{"a"}
+  (DONE) {a => "b"}{"a"}  # Pair LOOKUP
 
-- # done move &say() to Prelude
-- # done make [...] generate an Array object, (...) is List
+- (DONE) move &say() to Prelude
+- (DONE) make [...] generate an Array object, (...) is List
 
 * Phase 3 "regex compiler refactoring"
 
@@ -20,9 +20,9 @@ TODO list for KindaPerl6
 - add support for Parrot-PGE
 - improve kp6-regex
 - compile as MiniPerl6-in-Perl5 (redo bootstrap)
-- FIX - regexes should operate on $_
+- (DONE) - regexes should operate on $_
 - separate runtimes/emitters: Perl5 (mp6), Perl5MO (kp6 phase 2), and Perl5Moose (v6.pm)
-- FIX - $List_COMPILER::PAD ("@COMPILER::PAD") should be $COMPILER::List_PAD instead
+- (DONE) - $List_COMPILER::PAD ("@COMPILER::PAD") should be $COMPILER::List_PAD instead
 
 
 
@@ -80,7 +80,7 @@ Incomplete features:
 - method hyperization is untested
 - binding does no type check
 
-- (FIXED) all variables initialized during compilation should have initializers for run-time
+- (DONE) all variables initialized during compilation should have initializers for run-time
 - traits
     - is context, rw, readonly
 - containers, but no laziness, no slices
@@ -93,7 +93,7 @@ Incomplete features:
 - type system
 - optimization phase
 - for-loop, map, with several arguments
-- (FIXED) begin-blocks with side-effects
+- (DONE) begin-blocks with side-effects
 - subroutine calls, data, are incompatible with perl 5
 - no 'use v5'
 - declare our/state/temp/constant things    
@@ -104,14 +104,13 @@ Incomplete features:
 
 - perl6-land 'use'
 - COMPILING::<$?PARSER>
-- translate the COMPILER package to mp6
-- translate Pad.pm and Type.pm to mp6
+- translate the COMPILER package to mp6 - translate Pad.pm and Type.pm to mp6
 
 - create an AST node for INIT/END
 
 BEGIN blocks:
 
-- (FIXED) an anonymous subroutine is generated, but it is not called at runtime
+- (DONE) an anonymous subroutine is generated, but it is not called at runtime
 - logging of array/hash element modifications is not implemented
 - binding to Value is not emitted
 
@@ -132,7 +131,7 @@ Bootstrap:
 
 Roles:
 
-- (FIXED) possible implementation:
+- (DONE) possible implementation:
     $Obj->{Role_bool} = sub { 1 };
   at runtime:
     $Obj->{Role_bool} && $Obj->{Role_bool}() || $Obj->bool()
@@ -151,7 +150,7 @@ Problems running the Perl6 test suite:
   
 - kp6 requires a 'compilation unit' declaration
 - '&&', '||' operators don't short circuit
-- (FIXED) 'if', 'sub' require ';'
+- (DONE) 'if', 'sub' require ';'
 - postfix:<++> not implemented
 - 'use' doesn't accept parameters: use lib ".";
 - parameter list error in:
@@ -166,7 +165,7 @@ Visitor modules:
     KindaPerl6::Visitor::LexicalSub
     KindaPerl6::Visitor::CreateEnv
 
-- (FIXED) add variable declarations collector -- XXX now obsolete!
+- (DONE) add variable declarations collector -- XXX now obsolete!
   - move variable declarations to the start of each block
 
 - LexicalSub.pm -- XXX now obsolete!
