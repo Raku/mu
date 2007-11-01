@@ -13,9 +13,11 @@ class KindaPerl6::Visitor::Emit::Perl6 {
 
 class CompUnit {
     method emit_perl6 {
-          '{ module ' ~ $.name ~ "; " 
+          'module ' ~ $.name ~ " { " 
+        ~ Main::newline()
         ~ $.body.emit_perl6
-        ~ ' }' ~ Main::newline();
+        ~ Main::newline()
+        ~ '};' ~ Main::newline();
     }
 }
 
