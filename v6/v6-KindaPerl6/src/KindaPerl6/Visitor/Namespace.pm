@@ -9,13 +9,6 @@ This visitor maps global variables into a namespace-hash.
 
 class KindaPerl6::Visitor::Namespace {
 
-        my $table := {
-            '$' => 'Scalar_',
-            '@' => 'List_',
-            '%' => 'Hash_',
-            '&' => 'Code_',
-        };
-
     method visit ( $node, $node_name ) {
     
         if    ( $node_name eq 'Var' )
@@ -23,19 +16,22 @@ class KindaPerl6::Visitor::Namespace {
             if @($node.namespace) {
                 #say "global ", $node.name;
                 # $X::Y::z -> %KP6<X::Y><Scalar_z>
-                return ::Lookup(
-                        obj => ::Lookup(
-                            obj => ::Var(
-                                namespace => [],
-                                name      => 'KP6',
-                                twigil    => '',
-                                sigil     => '%',
-                            ),
-                            index => ::Val::Buf( buf => ($node.namespace).join('::'), ),
+                return ::Call(
+                     'invocant' => ::Call(
+                             'invocant' => ::Var(
+                                    namespace => [],
+                                    name      => 'KP6',
+                                    twigil    => '',
+                                    sigil     => '%',
+                                ),
+                             'arguments' => [ ::Val::Buf( buf => ($node.namespace).join('::') ) ],
+                             'method' => 'LOOKUP',
+                             'hyper' => ''
                         ),
-                        index => ::Val::Buf( buf => ($table{$node.sigil} ~ $node.name), ),
-                    );
-                
+                     'arguments' => [ ::Val::Buf( buf => ( $node.sigil ~ $node.name) ) ],
+                     'method' => 'LOOKUP',
+                     'hyper' => ''
+                );
             }
         };
         return;

@@ -6,7 +6,6 @@ use MiniPerl6::Perl5::Match;
 
 package KindaPerl6::Visitor::Namespace;
 sub new { shift; bless {@_}, "KindaPerl6::Visitor::Namespace" }
-my $table = { '$' => 'Scalar_', '@' => 'List_', '%' => 'Hash_', '&' => 'Code_', };
 
 sub visit {
     my $self   = shift;
@@ -19,9 +18,16 @@ sub visit {
             do {
                 if ( @{ $node->namespace() } ) {
                     return (
-                        Lookup->new(
-                            'obj' => Lookup->new( 'obj' => Var->new( 'namespace' => [], 'name' => 'KP6', 'twigil' => '', 'sigil' => '%', ), 'index' => Val::Buf->new( 'buf' => Main::join( $node->namespace(), '::' ), ), ),
-                            'index' => Val::Buf->new( 'buf' => ( $table->{ $node->sigil() } . $node->name() ), ),
+                        Call->new(
+                            'invocant' => Call->new(
+                                'invocant'  => Var->new( 'namespace'  => [],                             'name' => 'KP6', 'twigil' => '', 'sigil' => '%', ),
+                                'arguments' => [ Val::Buf->new( 'buf' => Main::join( $node->namespace(), '::' ), ) ],
+                                'method'    => 'LOOKUP',
+                                'hyper'     => '',
+                            ),
+                            'arguments' => [ Val::Buf->new( 'buf' => ( $node->sigil() . $node->name() ), ) ],
+                            'method'    => 'LOOKUP',
+                            'hyper'     => '',
                         )
                     );
                 }
