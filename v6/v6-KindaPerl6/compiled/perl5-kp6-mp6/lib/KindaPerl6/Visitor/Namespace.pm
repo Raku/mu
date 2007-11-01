@@ -20,7 +20,7 @@ sub visit {
                     return (
                         Call->new(
                             'invocant' => Call->new(
-                                'invocant'  => Var->new( 'namespace'  => [],                             'name' => 'KP6', 'twigil' => '', 'sigil' => '%', ),
+                                'invocant'  => Var->new( 'namespace'  => ['GLOBAL'],                     'name' => 'KP6', 'twigil' => '', 'sigil' => '%', ),
                                 'arguments' => [ Val::Buf->new( 'buf' => Main::join( $node->namespace(), '::' ), ) ],
                                 'method'    => 'LOOKUP',
                                 'hyper'     => '',

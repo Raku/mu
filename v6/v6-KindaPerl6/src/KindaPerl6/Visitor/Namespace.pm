@@ -19,7 +19,7 @@ class KindaPerl6::Visitor::Namespace {
                 return ::Call(
                      'invocant' => ::Call(
                              'invocant' => ::Var(
-                                    namespace => [],
+                                    namespace => [ 'GLOBAL' ],
                                     name      => 'KP6',
                                     twigil    => '',
                                     sigil     => '%',
