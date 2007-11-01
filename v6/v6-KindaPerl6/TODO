@@ -1,6 +1,7 @@
 TODO list for KindaPerl6
 
-- hyperops
+- (DONE) hyperops
+    write tests
 - undefined global variables are perl5 undef not perl6 Undef instances
 - remove KindaPerl6::Runtime::Perl5::DispatchSugar
 - Bug (luqui++): 
