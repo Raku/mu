@@ -305,7 +305,7 @@ while ($pos < length($source)) {
 }
 
 # emit CHECK blocks
-for ( @COMPILER::CHECK ) { 
+for ( @COMPILER::CHECK ) {
     my ( $ast, $pad ) = @$_;
     unshift @COMPILER::PAD, $pad;
     my $ast = COMPILER::begin_block( $ast );
@@ -464,23 +464,28 @@ sub report_error
 # Print perl code, use perltidy if we have it; disable with --noperltidy
 sub print_perl
 {
-    my ($out) = @_;
-    if ( $opt{perltidy} ) {
-        eval { require Perl::Tidy };
-        unless ($@) {
-            my @dest;
+    my ( $input_filename ) = @_;
+
+    if ( $opt{ perltidy } ) {
+        # perltidy option is set.
+        eval { require Perl::Tidy };  # do we have Perl::Tidy
+
+        unless ( $@ ) { # error?
+            my $dest;
             Perl::Tidy::perltidy(
                 source => \$out,
-                destination => \@dest,
+                destination => $dest, # destination is STDOUT -st in util/perltidyrc
                 # required to stop Perl::Tidy using the real @ARGV for some
                 # unknown (and wrong) reason
                 argv => [],
             );
-            print for @dest;
-            return;
+            return 1; # Return a true code.
         }
     }
-    print $out;
+
+    print $input_filename;
+
+    return 1; # user does not have perltidy, but this is not an error
 }
 
 sub help

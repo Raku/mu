@@ -22,7 +22,7 @@ sub emit_perl6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( '{ module ' . ( $self->{name} . ( '; ' . ( $self->{body}->emit_perl6() . ( ' }' . Main::newline() ) ) ) ) );
+    ( 'module ' . ( $self->{name} . ( ' { ' . ( Main::newline() . ( $self->{body}->emit_perl6() . ( Main::newline() . ( '};' . Main::newline() ) ) ) ) ) ) );
 }
 
 package Val::Int;
