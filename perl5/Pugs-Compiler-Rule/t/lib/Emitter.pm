@@ -56,9 +56,9 @@ sub run_test ($) {
             my $got = extract_snippet($perl5, $node_type);
             $updated_test->{$node_type} = $got;
             $got =~ s/\n+$//g;
-            #$got =~ s/\$pad\{I\d+\}/\$pad{Ixxxx}/g;
+            $got =~ s/\bI\d+/Ixxxx/g;
             $expected =~ s/\n+$//g;
-            #$expected =~ s/\$pad\{I\d+\}/\$pad{Ixxxx}/g;
+            $expected =~ s/\bI\d+/Ixxxx/g;
             is $got, $expected, "$t::BlockName - $node_type ok";
             $count++;
         }
