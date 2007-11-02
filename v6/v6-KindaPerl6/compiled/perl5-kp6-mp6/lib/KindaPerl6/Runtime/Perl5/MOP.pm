@@ -48,6 +48,7 @@ use strict 'vars';
 package KindaPerl6::Runtime::Perl5::MOP;
 use Data::Dumper;
 use Carp qw(confess);
+use Scalar::Util qw | refaddr |;
 use UNIVERSAL;
 
 =begin notes
@@ -110,12 +111,55 @@ returns the results of $object->{ _dispatch }( $object, @args )
 
 # sugar routines
 
+# for $ENV{ DEBUG }
+my %_dispatch_signatures;
+my $_dispatch_recursion = 0;
+
 sub ::DISPATCH {
     my $invocant = shift;
 
     unless ( $invocant->{_dispatch} ) {
         confess "DISPATCH: calling @_ on invalid object:", Dumper($invocant), "\n";
     }
+
+    if ( $ENV{ DEBUG } ) {
+        # setenv DEBUG 1   (or 2 call/leaving statements)
+        # detect circular invocations, if we invoke the same subroutine more
+        # than $failure times we wil die out.  I'm assuming that if we see
+        # the exact same call again, that we have started an infinate loop.
+        my $failure = 1;
+        my $signature = join '',
+            "::DISPATCH( ", (join ', ', refaddr ($invocant), @_), ")", "\n";
+
+        # add signature to list of seen signatures.
+        $_dispatch_signatures{ $signature }++;
+
+        die "I've seen this call before! $signature\n"
+            if ( $_dispatch_signatures{ $signature } > $failure );
+
+
+        $_dispatch_recursion++;
+        print "Calling: $signature" if $ENV{ DEBUG } == 2;
+        my $return_value = $invocant->{_dispatch}( $invocant, @_ );
+        print "Leaving: $signature" if $ENV{ DEBUG } == 2;
+
+        $_dispatch_recursion--;
+
+        # remove signature from list.
+        $_dispatch_signatures{ $signature }--;
+        delete $_dispatch_signatures{ $signature } if $_dispatch_signatures{ $signature } == 0;
+
+        if ( $_dispatch_recursion == 0 ) {
+            print "\n" if $ENV{ DEBUG }; # provides a seperator between base calls.
+            if ( %_dispatch_signatures ) {
+                $DB::single=1;
+                die "We never completed: " . join ' ', keys %_dispatch_signatures;
+            }
+        }
+
+        return $return_value;
+    }
+
     $invocant->{_dispatch}( $invocant, @_ );
 }
 
