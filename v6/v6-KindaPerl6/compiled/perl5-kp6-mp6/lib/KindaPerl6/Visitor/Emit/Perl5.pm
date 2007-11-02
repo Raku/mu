@@ -429,9 +429,38 @@ sub emit_arguments {
                     )
             );
             do {
-                if ( $field->has_default()->bit() ) { $str = ( $str . ( ' else { ' . ( $bind_default->emit_perl5() . ' } ' ) ) ) }
-                else                                { }
+
+                # dlocaus: irc.freenode.net, I added this code to help isolate the
+                # bug that was causing.
+
+                # perl script/kp6 -Bperl5 t/kp6/grammar/09-Val__Int.t
+                # Can't call method "bit" on an undefined value at compiled/perl5-kp6-mp6/lib/KindaPerl6/Visitor/Emit/Perl5.pm line 432, <> line 1.
+                # Attempt to free unreferenced scalar: SV 0x1e49ba0, Perl interpreter: 0x603010, <> line 1.
+
+                # As best as I can determine, the problem is that $field->has_default has has_default
+                #
+                # When the bug happens:
+                #   'has_default' => undef
+                #
+                # When the bug DOES NOT happen
+                #   'has_default' => bless( { 'bit' => 0 }, 'Val::Bit' ),
+                #
+                # good luck!
+
+                eval {
+                    if ( $field->has_default()->bit() ) { $str = ( $str . ( ' else { ' . ( $bind_default->emit_perl5() . ' } ' ) ) ) }
+                    else                                { }
+                };
+
+                if ( $@ ) {
+                    use Data::Dumper;
+                    use Carp;
+                    print Dumper($field);
+                    confess( "$field->has_default()->bit() generated $@" );
+                };
+
             };
+
             $i = ( $i + 1 );
         }
     };
