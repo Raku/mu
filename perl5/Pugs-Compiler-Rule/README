@@ -2,7 +2,7 @@ NAME
     Pugs::Compiler::Rule - Compiler for Perl 6 regexes
 
 VERSION
-    This document describes Pugs::Compiler::Rule 0.27 released on 11 Oct,
+    This document describes Pugs::Compiler::Rule 0.28 released on 31 Oct,
     2007.
 
 SYNOPSIS
