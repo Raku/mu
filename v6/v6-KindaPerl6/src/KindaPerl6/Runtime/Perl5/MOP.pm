@@ -149,7 +149,7 @@ sub ::DISPATCH {
         delete $_dispatch_signatures{ $signature } if $_dispatch_signatures{ $signature } == 0;
 
         if ( $_dispatch_recursion == 0 ) {
-            print "\n" if $ENV{ DEBUG }; # provides a seperator between base calls.
+            print "\n" if $ENV{ DEBUG } == 2; # provides a seperator between base calls.
             if ( %_dispatch_signatures ) {
                 $DB::single=1;
                 confess "We never completed: " . join ' ', keys %_dispatch_signatures;
