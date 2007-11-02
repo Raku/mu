@@ -13,7 +13,7 @@ sub test {
     my $pmfile = "tmp/$module.pm";
     unlink $pmfile if -f $pmfile;
     is system("$^X -Ilib util/compile_p6grammar.pl -D examples/$name.grammar > $pmfile"), 0, "$name.grammar compiles okay";
-    my $cmd = "$^X -Ilib -Itmp -M$module -e '$code'";
+    my $cmd = qq{$^X -Ilib -Itmp -M$module -e "$code"};
     my $out = `$cmd`;
     chomp($out);
     my $count = $out =~ s/^>>(?:BEGIN|END) \w+<<[^\n]+\n//gsm;
@@ -21,14 +21,14 @@ sub test {
     is $count, $expected_count, 'debugging output count ok';
 }
 
-test('adder', 'print Adder->add("3 + 23")->(), "\n"', 26, 23);
-test('adder', 'print Adder->add("532+49")->(), "\n"', 581, 23);
+test('adder', "print Adder->add('3 + 23')->()", 26, 23);
+test('adder', "print Adder->add('532+49')->()", 581, 23);
 
-test('digits', 'print Digits->count("49a3")->(), "\n"', 3, 61);
+test('digits', "print Digits->count('49a3')->()", 3, 61);
 
-test('langs', 'print My::VB->def("Dim a, b As double")->{"My::C.var_list"}, "\n"', 'a, b', 96);
+test('langs', "print My::VB->def('Dim a, b As double')->{'My::C.var_list'}", 'a, b', 96);
 
-test('langs2', 'print My::VB->def("Dim a, b As double")->{"My::C.var_list"}, "\n"', 'a, b ', 100);
+test('langs2', "print My::VB->def('Dim a, b As double')->{'My::C.var_list'}", 'a, b ', 100);
 
-test('Grammar', 'print Pugs::Grammar::Rule->rule("a b")->to', 3, 515);
+test('Grammar', "print Pugs::Grammar::Rule->rule('a b')->to", 3, 515);
 
