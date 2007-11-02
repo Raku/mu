@@ -3,8 +3,8 @@ TODO list for KindaPerl6
 - (DONE) hyperops
     write tests
 - undefined global variables are perl5 undef not perl6 Undef instances
-- (DONE) remove KindaPerl6::Runtime::Perl5::DispatchSugar 
-- Bug (luqui++): 
+- (DONE) remove KindaPerl6::Runtime::Perl5::DispatchSugar
+- Bug (luqui++):
   foo(); sub foo() { say 'hi' }
   my &x; sub y { say 123 }; x(); BEGIN { &x := &y }
   (DONE) my @x = (1,2,3); say @x
@@ -14,9 +14,15 @@ TODO list for KindaPerl6
 - (DONE) move &say() to Prelude
 - (DONE) make [...] generate an Array object, (...) is List
 
+- t/kp6/grammar/15-capture-from-rule-block.t & t/kp6/grammar/17-???
+  both go into infinite loops.
+  a PERL5 file that expresses this bug in a nice debuggable format is in
+  - pugs/misc/pX/dlocaus/kp6-grammar-test-15.pl
+  - good luck!
+
 * Phase 3 "regex compiler refactoring"
 
-- (DONE) add command-line selection of plugins 
+- (DONE) add command-line selection of plugins
 - add support for Perl5-PCR
 - add support for Parrot-PGE
 - improve kp6-regex
@@ -31,7 +37,7 @@ TODO list for KindaPerl6
 
 The kp6 Milestones are:
 
-- lexical subs 
+- lexical subs
 - metamodel interface
   - bootstrap == kp6-2
 - lexical classes
@@ -50,13 +56,13 @@ Starting Code freeze
 
 The optional features in kp6 are:
 
-- coro 
+- coro
 - macro
 - multi
 - private method/sub/accessor
 - junctions
 - signatures with optional, named, slurpy arguments
-- a better parser 
+- a better parser
     - $?FILE, $?LINE
     - finer-grained error messages
 - precompilation
@@ -97,7 +103,7 @@ Incomplete features:
 - (DONE) begin-blocks with side-effects
 - subroutine calls, data, are incompatible with perl 5
 - no 'use v5'
-- declare our/state/temp/constant things    
+- declare our/state/temp/constant things
 
 - missing GLOBAL::import() at compile-time
 - 'our $x' should compile to 'my $x ::= $Pkgname::x'
@@ -142,13 +148,13 @@ Roles:
 Optimization:
 
 - TODO
-  
+
 Perl5 compatibility:
 
 - mark closure blocks as p5 or p6 (kp6/mp6)
-  
+
 Problems running the Perl6 test suite:
-  
+
 - kp6 requires a 'compilation unit' declaration
 - '&&', '||' operators don't short circuit
 - (DONE) 'if', 'sub' require ';'
