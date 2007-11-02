@@ -4,7 +4,7 @@ use warnings;
 
 package Pugs::Compiler::Grammar;
 
-our $VERSION = '0.27';
+our $VERSION = '0.28';
 
 use Pugs::Grammar::Rule;
 use Pugs::Emitter::Grammar::Perl5;
