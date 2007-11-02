@@ -5,9 +5,9 @@ class KindaPerl6::Visitor::ExtractRuleBlock {
 
     my $count;
     method visit ( $node, $node_name, $path ) {
-    
+
         #say "Global ",$node_name;
-    
+
         if    ( $node_name eq 'Rule::Block' )
         {
             use Data::Dumper;
@@ -34,6 +34,7 @@ class KindaPerl6::Visitor::ExtractRuleBlock {
                                 is_named_only => ::Val::Bit( bit => '0', ),
                                 is_copy       => ::Val::Bit( bit => '0', ),
                                 is_rw         => ::Val::Bit( bit => '0', ),
+                                has_default   => ::Val::Bit( bit => '0', ),
                             ),
                         ],
                     ),

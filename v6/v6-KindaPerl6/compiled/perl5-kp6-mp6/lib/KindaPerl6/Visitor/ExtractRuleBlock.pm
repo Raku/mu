@@ -39,6 +39,7 @@ sub visit {
                                     'is_named_only'       => Val::Bit->new( 'bit' => '0', ),
                                     'is_copy'             => Val::Bit->new( 'bit' => '0', ),
                                     'is_rw'               => Val::Bit->new( 'bit' => '0', ),
+                                    'has_default'         => Val::Bit->new( 'bit' => '0', ),
                                 )
                             ],
                         ),
