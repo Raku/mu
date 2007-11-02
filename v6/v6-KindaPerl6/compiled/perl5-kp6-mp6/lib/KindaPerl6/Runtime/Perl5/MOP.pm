@@ -111,6 +111,7 @@ returns the results of $object->{ _dispatch }( $object, @args )
 
 # sugar routines
 
+# for $ENV{ DEBUG }
 my %_dispatch_signatures;
 my $_dispatch_recursion = 0;
 
@@ -122,8 +123,10 @@ sub ::DISPATCH {
     }
 
     if ( $ENV{ DEBUG } ) {
-        # detect circular invocations, if we invoke the same subroutine more than
-        # $failure times we'll die out.
+        # setenv DEBUG 1   (or 2 call/leaving statements)
+        # detect circular invocations, if we invoke the same subroutine more
+        # than $failure times we wil die out.  I'm assuming that if we see
+        # the exact same call again, that we have started an infinate loop.
         my $failure = 1;
         my $signature = join '',
             "::DISPATCH( ", (join ', ', refaddr ($invocant), @_), ")", "\n";
@@ -131,9 +134,8 @@ sub ::DISPATCH {
         # add signature to list of seen signatures.
         $_dispatch_signatures{ $signature }++;
 
-        confess "I've seen this call before! $signature\n"
+        confess "(depth = $_dispatch_recursion ) I've seen this call before! $signature\n"
             if ( $_dispatch_signatures{ $signature } > $failure );
-
 
         $_dispatch_recursion++;
         print '  ' x $_dispatch_recursion, "Calling: $signature" if $ENV{ DEBUG } == 2;
@@ -157,9 +159,7 @@ sub ::DISPATCH {
         return $return_value;
     }
 
-
     $invocant->{_dispatch}( $invocant, @_ );
-
 }
 
 =head2 ::DISPATCH_VAR

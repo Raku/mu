@@ -134,13 +134,13 @@ sub ::DISPATCH {
         # add signature to list of seen signatures.
         $_dispatch_signatures{ $signature }++;
 
-        die "I have seen this ::DISPATCH() before! $signature\n"
+        confess "(depth = $_dispatch_recursion ) I've seen this call before! $signature\n"
             if ( $_dispatch_signatures{ $signature } > $failure );
 
         $_dispatch_recursion++;
-        print "Calling: $signature" if $ENV{ DEBUG } == 2;
+        print '  ' x $_dispatch_recursion, "Calling: $signature" if $ENV{ DEBUG } == 2;
         my $return_value = $invocant->{_dispatch}( $invocant, @_ );
-        print "Leaving: $signature" if $ENV{ DEBUG } == 2;
+        print '  ' x $_dispatch_recursion, "Leaving: $signature" if $ENV{ DEBUG } == 2;
 
         $_dispatch_recursion--;
 
@@ -152,7 +152,7 @@ sub ::DISPATCH {
             print "\n" if $ENV{ DEBUG }; # provides a seperator between base calls.
             if ( %_dispatch_signatures ) {
                 $DB::single=1;
-                die "We never completed: " . join ' ', keys %_dispatch_signatures;
+                confess "We never completed: " . join ' ', keys %_dispatch_signatures;
             }
         }
 
