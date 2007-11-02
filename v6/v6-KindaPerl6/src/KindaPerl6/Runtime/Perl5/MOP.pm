@@ -134,9 +134,8 @@ sub ::DISPATCH {
         # add signature to list of seen signatures.
         $_dispatch_signatures{ $signature }++;
 
-        die "I've seen this call before! $signature\n"
+        die "I have seen this ::DISPATCH() before! $signature\n"
             if ( $_dispatch_signatures{ $signature } > $failure );
-
 
         $_dispatch_recursion++;
         print "Calling: $signature" if $ENV{ DEBUG } == 2;
