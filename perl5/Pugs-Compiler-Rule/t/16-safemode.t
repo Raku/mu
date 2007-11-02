@@ -19,7 +19,7 @@ sub test {
     #warn "EXIT CODE (2): $exit";
     is $exit, $exit_code, "$name.grammar compiles okay";
     if ($exit == 0) {
-        my $cmd = "$^X -Ilib -Itmp -M$module -e '$code'";
+        my $cmd = qq{$^X -Ilib -Itmp -M$module -e "$code"};
         my $out = `$cmd`;
         chomp($out);
         my $count = $out =~ s/^>>(?:BEGIN|END) \w+<<[^\n]+\n//gsm;
@@ -28,15 +28,15 @@ sub test {
     }
 }
 
-test('adder', 'print Adder->add("3 + 23")->(), "\n"', 255);
+test('adder', "print Adder->add('3 + 23')->()", 255);
 #die;
-test('adder', 'print Adder->add("532+49")->(), "\n"', 255);
+test('adder', "print Adder->add('532+49')->()", 255);
 
-test('digits', 'print Digits->count("49a3")->(), "\n"', 255);
+test('digits', "print Digits->count('49a3')->()", 255);
 
-test('langs', 'print My::VB->def("Dim a, b As double")->{"My::C.var_list"}, "\n"', 0, 'a, b', 96);
+test('langs', "print My::VB->def('Dim a, b As double')->{'My::C.var_list'}", 0, 'a, b', 96);
 
-test('langs2', 'print My::VB->def("Dim a, b As double")->{"My::C.var_list"}, "\n"', 0, 'a, b ', 100);
+test('langs2', "print My::VB->def('Dim a, b As double')->{'My::C.var_list'}", 0, 'a, b ', 100);
 
-test('Grammar', 'print Pugs::Grammar::Rule->rule("a b")->to', 255);
+test('Grammar', "print Pugs::Grammar::Rule->rule('a b')->to", 255);
 
