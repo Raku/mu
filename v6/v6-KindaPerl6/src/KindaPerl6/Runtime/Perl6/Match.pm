@@ -25,7 +25,7 @@ class Match is Capture {
     };
 
     method true {
-        return $.bool.true;
+        return ($.bool).true;
     };
 
     method set_from {
