@@ -1,6 +1,6 @@
 grammar MyGrammar {
     token tok1 {
-        'a' { return 2; }
+        'a' { say "closure";return 2; }
     };
 }
 module Main {
@@ -14,3 +14,6 @@ module Main {
         say 'not ok 2';
     }
 }
+#reason:
+#ShortCiruit turns return 1 && 2 into &infix:<&&>(sub {return 1},sub {2})
+#fix: add -> {return ...} to kp6 and make ShortCircuit use ->
