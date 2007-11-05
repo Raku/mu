@@ -47,7 +47,7 @@ disable any unsafe features (e.g. C<system>).
 
 =item --noperltidy
 
-Don't try to emit pretty code.
+Do not try to emit pretty code.
 
 =item --do
 
@@ -178,7 +178,7 @@ my $lib;
 
     if (-d (my $dir = runtime_dir() )) {
         # If we're in the kp6 directory use the lib-kp6-* libs there so
-        # the developers don't have to `make all install' for every little
+        # the developers do not have to 'make all install' for every little
         # change.
         unshift @INC, $dir;
         $lib = $dir;
