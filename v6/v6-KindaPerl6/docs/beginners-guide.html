@@ -60,6 +60,14 @@ make -j 3 test
 perl scripts/kp6 [perl6 file]
 </pre>
 
+<li>To debug perl6 in perl5 code scripts
+<pre>
+setenv PERL5LIB compiled/perl5-kp6-mp6/lib
+perl -d (some script)
+DB> $DB::deep = 500;  # do the recurisve nature of the code, you're likely to
+                      # hit 100 pertty fast.
+</pre>
+
 </ul>
 
 </body>
