@@ -1,0 +1,65 @@
+<html>
+<head>
+<title>Beginner's guide to helping out KindaPerl6</title>
+</head>
+<body>
+<p>Thank you!  So you want to help out!
+<p>You will need the following:
+
+<ul>
+<li><a href="#need">What do you need</a>
+<li><a href="#customs">Customs and Traditions</a>
+<li><a href="#howto">How to...</a>
+</ul>
+<hr>
+
+<a name="need"></a><h2>What do you need</h2>
+<ol>
+<li>Perl5
+<li>Coro.pm : <a href="http://search.cpan.org/~mlehmann/Coro-4.13/Coro.pm">http://search.cpan.org/~mlehmann/Coro-4.13/Coro.pm</a><br>
+<small>Required for t/kp6/internals/02-gather.t</small>
+<li>Subversion client.
+<li>Commit bit: Ask on #perl6 irc.freenode.net.
+</ol>
+
+<a name="customs"></a><h2>Customs and Traditions:</h2>
+
+<ul>
+<li>(new comers) When you get your commit bit, Update the AUTHORS file to make sure everything (SVN) is ok.
+<li>Commit code in doubt, revert if wrong.<br>
+    <a href="http://irclog.perlgeek.de/perl6/2007-10-31#i_135203">http://irclog.perlgeek.de/perl6/2007-10-31#i_135203</a>
+</ul>
+
+<a name="howto"></a><h2>How to:</h2>
+
+<ul>
+<li>Simply pull down the respository
+<pre>
+svn co http://svn.pugscode.org/pugs/
+</pre>
+
+<li>To compile KP6
+<pre>
+perl Makefile.PL
+make -j 3 test
+</pre>
+<small>-j 3 means do 3 jobs at once, great for systems with SMP</small><bR><br>
+
+<li>To re-compile KP6
+<pre>
+make clean
+perl Makefile.PL
+make -j 3 test
+</pre>
+
+<li>To execute a script
+<pre>
+perl scripts/kp6 [perl6 file]
+</pre>
+
+<li>Useful book marks:
+<a href="http://dev.pugscode.org/browser/v6/v6-KindaPerl6/docs/bookmarks.html">http://dev.pugscode.org/browser/v6/v6-KindaPerl6/docs/bookmarks.html</a>
+</ul>
+
+</body>
+</html>
