@@ -2,14 +2,15 @@
 package kp6;
 use strict;
 
-use Digest ();
+use Digest       ();
 use Getopt::Long ();
 use File::Spec::Functions qw(catdir);
+use English;
 
 # XXX: HACK around harness which calls us like this during `make test'
 # to find out what's in our @INC
-if ($ENV{HARNESS_ACTIVE} and "@ARGV" =~ /-le print join qq/) {
-    print join(qq[\n], @INC) . "\n";
+if ( $ENV{HARNESS_ACTIVE} and "@ARGV" =~ /-le print join qq/ ) {
+    print join( qq[\n], @INC ) . "\n";
     exit 0;
 }
 
@@ -40,6 +41,20 @@ Print the version number, then exit successfully.
 The runtime to use, defaults to mp6 but kp6 can also be selected. This
 option will go away when the compiler has been bootstraped to kp6.
 
+=item -c
+
+parse the file or -e, but do not run it.
+
+=item -B[backend]
+
+execute use the compiler backend.
+
+(valid backends are: ast, perl5, cl (add -sbcl, -clisp, -ecl under -B)
+
+=item -C[backend]
+
+parse the file or -e, but do not run it
+
 =item --secure
 
 Tell the emitter L<KindaPerl6::Visitor::Emit::*> emitter being used to
@@ -60,6 +75,447 @@ Example:
     # then replace method calls with MO calls;
     # then emit Perl 5 code
     kp6 --do Token,MetaClass,Emit::Perl5 < examples/token.pl
+
+=back
+
+=cut
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
+=cut
+
+#
+# Get command line options
+#
+
+my %opt = ( perltidy => 1 );
+
+Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through require_order)], )->getoptions(
+
+    # help
+    'h|help' => \$opt{help},
+
+    # what version are we using
+    'v|version' => \$opt{version},
+
+    # Use the mp6 or kp6 backend? This'll go away in the future
+    'r|runtime=s' => \( $opt{runtime} = 'mp6' ),    # or 'kp6'
+
+    # Compile or execute
+    'C=s' => \$opt{C},
+    'B=s' => \$opt{B},
+
+    # Prettify the code
+    'perltidy!' => \$opt{perltidy},
+
+    # the visitor sequence to use
+    'do=s' => \$opt{do},
+
+    # Program on the command line, there can be multiple -e
+    'e=s@' => \$opt{e},
+
+    # emitter options
+    'secure' => \my $secure,
+
+    # Produce output
+    'o=s' => \$opt{o},
+
+) or help();
+
+#
+# Deal with --help, --version
+#
+
+help( verbose => 1, exitval => 0 )
+    if $opt{help};
+
+# Display version if requested
+version( exitval => 0 )
+    if $opt{version};
+
+#
+# Get the required runtime files for the backend we're using
+#
+
+sub runtime_dir {
+    return "compiled/perl5-kp6-kp6/lib" if $opt{runtime} eq "kp6";
+    return "compiled/perl5-kp6-mp6/lib" if $opt{runtime} eq "mp6";
+}
+
+sub install_dir {
+    return "compiled/perl5-kp6-kp6" if $opt{runtime} eq "kp6";
+    return "compiled/perl5-kp6-mp6" if $opt{runtime} eq "mp6";
+}
+
+my $lib;
+{
+    if ( -d ( my $dir = runtime_dir() ) ) {
+        unshift @INC, $dir;
+    }
+
+    require KindaPerl6;
+
+    $Main::_V6_COMPILER_NAME    = 'KindaPerl6';
+    $Main::_V6_COMPILER_VERSION = $KindaPerl6::VERSION;
+
+    if ( -d ( my $dir = runtime_dir() ) ) {
+
+        # If we're in the kp6 directory use the lib-kp6-* libs there so
+        # the developers do not have to 'make all install' for every little
+        # change.
+        unshift @INC, $dir;
+        $lib = $dir;
+    }
+    else {
+        my $path = $INC{"KindaPerl6.pm"};
+        my ($kp_path) = $path =~ m/(.*)\.pm$/;
+        my $runtime_dir     = catdir( $kp_path,     install_dir() );
+        my $runtime_dir_lib = catdir( $runtime_dir, "lib" );
+        my $runtime_dir_mod = catdir( $runtime_dir, "mod" );
+
+        unshift @INC, $runtime_dir_lib;
+        $lib = $runtime_dir_lib;
+    }
+
+    require KindaPerl6::Runtime::Perl5::Runtime;
+    require KindaPerl6::Grammar;
+    require KindaPerl6::Traverse;
+    require KindaPerl6::Ast;
+    require KindaPerl6::Grammar::Regex;
+    require KindaPerl6::Runtime::Perl5::Compiler;
+
+    if ( $opt{runtime} eq 'kp6' ) {
+        $ENV{KP6_TARGET_RUNTIME} = 'KindaPerl6::Runtime::Perl5::KP6Runtime';
+    }
+}
+
+#
+# Construct the visitor sequence from the command line options
+#
+
+my @visitor_sequence;
+my @visitors;
+{
+    my %visitor_args = ( secure => $opt{secure} );
+
+    # Manual visitor sequence specified on the command line
+    push @visitor_sequence, split /[\s,]/, $opt{do} if $opt{do};
+
+    if ( grep { $_ eq 'perl6' } @opt{qw(C B)} ) {
+        push @visitor_sequence, qw( Emit::Perl6 )
+            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Perl6';
+    }
+    elsif ( grep { $_ eq 'ast' } @opt{qw(C B)} ) {
+        push @visitor_sequence, qw( Emit::AstPerl )
+            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::AstPerl';
+    }
+    elsif ( grep { $_ eq 'perl5' } @opt{qw(C B)} ) {
+        push @visitor_sequence, qw( ExtractRuleBlock Token MetaClass ShortCircuit Global Emit::Perl5 )
+            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Perl5';
+    }
+    elsif ( grep { $_ eq 'parrot' } @opt{qw(C B)} ) {
+        push @visitor_sequence, qw( Emit::Parrot )
+            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Parrot';
+    }
+    elsif ( grep { $_ =~ /^cl/ } @opt{qw(C B)} ) {
+        push @visitor_sequence, qw( Global Emit::Lisp )
+            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Lisp';
+    }
+    elsif ( grep { $_ eq 'perl5rx' } @opt{qw(C B)} ) {
+        push @visitor_sequence, qw( RegexCapture MetaClass ShortCircuit Global Emit::Perl5Regex )
+            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Perl5Regex';
+    }
+    elsif ( !@visitor_sequence ) {
+
+        # this is the default sequence
+        push @visitor_sequence, qw( ExtractRuleBlock Token MetaClass ShortCircuit Global Emit::Perl5 );
+    }
+
+    push @visitor_sequence, 'Emit::AstPerl'
+        unless $visitor_sequence[-1] =~ /^Emit/;
+
+    for (@visitor_sequence) {
+        my $module_name = 'KindaPerl6::Visitor::' . $_;
+        eval "require $module_name";
+        die "Can't load $_ plugin: $@" if $@;
+        push @visitors, $module_name->new( visitor_args => \%visitor_args );
+    }
+}
+
+#
+# Get the Perl 6 source
+#
+
+my $source = load_source();
+
+$COMPILER::source_md5 = Digest->new("MD5")->add($source)->hexdigest;
+
+#
+# Good to go, pass the source through the selected visitors
+#
+
+my $pos = 0;
+my $out;
+COMPILER::env_init();
+while ( $pos < length($source) ) {
+    my $p = KindaPerl6::Grammar->comp_unit( $source, $pos );
+
+    my $ast = $$p;
+
+    unless ( ref $ast && $ast->isa("CompUnit") ) {
+
+        # Compilation failed, show the user where
+        die report_error( \$source, $pos );
+    }
+    $ast = $ast->emit($_) for @visitors;
+    $out .= $ast;
+    $pos = $p->to;
+}
+
+# emit CHECK blocks
+for (@COMPILER::CHECK) {
+    my ( $ast, $pad ) = @$_;
+    unshift @COMPILER::PAD, $pad;
+    my $ast = COMPILER::begin_block($ast);
+    $ast = $ast->emit($_) for @visitors;
+    $out .= $ast;
+    shift @COMPILER::PAD;
+}
+
+# We have source to print out, do so, but consider the backends
+# We also the execute any code here.
+{
+    no warnings 'uninitialized';
+
+    # did the user want us to output the file?
+    if ( $opt{o} ) {
+        die "Output file $opt{o} already exists" if -e $opt{o};
+
+        # I would like to perl::tidy this file, but the -st is embeded into
+        # the util/perltidyrc file.
+        die "Could not open $opt{o} for writing: $!" unless open my $fh, '>', $opt{o};
+        print $fh $out;
+        close $fh;
+    }
+
+    # Make kp6 -e 'say "foo"' and echo 'say "foo"' | kp6 run stuff
+    # under the p5 backend
+    if ( !grep {defined} @opt{qw( B C do )} ) {
+        run_piped_command("$EXECUTABLE_NAME -I$lib - -- @ARGV");
+    }
+    elsif ( grep { $_ eq 'ast' } @opt{qw(C B)} ) {
+        if ( $opt{B} ) {
+            die "'ast' backend does not support compilation";
+        }
+        elsif ( $opt{C} ) {
+            print_perl($out);
+        }
+    }
+    elsif ( grep { $_ eq 'perl5' } @opt{qw(C B)} ) {
+        if ( $opt{B} ) {
+        perl5_B:
+
+            # Execute!
+            run_piped_command("$EXECUTABLE_NAME -I$lib - -- @ARGV");
+        }
+        elsif ( $opt{C} ) {
+            print_perl($out);
+        }
+    }
+    elsif ( grep { $_ eq 'perl5rx' } @opt{qw(C B)} ) {
+        if ( $opt{B} ) {
+            run_piped_command("$EXECUTABLE_NAME -I lib5regex -I$lib - -- @ARGV");
+        }
+        elsif ( $opt{C} ) {
+            print_perl($out);
+        }
+    }
+    elsif ( grep { $_ =~ /^cl/ } @opt{qw(C B)} ) {
+        if ( $opt{C} ) {
+            print $out;
+        }
+        elsif ( $opt{B} =~ /^cl(?:-(.*))$/ ) {
+            my $compiler = $1;
+
+            if ( $compiler eq 'sbcl' ) {
+                run_piped_command( "sbcl --noinform --noprint --disable-debugger", '(main)' );
+            }
+            elsif ( $compiler eq 'clisp' ) {
+                run_piped_command( "clisp -q -q -on-error exit|$EXECUTABLE_NAME -ne 'print unless 1..m{4\]> (.*)(?{print\$1,\$/})}i'", '(main)' );
+            }
+            elsif ( $compiler eq 'ecl' ) {
+                run_piped_command( "ecl | $EXECUTABLE_NAME -ne 'do { s/^KP6-LISP-USER> //; print } unless 1 .. /bytecompiled/'", '(main)' );
+            }
+        }
+    }
+    else {
+        print $out;
+    }
+}
+
+#
+# End of main program
+#
+
+exit(0);
+
+#
+# Utility functions
+#
+
+=head2 run_piped_command($command, @print_to_file)
+
+run_piped_command executes "| $command", and then prints to the file descriptor
+@print_to_file.
+
+if '|' is not at the begining of $command then it will be added.
+
+YOU ARE RESPOSIBLE for putting in "\n" into @print_to_file!!!
+
+=cut
+
+sub run_piped_command {
+    my ( $command, @inputs ) = @_;
+    $command = '| ' . $command unless $command =~ /^\|/;
+    open my $fh, "$command" or die $!;
+    local $/;
+    print $fh $out;
+    for my $input (@inputs) {
+        print $fh, $input;
+    }
+    close $fh;
+}
+
+# Eat that File::Slurp!
+sub slurp {
+    do {
+        local ( @ARGV, $/ ) = $_[0];
+        scalar <>;
+    };
+}
+
+# Helper sub to show the user where the parser bailed out.
+sub report_error {
+    my ( $source, $pos ) = @_;
+
+    # Is this the first line? We'll have to special case if it is
+    my $first_line = 0;
+
+    # So we died, find out what line we were on
+    my $source_uptohere = substr $$source, 0, $pos;
+
+    # Find how many lines we've been through
+    my $lines = ( $source_uptohere =~ tr/\n// ) + 1;
+
+    # The column is distance from the last newline to $pos :)
+    my $last_n_pos = rindex $source_uptohere, "\n";
+
+    if ( $last_n_pos == -1 ) {
+
+        # No previous newline, this is the first line
+        $first_line = 1;
+        $last_n_pos = 0;
+    }
+
+    my $column = $pos - $last_n_pos;
+
+    # Print out the offending newline
+    my $next_n_pos  = index $$source, "\n", $last_n_pos + 1;
+    my $line_length = $next_n_pos - $last_n_pos;
+    my $line        = substr $$source, $last_n_pos, $line_length;
+
+    # print out an arrow pointing to the column
+    my $whitespace = ' ' x $column;
+
+    return "syntax error at position $pos, line $lines column $column:" . ( $first_line ? "\n" : "" ) . $line . "\n" . $whitespace . "^ HERE\n";
+}
+
+# Print perl code, use perltidy if we have it; disable with --noperltidy
+sub print_perl {
+    my ($input_filename) = @_;
+
+    if ( $opt{perltidy} ) {
+
+        # perltidy option is set.
+        eval { require Perl::Tidy };    # do we have Perl::Tidy
+
+        unless ($@) {                   # error?
+            my $dest;
+            Perl::Tidy::perltidy(
+                source      => \$out,
+                destination => $dest,    # destination is STDOUT -st in util/perltidyrc
+                                         # required to stop Perl::Tidy using the real @ARGV for some
+                                         # unknown (and wrong) reason
+                argv        => [],
+            );
+            return 1;                    # Return a true code.
+        }
+    }
+
+    print slurp( $input_filename );
+
+    return 1;                            # user does not have perltidy, but this is not an error
+}
+
+sub load_source {
+    my $source;
+
+    if ( -t STDIN ) {
+
+        # STDIN is open to a terminal, i.e. we're being run as `kp6
+        # file.p6'. slurp the file
+        my ( $file, @args ) = @ARGV;
+
+        if ( $file and not $opt{e} ) {
+            $source = slurp($file);
+        }
+        elsif ( $opt{e} ) {
+
+            # divide -e statements by ;
+            $source = join ';', @{ $opt{e} };
+        }
+        else {
+            $source = '';
+        }
+    }
+    else {
+
+        # Called as `kp6 < file.p6', get source code from STDIN
+        local $/;
+        $source = <>;
+    }
+
+    return $source;
+}
+
+sub help {
+    print <<'HELP';
+Usage: kp6 [switches] [--] [programfile] [arguments]
+  -e program      one line of program (multiple -e are allowed, omit programfile)
+  -c              parse the file or -e, but do not run it
+  -Bbackend       execute using the compiler backend
+  -Cbackend       compile using the compiler backend
+                  (valid backends are: ast, perl5, cl (add -sbcl, -clisp, -ecl under -B)
+  -o              output to file if using -B, required by some backends
+  --do            visitors to use
+
+  -h or --help    give this message
+See kp6 documentation for details
+HELP
+    exit 0;
+}
+
+sub version {
+    printf "kp6 %s\n", $KindaPerl6::VERSION;
+    exit 0;
+}
+
+__END__
+
+# un-used documentation
 
 =item --ast
 
@@ -87,429 +543,3 @@ Emit PIR via L<KindaPerl6::Visitor::Parrot>, currently broken.
 
 Emit Common Lisp via L<KindaPerl6::Visitor::Emit::Lisp>.
 
-=back
-
-=cut
-
-=head1 LICENSE
-
-This program is free software; you can redistribute it and/or
-modify it under the same terms as Perl itself.
-
-=cut
-
-#
-# Get command line options
-#
-
-my %opt;
-$opt{perltidy} = 1;
-Getopt::Long::Parser->new(
-    config => [ qw( bundling no_ignore_case pass_through require_order) ],
-)->getoptions(
-    'h|help'    => \$opt{help},
-    'v|version' => \$opt{version},
-
-    # Use the mp6 or kp6 backend? This'll go away in the future
-    'r|runtime=s' => \($opt{runtime} = 'mp6'), # or 'kp6'
-
-    # Compile or execute
-    'C=s' => \$opt{C},
-    'B=s' => \$opt{B},
-
-    # Prettify the code
-    'perltidy!' => \$opt{perltidy},
-
-    # the visitor sequence to use
-    'do=s'      => \$opt{do},
-
-    # Program on the command line, there can be multiple -e
-    'e=s@' => \$opt{e},
-#
-#    # pre-made visitor sequences
-#    'ast'	    => \my $dumpast,
-#    'perl5'	    => \my $perl5,
-#    'perl5rx'   => \my $perl5rx,
-#    'perl6'	    => \my $perl6,
-#    'parrot'    => \my $parrot,
-#    'lisp'      => \my $lisp,
-#
-#    # emitter options
-    'secure'    => \my $secure,
-#
-#    'no-autoexecute' => \my $no_autoexecute,
-) or help();
-
-#
-# Deal with --help, --version
-#
-
-help(verbose => 1, exitval => 0)
-    if $opt{help};
-
-# Display version if requested
-version(exitval => 0)
-    if $opt{version};
-
-#
-# Get the required runtime files for the backend we're using
-#
-
-sub runtime_dir {
-    return "compiled/perl5-kp6-kp6/lib"  if $opt{runtime} eq "kp6";
-    return "compiled/perl5-kp6-mp6/lib"      if $opt{runtime} eq "mp6";
-}
-
-sub install_dir {
-    return "compiled/perl5-kp6-kp6" if $opt{runtime} eq "kp6";
-    return "compiled/perl5-kp6-mp6" if $opt{runtime} eq "mp6";
-}
-
-my $lib;
-{
-    if (-d (my $dir = runtime_dir() )) {
-        unshift @INC, $dir;
-    }
-
-    require KindaPerl6;
-
-    $Main::_V6_COMPILER_NAME    = 'KindaPerl6';
-    $Main::_V6_COMPILER_VERSION = $KindaPerl6::VERSION;
-
-    if (-d (my $dir = runtime_dir() )) {
-        # If we're in the kp6 directory use the lib-kp6-* libs there so
-        # the developers do not have to 'make all install' for every little
-        # change.
-        unshift @INC, $dir;
-        $lib = $dir;
-    } else {
-        my $path            = $INC{"KindaPerl6.pm"};
-        my ($kp_path)       = $path =~ m/(.*)\.pm$/;
-        my $runtime_dir     = catdir($kp_path, install_dir() );
-        my $runtime_dir_lib = catdir($runtime_dir, "lib");
-        my $runtime_dir_mod = catdir($runtime_dir, "mod");
-
-        unshift @INC, $runtime_dir_lib;
-        $lib = $runtime_dir_lib;
-    }
-
-    require KindaPerl6::Runtime::Perl5::Runtime;
-    require KindaPerl6::Grammar;
-    require KindaPerl6::Traverse;
-    require KindaPerl6::Ast;
-    require KindaPerl6::Grammar::Regex;
-    require KindaPerl6::Runtime::Perl5::Compiler;
-
-    if ($opt{runtime} eq 'kp6') {
-        $ENV{KP6_TARGET_RUNTIME} = 'KindaPerl6::Runtime::Perl5::KP6Runtime';
-    }
-}
-
-#
-# Construct the visitor sequence from the command line options
-#
-
-my @visitor_sequence;
-my @visitors;
-{
-    my %visitor_args = ( secure => $opt{secure} );
-
-    # Manual visitor sequence specified on the command line
-    push @visitor_sequence, split /[\s,]/, $opt{do} if $opt{do};
-
-    if (grep { $_ eq 'perl6' } @opt{qw(C B)}) {
-        push @visitor_sequence, qw( Emit::Perl6 )
-            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Perl6';
-    }
-    elsif (grep { $_ eq 'ast' } @opt{qw(C B)}) {
-        push @visitor_sequence, qw( Emit::AstPerl )
-            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::AstPerl';
-    }
-    elsif (grep { $_ eq 'perl5' } @opt{qw(C B)}) {
-        push @visitor_sequence, qw( ExtractRuleBlock Token MetaClass ShortCircuit Global Emit::Perl5 )
-            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Perl5';
-    }
-    elsif (grep { $_ eq 'parrot' } @opt{qw(C B)}) {
-        push @visitor_sequence, qw( Emit::Parrot )
-            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Parrot';
-    }
-    elsif (grep { $_ =~ /^cl/ } @opt{qw(C B)}) {
-        push @visitor_sequence, qw( Global Emit::Lisp )
-            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Lisp';
-    }
-    elsif (grep { $_ eq 'perl5rx' } @opt{qw(C B)}) {
-        push @visitor_sequence, qw( RegexCapture MetaClass ShortCircuit Global Emit::Perl5Regex )
-            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Perl5Regex';
-    }
-    elsif ( ! @visitor_sequence ) {
-        # this is the default sequence
-        push @visitor_sequence, qw( ExtractRuleBlock Token MetaClass ShortCircuit Global Emit::Perl5 )
-    }
-
-    push @visitor_sequence, 'Emit::AstPerl'
-        unless $visitor_sequence[-1] =~ /^Emit/;
-
-    for ( @visitor_sequence ) {
-        my $module_name = 'KindaPerl6::Visitor::' . $_;
-        eval "require $module_name";
-        die "Can't load $_ plugin: $@" if $@;
-        push @visitors, $module_name->new( visitor_args => \%visitor_args );
-    }
-}
-
-#
-# Get the Perl 6 source
-#
-
-my $source;
-
-if (-t STDIN) {
-    # STDIN is open to a terminal, i.e. we're being run as `kp6
-    # file.p6'. slurp the file
-    my ($file, @args) = @ARGV;
-    if ($file and not $opt{e}) {
-        $source = slurp($file);
-    } elsif ($opt{e}) {
-        # divide -e statements by ;
-        $source = join ';', @{ $opt{e} };
-    } else {
-        $source = '';
-    }
-} else {
-    # Called as `kp6 < file.p6', get it from STDIN
-    local $/;
-    $source = <>;
-}
-
-$COMPILER::source_md5 = Digest->new("MD5")->add($source)->hexdigest;
-
-#
-# Good to go, pass the source through the selected visitors
-#
-
-my $pos = 0;
-my $out;
-COMPILER::env_init();
-while ($pos < length($source)) {
-    my $p = KindaPerl6::Grammar->comp_unit($source, $pos);
-
-    my $ast = $$p;
-
-    unless (ref $ast && $ast->isa("CompUnit")) {
-        # Compilation failed, show the user where
-        die report_error(\$source, $pos);
-    }
-    $ast  = $ast->emit( $_ ) for @visitors;
-    $out .= $ast;
-    $pos  = $p->to;
-}
-
-# emit CHECK blocks
-for ( @COMPILER::CHECK ) {
-    my ( $ast, $pad ) = @$_;
-    unshift @COMPILER::PAD, $pad;
-    my $ast = COMPILER::begin_block( $ast );
-    $ast  = $ast->emit( $_ ) for @visitors;
-    $out .= $ast;
-    shift @COMPILER::PAD;
-}
-
-# We have source to print out, do so, but consider the backends
-{
-    no warnings 'uninitialized';
-
-    # Make kp6 -e 'say "foo"' and echo 'say "foo"' | kp6 run stuff
-    # under the p5 backend
-    if (!grep { defined } @opt{qw( B C do )}) {
-        goto perl5_B;
-    }
-
-    if (grep { $_ eq 'ast' } @opt{qw(C B)}) {
-        if ($opt{B}) {
-            die "'ast' backend does not support compilation";
-        } elsif ($opt{C}) {
-            print_perl($out);
-            exit 0;
-        }
-    }
-    elsif (grep { $_ eq 'perl5' } @opt{qw(C B)}) {
-        if ($opt{B}) {
-          perl5_B:
-            # Execute!
-            open my $fh, "|$^X -I$lib - -- @ARGV" or die $!;
-            local $/;
-            print $fh $out;
-            close $fh;
-            exit 0;
-        } elsif ($opt{C}) {
-            print_perl($out);
-            exit 0;
-        }
-    }
-    elsif (grep { $_ eq 'perl5rx' } @opt{qw(C B)}) {
-        if ($opt{B}) {
-          perl5_B:
-            # Execute!
-            open my $fh, "|$^X -I lib5regex -I$lib - -- @ARGV" or die $!;
-            local $/;
-            print $fh $out;
-            close $fh;
-            exit 0;
-        } elsif ($opt{C}) {
-            print_perl($out);
-            exit 0;
-        }
-    }
-    elsif (grep { $_ =~ /^cl/ } @opt{qw(C B)}) {
-        if ($opt{C}) {
-            print $out;
-            exit 0;
-        }
-        elsif ($opt{B} =~ /^cl(?:-(.*))$/) {
-            my $compiler = $1;
-
-            if ($compiler eq 'sbcl') {
-                open my $fh, "|sbcl --noinform --noprint --disable-debugger" or die $!;
-                local $/;
-                print $fh $out;
-                print $fh '(main)';
-                close $fh;
-                exit 0;
-            }
-            if ($compiler eq 'clisp') {
-                open my $fh, "|clisp -q -q -on-error exit|$^X -ne 'print unless 1..m{4\]> (.*)(?{print\$1,\$/})}i'" or die $!;
-                local $/;
-                print $fh $out;
-                print $fh '(main)';
-                close $fh;
-                exit 0;
-            }
-            if ($compiler eq 'ecl') {
-                open my $fh, "|ecl | $^X -ne 'do { s/^KP6-LISP-USER> //; print } unless 1 .. /bytecompiled/'" or die $!;
-                local $/;
-                print $fh $out;
-                print $fh '(main)';
-                close $fh;
-                exit 0;
-            }
-        }
-    } else {
-        print $out;
-        exit 0;
-    }
-}
-
-#if ($opt{C} =~ /^cl/ or $opt{B} =~ /^cl/ and !$no_autoexecute) {
-#    print "\n(main)\n";
-#}
-
-#
-# End of main program
-#
-
-exit(0);
-
-#
-# Utility functions
-#
-
-# Eat that File::Slurp!
-sub slurp
-{
-    do {
-        local (@ARGV, $/) = $_[0];
-        scalar <>;
-    };
-}
-
-# Helper sub to show the user where the parser bailed out.
-sub report_error
-{
-    my ($source, $pos) = @_;
-
-    # Is this the first line? We'll have to special case if it is
-    my $first_line = 0;
-
-    # So we died, find out what line we were on
-    my $source_uptohere = substr $$source, 0, $pos;
-
-    # Find how many lines we've been through
-    my $lines = ($source_uptohere =~ tr/\n//) + 1;
-
-    # The column is distance from the last newline to $pos :)
-    my $last_n_pos = rindex $source_uptohere, "\n";
-
-    if ($last_n_pos == -1) {
-        # No previous newline, this is the first line
-        $first_line = 1;
-        $last_n_pos = 0;
-    }
-
-    my $column = $pos - $last_n_pos;
-
-    # Print out the offending newline
-    my $next_n_pos = index $$source, "\n", $last_n_pos + 1;
-    my $line_length = $next_n_pos - $last_n_pos;
-    my $line = substr $$source, $last_n_pos, $line_length;
-
-    # print out an arrow pointing to the column
-    my $whitespace = " " x $column;
-
-    "syntax error at position $pos, line $lines column $column:"
-    . ($first_line ? "\n" : "")
-    . $line . "\n"
-    . $whitespace . "^ HERE\n";
-}
-
-# Print perl code, use perltidy if we have it; disable with --noperltidy
-sub print_perl
-{
-    my ( $input_filename ) = @_;
-
-    if ( $opt{ perltidy } ) {
-        # perltidy option is set.
-        eval { require Perl::Tidy };  # do we have Perl::Tidy
-
-        unless ( $@ ) { # error?
-            my $dest;
-            Perl::Tidy::perltidy(
-                source => \$out,
-                destination => $dest, # destination is STDOUT -st in util/perltidyrc
-                # required to stop Perl::Tidy using the real @ARGV for some
-                # unknown (and wrong) reason
-                argv => [],
-            );
-            return 1; # Return a true code.
-        }
-    }
-
-    print $input_filename;
-
-    return 1; # user does not have perltidy, but this is not an error
-}
-
-sub help
-{
-print <<'HELP';
-Usage: kp6 [switches] [--] [programfile] [arguments]
-  -e program      one line of program (several -e's allowed, omit programfile)
-  -c              parse the file or -e, but do not run it
-  -Bbackend       execute using the compiler backend
-  -Cbackend       compile using the compiler backend
-                  (valid backends are: ast, perl5, cl (add -sbcl, -clisp, -ecl under -B)
-  -o              output to file if using -B, required by some backends
-  --do            visitors to use
-  -Mmodule        execute 'use module' before running the program
-  -Ipath          add path to module search paths in @*INC
-
-  -h or --help    give this message
-See kp6 documentation for details
-HELP
-exit 0;
-}
-
-sub version
-{
-    printf "kp6 %s\n", $KindaPerl6::VERSION;
-    exit 0;
-}
