@@ -433,7 +433,8 @@ sub report_error {
     return "syntax error at position $pos, line $lines column $column:" . ( $first_line ? "\n" : "" ) . $line . "\n" . $whitespace . "^ HERE\n";
 }
 
-# Print perl code, use perltidy if we have it; disable with --noperltidy
+# Print perl code or ast with perltidy, use perltidy if we have it;
+# disable with --noperltidy
 sub print_perl {
     my ($input_filename) = @_;
 
@@ -455,7 +456,7 @@ sub print_perl {
         }
     }
 
-    print slurp( $input_filename );
+    print $out;
 
     return 1;                            # user does not have perltidy, but this is not an error
 }
