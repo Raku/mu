@@ -644,10 +644,14 @@ class Subset {
 class Method {
     method emit_perl5 {
           '::DISPATCH( $::Code, \'new\', { '
-        ~   'code => sub { '  
-        ~     $.block.emit_declarations 
-        ~     '$self = shift; ' 
-        ~     $.block.emit_arguments 
+        ~   'code => sub { '                 ~ Main::newline()
+        ~     '# emit_declarations'          ~ Main::newline()
+        ~     $.block.emit_declarations      ~ Main::newline()
+        ~     '# get $self'                  ~ Main::newline()
+        ~     '$self = shift; '              ~ Main::newline()
+        ~     '# emit_arguments'             ~ Main::newline()
+        ~     $.block.emit_arguments         ~ Main::newline()
+        ~     '# emit_body'                  ~ Main::newline()
         ~     $.block.emit_body
         ~    ' }, '
         ~   'signature => ' 
