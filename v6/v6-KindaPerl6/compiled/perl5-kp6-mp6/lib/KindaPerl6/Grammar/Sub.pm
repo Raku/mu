@@ -918,7 +918,6 @@ sub proto {
                                                                                     'parameters' => Var->new( 'sigil' => '&', 'twigil' => '', 'name' => ( "" . $MATCH->{'ident'} ), 'namespace' => ${ $MATCH->{'namespace'} }, ),
                                                                                     'arguments' => Call->new( 'hyper' => '', 'arguments' => [], 'method' => 'new', 'invocant' => Proto->new( 'name' => 'MultiToken', ), ),
                                                                                 );
-                                                                                COMPILER::begin_block($bind);
                                                                                 return ($bind);
                                                                             };
                                                                             '974^213';
