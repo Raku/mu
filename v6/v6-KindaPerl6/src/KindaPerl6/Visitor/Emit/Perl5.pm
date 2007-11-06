@@ -518,7 +518,7 @@ class Decl {
             };
             if ($.var).sigil eq '%' {
                 return $s ~ $.var.emit_perl5
-                    ~ ' = ::DISPATCH( $::Hash' ~ $create ~ ';' ~ Main::newline();
+                    ~ ' = ::DISPATCH( $::HashContainer' ~ $create ~ ';' ~ Main::newline();
             };
             if ($.var).sigil eq '@' {
                 return $s ~ $.var.emit_perl5
@@ -560,7 +560,7 @@ class Decl {
             return $.decl ~ ' ' 
                 # ~ $.type 
                 ~ ' ' ~ $.var.emit_perl5
-                ~ ' = ::DISPATCH( $::Hash' ~ $create ~ '; '
+                ~ ' = ::DISPATCH( $::HashContainer' ~ $create ~ '; '
                 ~ Main::newline();
         };
         if ($.var).sigil eq '@' {

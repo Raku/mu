@@ -95,11 +95,11 @@ returns the results of $object->{ _dispatch }( $object, @args )
 
  Example calls
 
- ::DISPATCH($::Undef,'new',0);
+ ::DISPATCH($::Undef,'new');
 
  Translates to
 
- return a new Undef class with value 0  or $::Undef->new(0);
+ return a new Undef instance with value $::Undef->new();
 
  ::DISPATCH( $::Bit, 'new', exists ${ $_[0]{_value}{cell} }{ $_[0]{_value}{key} } ? 1 : 0 )
 
@@ -1720,7 +1720,23 @@ $::ArrayContainer = make_class(
     }
 );
 
-my $meta_ArrayContainer = ::DISPATCH( $::ArrayContainer, 'HOW' );
+$::HashContainer = make_class(
+    proto   => $::HashContainer,
+    parents => [$::meta_Container],
+    methods => {
+        new => sub {
+            my $v = {
+                %{ $_[0] },
+                _value        => $_[1], # { %{$_[1]}, cell => undef },
+                _roles        => { container => 1, 'auto_deref' => 1 },
+                _dispatch_VAR => $::dispatch_VAR,
+            };
+            $v->{_value}{cell} = ::DISPATCH( $::Hash, "new" )
+                unless exists $v->{_value}{cell};
+            $v;
+        },
+    }
+);
 
 =head2 $::Routine
 

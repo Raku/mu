@@ -105,15 +105,16 @@ $::UndefinedHashItem = KindaPerl6::Runtime::Perl5::MOP::make_class(
     parents => [ ::DISPATCH( $::Undef, 'HOW' ) ],
     methods => {
         new => sub {
-            print "UndefinedHashItem.new \n";
             my $v = {
                 %{ $_[0] },
                 _value        => $_[1],
             };
+            print "UndefinedHashItem.new $v->{_value} \n";
+            return $v;
         },
         INDEX => sub {
-            print "UndefinedHashItem.INDEX not \n";
             my $self = shift;
+            print "UndefinedHashItem.INDEX ",$self->{_value},"\n";
             # XXX TODO lazy autovivification
             ::DISPATCH( $self->{_value}, 'STORE',
                 ::DISPATCH( $::Array, 'new' )
@@ -121,12 +122,16 @@ $::UndefinedHashItem = KindaPerl6::Runtime::Perl5::MOP::make_class(
             return ::DISPATCH( $self->{_value}, 'INDEX', @_ );
         },
         LOOKUP => sub {
-            print "UndefinedHashItem.LOOKUP \n";
             my $self = shift;
+            print "UndefinedHashItem.LOOKUP ",$self->{_value},"\n";
+            
             # XXX TODO lazy autovivification
-            ::DISPATCH( $self->{_value}, 'STORE',
-                ::DISPATCH( $::Hash, 'new' )
-            );
+            #::DISPATCH( $self->{_value}, 'STORE',
+            #    ::DISPATCH( $::Hash, 'new' )
+            #);
+
+            ${ $self->{_value}{_value}{cell} }{ $self->{_value}{_value}{key} } = ::DISPATCH( $::Hash, 'new' );
+
             return ::DISPATCH( $self->{_value}, 'LOOKUP', @_ );
         },
     }

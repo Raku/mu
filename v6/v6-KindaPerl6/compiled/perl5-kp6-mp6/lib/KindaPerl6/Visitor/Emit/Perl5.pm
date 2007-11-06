@@ -680,7 +680,7 @@ sub emit_perl5 {
                 else                                    { }
             };
             do {
-                if ( ( $self->{var}->sigil() eq '%' ) ) { return ( ( $s . ( $self->{var}->emit_perl5() . ( ' = ::DISPATCH( $::Hash' . ( $create . ( ';' . Main::newline() ) ) ) ) ) ) }
+                if ( ( $self->{var}->sigil() eq '%' ) ) { return ( ( $s . ( $self->{var}->emit_perl5() . ( ' = ::DISPATCH( $::HashContainer' . ( $create . ( ';' . Main::newline() ) ) ) ) ) ) }
                 else                                    { }
             };
             do {
@@ -743,7 +743,7 @@ sub emit_perl5 {
         else { }
     };
     do {
-        if ( ( $self->{var}->sigil() eq '%' ) ) { return ( ( $self->{decl} . ( ' ' . ( ' ' . ( $self->{var}->emit_perl5() . ( ' = ::DISPATCH( $::Hash' . ( $create . ( '; ' . Main::newline() ) ) ) ) ) ) ) ) }
+        if ( ( $self->{var}->sigil() eq '%' ) ) { return ( ( $self->{decl} . ( ' ' . ( ' ' . ( $self->{var}->emit_perl5() . ( ' = ::DISPATCH( $::HashContainer' . ( $create . ( '; ' . Main::newline() ) ) ) ) ) ) ) ) }
         else                                    { }
     };
     do {
