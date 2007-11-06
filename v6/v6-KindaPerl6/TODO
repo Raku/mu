@@ -1,24 +1,43 @@
 TODO list for KindaPerl6
 
+* Phase 5 "improved grammar"
+
 - (DONE) hyperops
     write tests
+    
 - undefined global variables are perl5 undef not perl6 Undef instances
+  - Visitor::Namespace was implemented to correct this, but it depends
+  on hash-of-hash autovivification, which is not working.
+  - using Visitor::Namespace will require some refactoring in 
+  Runtime::Perl5::Global.pm
+  
 - (DONE) remove KindaPerl6::Runtime::Perl5::DispatchSugar
-- Bug (luqui++):
-  foo(); sub foo() { say 'hi' }
+
+- foo(); sub foo() { say 'hi' }
   my &x; sub y { say 123 }; x(); BEGIN { &x := &y }
-  (DONE) my @x = (1,2,3); say @x
+  
+- (DONE) my @x = (1,2,3); say @x
   (DONE) {a => "b"}.{"a"}
   (DONE) {a => "b"}{"a"}  # Pair LOOKUP
 
 - (DONE) move &say() to Prelude
 - (DONE) make [...] generate an Array object, (...) is List
 
+- kp6-in-kp6 shows several problems with delimiter characters,
+  because it emits code inside perl 5 regexes.
+  One possible solution is to move code blocks into subroutines.
+
 - t/kp6/grammar/15-capture-from-rule-block.t & t/kp6/grammar/17-???
   both go into infinite loops.
   a PERL5 file that expresses this bug in a nice debuggable format is in
   - pugs/misc/pX/dlocaus/kp6-grammar-test-15.pl
   - good luck!
+
+
+* Phase 4 "improved runtime"
+
+- TODO items are listed in the kp6-roadmap document
+
 
 * Phase 3 "regex compiler refactoring"
 
@@ -127,7 +146,7 @@ Bugs:
 
 - missing compile-time methods
 
-- compile-time does not import GLOBAL - 'say' doesn't work inside BEGIN blocks
+- (DONE) compile-time does not import GLOBAL - 'say' doesn't work inside BEGIN blocks
 
 - grammar: 'undefine($v)' is not parsed
 - structure binding/assign is untested
@@ -155,8 +174,9 @@ Perl5 compatibility:
 
 Problems running the Perl6 test suite:
 
-- kp6 requires a 'compilation unit' declaration
+- (DONE) kp6 requires a 'compilation unit' declaration
 - '&&', '||' operators don't short circuit
+  there is a workaround, but this should really be implemented using macros
 - (DONE) 'if', 'sub' require ';'
 - postfix:<++> not implemented
 - 'use' doesn't accept parameters: use lib ".";
@@ -212,9 +232,21 @@ For later:
 
 - 6-on-6 design
   - full-ast
+  - some of the ast can be desugared into runtime method calls
+    - optimizations may require a much detailed ast,
+    but this detailed ast is probably backend-specific
 
 
 - Directory structure
+
+  - compiled x source
+
+  + src*
+  + compiled
+  + lib*
+
+
+  - main level
 
   + lib
   + script
@@ -224,7 +256,7 @@ For later:
   * lib
     * Kp6
       + Compiler
-      + Runtime (or "Prelude")
+      + Runtime 
 
   - second level
 
