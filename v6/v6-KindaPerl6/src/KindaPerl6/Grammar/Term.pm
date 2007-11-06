@@ -4,6 +4,11 @@ use v6-alpha;
 grammar KindaPerl6::Grammar {
 
 token term {
+    | '...' 
+        { return ::Apply(
+            'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'die', namespace => [ ] ),
+            'arguments' => [],
+          ) }
     | Inf  <!before <.word> | _ | <.digit> >
         { return ::Apply(
             'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'Inf', namespace => [ ] ),
