@@ -62,7 +62,7 @@ class Multi is Code {
     }
     
     method perl {
-        'Multi.new( ... )'
+        'Multi.new()'
     }
 }
 
@@ -119,5 +119,8 @@ class MultiToken is Code {
                 };
             };
         };
+    }
+    method perl {
+        'MultiToken.new()'
     }
 }

@@ -63,6 +63,8 @@
                 $::Code, 'new',
                 {
                     code => sub {
+
+                        # emit_declarations
                         my $List__ =
                           ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
@@ -76,7 +78,11 @@
                               ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$code' } );
                         }
+
+                        # get $self
                         $self = shift;
+
+                        # emit_arguments
                         my $CAPTURE;
                         $CAPTURE =
                           ::DISPATCH( $::Scalar, 'new',
@@ -114,6 +120,8 @@
                                   $List__->{_value}{_array}[ $_param_index++ ];
                             }
                         }
+
+                        # emit_body
                         do {
                             if (
                                 ::DISPATCH(
@@ -209,6 +217,8 @@
                 $::Code, 'new',
                 {
                     code => sub {
+
+                        # emit_declarations
                         my $List_candidates = ::DISPATCH(
                             $::ArrayContainer,
                             'new',
@@ -230,7 +240,11 @@
                                 { modified => $_MODIFIED, name => '$capture' }
                             );
                         }
+
+                        # get $self
                         $self = shift;
+
+                        # emit_arguments
                         my $CAPTURE;
                         $CAPTURE =
                           ::DISPATCH( $::Scalar, 'new',
@@ -268,6 +282,8 @@
                                   $List__->{_value}{_array}[ $_param_index++ ];
                             }
                         }
+
+                        # emit_body
                         do {
                             if (
                                 ::DISPATCH(
@@ -625,6 +641,8 @@
                 $::Code, 'new',
                 {
                     code => sub {
+
+                        # emit_declarations
                         my $List__ =
                           ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
@@ -638,7 +656,11 @@
                               ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$self' } );
                         }
+
+                        # get $self
                         $self = shift;
+
+                        # emit_arguments
                         my $CAPTURE;
                         $CAPTURE =
                           ::DISPATCH( $::Scalar, 'new',
@@ -659,7 +681,9 @@
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         { my $_param_index = 0; }
-                        ::DISPATCH( $::Str, 'new', 'Multi.new( ... )' );
+
+                        # emit_body
+                        ::DISPATCH( $::Str, 'new', 'Multi.new()' );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
@@ -751,6 +775,8 @@
                 $::Code, 'new',
                 {
                     code => sub {
+
+                        # emit_declarations
                         my $len;
                         $len =
                           ::DISPATCH( $::Scalar, 'new',
@@ -784,7 +810,11 @@
                               ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$sym' } );
                         }
+
+                        # get $self
                         $self = shift;
+
+                        # emit_arguments
                         my $CAPTURE;
                         $CAPTURE =
                           ::DISPATCH( $::Scalar, 'new',
@@ -837,6 +867,8 @@
                                   $List__->{_value}{_array}[ $_param_index++ ];
                             }
                         }
+
+                        # emit_body
                         ::DISPATCH_VAR( $len, 'STORE',
                             ::DISPATCH( $sym, 'chars', ) );
                         do {
@@ -1026,6 +1058,8 @@
                 $::Code, 'new',
                 {
                     code => sub {
+
+                        # emit_declarations
                         my $List__ =
                           ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
@@ -1039,7 +1073,11 @@
                                 { modified => $_MODIFIED, name => '$capture' }
                             );
                         }
+
+                        # get $self
                         $self = shift;
+
+                        # emit_arguments
                         my $CAPTURE;
                         $CAPTURE =
                           ::DISPATCH( $::Scalar, 'new',
@@ -1077,6 +1115,8 @@
                                   $List__->{_value}{_array}[ $_param_index++ ];
                             }
                         }
+
+                        # emit_body
                         do {
                             if (
                                 ::DISPATCH(
@@ -1131,7 +1171,7 @@
                                                             }
                                                           )
                                                           unless
-                                                            defined $CAPTURE;
+                                                          defined $CAPTURE;
                                                         INIT {
                                                             $CAPTURE =
                                                               ::DISPATCH(
@@ -1214,7 +1254,7 @@
                                                             }
                                                           )
                                                           unless
-                                                            defined $CAPTURE;
+                                                          defined $CAPTURE;
                                                         INIT {
                                                             $CAPTURE =
                                                               ::DISPATCH(
@@ -1337,7 +1377,7 @@
                                                             }
                                                           )
                                                           unless
-                                                            defined $CAPTURE;
+                                                          defined $CAPTURE;
                                                         INIT {
                                                             $CAPTURE =
                                                               ::DISPATCH(
@@ -1524,8 +1564,8 @@
                                                             $len =
                                                               $List__->{_value}
                                                               {_array}
-                                                              [ $_param_index++
-                                                              ];
+                                                              [ $_param_index
+                                                              ++ ];
                                                         }
                                                     }
                                                     do {
@@ -1560,7 +1600,7 @@
                                                                     }
                                                                   )
                                                                   unless
-                                                                    defined $s;
+                                                                  defined $s;
                                                                 INIT {
                                                                     $s =
                                                                       ::DISPATCH(
@@ -1576,7 +1616,7 @@
                                                                 }
                                                                 my $Hash_syms =
                                                                   ::DISPATCH(
-                                                                    $::Hash,
+                                                                    $::HashContainer,
                                                                     'new',
                                                                     {
                                                                         modified =>
@@ -1652,8 +1692,8 @@
                                                                                     }
                                                                                   )
                                                                                   unless
-                                                                                    defined
-                                                                                      $sym;
+                                                                                  defined
+                                                                                  $sym;
                                                                                 INIT
                                                                                 {
                                                                                     $sym
@@ -1684,8 +1724,8 @@
                                                                                     }
                                                                                   )
                                                                                   unless
-                                                                                    defined
-                                                                                      $CAPTURE;
+                                                                                  defined
+                                                                                  $CAPTURE;
                                                                                 INIT
                                                                                 {
                                                                                     $CAPTURE
@@ -1795,7 +1835,8 @@
                                                                                           {_value}
                                                                                           {_array}
                                                                                           [
-                                                                                          $_param_index++
+                                                                                          $_param_index
+                                                                                          ++
                                                                                           ]
                                                                                           ;
                                                                                     }
@@ -2070,6 +2111,79 @@
                                     ]
                                 }
                             ),
+                            return => $::Undef,
+                        }
+                    ),
+                }
+            )
+        );
+        ::DISPATCH(
+            ::DISPATCH( $::MultiToken, 'HOW', ),
+            'add_method',
+            ::DISPATCH( $::Str, 'new', 'perl' ),
+            ::DISPATCH(
+                $::Code, 'new',
+                {
+                    code => sub {
+
+                        # emit_declarations
+                        my $List__ =
+                          ::DISPATCH( $::ArrayContainer, 'new',
+                            { modified => $_MODIFIED, name => '$List__' } );
+                        my $self;
+                        $self =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$self' } )
+                          unless defined $self;
+                        INIT {
+                            $self =
+                              ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$self' } );
+                        }
+
+                        # get $self
+                        $self = shift;
+
+                        # emit_arguments
+                        my $CAPTURE;
+                        $CAPTURE =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$CAPTURE' } )
+                          unless defined $CAPTURE;
+                        INIT {
+                            $CAPTURE = ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$CAPTURE' }
+                            );
+                        }
+                        ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                        do {
+                            ::MODIFIED($List__);
+                            $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                        };
+                        do {
+                            ::MODIFIED($Hash__);
+                            $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        { my $_param_index = 0; }
+
+                        # emit_body
+                        ::DISPATCH( $::Str, 'new', 'MultiToken.new()' );
+                    },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {
+                            invocant => bless(
+                                {
+                                    'namespace' => [],
+                                    'name'      => 'self',
+                                    'twigil'    => '',
+                                    'sigil'     => '$'
+                                },
+                                'Var'
+                            ),
+                            array =>
+                              ::DISPATCH( $::Array, "new", { _array => [] } ),
                             return => $::Undef,
                         }
                     ),

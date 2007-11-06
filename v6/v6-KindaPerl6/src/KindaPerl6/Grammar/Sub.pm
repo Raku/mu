@@ -195,7 +195,7 @@ token proto {
                             ),
                         ),
             );
-#            COMPILER::begin_block( $bind );   # ::=   compile-time
+            COMPILER::begin_block( $bind );   # ::=   compile-time
             return $bind;                         # :=    run-time
         }  
 }
