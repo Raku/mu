@@ -12,11 +12,6 @@ $::Hash = KindaPerl6::Runtime::Perl5::MOP::make_class(
                 _dispatch_VAR => $::dispatch_VAR,
             };
         },
-    STORE=>sub {
-            $_[0]{_value}{_hash} = ::DISPATCH($_[1],"hash")->{_value}{_hash};
-            #$_[0]{_value}{_hash} = $_[1]->{_value}{_hash};
-            $_[0];
-        },
     LOOKUP=>sub {
             my $key = ::DISPATCH(::DISPATCH($_[1],"Str"),"p5landish");
             $_[0]{_value}{_hash} = {}
