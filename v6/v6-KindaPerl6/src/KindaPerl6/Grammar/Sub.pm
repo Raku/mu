@@ -191,7 +191,7 @@ token proto {
                             'arguments' => [ ],
                             'method'    => 'new',
                             'invocant'  => ::Proto(
-                                name => 'Multi',
+                                name => 'MultiToken',
                             ),
                         ),
             );
