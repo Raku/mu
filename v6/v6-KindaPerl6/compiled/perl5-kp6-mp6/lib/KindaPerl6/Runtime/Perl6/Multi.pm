@@ -1171,7 +1171,7 @@
                                                             }
                                                           )
                                                           unless
-                                                          defined $CAPTURE;
+                                                            defined $CAPTURE;
                                                         INIT {
                                                             $CAPTURE =
                                                               ::DISPATCH(
@@ -1254,7 +1254,7 @@
                                                             }
                                                           )
                                                           unless
-                                                          defined $CAPTURE;
+                                                            defined $CAPTURE;
                                                         INIT {
                                                             $CAPTURE =
                                                               ::DISPATCH(
@@ -1377,7 +1377,7 @@
                                                             }
                                                           )
                                                           unless
-                                                          defined $CAPTURE;
+                                                            defined $CAPTURE;
                                                         INIT {
                                                             $CAPTURE =
                                                               ::DISPATCH(
@@ -1564,8 +1564,8 @@
                                                             $len =
                                                               $List__->{_value}
                                                               {_array}
-                                                              [ $_param_index
-                                                              ++ ];
+                                                              [ $_param_index++
+                                                              ];
                                                         }
                                                     }
                                                     do {
@@ -1600,7 +1600,7 @@
                                                                     }
                                                                   )
                                                                   unless
-                                                                  defined $s;
+                                                                    defined $s;
                                                                 INIT {
                                                                     $s =
                                                                       ::DISPATCH(
@@ -1692,8 +1692,8 @@
                                                                                     }
                                                                                   )
                                                                                   unless
-                                                                                  defined
-                                                                                  $sym;
+                                                                                    defined
+                                                                                      $sym;
                                                                                 INIT
                                                                                 {
                                                                                     $sym
@@ -1724,8 +1724,8 @@
                                                                                     }
                                                                                   )
                                                                                   unless
-                                                                                  defined
-                                                                                  $CAPTURE;
+                                                                                    defined
+                                                                                      $CAPTURE;
                                                                                 INIT
                                                                                 {
                                                                                     $CAPTURE
@@ -1835,8 +1835,7 @@
                                                                                           {_value}
                                                                                           {_array}
                                                                                           [
-                                                                                          $_param_index
-                                                                                          ++
+                                                                                          $_param_index++
                                                                                           ]
                                                                                           ;
                                                                                     }

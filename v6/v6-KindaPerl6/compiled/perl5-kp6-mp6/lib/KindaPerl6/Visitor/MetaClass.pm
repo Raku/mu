@@ -27,7 +27,7 @@ sub visit {
                                 for my $trait ( @{ $node->traits() } ) {
                                     do {
                                         if ( ( $trait->[0] eq 'meta' ) ) { $metaclass = $trait->[1] }
-                                        else { }
+                                        else                             { }
                                         }
                                 }
                                 }
@@ -39,7 +39,7 @@ sub visit {
                     my $pad;
                     do {
                         if ($body) { $pad = $body->pad() }
-                        else { }
+                        else       { }
                     };
                     push(
                         @{$module},
@@ -162,7 +162,7 @@ sub visit {
                                                 else {
                                                     do {
                                                         if ( ( $module ? 0 : 1 ) ) { $module = [] }
-                                                        else { }
+                                                        else                       { }
                                                     };
                                                     push( @{$module}, $item );
                                                 }
@@ -179,7 +179,7 @@ sub visit {
                     my $pad;
                     do {
                         if ($body) { $pad = $body->pad() }
-                        else { }
+                        else       { }
                     };
                     return ( CompUnit->new( 'unit_type' => 'module', 'name' => $node->name(), 'body' => Lit::Code->new( 'pad' => $pad, 'state' => {}, 'sig' => Sig->new( 'invocant' => (undef), 'positional' => [], ), 'body' => $module, ), ) );
                 }

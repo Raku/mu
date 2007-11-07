@@ -451,8 +451,8 @@
                                                             $thing =
                                                               $List__->{_value}
                                                               {_array}
-                                                              [ $_param_index
-                                                              ++ ];
+                                                              [ $_param_index++
+                                                              ];
                                                         }
                                                     }
                                                     do {
@@ -688,8 +688,8 @@
                                                             $thing =
                                                               $List__->{_value}
                                                               {_array}
-                                                              [ $_param_index
-                                                              ++ ];
+                                                              [ $_param_index++
+                                                              ];
                                                         }
                                                     }
                                                     do {
@@ -929,8 +929,8 @@
                                                             $thing =
                                                               $List__->{_value}
                                                               {_array}
-                                                              [ $_param_index
-                                                              ++ ];
+                                                              [ $_param_index++
+                                                              ];
                                                         }
                                                     }
                                                     do {
@@ -1187,8 +1187,8 @@
                                                             $thing =
                                                               $List__->{_value}
                                                               {_array}
-                                                              [ $_param_index
-                                                              ++ ];
+                                                              [ $_param_index++
+                                                              ];
                                                         }
                                                     }
                                                     do {

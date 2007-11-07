@@ -28,7 +28,7 @@ sub visit {
                                 else {
                                     do {
                                         if ($subitem) { $result = ( $result . ( $subitem->emit($self) . ', ' ) ) }
-                                        else { }
+                                        else          { }
                                         }
                                 }
                                 }
@@ -42,7 +42,7 @@ sub visit {
     };
     do {
         if ( Main::isa( $node, 'Str' ) ) { return ( ( '\'' . ( $node . '\'' ) ) ) }
-        else { }
+        else                             { }
     };
     my $result = '';
     $result = ( $result . ( '::' . ( $node_name . '( ' ) ) );
@@ -69,7 +69,7 @@ sub visit {
                                 else {
                                     do {
                                         if ( $data->{$item} ) { $result = ( $result . ( $data->{$item}->emit($self) . ', ' ) ) }
-                                        else { }
+                                        else                  { }
                                         }
                                 }
                                 }

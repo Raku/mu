@@ -24,7 +24,7 @@ sub ws {
                     my $m2 = KindaPerl6::Grammar->ws( $str, $MATCH->to() );
                     do {
                         if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                        else {0}
+                        else     {0}
                         }
                     }
                 }
@@ -49,7 +49,7 @@ sub ident {
                         my $m2 = KindaPerl6::Grammar->full_ident( $str, $MATCH->to() );
                         do {
                             if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                            else {0}
+                            else     {0}
                             }
                         }
                     }
@@ -59,7 +59,7 @@ sub ident {
                         my $m2 = $grammar->digit( $str, $MATCH->to() );
                         do {
                             if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'digit'} = $m2; 1 }
-                            else {0}
+                            else     {0}
                             }
                         }
                     }
@@ -103,7 +103,7 @@ sub literal {
                                 my $m2 = $grammar->literal( $str, $MATCH->to() );
                                 do {
                                     if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'literal'} = $m2; 1 }
-                                    else {0}
+                                    else     {0}
                                     }
                             }
                         )
@@ -130,7 +130,7 @@ sub literal {
                                     my $m2 = $grammar->literal( $str, $MATCH->to() );
                                     do {
                                         if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'literal'} = $m2; 1 }
-                                        else {0}
+                                        else     {0}
                                         }
                                 }
                                 )
@@ -167,7 +167,7 @@ sub metasyntax {
                                                 my $m2 = $grammar->literal( $str, $MATCH->to() );
                                                 do {
                                                     if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                                    else {0}
+                                                    else     {0}
                                                     }
                                             }
                                             && ( ( '\'' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 )
@@ -180,7 +180,7 @@ sub metasyntax {
                                                 my $m2 = $grammar->parsed_code( $str, $MATCH->to() );
                                                 do {
                                                     if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                                    else {0}
+                                                    else     {0}
                                                     }
                                                 }
                                         );
@@ -192,7 +192,7 @@ sub metasyntax {
                                                         my $m2 = $grammar->metasyntax( $str, $MATCH->to() );
                                                         do {
                                                             if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                                            else {0}
+                                                            else     {0}
                                                             }
                                                     }
                                                     && ( ( '>' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 )
@@ -229,7 +229,7 @@ sub metasyntax {
                                     my $m2 = $grammar->metasyntax( $str, $MATCH->to() );
                                     do {
                                         if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'metasyntax'} = $m2; 1 }
-                                        else {0}
+                                        else     {0}
                                         }
                                     }
                                 }
@@ -285,7 +285,7 @@ sub char_range {
                                     my $m2 = $grammar->char_range( $str, $MATCH->to() );
                                     do {
                                         if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'char_range'} = $m2; 1 }
-                                        else {0}
+                                        else     {0}
                                         }
                                     }
                                 }
@@ -315,7 +315,7 @@ sub char_class {
                         my $m2 = $grammar->ident( $str, $MATCH->to() );
                         do {
                             if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                            else {0}
+                            else     {0}
                             }
                         }
                     }
@@ -326,7 +326,7 @@ sub char_class {
                                 my $m2 = $grammar->char_range( $str, $MATCH->to() );
                                 do {
                                     if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                    else {0}
+                                    else     {0}
                                     }
                             }
                             && ( ( ']' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 )
@@ -355,7 +355,7 @@ sub parsed_code {
                         my $m2 = KindaPerl6::Grammar->opt_ws( $str, $MATCH->to() );
                         do {
                             if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                            else {0}
+                            else     {0}
                             }
                         }
                         && (
@@ -369,7 +369,7 @@ sub parsed_code {
                                 ->();
                             do {
                                 if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                else { }
+                                else                         { }
                             };
                             1;
                         }
@@ -377,14 +377,14 @@ sub parsed_code {
                                 my $m2 = KindaPerl6::Grammar->exp_stmts( $str, $MATCH->to() );
                                 do {
                                     if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'KindaPerl6::Grammar.exp_stmts'} = $m2; 1 }
-                                    else {0}
+                                    else     {0}
                                     }
                             }
                             && (do {
                                     my $m2 = KindaPerl6::Grammar->opt_ws( $str, $MATCH->to() );
                                     do {
                                         if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                        else {0}
+                                        else     {0}
                                         }
                                 }
                                 && (( ( '}' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
@@ -401,7 +401,7 @@ sub parsed_code {
                                             ->();
                                         do {
                                             if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                            else { }
+                                            else                         { }
                                         };
                                         1;
                                     }
@@ -433,7 +433,7 @@ sub named_capture_body {
                                 my $m2 = $grammar->rule( $str, $MATCH->to() );
                                 do {
                                     if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'rule'} = $m2; 1 }
-                                    else {0}
+                                    else     {0}
                                     }
                             }
                             && (( ( ')' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
@@ -446,7 +446,7 @@ sub named_capture_body {
                                         ->();
                                     do {
                                         if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                        else { }
+                                        else                         { }
                                     };
                                     1;
                                 }
@@ -462,7 +462,7 @@ sub named_capture_body {
                                     my $m2 = $grammar->rule( $str, $MATCH->to() );
                                     do {
                                         if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'rule'} = $m2; 1 }
-                                        else {0}
+                                        else     {0}
                                         }
                                 }
                                 && (( ( ']' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
@@ -475,7 +475,7 @@ sub named_capture_body {
                                             ->();
                                         do {
                                             if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                            else { }
+                                            else                         { }
                                         };
                                         1;
                                     }
@@ -490,7 +490,7 @@ sub named_capture_body {
                                         my $m2 = $grammar->metasyntax( $str, $MATCH->to() );
                                         do {
                                             if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'metasyntax'} = $m2; 1 }
-                                            else {0}
+                                            else     {0}
                                             }
                                     }
                                     && (( ( '>' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
@@ -503,7 +503,7 @@ sub named_capture_body {
                                                 ->();
                                             do {
                                                 if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                else { }
+                                                else                         { }
                                             };
                                             1;
                                         }
@@ -523,7 +523,7 @@ sub named_capture_body {
                                     ->();
                                 do {
                                     if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                    else { }
+                                    else                         { }
                                 };
                                 1;
                                 }
@@ -553,7 +553,7 @@ sub variables {
                                 my $m2 = $grammar->ident( $str, $MATCH->to() );
                                 do {
                                     if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'ident'} = $m2; 1 }
-                                    else {0}
+                                    else     {0}
                                     }
                             }
                             && (( ( '>' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
@@ -566,7 +566,7 @@ sub variables {
                                         ->();
                                     do {
                                         if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                        else { }
+                                        else                         { }
                                     };
                                     1;
                                 }
@@ -581,7 +581,7 @@ sub variables {
                                 my $m2 = KindaPerl6::Grammar->sigil( $str, $MATCH->to() );
                                 do {
                                     if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'KindaPerl6::Grammar.sigil'} = $m2; 1 }
-                                    else {0}
+                                    else     {0}
                                     }
                                 }
                                 && (
@@ -589,7 +589,7 @@ sub variables {
                                     my $m2 = KindaPerl6::Grammar->digits( $str, $MATCH->to() );
                                     do {
                                         if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'KindaPerl6::Grammar.digits'} = $m2; 1 }
-                                        else {0}
+                                        else     {0}
                                         }
                                 }
                                 && do {
@@ -602,7 +602,7 @@ sub variables {
                                         ->();
                                     do {
                                         if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                        else { }
+                                        else                         { }
                                     };
                                     1;
                                 }
@@ -615,7 +615,7 @@ sub variables {
                                 my $m2 = KindaPerl6::Grammar->sigil( $str, $MATCH->to() );
                                 do {
                                     if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'KindaPerl6::Grammar.sigil'} = $m2; 1 }
-                                    else {0}
+                                    else     {0}
                                     }
                                 }
                                 && (
@@ -623,14 +623,14 @@ sub variables {
                                     my $m2 = KindaPerl6::Grammar->twigil( $str, $MATCH->to() );
                                     do {
                                         if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'KindaPerl6::Grammar.twigil'} = $m2; 1 }
-                                        else {0}
+                                        else     {0}
                                         }
                                 }
                                 && (do {
                                         my $m2 = KindaPerl6::Grammar->full_ident( $str, $MATCH->to() );
                                         do {
                                             if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'KindaPerl6::Grammar.full_ident'} = $m2; 1 }
-                                            else {0}
+                                            else     {0}
                                             }
                                     }
                                     && do {
@@ -651,7 +651,7 @@ sub variables {
                                             ->();
                                         do {
                                             if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                            else { }
+                                            else                         { }
                                         };
                                         1;
                                     }
@@ -705,7 +705,7 @@ sub rule_terms {
                                 my $m2 = $grammar->rule( $str, $MATCH->to() );
                                 do {
                                     if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'rule'} = $m2; 1 }
-                                    else {0}
+                                    else     {0}
                                     }
                             }
                             && (( ( ')' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
@@ -718,7 +718,7 @@ sub rule_terms {
                                         ->();
                                     do {
                                         if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                        else { }
+                                        else                         { }
                                     };
                                     1;
                                 }
@@ -734,7 +734,7 @@ sub rule_terms {
                                     my $m2 = $grammar->rule( $str, $MATCH->to() );
                                     do {
                                         if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'rule'} = $m2; 1 }
-                                        else {0}
+                                        else     {0}
                                         }
                                 }
                                 && (( ( ')>' eq substr( $str, $MATCH->to(), 2 ) ) ? ( 1 + $MATCH->to( ( 2 + $MATCH->to() ) ) ) : 0 ) && do {
@@ -747,7 +747,7 @@ sub rule_terms {
                                             ->();
                                         do {
                                             if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                            else { }
+                                            else                         { }
                                         };
                                         1;
                                     }
@@ -762,7 +762,7 @@ sub rule_terms {
                                         my $m2 = $grammar->assertion_modifier( $str, $MATCH->to() );
                                         do {
                                             if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'assertion_modifier'} = $m2; 1 }
-                                            else {0}
+                                            else     {0}
                                             }
                                     }
                                     && (( ( 'after' eq substr( $str, $MATCH->to(), 5 ) ) ? ( 1 + $MATCH->to( ( 5 + $MATCH->to() ) ) ) : 0 ) && (
@@ -770,14 +770,14 @@ sub rule_terms {
                                                 my $m2 = $grammar->ws( $str, $MATCH->to() );
                                                 do {
                                                     if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                                    else {0}
+                                                    else     {0}
                                                     }
                                             }
                                             && (do {
                                                     my $m2 = $grammar->rule( $str, $MATCH->to() );
                                                     do {
                                                         if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'rule'} = $m2; 1 }
-                                                        else {0}
+                                                        else     {0}
                                                         }
                                                 }
                                                 && (( ( '>' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
@@ -790,7 +790,7 @@ sub rule_terms {
                                                             ->();
                                                         do {
                                                             if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                            else { }
+                                                            else                         { }
                                                         };
                                                         1;
                                                     }
@@ -808,7 +808,7 @@ sub rule_terms {
                                             my $m2 = $grammar->assertion_modifier( $str, $MATCH->to() );
                                             do {
                                                 if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'assertion_modifier'} = $m2; 1 }
-                                                else {0}
+                                                else     {0}
                                                 }
                                         }
                                         && (( ( 'before' eq substr( $str, $MATCH->to(), 6 ) ) ? ( 1 + $MATCH->to( ( 6 + $MATCH->to() ) ) ) : 0 ) && (
@@ -816,14 +816,14 @@ sub rule_terms {
                                                     my $m2 = $grammar->ws( $str, $MATCH->to() );
                                                     do {
                                                         if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                                        else {0}
+                                                        else     {0}
                                                         }
                                                 }
                                                 && (do {
                                                         my $m2 = $grammar->rule( $str, $MATCH->to() );
                                                         do {
                                                             if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'rule'} = $m2; 1 }
-                                                            else {0}
+                                                            else     {0}
                                                             }
                                                     }
                                                     && (( ( '>' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
@@ -836,7 +836,7 @@ sub rule_terms {
                                                                 ->();
                                                             do {
                                                                 if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                                else { }
+                                                                else                         { }
                                                             };
                                                             1;
                                                         }
@@ -854,7 +854,7 @@ sub rule_terms {
                                                 my $m2 = $grammar->metasyntax( $str, $MATCH->to() );
                                                 do {
                                                     if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'metasyntax'} = $m2; 1 }
-                                                    else {0}
+                                                    else     {0}
                                                     }
                                             }
                                             && (( ( '>' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
@@ -867,7 +867,7 @@ sub rule_terms {
                                                         ->();
                                                     do {
                                                         if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                        else { }
+                                                        else                         { }
                                                     };
                                                     1;
                                                 }
@@ -882,7 +882,7 @@ sub rule_terms {
                                                     my $m2 = $grammar->char_class( $str, $MATCH->to() );
                                                     do {
                                                         if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'char_class'} = $m2; 1 }
-                                                        else {0}
+                                                        else     {0}
                                                         }
                                                 }
                                                 && (( ( '>' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
@@ -895,7 +895,7 @@ sub rule_terms {
                                                             ->();
                                                         do {
                                                             if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                            else { }
+                                                            else                         { }
                                                         };
                                                         1;
                                                     }
@@ -910,7 +910,7 @@ sub rule_terms {
                                                         my $m2 = $grammar->char_class( $str, $MATCH->to() );
                                                         do {
                                                             if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'char_class'} = $m2; 1 }
-                                                            else {0}
+                                                            else     {0}
                                                             }
                                                     }
                                                     && (( ( '>' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
@@ -923,7 +923,7 @@ sub rule_terms {
                                                                 ->();
                                                             do {
                                                                 if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                                else { }
+                                                                else                         { }
                                                             };
                                                             1;
                                                         }
@@ -938,7 +938,7 @@ sub rule_terms {
                                                             my $m2 = $grammar->literal( $str, $MATCH->to() );
                                                             do {
                                                                 if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'literal'} = $m2; 1 }
-                                                                else {0}
+                                                                else     {0}
                                                                 }
                                                         }
                                                         && (( ( '\'' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
@@ -951,7 +951,7 @@ sub rule_terms {
                                                                     ->();
                                                                 do {
                                                                     if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                                    else { }
+                                                                    else                         { }
                                                                 };
                                                                 1;
                                                             }
@@ -968,7 +968,7 @@ sub rule_terms {
                                                                             my $m2 = $grammar->variables( $str, $MATCH->to() );
                                                                             do {
                                                                                 if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'variables'} = $m2; 1 }
-                                                                                else {0}
+                                                                                else     {0}
                                                                                 }
                                                                             }
                                                                             && (
@@ -982,7 +982,7 @@ sub rule_terms {
                                                                                     ->();
                                                                                 do {
                                                                                     if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                                                    else { }
+                                                                                    else                         { }
                                                                                 };
                                                                                 1;
                                                                             }
@@ -1003,7 +1003,7 @@ sub rule_terms {
                                                                                         ->();
                                                                                     do {
                                                                                         if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                                                        else { }
+                                                                                        else                         { }
                                                                                     };
                                                                                     1;
                                                                                 }
@@ -1011,7 +1011,7 @@ sub rule_terms {
                                                                                         my $m2 = $grammar->metasyntax( $str, $MATCH->to() );
                                                                                         do {
                                                                                             if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'metasyntax'} = $m2; 1 }
-                                                                                            else {0}
+                                                                                            else     {0}
                                                                                             }
                                                                                     }
                                                                                     && (( ( '>' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
@@ -1024,7 +1024,7 @@ sub rule_terms {
                                                                                                 ->();
                                                                                             do {
                                                                                                 if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                                                                else { }
+                                                                                                else                         { }
                                                                                             };
                                                                                             1;
                                                                                         }
@@ -1040,7 +1040,7 @@ sub rule_terms {
                                                                                         my $m2 = $grammar->metasyntax( $str, $MATCH->to() );
                                                                                         do {
                                                                                             if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'metasyntax'} = $m2; 1 }
-                                                                                            else {0}
+                                                                                            else     {0}
                                                                                             }
                                                                                     }
                                                                                     && (( ( '>' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
@@ -1053,7 +1053,7 @@ sub rule_terms {
                                                                                                 ->();
                                                                                             do {
                                                                                                 if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                                                                else { }
+                                                                                                else                         { }
                                                                                             };
                                                                                             1;
                                                                                         }
@@ -1067,7 +1067,7 @@ sub rule_terms {
                                                                                     my $m2 = $grammar->metasyntax( $str, $MATCH->to() );
                                                                                     do {
                                                                                         if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'metasyntax'} = $m2; 1 }
-                                                                                        else {0}
+                                                                                        else     {0}
                                                                                         }
                                                                                     }
                                                                                     && (
@@ -1081,7 +1081,7 @@ sub rule_terms {
                                                                                             ->();
                                                                                         do {
                                                                                             if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                                                            else { }
+                                                                                            else                         { }
                                                                                         };
                                                                                         1;
                                                                                     }
@@ -1101,7 +1101,7 @@ sub rule_terms {
                                                                     my $m2 = $grammar->parsed_code( $str, $MATCH->to() );
                                                                     do {
                                                                         if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'parsed_code'} = $m2; 1 }
-                                                                        else {0}
+                                                                        else     {0}
                                                                         }
                                                                 }
                                                                 && do {
@@ -1114,7 +1114,7 @@ sub rule_terms {
                                                                         ->();
                                                                     do {
                                                                         if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                                        else { }
+                                                                        else                         { }
                                                                     };
                                                                     1;
                                                                 }
@@ -1127,7 +1127,7 @@ sub rule_terms {
                                                                     my $m2 = KindaPerl6::Grammar->backslash( $str, $MATCH->to() );
                                                                     do {
                                                                         if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'KindaPerl6::Grammar.backslash'} = $m2; 1 }
-                                                                        else {0}
+                                                                        else     {0}
                                                                         }
                                                                     }
                                                                     && do {
@@ -1137,7 +1137,7 @@ sub rule_terms {
                                                                                 my $m2 = $grammar->any( $str, $MATCH->to() );
                                                                                 do {
                                                                                     if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'any'} = $m2; 1 }
-                                                                                    else {0}
+                                                                                    else     {0}
                                                                                     }
                                                                                 }
                                                                                 && do {
@@ -1150,7 +1150,7 @@ sub rule_terms {
                                                                                     ->();
                                                                                 do {
                                                                                     if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                                                    else { }
+                                                                                    else                         { }
                                                                                 };
                                                                                 1;
                                                                                 }
@@ -1171,7 +1171,7 @@ sub rule_terms {
                                                                             ->();
                                                                         do {
                                                                             if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                                            else { }
+                                                                            else                         { }
                                                                         };
                                                                         1;
                                                                         }
@@ -1184,7 +1184,7 @@ sub rule_terms {
                                                                             my $m2 = $grammar->rule( $str, $MATCH->to() );
                                                                             do {
                                                                                 if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'rule'} = $m2; 1 }
-                                                                                else {0}
+                                                                                else     {0}
                                                                                 }
                                                                         }
                                                                         && (( ( ']' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
@@ -1197,7 +1197,7 @@ sub rule_terms {
                                                                                     ->();
                                                                                 do {
                                                                                     if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                                                    else { }
+                                                                                    else                         { }
                                                                                 };
                                                                                 1;
                                                                             }
@@ -1239,7 +1239,7 @@ sub term {
                                 my $m2 = $grammar->ident( $str, $MATCH->to() );
                                 do {
                                     if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'ident'} = $m2; 1 }
-                                    else {0}
+                                    else     {0}
                                     }
                             }
                             && (( ( '>' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
@@ -1247,7 +1247,7 @@ sub term {
                                         my $m2 = $grammar->ws( $str, $MATCH->to() );
                                         do {
                                             if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                            else {0}
+                                            else     {0}
                                             }
                                     }
                                     && (( ( ':=' eq substr( $str, $MATCH->to(), 2 ) ) ? ( 1 + $MATCH->to( ( 2 + $MATCH->to() ) ) ) : 0 ) && (
@@ -1255,7 +1255,7 @@ sub term {
                                                 my $m2 = $grammar->ws( $str, $MATCH->to() );
                                                 do {
                                                     if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                                    else {0}
+                                                    else     {0}
                                                     }
                                             }
                                             && (( ( '(' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
@@ -1263,7 +1263,7 @@ sub term {
                                                         my $m2 = $grammar->rule( $str, $MATCH->to() );
                                                         do {
                                                             if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'rule'} = $m2; 1 }
-                                                            else {0}
+                                                            else     {0}
                                                             }
                                                     }
                                                     && (( ( ')' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
@@ -1276,7 +1276,7 @@ sub term {
                                                                 ->();
                                                             do {
                                                                 if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                                else { }
+                                                                else                         { }
                                                             };
                                                             1;
                                                         }
@@ -1297,7 +1297,7 @@ sub term {
                                 my $m2 = $grammar->variables( $str, $MATCH->to() );
                                 do {
                                     if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'variables'} = $m2; 1 }
-                                    else {0}
+                                    else     {0}
                                     }
                                 }
                                 && do {
@@ -1307,7 +1307,7 @@ sub term {
                                                 my $m2 = $grammar->ws( $str, $MATCH->to() );
                                                 do {
                                                     if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                                    else {0}
+                                                    else     {0}
                                                     }
                                                 }
                                                 && (
@@ -1316,14 +1316,14 @@ sub term {
                                                         my $m2 = $grammar->ws( $str, $MATCH->to() );
                                                         do {
                                                             if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                                            else {0}
+                                                            else     {0}
                                                             }
                                                     }
                                                     && (do {
                                                             my $m2 = $grammar->named_capture_body( $str, $MATCH->to() );
                                                             do {
                                                                 if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'named_capture_body'} = $m2; 1 }
-                                                                else {0}
+                                                                else     {0}
                                                                 }
                                                         }
                                                         && do {
@@ -1336,7 +1336,7 @@ sub term {
                                                                 ->();
                                                             do {
                                                                 if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                                else { }
+                                                                else                         { }
                                                             };
                                                             1;
                                                         }
@@ -1357,7 +1357,7 @@ sub term {
                                                 ->();
                                             do {
                                                 if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                else { }
+                                                else                         { }
                                             };
                                             1;
                                             }
@@ -1372,7 +1372,7 @@ sub term {
                                     my $m2 = $grammar->rule_terms( $str, $MATCH->to() );
                                     do {
                                         if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'rule_terms'} = $m2; 1 }
-                                        else {0}
+                                        else     {0}
                                         }
                                     }
                                     && do {
@@ -1385,7 +1385,7 @@ sub term {
                                         ->();
                                     do {
                                         if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                        else { }
+                                        else                         { }
                                     };
                                     1;
                                     }
@@ -1432,7 +1432,7 @@ sub term {
                                         my $m2 = $grammar->any( $str, $MATCH->to() );
                                         do {
                                             if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'any'} = $m2; 1 }
-                                            else {0}
+                                            else     {0}
                                             }
                                     }
                                     && do {
@@ -1445,7 +1445,7 @@ sub term {
                                             ->();
                                         do {
                                             if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                            else { }
+                                            else                         { }
                                         };
                                         1;
                                     }
@@ -1477,7 +1477,7 @@ sub quant {
                                 my $m2 = KindaPerl6::Grammar->opt_ws( $str, $MATCH->to() );
                                 do {
                                     if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                    else {0}
+                                    else     {0}
                                     }
                             }
                             && (( ( '{' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
@@ -1485,7 +1485,7 @@ sub quant {
                                         my $m2 = $grammar->parsed_code( $str, $MATCH->to() );
                                         do {
                                             if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'parsed_code'} = $m2; 1 }
-                                            else {0}
+                                            else     {0}
                                             }
                                     }
                                     && do {
@@ -1498,7 +1498,7 @@ sub quant {
                                             ->();
                                         do {
                                             if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                            else { }
+                                            else                         { }
                                         };
                                         1;
                                     }
@@ -1563,7 +1563,7 @@ sub quantifier {
                         my $m2 = KindaPerl6::Grammar->opt_ws( $str, $MATCH->to() );
                         do {
                             if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                            else {0}
+                            else     {0}
                             }
                         }
                         && (
@@ -1571,14 +1571,14 @@ sub quantifier {
                             my $m2 = $grammar->term( $str, $MATCH->to() );
                             do {
                                 if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'term'} = $m2; 1 }
-                                else {0}
+                                else     {0}
                                 }
                         }
                         && (do {
                                 my $m2 = KindaPerl6::Grammar->opt_ws2( $str, $MATCH->to() );
                                 do {
                                     if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                    else {0}
+                                    else     {0}
                                     }
                             }
                             && do {
@@ -1588,7 +1588,7 @@ sub quantifier {
                                                 my $m2 = $grammar->quant( $str, $MATCH->to() );
                                                 do {
                                                     if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'quant'} = $m2; 1 }
-                                                    else {0}
+                                                    else     {0}
                                                     }
                                                 }
                                                 && (
@@ -1596,14 +1596,14 @@ sub quantifier {
                                                     my $m2 = $grammar->greedy( $str, $MATCH->to() );
                                                     do {
                                                         if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'greedy'} = $m2; 1 }
-                                                        else {0}
+                                                        else     {0}
                                                         }
                                                 }
                                                 && (do {
                                                         my $m2 = KindaPerl6::Grammar->opt_ws3( $str, $MATCH->to() );
                                                         do {
                                                             if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                                            else {0}
+                                                            else     {0}
                                                             }
                                                     }
                                                     && do {
@@ -1627,7 +1627,7 @@ sub quantifier {
                                                             ->();
                                                         do {
                                                             if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                            else { }
+                                                            else                         { }
                                                         };
                                                         1;
                                                     }
@@ -1647,7 +1647,7 @@ sub quantifier {
                                                 ->();
                                             do {
                                                 if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                else { }
+                                                else                         { }
                                             };
                                             1;
                                             }
@@ -1679,7 +1679,7 @@ sub concat_list {
                             my $m2 = $grammar->quantifier( $str, $MATCH->to() );
                             do {
                                 if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'quantifier'} = $m2; 1 }
-                                else {0}
+                                else     {0}
                                 }
                             }
                             && do {
@@ -1689,7 +1689,7 @@ sub concat_list {
                                             my $m2 = $grammar->concat_list( $str, $MATCH->to() );
                                             do {
                                                 if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'concat_list'} = $m2; 1 }
-                                                else {0}
+                                                else     {0}
                                                 }
                                             }
                                             && do {
@@ -1702,7 +1702,7 @@ sub concat_list {
                                                 ->();
                                             do {
                                                 if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                else { }
+                                                else                         { }
                                             };
                                             1;
                                             }
@@ -1720,7 +1720,7 @@ sub concat_list {
                                             ->();
                                         do {
                                             if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                            else { }
+                                            else                         { }
                                         };
                                         1;
                                         }
@@ -1741,7 +1741,7 @@ sub concat_list {
                             ->();
                         do {
                             if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                            else { }
+                            else                         { }
                         };
                         1;
                         }
@@ -1768,7 +1768,7 @@ sub concat {
                         my $m2 = $grammar->concat_list( $str, $MATCH->to() );
                         do {
                             if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'concat_list'} = $m2; 1 }
-                            else {0}
+                            else     {0}
                             }
                         }
                         && do {
@@ -1781,7 +1781,7 @@ sub concat {
                             ->();
                         do {
                             if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                            else { }
+                            else                         { }
                         };
                         1;
                         }
@@ -1808,7 +1808,7 @@ sub or_list {
                             my $m2 = $grammar->concat( $str, $MATCH->to() );
                             do {
                                 if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'concat'} = $m2; 1 }
-                                else {0}
+                                else     {0}
                                 }
                             }
                             && do {
@@ -1819,7 +1819,7 @@ sub or_list {
                                                 my $m2 = $grammar->or_list( $str, $MATCH->to() );
                                                 do {
                                                     if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'or_list'} = $m2; 1 }
-                                                    else {0}
+                                                    else     {0}
                                                     }
                                             }
                                             && do {
@@ -1832,7 +1832,7 @@ sub or_list {
                                                     ->();
                                                 do {
                                                     if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                    else { }
+                                                    else                         { }
                                                 };
                                                 1;
                                             }
@@ -1851,7 +1851,7 @@ sub or_list {
                                             ->();
                                         do {
                                             if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                            else { }
+                                            else                         { }
                                         };
                                         1;
                                         }
@@ -1872,7 +1872,7 @@ sub or_list {
                             ->();
                         do {
                             if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                            else { }
+                            else                         { }
                         };
                         1;
                         }
@@ -1902,7 +1902,7 @@ sub rule {
                                         my $m2 = $grammar->ws( $str, $MATCH->to() );
                                         do {
                                             if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                            else {0}
+                                            else     {0}
                                             }
                                         }
                                         && ( ( '|' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 )
@@ -1916,7 +1916,7 @@ sub rule {
                             my $m2 = $grammar->or_list( $str, $MATCH->to() );
                             do {
                                 if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'or_list'} = $m2; 1 }
-                                else {0}
+                                else     {0}
                                 }
                         }
                         && do {
@@ -1929,7 +1929,7 @@ sub rule {
                                 ->();
                             do {
                                 if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                else { }
+                                else                         { }
                             };
                             1;
                         }
