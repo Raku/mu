@@ -279,13 +279,12 @@ END
 # should be done inside of the Makefile.  I just couldn't figure out a way
 # to do it in nmake.
 
-=head2 _patsubst_wildcard
-
-_patsubst_wildcard is a subroutine to handle the gnuism usage of
-
- $(patsub search, replace, $(wildcard globs))
-
-=cut
+# _patsubst_wildcard
+# 
+# _patsubst_wildcard is a subroutine to handle the gnuism usage of
+#
+#  $(patsub search, replace, $(wildcard globs))
+#
 
 sub _patsubst_wildcard
 {
