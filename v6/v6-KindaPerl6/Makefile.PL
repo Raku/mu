@@ -48,7 +48,7 @@ compiled/perl5-kp6-mp6/lib/KindaPerl6.pm: src/KindaPerl6.pm
 	$(CP) $< $@
 
 compiled/perl5-kp6-mp6/lib/%.pm: src/%.pm
-	$(PERL) script/mp6.pl < $< | perltidy -pro=util/perltidyrc > $@
+	$(PERL) script/mp6.pl $< > $@
 
 END
 
