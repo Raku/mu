@@ -382,7 +382,7 @@ sub run_piped_command {
     local $/;
     print $fh $out;
     for my $input (@inputs) {
-        print $fh, $input;
+        print $fh $input;
     }
     close $fh;
 }
