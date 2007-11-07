@@ -651,3 +651,19 @@ The generated code has perl5-regex delimiter problems.
 New tests should be added.
 
 * unfinished
+
+
+
+=head2 Milestone 5.3 - Precedence parser
+
+
+=head2 Milestone 5.4 - Improved multi-token
+
+
+=head1 Phase 6 - optimizer
+
+
+=head1 Phase 7 - aggressive optimizer
+
+
+
