@@ -297,10 +297,16 @@ Create C<COMPILING::<$?PARSER>>, C<$?FILE>, C<$?LINE>
 
 The goal for this phase is to specify and implement the runtime libraries needed by the Perl-6.0.0-STD parser.
 
-As a side effect, kp6 will also be able to use native OO models, if available.
-For example, PGE in the Parrot backend, and Moose in the Perl 5 backend, and native-perl5 in 
-the MiniPerl6-on-Perl5 backend.
-The kp6-MO-on-mp6 engine (still mostly unwritten) will still be supported, for benefit of other backends.
+
+* Status:
+
+On the Perl 5 runtime, the Runtime::Perl5::MOP is the preferred Object Model.
+
+On the Lisp runtime, the Object Model is based on CLOS.
+
+The Perl 5 native OO is no longer supported.
+
+The Parrot, Python and JVM backends, which existed for MiniPerl6, are not currently active.
 
 
 =head2 Milestone 4.1 - Add support for multis
@@ -310,7 +316,12 @@ The Sub and Method classes will be able to do multi-dispatch.
 
 =head3 Status
 
-under implementation.
+Tests passed for a while, but are currently broken.
+
+Multi subs need a more complete ".select" algorithm. It currently only checks for .arity
+
+Multi token needs a better algorithm.
+
 
 =head3 Dependencies
 
@@ -326,21 +337,22 @@ under implementation.
 
 =back
 
+
 =head3 Tasks
 
 =over
 
 =item * Signature and Capture
 
-* Status: partially implemented
+* Status: implemented
 
 =item * dispatching algorithm 
 
-* Status: implemented a proof-of-concept
+* Status: implemented 
 
 =item * Method and Sub refactoring
 
-* Status: fixed some namespace problems, added more tests
+* Status: implemented
 
 =item Add 'multi' to the Grammar
 
@@ -348,7 +360,7 @@ under implementation.
 
 =item * Multi Regex, Multi Token
 
-* Status: TODO
+* Status: tests are currently failing.
 
 =back
 
@@ -357,7 +369,11 @@ under implementation.
 
 The resulting code will be tested by running the existing test suite and implementation-specific tests.
 
-* Status: added tests for positional multis, TODO: multi token tests
+* Status: 
+
+added tests for positional multis, 
+
+TODO: add tests for type-based multi dispatch
 
 
 
@@ -382,19 +398,32 @@ kp6 uses a native hash to store "modified" flags.
 
 =item * Pad code-review
 
+Status: the "Code" objects now hold the compile-time AST, for easier serialization.
+
 =back
 
 =head3 Tasks
 
 =over
 
-=item * Create ...
+=item * Namespace support using plain Perl 6 hashes.
 
-* not started
+* Status:
 
-=item * Rewrite ...
+Created a visitor module that refactors global variable access into namespace-hash access.
 
-* not started
+This is currently broken because the Hash implementation has autovivification problems.
+
+Needs a refactoring of the "GLOBAL" perl5-runtime module.
+
+
+=item * Rewrite the Pad structure using plain Perl 6
+
+* Status:
+
+Created a "Scope" class for holding "my" variables.
+
+Needs a general emitter and runtime refactoring.
 
 =back
 
@@ -419,35 +448,45 @@ These tasks are not required for the successful completion of this phase.
 
 =item * dispatcher cache/memoization
 
+* Status: not started
+
 =item * Junction dispatching
 
-* Status: implemented; 
+* Status: tests passed for a while, but are currently broken; 
 
 - added grammar support for infix:<|>, infix:<&>, all(), any().
 
-- method .APPLY() on Junction objects needs more work. Some tests fail because the runtime can't tell
+- method .APPLY() on Junction objects needs more work. 
+Some tests fail because the runtime can't tell
 if it should call a method on the Junction object or on the Junction elements.
+This can be fixed by verifying the Code.signature at "APPLY" time.
+
 
 =item * default (Main) namespace, nested namespaces
 
+Status: depends on milestone 4.2
+
 =item * Lazy lists
 
-* Status: it is now possible to implement lazy lists in plain Perl 6;
-  not started
+* Status: 
+
+it is now possible to implement lazy lists in plain Perl 6;
+  
+Lazy ranges work.
+
 
 =item * gather / take
 
 * Status: lazy gather/take is implemented on P5 backend
 
-=item * Threads
 
+=item * Threads
 
 - TimToady and ruoso asked to avoid using Perl 5 threads.
 
 - Lisp style call/cc is implementable in Perl 5. The AST transformation would take a while to implement.
 
-- Threads implementation is defered, and probably be a task of the respective
-backend
+- Threads implementation is deferred. Threads probably belong to the backend implementations.
 
 =item * given / when
 
@@ -455,7 +494,11 @@ backend
 
 =item * IO
 
-* Status: implemented mkdir(), rmdir(); implemented the 'unsafe' flag
+* Status: 
+
+implemented mkdir(), rmdir(); 
+
+implemented the 'unsafe' flag
 
 =item * Macros
 
@@ -465,9 +508,15 @@ backend
 
 - it would be nice to have MP6 to emit KP6-runtime code.
 
+
 =item * Bootstrapping on Perl 5
 
-* Status: KP6 can compile itself, but the regex runtime still have problems.
+* Status: 
+
+KP6 can compile itself, but the regex runtime still have problems.
+
+Bootstrapping is deferred to Phase 5.
+
 
 =item * Lisp backend
 
