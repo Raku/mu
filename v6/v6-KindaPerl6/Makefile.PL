@@ -24,6 +24,7 @@ compiled/perl5-kp6-mp6/lib/KindaPerl6/Runtime/Perl6/%.pm: src/KindaPerl6/Runtime
 		if [ $$res = 0 -a -s $@.temp ] ; then \
 			mv $@.temp $@ ; \
 		else \
+			rm $@.temp ; \
 			echo "*** Compilation failed with exit code: $$res!" ; \
 			exit; \
 		fi
@@ -35,6 +36,7 @@ compiled/perl5-kp6-mp6/lib/%.pm: src-modules/%.pm
 		if [ $$res = 0 -a -s $@.temp ] ; then \
 			mv $@.temp $@ ; \
 		else \
+			rm $@.temp ; \
 			echo "*** Compilation failed with exit code: $$res!" ; \
 			exit; \
 		fi
@@ -70,6 +72,7 @@ compiled/perl5-kp6-kp6/lib/%.pm: src-modules/%.pm
 		if [ $$res = 0 -a -s $@.temp ] ; then \
 			mv $@.temp $@ ; \
 		else \
+			rm $@.temp ; \
 			echo "*** Compilation failed with exit code: $$res!" ; \
 			exit; \
 		fi
@@ -91,6 +94,7 @@ script/kp6-kp6.pl: src-script/kp6-kp6.pl
 		if [ $$res = 0 -a -s $@.temp ] ; then \
 			mv $@.temp $@ ; \
 		else \
+			rm $@.temp ; \
 			echo "*** Compilation failed with exit code: $$res!" ; \
 			exit; \
 		fi
