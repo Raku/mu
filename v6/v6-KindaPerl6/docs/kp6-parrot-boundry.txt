@@ -52,7 +52,7 @@ Description of parrot processing:
 Footnotes:
 
  0. Bulk of the conversation:
-    http://irclog.perlgeek.de/out.pl?channel=perl6;date=2007-10-24
+    http://irclog.perlgeek.de/perl6/2007-10-24
 
  1. AST/Emit(ers):
     http://svn.pugscode.org/pugs/v6/v6-KindaPerl6/src/KindaPerl6/Visitor/Emit

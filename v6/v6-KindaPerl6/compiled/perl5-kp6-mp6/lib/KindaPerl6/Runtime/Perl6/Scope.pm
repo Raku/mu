@@ -68,6 +68,8 @@
                 $::Code, 'new',
                 {
                     code => sub {
+
+                        # emit_declarations
                         my $inner;
                         $inner =
                           ::DISPATCH( $::Scalar, 'new',
@@ -91,7 +93,11 @@
                               ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$self' } );
                         }
+
+                        # get $self
                         $self = shift;
+
+                        # emit_arguments
                         my $CAPTURE;
                         $CAPTURE =
                           ::DISPATCH( $::Scalar, 'new',
@@ -112,6 +118,8 @@
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         { my $_param_index = 0; }
+
+                        # emit_body
                         ::DISPATCH_VAR(
                             $inner, 'STORE',
                             ::DISPATCH(
@@ -169,6 +177,8 @@
                 $::Code, 'new',
                 {
                     code => sub {
+
+                        # emit_declarations
                         my $List__ =
                           ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
@@ -182,7 +192,11 @@
                               ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$self' } );
                         }
+
+                        # get $self
                         $self = shift;
+
+                        # emit_arguments
                         my $CAPTURE;
                         $CAPTURE =
                           ::DISPATCH( $::Scalar, 'new',
@@ -203,6 +217,8 @@
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         { my $_param_index = 0; }
+
+                        # emit_body
                         $self;
                     },
                     signature => ::DISPATCH(
@@ -234,6 +250,8 @@
                 $::Code, 'new',
                 {
                     code => sub {
+
+                        # emit_declarations
                         my $List__ =
                           ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
@@ -247,7 +265,11 @@
                               ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$key' } );
                         }
+
+                        # get $self
                         $self = shift;
+
+                        # emit_arguments
                         my $CAPTURE;
                         $CAPTURE =
                           ::DISPATCH( $::Scalar, 'new',
@@ -285,6 +307,8 @@
                                   $List__->{_value}{_array}[ $_param_index++ ];
                             }
                         }
+
+                        # emit_body
                         do {
                             if (
                                 ::DISPATCH(
@@ -400,6 +424,8 @@
                 $::Code, 'new',
                 {
                     code => sub {
+
+                        # emit_declarations
                         my $List__ =
                           ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
@@ -413,7 +439,11 @@
                               ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$key' } );
                         }
+
+                        # get $self
                         $self = shift;
+
+                        # emit_arguments
                         my $CAPTURE;
                         $CAPTURE =
                           ::DISPATCH( $::Scalar, 'new',
@@ -451,6 +481,8 @@
                                   $List__->{_value}{_array}[ $_param_index++ ];
                             }
                         }
+
+                        # emit_body
                         do {
                             if (
                                 ::DISPATCH(
@@ -566,6 +598,8 @@
                 $::Code, 'new',
                 {
                     code => sub {
+
+                        # emit_declarations
                         my $List__ =
                           ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
@@ -579,7 +613,11 @@
                               ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$key' } );
                         }
+
+                        # get $self
                         $self = shift;
+
+                        # emit_arguments
                         my $CAPTURE;
                         $CAPTURE =
                           ::DISPATCH( $::Scalar, 'new',
@@ -617,6 +655,8 @@
                                   $List__->{_value}{_array}[ $_param_index++ ];
                             }
                         }
+
+                        # emit_body
                         do {
                             if (
                                 ::DISPATCH(
@@ -712,6 +752,8 @@
                 $::Code, 'new',
                 {
                     code => sub {
+
+                        # emit_declarations
                         my $s;
                         $s =
                           ::DISPATCH( $::Scalar, 'new',
@@ -735,7 +777,11 @@
                               ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$self' } );
                         }
+
+                        # get $self
                         $self = shift;
+
+                        # emit_arguments
                         my $CAPTURE;
                         $CAPTURE =
                           ::DISPATCH( $::Scalar, 'new',
@@ -756,6 +802,8 @@
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         { my $_param_index = 0; }
+
+                        # emit_body
                         ::DISPATCH_VAR( $s, 'STORE',
                             ::DISPATCH( $::Str, 'new', '{ ' ) );
                         ::DISPATCH(
@@ -997,6 +1045,8 @@
                 $::Code, 'new',
                 {
                     code => sub {
+
+                        # emit_declarations
                         my $List__ =
                           ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
@@ -1010,7 +1060,11 @@
                               ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$self' } );
                         }
+
+                        # get $self
                         $self = shift;
+
+                        # emit_arguments
                         my $CAPTURE;
                         $CAPTURE =
                           ::DISPATCH( $::Scalar, 'new',
@@ -1031,6 +1085,8 @@
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         { my $_param_index = 0; }
+
+                        # emit_body
                         ::DISPATCH(
                             ::DISPATCH(
                                 ::DISPATCH( $self, 'pairs', ),
@@ -1249,6 +1305,8 @@
                 $::Code, 'new',
                 {
                     code => sub {
+
+                        # emit_declarations
                         my $pairs;
                         $pairs =
                           ::DISPATCH( $::Scalar, 'new',
@@ -1272,7 +1330,11 @@
                               ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$self' } );
                         }
+
+                        # get $self
                         $self = shift;
+
+                        # emit_arguments
                         my $CAPTURE;
                         $CAPTURE =
                           ::DISPATCH( $::Scalar, 'new',
@@ -1293,6 +1355,8 @@
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         { my $_param_index = 0; }
+
+                        # emit_body
                         ::DISPATCH_VAR( $pairs, 'STORE',
                             ::DISPATCH( $self, 'pairs', ) );
                         ::DISPATCH(
@@ -1488,6 +1552,8 @@
                 $::Code, 'new',
                 {
                     code => sub {
+
+                        # emit_declarations
                         my $pairs;
                         $pairs =
                           ::DISPATCH( $::Scalar, 'new',
@@ -1511,7 +1577,11 @@
                               ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$self' } );
                         }
+
+                        # get $self
                         $self = shift;
+
+                        # emit_arguments
                         my $CAPTURE;
                         $CAPTURE =
                           ::DISPATCH( $::Scalar, 'new',
@@ -1532,6 +1602,8 @@
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         { my $_param_index = 0; }
+
+                        # emit_body
                         ::DISPATCH_VAR( $pairs, 'STORE',
                             ::DISPATCH( $self, 'pairs', ) );
                         ::DISPATCH(
@@ -1727,6 +1799,8 @@
                 $::Code, 'new',
                 {
                     code => sub {
+
+                        # emit_declarations
                         my $List__ =
                           ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
@@ -1740,7 +1814,11 @@
                               ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$self' } );
                         }
+
+                        # get $self
                         $self = shift;
+
+                        # emit_arguments
                         my $CAPTURE;
                         $CAPTURE =
                           ::DISPATCH( $::Scalar, 'new',
@@ -1761,6 +1839,8 @@
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         { my $_param_index = 0; }
+
+                        # emit_body
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__33__61__62_,
                             'APPLY',
@@ -1797,6 +1877,8 @@
                 $::Code, 'new',
                 {
                     code => sub {
+
+                        # emit_declarations
                         my $List__ =
                           ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
@@ -1810,7 +1892,11 @@
                               ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$self' } );
                         }
+
+                        # get $self
                         $self = shift;
+
+                        # emit_arguments
                         my $CAPTURE;
                         $CAPTURE =
                           ::DISPATCH( $::Scalar, 'new',
@@ -1831,6 +1917,8 @@
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         { my $_param_index = 0; }
+
+                        # emit_body
                         ::DISPATCH( $self, 'elems', );
                     },
                     signature => ::DISPATCH(

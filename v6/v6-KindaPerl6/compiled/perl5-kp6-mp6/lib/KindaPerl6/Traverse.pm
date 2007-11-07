@@ -16,7 +16,7 @@ sub visit {
     do { $visitor = $List__->[0]; $node = $List__->[1]; $node_name = $List__->[2]; $path = $List__->[3]; [ $visitor, $node, $node_name, $path ] };
     do {
         if ( ( defined($path) ? 0 : 1 ) ) { $path = [] }
-        else                              { }
+        else { }
     };
     do {
         if ( Main::isa( $node, 'Array' ) ) {
@@ -71,11 +71,11 @@ sub visit_subnode {
     do { $visitor = $List__->[0]; $subnode = $List__->[1]; $path = $List__->[2]; [ $visitor, $subnode, $path ] };
     do {
         if ( ( defined($subnode) ? 0 : 1 ) ) { return ( (undef) ) }
-        else                                 { }
+        else { }
     };
     do {
         if ( ( Main::isa( $subnode, 'Array' ) || ( Main::isa( $subnode, 'Hash' ) || ( Main::isa( $subnode, 'Str' ) || Main::isa( $subnode, 'Pad' ) ) ) ) ) { return ( visit( $visitor, $subnode, (undef), $path ) ) }
-        else                                                                                                                                               { return ( $subnode->emit( $visitor, $path ) ) }
+        else { return ( $subnode->emit( $visitor, $path ) ) }
         }
 }
 

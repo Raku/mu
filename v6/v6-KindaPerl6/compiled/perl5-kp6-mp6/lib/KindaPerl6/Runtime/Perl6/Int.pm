@@ -58,6 +58,8 @@
                 $::Code, 'new',
                 {
                     code => sub {
+
+                        # emit_declarations
                         my $List__ =
                           ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
@@ -71,7 +73,11 @@
                               ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$v' } );
                         }
+
+                        # get $self
                         $self = shift;
+
+                        # emit_arguments
                         my $CAPTURE;
                         $CAPTURE =
                           ::DISPATCH( $::Scalar, 'new',
@@ -109,6 +115,8 @@
                                   $List__->{_value}{_array}[ $_param_index++ ];
                             }
                         }
+
+                        # emit_body
                         ::DISPATCH( $GLOBAL::Code_infix_58__60__61__61__62_,
                             'APPLY', $self, $v );
                     },

@@ -26,7 +26,7 @@ sub set_secure_mode {
     my $value = '0';
     do {
         if ($args_secure) { $value = '1' }
-        else              { }
+        else { }
     };
     return ( ( 'use constant KP6_DISABLE_INSECURE_CODE => ' . ( $value . ( ';' . Main::newline() ) ) ) );
 }
@@ -40,7 +40,7 @@ sub emit_perl5 {
     my $source = '';
     do {
         if ( $self->{body} ) { $source = $self->{body}->emit_perl5() }
-        else                 { }
+        else { }
     };
     (   '{ package '
             . (
@@ -430,7 +430,7 @@ sub emit_arguments {
             );
             do {
                 if ( $field->has_default()->bit() ) { $str = ( $str . ( ' else { ' . ( $bind_default->emit_perl5() . ' } ' ) ) ) }
-                else                                { }
+                else { }
             };
             $i = ( $i + 1 );
         }
@@ -490,15 +490,15 @@ sub emit_perl5 {
     my $table = { '$' => '$', '@' => '$List_', '%' => '$Hash_', '&' => '$Code_', };
     do {
         if ( ( $self->{twigil} eq '.' ) ) { return ( ( '::DISPATCH( $self, "' . ( $self->{name} . ( '" )' . Main::newline() ) ) ) ) }
-        else                              { }
+        else { }
     };
     do {
         if ( ( $self->{twigil} eq '!' ) ) { return ( ( '$self->{_value}{"' . ( $self->{name} . ( '"}' . Main::newline() ) ) ) ) }
-        else                              { }
+        else { }
     };
     do {
         if ( ( $self->{name} eq '/' ) ) { return ( ( $table->{ $self->{sigil} } . 'MATCH' ) ) }
-        else                            { }
+        else { }
     };
     return ( Main::mangle_name( $self->{sigil}, $self->{twigil}, $self->{name}, $self->{namespace} ) );
 }
@@ -512,7 +512,7 @@ sub emit_perl5 {
     do { [] };
     do {
         if ( Main::isa( $self->{parameters}, 'Call' ) ) { return ( Assign->new( 'parameters' => $self->{parameters}, 'arguments' => $self->{arguments}, )->emit_perl5() ) }
-        else                                            { }
+        else { }
     };
     my $str = ( '::MODIFIED(' . ( $self->{parameters}->emit_perl5() . ( ');' . Main::newline() ) ) );
     $str = ( $str . ( $self->{parameters}->emit_perl5() . ( ' = ' . $self->{arguments}->emit_perl5() ) ) );
@@ -548,12 +548,12 @@ sub emit_perl5 {
     };
     do {
         if ( ( $invocant eq 'self' ) ) { $invocant = '$self' }
-        else                           { }
+        else { }
     };
     my $meth = $self->{method};
     do {
         if ( ( $meth eq 'postcircumfix:<( )>' ) ) { $meth = '' }
-        else                                      { }
+        else { }
     };
     my $call = Main::join( [ map { $_->emit_perl5() } @{ $self->{arguments} } ], ', ' );
     do {
@@ -564,7 +564,7 @@ sub emit_perl5 {
         else {
             do {
                 if ( ( $meth eq '' ) ) { ( '::DISPATCH( ' . ( $invocant . ( ', \'APPLY\', ' . ( $call . ( ' )' . Main::newline() ) ) ) ) ) }
-                else                   { ( '::DISPATCH( ' . ( $invocant . ( ', ' . ( '\'' . ( $meth . ( '\', ' . ( $call . ( ' )' . Main::newline() ) ) ) ) ) ) ) ) }
+                else { ( '::DISPATCH( ' . ( $invocant . ( ', ' . ( '\'' . ( $meth . ( '\', ' . ( $call . ( ' )' . Main::newline() ) ) ) ) ) ) ) ) }
                 }
         }
         }
@@ -641,7 +641,7 @@ sub emit_perl5 {
     my $name = $self->{var}->name();
     do {
         if ( ( $decl eq 'has' ) ) { return ( ( 'sub ' . ( $name . ( ' { ' . ( '@_ == 1 ' . ( '? ( $_[0]->{' . ( $name . ( '} ) ' . ( ': ( $_[0]->{' . ( $name . ( '} = $_[1] ) ' . '}' ) ) ) ) ) ) ) ) ) ) ) }
-        else                      { }
+        else { }
     };
     my $create = ( ', \'new\', { modified => $_MODIFIED, name => \'' . ( $self->{var}->emit_perl5() . '\' } ) ' ) );
     do {
@@ -677,15 +677,15 @@ sub emit_perl5 {
             };
             do {
                 if ( ( $self->{var}->sigil() eq '&' ) ) { return ( ( $s . ( $self->{var}->emit_perl5() . ( ' = ::DISPATCH( $::Routine' . ( $create . ( ';' . Main::newline() ) ) ) ) ) ) }
-                else                                    { }
+                else { }
             };
             do {
                 if ( ( $self->{var}->sigil() eq '%' ) ) { return ( ( $s . ( $self->{var}->emit_perl5() . ( ' = ::DISPATCH( $::HashContainer' . ( $create . ( ';' . Main::newline() ) ) ) ) ) ) }
-                else                                    { }
+                else { }
             };
             do {
                 if ( ( $self->{var}->sigil() eq '@' ) ) { return ( ( $s . ( $self->{var}->emit_perl5() . ( ' = ::DISPATCH( $::ArrayContainer' . ( $create . ( ';' . Main::newline() ) ) ) ) ) ) }
-                else                                    { }
+                else { }
             };
             return ( ( $s . ( $self->{var}->emit_perl5() . Main::newline() ) ) );
         }
@@ -744,11 +744,11 @@ sub emit_perl5 {
     };
     do {
         if ( ( $self->{var}->sigil() eq '%' ) ) { return ( ( $self->{decl} . ( ' ' . ( ' ' . ( $self->{var}->emit_perl5() . ( ' = ::DISPATCH( $::HashContainer' . ( $create . ( '; ' . Main::newline() ) ) ) ) ) ) ) ) }
-        else                                    { }
+        else { }
     };
     do {
         if ( ( $self->{var}->sigil() eq '@' ) ) { return ( ( $self->{decl} . ( ' ' . ( ' ' . ( $self->{var}->emit_perl5() . ( ' = ::DISPATCH( $::ArrayContainer' . ( $create . ( '; ' . Main::newline() ) ) ) ) ) ) ) ) }
-        else                                    { }
+        else { }
     };
     return ( ( $self->{decl} . ( ' ' . $self->{var}->emit_perl5() ) ) );
 }
@@ -763,7 +763,7 @@ sub emit_perl5 {
     my $inv = '$::Undef';
     do {
         if ( Main::isa( $self->{invocant}, 'Var' ) ) { $inv = Main::perl( $self->{invocant}, ) }
-        else                                         { }
+        else { }
     };
     my $pos;
     my $decl;
@@ -784,7 +784,7 @@ sub emit_perl5 {
     my $s = '::DISPATCH( $::Capture, "new", { ';
     do {
         if ( defined( $self->{invocant} ) ) { $s = ( $s . ( 'invocant => ' . ( $self->{invocant}->emit_perl5() . ', ' ) ) ) }
-        else                                { $s = ( $s . 'invocant => $::Undef, ' ) }
+        else { $s = ( $s . 'invocant => $::Undef, ' ) }
     };
     do {
         if ( defined( $self->{array} ) ) {
@@ -938,11 +938,11 @@ sub emit_perl5 {
     do { [] };
     do {
         if ( ( $self->{mod} eq 'v6' ) ) { return ( ( Main::newline() . ( '#use v6' . Main::newline() ) ) ) }
-        else                            { }
+        else { }
     };
     do {
         if ( $self->{perl5} ) { return ( ( 'use ' . ( $self->{mod} . ( ';$::' . ( $self->{mod} . ( '= KindaPerl6::Runtime::Perl5::Wrap::use5(\'' . ( $self->{mod} . '\')' ) ) ) ) ) ) ) }
-        else                  { return ( ( 'use ' . $self->{mod} ) ) }
+        else { return ( ( 'use ' . $self->{mod} ) ) }
         }
 }
 

@@ -71,11 +71,11 @@ sub constant {
     my $len = Main::chars( $str, );
     do {
         if ( ( $str eq Main::backslash() ) ) { $str = ( Main::backslash() . Main::backslash() ) }
-        else                                 { }
+        else { }
     };
     do {
         if ( ( $str eq Main::singlequote() ) ) { $str = ( Main::backslash() . Main::singlequote() ) }
-        else                                   { }
+        else { }
     };
     do {
         if ($len) {
@@ -138,7 +138,7 @@ sub emit_token {
     do { [] };
     do {
         if ( ( substr( $self->{metasyntax}, 0, 1 ) eq Main::singlequote() ) ) { return ( Rule::constant( substr( substr( $self->{metasyntax}, 1 ), 0, ( Main::chars( $self->{metasyntax}, ) - 2 ) ) ) ) }
-        else                                                                  { }
+        else { }
     };
     my $meth = ( ( 1 + index( $self->{metasyntax}, '.' ) ) ? $self->{metasyntax} : ( 'self.' . $self->{metasyntax} ) );
     return ( ( 'do { ' . ( 'my $m2 = ' . ( $meth . ( '($str, $MATCH.to); ' . ( 'if $m2 { $MATCH.to = ($m2.to + 0); $MATCH{\'' . ( $self->{metasyntax} . ( '\'} = $m2; 1 } else { 0 } ' . '}' ) ) ) ) ) ) ) );
@@ -197,19 +197,19 @@ sub emit_token {
     my $char = $self->{char};
     do {
         if ( ( $char eq 'n' ) ) { my $rul = Rule::SubruleNoCapture->new( 'metasyntax' => 'newline', ); $rul = $rul->emit_token(); return ($rul) }
-        else                    { }
+        else { }
     };
     do {
         if ( ( $char eq 'N' ) ) { my $rul = Rule::SubruleNoCapture->new( 'metasyntax' => 'not_newline', ); $rul = $rul->emit_token(); return ($rul) }
-        else                    { }
+        else { }
     };
     do {
         if ( ( $char eq 'd' ) ) { my $rul = Rule::SubruleNoCapture->new( 'metasyntax' => 'digit', ); $rul = $rul->emit_token(); return ($rul) }
-        else                    { }
+        else { }
     };
     do {
         if ( ( $char eq 's' ) ) { my $rul = Rule::SubruleNoCapture->new( 'metasyntax' => 'space', ); $rul = $rul->emit_token(); return ($rul) }
-        else                    { }
+        else { }
     };
     return ( Rule::constant($char) );
 }
