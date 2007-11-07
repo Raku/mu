@@ -14,9 +14,10 @@ if ( $KP6_TARGET eq "KP6-MP6" ) {
         lib         => "compiled/perl5-kp6-mp6/lib",
         module_lib  => "compiled/perl5-kp6-mp6/lib",
         run_test    => "script/run_tests_kp6_mp6.pl",
-        make        => 
+        make        =>
 <<'END',
 compiled/perl5-kp6-mp6/lib/KindaPerl6/Runtime/Perl6/%.pm: src/KindaPerl6/Runtime/Perl6/%.pm
+	@echo "COMPILE = perl script/kp6 -Cperl5"
 	@echo COMPILE $< $@
 	@$(PERL) script/kp6 -Cperl5 $< > $@.temp ; \
 		res=$$? ; \
@@ -27,6 +28,7 @@ compiled/perl5-kp6-mp6/lib/KindaPerl6/Runtime/Perl6/%.pm: src/KindaPerl6/Runtime
 			exit; \
 		fi
 compiled/perl5-kp6-mp6/lib/%.pm: src-modules/%.pm
+	@echo "COMPILE = perl script/kp6 -Cperl5"
 	@echo COMPILE $< $@
 	@$(PERL) script/kp6 -Cperl5 $< > $@.temp ; \
 		res=$$? ; \
@@ -55,12 +57,13 @@ elsif ( $KP6_TARGET eq "KP6-KP6" ) {
         lib         => "compiled/perl5-kp6-kp6/lib",
         module_lib  => "compiled/perl5-kp6-kp6/lib",
         run_test    => "script/run_tests_kp6_kp6.pl",
-        make        => 
+        make        =>
 <<'END',
 compiled/perl5-kp6-kp6/lib/KindaPerl6/Runtime/Perl6/%.pm: src/KindaPerl6/Runtime/Perl6/%.pm
 	$(PERL) script/kp6-kp6.pl -Cperl5rx < $< | perltidy -pro=util/perltidyrc > $@
 
 compiled/perl5-kp6-kp6/lib/%.pm: src-modules/%.pm
+	@echo "COMPILE = perl script/kp6-kp6.pl -Cperl5rx"
 	@echo COMPILE $< $@
 	@$(PERL) script/kp6-kp6.pl -Cperl5rx < $< | perltidy -pro=util/perltidyrc > $@.temp ; \
 		res=$$? ; \
@@ -81,6 +84,7 @@ compiled/perl5-kp6-kp6/lib/%.pm: src/%.pm
 	$(PERL) script/kp6-kp6.pl -Cperl5rx < $< | perltidy -pro=util/perltidyrc > $@
 
 script/kp6-kp6.pl: src-script/kp6-kp6.pl
+	@echo "COMPILE = perl script/kp6-kp6.pl -Cperl5rx"
 	@echo COMPILE $< $@
 	@$(PERL) script/kp6-kp6.pl -Cperl5rx < $< | perltidy -pro=util/perltidyrc > $@.temp ; \
 		res=$$? ; \
@@ -100,12 +104,13 @@ elsif ( $KP6_TARGET eq "KP6-BOOT" ) {
         lib         => "compiled/perl5-kp6-kp6/lib",
         module_lib  => "compiled/perl5-kp6-kp6/lib",
         run_test    => "script/run_tests_kp6_kp6.pl",
-        make        => 
+        make        =>
 <<'END',
 compiled/perl5-kp6-kp6/lib/KindaPerl6/Runtime/Perl6/%.pm: src/KindaPerl6/Runtime/Perl6/%.pm
 	$(PERL) script/kp6 -Cperl5rx --noperltidy < $< > $@
 
 compiled/perl5-kp6-kp6/lib/%.pm: src-modules/%.pm
+	@echo "COMPILE = perl script/kp6 -Cperl5rx --noperltidy"
 	@echo COMPILE $< $@
 	@$(PERL) script/kp6 -Cperl5rx --noperltidy < $< > $@.temp ; \
 		res=$$? ; \
@@ -149,7 +154,7 @@ elsif ( $KP6_TARGET =~ /^KP6-LISP(?:-([A-Za-z]+))?$/ ) {
         module_lib  => "compiled/cl/lib",
 
         run_test    => "script/run_tests_kp6_mp6_lisp_$runtime.pl",
-        make        => 
+        make        =>
 <<'END',
 # Hack to get the .lisp files copied under perl Makefile.PL && make
 compiled/cl/lib/KindaPerl6/Runtime/Lisp/%.lisp: src/KindaPerl6/Runtime/Lisp/%.lisp
@@ -383,11 +388,13 @@ sub top_targets
     # Add kp6_mp6 only targets, not pure_all or manifypods
     $inherited .= "\nkp6_mp6 :: \$(kp6_mp6_OBJ) \$(kp6_mp6_modules_OBJ)\n\t\$(NOECHO) \$(NOOP)\n";
 
-    $inherited .= 
+    $inherited .=
 <<'END';
 
 # Touch all the .pm files in src/KindaPerl6 to force recompilation
 forcerecompile:
+	@echo "WARNING: You cannot use 'make -j' to rebuild after this."
+	@echo "as the make program will attempt to use files that have not yet been built."
 	find src/KindaPerl6/ -name "*.pm" | grep -v \.svn | xargs touch
 
 ## kp6 frontend in p6, uncomment to use
