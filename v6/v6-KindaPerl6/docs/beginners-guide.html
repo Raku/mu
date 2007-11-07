@@ -55,6 +55,13 @@ perl Makefile.PL
 make -j 3 test
 </pre>
 
+<li>Force re-compilation of <i>everything</i> code.
+<pre>
+make forcerecompile
+setenv PERL5LIB "./inc/v6-MiniPerl6-lib5"
+make -j 3
+</pre>
+
 <li>To execute a script
 <pre>
 perl scripts/kp6 [perl6 file]
