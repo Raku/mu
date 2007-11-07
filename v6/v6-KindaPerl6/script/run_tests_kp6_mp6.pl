@@ -12,7 +12,7 @@ my $section = undef;
 GetOptions( "section:s" => \$section );
 
 # section is a string that specifies a of code to test in
-# t/kp6/$section/*.t
+# $section is defined in Makefile.PL
 
 # use English; # $^X = $EXECUTABLE_NAME
 # $^X invokes the current perl executable file.
