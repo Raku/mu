@@ -448,6 +448,8 @@ These tasks are not required for the successful completion of this phase.
 
 =item * dispatcher cache/memoization
 
+Problem: open classes and inheritance
+
 * Status: not started
 
 =item * Junction dispatching
