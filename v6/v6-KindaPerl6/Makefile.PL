@@ -441,6 +441,9 @@ ExtUtils::MakeMaker targets.
 touches all the .pm files in src/KindaPerl6, this forces recompilation
 on the next I<make all>.
 
+WARNING: You cannot use 'make -j' to rebuild after this.  As the make 
+program will attempt to use files that have not yet been built.
+
 =item kp6_mp6
 
 Compile only kp6-mp6 stuff, leave out kp6-kp6, much faster for development
