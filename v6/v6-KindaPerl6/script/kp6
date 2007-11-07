@@ -9,7 +9,7 @@ use English;
 
 # XXX: HACK around harness which calls us like this during `make test'
 # to find out what's in our @INC
-if ( $ENV{HARNESS_ACTIVE} and "@ARGV" =~ /-le prin join qq/ ) {
+if ( $ENV{HARNESS_ACTIVE} and "@ARGV" =~ /-le print join qq/ ) {
     print join( qq[\n], @INC ) . "\n";
     exit 0;
 }
