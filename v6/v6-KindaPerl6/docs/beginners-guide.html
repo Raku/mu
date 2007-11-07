@@ -46,7 +46,7 @@ svn co http://svn.pugscode.org/pugs/
 perl Makefile.PL
 make -j 3 test
 </pre>
-<small>-j 3 means do 3 jobs at once, great for systems with SMP</small><bR><br>
+<small>-j 3 means do 3 jobs at once, great for systems with SMP</small><br><br>
 
 <li>To re-compile KP6
 <pre>
@@ -59,8 +59,10 @@ make -j 3 test
 <pre>
 make forcerecompile
 setenv PERL5LIB "./inc/v6-MiniPerl6-lib5"
-make -j 3
+make
 </pre>
+<i>WARNING: Do NOT use -j when forcing a recompile!, this will cause the Makefile
+to break as code will be used that has not yet been compiled.</i><br><br>
 
 <li>To execute a script
 <pre>
