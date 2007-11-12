@@ -13,7 +13,7 @@ if ( $KP6_TARGET eq "KP6-MP6" ) {
     %Kp6Build = (
         lib         => "compiled/perl5-kp6-mp6/lib",
         module_lib  => "compiled/perl5-kp6-mp6/lib",
-        run_test    => "script/run_tests_kp6_mp6.pl",
+        run_test    => "script/run_tests.pl --backend=perl5",
         make        =>
 <<'END',
 compiled/perl5-kp6-mp6/lib/KindaPerl6/Runtime/Perl6/%.pm: src/KindaPerl6/Runtime/Perl6/%.pm
@@ -149,7 +149,7 @@ END
 }
 elsif ( $KP6_TARGET =~ /^KP6-LISP(?:-([A-Za-z]+))?$/ ) {
     #die "not yet implemented KP6_TARGET '$KP6_TARGET', can't continue";
-    my $runtime = lc($1) || "sbcl";
+    my $runtime = lc($1) || 'sbcl';
     die "Unknown runtime $runtime" unless $runtime =~ /^(?:sbcl|clisp|ecl)$/;
     %Kp6Build = (
         # We don't use this and not defining this makes things break,
@@ -157,7 +157,7 @@ elsif ( $KP6_TARGET =~ /^KP6-LISP(?:-([A-Za-z]+))?$/ ) {
         lib         => "compiled/cl/lib",
         module_lib  => "compiled/cl/lib",
 
-        run_test    => "script/run_tests_kp6_mp6_lisp_$runtime.pl",
+        run_test    => "script/run_tests.pl --backend=cl-$runtime",
         make        =>
 <<'END',
 # Hack to get the .lisp files copied under perl Makefile.PL && make
@@ -280,7 +280,7 @@ END
 # to do it in nmake.
 
 # _patsubst_wildcard
-# 
+#
 # _patsubst_wildcard is a subroutine to handle the gnuism usage of
 #
 #  $(patsub search, replace, $(wildcard globs))
@@ -440,7 +440,7 @@ ExtUtils::MakeMaker targets.
 touches all the .pm files in src/KindaPerl6, this forces recompilation
 on the next I<make all>.
 
-WARNING: You cannot use 'make -j' to rebuild after this.  As the make 
+WARNING: You cannot use 'make -j' to rebuild after this.  As the make
 program will attempt to use files that have not yet been built.
 
 =item kp6_mp6
