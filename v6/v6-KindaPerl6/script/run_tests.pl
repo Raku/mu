@@ -1,42 +1,211 @@
 #!/usr/bin/env perl
 
+=head1 NAME
+
+script/run_tests.pl
+
+=head1 VERSION
+
+Version 0.02
+
+=cut
+
+our $VERSION = '0.02';
+
+=head1 SYNOPSIS
+
+ pugs/v6/v6-KindaPerl6> perl script/run_tests.pl
+
+This will execute the basic tests for the perl5 backend.  Other backends are
+available.
+
+=head2 Options
+
+=over
+
+=item --section=[Section Name]
+
+Section name may be "io", "grammar", "math".  Not specifying a [Section Name]
+will cause all sections to run.
+
+=item --backend=[backend]
+
+Available backends are
+
+ perl5    = perl5         <= default
+ cl-sbcl  = lisp_sbcl
+ cl-ecl   = lisp ecl
+ cl-clisp = lisp clisp
+
+=back
+
+=cut
+
 use strict;
 use warnings;
+use English;
 use Test::Harness;
 use Getopt::Long;
+
+# use TAP::Harness
+
+use constant DEFAULT_BACKEND => 'perl5';
 
 #$Test::Harness::Debug = 1;
 $Test::Harness::Verbose = 1 if $ENV{TEST_VERBOSE};
 
-my $section = undef;my $backend = undef;
-GetOptions( "section:s" => \$section,"backend:s" => \$backend);
+my %opt = (
+    section => undef,
+    backend => undef,
+    verbose => 0,
+    debug   => 0,
+);
 
-my $ok = 1;
-if (not defined $backend) {
-    die "You must specify a backend.\n";
-}
-if (defined $section)
-{ # kp6-perl5.pl tests
-  my $perl5 = $ENV{HARNESS_PERL} || $^X;
-  local $ENV{HARNESS_PERL} = "$^X script/kp6 -B$backend";
-  local $ENV{PERL5LIB} = '';
-  local $Test::Harness::Switches = '';
-  open(TESTS,"TESTS") || die "Can not open test list";
-  $ok &&= eval { runtests(glob("t/kp6/$section/*.t")) };
-  warn $@ if $@;
-}
-else # all
-{ # kp6-perl5.pl tests
-  my $perl5 = $ENV{HARNESS_PERL} || $^X;
-  warn $@ if $@;
-  local $ENV{HARNESS_PERL} = "$^X script/kp6 -B$backend";
-  local $ENV{PERL5LIB} = '';
-  local $Test::Harness::Switches = '';
-  open(TESTS,"TESTS") || die "Can not open test list";
-  $ok &&= eval { runtests((map {chomp;"../../t/$_" } <TESTS>),glob("t/kp6/*.t"),glob("t/kp6/*/*.t")) };
+GetOptions(
+
+    # section is a string that specifies a of code to test in
+    # $section is defined in Makefile.PL
+    # grep -- '--section' ../Makefile.PL
+    "section:s" => \$opt{section},
+
+    # specify a backend
+    "backend:s" => \$opt{backend},
+
+    # verbosity for TAP::Harness (TAP::Harness's verbose appears to be broken)
+    "verbose|v" => \$opt{verbose},    # --verbose or -v
+
+    # debug for TAP::Harness (TAP::Harness's debug appears to be broken)
+    "debug" => \$opt{debug},
+);
+
+$opt{verbose} ||= defined $ENV{TEST_VERBOSE} && $ENV{TEST_VERBOSE};
+
+unless ( $opt{backend} ) {
+    my $message = <<EOT;
+No backend specified defaulting to: perl5
+EOT
+
+    warn $message;
+    $opt{backend} = DEFAULT_BACKEND;
 }
 
-if (!$ok) {
-  print STDERR "some tests failed\n";
-  exit 1;
+$opt{verbose} ||= defined $ENV{TEST_VERBOSE} && $ENV{TEST_VERBOSE};
+
+{    # main
+        # get our tests
+    my @tests = get_tests( \%opt );
+    die "No tests!" unless @tests;
+
+    eval {
+        require TAP::Harness;
+        TAP::Harness->import;
+    };
+
+    my $ok;
+    if ($@) {
+        # print STDERR "running with Test::Harness < 3.0\n";
+        $ok = run_test_harness(
+            {   tests   => \@tests,
+                backend => $opt{backend},
+            }
+        );
+    }
+    else {
+        # print STDERR "running with Test::Harness 3.0+\n";
+        $ok = run_tap_harness(
+            {   tests   => \@tests,
+                backend => $opt{backend},
+                tap_new => {},
+            }
+        );
+    }
+
+    if ($ok) {
+        exit 0;
+    }
+    else {
+        print STDERR "some tests failed\n";
+        exit 1;
+    }
 }
+
+sub run_test_harness {
+    my $args = shift;
+
+    # PRE Test::Harness 3.0
+    local $ENV{HARNESS_PERL} = "$EXECUTABLE_NAME script/kp6 -B$args->{ backend }";
+
+    my $ok = eval { runtests( @{ $args->{tests} } ); };
+    warn $@ if $@;
+
+    return $ok;
+}
+
+sub run_tap_harness {
+    my $args = shift;
+
+    my $tap = { %{ $args->{tap_new} } };    # clone
+
+    # TAP::Harness 3.00 documentation is wrong, this is the correct invocation
+    $tap->{exec} = [ $EXECUTABLE_NAME, 'script/kp6', '-B' . $args->{backend} ];
+
+    my $test       = TAP::Harness->new($tap);
+    my $aggregator = $test->runtests( @{ $args->{tests} } );
+
+    return 0 if $aggregator->failed();
+    return 1;
+}
+
+###############################################################################
+# Supporting subroutines
+
+sub get_tests {
+    my $args = shift;
+
+    my @tests;
+
+    if ( defined $args->{section} ) {
+        die "$args->{ section } does not exist" unless -d "t/kp6/$args->{ section }";
+        @tests = glob "t/kp6/$args->{ section }/*.t";
+    }
+    else {
+        @tests = map { chomp; $_ } <DATA>;
+        push @tests, glob("t/kp6/*.t");
+        push @tests, glob("t/kp6/*/*.t");
+    }
+
+    return @tests;
+}
+
+# this tests are basic tests, that we run "just to do a sanity check"
+
+=head2 Changes
+
+Change      Description
+
+    0.02    Nov. 12th, 2007
+            dlocaus on #perl6 irc.freenode.net
+            Test::Harness 3.0 better known as TAP::Harness was released to CPAN
+            on (Nov. 7th, 2007).  The invocation of using $ENV{HARNESS_PERL} is
+            not compatible with the new standard:
+
+            http://search.cpan.org/~andya/Test-Harness-3.00/lib/TAP/Harness.pm#new
+
+            see "new( exec => ... )"
+
+            I am breaking the code into 2 parts, one to run on systems without
+            TAP::Harness and another to run on systems with TAP::Harness
+
+    0.01    ????
+            original code.
+
+=cut
+
+__DATA__
+../../t/01-sanity/01-tap.t
+../../t/01-sanity/03-equal.t
+../../t/01-sanity/04-if.t
+../../t/01-sanity/05-sub.t
+../../t/01-sanity/06-use.t
+../../t/01-sanity/07-binding.t
+../../t/01-sanity/07-substr.t
