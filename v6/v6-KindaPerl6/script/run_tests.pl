@@ -57,8 +57,7 @@ $Test::Harness::Verbose = 1 if $ENV{TEST_VERBOSE};
 my %opt = (
     section => undef,
     backend => undef,
-    verbose => 0,
-    debug   => 0,
+    verbose => '0', # TAP::Harness - normal
 );
 
 GetOptions(
@@ -71,11 +70,8 @@ GetOptions(
     # specify a backend
     "backend:s" => \$opt{backend},
 
-    # verbosity for TAP::Harness (TAP::Harness's verbose appears to be broken)
-    "verbose|v" => \$opt{verbose},    # --verbose or -v
-
-    # debug for TAP::Harness (TAP::Harness's debug appears to be broken)
-    "debug" => \$opt{debug},
+    # TAP::Harness uses 'verbosity'
+    "verbose|verbosity|v=i" => \$opt{verbose},    # --verbose or -v
 );
 
 $opt{verbose} ||= defined $ENV{TEST_VERBOSE} && $ENV{TEST_VERBOSE};
@@ -88,8 +84,6 @@ EOT
     warn $message;
     $opt{backend} = DEFAULT_BACKEND;
 }
-
-$opt{verbose} ||= defined $ENV{TEST_VERBOSE} && $ENV{TEST_VERBOSE};
 
 {    # main
         # get our tests
@@ -115,7 +109,9 @@ $opt{verbose} ||= defined $ENV{TEST_VERBOSE} && $ENV{TEST_VERBOSE};
         $ok = run_tap_harness(
             {   tests   => \@tests,
                 backend => $opt{backend},
-                tap_new => {},
+                tap_new => {
+                    verbosity => $opt{verbose},
+                },
             }
         );
     }
