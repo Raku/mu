@@ -34,7 +34,8 @@ my $args = { section => $section,
 # daniel lo; dlocaus on #perl6 irc.freenode.net Nov. 12th, 2007.
 
 eval {
-    use TAP::Harness;
+    require TAP::Harness;
+	TAP::Harness->import;
 };
 
 my $ok;
