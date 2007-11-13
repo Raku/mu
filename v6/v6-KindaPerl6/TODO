@@ -1,5 +1,40 @@
 TODO list for KindaPerl6
 
+
+* Main Problems, unsorted
+
+- Perl 5 regex emitter
+    - fix problem with delimiters inside code
+    
+- Longest token
+    - implement an algorithm that we can use in the STD grammar
+    
+- Autovivification
+    - implement deep autovivification/laziness, such as $a[1]<x>[3].exists 
+    - this is needed by Namespace.pm, which implements namespaces in Perl 6
+
+- Pads in Perl 6
+    - see Scope.pm, Pad.pm
+    
+- Threads, STM
+
+- Exceptions
+    - this is needed by .for, in order to implement next, return
+    - this is needed by 'try'
+    
+- Junctions
+    - needs fixing in the .APPLY method, should read the Code.signature
+    
+- Eval string
+    - this is needed by the current implementation of Pad.pm
+    
+- Big integers
+
+- Lazy list
+    - we have a partial implementation that does 'gather/take', infinite ranges
+    - needs support for slices
+    
+
 * Phase 5 "improved grammar"
 
 - (DONE) hyperops
