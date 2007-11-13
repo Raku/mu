@@ -21,7 +21,24 @@ KindaPerl6 ("kp6") aims for a "Perl 6 in Perl 6" compiler design and implementat
 
 =head2 KindaPerl6 Project overview
 
-Phase 1 - bootstrap 
+Phase 7 - aggressive optimizer
+
+  Target speed is 1/20x Perl 5
+
+Phase 6 - optimizer
+
+  Target speed is 1/200x Perl 5
+
+Phase 5 - improved grammar
+
+  Upgrade to Perl-6.0.0-STD Grammar
+
+Phase 4 - improved runtime
+
+  The runtime libraries needed by the Perl-6.0.0-STD parser will be specified and implemented
+  This is the current phase
+
+Phase 3 - regex compiler refactoring 
 
   This phase is finished
 
@@ -29,103 +46,47 @@ Phase 2 - improved compiler architecture
 
   This phase is finished
 
-Phase 3 - regex compiler refactoring 
+Phase 1 - bootstrap 
 
   This phase is finished
 
-Phase 4 - improved runtime
-
-  The runtime libraries needed by the Perl-6.0.0-STD parser will be specified and implemented
-  This is the current phase
-
-Phase 5 - improved grammar
-
-  Upgrade to Perl-6.0.0-STD Grammar
-
-Phase 6 - optimizer
-
-  Target speed is 1/200x Perl 5
-
-Phase 7 - aggressive optimizer
-
-  Target speed is 1/20x Perl 5
 
 
 
-
-=head1 Phase 3 - regex compiler refactoring
-
-The goal for this phase is to refactor the regex compiler, to take advantage of the KindaPerl6 compiler architecture.
-
-As a side effect, kp6 will also be able to use a native regex engine, if available.
-For example, PGE in the Parrot backend, and Pugs::Compiler::Rule in the Perl 5 backend.
-The kp6-regex engine will still be supported, for benefit of perl6-in-jvm and other backends.
+=head1 Phase 6 - optimizer
 
 
-=head2 Milestone 3.1 - Regex AST refactoring  
 
-The regex AST will be refactored from hash-of-hashes to Object-oriented.
+=head1 Phase 7 - aggressive optimizer
+
+
+
+=head1 Phase 5 - improved grammar
+
+The goal for this phase is to upgrade kp6 to Perl-6.0.0-STD Grammar
+
+
+=head2 Milestone 5.1 - Upgrade the regex engine to the current specification
+
+The regex engine in KindaPerl6 will be refactored.
+The regex engine was implemented a while ago, and the regex language specification has changed since then.
 
 =head3 Status
 
-Finished.
+KindaPerl6 can now do proper parameter passing.
+It is now possible to implement parameters in regexes.
 
 =head3 Dependencies
 
 =over
 
-=item * KindaPerl6 compiler architecture code-review
+=item * Improved parameter handling
 
-* finished
+* Status: near finished
 
-We need someone to review the previous phase results, in order to consider the "compiler architecture" phase finished.
-This is a non-blocking task.
+=item * Improved "perl5rx" backend
 
-From irc discussions:
-
-    > - One of my basic design principles was to implement AST
-    > transformations as "pluggable" modules, using a visitor pattern.
-    > Do you see potential problems with this approach?
-
-    No problems with the visitor pattern, but the way that "aspects" are
-    implemented in the AST-plugins might cause hard-to-detect errors.
-    For example, if the AST is changed in one place and the AST-plugin is
-    not updated, no error will be reported (pmurias++).
-
-    * this has been refactored; it's now more difficult to have an undetected bug
-
-    > - BEGIN block side-effects are recorded in a hash. This adds an
-    > overhead to all assignment operations. Do you see a better way to
-    > check for side-effects?
-
-    This will probably be discussed in an irc meeting scheduled for next week.
-
-    Yesterday, we discussed the way the compiling environment is
-    represented internally. It's complex, but it works. We don't have a
-    simpler solution yet.
-
-
-=item * KindaPerl6 syntax review
-
-* finished; the syntax was not corrected
-
-We need to verify that the KindaPerl6 grammar is a valid subset of Perl 6.
-This is a non-blocking task.
-
-  * POD cannot contain #-comments in Pugs (bug)
-    - workaround: move comments outside the pod (example: Grammar::Regex)
-    
-  * POD should finish in '=end', not '=cut'
-  
-  * ::Obj( val => 1 )  should be   Obj.new( val => 1 )
-  
-  * $obj.val(1)  should be  $obj.val := 1
-    - the accessor declaration is "has $.val is rw"
-    
-  * s/<'...'>/'...'/g in several places in the grammar
-  
-  * (this one is no longer necessary; the spec now says the statements are returned in the right order) 
-    XXX '@.body.>>emit' is wrong, because it would emit the statements in any order
+* Status: passes all tests
 
 =back
 
@@ -133,13 +94,32 @@ This is a non-blocking task.
 
 =over
 
-=item * Create the regex AST node classes
 
-* finished
+=item * Upgrade the grammar engine in MiniPerl6 to the regex new syntax
 
-=item * Rewrite the hash constructors in the regex grammar to OO style
+* we need MiniPerl6 in order to compile KindaPerl6
 
-* finished
+* Status: finished; replaced all occurrences of <? > with <. >
+
+
+=item * Upgrade the KindaPerl6 grammar source code to the new regex syntax
+
+* Status: replaced all occurrences of <? > with <. >
+
+
+=item * Upgrade the KindaPerl6 regex engine to the new regex syntax
+
+* Status: <. > works.
+
+
+=item * Add "perl5rx" support to Makefile
+
+* Status: 
+
+Added "scripts/run_tests_kp6_mp6_perl5rx.pl"
+
+KindaPerl6 can compile itself, invoking the makefile with "KP6_TARGET=KP6-BOOT Makefile.PL"
+
 
 =back
 
@@ -147,147 +127,65 @@ This is a non-blocking task.
 =head3 Test Plan
 
 The resulting code will be tested by running the existing test suite.
+
+* Status: 
+
+All t/kp6/grammar/ tests pass under the "perl5rx" backend.
+
+Some grammar tests fail under the "perl5" backend, which uses the portable regex engine.
+
+
+
+=head2 Milestone 5.2 - Working bootstrapped grammar
+
+The KindaPerl6 image generated by compiling KindaPerl6 with itself will be able to parse small programs.
+
+=head3 Status
+
+KindaPerl6 can compile itself under the "perl5rx" backend.
+
+The generated code has perl5-regex delimiter problems.
+
+
+=head3 Dependencies
+
+=over
+
+=item * ...
+
+* Status: ...
+
+=back
+
+
+=head3 Tasks
+
+=over
+
+
+=item * Refactor emitted regex code
+
+* move complex code blocks outside of regexes, avoiding the delimiter problems
+
+* Status: TODO
+
+
+
+=back
+
+
+=head3 Test Plan
+
+New tests should be added.
 
 * unfinished
 
 
-=head2 Milestone 3.2 - Regex AST processor  
 
-The regex compiler will use the AST processor engine.
+=head2 Milestone 5.3 - Precedence parser
 
-=head3 Status
 
-* Some tasks finished.
-
-=head3 Dependencies
-
-=over
-
-=item * OO regex AST
-
-The regex AST created in Milestone 1 must be fully implemented and tested.
-
-=back
-
-=head3 Tasks
-
-=over
-
-=item * Create an AST ".perl" dumper
-
-* finished
-
-This will be used for debugging
-
-=item * Create an AST-to-Perl6 dumper
-
-* finished
-
-This will finish replacing the current kp6 code
-
-=item * Merge the regex AST processor with the main AST processor
-
-* finished
-
-Currently, the grammar for "regex" returns Perl 6 procedural AST. 
-This is because the regex AST processor is being called too early.
-
-In this phase, the grammar will be refactored to return plain regex AST.
-This AST will be processed to procedural code later, by applying an optional plugin module.
-
-=back
-
-
-=head3 Test Plan
-
-The resulting code will be tested by running the existing test suite.
-
-
-=head2 Milestone 3.3 - Additional Regex AST processors
-
-The regex compiler will use the AST processor engine to implement additional semantics.
-
-=head3 Status
-
-* finished.
-
-=head3 Dependencies
-
-=over
-
-=item * OO regex AST
-
-The regex AST created in Milestone 1 must be fully implemented and tested.
-
-=back
-
-=head3 Tasks
-
-=over
-
-=item * Identify which regex features are needed for parsing Perl-6.0.0-STD
-
-=item * Identify which regex AST transformations are needed in order to implement the Perl-6.0.0-STD parser
-
-=item * Create regex tests for the new features
-
-=item * Implement the AST transformations
-
-This task may require implementing additional regex runtime.
-
-* Status: the 'RegexCapture' processor implements AST annotation for positional capture numbering, 
-and for "capture to array" flags.
-
-=back
-
-
-=head3 Test Plan
-
-The resulting code will be tested by bootstrapping the compiler, and by running the improved test suite.
-
-* Status: the compiler will not be bootstrapped yet, because it is easier to hack on the non-bootstrapped compiler for now.
-
-
-=head2 Bonus Tasks  
-
-These tasks are not required for the successful completion of this phase.
-
-=head3 Tasks
-
-=over
-
-=item * Add support for optionally using Perl6regex-on-Perl5regex, 
-as described in v6/v6-KindaPerl6/temp/backtracking-recursive-subrule.pl
-
-* Status: 
- 
-implemented as Visitor::EmitPerl5Regex; 
-added a '-perl5rx' backend to kp6, that performs the p6rx-on-p5rx compilation.
-
-=item * Add support for optionally using Pugs::Compiler::Rule in the Perl 5 backend
-
-=item * Add support for optionally using Parrot Grammar Engine in the Parrot backend
-
-=item * Regex backtracking
-
-Choose one or more backtracking models, and implement them.
-This is specially important for Perl6regex-in-Perl6 (as implemented in Visitor::Token)
-
-* Status: the '-perl5rx' kp6 backend implements backtracking by using the Perl5.8 regex engine.
-
-=item * Special variables
-
-Create C<COMPILING::<$?PARSER>>, C<$?FILE>, C<$?LINE>
-
-=item * Finer-grained error messages
-
-=item * Grammar and precedence parser merged from Perl6-STD
-
-=item * Lexically modifieable Grammar
-
-=back
-
-
+=head2 Milestone 5.4 - Improved multi-token
 
 
 
@@ -535,32 +433,79 @@ is difficult to do in Perl 5.
 
 
 
-=head1 Phase 5 - improved grammar
+=head1 Phase 3 - regex compiler refactoring
 
-The goal for this phase is to upgrade kp6 to Perl-6.0.0-STD Grammar
+The goal for this phase is to refactor the regex compiler, to take advantage of the KindaPerl6 compiler architecture.
+
+As a side effect, kp6 will also be able to use a native regex engine, if available.
+For example, PGE in the Parrot backend, and Pugs::Compiler::Rule in the Perl 5 backend.
+The kp6-regex engine will still be supported, for benefit of perl6-in-jvm and other backends.
 
 
-=head2 Milestone 5.1 - Upgrade the regex engine to the current specification
+=head2 Milestone 3.1 - Regex AST refactoring  
 
-The regex engine in KindaPerl6 will be refactored.
-The regex engine was implemented a while ago, and the regex language specification has changed since then.
+The regex AST will be refactored from hash-of-hashes to Object-oriented.
 
 =head3 Status
 
-KindaPerl6 can now do proper parameter passing.
-It is now possible to implement parameters in regexes.
+Finished.
 
 =head3 Dependencies
 
 =over
 
-=item * Improved parameter handling
+=item * KindaPerl6 compiler architecture code-review
 
-* Status: near finished
+* finished
 
-=item * Improved "perl5rx" backend
+We need someone to review the previous phase results, in order to consider the "compiler architecture" phase finished.
+This is a non-blocking task.
 
-* Status: passes all tests
+From irc discussions:
+
+    > - One of my basic design principles was to implement AST
+    > transformations as "pluggable" modules, using a visitor pattern.
+    > Do you see potential problems with this approach?
+
+    No problems with the visitor pattern, but the way that "aspects" are
+    implemented in the AST-plugins might cause hard-to-detect errors.
+    For example, if the AST is changed in one place and the AST-plugin is
+    not updated, no error will be reported (pmurias++).
+
+    * this has been refactored; it's now more difficult to have an undetected bug
+
+    > - BEGIN block side-effects are recorded in a hash. This adds an
+    > overhead to all assignment operations. Do you see a better way to
+    > check for side-effects?
+
+    This will probably be discussed in an irc meeting scheduled for next week.
+
+    Yesterday, we discussed the way the compiling environment is
+    represented internally. It's complex, but it works. We don't have a
+    simpler solution yet.
+
+
+=item * KindaPerl6 syntax review
+
+* finished; the syntax was not corrected
+
+We need to verify that the KindaPerl6 grammar is a valid subset of Perl 6.
+This is a non-blocking task.
+
+  * POD cannot contain #-comments in Pugs (bug)
+    - workaround: move comments outside the pod (example: Grammar::Regex)
+    
+  * POD should finish in '=end', not '=cut'
+  
+  * ::Obj( val => 1 )  should be   Obj.new( val => 1 )
+  
+  * $obj.val(1)  should be  $obj.val := 1
+    - the accessor declaration is "has $.val is rw"
+    
+  * s/<'...'>/'...'/g in several places in the grammar
+  
+  * (this one is no longer necessary; the spec now says the statements are returned in the right order) 
+    XXX '@.body.>>emit' is wrong, because it would emit the statements in any order
 
 =back
 
@@ -568,32 +513,13 @@ It is now possible to implement parameters in regexes.
 
 =over
 
+=item * Create the regex AST node classes
 
-=item * Upgrade the grammar engine in MiniPerl6 to the regex new syntax
+* finished
 
-* we need MiniPerl6 in order to compile KindaPerl6
+=item * Rewrite the hash constructors in the regex grammar to OO style
 
-* Status: finished; replaced all occurrences of <? > with <. >
-
-
-=item * Upgrade the KindaPerl6 grammar source code to the new regex syntax
-
-* Status: replaced all occurrences of <? > with <. >
-
-
-=item * Upgrade the KindaPerl6 regex engine to the new regex syntax
-
-* Status: <. > works.
-
-
-=item * Add "perl5rx" support to Makefile
-
-* Status: 
-
-Added "scripts/run_tests_kp6_mp6_perl5rx.pl"
-
-KindaPerl6 can compile itself, invoking the makefile with "KP6_TARGET=KP6-BOOT Makefile.PL"
-
+* finished
 
 =back
 
@@ -602,70 +528,156 @@ KindaPerl6 can compile itself, invoking the makefile with "KP6_TARGET=KP6-BOOT M
 
 The resulting code will be tested by running the existing test suite.
 
-* Status: 
-
-All t/kp6/grammar/ tests pass under the "perl5rx" backend.
-
-Some grammar tests fail under the "perl5" backend, which uses the portable regex engine.
+* unfinished
 
 
+=head2 Milestone 3.2 - Regex AST processor  
 
-=head2 Milestone 5.2 - Working bootstrapped grammar
-
-The KindaPerl6 image generated by compiling KindaPerl6 with itself will be able to parse small programs.
+The regex compiler will use the AST processor engine.
 
 =head3 Status
 
-KindaPerl6 can compile itself under the "perl5rx" backend.
-
-The generated code has perl5-regex delimiter problems.
-
+* Some tasks finished.
 
 =head3 Dependencies
 
 =over
 
-=item * ...
+=item * OO regex AST
 
-* Status: ...
+The regex AST created in Milestone 1 must be fully implemented and tested.
 
 =back
-
 
 =head3 Tasks
 
 =over
 
+=item * Create an AST ".perl" dumper
 
-=item * Refactor emitted regex code
+* finished
 
-* move complex code blocks outside of regexes, avoiding the delimiter problems
+This will be used for debugging
 
-* Status: TODO
+=item * Create an AST-to-Perl6 dumper
 
+* finished
 
+This will finish replacing the current kp6 code
+
+=item * Merge the regex AST processor with the main AST processor
+
+* finished
+
+Currently, the grammar for "regex" returns Perl 6 procedural AST. 
+This is because the regex AST processor is being called too early.
+
+In this phase, the grammar will be refactored to return plain regex AST.
+This AST will be processed to procedural code later, by applying an optional plugin module.
 
 =back
 
 
 =head3 Test Plan
 
-New tests should be added.
-
-* unfinished
+The resulting code will be tested by running the existing test suite.
 
 
+=head2 Milestone 3.3 - Additional Regex AST processors
 
-=head2 Milestone 5.3 - Precedence parser
+The regex compiler will use the AST processor engine to implement additional semantics.
+
+=head3 Status
+
+* finished.
+
+=head3 Dependencies
+
+=over
+
+=item * OO regex AST
+
+The regex AST created in Milestone 1 must be fully implemented and tested.
+
+=back
+
+=head3 Tasks
+
+=over
+
+=item * Identify which regex features are needed for parsing Perl-6.0.0-STD
+
+=item * Identify which regex AST transformations are needed in order to implement the Perl-6.0.0-STD parser
+
+=item * Create regex tests for the new features
+
+=item * Implement the AST transformations
+
+This task may require implementing additional regex runtime.
+
+* Status: the 'RegexCapture' processor implements AST annotation for positional capture numbering, 
+and for "capture to array" flags.
+
+=back
 
 
-=head2 Milestone 5.4 - Improved multi-token
+=head3 Test Plan
+
+The resulting code will be tested by bootstrapping the compiler, and by running the improved test suite.
+
+* Status: the compiler will not be bootstrapped yet, because it is easier to hack on the non-bootstrapped compiler for now.
 
 
-=head1 Phase 6 - optimizer
+=head2 Bonus Tasks  
+
+These tasks are not required for the successful completion of this phase.
+
+=head3 Tasks
+
+=over
+
+=item * Add support for optionally using Perl6regex-on-Perl5regex, 
+as described in v6/v6-KindaPerl6/temp/backtracking-recursive-subrule.pl
+
+* Status: 
+ 
+implemented as Visitor::EmitPerl5Regex; 
+added a '-perl5rx' backend to kp6, that performs the p6rx-on-p5rx compilation.
+
+=item * Add support for optionally using Pugs::Compiler::Rule in the Perl 5 backend
+
+=item * Add support for optionally using Parrot Grammar Engine in the Parrot backend
+
+=item * Regex backtracking
+
+Choose one or more backtracking models, and implement them.
+This is specially important for Perl6regex-in-Perl6 (as implemented in Visitor::Token)
+
+* Status: the '-perl5rx' kp6 backend implements backtracking by using the Perl5.8 regex engine.
+
+=item * Special variables
+
+Create C<COMPILING::<$?PARSER>>, C<$?FILE>, C<$?LINE>
+
+=item * Finer-grained error messages
+
+=item * Grammar and precedence parser merged from Perl6-STD
+
+=item * Lexically modifieable Grammar
+
+=back
 
 
-=head1 Phase 7 - aggressive optimizer
 
 
+=head1 Phase 2 - improved compiler architecture 
+
+This phase is finished. The product is the KindaPerl6 compiler, which implements a plug-in 
+system for AST processors and backend emitters.
+
+
+
+=head1 Phase 1 - bootstrap 
+
+This phase is finished. The product is the MiniPerl6 compiler, which is bootstrapped in Perl 5.
 
