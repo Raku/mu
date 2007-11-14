@@ -149,8 +149,15 @@ sub run_tap_harness {
 
     my $tap = { %{ $args->{tap_new} } };    # clone
 
-    # TAP::Harness 3.00 documentation is wrong, this is the correct invocation
-    $tap->{exec} = [ $EXECUTABLE_NAME, $extra_libs, 'script/kp6', '-B' . $args->{backend} ];
+    # TAP::Harness 3.00 documentation is wrong
+    # the correct invocation is { exec => [ $prog,$arg1,$arg2 ] }
+    my @exec = ( $EXECUTABLE_NAME );
+
+    # this will cause odd behavior in TAP::Harness if you put '' in the array
+    push @exec, $extra_libs if $extra_libs;
+    push @exec, 'script/kp6';
+    push @exec, '-B' . $args->{backend};
+    $tap->{exec} = \@exec;
 
     my $test       = TAP::Harness->new($tap);
     my $aggregator = $test->runtests( @{ $args->{tests} } );
