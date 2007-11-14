@@ -9,7 +9,14 @@ Container.pm
 
 =head1 DESCRIPTION
 
-...
+This perl file (not package) contains the global classes for $::Container and
+other global classes that have $meta_Container for a parent.
+
+ * $::Container
+ * $::Scalar
+ * $::ArrayContainer
+ * $::HashContainer
+ * $::Routine
 
 =cut
 
@@ -323,9 +330,9 @@ my $meta_Routine = ::DISPATCH( $::Routine, 'HOW' );
 # add $meta_Routine as a parent to $meta_Method
 
 # Method isa Routine
-::DISPATCH( 
-    ::DISPATCH( $::Method, 'HOW' ), 
-    'add_parent', 
+::DISPATCH(
+    ::DISPATCH( $::Method, 'HOW' ),
+    'add_parent',
     $meta_Routine );
 
 # tests if a variable was initialized at all
