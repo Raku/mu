@@ -5,6 +5,8 @@ use strict;
 
 use KindaPerl6::Runtime::Perl5::MOP;
 
+use KindaPerl6::Runtime::Perl5::Container;
+
 use KindaPerl6::Runtime::Perl6::Pair;
 use KindaPerl6::Runtime::Perl5::Pair;
 
