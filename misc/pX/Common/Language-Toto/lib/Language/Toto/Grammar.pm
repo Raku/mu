@@ -74,18 +74,31 @@ token tab2 {
 }
 
 token next_line {
-    <.spaces>? [ \n | $ ]
+    <.spaces>? [ <.comment> | \n | $ ]
+}
+
+token comment {
+    '--' \N*
 }
 
 =begin
 
 Syntax tree
 
-    block
+    block   := Array of [
+    
         block_header
             block_type    :=  Process | Procedure | Activity
             ident         :=  String
-
+            
+        block_name
+            text          :=  Array of Match
+            
+        block_description
+            text          :=  Array of Match
+            
+    ]
+    
 =end
 
 =begin Example

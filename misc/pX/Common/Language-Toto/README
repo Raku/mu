@@ -2,10 +2,12 @@ Language::Toto
 
     Toto is a Domain Specific Language for describing very simple workflows
 
-Authors
+AUTHORS
 
     Flavio S. Glock (fglock), Nelson Ferraz (nferraz), Daniel Ruoso (ruoso), Marco Lima (mago)
 
-License
+COPYRIGHT & LICENSE 
 
-    Toto is released under a BSD license
+Copyright 2007 Flavio S. Glock, Nelson Ferraz, Daniel Ruoso, Marco Lima, Vertical One Lda. all rights reserved.
+
+This program is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
