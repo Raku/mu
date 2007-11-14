@@ -167,9 +167,9 @@ sub get_tests {
 
     my @tests;
 
-    if ( defined $args->{section} 
+    if ( defined $args->{section}
         && $args->{section} =~ /^todo/
-       ) 
+       )
     {
         die "$args->{ section } does not exist" unless -d "t/$args->{ section }";
         @tests = glob "t/$args->{ section }/*.t";
@@ -185,7 +185,16 @@ sub get_tests {
         push @tests, glob("t/kp6/*/*.t");
     }
 
+    test_existance(@tests); # will die if there is a problem.
+
     return @tests;
+}
+
+sub test_existance {
+    for my $test ( @_ ) {
+        die "$test: does not exist" unless -e $test;
+        die "$test: does not have read permission" unless -r _;
+    }
 }
 
 # this tests are basic tests, that we run "just to do a sanity check"
