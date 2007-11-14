@@ -16,7 +16,7 @@ our $VERSION = '0.02';
 
  pugs/v6/v6-KindaPerl6> perl script/run_tests.pl
 
-This will execute the basic tests for the perl5 backend.  Other backends are
+This will execute the basic tests for the Perl 5 backend.  Other backends are
 available.
 
 =head2 Options
@@ -32,7 +32,8 @@ will cause all sections to run.
 
 Available backends are
 
- perl5    = perl5         <= default
+ perl5    = Perl 5 (using the MiniPerl6 regex engine)     <= default
+ perl5rx  = Perl 5 (using the Perl 5 regex engine)
  cl-sbcl  = lisp_sbcl
  cl-ecl   = lisp ecl
  cl-clisp = lisp clisp
@@ -53,6 +54,8 @@ use constant DEFAULT_BACKEND => 'perl5';
 
 #$Test::Harness::Debug = 1;
 $Test::Harness::Verbose = 1 if $ENV{TEST_VERBOSE};
+
+my $extra_libs = '';
 
 my %opt = (
     section => undef,
@@ -78,15 +81,19 @@ $opt{verbose} ||= defined $ENV{TEST_VERBOSE} && $ENV{TEST_VERBOSE};
 
 unless ( $opt{backend} ) {
     my $message = <<EOT;
-No backend specified defaulting to: perl5
+No backend specified defaulting to: "perl5"
 EOT
 
     warn $message;
     $opt{backend} = DEFAULT_BACKEND;
 }
 
+if ( $opt{backend} eq "perl5rx" ) {
+    $extra_libs = '-Ilib5regex';
+}
+
 {    # main
-        # get our tests
+    # get our tests
     my @tests = get_tests( \%opt );
     die "No tests!" unless @tests;
 
@@ -129,7 +136,7 @@ sub run_test_harness {
     my $args = shift;
 
     # PRE Test::Harness 3.0
-    local $ENV{HARNESS_PERL} = "$EXECUTABLE_NAME script/kp6 -B$args->{ backend }";
+    local $ENV{HARNESS_PERL} = "$EXECUTABLE_NAME $extra_libs script/kp6 -B$args->{ backend }";
 
     my $ok = eval { runtests( @{ $args->{tests} } ); };
     warn $@ if $@;
@@ -143,7 +150,7 @@ sub run_tap_harness {
     my $tap = { %{ $args->{tap_new} } };    # clone
 
     # TAP::Harness 3.00 documentation is wrong, this is the correct invocation
-    $tap->{exec} = [ $EXECUTABLE_NAME, 'script/kp6', '-B' . $args->{backend} ];
+    $tap->{exec} = [ $EXECUTABLE_NAME, $extra_libs, 'script/kp6', '-B' . $args->{backend} ];
 
     my $test       = TAP::Harness->new($tap);
     my $aggregator = $test->runtests( @{ $args->{tests} } );
