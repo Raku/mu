@@ -167,7 +167,15 @@ sub get_tests {
 
     my @tests;
 
-    if ( defined $args->{section} ) {
+    if ( defined $args->{section} 
+        && $args->{section} =~ /^todo/
+       ) 
+    {
+        die "$args->{ section } does not exist" unless -d "t/$args->{ section }";
+        @tests = glob "t/$args->{ section }/*.t";
+        push @tests, glob("t/$args->{ section }/*/*.t");
+    }
+    elsif ( defined $args->{section} ) {
         die "$args->{ section } does not exist" unless -d "t/kp6/$args->{ section }";
         @tests = glob "t/kp6/$args->{ section }/*.t";
     }

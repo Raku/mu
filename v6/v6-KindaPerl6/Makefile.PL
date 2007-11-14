@@ -272,6 +272,9 @@ test_math: all
 
 test_base: all
 	\$(PERL) $Kp6Build{run_test} --section=''
+
+test_todo: all
+	\$(PERL) $Kp6Build{run_test} --section=todo
 END
 }
 

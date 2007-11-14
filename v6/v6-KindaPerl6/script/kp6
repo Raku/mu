@@ -371,7 +371,7 @@ run_piped_command executes "| $command", and then prints to the file descriptor
 
 if '|' is not at the begining of $command then it will be added.
 
-YOU ARE RESPOSIBLE for putting in "\n" into @print_to_file!!!
+YOU ARE RESPONSIBLE for putting in "\n" into @print_to_file!!!
 
 =cut
 
@@ -469,6 +469,12 @@ sub load_source {
         my ( $file, @args ) = @ARGV;
 
         if ( $file and not $opt{e} ) {
+            
+            # XXX where does '-w' come from?  - fglock
+            if ( $file eq '-w' ) {
+                $file = shift @args;
+            }
+            
             $source = slurp($file);
         }
         elsif ( $opt{e} ) {
