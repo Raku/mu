@@ -1,7 +1,11 @@
 Language::Toto
 
-is a Domain Specific Language for describing very simple workflows
+    Toto is a Domain Specific Language for describing very simple workflows
 
 Authors
 
-  Flavio S. Glock (fglock), Nelson Ferraz (nferraz), Daniel Ruoso (ruoso), Marco Lima (mago)
+    Flavio S. Glock (fglock), Nelson Ferraz (nferraz), Daniel Ruoso (ruoso), Marco Lima (mago)
+
+License
+
+    Toto is released under a BSD license
