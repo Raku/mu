@@ -102,6 +102,7 @@ $::Container = KindaPerl6::Runtime::Perl5::MOP::make_class(
     name    => 'Container',
     methods => {
         FETCH => sub {
+            # XXX - see LOOKUP below
             $_[0]{_value}{cell} ? $_[0]{_value}{cell} : ::DISPATCH( $::Undef, "new", 0 );
         },
         STORE => sub {
@@ -126,6 +127,26 @@ $::Container = KindaPerl6::Runtime::Perl5::MOP::make_class(
                 $_[0]{_roles}{readonly} = 1;
             }
             $_[0];
+        },
+        LOOKUP => sub {
+            # XXX - this should never happen: FETCH should have returned a Hash instead
+            my $self = shift;
+            if ( ! defined $self->{_value}{_hash} ) {
+                $self = ::DISPATCH( $::HashProxy, "new", {
+                    cell => $self->{_value},
+                });
+            }
+            ::DISPATCH( $self->{_value}, 'LOOKUP', @_ );
+        },
+        INDEX => sub {
+            # XXX - this should never happen: FETCH should have returned an Array instead
+            my $self = shift;
+            if ( ! defined $self->{_value}{_array} ) {  # XXX - will not always work!
+                $self = ::DISPATCH( $::ArrayProxy, "new", {
+                    cell => $self->{_value},
+                });
+            }
+            ::DISPATCH( $self->{_value}, 'INDEX', @_ );
         },
     },
 );
