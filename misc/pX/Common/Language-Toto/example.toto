@@ -12,6 +12,8 @@ Procedure   Acolhimento
     New         from    Process Contratacao
     Pending     on      Process CompraPortatil
     Resolved    to      [Plug]
+    Reject      to      Activity Die
+    Anomaly     to      Activity Panic
 
 Activity   Acolhimento2
 

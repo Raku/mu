@@ -1,17 +1,12 @@
 Language::Toto
 
-    Toto is a Domain Specific Language for describing very simple workflows
+Toto is a Domain Specific Language for describing very simple workflows
 
-SYNOPSIS
+The tot2xpdl.pl script converts a "Toto program" into an xpdl diagram:
 
     perl tot2xpdl.pl < example.toto  > teste.xpdl
 
-AUTHORS
+Reference:
 
-    Flavio S. Glock (fglock), Nelson Ferraz (nferraz), Daniel Ruoso (ruoso), Marco Lima (mago)
-
-COPYRIGHT & LICENSE 
-
-Copyright 2007 Flavio S. Glock, Nelson Ferraz, Daniel Ruoso, Marco Lima, Vertical One Lda. all rights reserved.
-
-This program is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
+    http://www.wfmc.org/standards/xpdl.htm
+    

@@ -212,3 +212,25 @@ Activity EncomendaPortatil
 
 
 =end
+
+
+
+=head1 NAME
+
+Language::Toto - Toto is a Domain Specific Language for describing very simple workflows
+
+=head1 SYNOPSIS
+
+    perl tot2xpdl.pl < example.toto  > teste.xpdl
+
+=head1 AUTHORS
+
+    Flavio S. Glock (fglock), Nelson Ferraz (nferraz), Daniel Ruoso (ruoso), Marco Lima (mago)
+
+=head1 COPYRIGHT & LICENSE 
+
+Copyright 2007 Flavio S. Glock, Nelson Ferraz, Daniel Ruoso, Marco Lima, Vertical One Lda. all rights reserved.
+
+This program is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
+
+=cut
