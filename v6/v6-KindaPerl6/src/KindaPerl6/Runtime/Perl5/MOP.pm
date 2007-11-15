@@ -900,7 +900,7 @@ $::Value = make_class(
         p5landish => sub {
             $_[0]{_value};
         },
-        print => sub {
+        print => sub {  # XXX
             print $_[0]{_value};
         },
         FETCH => sub {
@@ -1306,6 +1306,7 @@ $::Undef = make_class(
     name    => "Undef",
     parents => [$meta_Value],
     methods => {
+        new     => sub { $_[0] },
         perl    => sub { ::DISPATCH( $::Str, 'new', 'undef' ) },
         Str     => sub { ::DISPATCH( $::Str, 'new', '' ) },
         true    => sub { ::DISPATCH( $::Bit, 'new', 0 ) },

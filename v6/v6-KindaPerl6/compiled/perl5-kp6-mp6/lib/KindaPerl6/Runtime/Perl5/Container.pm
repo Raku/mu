@@ -91,7 +91,7 @@ none
 
 =item STORE
 
-dies, Read only
+dies, Read only - if the Container does the 'readonly' Role 
 
 =back
 
@@ -102,8 +102,9 @@ $::Container = KindaPerl6::Runtime::Perl5::MOP::make_class(
     name    => 'Container',
     methods => {
         FETCH => sub {
-            # XXX - see LOOKUP below
-            $_[0]{_value}{cell} ? $_[0]{_value}{cell} : ::DISPATCH( $::Undef, "new", 0 );
+              exists $_[0]{_value}{cell} 
+            ? $_[0]{_value}{cell} 
+            : ::DISPATCH( $::UndefinedCell, "new", $_[0] );
         },
         STORE => sub {
             die "attempt to modify a read-only value"
@@ -128,26 +129,26 @@ $::Container = KindaPerl6::Runtime::Perl5::MOP::make_class(
             }
             $_[0];
         },
-        LOOKUP => sub {
-            # XXX - this should never happen: FETCH should have returned a Hash instead
-            my $self = shift;
-            if ( ! defined $self->{_value}{_hash} ) {
-                $self = ::DISPATCH( $::HashProxy, "new", {
-                    cell => $self->{_value},
-                });
-            }
-            ::DISPATCH( $self->{_value}, 'LOOKUP', @_ );
-        },
-        INDEX => sub {
-            # XXX - this should never happen: FETCH should have returned an Array instead
-            my $self = shift;
-            if ( ! defined $self->{_value}{_array} ) {  # XXX - will not always work!
-                $self = ::DISPATCH( $::ArrayProxy, "new", {
-                    cell => $self->{_value},
-                });
-            }
-            ::DISPATCH( $self->{_value}, 'INDEX', @_ );
-        },
+        #LOOKUP => sub {
+        #    # XXX - this should never happen: FETCH should have returned a Hash instead
+        #    my $self = shift;
+        #    if ( ! defined $self->{_value}{_hash} ) {
+        #        $self = ::DISPATCH( $::HashProxy, "new", {
+        #            cell => $self->{_value},
+        #        });
+        #    }
+        #    ::DISPATCH( $self->{_value}, 'LOOKUP', @_ );
+        #},
+        #INDEX => sub {
+        #    # XXX - this should never happen: FETCH should have returned an Array instead
+        #    my $self = shift;
+        #    if ( ! defined $self->{_value}{_array} ) {  # XXX - will not always work!
+        #        $self = ::DISPATCH( $::ArrayProxy, "new", {
+        #            cell => $self->{_value},
+        #        });
+        #    }
+        #    ::DISPATCH( $self->{_value}, 'INDEX', @_ );
+        #},
     },
 );
 
@@ -295,7 +296,7 @@ $::Routine = KindaPerl6::Runtime::Perl5::MOP::make_class(
     proto   => $::Routine,
     parents => [$::meta_Container],
     methods => {
-        APPLY => sub {
+        APPLY => sub {   # XXX this should be handled by normal FETCH+APPLY
             my $self = shift;
             local $::ROUTINE = $self->{_value}{cell};
             $self->{_value}{cell}{_value}{code}->(@_);
@@ -304,16 +305,16 @@ $::Routine = KindaPerl6::Runtime::Perl5::MOP::make_class(
             my $v = {
                 %{ $_[0] },
                 _value        => $_[1],                                     # { cell => undef },
-                _roles        => { container => 1, 'auto_apply' => 1 },
+                _roles        => { container => 1, 'auto_apply' => 1, 'readonly' => 1 },
                 _dispatch_VAR => $::dispatch_VAR,
             };
         },
-        perl => sub {
+        perl => sub {    # XXX this should be handled by normal FETCH+perl
             ::DISPATCH( $::Str, 'new', $_[0]{_value}{cell}{_value}{src} );
         },
-        STORE => sub {
-            die "attempt to modify a read-only value";
-        },
+        #STORE => sub {
+        #    die "attempt to modify a read-only value";
+        #},
     }
 );
 
@@ -340,6 +341,53 @@ $GLOBAL::Code_VAR_defined = ::DISPATCH(
         src => '&GLOBAL::VAR_defined'
     }
 );
+
+
+# UndefinedCell is created when an uninitialized Container is FETCH'ed
+
+$::UndefinedCell = KindaPerl6::Runtime::Perl5::MOP::make_class(
+    proto   => $::UndefinedCell,
+    name    => "UndefinedCell",
+    parents => [ ::DISPATCH( $::Undef, 'HOW' ) ],
+    methods => {
+        new => sub {
+            my $v = {
+                %{ $_[0] },
+                _scalar    => $_[1],  
+                #   _value must not exist, because this is an Undef
+            };
+            #warn "UndefinedCell.new $v->{_scalar} \n";
+            return $v;
+        },
+        #FETCH => sub { 
+        #    warn "UndefinedCell.FETCH \n";
+        #    $_[0] 
+        #},
+        INDEX => sub {
+            my $self = shift;
+            warn "UndefinedCell.INDEX ",$self->{_scalar},"\n";
+            # XXX TODO lazy autovivification
+            if ( ! exists $self->{_scalar}{_value}{cell} ) {
+                ::DISPATCH( $self->{_scalar}, 'STORE',
+                    ::DISPATCH( $::Array, 'new' )
+                );
+            }
+            return ::DISPATCH( $self->{_scalar}, 'INDEX', @_ );
+        },
+        LOOKUP => sub {
+            my $self = shift;
+            warn "UndefinedCell.LOOKUP ",$self->{_scalar},"\n";
+            # XXX TODO lazy autovivification
+            if ( ! exists $self->{_scalar}{_value}{cell} ) {
+                ::DISPATCH( $self->{_scalar}, 'STORE',
+                    ::DISPATCH( $::Hash, 'new' )
+                );
+            }
+            return ::DISPATCH( $self->{_scalar}, 'LOOKUP', @_ );
+        },
+    }
+);
+
 
 1;
 
