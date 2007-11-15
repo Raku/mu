@@ -12,7 +12,14 @@ sub thunk {
     my $value;
     my $pad;
     do { $value = $List__->[0]; $pad = $List__->[1]; [ $value, $pad ] };
-    Sub->new( 'block' => Lit::Code->new( 'pad' => COMPILER::inner_pad($KindaPerl6::Visitor::ShortCircuit::last_pad), 'body' => [$value], 'sig' => Sig->new( 'invocant' => (undef), 'positional' => [], ), ), );
+    Sub->new(
+        'block' => Lit::Code->new(
+            'pad' =>
+              COMPILER::inner_pad($KindaPerl6::Visitor::ShortCircuit::last_pad),
+            'body' => [$value],
+            'sig'  => Sig->new( 'invocant' => (undef), 'positional' => [], ),
+        ),
+    );
 }
 
 sub visit {
@@ -20,19 +27,38 @@ sub visit {
     my $List__ = \@_;
     my $node;
     my $node_name;
-    do { $node = $List__->[0]; $node_name = $List__->[1]; [ $node, $node_name ] };
-    my $pass_thunks = { 'infix:<&&>' => 1, 'infix:<||>' => 1, 'infix:<//>' => 1, };
     do {
-        if ( ( ( $node_name eq 'Apply' ) && $pass_thunks->{ $node->code()->name() } ) ) {
+        $node      = $List__->[0];
+        $node_name = $List__->[1];
+        [ $node, $node_name ];
+    };
+    my $pass_thunks =
+      { 'infix:<&&>' => 1, 'infix:<||>' => 1, 'infix:<//>' => 1, };
+    do {
+
+        if (
+            (
+                ( $node_name eq 'Apply' )
+                && $pass_thunks->{ $node->code()->name() }
+            )
+          )
+        {
             my $left  = $node->arguments()->[0]->emit($self);
             my $right = $node->arguments()->[1]->emit($self);
-            return ( Apply->new( 'code' => $node->code(), 'arguments' => [ thunk($left), thunk($right) ], ) );
+            return (
+                Apply->new(
+                    'code'      => $node->code(),
+                    'arguments' => [ thunk($left), thunk($right) ],
+                )
+            );
         }
         else { }
     };
     do {
-        if ( ( $node_name eq 'Lit::Code' ) ) { $KindaPerl6::Visitor::ShortCircuit::last_pad = $node->pad() }
-        else                                 { }
+        if ( ( $node_name eq 'Lit::Code' ) ) {
+            $KindaPerl6::Visitor::ShortCircuit::last_pad = $node->pad();
+        }
+        else { }
     };
     return ( (undef) );
 }

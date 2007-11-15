@@ -12,7 +12,11 @@ sub visit {
     my $List__ = \@_;
     my $node;
     my $node_name;
-    do { $node = $List__->[0]; $node_name = $List__->[1]; [ $node, $node_name ] };
+    do {
+        $node      = $List__->[0];
+        $node_name = $List__->[1];
+        [ $node, $node_name ];
+    };
     $node->emit_c();
 }
 
@@ -23,11 +27,23 @@ sub emit_c {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    (   'match* '
-            . (
-            Main::mangle_ident( ( $KindaPerl6::Visitor::Emit::Perl5::current_compunit . ( '::' . $self->{name} ) ) )
-                . ( ' (char *str,int pos) {match* m = new_match(str,pos);m->boolean = (' . ( $self->{regex}->emit_c() . ( ');m->to = pos;return m;}' . Main::newline() ) ) )
-            )
+    (
+        'match* '
+          . (
+            Main::mangle_ident(
+                (
+                    $KindaPerl6::Visitor::Emit::Perl5::current_compunit
+                      . ( '::' . $self->{name} )
+                )
+              )
+              . (
+' (char *str,int pos) {match* m = new_match(str,pos);m->boolean = ('
+                  . (
+                    $self->{regex}->emit_c()
+                      . ( ');m->to = pos;return m;}' . Main::newline() )
+                  )
+              )
+          )
     );
 }
 
@@ -53,9 +69,11 @@ sub emit_c {
     do {
         for my $node ( @{ $self->{body} } ) {
             do {
-                if ( Main::isa( $node, 'Token' ) ) { $source = ( $source . $node->emit_c() ) }
-                else                               { }
+                if ( Main::isa( $node, 'Token' ) ) {
+                    $source = ( $source . $node->emit_c() );
                 }
+                else { }
+              }
         }
     };
     $source;
@@ -68,7 +86,13 @@ sub emit_c {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( '({int saved_pos=pos;' . ( Main::join( [ map { $_->emit_c() } @{ $self->{or} } ], '||' ) . '|| (pos=saved_pos,0);})' ) );
+    (
+        '({int saved_pos=pos;'
+          . (
+            Main::join( [ map { $_->emit_c() } @{ $self->{or} } ], '||' )
+              . '|| (pos=saved_pos,0);})'
+          )
+    );
 }
 
 package Rule::Concat;
@@ -78,7 +102,13 @@ sub emit_c {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( '(' . ( Main::join( [ map { $_->emit_c() } @{ $self->{concat} } ], '&&' ) . ')' ) );
+    (
+        '('
+          . (
+            Main::join( [ map { $_->emit_c() } @{ $self->{concat} } ], '&&' )
+              . ')'
+          )
+    );
 }
 
 package Rule::Constant;
@@ -88,7 +118,22 @@ sub emit_c {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( '(strncmp("' . ( $self->{constant} . ( '",str+pos,' . ( chars( $self->{constant} ) . ( ') == 0 && (pos += ' . ( chars( $self->{constant} ) . '))' ) ) ) ) ) );
+    (
+        '(strncmp("'
+          . (
+            $self->{constant}
+              . (
+                '",str+pos,'
+                  . (
+                    chars( $self->{constant} )
+                      . (
+                        ') == 0 && (pos += '
+                          . ( chars( $self->{constant} ) . '))' )
+                      )
+                  )
+              )
+          )
+    );
 }
 
 package Rule::Block;
@@ -108,7 +153,18 @@ sub emit_c {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( '({match* submatch=' . ( Main::mangle_ident( ( $KindaPerl6::Visitor::Emit::Perl5::current_compunit . ( '::' . $self->{metasyntax} ) ) ) . '(str,pos);pos = submatch->to;int boolean = submatch->boolean;free(submatch);boolean;})' ) );
+    (
+        '({match* submatch='
+          . (
+            Main::mangle_ident(
+                (
+                    $KindaPerl6::Visitor::Emit::Perl5::current_compunit
+                      . ( '::' . $self->{metasyntax} )
+                )
+              )
+              . '(str,pos);pos = submatch->to;int boolean = submatch->boolean;free(submatch);boolean;})'
+          )
+    );
 }
 
 package Rule::SubruleNoCapture;
@@ -118,7 +174,18 @@ sub emit_c {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( '({match* submatch=' . ( Main::mangle_ident( ( $KindaPerl6::Visitor::Emit::Perl5::current_compunit . ( '::' . $self->{metasyntax} ) ) ) . '(str,pos);pos = submatch->to;int boolean = submatch->boolean;free(submatch);boolean;})' ) );
+    (
+        '({match* submatch='
+          . (
+            Main::mangle_ident(
+                (
+                    $KindaPerl6::Visitor::Emit::Perl5::current_compunit
+                      . ( '::' . $self->{metasyntax} )
+                )
+              )
+              . '(str,pos);pos = submatch->to;int boolean = submatch->boolean;free(submatch);boolean;})'
+          )
+    );
 }
 
 package Rule::Dot;

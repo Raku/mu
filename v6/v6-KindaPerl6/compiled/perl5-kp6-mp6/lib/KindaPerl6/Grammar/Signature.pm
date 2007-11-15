@@ -14,70 +14,109 @@ sub sig_type {
     my $pos;
     do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
     my $MATCH;
-    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH = MiniPerl6::Perl5::Match->new(
+        'str'  => $str,
+        'from' => $pos,
+        'to'   => $pos,
+        'bool' => 1,
+    );
     $MATCH->bool(
         do {
             my $pos1 = $MATCH->to();
-            (   do {
-                    (   do {
+            (
+                do {
+                    (
+                        do {
                             my $pos1 = $MATCH->to();
-                            (   do { ( ( '::' eq substr( $str, $MATCH->to(), 2 ) ) ? ( 1 + $MATCH->to( ( 2 + $MATCH->to() ) ) ) : 0 ) }
-                                    || do { $MATCH->to($pos1); 1 }
+                            (
+                                do {
+                                    (
+                                        (
+                                            '::' eq
+                                              substr( $str, $MATCH->to(), 2 )
+                                        )
+                                        ? (
+                                            1 + $MATCH->to(
+                                                ( 2 + $MATCH->to() )
+                                            )
+                                          )
+                                        : 0
+                                    );
+                                  }
+                                  || do { $MATCH->to($pos1); 1 }
                             );
+                          }
+                          && (
+                            do {
+                                my $m2 =
+                                  $grammar->full_ident( $str, $MATCH->to() );
+                                do {
+                                    if ($m2) {
+                                        $MATCH->to( $m2->to() );
+                                        $MATCH->{'full_ident'} = $m2;
+                                        1;
+                                    }
+                                    else { 0 }
+                                  }
                             }
                             && (
-                            do {
-                                my $m2 = $grammar->full_ident( $str, $MATCH->to() );
                                 do {
-                                    if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'full_ident'} = $m2; 1 }
-                                    else     {0}
-                                    }
-                            }
-                            && (do {
                                     my $m2 = $grammar->ws( $str, $MATCH->to() );
                                     do {
                                         if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                        else     {0}
-                                        }
+                                        else     { 0 }
+                                      }
                                 }
                                 && do {
                                     my $ret = sub {
                                         my $List__ = \@_;
                                         do { [] };
-                                        do { return ( ${ $MATCH->{'full_ident'} } ) };
+                                        do {
+                                            return (
+                                                ${ $MATCH->{'full_ident'} } );
+                                        };
                                         '974^213';
-                                        }
-                                        ->();
+                                      }
+                                      ->();
                                     do {
-                                        if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                        else                         { }
+                                        if ( ( $ret ne '974^213' ) ) {
+                                            $MATCH->capture($ret);
+                                            $MATCH->bool(1);
+                                            return ($MATCH);
+                                        }
+                                        else { }
                                     };
                                     1;
                                 }
                             )
-                            )
+                          )
                     );
-                    }
-                    || do {
+                  }
+                  || do {
                     $MATCH->to($pos1);
-                    (   1 && do {
+                    (
+                        1 && do {
                             my $ret = sub {
                                 my $List__ = \@_;
                                 do { [] };
                                 do { return ('') };
                                 '974^213';
-                                }
-                                ->();
+                              }
+                              ->();
                             do {
-                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                else                         { }
+                                if ( ( $ret ne '974^213' ) ) {
+                                    $MATCH->capture($ret);
+                                    $MATCH->bool(1);
+                                    return ($MATCH);
+                                }
+                                else { }
                             };
                             1;
-                            }
+                          }
                     );
-                    }
+                  }
             );
-            }
+          }
     );
     return ($MATCH);
 }
@@ -89,81 +128,131 @@ sub sig_default_value {
     my $pos;
     do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
     my $MATCH;
-    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH = MiniPerl6::Perl5::Match->new(
+        'str'  => $str,
+        'from' => $pos,
+        'to'   => $pos,
+        'bool' => 1,
+    );
     $MATCH->bool(
         do {
             my $pos1 = $MATCH->to();
-            (   do {
-                    (   do {
+            (
+                do {
+                    (
+                        do {
                             my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
                             do {
                                 if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                else     {0}
-                                }
-                            }
+                                else     { 0 }
+                              }
+                          }
+                          && (
+                            (
+                                  ( '=' eq substr( $str, $MATCH->to(), 1 ) )
+                                ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) )
+                                : 0
+                            )
                             && (
-                            ( ( '=' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
                                 do {
-                                    my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
+                                    my $m2 =
+                                      $grammar->opt_ws( $str, $MATCH->to() );
                                     do {
                                         if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                        else     {0}
-                                        }
+                                        else     { 0 }
+                                      }
                                 }
-                                && (do {
-                                        my $m2 = $grammar->exp( $str, $MATCH->to() );
+                                && (
+                                    do {
+                                        my $m2 =
+                                          $grammar->exp( $str, $MATCH->to() );
                                         do {
-                                            if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'exp'} = $m2; 1 }
-                                            else     {0}
+                                            if ($m2) {
+                                                $MATCH->to( $m2->to() );
+                                                $MATCH->{'exp'} = $m2;
+                                                1;
                                             }
+                                            else { 0 }
+                                          }
                                     }
-                                    && (do {
-                                            my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
+                                    && (
+                                        do {
+                                            my $m2 =
+                                              $grammar->opt_ws( $str,
+                                                $MATCH->to() );
                                             do {
-                                                if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                                else     {0}
+                                                if ($m2) {
+                                                    $MATCH->to( $m2->to() );
+                                                    1;
                                                 }
+                                                else { 0 }
+                                              }
                                         }
                                         && do {
                                             my $ret = sub {
                                                 my $List__ = \@_;
                                                 do { [] };
-                                                do { return ( { 'has_default' => 1, 'default' => ${ $MATCH->{'exp'} }, } ) };
+                                                do {
+                                                    return (
+                                                        {
+                                                            'has_default' => 1,
+                                                            'default'     => ${
+                                                                $MATCH->{'exp'}
+                                                              },
+                                                        }
+                                                    );
+                                                };
                                                 '974^213';
-                                                }
-                                                ->();
+                                              }
+                                              ->();
                                             do {
-                                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                else                         { }
+                                                if ( ( $ret ne '974^213' ) ) {
+                                                    $MATCH->capture($ret);
+                                                    $MATCH->bool(1);
+                                                    return ($MATCH);
+                                                }
+                                                else { }
                                             };
                                             1;
                                         }
                                     )
                                 )
                             )
-                            )
+                          )
                     );
-                    }
-                    || do {
+                  }
+                  || do {
                     $MATCH->to($pos1);
-                    (   1 && do {
+                    (
+                        1 && do {
                             my $ret = sub {
                                 my $List__ = \@_;
                                 do { [] };
-                                do { return ( { 'has_default' => 0, 'default' => Val::Undef->new(), } ) };
+                                do {
+                                    return (
+                                        {
+                                            'has_default' => 0,
+                                            'default'     => Val::Undef->new(),
+                                        }
+                                    );
+                                };
                                 '974^213';
-                                }
-                                ->();
+                              }
+                              ->();
                             do {
-                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                else                         { }
+                                if ( ( $ret ne '974^213' ) ) {
+                                    $MATCH->capture($ret);
+                                    $MATCH->bool(1);
+                                    return ($MATCH);
+                                }
+                                else { }
                             };
                             1;
-                            }
+                          }
                     );
-                    }
+                  }
             );
-            }
+          }
     );
     return ($MATCH);
 }
@@ -175,28 +264,44 @@ sub sig_named_only {
     my $pos;
     do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
     my $MATCH;
-    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH = MiniPerl6::Perl5::Match->new(
+        'str'  => $str,
+        'from' => $pos,
+        'to'   => $pos,
+        'bool' => 1,
+    );
     $MATCH->bool(
         do {
             my $pos1 = $MATCH->to();
-            (   do {
-                    (   ( ( ':' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
+            (
+                do {
+                    (
+                        (
+                              ( ':' eq substr( $str, $MATCH->to(), 1 ) )
+                            ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) )
+                            : 0
+                        )
+                          && do {
                             my $ret = sub {
                                 my $List__ = \@_;
                                 do { [] };
                                 do { return (1) };
                                 '974^213';
-                                }
-                                ->();
+                              }
+                              ->();
                             do {
-                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                else                         { }
+                                if ( ( $ret ne '974^213' ) ) {
+                                    $MATCH->capture($ret);
+                                    $MATCH->bool(1);
+                                    return ($MATCH);
+                                }
+                                else { }
                             };
                             1;
-                            }
+                          }
                     );
-                    }
-                    || do {
+                  }
+                  || do {
                     $MATCH->to($pos1);
                     do {
                         my $ret = sub {
@@ -204,17 +309,21 @@ sub sig_named_only {
                             do { [] };
                             do { return (0) };
                             '974^213';
-                            }
-                            ->();
+                          }
+                          ->();
                         do {
-                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                            else                         { }
+                            if ( ( $ret ne '974^213' ) ) {
+                                $MATCH->capture($ret);
+                                $MATCH->bool(1);
+                                return ($MATCH);
+                            }
+                            else { }
                         };
                         1;
-                        }
-                    }
+                      }
+                  }
             );
-            }
+          }
     );
     return ($MATCH);
 }
@@ -226,53 +335,88 @@ sub sig_optional {
     my $pos;
     do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
     my $MATCH;
-    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH = MiniPerl6::Perl5::Match->new(
+        'str'  => $str,
+        'from' => $pos,
+        'to'   => $pos,
+        'bool' => 1,
+    );
     $MATCH->bool(
         do {
             my $pos1 = $MATCH->to();
-            (   do {
-                    (   ( ( '?' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
+            (
+                do {
+                    (
+                        (
+                              ( '?' eq substr( $str, $MATCH->to(), 1 ) )
+                            ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) )
+                            : 0
+                        )
+                          && do {
                             my $ret = sub {
                                 my $List__ = \@_;
                                 do { [] };
                                 do { return (1) };
                                 '974^213';
-                                }
-                                ->();
+                              }
+                              ->();
                             do {
-                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                else                         { }
+                                if ( ( $ret ne '974^213' ) ) {
+                                    $MATCH->capture($ret);
+                                    $MATCH->bool(1);
+                                    return ($MATCH);
+                                }
+                                else { }
                             };
                             1;
-                            }
+                          }
                     );
-                    }
-                    || do {
+                  }
+                  || do {
                     $MATCH->to($pos1);
-                    (   do {
+                    (
+                        do {
                             my $pos1 = $MATCH->to();
-                            (   do { ( ( '!' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) }
-                                    || do { $MATCH->to($pos1); 1 }
+                            (
+                                do {
+                                    (
+                                        (
+                                            '!' eq
+                                              substr( $str, $MATCH->to(), 1 )
+                                        )
+                                        ? (
+                                            1 + $MATCH->to(
+                                                ( 1 + $MATCH->to() )
+                                            )
+                                          )
+                                        : 0
+                                    );
+                                  }
+                                  || do { $MATCH->to($pos1); 1 }
                             );
-                            }
-                            && do {
+                          }
+                          && do {
                             my $ret = sub {
                                 my $List__ = \@_;
                                 do { [] };
                                 do { return (0) };
                                 '974^213';
-                                }
-                                ->();
+                              }
+                              ->();
                             do {
-                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                else                         { }
+                                if ( ( $ret ne '974^213' ) ) {
+                                    $MATCH->capture($ret);
+                                    $MATCH->bool(1);
+                                    return ($MATCH);
+                                }
+                                else { }
                             };
                             1;
-                            }
+                          }
                     );
-                    }
+                  }
             );
-            }
+          }
     );
     return ($MATCH);
 }
@@ -284,28 +428,44 @@ sub sig_slurpy {
     my $pos;
     do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
     my $MATCH;
-    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH = MiniPerl6::Perl5::Match->new(
+        'str'  => $str,
+        'from' => $pos,
+        'to'   => $pos,
+        'bool' => 1,
+    );
     $MATCH->bool(
         do {
             my $pos1 = $MATCH->to();
-            (   do {
-                    (   ( ( '*' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
+            (
+                do {
+                    (
+                        (
+                              ( '*' eq substr( $str, $MATCH->to(), 1 ) )
+                            ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) )
+                            : 0
+                        )
+                          && do {
                             my $ret = sub {
                                 my $List__ = \@_;
                                 do { [] };
                                 do { return (1) };
                                 '974^213';
-                                }
-                                ->();
+                              }
+                              ->();
                             do {
-                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                else                         { }
+                                if ( ( $ret ne '974^213' ) ) {
+                                    $MATCH->capture($ret);
+                                    $MATCH->bool(1);
+                                    return ($MATCH);
+                                }
+                                else { }
                             };
                             1;
-                            }
+                          }
                     );
-                    }
-                    || do {
+                  }
+                  || do {
                     $MATCH->to($pos1);
                     do {
                         my $ret = sub {
@@ -313,17 +473,21 @@ sub sig_slurpy {
                             do { [] };
                             do { return (0) };
                             '974^213';
-                            }
-                            ->();
+                          }
+                          ->();
                         do {
-                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                            else                         { }
+                            if ( ( $ret ne '974^213' ) ) {
+                                $MATCH->capture($ret);
+                                $MATCH->bool(1);
+                                return ($MATCH);
+                            }
+                            else { }
                         };
                         1;
-                        }
-                    }
+                      }
+                  }
             );
-            }
+          }
     );
     return ($MATCH);
 }
@@ -335,28 +499,44 @@ sub sig_multidimensional {
     my $pos;
     do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
     my $MATCH;
-    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH = MiniPerl6::Perl5::Match->new(
+        'str'  => $str,
+        'from' => $pos,
+        'to'   => $pos,
+        'bool' => 1,
+    );
     $MATCH->bool(
         do {
             my $pos1 = $MATCH->to();
-            (   do {
-                    (   ( ( '@' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
+            (
+                do {
+                    (
+                        (
+                              ( '@' eq substr( $str, $MATCH->to(), 1 ) )
+                            ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) )
+                            : 0
+                        )
+                          && do {
                             my $ret = sub {
                                 my $List__ = \@_;
                                 do { [] };
                                 do { return (1) };
                                 '974^213';
-                                }
-                                ->();
+                              }
+                              ->();
                             do {
-                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                else                         { }
+                                if ( ( $ret ne '974^213' ) ) {
+                                    $MATCH->capture($ret);
+                                    $MATCH->bool(1);
+                                    return ($MATCH);
+                                }
+                                else { }
                             };
                             1;
-                            }
+                          }
                     );
-                    }
-                    || do {
+                  }
+                  || do {
                     $MATCH->to($pos1);
                     do {
                         my $ret = sub {
@@ -364,17 +544,21 @@ sub sig_multidimensional {
                             do { [] };
                             do { return (0) };
                             '974^213';
-                            }
-                            ->();
+                          }
+                          ->();
                         do {
-                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                            else                         { }
+                            if ( ( $ret ne '974^213' ) ) {
+                                $MATCH->capture($ret);
+                                $MATCH->bool(1);
+                                return ($MATCH);
+                            }
+                            else { }
                         };
                         1;
-                        }
-                    }
+                      }
+                  }
             );
-            }
+          }
     );
     return ($MATCH);
 }
@@ -386,47 +570,76 @@ sub sig_rw {
     my $pos;
     do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
     my $MATCH;
-    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH = MiniPerl6::Perl5::Match->new(
+        'str'  => $str,
+        'from' => $pos,
+        'to'   => $pos,
+        'bool' => 1,
+    );
     $MATCH->bool(
         do {
             my $pos1 = $MATCH->to();
-            (   do {
-                    (   do {
+            (
+                do {
+                    (
+                        do {
                             my $m2 = $grammar->ws( $str, $MATCH->to() );
                             do {
                                 if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                else     {0}
-                                }
-                            }
+                                else     { 0 }
+                              }
+                          }
+                          && (
+                            (
+                                  ( 'is' eq substr( $str, $MATCH->to(), 2 ) )
+                                ? ( 1 + $MATCH->to( ( 2 + $MATCH->to() ) ) )
+                                : 0
+                            )
                             && (
-                            ( ( 'is' eq substr( $str, $MATCH->to(), 2 ) ) ? ( 1 + $MATCH->to( ( 2 + $MATCH->to() ) ) ) : 0 ) && (
                                 do {
                                     my $m2 = $grammar->ws( $str, $MATCH->to() );
                                     do {
                                         if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                        else     {0}
-                                        }
+                                        else     { 0 }
+                                      }
                                 }
-                                && (( ( 'rw' eq substr( $str, $MATCH->to(), 2 ) ) ? ( 1 + $MATCH->to( ( 2 + $MATCH->to() ) ) ) : 0 ) && do {
+                                && (
+                                    (
+                                        (
+                                            'rw' eq
+                                            substr( $str, $MATCH->to(), 2 )
+                                        )
+                                        ? (
+                                            1 + $MATCH->to(
+                                                ( 2 + $MATCH->to() )
+                                            )
+                                        )
+                                        : 0
+                                    )
+                                    && do {
                                         my $ret = sub {
                                             my $List__ = \@_;
                                             do { [] };
                                             do { return (1) };
                                             '974^213';
-                                            }
-                                            ->();
+                                          }
+                                          ->();
                                         do {
-                                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                            else                         { }
+                                            if ( ( $ret ne '974^213' ) ) {
+                                                $MATCH->capture($ret);
+                                                $MATCH->bool(1);
+                                                return ($MATCH);
+                                            }
+                                            else { }
                                         };
                                         1;
                                     }
                                 )
                             )
-                            )
+                          )
                     );
-                    }
-                    || do {
+                  }
+                  || do {
                     $MATCH->to($pos1);
                     do {
                         my $ret = sub {
@@ -434,17 +647,21 @@ sub sig_rw {
                             do { [] };
                             do { return (0) };
                             '974^213';
-                            }
-                            ->();
+                          }
+                          ->();
                         do {
-                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                            else                         { }
+                            if ( ( $ret ne '974^213' ) ) {
+                                $MATCH->capture($ret);
+                                $MATCH->bool(1);
+                                return ($MATCH);
+                            }
+                            else { }
                         };
                         1;
-                        }
-                    }
+                      }
+                  }
             );
-            }
+          }
     );
     return ($MATCH);
 }
@@ -456,47 +673,76 @@ sub sig_copy {
     my $pos;
     do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
     my $MATCH;
-    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH = MiniPerl6::Perl5::Match->new(
+        'str'  => $str,
+        'from' => $pos,
+        'to'   => $pos,
+        'bool' => 1,
+    );
     $MATCH->bool(
         do {
             my $pos1 = $MATCH->to();
-            (   do {
-                    (   do {
+            (
+                do {
+                    (
+                        do {
                             my $m2 = $grammar->ws( $str, $MATCH->to() );
                             do {
                                 if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                else     {0}
-                                }
-                            }
+                                else     { 0 }
+                              }
+                          }
+                          && (
+                            (
+                                  ( 'is' eq substr( $str, $MATCH->to(), 2 ) )
+                                ? ( 1 + $MATCH->to( ( 2 + $MATCH->to() ) ) )
+                                : 0
+                            )
                             && (
-                            ( ( 'is' eq substr( $str, $MATCH->to(), 2 ) ) ? ( 1 + $MATCH->to( ( 2 + $MATCH->to() ) ) ) : 0 ) && (
                                 do {
                                     my $m2 = $grammar->ws( $str, $MATCH->to() );
                                     do {
                                         if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                        else     {0}
-                                        }
+                                        else     { 0 }
+                                      }
                                 }
-                                && (( ( 'copy' eq substr( $str, $MATCH->to(), 4 ) ) ? ( 1 + $MATCH->to( ( 4 + $MATCH->to() ) ) ) : 0 ) && do {
+                                && (
+                                    (
+                                        (
+                                            'copy' eq
+                                            substr( $str, $MATCH->to(), 4 )
+                                        )
+                                        ? (
+                                            1 + $MATCH->to(
+                                                ( 4 + $MATCH->to() )
+                                            )
+                                        )
+                                        : 0
+                                    )
+                                    && do {
                                         my $ret = sub {
                                             my $List__ = \@_;
                                             do { [] };
                                             do { return (1) };
                                             '974^213';
-                                            }
-                                            ->();
+                                          }
+                                          ->();
                                         do {
-                                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                            else                         { }
+                                            if ( ( $ret ne '974^213' ) ) {
+                                                $MATCH->capture($ret);
+                                                $MATCH->bool(1);
+                                                return ($MATCH);
+                                            }
+                                            else { }
                                         };
                                         1;
                                     }
                                 )
                             )
-                            )
+                          )
                     );
-                    }
-                    || do {
+                  }
+                  || do {
                     $MATCH->to($pos1);
                     do {
                         my $ret = sub {
@@ -504,17 +750,21 @@ sub sig_copy {
                             do { [] };
                             do { return (0) };
                             '974^213';
-                            }
-                            ->();
+                          }
+                          ->();
                         do {
-                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                            else                         { }
+                            if ( ( $ret ne '974^213' ) ) {
+                                $MATCH->capture($ret);
+                                $MATCH->bool(1);
+                                return ($MATCH);
+                            }
+                            else { }
                         };
                         1;
-                        }
-                    }
+                      }
+                  }
             );
-            }
+          }
     );
     return ($MATCH);
 }
@@ -526,108 +776,356 @@ sub exp_sig_item {
     my $pos;
     do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
     my $MATCH;
-    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH = MiniPerl6::Perl5::Match->new(
+        'str'  => $str,
+        'from' => $pos,
+        'to'   => $pos,
+        'bool' => 1,
+    );
     $MATCH->bool(
         do {
             my $pos1 = $MATCH->to();
             do {
-                (   do {
+                (
+                    do {
                         my $m2 = $grammar->sig_type( $str, $MATCH->to() );
                         do {
-                            if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'sig_type'} = $m2; 1 }
-                            else     {0}
+                            if ($m2) {
+                                $MATCH->to( $m2->to() );
+                                $MATCH->{'sig_type'} = $m2;
+                                1;
                             }
+                            else { 0 }
+                          }
+                      }
+                      && (
+                        do {
+                            my $m2 =
+                              $grammar->sig_named_only( $str, $MATCH->to() );
+                            do {
+                                if ($m2) {
+                                    $MATCH->to( $m2->to() );
+                                    $MATCH->{'sig_named_only'} = $m2;
+                                    1;
+                                }
+                                else { 0 }
+                              }
                         }
                         && (
-                        do {
-                            my $m2 = $grammar->sig_named_only( $str, $MATCH->to() );
                             do {
-                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'sig_named_only'} = $m2; 1 }
-                                else     {0}
-                                }
-                        }
-                        && (do {
-                                my $m2 = $grammar->sig_slurpy( $str, $MATCH->to() );
+                                my $m2 =
+                                  $grammar->sig_slurpy( $str, $MATCH->to() );
                                 do {
-                                    if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'sig_slurpy'} = $m2; 1 }
-                                    else     {0}
+                                    if ($m2) {
+                                        $MATCH->to( $m2->to() );
+                                        $MATCH->{'sig_slurpy'} = $m2;
+                                        1;
                                     }
+                                    else { 0 }
+                                  }
                             }
-                            && (do {
-                                    my $m2 = $grammar->sig_multidimensional( $str, $MATCH->to() );
+                            && (
+                                do {
+                                    my $m2 =
+                                      $grammar->sig_multidimensional( $str,
+                                        $MATCH->to() );
                                     do {
-                                        if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'sig_multidimensional'} = $m2; 1 }
-                                        else     {0}
+                                        if ($m2) {
+                                            $MATCH->to( $m2->to() );
+                                            $MATCH->{'sig_multidimensional'} =
+                                              $m2;
+                                            1;
                                         }
+                                        else { 0 }
+                                      }
                                 }
-                                && (do {
-                                        my $m2 = $grammar->sigil( $str, $MATCH->to() );
+                                && (
+                                    do {
+                                        my $m2 =
+                                          $grammar->sigil( $str, $MATCH->to() );
                                         do {
-                                            if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'sigil'} = $m2; 1 }
-                                            else     {0}
+                                            if ($m2) {
+                                                $MATCH->to( $m2->to() );
+                                                $MATCH->{'sigil'} = $m2;
+                                                1;
                                             }
+                                            else { 0 }
+                                          }
                                     }
-                                    && (do {
-                                            my $m2 = $grammar->ident( $str, $MATCH->to() );
+                                    && (
+                                        do {
+                                            my $m2 =
+                                              $grammar->ident( $str,
+                                                $MATCH->to() );
                                             do {
-                                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'ident'} = $m2; 1 }
-                                                else     {0}
+                                                if ($m2) {
+                                                    $MATCH->to( $m2->to() );
+                                                    $MATCH->{'ident'} = $m2;
+                                                    1;
                                                 }
+                                                else { 0 }
+                                              }
                                         }
-                                        && (do {
-                                                my $m2 = $grammar->sig_optional( $str, $MATCH->to() );
+                                        && (
+                                            do {
+                                                my $m2 =
+                                                  $grammar->sig_optional( $str,
+                                                    $MATCH->to() );
                                                 do {
-                                                    if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'sig_optional'} = $m2; 1 }
-                                                    else     {0}
+                                                    if ($m2) {
+                                                        $MATCH->to( $m2->to() );
+                                                        $MATCH->{'sig_optional'}
+                                                          = $m2;
+                                                        1;
                                                     }
+                                                    else { 0 }
+                                                  }
                                             }
-                                            && (do {
-                                                    my $m2 = $grammar->sig_default_value( $str, $MATCH->to() );
+                                            && (
+                                                do {
+                                                    my $m2 =
+                                                      $grammar
+                                                      ->sig_default_value( $str,
+                                                        $MATCH->to() );
                                                     do {
-                                                        if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'sig_default_value'} = $m2; 1 }
-                                                        else     {0}
+                                                        if ($m2) {
+                                                            $MATCH->to(
+                                                                $m2->to() );
+                                                            $MATCH->{
+'sig_default_value'
+                                                              } = $m2;
+                                                            1;
                                                         }
+                                                        else { 0 }
+                                                      }
                                                 }
-                                                && (do {
-                                                        my $m2 = $grammar->sig_rw( $str, $MATCH->to() );
+                                                && (
+                                                    do {
+                                                        my $m2 =
+                                                          $grammar->sig_rw(
+                                                            $str,
+                                                            $MATCH->to() );
                                                         do {
-                                                            if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'sig_rw'} = $m2; 1 }
-                                                            else     {0}
+                                                            if ($m2) {
+                                                                $MATCH->to(
+                                                                    $m2->to() );
+                                                                $MATCH->{
+                                                                    'sig_rw'} =
+                                                                  $m2;
+                                                                1;
                                                             }
+                                                            else { 0 }
+                                                          }
                                                     }
-                                                    && (do {
-                                                            my $m2 = $grammar->sig_copy( $str, $MATCH->to() );
+                                                    && (
+                                                        do {
+                                                            my $m2 =
+                                                              $grammar
+                                                              ->sig_copy( $str,
+                                                                $MATCH->to() );
                                                             do {
-                                                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'sig_copy'} = $m2; 1 }
-                                                                else     {0}
+                                                                if ($m2) {
+                                                                    $MATCH->to(
+                                                                        $m2->to(
+                                                                        )
+                                                                    );
+                                                                    $MATCH->{
+'sig_copy'
+                                                                      } = $m2;
+                                                                    1;
                                                                 }
+                                                                else { 0 }
+                                                              }
                                                         }
                                                         && do {
                                                             my $ret = sub {
-                                                                my $List__ = \@_;
+                                                                my $List__ =
+                                                                  \@_;
                                                                 do { [] };
                                                                 do {
                                                                     return (
-                                                                        Lit::SigArgument->new(
-                                                                            'key'   => Var->new( 'sigil' => ( "" . $MATCH->{'sigil'} ), 'twigil' => '', 'name' => ( "" . $MATCH->{'ident'} ), 'namespace' => [], ),
-                                                                            'value' => ${ $MATCH->{'sig_default_value'} }->{'default'},
-                                                                            'type'  => ${ $MATCH->{'sig_type'} },
-                                                                            'has_default'         => Val::Bit->new( 'bit' => ${ $MATCH->{'sig_default_value'} }->{'has_default'}, ),
-                                                                            'is_named_only'       => Val::Bit->new( 'bit' => ${ $MATCH->{'sig_named_only'} }, ),
-                                                                            'is_optional'         => Val::Bit->new( 'bit' => ${ $MATCH->{'sig_optional'} }, ),
-                                                                            'is_slurpy'           => Val::Bit->new( 'bit' => ${ $MATCH->{'sig_slurpy'} }, ),
-                                                                            'is_multidimensional' => Val::Bit->new( 'bit' => ${ $MATCH->{'sig_multidimensional'} }, ),
-                                                                            'is_rw'               => Val::Bit->new( 'bit' => ${ $MATCH->{'sig_rw'} }, ),
-                                                                            'is_copy'             => Val::Bit->new( 'bit' => ${ $MATCH->{'sig_copy'} }, ),
-                                                                        )
+                                                                        Lit::SigArgument
+                                                                          ->new(
+'key'
+                                                                              => Var
+                                                                              ->new(
+'sigil'
+                                                                                  =>
+                                                                                  (
+""
+                                                                                      .
+                                                                                      $MATCH
+                                                                                      ->
+                                                                                      {
+'sigil'
+                                                                                      }
+                                                                                  )
+                                                                                ,
+'twigil'
+                                                                                  =>
+'',
+'name'
+                                                                                  =>
+                                                                                  (
+""
+                                                                                      .
+                                                                                      $MATCH
+                                                                                      ->
+                                                                                      {
+'ident'
+                                                                                      }
+                                                                                  )
+                                                                                ,
+'namespace'
+                                                                                  =>
+                                                                                  [
+                                                                                  ]
+                                                                                ,
+                                                                              ),
+'value'
+                                                                              => ${
+                                                                                $MATCH
+                                                                                  ->
+                                                                                  {
+'sig_default_value'
+                                                                                  }
+                                                                              }
+                                                                              ->{
+'default'
+                                                                              },
+'type'
+                                                                              => ${
+                                                                                $MATCH
+                                                                                  ->
+                                                                                  {
+'sig_type'
+                                                                                  }
+                                                                              },
+'has_default'
+                                                                              => Val::Bit
+                                                                              ->new(
+'bit'
+                                                                                  =>
+                                                                                  ${
+                                                                                    $MATCH
+                                                                                      ->
+                                                                                      {
+'sig_default_value'
+                                                                                      }
+                                                                                  }
+                                                                                  ->
+                                                                                  {
+'has_default'
+                                                                                  }
+                                                                                ,
+                                                                              ),
+'is_named_only'
+                                                                              => Val::Bit
+                                                                              ->new(
+'bit'
+                                                                                  =>
+                                                                                  ${
+                                                                                    $MATCH
+                                                                                      ->
+                                                                                      {
+'sig_named_only'
+                                                                                      }
+                                                                                  }
+                                                                                ,
+                                                                              ),
+'is_optional'
+                                                                              => Val::Bit
+                                                                              ->new(
+'bit'
+                                                                                  =>
+                                                                                  ${
+                                                                                    $MATCH
+                                                                                      ->
+                                                                                      {
+'sig_optional'
+                                                                                      }
+                                                                                  }
+                                                                                ,
+                                                                              ),
+'is_slurpy'
+                                                                              => Val::Bit
+                                                                              ->new(
+'bit'
+                                                                                  =>
+                                                                                  ${
+                                                                                    $MATCH
+                                                                                      ->
+                                                                                      {
+'sig_slurpy'
+                                                                                      }
+                                                                                  }
+                                                                                ,
+                                                                              ),
+'is_multidimensional'
+                                                                              => Val::Bit
+                                                                              ->new(
+'bit'
+                                                                                  =>
+                                                                                  ${
+                                                                                    $MATCH
+                                                                                      ->
+                                                                                      {
+'sig_multidimensional'
+                                                                                      }
+                                                                                  }
+                                                                                ,
+                                                                              ),
+'is_rw'
+                                                                              => Val::Bit
+                                                                              ->new(
+'bit'
+                                                                                  =>
+                                                                                  ${
+                                                                                    $MATCH
+                                                                                      ->
+                                                                                      {
+'sig_rw'
+                                                                                      }
+                                                                                  }
+                                                                                ,
+                                                                              ),
+'is_copy'
+                                                                              => Val::Bit
+                                                                              ->new(
+'bit'
+                                                                                  =>
+                                                                                  ${
+                                                                                    $MATCH
+                                                                                      ->
+                                                                                      {
+'sig_copy'
+                                                                                      }
+                                                                                  }
+                                                                                ,
+                                                                              ),
+                                                                          )
                                                                     );
                                                                 };
                                                                 '974^213';
-                                                                }
-                                                                ->();
+                                                              }
+                                                              ->();
                                                             do {
-                                                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                                else                         { }
+                                                                if (
+                                                                    (
+                                                                        $ret ne
+'974^213'
+                                                                    )
+                                                                  )
+                                                                {
+                                                                    $MATCH
+                                                                      ->capture(
+                                                                        $ret);
+                                                                    $MATCH
+                                                                      ->bool(1);
+                                                                    return (
+                                                                        $MATCH);
+                                                                }
+                                                                else { }
                                                             };
                                                             1;
                                                         }
@@ -639,10 +1137,10 @@ sub exp_sig_item {
                                 )
                             )
                         )
-                        )
+                      )
                 );
-                }
-            }
+              }
+          }
     );
     return ($MATCH);
 }
@@ -654,110 +1152,258 @@ sub exp_sig_list {
     my $pos;
     do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
     my $MATCH;
-    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH = MiniPerl6::Perl5::Match->new(
+        'str'  => $str,
+        'from' => $pos,
+        'to'   => $pos,
+        'bool' => 1,
+    );
     $MATCH->bool(
         do {
             my $pos1 = $MATCH->to();
-            (   do {
-                    (   do {
-                            my $m2 = $grammar->exp_sig_item( $str, $MATCH->to() );
+            (
+                do {
+                    (
+                        do {
+                            my $m2 =
+                              $grammar->exp_sig_item( $str, $MATCH->to() );
                             do {
-                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'exp_sig_item'} = $m2; 1 }
-                                else     {0}
+                                if ($m2) {
+                                    $MATCH->to( $m2->to() );
+                                    $MATCH->{'exp_sig_item'} = $m2;
+                                    1;
                                 }
-                            }
-                            && do {
+                                else { 0 }
+                              }
+                          }
+                          && do {
                             my $pos1 = $MATCH->to();
-                            (   do {
-                                    (   do {
-                                            my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
+                            (
+                                do {
+                                    (
+                                        do {
+                                            my $m2 =
+                                              $grammar->opt_ws( $str,
+                                                $MATCH->to() );
                                             do {
-                                                if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                                else     {0}
+                                                if ($m2) {
+                                                    $MATCH->to( $m2->to() );
+                                                    1;
                                                 }
-                                            }
+                                                else { 0 }
+                                              }
+                                          }
+                                          && (
+                                            (
+                                                (
+                                                    ',' eq substr(
+                                                        $str, $MATCH->to(),
+                                                        1
+                                                    )
+                                                )
+                                                ? (
+                                                    1 + $MATCH->to(
+                                                        ( 1 + $MATCH->to() )
+                                                    )
+                                                )
+                                                : 0
+                                            )
                                             && (
-                                            ( ( ',' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
                                                 do {
-                                                    my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
+                                                    my $m2 =
+                                                      $grammar->opt_ws( $str,
+                                                        $MATCH->to() );
                                                     do {
-                                                        if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                                        else     {0}
+                                                        if ($m2) {
+                                                            $MATCH->to(
+                                                                $m2->to() );
+                                                            1;
                                                         }
+                                                        else { 0 }
+                                                      }
                                                 }
-                                                && (do {
-                                                        my $m2 = $grammar->exp_sig_list( $str, $MATCH->to() );
+                                                && (
+                                                    do {
+                                                        my $m2 =
+                                                          $grammar
+                                                          ->exp_sig_list( $str,
+                                                            $MATCH->to() );
                                                         do {
-                                                            if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'exp_sig_list'} = $m2; 1 }
-                                                            else     {0}
+                                                            if ($m2) {
+                                                                $MATCH->to(
+                                                                    $m2->to() );
+                                                                $MATCH->{
+'exp_sig_list'
+                                                                  } = $m2;
+                                                                1;
                                                             }
+                                                            else { 0 }
+                                                          }
                                                     }
                                                     && do {
                                                         my $ret = sub {
                                                             my $List__ = \@_;
                                                             do { [] };
-                                                            do { return ( [ ${ $MATCH->{'exp_sig_item'} }, @{ ${ $MATCH->{'exp_sig_list'} } } ] ) };
+                                                            do {
+                                                                return (
+                                                                    [
+                                                                        ${
+                                                                            $MATCH
+                                                                              ->{
+'exp_sig_item'
+                                                                              }
+                                                                          },
+                                                                        @{
+                                                                            ${
+                                                                                $MATCH
+                                                                                  ->
+                                                                                  {
+'exp_sig_list'
+                                                                                  }
+                                                                              }
+                                                                          }
+                                                                    ]
+                                                                );
+                                                            };
                                                             '974^213';
-                                                            }
-                                                            ->();
+                                                          }
+                                                          ->();
                                                         do {
-                                                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                            else                         { }
+                                                            if (
+                                                                (
+                                                                    $ret ne
+                                                                    '974^213'
+                                                                )
+                                                              )
+                                                            {
+                                                                $MATCH->capture(
+                                                                    $ret);
+                                                                $MATCH->bool(1);
+                                                                return ($MATCH);
+                                                            }
+                                                            else { }
                                                         };
                                                         1;
                                                     }
                                                 )
                                             )
-                                            )
+                                          )
                                     );
-                                    }
-                                    || do {
+                                  }
+                                  || do {
                                     $MATCH->to($pos1);
-                                    (   do {
-                                            my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
+                                    (
+                                        do {
+                                            my $m2 =
+                                              $grammar->opt_ws( $str,
+                                                $MATCH->to() );
                                             do {
-                                                if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                                else     {0}
+                                                if ($m2) {
+                                                    $MATCH->to( $m2->to() );
+                                                    1;
                                                 }
-                                            }
-                                            && (
+                                                else { 0 }
+                                              }
+                                          }
+                                          && (
                                             do {
                                                 my $pos1 = $MATCH->to();
-                                                (   do {
-                                                        (   ( ( ',' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
-                                                                my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
+                                                (
+                                                    do {
+                                                        (
+                                                            (
+                                                                (
+                                                                    ',' eq
+                                                                      substr(
+                                                                        $str,
+                                                                        $MATCH
+                                                                          ->to(
+                                                                          ),
+                                                                        1
+                                                                      )
+                                                                )
+                                                                ? (
+                                                                    1 +
+                                                                      $MATCH
+                                                                      ->to(
+                                                                        (
+                                                                            1 +
+                                                                              $MATCH
+                                                                              ->to
+                                                                              (
+                                                                              )
+                                                                        )
+                                                                      )
+                                                                  )
+                                                                : 0
+                                                            )
+                                                              && do {
+                                                                my $m2 =
+                                                                  $grammar
+                                                                  ->opt_ws(
+                                                                    $str,
+                                                                    $MATCH->to(
+                                                                    )
+                                                                  );
                                                                 do {
-                                                                    if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                                                    else     {0}
+                                                                    if ($m2) {
+                                                                        $MATCH
+                                                                          ->to(
+                                                                            $m2
+                                                                              ->to
+                                                                              (
+                                                                              )
+                                                                          );
+                                                                        1;
                                                                     }
-                                                                }
+                                                                    else { 0 }
+                                                                  }
+                                                              }
                                                         );
-                                                        }
-                                                        || do { $MATCH->to($pos1); 1 }
+                                                      }
+                                                      || do {
+                                                        $MATCH->to($pos1);
+                                                        1;
+                                                      }
                                                 );
                                             }
                                             && do {
                                                 my $ret = sub {
                                                     my $List__ = \@_;
                                                     do { [] };
-                                                    do { return ( [ ${ $MATCH->{'exp_sig_item'} } ] ) };
+                                                    do {
+                                                        return (
+                                                            [
+                                                                ${
+                                                                    $MATCH->{
+'exp_sig_item'
+                                                                      }
+                                                                  }
+                                                            ]
+                                                        );
+                                                    };
                                                     '974^213';
-                                                    }
-                                                    ->();
+                                                  }
+                                                  ->();
                                                 do {
-                                                    if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                    else                         { }
+                                                    if ( ( $ret ne '974^213' ) )
+                                                    {
+                                                        $MATCH->capture($ret);
+                                                        $MATCH->bool(1);
+                                                        return ($MATCH);
+                                                    }
+                                                    else { }
                                                 };
                                                 1;
                                             }
-                                            )
+                                          )
                                     );
-                                    }
+                                  }
                             );
-                            }
+                          }
                     );
-                    }
-                    || do {
+                  }
+                  || do {
                     $MATCH->to($pos1);
                     do {
                         my $ret = sub {
@@ -765,17 +1411,21 @@ sub exp_sig_list {
                             do { [] };
                             do { return ( [] ) };
                             '974^213';
-                            }
-                            ->();
+                          }
+                          ->();
                         do {
-                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                            else                         { }
+                            if ( ( $ret ne '974^213' ) ) {
+                                $MATCH->capture($ret);
+                                $MATCH->bool(1);
+                                return ($MATCH);
+                            }
+                            else { }
                         };
                         1;
-                        }
-                    }
+                      }
+                  }
             );
-            }
+          }
     );
     return ($MATCH);
 }
@@ -787,52 +1437,81 @@ sub sig {
     my $pos;
     do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
     my $MATCH;
-    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH = MiniPerl6::Perl5::Match->new(
+        'str'  => $str,
+        'from' => $pos,
+        'to'   => $pos,
+        'bool' => 1,
+    );
     $MATCH->bool(
         do {
             my $pos1 = $MATCH->to();
             do {
-                (   do {
+                (
+                    do {
                         my $m2 = $grammar->invocant( $str, $MATCH->to() );
                         do {
-                            if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'invocant'} = $m2; 1 }
-                            else     {0}
+                            if ($m2) {
+                                $MATCH->to( $m2->to() );
+                                $MATCH->{'invocant'} = $m2;
+                                1;
                             }
-                        }
-                        && (
+                            else { 0 }
+                          }
+                      }
+                      && (
                         do {
                             my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
                             do {
                                 if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                else     {0}
-                                }
+                                else     { 0 }
+                              }
                         }
-                        && (do {
-                                my $m2 = $grammar->exp_sig_list( $str, $MATCH->to() );
+                        && (
+                            do {
+                                my $m2 =
+                                  $grammar->exp_sig_list( $str, $MATCH->to() );
                                 do {
-                                    if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'exp_sig_list'} = $m2; 1 }
-                                    else     {0}
+                                    if ($m2) {
+                                        $MATCH->to( $m2->to() );
+                                        $MATCH->{'exp_sig_list'} = $m2;
+                                        1;
                                     }
+                                    else { 0 }
+                                  }
                             }
                             && do {
                                 my $ret = sub {
                                     my $List__ = \@_;
                                     do { [] };
-                                    do { return ( Sig->new( 'invocant' => ${ $MATCH->{'invocant'} }, 'positional' => ${ $MATCH->{'exp_sig_list'} }, ) ) };
+                                    do {
+                                        return (
+                                            Sig->new(
+                                                'invocant' =>
+                                                  ${ $MATCH->{'invocant'} },
+                                                'positional' =>
+                                                  ${ $MATCH->{'exp_sig_list'} },
+                                            )
+                                        );
+                                    };
                                     '974^213';
-                                    }
-                                    ->();
+                                  }
+                                  ->();
                                 do {
-                                    if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                    else                         { }
+                                    if ( ( $ret ne '974^213' ) ) {
+                                        $MATCH->capture($ret);
+                                        $MATCH->bool(1);
+                                        return ($MATCH);
+                                    }
+                                    else { }
                                 };
                                 1;
                             }
                         )
-                        )
+                      )
                 );
-                }
-            }
+              }
+          }
     );
     return ($MATCH);
 }

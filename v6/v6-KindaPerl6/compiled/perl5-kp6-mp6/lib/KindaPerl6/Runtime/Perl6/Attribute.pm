@@ -10,27 +10,82 @@
     use KindaPerl6::Runtime::Perl5::Runtime;
     my $_MODIFIED;
     INIT { $_MODIFIED = {} }
-    INIT { $_ = ::DISPATCH( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
+    INIT {
+        $_ =
+          ::DISPATCH( $::Scalar, "new",
+            { modified => $_MODIFIED, name => "$_" } );
+    }
     do {
         do {
-            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Attribute ), "true" ), "p5landish" ) ) { }
+            if (
+                ::DISPATCH(
+                    ::DISPATCH(
+                        ::DISPATCH(
+                            $GLOBAL::Code_VAR_defined, 'APPLY',
+                            $::Attribute
+                        ),
+                        "true"
+                    ),
+                    "p5landish"
+                )
+              )
+            {
+            }
             else {
                 do {
                     do {
                         ::MODIFIED($::Attribute);
-                        $::Attribute = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Attribute' ) ), 'PROTOTYPE', );
-                        }
-                    }
+                        $::Attribute = ::DISPATCH(
+                            ::DISPATCH(
+                                $::Class, 'new',
+                                ::DISPATCH( $::Str, 'new', 'Attribute' )
+                            ),
+                            'PROTOTYPE',
+                        );
+                      }
+                  }
             }
         };
-        ::DISPATCH( ::DISPATCH( $::Attribute, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'name' ) );
-        ::DISPATCH( ::DISPATCH( $::Attribute, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'type' ) );
-        ::DISPATCH( ::DISPATCH( $::Attribute, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'scope' ) );
-        ::DISPATCH( ::DISPATCH( $::Attribute, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'rw' ) );
-        ::DISPATCH( ::DISPATCH( $::Attribute, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'private' ) );
-        ::DISPATCH( ::DISPATCH( $::Attribute, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'accessor' ) );
-        ::DISPATCH( ::DISPATCH( $::Attribute, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'build' ) );
-        ::DISPATCH( ::DISPATCH( $::Attribute, 'HOW', ), 'add_attribute', ::DISPATCH( $::Str, 'new', 'readonly' ) );
+        ::DISPATCH(
+            ::DISPATCH( $::Attribute, 'HOW', ),
+            'add_attribute',
+            ::DISPATCH( $::Str, 'new', 'name' )
+        );
+        ::DISPATCH(
+            ::DISPATCH( $::Attribute, 'HOW', ),
+            'add_attribute',
+            ::DISPATCH( $::Str, 'new', 'type' )
+        );
+        ::DISPATCH(
+            ::DISPATCH( $::Attribute, 'HOW', ),
+            'add_attribute',
+            ::DISPATCH( $::Str, 'new', 'scope' )
+        );
+        ::DISPATCH(
+            ::DISPATCH( $::Attribute, 'HOW', ),
+            'add_attribute',
+            ::DISPATCH( $::Str, 'new', 'rw' )
+        );
+        ::DISPATCH(
+            ::DISPATCH( $::Attribute, 'HOW', ),
+            'add_attribute',
+            ::DISPATCH( $::Str, 'new', 'private' )
+        );
+        ::DISPATCH(
+            ::DISPATCH( $::Attribute, 'HOW', ),
+            'add_attribute',
+            ::DISPATCH( $::Str, 'new', 'accessor' )
+        );
+        ::DISPATCH(
+            ::DISPATCH( $::Attribute, 'HOW', ),
+            'add_attribute',
+            ::DISPATCH( $::Str, 'new', 'build' )
+        );
+        ::DISPATCH(
+            ::DISPATCH( $::Attribute, 'HOW', ),
+            'add_attribute',
+            ::DISPATCH( $::Str, 'new', 'readonly' )
+        );
     };
     1
 }

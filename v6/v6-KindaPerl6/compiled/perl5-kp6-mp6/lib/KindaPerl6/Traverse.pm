@@ -13,7 +13,13 @@ sub visit {
     my $node;
     my $node_name;
     my $path;
-    do { $visitor = $List__->[0]; $node = $List__->[1]; $node_name = $List__->[2]; $path = $List__->[3]; [ $visitor, $node, $node_name, $path ] };
+    do {
+        $visitor   = $List__->[0];
+        $node      = $List__->[1];
+        $node_name = $List__->[2];
+        $path      = $List__->[3];
+        [ $visitor, $node, $node_name, $path ];
+    };
     do {
         if ( ( defined($path) ? 0 : 1 ) ) { $path = [] }
         else                              { }
@@ -23,7 +29,12 @@ sub visit {
             my $result = [];
             my $subitem;
             do {
-                for my $subitem ( @{$node} ) { push( @{$result}, visit_subnode( $visitor, $subitem, $path ) ) }
+                for my $subitem ( @{$node} ) {
+                    push(
+                        @{$result},
+                        visit_subnode( $visitor, $subitem, $path )
+                    );
+                }
             };
             return ($result);
         }
@@ -34,7 +45,10 @@ sub visit {
             my $result = {};
             my $subitem;
             do {
-                for my $subitem ( keys( %{$node} ) ) { $result->{$subitem} = visit_subnode( $visitor, $node->{$subitem}, $path ) }
+                for my $subitem ( keys( %{$node} ) ) {
+                    $result->{$subitem} =
+                      visit_subnode( $visitor, $node->{$subitem}, $path );
+                }
             };
             return ($result);
         }
@@ -58,7 +72,9 @@ sub visit {
     my $data   = $node->attribs();
     my $item;
     do {
-        for my $item ( keys( %{$data} ) ) { $result->{$item} = visit_subnode( $visitor, $data->{$item}, $path ) }
+        for my $item ( keys( %{$data} ) ) {
+            $result->{$item} = visit_subnode( $visitor, $data->{$item}, $path );
+        }
     };
     return ( $node->new( %{$result} ) );
 }
@@ -68,15 +84,32 @@ sub visit_subnode {
     my $visitor;
     my $subnode;
     my $path;
-    do { $visitor = $List__->[0]; $subnode = $List__->[1]; $path = $List__->[2]; [ $visitor, $subnode, $path ] };
+    do {
+        $visitor = $List__->[0];
+        $subnode = $List__->[1];
+        $path    = $List__->[2];
+        [ $visitor, $subnode, $path ];
+    };
     do {
         if ( ( defined($subnode) ? 0 : 1 ) ) { return ( (undef) ) }
         else                                 { }
     };
     do {
-        if ( ( Main::isa( $subnode, 'Array' ) || ( Main::isa( $subnode, 'Hash' ) || ( Main::isa( $subnode, 'Str' ) || Main::isa( $subnode, 'Pad' ) ) ) ) ) { return ( visit( $visitor, $subnode, (undef), $path ) ) }
-        else                                                                                                                                               { return ( $subnode->emit( $visitor, $path ) ) }
+        if (
+            (
+                Main::isa( $subnode, 'Array' )
+                || (
+                    Main::isa( $subnode, 'Hash' )
+                    || (   Main::isa( $subnode, 'Str' )
+                        || Main::isa( $subnode, 'Pad' ) )
+                )
+            )
+          )
+        {
+            return ( visit( $visitor, $subnode, (undef), $path ) );
         }
+        else { return ( $subnode->emit( $visitor, $path ) ) }
+      }
 }
 
 1;

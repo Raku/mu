@@ -15,7 +15,12 @@ sub ws {
     my $pos;
     do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
     my $MATCH;
-    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH = MiniPerl6::Perl5::Match->new(
+        'str'  => $str,
+        'from' => $pos,
+        'to'   => $pos,
+        'bool' => 1,
+    );
     $MATCH->bool(
         do {
             my $pos1 = $MATCH->to();
@@ -24,11 +29,11 @@ sub ws {
                     my $m2 = KindaPerl6::Grammar->ws( $str, $MATCH->to() );
                     do {
                         if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                        else     {0}
-                        }
-                    }
-                }
-            }
+                        else     { 0 }
+                      }
+                  }
+              }
+          }
     );
     return ($MATCH);
 }
@@ -40,31 +45,42 @@ sub ident {
     my $pos;
     do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
     my $MATCH;
-    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH = MiniPerl6::Perl5::Match->new(
+        'str'  => $str,
+        'from' => $pos,
+        'to'   => $pos,
+        'bool' => 1,
+    );
     $MATCH->bool(
         do {
             my $pos1 = $MATCH->to();
-            (   do {
+            (
+                do {
                     do {
-                        my $m2 = KindaPerl6::Grammar->full_ident( $str, $MATCH->to() );
+                        my $m2 =
+                          KindaPerl6::Grammar->full_ident( $str, $MATCH->to() );
                         do {
                             if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                            else     {0}
-                            }
-                        }
-                    }
-                    || do {
+                            else     { 0 }
+                          }
+                      }
+                  }
+                  || do {
                     $MATCH->to($pos1);
                     do {
                         my $m2 = $grammar->digit( $str, $MATCH->to() );
                         do {
-                            if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'digit'} = $m2; 1 }
-                            else     {0}
+                            if ($m2) {
+                                $MATCH->to( $m2->to() );
+                                $MATCH->{'digit'} = $m2;
+                                1;
                             }
-                        }
-                    }
+                            else { 0 }
+                          }
+                      }
+                  }
             );
-            }
+          }
     );
     return ($MATCH);
 }
@@ -76,12 +92,21 @@ sub any {
     my $pos;
     do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
     my $MATCH;
-    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH = MiniPerl6::Perl5::Match->new(
+        'str'  => $str,
+        'from' => $pos,
+        'to'   => $pos,
+        'bool' => 1,
+    );
     $MATCH->bool(
         do {
             my $pos1 = $MATCH->to();
-            do { ( ( '' ne substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) }
-            }
+            do {
+                (     ( '' ne substr( $str, $MATCH->to(), 1 ) )
+                    ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) )
+                    : 0 );
+              }
+          }
     );
     return ($MATCH);
 }
@@ -93,53 +118,106 @@ sub literal {
     my $pos;
     do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
     my $MATCH;
-    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH = MiniPerl6::Perl5::Match->new(
+        'str'  => $str,
+        'from' => $pos,
+        'to'   => $pos,
+        'bool' => 1,
+    );
     $MATCH->bool(
         do {
             my $pos1 = $MATCH->to();
-            (   do {
-                    (   ( ( '\\' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
-                            ( ( '' ne substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
-                                my $m2 = $grammar->literal( $str, $MATCH->to() );
-                                do {
-                                    if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'literal'} = $m2; 1 }
-                                    else     {0}
-                                    }
-                            }
+            (
+                do {
+                    (
+                        (
+                              ( '\\' eq substr( $str, $MATCH->to(), 1 ) )
+                            ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) )
+                            : 0
                         )
+                          && (
+                            (
+                                  ( '' ne substr( $str, $MATCH->to(), 1 ) )
+                                ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) )
+                                : 0
+                            )
+                            && do {
+                                my $m2 =
+                                  $grammar->literal( $str, $MATCH->to() );
+                                do {
+                                    if ($m2) {
+                                        $MATCH->to( $m2->to() );
+                                        $MATCH->{'literal'} = $m2;
+                                        1;
+                                    }
+                                    else { 0 }
+                                  }
+                            }
+                          )
                     );
-                    }
-                    || (
+                  }
+                  || (
                     do {
                         $MATCH->to($pos1);
-                        (   do {
+                        (
+                            do {
                                 my $tmp = $MATCH;
-                                $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $tmp->to(), 'to' => $tmp->to(), 'bool' => 1, );
+                                $MATCH = MiniPerl6::Perl5::Match->new(
+                                    'str'  => $str,
+                                    'from' => $tmp->to(),
+                                    'to'   => $tmp->to(),
+                                    'bool' => 1,
+                                );
                                 $MATCH->bool(
                                     do {
                                         my $pos1 = $MATCH->to();
-                                        do { ( ( '\'' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) }
-                                        }
+                                        do {
+                                            (
+                                                (
+                                                    '\'' eq substr(
+                                                        $str, $MATCH->to(),
+                                                        1
+                                                    )
+                                                )
+                                                ? (
+                                                    1 + $MATCH->to(
+                                                        ( 1 + $MATCH->to() )
+                                                    )
+                                                  )
+                                                : 0
+                                            );
+                                          }
+                                      }
                                 );
                                 $tmp->bool( ( $MATCH ? 0 : 1 ) );
                                 $MATCH = $tmp;
                                 ( $MATCH ? 1 : 0 );
-                                }
-                                && (
-                                ( ( '' ne substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
-                                    my $m2 = $grammar->literal( $str, $MATCH->to() );
-                                    do {
-                                        if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'literal'} = $m2; 1 }
-                                        else     {0}
-                                        }
-                                }
+                              }
+                              && (
+                                (
+                                      ( '' ne substr( $str, $MATCH->to(), 1 ) )
+                                    ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) )
+                                    : 0
                                 )
+                                && do {
+                                    my $m2 =
+                                      $grammar->literal( $str, $MATCH->to() );
+                                    do {
+                                        if ($m2) {
+                                            $MATCH->to( $m2->to() );
+                                            $MATCH->{'literal'} = $m2;
+                                            1;
+                                        }
+                                        else { 0 }
+                                      }
+                                }
+                              )
                         );
                     }
                     || do { $MATCH->to($pos1); 1 }
-                    )
+                  )
             );
-            }
+          }
     );
     return ($MATCH);
 }
@@ -151,94 +229,286 @@ sub metasyntax {
     my $pos;
     do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
     my $MATCH;
-    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH = MiniPerl6::Perl5::Match->new(
+        'str'  => $str,
+        'from' => $pos,
+        'to'   => $pos,
+        'bool' => 1,
+    );
     $MATCH->bool(
         do {
             my $pos1 = $MATCH->to();
             do {
-                (   do {
+                (
+                    do {
                         my $pos1 = $MATCH->to();
-                        (   do { ( ( ( '\\' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && ( ( '' ne substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) ) }
-                                || (
+                        (
+                            do {
+                                (
+                                    (
+                                        (
+                                            '\\' eq
+                                              substr( $str, $MATCH->to(), 1 )
+                                        )
+                                        ? (
+                                            1 + $MATCH->to(
+                                                ( 1 + $MATCH->to() )
+                                            )
+                                          )
+                                        : 0
+                                    )
+                                      && (
+                                        (
+                                            '' ne
+                                            substr( $str, $MATCH->to(), 1 )
+                                        )
+                                        ? (
+                                            1 + $MATCH->to(
+                                                ( 1 + $MATCH->to() )
+                                            )
+                                        )
+                                        : 0
+                                      )
+                                );
+                              }
+                              || (
                                 do {
                                     $MATCH->to($pos1);
-                                    (   ( ( '\'' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
-                                            do {
-                                                my $m2 = $grammar->literal( $str, $MATCH->to() );
-                                                do {
-                                                    if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                                    else     {0}
-                                                    }
-                                            }
-                                            && ( ( '\'' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 )
+                                    (
+                                        (
+                                            (
+                                                '\'' eq substr(
+                                                    $str, $MATCH->to(), 1
+                                                )
+                                            )
+                                            ? (
+                                                1 + $MATCH->to(
+                                                    ( 1 + $MATCH->to() )
+                                                )
+                                              )
+                                            : 0
                                         )
+                                          && (
+                                            do {
+                                                my $m2 =
+                                                  $grammar->literal( $str,
+                                                    $MATCH->to() );
+                                                do {
+                                                    if ($m2) {
+                                                        $MATCH->to( $m2->to() );
+                                                        1;
+                                                    }
+                                                    else { 0 }
+                                                  }
+                                            }
+                                            && (
+                                                (
+                                                    '\'' eq substr(
+                                                        $str, $MATCH->to(),
+                                                        1
+                                                    )
+                                                )
+                                                ? (
+                                                    1 + $MATCH->to(
+                                                        ( 1 + $MATCH->to() )
+                                                    )
+                                                )
+                                                : 0
+                                            )
+                                          )
                                     );
                                 }
-                                || (do {
+                                || (
+                                    do {
                                         $MATCH->to($pos1);
-                                        (   ( ( '{' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
-                                                my $m2 = $grammar->parsed_code( $str, $MATCH->to() );
+                                        (
+                                            (
+                                                (
+                                                    '{' eq substr(
+                                                        $str, $MATCH->to(),
+                                                        1
+                                                    )
+                                                )
+                                                ? (
+                                                    1 + $MATCH->to(
+                                                        ( 1 + $MATCH->to() )
+                                                    )
+                                                  )
+                                                : 0
+                                            )
+                                              && do {
+                                                my $m2 =
+                                                  $grammar->parsed_code( $str,
+                                                    $MATCH->to() );
                                                 do {
-                                                    if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                                    else     {0}
+                                                    if ($m2) {
+                                                        $MATCH->to( $m2->to() );
+                                                        1;
                                                     }
-                                                }
+                                                    else { 0 }
+                                                  }
+                                              }
                                         );
                                     }
-                                    || (do {
+                                    || (
+                                        do {
                                             $MATCH->to($pos1);
-                                            (   ( ( '<' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
-                                                    do {
-                                                        my $m2 = $grammar->metasyntax( $str, $MATCH->to() );
-                                                        do {
-                                                            if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                                            else     {0}
-                                                            }
-                                                    }
-                                                    && ( ( '>' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 )
+                                            (
+                                                (
+                                                    (
+                                                        '<' eq substr(
+                                                            $str, $MATCH->to(),
+                                                            1
+                                                        )
+                                                    )
+                                                    ? (
+                                                        1 + $MATCH->to(
+                                                            (
+                                                                1 + $MATCH->to()
+                                                            )
+                                                        )
+                                                      )
+                                                    : 0
                                                 )
+                                                  && (
+                                                    do {
+                                                        my $m2 =
+                                                          $grammar->metasyntax(
+                                                            $str,
+                                                            $MATCH->to() );
+                                                        do {
+                                                            if ($m2) {
+                                                                $MATCH->to(
+                                                                    $m2->to() );
+                                                                1;
+                                                            }
+                                                            else { 0 }
+                                                          }
+                                                    }
+                                                    && (
+                                                        (
+                                                            '>' eq substr(
+                                                                $str,
+                                                                $MATCH->to(), 1
+                                                            )
+                                                        )
+                                                        ? (
+                                                            1 + $MATCH->to(
+                                                                (
+                                                                    1 +
+                                                                      $MATCH
+                                                                      ->to(
+                                                                      )
+                                                                )
+                                                            )
+                                                        )
+                                                        : 0
+                                                    )
+                                                  )
                                             );
                                         }
                                         || do {
                                             $MATCH->to($pos1);
-                                            (   do {
+                                            (
+                                                do {
                                                     my $tmp = $MATCH;
-                                                    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $tmp->to(), 'to' => $tmp->to(), 'bool' => 1, );
+                                                    $MATCH =
+                                                      MiniPerl6::Perl5::Match
+                                                      ->new(
+                                                        'str'  => $str,
+                                                        'from' => $tmp->to(),
+                                                        'to'   => $tmp->to(),
+                                                        'bool' => 1,
+                                                      );
                                                     $MATCH->bool(
                                                         do {
-                                                            my $pos1 = $MATCH->to();
-                                                            do { ( ( '>' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) }
-                                                            }
+                                                            my $pos1 =
+                                                              $MATCH->to();
+                                                            do {
+                                                                (
+                                                                    (
+                                                                        '>' eq
+                                                                          substr
+                                                                          (
+                                                                            $str,
+                                                                            $MATCH
+                                                                              ->to
+                                                                              (
+                                                                              ),
+                                                                            1
+                                                                          )
+                                                                    )
+                                                                    ? (
+                                                                        1 +
+                                                                          $MATCH
+                                                                          ->to(
+                                                                            (
+                                                                                1
+                                                                                  +
+                                                                                  $MATCH
+                                                                                  ->to
+                                                                                  (
+                                                                                  )
+                                                                            )
+                                                                          )
+                                                                      )
+                                                                    : 0
+                                                                );
+                                                              }
+                                                          }
                                                     );
-                                                    $tmp->bool( ( $MATCH ? 0 : 1 ) );
+                                                    $tmp->bool(
+                                                        ( $MATCH ? 0 : 1 ) );
                                                     $MATCH = $tmp;
                                                     ( $MATCH ? 1 : 0 );
-                                                    }
-                                                    && ( ( '' ne substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 )
+                                                  }
+                                                  && (
+                                                    (
+                                                        '' ne substr(
+                                                            $str, $MATCH->to(),
+                                                            1
+                                                        )
+                                                    )
+                                                    ? (
+                                                        1 + $MATCH->to(
+                                                            (
+                                                                1 + $MATCH->to()
+                                                            )
+                                                        )
+                                                    )
+                                                    : 0
+                                                  )
                                             );
                                         }
                                     )
                                 )
-                                )
+                              )
                         );
-                        }
-                        && do {
+                      }
+                      && do {
                         my $pos1 = $MATCH->to();
-                        (   do {
+                        (
+                            do {
                                 do {
-                                    my $m2 = $grammar->metasyntax( $str, $MATCH->to() );
+                                    my $m2 =
+                                      $grammar->metasyntax( $str,
+                                        $MATCH->to() );
                                     do {
-                                        if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'metasyntax'} = $m2; 1 }
-                                        else     {0}
+                                        if ($m2) {
+                                            $MATCH->to( $m2->to() );
+                                            $MATCH->{'metasyntax'} = $m2;
+                                            1;
                                         }
-                                    }
-                                }
-                                || do { $MATCH->to($pos1); 1 }
+                                        else { 0 }
+                                      }
+                                  }
+                              }
+                              || do { $MATCH->to($pos1); 1 }
                         );
-                        }
+                      }
                 );
-                }
-            }
+              }
+          }
     );
     return ($MATCH);
 }
@@ -250,51 +520,129 @@ sub char_range {
     my $pos;
     do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
     my $MATCH;
-    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH = MiniPerl6::Perl5::Match->new(
+        'str'  => $str,
+        'from' => $pos,
+        'to'   => $pos,
+        'bool' => 1,
+    );
     $MATCH->bool(
         do {
             my $pos1 = $MATCH->to();
             do {
-                (   do {
+                (
+                    do {
                         my $pos1 = $MATCH->to();
-                        (   do { ( ( ( '\\' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && ( ( '' ne substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) ) }
-                                || do {
+                        (
+                            do {
+                                (
+                                    (
+                                        (
+                                            '\\' eq
+                                              substr( $str, $MATCH->to(), 1 )
+                                        )
+                                        ? (
+                                            1 + $MATCH->to(
+                                                ( 1 + $MATCH->to() )
+                                            )
+                                          )
+                                        : 0
+                                    )
+                                      && (
+                                        (
+                                            '' ne
+                                            substr( $str, $MATCH->to(), 1 )
+                                        )
+                                        ? (
+                                            1 + $MATCH->to(
+                                                ( 1 + $MATCH->to() )
+                                            )
+                                        )
+                                        : 0
+                                      )
+                                );
+                              }
+                              || do {
                                 $MATCH->to($pos1);
-                                (   do {
+                                (
+                                    do {
                                         my $tmp = $MATCH;
-                                        $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $tmp->to(), 'to' => $tmp->to(), 'bool' => 1, );
+                                        $MATCH = MiniPerl6::Perl5::Match->new(
+                                            'str'  => $str,
+                                            'from' => $tmp->to(),
+                                            'to'   => $tmp->to(),
+                                            'bool' => 1,
+                                        );
                                         $MATCH->bool(
                                             do {
                                                 my $pos1 = $MATCH->to();
-                                                do { ( ( ']' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) }
-                                                }
+                                                do {
+                                                    (
+                                                        (
+                                                            ']' eq substr(
+                                                                $str,
+                                                                $MATCH->to(), 1
+                                                            )
+                                                        )
+                                                        ? (
+                                                            1 + $MATCH->to(
+                                                                (
+                                                                    1 +
+                                                                      $MATCH
+                                                                      ->to(
+                                                                      )
+                                                                )
+                                                            )
+                                                          )
+                                                        : 0
+                                                    );
+                                                  }
+                                              }
                                         );
                                         $tmp->bool( ( $MATCH ? 0 : 1 ) );
                                         $MATCH = $tmp;
                                         ( $MATCH ? 1 : 0 );
-                                        }
-                                        && ( ( '' ne substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 )
+                                      }
+                                      && (
+                                        (
+                                            '' ne
+                                            substr( $str, $MATCH->to(), 1 )
+                                        )
+                                        ? (
+                                            1 + $MATCH->to(
+                                                ( 1 + $MATCH->to() )
+                                            )
+                                        )
+                                        : 0
+                                      )
                                 );
-                                }
+                              }
                         );
-                        }
-                        && do {
+                      }
+                      && do {
                         my $pos1 = $MATCH->to();
-                        (   do {
+                        (
+                            do {
                                 do {
-                                    my $m2 = $grammar->char_range( $str, $MATCH->to() );
+                                    my $m2 =
+                                      $grammar->char_range( $str,
+                                        $MATCH->to() );
                                     do {
-                                        if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'char_range'} = $m2; 1 }
-                                        else     {0}
+                                        if ($m2) {
+                                            $MATCH->to( $m2->to() );
+                                            $MATCH->{'char_range'} = $m2;
+                                            1;
                                         }
-                                    }
-                                }
-                                || do { $MATCH->to($pos1); 1 }
+                                        else { 0 }
+                                      }
+                                  }
+                              }
+                              || do { $MATCH->to($pos1); 1 }
                         );
-                        }
+                      }
                 );
-                }
-            }
+              }
+          }
     );
     return ($MATCH);
 }
@@ -306,35 +654,50 @@ sub char_class {
     my $pos;
     do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
     my $MATCH;
-    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH = MiniPerl6::Perl5::Match->new(
+        'str'  => $str,
+        'from' => $pos,
+        'to'   => $pos,
+        'bool' => 1,
+    );
     $MATCH->bool(
         do {
             my $pos1 = $MATCH->to();
-            (   do {
+            (
+                do {
                     do {
                         my $m2 = $grammar->ident( $str, $MATCH->to() );
                         do {
                             if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                            else     {0}
-                            }
-                        }
-                    }
-                    || do {
+                            else     { 0 }
+                          }
+                      }
+                  }
+                  || do {
                     $MATCH->to($pos1);
-                    (   ( ( '[' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
+                    (
+                        (
+                              ( '[' eq substr( $str, $MATCH->to(), 1 ) )
+                            ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) )
+                            : 0
+                        )
+                          && (
                             do {
-                                my $m2 = $grammar->char_range( $str, $MATCH->to() );
+                                my $m2 =
+                                  $grammar->char_range( $str, $MATCH->to() );
                                 do {
                                     if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                    else     {0}
-                                    }
+                                    else     { 0 }
+                                  }
                             }
-                            && ( ( ']' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 )
-                        )
+                            && (  ( ']' eq substr( $str, $MATCH->to(), 1 ) )
+                                ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) )
+                                : 0 )
+                          )
                     );
-                    }
+                  }
             );
-            }
+          }
     );
     return ($MATCH);
 }
@@ -346,72 +709,131 @@ sub parsed_code {
     my $pos;
     do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
     my $MATCH;
-    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH = MiniPerl6::Perl5::Match->new(
+        'str'  => $str,
+        'from' => $pos,
+        'to'   => $pos,
+        'bool' => 1,
+    );
     $MATCH->bool(
         do {
             my $pos1 = $MATCH->to();
             do {
-                (   do {
-                        my $m2 = KindaPerl6::Grammar->opt_ws( $str, $MATCH->to() );
+                (
+                    do {
+                        my $m2 =
+                          KindaPerl6::Grammar->opt_ws( $str, $MATCH->to() );
                         do {
                             if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                            else     {0}
-                            }
-                        }
-                        && (
+                            else     { 0 }
+                          }
+                      }
+                      && (
                         do {
                             my $ret = sub {
                                 my $List__ = \@_;
                                 do { [] };
-                                do { COMPILER::add_pad($KindaPerl6::Grammar::Class_name) };
+                                do {
+                                    COMPILER::add_pad(
+                                        $KindaPerl6::Grammar::Class_name);
+                                };
                                 '974^213';
-                                }
-                                ->();
+                              }
+                              ->();
                             do {
-                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                else                         { }
+                                if ( ( $ret ne '974^213' ) ) {
+                                    $MATCH->capture($ret);
+                                    $MATCH->bool(1);
+                                    return ($MATCH);
+                                }
+                                else { }
                             };
                             1;
                         }
-                        && (do {
-                                my $m2 = KindaPerl6::Grammar->exp_stmts( $str, $MATCH->to() );
+                        && (
+                            do {
+                                my $m2 =
+                                  KindaPerl6::Grammar->exp_stmts( $str,
+                                    $MATCH->to() );
                                 do {
-                                    if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'KindaPerl6::Grammar.exp_stmts'} = $m2; 1 }
-                                    else     {0}
+                                    if ($m2) {
+                                        $MATCH->to( $m2->to() );
+                                        $MATCH->{
+                                            'KindaPerl6::Grammar.exp_stmts'} =
+                                          $m2;
+                                        1;
                                     }
+                                    else { 0 }
+                                  }
                             }
-                            && (do {
-                                    my $m2 = KindaPerl6::Grammar->opt_ws( $str, $MATCH->to() );
+                            && (
+                                do {
+                                    my $m2 =
+                                      KindaPerl6::Grammar->opt_ws( $str,
+                                        $MATCH->to() );
                                     do {
                                         if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                        else     {0}
-                                        }
+                                        else     { 0 }
+                                      }
                                 }
-                                && (( ( '}' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
+                                && (
+                                    (
+                                        (
+                                            '}' eq
+                                            substr( $str, $MATCH->to(), 1 )
+                                        )
+                                        ? (
+                                            1 + $MATCH->to(
+                                                ( 1 + $MATCH->to() )
+                                            )
+                                        )
+                                        : 0
+                                    )
+                                    && do {
                                         my $ret = sub {
                                             my $List__ = \@_;
                                             do { [] };
                                             do {
-                                                my $env = COMPILER::current_pad();
+                                                my $env =
+                                                  COMPILER::current_pad();
                                                 COMPILER::drop_pad();
-                                                return ( Lit::Code->new( 'pad' => $env, 'state' => {}, 'sig' => Sig->new( 'invocant' => (undef), 'positional' => [], ), 'body' => ${ $MATCH->{'KindaPerl6::Grammar.exp_stmts'} }, ) );
+                                                return (
+                                                    Lit::Code->new(
+                                                        'pad'   => $env,
+                                                        'state' => {},
+                                                        'sig'   => Sig->new(
+                                                            'invocant' =>
+                                                              (undef),
+                                                            'positional' => [],
+                                                        ),
+                                                        'body' => ${
+                                                            $MATCH->{
+'KindaPerl6::Grammar.exp_stmts'
+                                                              }
+                                                          },
+                                                    )
+                                                );
                                             };
                                             '974^213';
-                                            }
-                                            ->();
+                                          }
+                                          ->();
                                         do {
-                                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                            else                         { }
+                                            if ( ( $ret ne '974^213' ) ) {
+                                                $MATCH->capture($ret);
+                                                $MATCH->bool(1);
+                                                return ($MATCH);
+                                            }
+                                            else { }
                                         };
                                         1;
                                     }
                                 )
                             )
                         )
-                        )
+                      )
                 );
-                }
-            }
+              }
+          }
     );
     return ($MATCH);
 }
@@ -423,92 +845,196 @@ sub named_capture_body {
     my $pos;
     do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
     my $MATCH;
-    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH = MiniPerl6::Perl5::Match->new(
+        'str'  => $str,
+        'from' => $pos,
+        'to'   => $pos,
+        'bool' => 1,
+    );
     $MATCH->bool(
         do {
             my $pos1 = $MATCH->to();
-            (   do {
-                    (   ( ( '(' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
+            (
+                do {
+                    (
+                        (
+                              ( '(' eq substr( $str, $MATCH->to(), 1 ) )
+                            ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) )
+                            : 0
+                        )
+                          && (
                             do {
                                 my $m2 = $grammar->rule( $str, $MATCH->to() );
                                 do {
-                                    if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'rule'} = $m2; 1 }
-                                    else     {0}
+                                    if ($m2) {
+                                        $MATCH->to( $m2->to() );
+                                        $MATCH->{'rule'} = $m2;
+                                        1;
                                     }
+                                    else { 0 }
+                                  }
                             }
-                            && (( ( ')' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
+                            && (
+                                (
+                                      ( ')' eq substr( $str, $MATCH->to(), 1 ) )
+                                    ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) )
+                                    : 0
+                                )
+                                && do {
                                     my $ret = sub {
                                         my $List__ = \@_;
                                         do { [] };
-                                        do { return ( Rule::Capture->new( 'rule' => ${ $MATCH->{'rule'} }, ) ) };
+                                        do {
+                                            return (
+                                                Rule::Capture->new(
+                                                    'rule' =>
+                                                      ${ $MATCH->{'rule'} },
+                                                )
+                                            );
+                                        };
                                         '974^213';
-                                        }
-                                        ->();
+                                      }
+                                      ->();
                                     do {
-                                        if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                        else                         { }
+                                        if ( ( $ret ne '974^213' ) ) {
+                                            $MATCH->capture($ret);
+                                            $MATCH->bool(1);
+                                            return ($MATCH);
+                                        }
+                                        else { }
                                     };
                                     1;
                                 }
                             )
-                        )
+                          )
                     );
-                    }
-                    || (
+                  }
+                  || (
                     do {
                         $MATCH->to($pos1);
-                        (   ( ( '[' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
+                        (
+                            (
+                                  ( '[' eq substr( $str, $MATCH->to(), 1 ) )
+                                ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) )
+                                : 0
+                            )
+                              && (
                                 do {
-                                    my $m2 = $grammar->rule( $str, $MATCH->to() );
+                                    my $m2 =
+                                      $grammar->rule( $str, $MATCH->to() );
                                     do {
-                                        if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'rule'} = $m2; 1 }
-                                        else     {0}
+                                        if ($m2) {
+                                            $MATCH->to( $m2->to() );
+                                            $MATCH->{'rule'} = $m2;
+                                            1;
                                         }
+                                        else { 0 }
+                                      }
                                 }
-                                && (( ( ']' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
+                                && (
+                                    (
+                                        (
+                                            ']' eq
+                                            substr( $str, $MATCH->to(), 1 )
+                                        )
+                                        ? (
+                                            1 + $MATCH->to(
+                                                ( 1 + $MATCH->to() )
+                                            )
+                                        )
+                                        : 0
+                                    )
+                                    && do {
                                         my $ret = sub {
                                             my $List__ = \@_;
                                             do { [] };
-                                            do { return ( ${ $MATCH->{'rule'} } ) };
+                                            do {
+                                                return (
+                                                    ${ $MATCH->{'rule'} } );
+                                            };
                                             '974^213';
-                                            }
-                                            ->();
+                                          }
+                                          ->();
                                         do {
-                                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                            else                         { }
+                                            if ( ( $ret ne '974^213' ) ) {
+                                                $MATCH->capture($ret);
+                                                $MATCH->bool(1);
+                                                return ($MATCH);
+                                            }
+                                            else { }
                                         };
                                         1;
                                     }
                                 )
-                            )
+                              )
                         );
                     }
-                    || (do {
+                    || (
+                        do {
                             $MATCH->to($pos1);
-                            (   ( ( '<' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
+                            (
+                                (
+                                      ( '<' eq substr( $str, $MATCH->to(), 1 ) )
+                                    ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) )
+                                    : 0
+                                )
+                                  && (
                                     do {
-                                        my $m2 = $grammar->metasyntax( $str, $MATCH->to() );
+                                        my $m2 =
+                                          $grammar->metasyntax( $str,
+                                            $MATCH->to() );
                                         do {
-                                            if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'metasyntax'} = $m2; 1 }
-                                            else     {0}
+                                            if ($m2) {
+                                                $MATCH->to( $m2->to() );
+                                                $MATCH->{'metasyntax'} = $m2;
+                                                1;
                                             }
+                                            else { 0 }
+                                          }
                                     }
-                                    && (( ( '>' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
+                                    && (
+                                        (
+                                            (
+                                                '>' eq
+                                                substr( $str, $MATCH->to(), 1 )
+                                            )
+                                            ? (
+                                                1 + $MATCH->to(
+                                                    ( 1 + $MATCH->to() )
+                                                )
+                                            )
+                                            : 0
+                                        )
+                                        && do {
                                             my $ret = sub {
                                                 my $List__ = \@_;
                                                 do { [] };
-                                                do { return ( Rule::Subrule->new( 'metasyntax' => ${ $MATCH->{'metasyntax'} }, ) ) };
+                                                do {
+                                                    return (
+                                                        Rule::Subrule->new(
+                                                            'metasyntax' => ${
+                                                                $MATCH->{
+                                                                    'metasyntax'
+                                                                  }
+                                                              },
+                                                        )
+                                                    );
+                                                };
                                                 '974^213';
-                                                }
-                                                ->();
+                                              }
+                                              ->();
                                             do {
-                                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                else                         { }
+                                                if ( ( $ret ne '974^213' ) ) {
+                                                    $MATCH->capture($ret);
+                                                    $MATCH->bool(1);
+                                                    return ($MATCH);
+                                                }
+                                                else { }
                                             };
                                             1;
                                         }
                                     )
-                                )
+                                  )
                             );
                         }
                         || do {
@@ -519,19 +1045,23 @@ sub named_capture_body {
                                     do { [] };
                                     do { die('invalid alias syntax') };
                                     '974^213';
-                                    }
-                                    ->();
+                                  }
+                                  ->();
                                 do {
-                                    if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                    else                         { }
+                                    if ( ( $ret ne '974^213' ) ) {
+                                        $MATCH->capture($ret);
+                                        $MATCH->bool(1);
+                                        return ($MATCH);
+                                    }
+                                    else { }
                                 };
                                 1;
-                                }
+                              }
                         }
                     )
-                    )
+                  )
             );
-            }
+          }
     );
     return ($MATCH);
 }
@@ -543,95 +1073,196 @@ sub variables {
     my $pos;
     do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
     my $MATCH;
-    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH = MiniPerl6::Perl5::Match->new(
+        'str'  => $str,
+        'from' => $pos,
+        'to'   => $pos,
+        'bool' => 1,
+    );
     $MATCH->bool(
         do {
             my $pos1 = $MATCH->to();
-            (   do {
-                    (   ( ( '$<' eq substr( $str, $MATCH->to(), 2 ) ) ? ( 1 + $MATCH->to( ( 2 + $MATCH->to() ) ) ) : 0 ) && (
+            (
+                do {
+                    (
+                        (
+                              ( '$<' eq substr( $str, $MATCH->to(), 2 ) )
+                            ? ( 1 + $MATCH->to( ( 2 + $MATCH->to() ) ) )
+                            : 0
+                        )
+                          && (
                             do {
                                 my $m2 = $grammar->ident( $str, $MATCH->to() );
                                 do {
-                                    if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'ident'} = $m2; 1 }
-                                    else     {0}
+                                    if ($m2) {
+                                        $MATCH->to( $m2->to() );
+                                        $MATCH->{'ident'} = $m2;
+                                        1;
                                     }
+                                    else { 0 }
+                                  }
                             }
-                            && (( ( '>' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
+                            && (
+                                (
+                                      ( '>' eq substr( $str, $MATCH->to(), 1 ) )
+                                    ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) )
+                                    : 0
+                                )
+                                && do {
                                     my $ret = sub {
                                         my $List__ = \@_;
                                         do { [] };
-                                        do { return ( ( '$/{' . ( '\'' . ( $MATCH->{'ident'} . ( '\'' . '}' ) ) ) ) ) };
+                                        do {
+                                            return (
+                                                (
+                                                    '$/{'
+                                                      . (
+                                                        '\''
+                                                          . (
+                                                            $MATCH->{'ident'}
+                                                              . ( '\'' . '}' )
+                                                          )
+                                                      )
+                                                )
+                                            );
+                                        };
                                         '974^213';
-                                        }
-                                        ->();
+                                      }
+                                      ->();
                                     do {
-                                        if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                        else                         { }
+                                        if ( ( $ret ne '974^213' ) ) {
+                                            $MATCH->capture($ret);
+                                            $MATCH->bool(1);
+                                            return ($MATCH);
+                                        }
+                                        else { }
                                     };
                                     1;
                                 }
                             )
-                        )
+                          )
                     );
-                    }
-                    || (
+                  }
+                  || (
                     do {
                         $MATCH->to($pos1);
-                        (   do {
-                                my $m2 = KindaPerl6::Grammar->sigil( $str, $MATCH->to() );
+                        (
+                            do {
+                                my $m2 =
+                                  KindaPerl6::Grammar->sigil( $str,
+                                    $MATCH->to() );
                                 do {
-                                    if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'KindaPerl6::Grammar.sigil'} = $m2; 1 }
-                                    else     {0}
+                                    if ($m2) {
+                                        $MATCH->to( $m2->to() );
+                                        $MATCH->{'KindaPerl6::Grammar.sigil'} =
+                                          $m2;
+                                        1;
                                     }
-                                }
-                                && (
+                                    else { 0 }
+                                  }
+                              }
+                              && (
                                 do {
-                                    my $m2 = KindaPerl6::Grammar->digits( $str, $MATCH->to() );
+                                    my $m2 =
+                                      KindaPerl6::Grammar->digits( $str,
+                                        $MATCH->to() );
                                     do {
-                                        if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'KindaPerl6::Grammar.digits'} = $m2; 1 }
-                                        else     {0}
+                                        if ($m2) {
+                                            $MATCH->to( $m2->to() );
+                                            $MATCH->{
+                                                'KindaPerl6::Grammar.digits'} =
+                                              $m2;
+                                            1;
                                         }
+                                        else { 0 }
+                                      }
                                 }
                                 && do {
                                     my $ret = sub {
                                         my $List__ = \@_;
                                         do { [] };
-                                        do { return ( ( $MATCH->{'KindaPerl6::Grammar.sigil'} . ( '/[' . ( $MATCH->{'KindaPerl6::Grammar.digits'} . ']' ) ) ) ) };
+                                        do {
+                                            return (
+                                                (
+                                                    $MATCH->{
+'KindaPerl6::Grammar.sigil'
+                                                      }
+                                                      . (
+                                                        '/['
+                                                          . (
+                                                            $MATCH->{
+'KindaPerl6::Grammar.digits'
+                                                              }
+                                                              . ']'
+                                                          )
+                                                      )
+                                                )
+                                            );
+                                        };
                                         '974^213';
-                                        }
-                                        ->();
+                                      }
+                                      ->();
                                     do {
-                                        if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                        else                         { }
+                                        if ( ( $ret ne '974^213' ) ) {
+                                            $MATCH->capture($ret);
+                                            $MATCH->bool(1);
+                                            return ($MATCH);
+                                        }
+                                        else { }
                                     };
                                     1;
                                 }
-                                )
+                              )
                         );
                     }
                     || do {
                         $MATCH->to($pos1);
-                        (   do {
-                                my $m2 = KindaPerl6::Grammar->sigil( $str, $MATCH->to() );
+                        (
+                            do {
+                                my $m2 =
+                                  KindaPerl6::Grammar->sigil( $str,
+                                    $MATCH->to() );
                                 do {
-                                    if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'KindaPerl6::Grammar.sigil'} = $m2; 1 }
-                                    else     {0}
+                                    if ($m2) {
+                                        $MATCH->to( $m2->to() );
+                                        $MATCH->{'KindaPerl6::Grammar.sigil'} =
+                                          $m2;
+                                        1;
                                     }
+                                    else { 0 }
+                                  }
+                              }
+                              && (
+                                do {
+                                    my $m2 =
+                                      KindaPerl6::Grammar->twigil( $str,
+                                        $MATCH->to() );
+                                    do {
+                                        if ($m2) {
+                                            $MATCH->to( $m2->to() );
+                                            $MATCH->{
+                                                'KindaPerl6::Grammar.twigil'} =
+                                              $m2;
+                                            1;
+                                        }
+                                        else { 0 }
+                                      }
                                 }
                                 && (
-                                do {
-                                    my $m2 = KindaPerl6::Grammar->twigil( $str, $MATCH->to() );
                                     do {
-                                        if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'KindaPerl6::Grammar.twigil'} = $m2; 1 }
-                                        else     {0}
-                                        }
-                                }
-                                && (do {
-                                        my $m2 = KindaPerl6::Grammar->full_ident( $str, $MATCH->to() );
+                                        my $m2 =
+                                          KindaPerl6::Grammar->full_ident( $str,
+                                            $MATCH->to() );
                                         do {
-                                            if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'KindaPerl6::Grammar.full_ident'} = $m2; 1 }
-                                            else     {0}
+                                            if ($m2) {
+                                                $MATCH->to( $m2->to() );
+                                                $MATCH->{
+'KindaPerl6::Grammar.full_ident'
+                                                  } = $m2;
+                                                1;
                                             }
+                                            else { 0 }
+                                          }
                                     }
                                     && do {
                                         my $ret = sub {
@@ -640,28 +1271,47 @@ sub variables {
                                             do {
                                                 return (
                                                     Rule::Var->new(
-                                                        'sigil'  => ( "" . $MATCH->{'KindaPerl6::Grammar.sigil'} ),
-                                                        'twigil' => ( "" . $MATCH->{'KindaPerl6::Grammar.twigil'} ),
-                                                        'name'   => ( "" . $MATCH->{'KindaPerl6::Grammar.full_ident'} ),
+                                                        'sigil' => (
+                                                            ""
+                                                              . $MATCH->{
+'KindaPerl6::Grammar.sigil'
+                                                              }
+                                                        ),
+                                                        'twigil' => (
+                                                            ""
+                                                              . $MATCH->{
+'KindaPerl6::Grammar.twigil'
+                                                              }
+                                                        ),
+                                                        'name' => (
+                                                            ""
+                                                              . $MATCH->{
+'KindaPerl6::Grammar.full_ident'
+                                                              }
+                                                        ),
                                                     )
                                                 );
                                             };
                                             '974^213';
-                                            }
-                                            ->();
+                                          }
+                                          ->();
                                         do {
-                                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                            else                         { }
+                                            if ( ( $ret ne '974^213' ) ) {
+                                                $MATCH->capture($ret);
+                                                $MATCH->bool(1);
+                                                return ($MATCH);
+                                            }
+                                            else { }
                                         };
                                         1;
                                     }
                                 )
-                                )
+                              )
                         );
                     }
-                    )
+                  )
             );
-            }
+          }
     );
     return ($MATCH);
 }
@@ -673,17 +1323,32 @@ sub assertion_modifier {
     my $pos;
     do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
     my $MATCH;
-    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH = MiniPerl6::Perl5::Match->new(
+        'str'  => $str,
+        'from' => $pos,
+        'to'   => $pos,
+        'bool' => 1,
+    );
     $MATCH->bool(
         do {
             my $pos1 = $MATCH->to();
-            (   do { ( ( '!' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) }
-                    || (
-                    do { $MATCH->to($pos1); ( ( '?' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) }
+            (
+                do {
+                    (     ( '!' eq substr( $str, $MATCH->to(), 1 ) )
+                        ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) )
+                        : 0 );
+                  }
+                  || (
+                    do {
+                        $MATCH->to($pos1);
+                        (     ( '?' eq substr( $str, $MATCH->to(), 1 ) )
+                            ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) )
+                            : 0 );
+                    }
                     || do { $MATCH->to($pos1); 1 }
-                    )
+                  )
             );
-            }
+          }
     );
     return ($MATCH);
 }
@@ -695,102 +1360,262 @@ sub rule_terms {
     my $pos;
     do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
     my $MATCH;
-    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH = MiniPerl6::Perl5::Match->new(
+        'str'  => $str,
+        'from' => $pos,
+        'to'   => $pos,
+        'bool' => 1,
+    );
     $MATCH->bool(
         do {
             my $pos1 = $MATCH->to();
-            (   do {
-                    (   ( ( '(' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
+            (
+                do {
+                    (
+                        (
+                              ( '(' eq substr( $str, $MATCH->to(), 1 ) )
+                            ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) )
+                            : 0
+                        )
+                          && (
                             do {
                                 my $m2 = $grammar->rule( $str, $MATCH->to() );
                                 do {
-                                    if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'rule'} = $m2; 1 }
-                                    else     {0}
+                                    if ($m2) {
+                                        $MATCH->to( $m2->to() );
+                                        $MATCH->{'rule'} = $m2;
+                                        1;
                                     }
+                                    else { 0 }
+                                  }
                             }
-                            && (( ( ')' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
+                            && (
+                                (
+                                      ( ')' eq substr( $str, $MATCH->to(), 1 ) )
+                                    ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) )
+                                    : 0
+                                )
+                                && do {
                                     my $ret = sub {
                                         my $List__ = \@_;
                                         do { [] };
-                                        do { return ( Rule::Capture->new( 'rule' => ${ $MATCH->{'rule'} }, ) ) };
+                                        do {
+                                            return (
+                                                Rule::Capture->new(
+                                                    'rule' =>
+                                                      ${ $MATCH->{'rule'} },
+                                                )
+                                            );
+                                        };
                                         '974^213';
-                                        }
-                                        ->();
+                                      }
+                                      ->();
                                     do {
-                                        if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                        else                         { }
+                                        if ( ( $ret ne '974^213' ) ) {
+                                            $MATCH->capture($ret);
+                                            $MATCH->bool(1);
+                                            return ($MATCH);
+                                        }
+                                        else { }
                                     };
                                     1;
                                 }
                             )
-                        )
+                          )
                     );
-                    }
-                    || (
+                  }
+                  || (
                     do {
                         $MATCH->to($pos1);
-                        (   ( ( '<(' eq substr( $str, $MATCH->to(), 2 ) ) ? ( 1 + $MATCH->to( ( 2 + $MATCH->to() ) ) ) : 0 ) && (
+                        (
+                            (
+                                  ( '<(' eq substr( $str, $MATCH->to(), 2 ) )
+                                ? ( 1 + $MATCH->to( ( 2 + $MATCH->to() ) ) )
+                                : 0
+                            )
+                              && (
                                 do {
-                                    my $m2 = $grammar->rule( $str, $MATCH->to() );
+                                    my $m2 =
+                                      $grammar->rule( $str, $MATCH->to() );
                                     do {
-                                        if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'rule'} = $m2; 1 }
-                                        else     {0}
+                                        if ($m2) {
+                                            $MATCH->to( $m2->to() );
+                                            $MATCH->{'rule'} = $m2;
+                                            1;
                                         }
+                                        else { 0 }
+                                      }
                                 }
-                                && (( ( ')>' eq substr( $str, $MATCH->to(), 2 ) ) ? ( 1 + $MATCH->to( ( 2 + $MATCH->to() ) ) ) : 0 ) && do {
+                                && (
+                                    (
+                                        (
+                                            ')>' eq
+                                            substr( $str, $MATCH->to(), 2 )
+                                        )
+                                        ? (
+                                            1 + $MATCH->to(
+                                                ( 2 + $MATCH->to() )
+                                            )
+                                        )
+                                        : 0
+                                    )
+                                    && do {
                                         my $ret = sub {
                                             my $List__ = \@_;
                                             do { [] };
-                                            do { return ( Rule::CaptureResult->new( 'rule' => ${ $MATCH->{'rule'} }, ) ) };
+                                            do {
+                                                return (
+                                                    Rule::CaptureResult->new(
+                                                        'rule' =>
+                                                          ${ $MATCH->{'rule'} },
+                                                    )
+                                                );
+                                            };
                                             '974^213';
-                                            }
-                                            ->();
+                                          }
+                                          ->();
                                         do {
-                                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                            else                         { }
+                                            if ( ( $ret ne '974^213' ) ) {
+                                                $MATCH->capture($ret);
+                                                $MATCH->bool(1);
+                                                return ($MATCH);
+                                            }
+                                            else { }
                                         };
                                         1;
                                     }
                                 )
-                            )
+                              )
                         );
                     }
-                    || (do {
+                    || (
+                        do {
                             $MATCH->to($pos1);
-                            (   ( ( '<' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
+                            (
+                                (
+                                      ( '<' eq substr( $str, $MATCH->to(), 1 ) )
+                                    ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) )
+                                    : 0
+                                )
+                                  && (
                                     do {
-                                        my $m2 = $grammar->assertion_modifier( $str, $MATCH->to() );
+                                        my $m2 =
+                                          $grammar->assertion_modifier( $str,
+                                            $MATCH->to() );
                                         do {
-                                            if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'assertion_modifier'} = $m2; 1 }
-                                            else     {0}
+                                            if ($m2) {
+                                                $MATCH->to( $m2->to() );
+                                                $MATCH->{'assertion_modifier'} =
+                                                  $m2;
+                                                1;
                                             }
+                                            else { 0 }
+                                          }
                                     }
-                                    && (( ( 'after' eq substr( $str, $MATCH->to(), 5 ) ) ? ( 1 + $MATCH->to( ( 5 + $MATCH->to() ) ) ) : 0 ) && (
+                                    && (
+                                        (
+                                            (
+                                                'after' eq
+                                                substr( $str, $MATCH->to(), 5 )
+                                            )
+                                            ? (
+                                                1 + $MATCH->to(
+                                                    ( 5 + $MATCH->to() )
+                                                )
+                                            )
+                                            : 0
+                                        )
+                                        && (
                                             do {
-                                                my $m2 = $grammar->ws( $str, $MATCH->to() );
+                                                my $m2 =
+                                                  $grammar->ws( $str,
+                                                    $MATCH->to() );
                                                 do {
-                                                    if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                                    else     {0}
+                                                    if ($m2) {
+                                                        $MATCH->to( $m2->to() );
+                                                        1;
                                                     }
+                                                    else { 0 }
+                                                  }
                                             }
-                                            && (do {
-                                                    my $m2 = $grammar->rule( $str, $MATCH->to() );
+                                            && (
+                                                do {
+                                                    my $m2 =
+                                                      $grammar->rule( $str,
+                                                        $MATCH->to() );
                                                     do {
-                                                        if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'rule'} = $m2; 1 }
-                                                        else     {0}
+                                                        if ($m2) {
+                                                            $MATCH->to(
+                                                                $m2->to() );
+                                                            $MATCH->{'rule'} =
+                                                              $m2;
+                                                            1;
                                                         }
+                                                        else { 0 }
+                                                      }
                                                 }
-                                                && (( ( '>' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
+                                                && (
+                                                    (
+                                                        (
+                                                            '>' eq substr(
+                                                                $str,
+                                                                $MATCH->to(), 1
+                                                            )
+                                                        )
+                                                        ? (
+                                                            1 + $MATCH->to(
+                                                                (
+                                                                    1 +
+                                                                      $MATCH
+                                                                      ->to(
+                                                                      )
+                                                                )
+                                                            )
+                                                        )
+                                                        : 0
+                                                    )
+                                                    && do {
                                                         my $ret = sub {
                                                             my $List__ = \@_;
                                                             do { [] };
-                                                            do { return ( Rule::After->new( 'rule' => ${ $MATCH->{'rule'} }, 'assertion_modifier' => ${ $MATCH->{'assertion_modifier'} }, ) ) };
+                                                            do {
+                                                                return (
+                                                                    Rule::After
+                                                                      ->new(
+                                                                        'rule'
+                                                                          => ${
+                                                                            $MATCH
+                                                                              ->{
+'rule'
+                                                                              }
+                                                                          },
+'assertion_modifier'
+                                                                          => ${
+                                                                            $MATCH
+                                                                              ->{
+'assertion_modifier'
+                                                                              }
+                                                                          },
+                                                                      )
+                                                                );
+                                                            };
                                                             '974^213';
-                                                            }
-                                                            ->();
+                                                          }
+                                                          ->();
                                                         do {
-                                                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                            else                         { }
+                                                            if (
+                                                                (
+                                                                    $ret ne
+                                                                    '974^213'
+                                                                )
+                                                              )
+                                                            {
+                                                                $MATCH->capture(
+                                                                    $ret);
+                                                                $MATCH->bool(1);
+                                                                return ($MATCH);
+                                                            }
+                                                            else { }
                                                         };
                                                         1;
                                                     }
@@ -798,45 +1623,156 @@ sub rule_terms {
                                             )
                                         )
                                     )
-                                )
+                                  )
                             );
                         }
-                        || (do {
+                        || (
+                            do {
                                 $MATCH->to($pos1);
-                                (   ( ( '<' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
+                                (
+                                    (
+                                        (
+                                            '<' eq
+                                              substr( $str, $MATCH->to(), 1 )
+                                        )
+                                        ? (
+                                            1 + $MATCH->to(
+                                                ( 1 + $MATCH->to() )
+                                            )
+                                          )
+                                        : 0
+                                    )
+                                      && (
                                         do {
-                                            my $m2 = $grammar->assertion_modifier( $str, $MATCH->to() );
+                                            my $m2 =
+                                              $grammar->assertion_modifier(
+                                                $str, $MATCH->to() );
                                             do {
-                                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'assertion_modifier'} = $m2; 1 }
-                                                else     {0}
+                                                if ($m2) {
+                                                    $MATCH->to( $m2->to() );
+                                                    $MATCH->{
+                                                        'assertion_modifier'} =
+                                                      $m2;
+                                                    1;
                                                 }
+                                                else { 0 }
+                                              }
                                         }
-                                        && (( ( 'before' eq substr( $str, $MATCH->to(), 6 ) ) ? ( 1 + $MATCH->to( ( 6 + $MATCH->to() ) ) ) : 0 ) && (
+                                        && (
+                                            (
+                                                (
+                                                    'before' eq substr(
+                                                        $str, $MATCH->to(),
+                                                        6
+                                                    )
+                                                )
+                                                ? (
+                                                    1 + $MATCH->to(
+                                                        ( 6 + $MATCH->to() )
+                                                    )
+                                                )
+                                                : 0
+                                            )
+                                            && (
                                                 do {
-                                                    my $m2 = $grammar->ws( $str, $MATCH->to() );
+                                                    my $m2 =
+                                                      $grammar->ws( $str,
+                                                        $MATCH->to() );
                                                     do {
-                                                        if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                                        else     {0}
+                                                        if ($m2) {
+                                                            $MATCH->to(
+                                                                $m2->to() );
+                                                            1;
                                                         }
+                                                        else { 0 }
+                                                      }
                                                 }
-                                                && (do {
-                                                        my $m2 = $grammar->rule( $str, $MATCH->to() );
+                                                && (
+                                                    do {
+                                                        my $m2 =
+                                                          $grammar->rule( $str,
+                                                            $MATCH->to() );
                                                         do {
-                                                            if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'rule'} = $m2; 1 }
-                                                            else     {0}
+                                                            if ($m2) {
+                                                                $MATCH->to(
+                                                                    $m2->to() );
+                                                                $MATCH->{'rule'}
+                                                                  = $m2;
+                                                                1;
                                                             }
+                                                            else { 0 }
+                                                          }
                                                     }
-                                                    && (( ( '>' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
+                                                    && (
+                                                        (
+                                                            (
+                                                                '>' eq substr(
+                                                                    $str,
+                                                                    $MATCH->to(
+                                                                    ),
+                                                                    1
+                                                                )
+                                                            )
+                                                            ? (
+                                                                1 + $MATCH->to(
+                                                                    (
+                                                                        1 +
+                                                                          $MATCH
+                                                                          ->to(
+                                                                          )
+                                                                    )
+                                                                )
+                                                            )
+                                                            : 0
+                                                        )
+                                                        && do {
                                                             my $ret = sub {
-                                                                my $List__ = \@_;
+                                                                my $List__ =
+                                                                  \@_;
                                                                 do { [] };
-                                                                do { return ( Rule::Before->new( 'rule' => ${ $MATCH->{'rule'} }, 'assertion_modifier' => ${ $MATCH->{'assertion_modifier'} }, ) ) };
+                                                                do {
+                                                                    return (
+                                                                        Rule::Before
+                                                                          ->new(
+'rule'
+                                                                              => ${
+                                                                                $MATCH
+                                                                                  ->
+                                                                                  {
+'rule'
+                                                                                  }
+                                                                              },
+'assertion_modifier'
+                                                                              => ${
+                                                                                $MATCH
+                                                                                  ->
+                                                                                  {
+'assertion_modifier'
+                                                                                  }
+                                                                              },
+                                                                          )
+                                                                    );
+                                                                };
                                                                 '974^213';
-                                                                }
-                                                                ->();
+                                                              }
+                                                              ->();
                                                             do {
-                                                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                                else                         { }
+                                                                if (
+                                                                    (
+                                                                        $ret ne
+'974^213'
+                                                                    )
+                                                                  )
+                                                                {
+                                                                    $MATCH
+                                                                      ->capture(
+                                                                        $ret);
+                                                                    $MATCH
+                                                                      ->bool(1);
+                                                                    return (
+                                                                        $MATCH);
+                                                                }
+                                                                else { }
                                                             };
                                                             1;
                                                         }
@@ -844,365 +1780,1877 @@ sub rule_terms {
                                                 )
                                             )
                                         )
-                                    )
+                                      )
                                 );
                             }
-                            || (do {
+                            || (
+                                do {
                                     $MATCH->to($pos1);
-                                    (   ( ( '<!' eq substr( $str, $MATCH->to(), 2 ) ) ? ( 1 + $MATCH->to( ( 2 + $MATCH->to() ) ) ) : 0 ) && (
+                                    (
+                                        (
+                                            (
+                                                '<!' eq substr(
+                                                    $str, $MATCH->to(), 2
+                                                )
+                                            )
+                                            ? (
+                                                1 + $MATCH->to(
+                                                    ( 2 + $MATCH->to() )
+                                                )
+                                              )
+                                            : 0
+                                        )
+                                          && (
                                             do {
-                                                my $m2 = $grammar->metasyntax( $str, $MATCH->to() );
+                                                my $m2 =
+                                                  $grammar->metasyntax( $str,
+                                                    $MATCH->to() );
                                                 do {
-                                                    if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'metasyntax'} = $m2; 1 }
-                                                    else     {0}
+                                                    if ($m2) {
+                                                        $MATCH->to( $m2->to() );
+                                                        $MATCH->{'metasyntax'} =
+                                                          $m2;
+                                                        1;
                                                     }
+                                                    else { 0 }
+                                                  }
                                             }
-                                            && (( ( '>' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
+                                            && (
+                                                (
+                                                    (
+                                                        '>' eq substr(
+                                                            $str, $MATCH->to(),
+                                                            1
+                                                        )
+                                                    )
+                                                    ? (
+                                                        1 + $MATCH->to(
+                                                            (
+                                                                1 + $MATCH->to()
+                                                            )
+                                                        )
+                                                    )
+                                                    : 0
+                                                )
+                                                && do {
                                                     my $ret = sub {
                                                         my $List__ = \@_;
                                                         do { [] };
-                                                        do { return ( { 'negate' => { 'metasyntax' => ${ $MATCH->{'metasyntax'} }, }, } ) };
+                                                        do {
+                                                            return (
+                                                                {
+                                                                    'negate' =>
+                                                                      {
+'metasyntax'
+                                                                          => ${
+                                                                            $MATCH
+                                                                              ->{
+'metasyntax'
+                                                                              }
+                                                                          },
+                                                                      },
+                                                                }
+                                                            );
+                                                        };
                                                         '974^213';
-                                                        }
-                                                        ->();
+                                                      }
+                                                      ->();
                                                     do {
-                                                        if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                        else                         { }
+                                                        if (
+                                                            (
+                                                                $ret ne
+                                                                '974^213'
+                                                            )
+                                                          )
+                                                        {
+                                                            $MATCH->capture(
+                                                                $ret);
+                                                            $MATCH->bool(1);
+                                                            return ($MATCH);
+                                                        }
+                                                        else { }
                                                     };
                                                     1;
                                                 }
                                             )
-                                        )
+                                          )
                                     );
                                 }
-                                || (do {
+                                || (
+                                    do {
                                         $MATCH->to($pos1);
-                                        (   ( ( '<+' eq substr( $str, $MATCH->to(), 2 ) ) ? ( 1 + $MATCH->to( ( 2 + $MATCH->to() ) ) ) : 0 ) && (
+                                        (
+                                            (
+                                                (
+                                                    '<+' eq substr(
+                                                        $str, $MATCH->to(),
+                                                        2
+                                                    )
+                                                )
+                                                ? (
+                                                    1 + $MATCH->to(
+                                                        ( 2 + $MATCH->to() )
+                                                    )
+                                                  )
+                                                : 0
+                                            )
+                                              && (
                                                 do {
-                                                    my $m2 = $grammar->char_class( $str, $MATCH->to() );
+                                                    my $m2 =
+                                                      $grammar->char_class(
+                                                        $str, $MATCH->to() );
                                                     do {
-                                                        if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'char_class'} = $m2; 1 }
-                                                        else     {0}
+                                                        if ($m2) {
+                                                            $MATCH->to(
+                                                                $m2->to() );
+                                                            $MATCH->{
+                                                                'char_class'} =
+                                                              $m2;
+                                                            1;
                                                         }
+                                                        else { 0 }
+                                                      }
                                                 }
-                                                && (( ( '>' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
+                                                && (
+                                                    (
+                                                        (
+                                                            '>' eq substr(
+                                                                $str,
+                                                                $MATCH->to(), 1
+                                                            )
+                                                        )
+                                                        ? (
+                                                            1 + $MATCH->to(
+                                                                (
+                                                                    1 +
+                                                                      $MATCH
+                                                                      ->to(
+                                                                      )
+                                                                )
+                                                            )
+                                                        )
+                                                        : 0
+                                                    )
+                                                    && do {
                                                         my $ret = sub {
                                                             my $List__ = \@_;
                                                             do { [] };
-                                                            do { return ( Rule::CharClass->new( 'chars' => ( "" . $MATCH->{'char_class'} ), ) ) };
+                                                            do {
+                                                                return (
+                                                                    Rule::CharClass
+                                                                      ->new(
+                                                                        'chars'
+                                                                          => (
+                                                                            ""
+                                                                              . $MATCH
+                                                                              ->{
+'char_class'
+                                                                              }
+                                                                          ),
+                                                                      )
+                                                                );
+                                                            };
                                                             '974^213';
-                                                            }
-                                                            ->();
+                                                          }
+                                                          ->();
                                                         do {
-                                                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                            else                         { }
+                                                            if (
+                                                                (
+                                                                    $ret ne
+                                                                    '974^213'
+                                                                )
+                                                              )
+                                                            {
+                                                                $MATCH->capture(
+                                                                    $ret);
+                                                                $MATCH->bool(1);
+                                                                return ($MATCH);
+                                                            }
+                                                            else { }
                                                         };
                                                         1;
                                                     }
                                                 )
-                                            )
+                                              )
                                         );
                                     }
-                                    || (do {
+                                    || (
+                                        do {
                                             $MATCH->to($pos1);
-                                            (   ( ( '<-' eq substr( $str, $MATCH->to(), 2 ) ) ? ( 1 + $MATCH->to( ( 2 + $MATCH->to() ) ) ) : 0 ) && (
+                                            (
+                                                (
+                                                    (
+                                                        '<-' eq substr(
+                                                            $str, $MATCH->to(),
+                                                            2
+                                                        )
+                                                    )
+                                                    ? (
+                                                        1 + $MATCH->to(
+                                                            (
+                                                                2 + $MATCH->to()
+                                                            )
+                                                        )
+                                                      )
+                                                    : 0
+                                                )
+                                                  && (
                                                     do {
-                                                        my $m2 = $grammar->char_class( $str, $MATCH->to() );
+                                                        my $m2 =
+                                                          $grammar->char_class(
+                                                            $str,
+                                                            $MATCH->to() );
                                                         do {
-                                                            if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'char_class'} = $m2; 1 }
-                                                            else     {0}
+                                                            if ($m2) {
+                                                                $MATCH->to(
+                                                                    $m2->to() );
+                                                                $MATCH->{
+                                                                    'char_class'
+                                                                  } = $m2;
+                                                                1;
                                                             }
+                                                            else { 0 }
+                                                          }
                                                     }
-                                                    && (( ( '>' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
+                                                    && (
+                                                        (
+                                                            (
+                                                                '>' eq substr(
+                                                                    $str,
+                                                                    $MATCH->to(
+                                                                    ),
+                                                                    1
+                                                                )
+                                                            )
+                                                            ? (
+                                                                1 + $MATCH->to(
+                                                                    (
+                                                                        1 +
+                                                                          $MATCH
+                                                                          ->to(
+                                                                          )
+                                                                    )
+                                                                )
+                                                            )
+                                                            : 0
+                                                        )
+                                                        && do {
                                                             my $ret = sub {
-                                                                my $List__ = \@_;
+                                                                my $List__ =
+                                                                  \@_;
                                                                 do { [] };
-                                                                do { return ( Rule::NegateCharClass->new( 'chars' => ( "" . $MATCH->{'char_class'} ), ) ) };
+                                                                do {
+                                                                    return (
+                                                                        Rule::NegateCharClass
+                                                                          ->new(
+'chars'
+                                                                              => (
+""
+                                                                                  .
+                                                                                  $MATCH
+                                                                                  ->
+                                                                                  {
+'char_class'
+                                                                                  }
+                                                                              ),
+                                                                          )
+                                                                    );
+                                                                };
                                                                 '974^213';
-                                                                }
-                                                                ->();
+                                                              }
+                                                              ->();
                                                             do {
-                                                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                                else                         { }
+                                                                if (
+                                                                    (
+                                                                        $ret ne
+'974^213'
+                                                                    )
+                                                                  )
+                                                                {
+                                                                    $MATCH
+                                                                      ->capture(
+                                                                        $ret);
+                                                                    $MATCH
+                                                                      ->bool(1);
+                                                                    return (
+                                                                        $MATCH);
+                                                                }
+                                                                else { }
                                                             };
                                                             1;
                                                         }
                                                     )
-                                                )
+                                                  )
                                             );
                                         }
-                                        || (do {
+                                        || (
+                                            do {
                                                 $MATCH->to($pos1);
-                                                (   ( ( '\'' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
+                                                (
+                                                    (
+                                                        (
+                                                            '\'' eq substr(
+                                                                $str,
+                                                                $MATCH->to(), 1
+                                                            )
+                                                        )
+                                                        ? (
+                                                            1 + $MATCH->to(
+                                                                (
+                                                                    1 +
+                                                                      $MATCH
+                                                                      ->to(
+                                                                      )
+                                                                )
+                                                            )
+                                                          )
+                                                        : 0
+                                                    )
+                                                      && (
                                                         do {
-                                                            my $m2 = $grammar->literal( $str, $MATCH->to() );
+                                                            my $m2 =
+                                                              $grammar->literal(
+                                                                $str,
+                                                                $MATCH->to() );
                                                             do {
-                                                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'literal'} = $m2; 1 }
-                                                                else     {0}
+                                                                if ($m2) {
+                                                                    $MATCH->to(
+                                                                        $m2->to(
+                                                                        )
+                                                                    );
+                                                                    $MATCH->{
+'literal'
+                                                                      } = $m2;
+                                                                    1;
                                                                 }
+                                                                else { 0 }
+                                                              }
                                                         }
-                                                        && (( ( '\'' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
+                                                        && (
+                                                            (
+                                                                (
+                                                                    '\'' eq
+                                                                    substr(
+                                                                        $str,
+                                                                        $MATCH
+                                                                          ->to(
+                                                                          ),
+                                                                        1
+                                                                    )
+                                                                )
+                                                                ? (
+                                                                    1 +
+                                                                      $MATCH
+                                                                      ->to(
+                                                                        (
+                                                                            1 +
+                                                                              $MATCH
+                                                                              ->to
+                                                                              (
+                                                                              )
+                                                                        )
+                                                                      )
+                                                                )
+                                                                : 0
+                                                            )
+                                                            && do {
                                                                 my $ret = sub {
-                                                                    my $List__ = \@_;
+                                                                    my $List__ =
+                                                                      \@_;
                                                                     do { [] };
-                                                                    do { return ( Rule::Constant->new( 'constant' => ${ $MATCH->{'literal'} }, ) ) };
+                                                                    do {
+                                                                        return (
+                                                                            Rule::Constant
+                                                                              ->new(
+'constant'
+                                                                                  =>
+                                                                                  ${
+                                                                                    $MATCH
+                                                                                      ->
+                                                                                      {
+'literal'
+                                                                                      }
+                                                                                  }
+                                                                                ,
+                                                                              )
+                                                                        );
+                                                                    };
                                                                     '974^213';
-                                                                    }
-                                                                    ->();
+                                                                  }
+                                                                  ->();
                                                                 do {
-                                                                    if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                                    else                         { }
+                                                                    if (
+                                                                        (
+                                                                            $ret
+                                                                            ne
+'974^213'
+                                                                        )
+                                                                      )
+                                                                    {
+                                                                        $MATCH
+                                                                          ->capture
+                                                                          ($ret
+                                                                          );
+                                                                        $MATCH
+                                                                          ->bool
+                                                                          (1);
+                                                                        return (
+                                                                            $MATCH
+                                                                        );
+                                                                    }
+                                                                    else { }
                                                                 };
                                                                 1;
                                                             }
                                                         )
-                                                    )
+                                                      )
                                                 );
                                             }
-                                            || (do {
+                                            || (
+                                                do {
                                                     $MATCH->to($pos1);
-                                                    (   ( ( '<' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
-                                                            my $pos1 = $MATCH->to();
-                                                            (   do {
-                                                                    (   do {
-                                                                            my $m2 = $grammar->variables( $str, $MATCH->to() );
+                                                    (
+                                                        (
+                                                            (
+                                                                '<' eq substr(
+                                                                    $str,
+                                                                    $MATCH->to(
+                                                                    ),
+                                                                    1
+                                                                )
+                                                            )
+                                                            ? (
+                                                                1 + $MATCH->to(
+                                                                    (
+                                                                        1 +
+                                                                          $MATCH
+                                                                          ->to(
+                                                                          )
+                                                                    )
+                                                                )
+                                                              )
+                                                            : 0
+                                                        )
+                                                          && do {
+                                                            my $pos1 =
+                                                              $MATCH->to();
+                                                            (
+                                                                do {
+                                                                    (
+                                                                        do {
+                                                                            my $m2
+                                                                              = $grammar
+                                                                              ->variables
+                                                                              (
+                                                                                $str,
+                                                                                $MATCH
+                                                                                  ->to
+                                                                                  (
+                                                                                  )
+                                                                              );
                                                                             do {
-                                                                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'variables'} = $m2; 1 }
-                                                                                else     {0}
+                                                                                if
+                                                                                  (
+                                                                                    $m2
+                                                                                  )
+                                                                                {
+                                                                                    $MATCH
+                                                                                      ->to
+                                                                                      (
+                                                                                        $m2
+                                                                                          ->to
+                                                                                          (
+                                                                                          )
+                                                                                      )
+                                                                                      ;
+                                                                                    $MATCH
+                                                                                      ->
+                                                                                      {
+'variables'
+                                                                                      }
+                                                                                      =
+                                                                                      $m2;
+                                                                                    1
+                                                                                      ;
                                                                                 }
-                                                                            }
-                                                                            && (
-                                                                            ( ( '>' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
-                                                                                my $ret = sub {
-                                                                                    my $List__ = \@_;
-                                                                                    do { [] };
-                                                                                    do { return ( Rule::InterpolateVar->new( 'var' => ${ $MATCH->{'variables'} }, ) ) };
-                                                                                    '974^213';
-                                                                                    }
-                                                                                    ->();
-                                                                                do {
-                                                                                    if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                                                    else                         { }
-                                                                                };
-                                                                                1;
-                                                                            }
+                                                                                else
+                                                                                {
+                                                                                    0
+                                                                                      ;
+                                                                                }
+                                                                              }
+                                                                          }
+                                                                          && (
+                                                                            (
+                                                                                (
+'>'
+                                                                                    eq
+                                                                                    substr
+                                                                                    (
+                                                                                        $str,
+                                                                                        $MATCH
+                                                                                          ->to
+                                                                                          (
+                                                                                          )
+                                                                                        ,
+                                                                                        1
+                                                                                    )
+                                                                                )
+                                                                                ?
+                                                                                (
+                                                                                    1
+                                                                                      +
+                                                                                      $MATCH
+                                                                                      ->to
+                                                                                      (
+                                                                                        (
+                                                                                            1
+                                                                                              +
+                                                                                              $MATCH
+                                                                                              ->to
+                                                                                              (
+                                                                                              )
+                                                                                        )
+                                                                                      )
+                                                                                )
+                                                                                :
+                                                                                0
                                                                             )
-                                                                    );
-                                                                    }
-                                                                    || (
-                                                                    do {
-                                                                        $MATCH->to($pos1);
-                                                                        (   ( ( '?' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
-                                                                                do {
-                                                                                    my $ret = sub {
-                                                                                        my $List__ = \@_;
-                                                                                        do { [] };
-                                                                                        do { warn('<? ...> not implemented - maybe you mean <. ...> ?') };
-                                                                                        '974^213';
-                                                                                        }
-                                                                                        ->();
-                                                                                    do {
-                                                                                        if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                                                        else                         { }
+                                                                            && do
+                                                                            {
+                                                                                my $ret
+                                                                                  =
+                                                                                  sub
+                                                                                {
+                                                                                    my $List__
+                                                                                      =
+                                                                                      \
+                                                                                      @_;
+                                                                                    do
+                                                                                    {
+                                                                                        [
+                                                                                        ]
+                                                                                        ;
                                                                                     };
-                                                                                    1;
-                                                                                }
-                                                                                && (do {
-                                                                                        my $m2 = $grammar->metasyntax( $str, $MATCH->to() );
-                                                                                        do {
-                                                                                            if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'metasyntax'} = $m2; 1 }
-                                                                                            else     {0}
-                                                                                            }
+                                                                                    do
+                                                                                    {
+                                                                                        return
+                                                                                          (
+                                                                                            Rule::InterpolateVar
+                                                                                              ->new(
+'var'
+                                                                                                  =>
+                                                                                                  ${
+                                                                                                    $MATCH
+                                                                                                      ->
+                                                                                                      {
+'variables'
+                                                                                                      }
+                                                                                                  }
+                                                                                                ,
+                                                                                              )
+                                                                                          )
+                                                                                          ;
+                                                                                    };
+'974^213';
+                                                                                  }
+                                                                                  ->
+                                                                                  (
+                                                                                  )
+                                                                                  ;
+                                                                                do
+                                                                                {
+                                                                                    if
+                                                                                      (
+                                                                                        (
+                                                                                            $ret
+                                                                                            ne
+'974^213'
+                                                                                        )
+                                                                                      )
+                                                                                    {
+                                                                                        $MATCH
+                                                                                          ->capture
+                                                                                          (
+                                                                                            $ret
+                                                                                          )
+                                                                                          ;
+                                                                                        $MATCH
+                                                                                          ->bool
+                                                                                          (
+                                                                                            1
+                                                                                          )
+                                                                                          ;
+                                                                                        return
+                                                                                          (
+                                                                                            $MATCH
+                                                                                          )
+                                                                                          ;
                                                                                     }
-                                                                                    && (( ( '>' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
-                                                                                            my $ret = sub {
-                                                                                                my $List__ = \@_;
-                                                                                                do { [] };
-                                                                                                do { return ( Rule::SubruleNoCapture->new( 'metasyntax' => ${ $MATCH->{'metasyntax'} }, ) ) };
-                                                                                                '974^213';
+                                                                                    else
+                                                                                    {
+                                                                                    }
+                                                                                };
+                                                                                1
+                                                                                  ;
+                                                                            }
+                                                                          )
+                                                                    );
+                                                                  }
+                                                                  || (
+                                                                    do {
+                                                                        $MATCH
+                                                                          ->to(
+                                                                            $pos1
+                                                                          );
+                                                                        (
+                                                                            (
+                                                                                (
+'?'
+                                                                                      eq
+                                                                                      substr
+                                                                                      (
+                                                                                        $str,
+                                                                                        $MATCH
+                                                                                          ->to
+                                                                                          (
+                                                                                          )
+                                                                                        ,
+                                                                                        1
+                                                                                      )
+                                                                                )
+                                                                                ?
+                                                                                  (
+                                                                                    1
+                                                                                      +
+                                                                                      $MATCH
+                                                                                      ->to
+                                                                                      (
+                                                                                        (
+                                                                                            1
+                                                                                              +
+                                                                                              $MATCH
+                                                                                              ->to
+                                                                                              (
+                                                                                              )
+                                                                                        )
+                                                                                      )
+                                                                                  )
+                                                                                :
+                                                                                  0
+                                                                            )
+                                                                              && (
+                                                                                do
+                                                                                {
+                                                                                    my $ret
+                                                                                      =
+                                                                                      sub
+                                                                                    {
+                                                                                        my $List__
+                                                                                          =
+                                                                                          \
+                                                                                          @_;
+                                                                                        do
+                                                                                        {
+                                                                                            [
+                                                                                            ]
+                                                                                            ;
+                                                                                        };
+                                                                                        do
+                                                                                        {
+                                                                                            warn
+                                                                                              (
+'<? ...> not implemented - maybe you mean <. ...> ?'
+                                                                                              )
+                                                                                              ;
+                                                                                        };
+'974^213';
+                                                                                      }
+                                                                                      ->
+                                                                                      (
+                                                                                      )
+                                                                                      ;
+                                                                                    do
+                                                                                    {
+                                                                                        if
+                                                                                          (
+                                                                                            (
+                                                                                                $ret
+                                                                                                ne
+'974^213'
+                                                                                            )
+                                                                                          )
+                                                                                        {
+                                                                                            $MATCH
+                                                                                              ->capture
+                                                                                              (
+                                                                                                $ret
+                                                                                              )
+                                                                                              ;
+                                                                                            $MATCH
+                                                                                              ->bool
+                                                                                              (
+                                                                                                1
+                                                                                              )
+                                                                                              ;
+                                                                                            return
+                                                                                              (
+                                                                                                $MATCH
+                                                                                              )
+                                                                                              ;
+                                                                                        }
+                                                                                        else
+                                                                                        {
+                                                                                        }
+                                                                                    };
+                                                                                    1
+                                                                                      ;
+                                                                                }
+                                                                                &&
+                                                                                (
+                                                                                    do
+                                                                                    {
+                                                                                        my $m2
+                                                                                          =
+                                                                                          $grammar
+                                                                                          ->metasyntax
+                                                                                          (
+                                                                                            $str,
+                                                                                            $MATCH
+                                                                                              ->to
+                                                                                              (
+                                                                                              )
+                                                                                          )
+                                                                                          ;
+                                                                                        do
+                                                                                        {
+                                                                                            if
+                                                                                              (
+                                                                                                $m2
+                                                                                              )
+                                                                                            {
+                                                                                                $MATCH
+                                                                                                  ->to
+                                                                                                  (
+                                                                                                    $m2
+                                                                                                      ->to
+                                                                                                      (
+                                                                                                      )
+                                                                                                  )
+                                                                                                  ;
+                                                                                                $MATCH
+                                                                                                  ->
+                                                                                                  {
+'metasyntax'
+                                                                                                  }
+                                                                                                  =
+                                                                                                  $m2;
+                                                                                                1
+                                                                                                  ;
+                                                                                            }
+                                                                                            else
+                                                                                            {
+                                                                                                0
+                                                                                                  ;
+                                                                                            }
+                                                                                          }
+                                                                                    }
+                                                                                    &&
+                                                                                    (
+                                                                                        (
+                                                                                            (
+'>'
+                                                                                                eq
+                                                                                                substr
+                                                                                                (
+                                                                                                    $str,
+                                                                                                    $MATCH
+                                                                                                      ->to
+                                                                                                      (
+                                                                                                      )
+                                                                                                    ,
+                                                                                                    1
+                                                                                                )
+                                                                                            )
+                                                                                            ?
+                                                                                            (
+                                                                                                1
+                                                                                                  +
+                                                                                                  $MATCH
+                                                                                                  ->to
+                                                                                                  (
+                                                                                                    (
+                                                                                                        1
+                                                                                                          +
+                                                                                                          $MATCH
+                                                                                                          ->to
+                                                                                                          (
+                                                                                                          )
+                                                                                                    )
+                                                                                                  )
+                                                                                            )
+                                                                                            :
+                                                                                            0
+                                                                                        )
+                                                                                        &&
+                                                                                        do
+                                                                                        {
+                                                                                            my $ret
+                                                                                              =
+                                                                                              sub
+                                                                                            {
+                                                                                                my $List__
+                                                                                                  =
+                                                                                                  \
+                                                                                                  @_;
+                                                                                                do
+                                                                                                {
+                                                                                                    [
+                                                                                                    ]
+                                                                                                    ;
+                                                                                                };
+                                                                                                do
+                                                                                                {
+                                                                                                    return
+                                                                                                      (
+                                                                                                        Rule::SubruleNoCapture
+                                                                                                          ->new(
+'metasyntax'
+                                                                                                              =>
+                                                                                                              ${
+                                                                                                                $MATCH
+                                                                                                                  ->
+                                                                                                                  {
+'metasyntax'
+                                                                                                                  }
+                                                                                                              }
+                                                                                                            ,
+                                                                                                          )
+                                                                                                      )
+                                                                                                      ;
+                                                                                                };
+'974^213';
+                                                                                              }
+                                                                                              ->
+                                                                                              (
+                                                                                              )
+                                                                                              ;
+                                                                                            do
+                                                                                            {
+                                                                                                if
+                                                                                                  (
+                                                                                                    (
+                                                                                                        $ret
+                                                                                                        ne
+'974^213'
+                                                                                                    )
+                                                                                                  )
+                                                                                                {
+                                                                                                    $MATCH
+                                                                                                      ->capture
+                                                                                                      (
+                                                                                                        $ret
+                                                                                                      )
+                                                                                                      ;
+                                                                                                    $MATCH
+                                                                                                      ->bool
+                                                                                                      (
+                                                                                                        1
+                                                                                                      )
+                                                                                                      ;
+                                                                                                    return
+                                                                                                      (
+                                                                                                        $MATCH
+                                                                                                      )
+                                                                                                      ;
                                                                                                 }
-                                                                                                ->();
-                                                                                            do {
-                                                                                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                                                                else                         { }
+                                                                                                else
+                                                                                                {
+                                                                                                }
                                                                                             };
-                                                                                            1;
+                                                                                            1
+                                                                                              ;
                                                                                         }
                                                                                     )
                                                                                 )
-                                                                            )
+                                                                              )
                                                                         );
                                                                     }
-                                                                    || (do {
-                                                                            $MATCH->to($pos1);
-                                                                            (   ( ( '.' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
-                                                                                    do {
-                                                                                        my $m2 = $grammar->metasyntax( $str, $MATCH->to() );
-                                                                                        do {
-                                                                                            if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'metasyntax'} = $m2; 1 }
-                                                                                            else     {0}
+                                                                    || (
+                                                                        do {
+                                                                            $MATCH
+                                                                              ->to
+                                                                              (
+                                                                                $pos1
+                                                                              );
+                                                                            (
+                                                                                (
+                                                                                    (
+'.'
+                                                                                          eq
+                                                                                          substr
+                                                                                          (
+                                                                                            $str,
+                                                                                            $MATCH
+                                                                                              ->to
+                                                                                              (
+                                                                                              )
+                                                                                            ,
+                                                                                            1
+                                                                                          )
+                                                                                    )
+                                                                                    ?
+                                                                                      (
+                                                                                        1
+                                                                                          +
+                                                                                          $MATCH
+                                                                                          ->to
+                                                                                          (
+                                                                                            (
+                                                                                                1
+                                                                                                  +
+                                                                                                  $MATCH
+                                                                                                  ->to
+                                                                                                  (
+                                                                                                  )
+                                                                                            )
+                                                                                          )
+                                                                                      )
+                                                                                    :
+                                                                                      0
+                                                                                )
+                                                                                  &&
+                                                                                  (
+                                                                                    do
+                                                                                    {
+                                                                                        my $m2
+                                                                                          =
+                                                                                          $grammar
+                                                                                          ->metasyntax
+                                                                                          (
+                                                                                            $str,
+                                                                                            $MATCH
+                                                                                              ->to
+                                                                                              (
+                                                                                              )
+                                                                                          )
+                                                                                          ;
+                                                                                        do
+                                                                                        {
+                                                                                            if
+                                                                                              (
+                                                                                                $m2
+                                                                                              )
+                                                                                            {
+                                                                                                $MATCH
+                                                                                                  ->to
+                                                                                                  (
+                                                                                                    $m2
+                                                                                                      ->to
+                                                                                                      (
+                                                                                                      )
+                                                                                                  )
+                                                                                                  ;
+                                                                                                $MATCH
+                                                                                                  ->
+                                                                                                  {
+'metasyntax'
+                                                                                                  }
+                                                                                                  =
+                                                                                                  $m2;
+                                                                                                1
+                                                                                                  ;
                                                                                             }
+                                                                                            else
+                                                                                            {
+                                                                                                0
+                                                                                                  ;
+                                                                                            }
+                                                                                          }
                                                                                     }
-                                                                                    && (( ( '>' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
-                                                                                            my $ret = sub {
-                                                                                                my $List__ = \@_;
-                                                                                                do { [] };
-                                                                                                do { return ( Rule::SubruleNoCapture->new( 'metasyntax' => ${ $MATCH->{'metasyntax'} }, ) ) };
-                                                                                                '974^213';
+                                                                                    &&
+                                                                                    (
+                                                                                        (
+                                                                                            (
+'>'
+                                                                                                eq
+                                                                                                substr
+                                                                                                (
+                                                                                                    $str,
+                                                                                                    $MATCH
+                                                                                                      ->to
+                                                                                                      (
+                                                                                                      )
+                                                                                                    ,
+                                                                                                    1
+                                                                                                )
+                                                                                            )
+                                                                                            ?
+                                                                                            (
+                                                                                                1
+                                                                                                  +
+                                                                                                  $MATCH
+                                                                                                  ->to
+                                                                                                  (
+                                                                                                    (
+                                                                                                        1
+                                                                                                          +
+                                                                                                          $MATCH
+                                                                                                          ->to
+                                                                                                          (
+                                                                                                          )
+                                                                                                    )
+                                                                                                  )
+                                                                                            )
+                                                                                            :
+                                                                                            0
+                                                                                        )
+                                                                                        &&
+                                                                                        do
+                                                                                        {
+                                                                                            my $ret
+                                                                                              =
+                                                                                              sub
+                                                                                            {
+                                                                                                my $List__
+                                                                                                  =
+                                                                                                  \
+                                                                                                  @_;
+                                                                                                do
+                                                                                                {
+                                                                                                    [
+                                                                                                    ]
+                                                                                                    ;
+                                                                                                };
+                                                                                                do
+                                                                                                {
+                                                                                                    return
+                                                                                                      (
+                                                                                                        Rule::SubruleNoCapture
+                                                                                                          ->new(
+'metasyntax'
+                                                                                                              =>
+                                                                                                              ${
+                                                                                                                $MATCH
+                                                                                                                  ->
+                                                                                                                  {
+'metasyntax'
+                                                                                                                  }
+                                                                                                              }
+                                                                                                            ,
+                                                                                                          )
+                                                                                                      )
+                                                                                                      ;
+                                                                                                };
+'974^213';
+                                                                                              }
+                                                                                              ->
+                                                                                              (
+                                                                                              )
+                                                                                              ;
+                                                                                            do
+                                                                                            {
+                                                                                                if
+                                                                                                  (
+                                                                                                    (
+                                                                                                        $ret
+                                                                                                        ne
+'974^213'
+                                                                                                    )
+                                                                                                  )
+                                                                                                {
+                                                                                                    $MATCH
+                                                                                                      ->capture
+                                                                                                      (
+                                                                                                        $ret
+                                                                                                      )
+                                                                                                      ;
+                                                                                                    $MATCH
+                                                                                                      ->bool
+                                                                                                      (
+                                                                                                        1
+                                                                                                      )
+                                                                                                      ;
+                                                                                                    return
+                                                                                                      (
+                                                                                                        $MATCH
+                                                                                                      )
+                                                                                                      ;
                                                                                                 }
-                                                                                                ->();
-                                                                                            do {
-                                                                                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                                                                else                         { }
+                                                                                                else
+                                                                                                {
+                                                                                                }
                                                                                             };
-                                                                                            1;
+                                                                                            1
+                                                                                              ;
                                                                                         }
                                                                                     )
-                                                                                )
+                                                                                  )
                                                                             );
                                                                         }
                                                                         || do {
-                                                                            $MATCH->to($pos1);
-                                                                            (   do {
-                                                                                    my $m2 = $grammar->metasyntax( $str, $MATCH->to() );
-                                                                                    do {
-                                                                                        if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'metasyntax'} = $m2; 1 }
-                                                                                        else     {0}
+                                                                            $MATCH
+                                                                              ->to
+                                                                              (
+                                                                                $pos1
+                                                                              );
+                                                                            (
+                                                                                do
+                                                                                {
+                                                                                    my $m2
+                                                                                      =
+                                                                                      $grammar
+                                                                                      ->metasyntax
+                                                                                      (
+                                                                                        $str,
+                                                                                        $MATCH
+                                                                                          ->to
+                                                                                          (
+                                                                                          )
+                                                                                      )
+                                                                                      ;
+                                                                                    do
+                                                                                    {
+                                                                                        if
+                                                                                          (
+                                                                                            $m2
+                                                                                          )
+                                                                                        {
+                                                                                            $MATCH
+                                                                                              ->to
+                                                                                              (
+                                                                                                $m2
+                                                                                                  ->to
+                                                                                                  (
+                                                                                                  )
+                                                                                              )
+                                                                                              ;
+                                                                                            $MATCH
+                                                                                              ->
+                                                                                              {
+'metasyntax'
+                                                                                              }
+                                                                                              =
+                                                                                              $m2;
+                                                                                            1
+                                                                                              ;
                                                                                         }
-                                                                                    }
-                                                                                    && (
-                                                                                    ( ( '>' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
-                                                                                        my $ret = sub {
-                                                                                            my $List__ = \@_;
-                                                                                            do { [] };
-                                                                                            do { return ( Rule::Subrule->new( 'metasyntax' => ${ $MATCH->{'metasyntax'} }, ) ) };
-                                                                                            '974^213';
-                                                                                            }
-                                                                                            ->();
-                                                                                        do {
-                                                                                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                                                            else                         { }
-                                                                                        };
-                                                                                        1;
-                                                                                    }
+                                                                                        else
+                                                                                        {
+                                                                                            0
+                                                                                              ;
+                                                                                        }
+                                                                                      }
+                                                                                  }
+                                                                                  &&
+                                                                                  (
+                                                                                    (
+                                                                                        (
+'>'
+                                                                                            eq
+                                                                                            substr
+                                                                                            (
+                                                                                                $str,
+                                                                                                $MATCH
+                                                                                                  ->to
+                                                                                                  (
+                                                                                                  )
+                                                                                                ,
+                                                                                                1
+                                                                                            )
+                                                                                        )
+                                                                                        ?
+                                                                                        (
+                                                                                            1
+                                                                                              +
+                                                                                              $MATCH
+                                                                                              ->to
+                                                                                              (
+                                                                                                (
+                                                                                                    1
+                                                                                                      +
+                                                                                                      $MATCH
+                                                                                                      ->to
+                                                                                                      (
+                                                                                                      )
+                                                                                                )
+                                                                                              )
+                                                                                        )
+                                                                                        :
+                                                                                        0
                                                                                     )
+                                                                                    &&
+                                                                                    do
+                                                                                    {
+                                                                                        my $ret
+                                                                                          =
+                                                                                          sub
+                                                                                        {
+                                                                                            my $List__
+                                                                                              =
+                                                                                              \
+                                                                                              @_;
+                                                                                            do
+                                                                                            {
+                                                                                                [
+                                                                                                ]
+                                                                                                ;
+                                                                                            };
+                                                                                            do
+                                                                                            {
+                                                                                                return
+                                                                                                  (
+                                                                                                    Rule::Subrule
+                                                                                                      ->new(
+'metasyntax'
+                                                                                                          =>
+                                                                                                          ${
+                                                                                                            $MATCH
+                                                                                                              ->
+                                                                                                              {
+'metasyntax'
+                                                                                                              }
+                                                                                                          }
+                                                                                                        ,
+                                                                                                      )
+                                                                                                  )
+                                                                                                  ;
+                                                                                            };
+'974^213';
+                                                                                          }
+                                                                                          ->
+                                                                                          (
+                                                                                          )
+                                                                                          ;
+                                                                                        do
+                                                                                        {
+                                                                                            if
+                                                                                              (
+                                                                                                (
+                                                                                                    $ret
+                                                                                                    ne
+'974^213'
+                                                                                                )
+                                                                                              )
+                                                                                            {
+                                                                                                $MATCH
+                                                                                                  ->capture
+                                                                                                  (
+                                                                                                    $ret
+                                                                                                  )
+                                                                                                  ;
+                                                                                                $MATCH
+                                                                                                  ->bool
+                                                                                                  (
+                                                                                                    1
+                                                                                                  )
+                                                                                                  ;
+                                                                                                return
+                                                                                                  (
+                                                                                                    $MATCH
+                                                                                                  )
+                                                                                                  ;
+                                                                                            }
+                                                                                            else
+                                                                                            {
+                                                                                            }
+                                                                                        };
+                                                                                        1
+                                                                                          ;
+                                                                                    }
+                                                                                  )
                                                                             );
                                                                         }
                                                                     )
-                                                                    )
+                                                                  )
                                                             );
-                                                            }
+                                                          }
                                                     );
                                                 }
-                                                || (do {
+                                                || (
+                                                    do {
                                                         $MATCH->to($pos1);
-                                                        (   ( ( '{' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
+                                                        (
+                                                            (
+                                                                (
+                                                                    '{' eq
+                                                                      substr(
+                                                                        $str,
+                                                                        $MATCH
+                                                                          ->to(
+                                                                          ),
+                                                                        1
+                                                                      )
+                                                                )
+                                                                ? (
+                                                                    1 +
+                                                                      $MATCH
+                                                                      ->to(
+                                                                        (
+                                                                            1 +
+                                                                              $MATCH
+                                                                              ->to
+                                                                              (
+                                                                              )
+                                                                        )
+                                                                      )
+                                                                  )
+                                                                : 0
+                                                            )
+                                                              && (
                                                                 do {
-                                                                    my $m2 = $grammar->parsed_code( $str, $MATCH->to() );
+                                                                    my $m2 =
+                                                                      $grammar
+                                                                      ->parsed_code
+                                                                      (
+                                                                        $str,
+                                                                        $MATCH
+                                                                          ->to(
+                                                                          )
+                                                                      );
                                                                     do {
-                                                                        if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'parsed_code'} = $m2; 1 }
-                                                                        else     {0}
+                                                                        if ($m2)
+                                                                        {
+                                                                            $MATCH
+                                                                              ->to
+                                                                              (
+                                                                                $m2
+                                                                                  ->to
+                                                                                  (
+                                                                                  )
+                                                                              );
+                                                                            $MATCH
+                                                                              ->{
+'parsed_code'
+                                                                              }
+                                                                              = $m2;
+                                                                            1;
                                                                         }
+                                                                        else {
+                                                                            0;
+                                                                        }
+                                                                      }
                                                                 }
                                                                 && do {
-                                                                    my $ret = sub {
-                                                                        my $List__ = \@_;
-                                                                        do { [] };
-                                                                        do { return ( Rule::Block->new( 'closure' => ${ $MATCH->{'parsed_code'} }, ) ) };
-                                                                        '974^213';
-                                                                        }
-                                                                        ->();
+                                                                    my $ret =
+                                                                      sub {
+                                                                        my $List__
+                                                                          = \@_;
+                                                                        do {
+                                                                            [];
+                                                                        };
+                                                                        do {
+                                                                            return
+                                                                              (
+                                                                                Rule::Block
+                                                                                  ->new(
+'closure'
+                                                                                      =>
+                                                                                      ${
+                                                                                        $MATCH
+                                                                                          ->
+                                                                                          {
+'parsed_code'
+                                                                                          }
+                                                                                      }
+                                                                                    ,
+                                                                                  )
+                                                                              );
+                                                                        };
+'974^213';
+                                                                      }
+                                                                      ->();
                                                                     do {
-                                                                        if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                                        else                         { }
+                                                                        if (
+                                                                            (
+                                                                                $ret
+                                                                                ne
+'974^213'
+                                                                            )
+                                                                          )
+                                                                        {
+                                                                            $MATCH
+                                                                              ->capture
+                                                                              (
+                                                                                $ret
+                                                                              );
+                                                                            $MATCH
+                                                                              ->bool
+                                                                              (1
+                                                                              );
+                                                                            return
+                                                                              (
+                                                                                $MATCH
+                                                                              );
+                                                                        }
+                                                                        else { }
                                                                     };
                                                                     1;
                                                                 }
-                                                            )
+                                                              )
                                                         );
                                                     }
-                                                    || (do {
+                                                    || (
+                                                        do {
                                                             $MATCH->to($pos1);
-                                                            (   do {
-                                                                    my $m2 = KindaPerl6::Grammar->backslash( $str, $MATCH->to() );
+                                                            (
+                                                                do {
+                                                                    my $m2 =
+                                                                      KindaPerl6::Grammar
+                                                                      ->backslash(
+                                                                        $str,
+                                                                        $MATCH
+                                                                          ->to(
+                                                                          )
+                                                                      );
                                                                     do {
-                                                                        if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'KindaPerl6::Grammar.backslash'} = $m2; 1 }
-                                                                        else     {0}
+                                                                        if ($m2)
+                                                                        {
+                                                                            $MATCH
+                                                                              ->to
+                                                                              (
+                                                                                $m2
+                                                                                  ->to
+                                                                                  (
+                                                                                  )
+                                                                              );
+                                                                            $MATCH
+                                                                              ->{
+'KindaPerl6::Grammar.backslash'
+                                                                              }
+                                                                              = $m2;
+                                                                            1;
                                                                         }
-                                                                    }
-                                                                    && do {
-                                                                    my $pos1 = $MATCH->to();
+                                                                        else {
+                                                                            0;
+                                                                        }
+                                                                      }
+                                                                  }
+                                                                  && do {
+                                                                    my $pos1 =
+                                                                      $MATCH
+                                                                      ->to();
                                                                     do {
-                                                                        (   do {
-                                                                                my $m2 = $grammar->any( $str, $MATCH->to() );
-                                                                                do {
-                                                                                    if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'any'} = $m2; 1 }
-                                                                                    else     {0}
+                                                                        (
+                                                                            do {
+                                                                                my $m2
+                                                                                  =
+                                                                                  $grammar
+                                                                                  ->any
+                                                                                  (
+                                                                                    $str,
+                                                                                    $MATCH
+                                                                                      ->to
+                                                                                      (
+                                                                                      )
+                                                                                  )
+                                                                                  ;
+                                                                                do
+                                                                                {
+                                                                                    if
+                                                                                      (
+                                                                                        $m2
+                                                                                      )
+                                                                                    {
+                                                                                        $MATCH
+                                                                                          ->to
+                                                                                          (
+                                                                                            $m2
+                                                                                              ->to
+                                                                                              (
+                                                                                              )
+                                                                                          )
+                                                                                          ;
+                                                                                        $MATCH
+                                                                                          ->
+                                                                                          {
+'any'
+                                                                                          }
+                                                                                          =
+                                                                                          $m2;
+                                                                                        1
+                                                                                          ;
                                                                                     }
-                                                                                }
-                                                                                && do {
-                                                                                my $ret = sub {
-                                                                                    my $List__ = \@_;
-                                                                                    do { [] };
-                                                                                    do { return ( Rule::SpecialChar->new( 'char' => ${ $MATCH->{'any'} }, ) ) };
-                                                                                    '974^213';
+                                                                                    else
+                                                                                    {
+                                                                                        0
+                                                                                          ;
                                                                                     }
-                                                                                    ->();
-                                                                                do {
-                                                                                    if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                                                    else                         { }
+                                                                                  }
+                                                                              }
+                                                                              && do
+                                                                            {
+                                                                                my $ret
+                                                                                  =
+                                                                                  sub
+                                                                                {
+                                                                                    my $List__
+                                                                                      =
+                                                                                      \
+                                                                                      @_;
+                                                                                    do
+                                                                                    {
+                                                                                        [
+                                                                                        ]
+                                                                                        ;
+                                                                                    };
+                                                                                    do
+                                                                                    {
+                                                                                        return
+                                                                                          (
+                                                                                            Rule::SpecialChar
+                                                                                              ->new(
+'char'
+                                                                                                  =>
+                                                                                                  ${
+                                                                                                    $MATCH
+                                                                                                      ->
+                                                                                                      {
+'any'
+                                                                                                      }
+                                                                                                  }
+                                                                                                ,
+                                                                                              )
+                                                                                          )
+                                                                                          ;
+                                                                                    };
+'974^213';
+                                                                                  }
+                                                                                  ->
+                                                                                  (
+                                                                                  )
+                                                                                  ;
+                                                                                do
+                                                                                {
+                                                                                    if
+                                                                                      (
+                                                                                        (
+                                                                                            $ret
+                                                                                            ne
+'974^213'
+                                                                                        )
+                                                                                      )
+                                                                                    {
+                                                                                        $MATCH
+                                                                                          ->capture
+                                                                                          (
+                                                                                            $ret
+                                                                                          )
+                                                                                          ;
+                                                                                        $MATCH
+                                                                                          ->bool
+                                                                                          (
+                                                                                            1
+                                                                                          )
+                                                                                          ;
+                                                                                        return
+                                                                                          (
+                                                                                            $MATCH
+                                                                                          )
+                                                                                          ;
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                    }
                                                                                 };
-                                                                                1;
-                                                                                }
+                                                                                1
+                                                                                  ;
+                                                                              }
                                                                         );
-                                                                        }
-                                                                    }
+                                                                      }
+                                                                  }
                                                             );
                                                         }
-                                                        || (do {
-                                                                $MATCH->to($pos1);
-                                                                (   ( ( '.' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
-                                                                        my $ret = sub {
-                                                                            my $List__ = \@_;
-                                                                            do { [] };
-                                                                            do { return ( Rule::Dot->new( 'dot' => 1, ) ) };
-                                                                            '974^213';
-                                                                            }
-                                                                            ->();
+                                                        || (
+                                                            do {
+                                                                $MATCH->to(
+                                                                    $pos1);
+                                                                (
+                                                                    (
+                                                                        (
+                                                                            '.'
+                                                                              eq
+                                                                              substr
+                                                                              (
+                                                                                $str,
+                                                                                $MATCH
+                                                                                  ->to
+                                                                                  (
+                                                                                  )
+                                                                                ,
+                                                                                1
+                                                                              )
+                                                                        )
+                                                                        ? (
+                                                                            1 +
+                                                                              $MATCH
+                                                                              ->to
+                                                                              (
+                                                                                (
+                                                                                    1
+                                                                                      +
+                                                                                      $MATCH
+                                                                                      ->to
+                                                                                      (
+                                                                                      )
+                                                                                )
+                                                                              )
+                                                                          )
+                                                                        : 0
+                                                                    )
+                                                                      && do {
+                                                                        my $ret
+                                                                          = sub
+                                                                        {
+                                                                            my $List__
+                                                                              = \
+                                                                              @_;
+                                                                            do {
+                                                                                [
+                                                                                ]
+                                                                                ;
+                                                                            };
+                                                                            do {
+                                                                                return
+                                                                                  (
+                                                                                    Rule::Dot
+                                                                                      ->new(
+'dot'
+                                                                                          =>
+                                                                                          1
+                                                                                        ,
+                                                                                      )
+                                                                                  )
+                                                                                  ;
+                                                                            };
+'974^213';
+                                                                          }
+                                                                          ->();
                                                                         do {
-                                                                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                                            else                         { }
+                                                                            if (
+                                                                                (
+                                                                                    $ret
+                                                                                    ne
+'974^213'
+                                                                                )
+                                                                              )
+                                                                            {
+                                                                                $MATCH
+                                                                                  ->capture
+                                                                                  (
+                                                                                    $ret
+                                                                                  )
+                                                                                  ;
+                                                                                $MATCH
+                                                                                  ->bool
+                                                                                  (
+                                                                                    1
+                                                                                  )
+                                                                                  ;
+                                                                                return
+                                                                                  (
+                                                                                    $MATCH
+                                                                                  )
+                                                                                  ;
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                            }
                                                                         };
                                                                         1;
-                                                                        }
+                                                                      }
                                                                 );
                                                             }
                                                             || do {
-                                                                $MATCH->to($pos1);
-                                                                (   ( ( '[' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
+                                                                $MATCH->to(
+                                                                    $pos1);
+                                                                (
+                                                                    (
+                                                                        (
+                                                                            '['
+                                                                              eq
+                                                                              substr
+                                                                              (
+                                                                                $str,
+                                                                                $MATCH
+                                                                                  ->to
+                                                                                  (
+                                                                                  )
+                                                                                ,
+                                                                                1
+                                                                              )
+                                                                        )
+                                                                        ? (
+                                                                            1 +
+                                                                              $MATCH
+                                                                              ->to
+                                                                              (
+                                                                                (
+                                                                                    1
+                                                                                      +
+                                                                                      $MATCH
+                                                                                      ->to
+                                                                                      (
+                                                                                      )
+                                                                                )
+                                                                              )
+                                                                          )
+                                                                        : 0
+                                                                    )
+                                                                      && (
                                                                         do {
-                                                                            my $m2 = $grammar->rule( $str, $MATCH->to() );
+                                                                            my $m2
+                                                                              = $grammar
+                                                                              ->rule
+                                                                              (
+                                                                                $str,
+                                                                                $MATCH
+                                                                                  ->to
+                                                                                  (
+                                                                                  )
+                                                                              );
                                                                             do {
-                                                                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'rule'} = $m2; 1 }
-                                                                                else     {0}
+                                                                                if
+                                                                                  (
+                                                                                    $m2
+                                                                                  )
+                                                                                {
+                                                                                    $MATCH
+                                                                                      ->to
+                                                                                      (
+                                                                                        $m2
+                                                                                          ->to
+                                                                                          (
+                                                                                          )
+                                                                                      )
+                                                                                      ;
+                                                                                    $MATCH
+                                                                                      ->
+                                                                                      {
+'rule'
+                                                                                      }
+                                                                                      =
+                                                                                      $m2;
+                                                                                    1
+                                                                                      ;
                                                                                 }
+                                                                                else
+                                                                                {
+                                                                                    0
+                                                                                      ;
+                                                                                }
+                                                                              }
                                                                         }
-                                                                        && (( ( ']' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
-                                                                                my $ret = sub {
-                                                                                    my $List__ = \@_;
-                                                                                    do { [] };
-                                                                                    do { return ( ${ $MATCH->{'rule'} } ) };
-                                                                                    '974^213';
+                                                                        && (
+                                                                            (
+                                                                                (
+']'
+                                                                                    eq
+                                                                                    substr
+                                                                                    (
+                                                                                        $str,
+                                                                                        $MATCH
+                                                                                          ->to
+                                                                                          (
+                                                                                          )
+                                                                                        ,
+                                                                                        1
+                                                                                    )
+                                                                                )
+                                                                                ?
+                                                                                (
+                                                                                    1
+                                                                                      +
+                                                                                      $MATCH
+                                                                                      ->to
+                                                                                      (
+                                                                                        (
+                                                                                            1
+                                                                                              +
+                                                                                              $MATCH
+                                                                                              ->to
+                                                                                              (
+                                                                                              )
+                                                                                        )
+                                                                                      )
+                                                                                )
+                                                                                :
+                                                                                0
+                                                                            )
+                                                                            && do
+                                                                            {
+                                                                                my $ret
+                                                                                  =
+                                                                                  sub
+                                                                                {
+                                                                                    my $List__
+                                                                                      =
+                                                                                      \
+                                                                                      @_;
+                                                                                    do
+                                                                                    {
+                                                                                        [
+                                                                                        ]
+                                                                                        ;
+                                                                                    };
+                                                                                    do
+                                                                                    {
+                                                                                        return
+                                                                                          (
+                                                                                            ${
+                                                                                                $MATCH
+                                                                                                  ->
+                                                                                                  {
+'rule'
+                                                                                                  }
+                                                                                              }
+                                                                                          )
+                                                                                          ;
+                                                                                    };
+'974^213';
+                                                                                  }
+                                                                                  ->
+                                                                                  (
+                                                                                  )
+                                                                                  ;
+                                                                                do
+                                                                                {
+                                                                                    if
+                                                                                      (
+                                                                                        (
+                                                                                            $ret
+                                                                                            ne
+'974^213'
+                                                                                        )
+                                                                                      )
+                                                                                    {
+                                                                                        $MATCH
+                                                                                          ->capture
+                                                                                          (
+                                                                                            $ret
+                                                                                          )
+                                                                                          ;
+                                                                                        $MATCH
+                                                                                          ->bool
+                                                                                          (
+                                                                                            1
+                                                                                          )
+                                                                                          ;
+                                                                                        return
+                                                                                          (
+                                                                                            $MATCH
+                                                                                          )
+                                                                                          ;
                                                                                     }
-                                                                                    ->();
-                                                                                do {
-                                                                                    if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                                                    else                         { }
+                                                                                    else
+                                                                                    {
+                                                                                    }
                                                                                 };
-                                                                                1;
+                                                                                1
+                                                                                  ;
                                                                             }
                                                                         )
-                                                                    )
+                                                                      )
                                                                 );
                                                             }
                                                         )
@@ -1215,9 +3663,9 @@ sub rule_terms {
                             )
                         )
                     )
-                    )
+                  )
             );
-            }
+          }
     );
     return ($MATCH);
 }
@@ -1229,54 +3677,182 @@ sub term {
     my $pos;
     do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
     my $MATCH;
-    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH = MiniPerl6::Perl5::Match->new(
+        'str'  => $str,
+        'from' => $pos,
+        'to'   => $pos,
+        'bool' => 1,
+    );
     $MATCH->bool(
         do {
             my $pos1 = $MATCH->to();
-            (   do {
-                    (   ( ( '$<' eq substr( $str, $MATCH->to(), 2 ) ) ? ( 1 + $MATCH->to( ( 2 + $MATCH->to() ) ) ) : 0 ) && (
+            (
+                do {
+                    (
+                        (
+                              ( '$<' eq substr( $str, $MATCH->to(), 2 ) )
+                            ? ( 1 + $MATCH->to( ( 2 + $MATCH->to() ) ) )
+                            : 0
+                        )
+                          && (
                             do {
                                 my $m2 = $grammar->ident( $str, $MATCH->to() );
                                 do {
-                                    if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'ident'} = $m2; 1 }
-                                    else     {0}
+                                    if ($m2) {
+                                        $MATCH->to( $m2->to() );
+                                        $MATCH->{'ident'} = $m2;
+                                        1;
                                     }
+                                    else { 0 }
+                                  }
                             }
-                            && (( ( '>' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
+                            && (
+                                (
+                                      ( '>' eq substr( $str, $MATCH->to(), 1 ) )
+                                    ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) )
+                                    : 0
+                                )
+                                && (
                                     do {
-                                        my $m2 = $grammar->ws( $str, $MATCH->to() );
+                                        my $m2 =
+                                          $grammar->ws( $str, $MATCH->to() );
                                         do {
-                                            if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                            else     {0}
+                                            if ($m2) {
+                                                $MATCH->to( $m2->to() );
+                                                1;
                                             }
+                                            else { 0 }
+                                          }
                                     }
-                                    && (( ( ':=' eq substr( $str, $MATCH->to(), 2 ) ) ? ( 1 + $MATCH->to( ( 2 + $MATCH->to() ) ) ) : 0 ) && (
+                                    && (
+                                        (
+                                            (
+                                                ':=' eq
+                                                substr( $str, $MATCH->to(), 2 )
+                                            )
+                                            ? (
+                                                1 + $MATCH->to(
+                                                    ( 2 + $MATCH->to() )
+                                                )
+                                            )
+                                            : 0
+                                        )
+                                        && (
                                             do {
-                                                my $m2 = $grammar->ws( $str, $MATCH->to() );
+                                                my $m2 =
+                                                  $grammar->ws( $str,
+                                                    $MATCH->to() );
                                                 do {
-                                                    if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                                    else     {0}
+                                                    if ($m2) {
+                                                        $MATCH->to( $m2->to() );
+                                                        1;
                                                     }
+                                                    else { 0 }
+                                                  }
                                             }
-                                            && (( ( '(' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
+                                            && (
+                                                (
+                                                    (
+                                                        '(' eq substr(
+                                                            $str, $MATCH->to(),
+                                                            1
+                                                        )
+                                                    )
+                                                    ? (
+                                                        1 + $MATCH->to(
+                                                            (
+                                                                1 + $MATCH->to()
+                                                            )
+                                                        )
+                                                    )
+                                                    : 0
+                                                )
+                                                && (
                                                     do {
-                                                        my $m2 = $grammar->rule( $str, $MATCH->to() );
+                                                        my $m2 =
+                                                          $grammar->rule( $str,
+                                                            $MATCH->to() );
                                                         do {
-                                                            if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'rule'} = $m2; 1 }
-                                                            else     {0}
+                                                            if ($m2) {
+                                                                $MATCH->to(
+                                                                    $m2->to() );
+                                                                $MATCH->{'rule'}
+                                                                  = $m2;
+                                                                1;
                                                             }
+                                                            else { 0 }
+                                                          }
                                                     }
-                                                    && (( ( ')' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
+                                                    && (
+                                                        (
+                                                            (
+                                                                ')' eq substr(
+                                                                    $str,
+                                                                    $MATCH->to(
+                                                                    ),
+                                                                    1
+                                                                )
+                                                            )
+                                                            ? (
+                                                                1 + $MATCH->to(
+                                                                    (
+                                                                        1 +
+                                                                          $MATCH
+                                                                          ->to(
+                                                                          )
+                                                                    )
+                                                                )
+                                                            )
+                                                            : 0
+                                                        )
+                                                        && do {
                                                             my $ret = sub {
-                                                                my $List__ = \@_;
+                                                                my $List__ =
+                                                                  \@_;
                                                                 do { [] };
-                                                                do { return ( Rule::NamedCapture->new( 'rule' => ${ $MATCH->{'rule'} }, 'ident' => ${ $MATCH->{'ident'} }, ) ) };
+                                                                do {
+                                                                    return (
+                                                                        Rule::NamedCapture
+                                                                          ->new(
+'rule'
+                                                                              => ${
+                                                                                $MATCH
+                                                                                  ->
+                                                                                  {
+'rule'
+                                                                                  }
+                                                                              },
+'ident'
+                                                                              => ${
+                                                                                $MATCH
+                                                                                  ->
+                                                                                  {
+'ident'
+                                                                                  }
+                                                                              },
+                                                                          )
+                                                                    );
+                                                                };
                                                                 '974^213';
-                                                                }
-                                                                ->();
+                                                              }
+                                                              ->();
                                                             do {
-                                                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                                else                         { }
+                                                                if (
+                                                                    (
+                                                                        $ret ne
+'974^213'
+                                                                    )
+                                                                  )
+                                                                {
+                                                                    $MATCH
+                                                                      ->capture(
+                                                                        $ret);
+                                                                    $MATCH
+                                                                      ->bool(1);
+                                                                    return (
+                                                                        $MATCH);
+                                                                }
+                                                                else { }
                                                             };
                                                             1;
                                                         }
@@ -1287,130 +3863,651 @@ sub term {
                                     )
                                 )
                             )
-                        )
+                          )
                     );
-                    }
-                    || (
+                  }
+                  || (
                     do {
                         $MATCH->to($pos1);
-                        (   do {
-                                my $m2 = $grammar->variables( $str, $MATCH->to() );
+                        (
+                            do {
+                                my $m2 =
+                                  $grammar->variables( $str, $MATCH->to() );
                                 do {
-                                    if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'variables'} = $m2; 1 }
-                                    else     {0}
+                                    if ($m2) {
+                                        $MATCH->to( $m2->to() );
+                                        $MATCH->{'variables'} = $m2;
+                                        1;
                                     }
-                                }
-                                && do {
+                                    else { 0 }
+                                  }
+                              }
+                              && do {
                                 my $pos1 = $MATCH->to();
-                                (   do {
-                                        (   do {
-                                                my $m2 = $grammar->ws( $str, $MATCH->to() );
+                                (
+                                    do {
+                                        (
+                                            do {
+                                                my $m2 =
+                                                  $grammar->ws( $str,
+                                                    $MATCH->to() );
                                                 do {
-                                                    if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                                    else     {0}
+                                                    if ($m2) {
+                                                        $MATCH->to( $m2->to() );
+                                                        1;
                                                     }
-                                                }
+                                                    else { 0 }
+                                                  }
+                                              }
+                                              && (
+                                                (
+                                                    (
+                                                        ':=' eq substr(
+                                                            $str, $MATCH->to(),
+                                                            2
+                                                        )
+                                                    )
+                                                    ? (
+                                                        1 + $MATCH->to(
+                                                            (
+                                                                2 + $MATCH->to()
+                                                            )
+                                                        )
+                                                    )
+                                                    : 0
+                                                )
                                                 && (
-                                                ( ( ':=' eq substr( $str, $MATCH->to(), 2 ) ) ? ( 1 + $MATCH->to( ( 2 + $MATCH->to() ) ) ) : 0 ) && (
                                                     do {
-                                                        my $m2 = $grammar->ws( $str, $MATCH->to() );
+                                                        my $m2 =
+                                                          $grammar->ws( $str,
+                                                            $MATCH->to() );
                                                         do {
-                                                            if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                                            else     {0}
+                                                            if ($m2) {
+                                                                $MATCH->to(
+                                                                    $m2->to() );
+                                                                1;
                                                             }
+                                                            else { 0 }
+                                                          }
                                                     }
-                                                    && (do {
-                                                            my $m2 = $grammar->named_capture_body( $str, $MATCH->to() );
+                                                    && (
+                                                        do {
+                                                            my $m2 =
+                                                              $grammar
+                                                              ->named_capture_body
+                                                              ( $str,
+                                                                $MATCH->to() );
                                                             do {
-                                                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'named_capture_body'} = $m2; 1 }
-                                                                else     {0}
+                                                                if ($m2) {
+                                                                    $MATCH->to(
+                                                                        $m2->to(
+                                                                        )
+                                                                    );
+                                                                    $MATCH->{
+'named_capture_body'
+                                                                      } = $m2;
+                                                                    1;
                                                                 }
+                                                                else { 0 }
+                                                              }
                                                         }
                                                         && do {
                                                             my $ret = sub {
-                                                                my $List__ = \@_;
+                                                                my $List__ =
+                                                                  \@_;
                                                                 do { [] };
-                                                                do { return ( Rule::NamedCapture->new( 'rule' => ${ $MATCH->{'named_capture_body'} }, 'ident' => ${ $MATCH->{'variables'} }, ) ) };
+                                                                do {
+                                                                    return (
+                                                                        Rule::NamedCapture
+                                                                          ->new(
+'rule'
+                                                                              => ${
+                                                                                $MATCH
+                                                                                  ->
+                                                                                  {
+'named_capture_body'
+                                                                                  }
+                                                                              },
+'ident'
+                                                                              => ${
+                                                                                $MATCH
+                                                                                  ->
+                                                                                  {
+'variables'
+                                                                                  }
+                                                                              },
+                                                                          )
+                                                                    );
+                                                                };
                                                                 '974^213';
-                                                                }
-                                                                ->();
+                                                              }
+                                                              ->();
                                                             do {
-                                                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                                else                         { }
+                                                                if (
+                                                                    (
+                                                                        $ret ne
+'974^213'
+                                                                    )
+                                                                  )
+                                                                {
+                                                                    $MATCH
+                                                                      ->capture(
+                                                                        $ret);
+                                                                    $MATCH
+                                                                      ->bool(1);
+                                                                    return (
+                                                                        $MATCH);
+                                                                }
+                                                                else { }
                                                             };
                                                             1;
                                                         }
                                                     )
                                                 )
-                                                )
+                                              )
                                         );
-                                        }
-                                        || do {
+                                      }
+                                      || do {
                                         $MATCH->to($pos1);
                                         do {
                                             my $ret = sub {
                                                 my $List__ = \@_;
                                                 do { [] };
-                                                do { return ( ${ $MATCH->{'variables'} } ) };
+                                                do {
+                                                    return (
+                                                        ${
+                                                            $MATCH->{
+                                                                'variables'}
+                                                          }
+                                                    );
+                                                };
                                                 '974^213';
-                                                }
-                                                ->();
+                                              }
+                                              ->();
                                             do {
-                                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                else                         { }
+                                                if ( ( $ret ne '974^213' ) ) {
+                                                    $MATCH->capture($ret);
+                                                    $MATCH->bool(1);
+                                                    return ($MATCH);
+                                                }
+                                                else { }
                                             };
                                             1;
-                                            }
-                                        }
+                                          }
+                                      }
                                 );
-                                }
+                              }
                         );
                     }
-                    || (do {
+                    || (
+                        do {
                             $MATCH->to($pos1);
-                            (   do {
-                                    my $m2 = $grammar->rule_terms( $str, $MATCH->to() );
+                            (
+                                do {
+                                    my $m2 =
+                                      $grammar->rule_terms( $str,
+                                        $MATCH->to() );
                                     do {
-                                        if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'rule_terms'} = $m2; 1 }
-                                        else     {0}
+                                        if ($m2) {
+                                            $MATCH->to( $m2->to() );
+                                            $MATCH->{'rule_terms'} = $m2;
+                                            1;
                                         }
-                                    }
-                                    && do {
+                                        else { 0 }
+                                      }
+                                  }
+                                  && do {
                                     my $ret = sub {
                                         my $List__ = \@_;
                                         do { [] };
-                                        do { return ( ${ $MATCH->{'rule_terms'} } ) };
+                                        do {
+                                            return (
+                                                ${ $MATCH->{'rule_terms'} } );
+                                        };
                                         '974^213';
-                                        }
-                                        ->();
+                                      }
+                                      ->();
                                     do {
-                                        if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                        else                         { }
+                                        if ( ( $ret ne '974^213' ) ) {
+                                            $MATCH->capture($ret);
+                                            $MATCH->bool(1);
+                                            return ($MATCH);
+                                        }
+                                        else { }
                                     };
                                     1;
-                                    }
+                                  }
                             );
                         }
                         || do {
                             $MATCH->to($pos1);
-                            (   do {
+                            (
+                                do {
                                     my $tmp = $MATCH;
-                                    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $tmp->to(), 'to' => $tmp->to(), 'bool' => 1, );
+                                    $MATCH = MiniPerl6::Perl5::Match->new(
+                                        'str'  => $str,
+                                        'from' => $tmp->to(),
+                                        'to'   => $tmp->to(),
+                                        'bool' => 1,
+                                    );
                                     $MATCH->bool(
                                         do {
                                             my $pos1 = $MATCH->to();
-                                            (   do { ( ( ']' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) }
+                                            (
+                                                do {
+                                                    (
+                                                        (
+                                                            ']' eq substr(
+                                                                $str,
+                                                                $MATCH->to(), 1
+                                                            )
+                                                        )
+                                                        ? (
+                                                            1 + $MATCH->to(
+                                                                (
+                                                                    1 +
+                                                                      $MATCH
+                                                                      ->to(
+                                                                      )
+                                                                )
+                                                            )
+                                                          )
+                                                        : 0
+                                                    );
+                                                  }
+                                                  || (
+                                                    do {
+                                                        $MATCH->to($pos1);
+                                                        (
+                                                            (
+                                                                '}' eq substr(
+                                                                    $str,
+                                                                    $MATCH->to(
+                                                                    ),
+                                                                    1
+                                                                )
+                                                            )
+                                                            ? (
+                                                                1 + $MATCH->to(
+                                                                    (
+                                                                        1 +
+                                                                          $MATCH
+                                                                          ->to(
+                                                                          )
+                                                                    )
+                                                                )
+                                                              )
+                                                            : 0
+                                                        );
+                                                    }
                                                     || (
-                                                    do { $MATCH->to($pos1); ( ( '}' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) }
-                                                    || (do { $MATCH->to($pos1); ( ( ')' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) }
-                                                        || (do { $MATCH->to($pos1); ( ( '>' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) }
-                                                            || (do { $MATCH->to($pos1); ( ( ':' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) }
-                                                                || (do { $MATCH->to($pos1); ( ( '?' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) }
-                                                                    || (do { $MATCH->to($pos1); ( ( '+' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) }
-                                                                        || (do { $MATCH->to($pos1); ( ( '*' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) }
-                                                                            || (do { $MATCH->to($pos1); ( ( '|' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) }
-                                                                                || (do    { $MATCH->to($pos1); ( ( '&' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) }
-                                                                                    || do { $MATCH->to($pos1); ( ( '/' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) }
+                                                        do {
+                                                            $MATCH->to($pos1);
+                                                            (
+                                                                (
+                                                                    ')' eq
+                                                                      substr(
+                                                                        $str,
+                                                                        $MATCH
+                                                                          ->to(
+                                                                          ),
+                                                                        1
+                                                                      )
+                                                                )
+                                                                ? (
+                                                                    1 +
+                                                                      $MATCH
+                                                                      ->to(
+                                                                        (
+                                                                            1 +
+                                                                              $MATCH
+                                                                              ->to
+                                                                              (
+                                                                              )
+                                                                        )
+                                                                      )
+                                                                  )
+                                                                : 0
+                                                            );
+                                                        }
+                                                        || (
+                                                            do {
+                                                                $MATCH->to(
+                                                                    $pos1);
+                                                                (
+                                                                    (
+                                                                        '>' eq
+                                                                          substr
+                                                                          (
+                                                                            $str,
+                                                                            $MATCH
+                                                                              ->to
+                                                                              (
+                                                                              ),
+                                                                            1
+                                                                          )
+                                                                    )
+                                                                    ? (
+                                                                        1 +
+                                                                          $MATCH
+                                                                          ->to(
+                                                                            (
+                                                                                1
+                                                                                  +
+                                                                                  $MATCH
+                                                                                  ->to
+                                                                                  (
+                                                                                  )
+                                                                            )
+                                                                          )
+                                                                      )
+                                                                    : 0
+                                                                );
+                                                            }
+                                                            || (
+                                                                do {
+                                                                    $MATCH->to(
+                                                                        $pos1);
+                                                                    (
+                                                                        (
+                                                                            ':'
+                                                                              eq
+                                                                              substr
+                                                                              (
+                                                                                $str,
+                                                                                $MATCH
+                                                                                  ->to
+                                                                                  (
+                                                                                  )
+                                                                                ,
+                                                                                1
+                                                                              )
+                                                                        )
+                                                                        ? (
+                                                                            1 +
+                                                                              $MATCH
+                                                                              ->to
+                                                                              (
+                                                                                (
+                                                                                    1
+                                                                                      +
+                                                                                      $MATCH
+                                                                                      ->to
+                                                                                      (
+                                                                                      )
+                                                                                )
+                                                                              )
+                                                                          )
+                                                                        : 0
+                                                                    );
+                                                                }
+                                                                || (
+                                                                    do {
+                                                                        $MATCH
+                                                                          ->to(
+                                                                            $pos1
+                                                                          );
+                                                                        (
+                                                                            (
+'?'
+                                                                                  eq
+                                                                                  substr
+                                                                                  (
+                                                                                    $str,
+                                                                                    $MATCH
+                                                                                      ->to
+                                                                                      (
+                                                                                      )
+                                                                                    ,
+                                                                                    1
+                                                                                  )
+                                                                            )
+                                                                            ? (
+                                                                                1
+                                                                                  +
+                                                                                  $MATCH
+                                                                                  ->to
+                                                                                  (
+                                                                                    (
+                                                                                        1
+                                                                                          +
+                                                                                          $MATCH
+                                                                                          ->to
+                                                                                          (
+                                                                                          )
+                                                                                    )
+                                                                                  )
+                                                                              )
+                                                                            : 0
+                                                                        );
+                                                                    }
+                                                                    || (
+                                                                        do {
+                                                                            $MATCH
+                                                                              ->to
+                                                                              (
+                                                                                $pos1
+                                                                              );
+                                                                            (
+                                                                                (
+'+'
+                                                                                      eq
+                                                                                      substr
+                                                                                      (
+                                                                                        $str,
+                                                                                        $MATCH
+                                                                                          ->to
+                                                                                          (
+                                                                                          )
+                                                                                        ,
+                                                                                        1
+                                                                                      )
+                                                                                )
+                                                                                ?
+                                                                                  (
+                                                                                    1
+                                                                                      +
+                                                                                      $MATCH
+                                                                                      ->to
+                                                                                      (
+                                                                                        (
+                                                                                            1
+                                                                                              +
+                                                                                              $MATCH
+                                                                                              ->to
+                                                                                              (
+                                                                                              )
+                                                                                        )
+                                                                                      )
+                                                                                  )
+                                                                                :
+                                                                                  0
+                                                                            );
+                                                                        }
+                                                                        || (
+                                                                            do {
+                                                                                $MATCH
+                                                                                  ->to
+                                                                                  (
+                                                                                    $pos1
+                                                                                  )
+                                                                                  ;
+                                                                                (
+                                                                                    (
+'*'
+                                                                                          eq
+                                                                                          substr
+                                                                                          (
+                                                                                            $str,
+                                                                                            $MATCH
+                                                                                              ->to
+                                                                                              (
+                                                                                              )
+                                                                                            ,
+                                                                                            1
+                                                                                          )
+                                                                                    )
+                                                                                    ?
+                                                                                      (
+                                                                                        1
+                                                                                          +
+                                                                                          $MATCH
+                                                                                          ->to
+                                                                                          (
+                                                                                            (
+                                                                                                1
+                                                                                                  +
+                                                                                                  $MATCH
+                                                                                                  ->to
+                                                                                                  (
+                                                                                                  )
+                                                                                            )
+                                                                                          )
+                                                                                      )
+                                                                                    :
+                                                                                      0
+                                                                                  )
+                                                                                  ;
+                                                                            }
+                                                                            || (
+                                                                                do
+                                                                                {
+                                                                                    $MATCH
+                                                                                      ->to
+                                                                                      (
+                                                                                        $pos1
+                                                                                      )
+                                                                                      ;
+                                                                                    (
+                                                                                        (
+'|'
+                                                                                              eq
+                                                                                              substr
+                                                                                              (
+                                                                                                $str,
+                                                                                                $MATCH
+                                                                                                  ->to
+                                                                                                  (
+                                                                                                  )
+                                                                                                ,
+                                                                                                1
+                                                                                              )
+                                                                                        )
+                                                                                        ?
+                                                                                          (
+                                                                                            1
+                                                                                              +
+                                                                                              $MATCH
+                                                                                              ->to
+                                                                                              (
+                                                                                                (
+                                                                                                    1
+                                                                                                      +
+                                                                                                      $MATCH
+                                                                                                      ->to
+                                                                                                      (
+                                                                                                      )
+                                                                                                )
+                                                                                              )
+                                                                                          )
+                                                                                        :
+                                                                                          0
+                                                                                      )
+                                                                                      ;
+                                                                                }
+                                                                                ||
+                                                                                (
+                                                                                    do
+                                                                                    {
+                                                                                        $MATCH
+                                                                                          ->to
+                                                                                          (
+                                                                                            $pos1
+                                                                                          )
+                                                                                          ;
+                                                                                        (
+                                                                                            (
+'&'
+                                                                                                  eq
+                                                                                                  substr
+                                                                                                  (
+                                                                                                    $str,
+                                                                                                    $MATCH
+                                                                                                      ->to
+                                                                                                      (
+                                                                                                      )
+                                                                                                    ,
+                                                                                                    1
+                                                                                                  )
+                                                                                            )
+                                                                                            ?
+                                                                                              (
+                                                                                                1
+                                                                                                  +
+                                                                                                  $MATCH
+                                                                                                  ->to
+                                                                                                  (
+                                                                                                    (
+                                                                                                        1
+                                                                                                          +
+                                                                                                          $MATCH
+                                                                                                          ->to
+                                                                                                          (
+                                                                                                          )
+                                                                                                    )
+                                                                                                  )
+                                                                                              )
+                                                                                            :
+                                                                                              0
+                                                                                          )
+                                                                                          ;
+                                                                                    }
+                                                                                    ||
+                                                                                    do
+                                                                                    {
+                                                                                        $MATCH
+                                                                                          ->to
+                                                                                          (
+                                                                                            $pos1
+                                                                                          )
+                                                                                          ;
+                                                                                        (
+                                                                                            (
+'/'
+                                                                                                  eq
+                                                                                                  substr
+                                                                                                  (
+                                                                                                    $str,
+                                                                                                    $MATCH
+                                                                                                      ->to
+                                                                                                      (
+                                                                                                      )
+                                                                                                    ,
+                                                                                                    1
+                                                                                                  )
+                                                                                            )
+                                                                                            ?
+                                                                                              (
+                                                                                                1
+                                                                                                  +
+                                                                                                  $MATCH
+                                                                                                  ->to
+                                                                                                  (
+                                                                                                    (
+                                                                                                        1
+                                                                                                          +
+                                                                                                          $MATCH
+                                                                                                          ->to
+                                                                                                          (
+                                                                                                          )
+                                                                                                    )
+                                                                                                  )
+                                                                                              )
+                                                                                            :
+                                                                                              0
+                                                                                          )
+                                                                                          ;
+                                                                                    }
                                                                                 )
                                                                             )
                                                                         )
@@ -1419,43 +4516,59 @@ sub term {
                                                             )
                                                         )
                                                     )
-                                                    )
+                                                  )
                                             );
-                                            }
+                                          }
                                     );
                                     $tmp->bool( ( $MATCH ? 0 : 1 ) );
                                     $MATCH = $tmp;
                                     ( $MATCH ? 1 : 0 );
-                                    }
-                                    && (
+                                  }
+                                  && (
                                     do {
-                                        my $m2 = $grammar->any( $str, $MATCH->to() );
+                                        my $m2 =
+                                          $grammar->any( $str, $MATCH->to() );
                                         do {
-                                            if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'any'} = $m2; 1 }
-                                            else     {0}
+                                            if ($m2) {
+                                                $MATCH->to( $m2->to() );
+                                                $MATCH->{'any'} = $m2;
+                                                1;
                                             }
+                                            else { 0 }
+                                          }
                                     }
                                     && do {
                                         my $ret = sub {
                                             my $List__ = \@_;
                                             do { [] };
-                                            do { return ( Rule::Constant->new( 'constant' => ${ $MATCH->{'any'} }, ) ) };
+                                            do {
+                                                return (
+                                                    Rule::Constant->new(
+                                                        'constant' =>
+                                                          ${ $MATCH->{'any'} },
+                                                    )
+                                                );
+                                            };
                                             '974^213';
-                                            }
-                                            ->();
+                                          }
+                                          ->();
                                         do {
-                                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                            else                         { }
+                                            if ( ( $ret ne '974^213' ) ) {
+                                                $MATCH->capture($ret);
+                                                $MATCH->bool(1);
+                                                return ($MATCH);
+                                            }
+                                            else { }
                                         };
                                         1;
                                     }
-                                    )
+                                  )
                             );
                         }
                     )
-                    )
+                  )
             );
-            }
+          }
     );
     return ($MATCH);
 }
@@ -1467,60 +4580,134 @@ sub quant {
     my $pos;
     do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
     my $MATCH;
-    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH = MiniPerl6::Perl5::Match->new(
+        'str'  => $str,
+        'from' => $pos,
+        'to'   => $pos,
+        'bool' => 1,
+    );
     $MATCH->bool(
         do {
             my $pos1 = $MATCH->to();
-            (   do {
-                    (   ( ( '**' eq substr( $str, $MATCH->to(), 2 ) ) ? ( 1 + $MATCH->to( ( 2 + $MATCH->to() ) ) ) : 0 ) && (
+            (
+                do {
+                    (
+                        (
+                              ( '**' eq substr( $str, $MATCH->to(), 2 ) )
+                            ? ( 1 + $MATCH->to( ( 2 + $MATCH->to() ) ) )
+                            : 0
+                        )
+                          && (
                             do {
-                                my $m2 = KindaPerl6::Grammar->opt_ws( $str, $MATCH->to() );
+                                my $m2 =
+                                  KindaPerl6::Grammar->opt_ws( $str,
+                                    $MATCH->to() );
                                 do {
                                     if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                    else     {0}
-                                    }
+                                    else     { 0 }
+                                  }
                             }
-                            && (( ( '{' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
+                            && (
+                                (
+                                      ( '{' eq substr( $str, $MATCH->to(), 1 ) )
+                                    ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) )
+                                    : 0
+                                )
+                                && (
                                     do {
-                                        my $m2 = $grammar->parsed_code( $str, $MATCH->to() );
+                                        my $m2 =
+                                          $grammar->parsed_code( $str,
+                                            $MATCH->to() );
                                         do {
-                                            if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'parsed_code'} = $m2; 1 }
-                                            else     {0}
+                                            if ($m2) {
+                                                $MATCH->to( $m2->to() );
+                                                $MATCH->{'parsed_code'} = $m2;
+                                                1;
                                             }
+                                            else { 0 }
+                                          }
                                     }
                                     && do {
                                         my $ret = sub {
                                             my $List__ = \@_;
                                             do { [] };
-                                            do { return ( { 'closure' => ${ $MATCH->{'parsed_code'} }, } ) };
+                                            do {
+                                                return (
+                                                    {
+                                                        'closure' => ${
+                                                            $MATCH->{
+                                                                'parsed_code'}
+                                                          },
+                                                    }
+                                                );
+                                            };
                                             '974^213';
-                                            }
-                                            ->();
+                                          }
+                                          ->();
                                         do {
-                                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                            else                         { }
+                                            if ( ( $ret ne '974^213' ) ) {
+                                                $MATCH->capture($ret);
+                                                $MATCH->bool(1);
+                                                return ($MATCH);
+                                            }
+                                            else { }
                                         };
                                         1;
                                     }
                                 )
                             )
-                        )
+                          )
                     );
-                    }
-                    || do {
+                  }
+                  || do {
                     $MATCH->to($pos1);
                     do {
                         my $pos1 = $MATCH->to();
-                        (   do { ( ( '?' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) }
-                                || (
-                                do    { $MATCH->to($pos1); ( ( '*' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) }
-                                || do { $MATCH->to($pos1); ( ( '+' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) }
-                                )
+                        (
+                            do {
+                                (
+                                      ( '?' eq substr( $str, $MATCH->to(), 1 ) )
+                                    ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) )
+                                    : 0
+                                );
+                              }
+                              || (
+                                do {
+                                    $MATCH->to($pos1);
+                                    (
+                                        (
+                                            '*' eq
+                                              substr( $str, $MATCH->to(), 1 )
+                                        )
+                                        ? (
+                                            1 + $MATCH->to(
+                                                ( 1 + $MATCH->to() )
+                                            )
+                                          )
+                                        : 0
+                                    );
+                                }
+                                || do {
+                                    $MATCH->to($pos1);
+                                    (
+                                        (
+                                            '+' eq
+                                              substr( $str, $MATCH->to(), 1 )
+                                        )
+                                        ? (
+                                            1 + $MATCH->to(
+                                                ( 1 + $MATCH->to() )
+                                            )
+                                          )
+                                        : 0
+                                    );
+                                }
+                              )
                         );
-                        }
-                    }
+                      }
+                  }
             );
-            }
+          }
     );
     return ($MATCH);
 }
@@ -1532,17 +4719,32 @@ sub greedy {
     my $pos;
     do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
     my $MATCH;
-    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH = MiniPerl6::Perl5::Match->new(
+        'str'  => $str,
+        'from' => $pos,
+        'to'   => $pos,
+        'bool' => 1,
+    );
     $MATCH->bool(
         do {
             my $pos1 = $MATCH->to();
-            (   do { ( ( '?' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) }
-                    || (
-                    do { $MATCH->to($pos1); ( ( '+' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) }
+            (
+                do {
+                    (     ( '?' eq substr( $str, $MATCH->to(), 1 ) )
+                        ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) )
+                        : 0 );
+                  }
+                  || (
+                    do {
+                        $MATCH->to($pos1);
+                        (     ( '+' eq substr( $str, $MATCH->to(), 1 ) )
+                            ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) )
+                            : 0 );
+                    }
                     || do { $MATCH->to($pos1); 1 }
-                    )
+                  )
             );
-            }
+          }
     );
     return ($MATCH);
 }
@@ -1554,57 +4756,95 @@ sub quantifier {
     my $pos;
     do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
     my $MATCH;
-    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH = MiniPerl6::Perl5::Match->new(
+        'str'  => $str,
+        'from' => $pos,
+        'to'   => $pos,
+        'bool' => 1,
+    );
     $MATCH->bool(
         do {
             my $pos1 = $MATCH->to();
             do {
-                (   do {
-                        my $m2 = KindaPerl6::Grammar->opt_ws( $str, $MATCH->to() );
+                (
+                    do {
+                        my $m2 =
+                          KindaPerl6::Grammar->opt_ws( $str, $MATCH->to() );
                         do {
                             if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                            else     {0}
-                            }
-                        }
-                        && (
+                            else     { 0 }
+                          }
+                      }
+                      && (
                         do {
                             my $m2 = $grammar->term( $str, $MATCH->to() );
                             do {
-                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'term'} = $m2; 1 }
-                                else     {0}
+                                if ($m2) {
+                                    $MATCH->to( $m2->to() );
+                                    $MATCH->{'term'} = $m2;
+                                    1;
                                 }
+                                else { 0 }
+                              }
                         }
-                        && (do {
-                                my $m2 = KindaPerl6::Grammar->opt_ws2( $str, $MATCH->to() );
+                        && (
+                            do {
+                                my $m2 =
+                                  KindaPerl6::Grammar->opt_ws2( $str,
+                                    $MATCH->to() );
                                 do {
                                     if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                    else     {0}
-                                    }
+                                    else     { 0 }
+                                  }
                             }
                             && do {
                                 my $pos1 = $MATCH->to();
-                                (   do {
-                                        (   do {
-                                                my $m2 = $grammar->quant( $str, $MATCH->to() );
+                                (
+                                    do {
+                                        (
+                                            do {
+                                                my $m2 =
+                                                  $grammar->quant( $str,
+                                                    $MATCH->to() );
                                                 do {
-                                                    if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'quant'} = $m2; 1 }
-                                                    else     {0}
+                                                    if ($m2) {
+                                                        $MATCH->to( $m2->to() );
+                                                        $MATCH->{'quant'} = $m2;
+                                                        1;
                                                     }
+                                                    else { 0 }
+                                                  }
+                                              }
+                                              && (
+                                                do {
+                                                    my $m2 =
+                                                      $grammar->greedy( $str,
+                                                        $MATCH->to() );
+                                                    do {
+                                                        if ($m2) {
+                                                            $MATCH->to(
+                                                                $m2->to() );
+                                                            $MATCH->{'greedy'} =
+                                                              $m2;
+                                                            1;
+                                                        }
+                                                        else { 0 }
+                                                      }
                                                 }
                                                 && (
-                                                do {
-                                                    my $m2 = $grammar->greedy( $str, $MATCH->to() );
                                                     do {
-                                                        if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'greedy'} = $m2; 1 }
-                                                        else     {0}
-                                                        }
-                                                }
-                                                && (do {
-                                                        my $m2 = KindaPerl6::Grammar->opt_ws3( $str, $MATCH->to() );
+                                                        my $m2 =
+                                                          KindaPerl6::Grammar
+                                                          ->opt_ws3( $str,
+                                                            $MATCH->to() );
                                                         do {
-                                                            if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                                            else     {0}
+                                                            if ($m2) {
+                                                                $MATCH->to(
+                                                                    $m2->to() );
+                                                                1;
                                                             }
+                                                            else { 0 }
+                                                          }
                                                     }
                                                     && do {
                                                         my $ret = sub {
@@ -1612,53 +4852,108 @@ sub quantifier {
                                                             do { [] };
                                                             do {
                                                                 return (
-                                                                    Rule::Quantifier->new(
-                                                                        'term'   => ${ $MATCH->{'term'} },
-                                                                        'quant'  => ${ $MATCH->{'quant'} },
-                                                                        'greedy' => ${ $MATCH->{'greedy'} },
-                                                                        'ws1'    => ${ $MATCH->{'KindaPerl6::Grammar.opt_ws'} },
-                                                                        'ws2'    => ${ $MATCH->{'KindaPerl6::Grammar.opt_ws2'} },
-                                                                        'ws3'    => ${ $MATCH->{'KindaPerl6::Grammar.opt_ws3'} },
-                                                                    )
+                                                                    Rule::Quantifier
+                                                                      ->new(
+                                                                        'term'
+                                                                          => ${
+                                                                            $MATCH
+                                                                              ->{
+'term'
+                                                                              }
+                                                                          },
+                                                                        'quant'
+                                                                          => ${
+                                                                            $MATCH
+                                                                              ->{
+'quant'
+                                                                              }
+                                                                          },
+                                                                        'greedy'
+                                                                          => ${
+                                                                            $MATCH
+                                                                              ->{
+'greedy'
+                                                                              }
+                                                                          },
+                                                                        'ws1' =>
+                                                                          ${
+                                                                            $MATCH
+                                                                              ->{
+'KindaPerl6::Grammar.opt_ws'
+                                                                              }
+                                                                          },
+                                                                        'ws2' =>
+                                                                          ${
+                                                                            $MATCH
+                                                                              ->{
+'KindaPerl6::Grammar.opt_ws2'
+                                                                              }
+                                                                          },
+                                                                        'ws3' =>
+                                                                          ${
+                                                                            $MATCH
+                                                                              ->{
+'KindaPerl6::Grammar.opt_ws3'
+                                                                              }
+                                                                          },
+                                                                      )
                                                                 );
                                                             };
                                                             '974^213';
-                                                            }
-                                                            ->();
+                                                          }
+                                                          ->();
                                                         do {
-                                                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                            else                         { }
+                                                            if (
+                                                                (
+                                                                    $ret ne
+                                                                    '974^213'
+                                                                )
+                                                              )
+                                                            {
+                                                                $MATCH->capture(
+                                                                    $ret);
+                                                                $MATCH->bool(1);
+                                                                return ($MATCH);
+                                                            }
+                                                            else { }
                                                         };
                                                         1;
                                                     }
                                                 )
-                                                )
+                                              )
                                         );
-                                        }
-                                        || do {
+                                      }
+                                      || do {
                                         $MATCH->to($pos1);
                                         do {
                                             my $ret = sub {
                                                 my $List__ = \@_;
                                                 do { [] };
-                                                do { return ( ${ $MATCH->{'term'} } ) };
+                                                do {
+                                                    return (
+                                                        ${ $MATCH->{'term'} } );
+                                                };
                                                 '974^213';
-                                                }
-                                                ->();
+                                              }
+                                              ->();
                                             do {
-                                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                else                         { }
+                                                if ( ( $ret ne '974^213' ) ) {
+                                                    $MATCH->capture($ret);
+                                                    $MATCH->bool(1);
+                                                    return ($MATCH);
+                                                }
+                                                else { }
                                             };
                                             1;
-                                            }
-                                        }
+                                          }
+                                      }
                                 );
                             }
                         )
-                        )
+                      )
                 );
-                }
-            }
+              }
+          }
     );
     return ($MATCH);
 }
@@ -1670,66 +4965,120 @@ sub concat_list {
     my $pos;
     do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
     my $MATCH;
-    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH = MiniPerl6::Perl5::Match->new(
+        'str'  => $str,
+        'from' => $pos,
+        'to'   => $pos,
+        'bool' => 1,
+    );
     $MATCH->bool(
         do {
             my $pos1 = $MATCH->to();
-            (   do {
-                    (   do {
+            (
+                do {
+                    (
+                        do {
                             my $m2 = $grammar->quantifier( $str, $MATCH->to() );
                             do {
-                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'quantifier'} = $m2; 1 }
-                                else     {0}
+                                if ($m2) {
+                                    $MATCH->to( $m2->to() );
+                                    $MATCH->{'quantifier'} = $m2;
+                                    1;
                                 }
-                            }
-                            && do {
+                                else { 0 }
+                              }
+                          }
+                          && do {
                             my $pos1 = $MATCH->to();
-                            (   do {
-                                    (   do {
-                                            my $m2 = $grammar->concat_list( $str, $MATCH->to() );
+                            (
+                                do {
+                                    (
+                                        do {
+                                            my $m2 =
+                                              $grammar->concat_list( $str,
+                                                $MATCH->to() );
                                             do {
-                                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'concat_list'} = $m2; 1 }
-                                                else     {0}
+                                                if ($m2) {
+                                                    $MATCH->to( $m2->to() );
+                                                    $MATCH->{'concat_list'} =
+                                                      $m2;
+                                                    1;
                                                 }
-                                            }
-                                            && do {
+                                                else { 0 }
+                                              }
+                                          }
+                                          && do {
                                             my $ret = sub {
                                                 my $List__ = \@_;
                                                 do { [] };
-                                                do { return ( [ ${ $MATCH->{'quantifier'} }, @{ ${ $MATCH->{'concat_list'} } } ] ) };
+                                                do {
+                                                    return (
+                                                        [
+                                                            ${
+                                                                $MATCH->{
+                                                                    'quantifier'
+                                                                  }
+                                                              },
+                                                            @{
+                                                                ${
+                                                                    $MATCH->{
+'concat_list'
+                                                                      }
+                                                                  }
+                                                              }
+                                                        ]
+                                                    );
+                                                };
                                                 '974^213';
-                                                }
-                                                ->();
+                                              }
+                                              ->();
                                             do {
-                                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                else                         { }
+                                                if ( ( $ret ne '974^213' ) ) {
+                                                    $MATCH->capture($ret);
+                                                    $MATCH->bool(1);
+                                                    return ($MATCH);
+                                                }
+                                                else { }
                                             };
                                             1;
-                                            }
+                                          }
                                     );
-                                    }
-                                    || do {
+                                  }
+                                  || do {
                                     $MATCH->to($pos1);
                                     do {
                                         my $ret = sub {
                                             my $List__ = \@_;
                                             do { [] };
-                                            do { return ( [ ${ $MATCH->{'quantifier'} } ] ) };
+                                            do {
+                                                return (
+                                                    [
+                                                        ${
+                                                            $MATCH->{
+                                                                'quantifier'}
+                                                          }
+                                                    ]
+                                                );
+                                            };
                                             '974^213';
-                                            }
-                                            ->();
+                                          }
+                                          ->();
                                         do {
-                                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                            else                         { }
+                                            if ( ( $ret ne '974^213' ) ) {
+                                                $MATCH->capture($ret);
+                                                $MATCH->bool(1);
+                                                return ($MATCH);
+                                            }
+                                            else { }
                                         };
                                         1;
-                                        }
-                                    }
+                                      }
+                                  }
                             );
-                            }
+                          }
                     );
-                    }
-                    || do {
+                  }
+                  || do {
                     $MATCH->to($pos1);
                     do {
                         my $ret = sub {
@@ -1737,17 +5086,21 @@ sub concat_list {
                             do { [] };
                             do { return ( [] ) };
                             '974^213';
-                            }
-                            ->();
+                          }
+                          ->();
                         do {
-                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                            else                         { }
+                            if ( ( $ret ne '974^213' ) ) {
+                                $MATCH->capture($ret);
+                                $MATCH->bool(1);
+                                return ($MATCH);
+                            }
+                            else { }
                         };
                         1;
-                        }
-                    }
+                      }
+                  }
             );
-            }
+          }
     );
     return ($MATCH);
 }
@@ -1759,35 +5112,56 @@ sub concat {
     my $pos;
     do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
     my $MATCH;
-    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH = MiniPerl6::Perl5::Match->new(
+        'str'  => $str,
+        'from' => $pos,
+        'to'   => $pos,
+        'bool' => 1,
+    );
     $MATCH->bool(
         do {
             my $pos1 = $MATCH->to();
             do {
-                (   do {
+                (
+                    do {
                         my $m2 = $grammar->concat_list( $str, $MATCH->to() );
                         do {
-                            if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'concat_list'} = $m2; 1 }
-                            else     {0}
+                            if ($m2) {
+                                $MATCH->to( $m2->to() );
+                                $MATCH->{'concat_list'} = $m2;
+                                1;
                             }
-                        }
-                        && do {
+                            else { 0 }
+                          }
+                      }
+                      && do {
                         my $ret = sub {
                             my $List__ = \@_;
                             do { [] };
-                            do { return ( Rule::Concat->new( 'concat' => ${ $MATCH->{'concat_list'} }, ) ) };
+                            do {
+                                return (
+                                    Rule::Concat->new(
+                                        'concat' =>
+                                          ${ $MATCH->{'concat_list'} },
+                                    )
+                                );
+                            };
                             '974^213';
-                            }
-                            ->();
+                          }
+                          ->();
                         do {
-                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                            else                         { }
+                            if ( ( $ret ne '974^213' ) ) {
+                                $MATCH->capture($ret);
+                                $MATCH->bool(1);
+                                return ($MATCH);
+                            }
+                            else { }
                         };
                         1;
-                        }
+                      }
                 );
-                }
-            }
+              }
+          }
     );
     return ($MATCH);
 }
@@ -1799,68 +5173,132 @@ sub or_list {
     my $pos;
     do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
     my $MATCH;
-    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH = MiniPerl6::Perl5::Match->new(
+        'str'  => $str,
+        'from' => $pos,
+        'to'   => $pos,
+        'bool' => 1,
+    );
     $MATCH->bool(
         do {
             my $pos1 = $MATCH->to();
-            (   do {
-                    (   do {
+            (
+                do {
+                    (
+                        do {
                             my $m2 = $grammar->concat( $str, $MATCH->to() );
                             do {
-                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'concat'} = $m2; 1 }
-                                else     {0}
+                                if ($m2) {
+                                    $MATCH->to( $m2->to() );
+                                    $MATCH->{'concat'} = $m2;
+                                    1;
                                 }
-                            }
-                            && do {
+                                else { 0 }
+                              }
+                          }
+                          && do {
                             my $pos1 = $MATCH->to();
-                            (   do {
-                                    (   ( ( '|' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
+                            (
+                                do {
+                                    (
+                                        (
+                                            (
+                                                '|' eq substr(
+                                                    $str, $MATCH->to(), 1
+                                                )
+                                            )
+                                            ? (
+                                                1 + $MATCH->to(
+                                                    ( 1 + $MATCH->to() )
+                                                )
+                                              )
+                                            : 0
+                                        )
+                                          && (
                                             do {
-                                                my $m2 = $grammar->or_list( $str, $MATCH->to() );
+                                                my $m2 =
+                                                  $grammar->or_list( $str,
+                                                    $MATCH->to() );
                                                 do {
-                                                    if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'or_list'} = $m2; 1 }
-                                                    else     {0}
+                                                    if ($m2) {
+                                                        $MATCH->to( $m2->to() );
+                                                        $MATCH->{'or_list'} =
+                                                          $m2;
+                                                        1;
                                                     }
+                                                    else { 0 }
+                                                  }
                                             }
                                             && do {
                                                 my $ret = sub {
                                                     my $List__ = \@_;
                                                     do { [] };
-                                                    do { return ( [ ${ $MATCH->{'concat'} }, @{ ${ $MATCH->{'or_list'} } } ] ) };
+                                                    do {
+                                                        return (
+                                                            [
+                                                                ${
+                                                                    $MATCH->{
+                                                                        'concat'
+                                                                      }
+                                                                  },
+                                                                @{
+                                                                    ${
+                                                                        $MATCH
+                                                                          ->{
+'or_list'
+                                                                          }
+                                                                      }
+                                                                  }
+                                                            ]
+                                                        );
+                                                    };
                                                     '974^213';
-                                                    }
-                                                    ->();
+                                                  }
+                                                  ->();
                                                 do {
-                                                    if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                                    else                         { }
+                                                    if ( ( $ret ne '974^213' ) )
+                                                    {
+                                                        $MATCH->capture($ret);
+                                                        $MATCH->bool(1);
+                                                        return ($MATCH);
+                                                    }
+                                                    else { }
                                                 };
                                                 1;
                                             }
-                                        )
+                                          )
                                     );
-                                    }
-                                    || do {
+                                  }
+                                  || do {
                                     $MATCH->to($pos1);
                                     do {
                                         my $ret = sub {
                                             my $List__ = \@_;
                                             do { [] };
-                                            do { return ( [ ${ $MATCH->{'concat'} } ] ) };
+                                            do {
+                                                return (
+                                                    [ ${ $MATCH->{'concat'} } ]
+                                                );
+                                            };
                                             '974^213';
-                                            }
-                                            ->();
+                                          }
+                                          ->();
                                         do {
-                                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                            else                         { }
+                                            if ( ( $ret ne '974^213' ) ) {
+                                                $MATCH->capture($ret);
+                                                $MATCH->bool(1);
+                                                return ($MATCH);
+                                            }
+                                            else { }
                                         };
                                         1;
-                                        }
-                                    }
+                                      }
+                                  }
                             );
-                            }
+                          }
                     );
-                    }
-                    || do {
+                  }
+                  || do {
                     $MATCH->to($pos1);
                     do {
                         my $ret = sub {
@@ -1868,17 +5306,21 @@ sub or_list {
                             do { [] };
                             do { return ( [] ) };
                             '974^213';
-                            }
-                            ->();
+                          }
+                          ->();
                         do {
-                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                            else                         { }
+                            if ( ( $ret ne '974^213' ) ) {
+                                $MATCH->capture($ret);
+                                $MATCH->bool(1);
+                                return ($MATCH);
+                            }
+                            else { }
                         };
                         1;
-                        }
-                    }
+                      }
+                  }
             );
-            }
+          }
     );
     return ($MATCH);
 }
@@ -1890,53 +5332,90 @@ sub rule {
     my $pos;
     do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
     my $MATCH;
-    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH = MiniPerl6::Perl5::Match->new(
+        'str'  => $str,
+        'from' => $pos,
+        'to'   => $pos,
+        'bool' => 1,
+    );
     $MATCH->bool(
         do {
             my $pos1 = $MATCH->to();
             do {
-                (   do {
+                (
+                    do {
                         my $pos1 = $MATCH->to();
-                        (   do {
-                                (   do {
-                                        my $m2 = $grammar->ws( $str, $MATCH->to() );
+                        (
+                            do {
+                                (
+                                    do {
+                                        my $m2 =
+                                          $grammar->ws( $str, $MATCH->to() );
                                         do {
-                                            if ($m2) { $MATCH->to( $m2->to() ); 1 }
-                                            else     {0}
+                                            if ($m2) {
+                                                $MATCH->to( $m2->to() );
+                                                1;
                                             }
-                                        }
-                                        && ( ( '|' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 )
+                                            else { 0 }
+                                          }
+                                      }
+                                      && (
+                                        (
+                                            '|' eq
+                                            substr( $str, $MATCH->to(), 1 )
+                                        )
+                                        ? (
+                                            1 + $MATCH->to(
+                                                ( 1 + $MATCH->to() )
+                                            )
+                                        )
+                                        : 0
+                                      )
                                 );
-                                }
-                                || do { $MATCH->to($pos1); 1 }
+                              }
+                              || do { $MATCH->to($pos1); 1 }
                         );
-                        }
-                        && (
+                      }
+                      && (
                         do {
                             my $m2 = $grammar->or_list( $str, $MATCH->to() );
                             do {
-                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'or_list'} = $m2; 1 }
-                                else     {0}
+                                if ($m2) {
+                                    $MATCH->to( $m2->to() );
+                                    $MATCH->{'or_list'} = $m2;
+                                    1;
                                 }
+                                else { 0 }
+                              }
                         }
                         && do {
                             my $ret = sub {
                                 my $List__ = \@_;
                                 do { [] };
-                                do { return ( Rule::Or->new( 'or' => ${ $MATCH->{'or_list'} }, ) ) };
+                                do {
+                                    return (
+                                        Rule::Or->new(
+                                            'or' => ${ $MATCH->{'or_list'} },
+                                        )
+                                    );
+                                };
                                 '974^213';
-                                }
-                                ->();
+                              }
+                              ->();
                             do {
-                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
-                                else                         { }
+                                if ( ( $ret ne '974^213' ) ) {
+                                    $MATCH->capture($ret);
+                                    $MATCH->bool(1);
+                                    return ($MATCH);
+                                }
+                                else { }
                             };
                             1;
                         }
-                        )
+                      )
                 );
-                }
-            }
+              }
+          }
     );
     return ($MATCH);
 }

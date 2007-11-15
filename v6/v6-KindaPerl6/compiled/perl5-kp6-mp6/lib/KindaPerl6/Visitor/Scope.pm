@@ -12,7 +12,11 @@ sub visit {
     my $List__ = \@_;
     my $node;
     my $node_name;
-    do { $node = $List__->[0]; $node_name = $List__->[1]; [ $node, $node_name ] };
+    do {
+        $node      = $List__->[0];
+        $node_name = $List__->[1];
+        [ $node, $node_name ];
+    };
     do {
         if ( ( $node_name eq 'Lit::Code' ) ) {
             return (
@@ -22,13 +26,43 @@ sub visit {
                     'sig'   => $node->sig(),
                     'body'  => [
                         Assign->new(
-                            'parameters' => Var->new( 'namespace' => [], 'name' => 'MY', 'twigil' => '', 'sigil' => '$', ),
-                            'arguments' => Call->new( 'hyper' => (undef), 'arguments' => (undef), 'method' => 'inner', 'invocant' => Var->new( 'namespace' => [], 'name' => 'MY', 'twigil' => '', 'sigil' => '$', ), ),
+                            'parameters' => Var->new(
+                                'namespace' => [],
+                                'name'      => 'MY',
+                                'twigil'    => '',
+                                'sigil'     => '$',
+                            ),
+                            'arguments' => Call->new(
+                                'hyper'     => (undef),
+                                'arguments' => (undef),
+                                'method'    => 'inner',
+                                'invocant'  => Var->new(
+                                    'namespace' => [],
+                                    'name'      => 'MY',
+                                    'twigil'    => '',
+                                    'sigil'     => '$',
+                                ),
+                            ),
                         ),
                         @{ $node->body() },
                         Assign->new(
-                            'parameters' => Var->new( 'namespace' => [], 'name' => 'MY', 'twigil' => '', 'sigil' => '$', ),
-                            'arguments' => Call->new( 'hyper' => (undef), 'arguments' => (undef), 'method' => 'outer', 'invocant' => Var->new( 'namespace' => [], 'name' => 'MY', 'twigil' => '', 'sigil' => '$', ), ),
+                            'parameters' => Var->new(
+                                'namespace' => [],
+                                'name'      => 'MY',
+                                'twigil'    => '',
+                                'sigil'     => '$',
+                            ),
+                            'arguments' => Call->new(
+                                'hyper'     => (undef),
+                                'arguments' => (undef),
+                                'method'    => 'outer',
+                                'invocant'  => Var->new(
+                                    'namespace' => [],
+                                    'name'      => 'MY',
+                                    'twigil'    => '',
+                                    'sigil'     => '$',
+                                ),
+                            ),
                         )
                     ],
                 )
