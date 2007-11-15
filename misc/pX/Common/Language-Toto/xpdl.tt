@@ -22,6 +22,9 @@
       <Activities>
         [% FOREACH activity = process.activities %]
         <Activity Id="[% activity.id %]">
+            <ExtendedAttributes>
+                <ExtendedAttribute Name="JaWE_GRAPH_OFFSET" Value="[% activity.x %],[% activity.y %]"/>
+            </ExtendedAttributes>
         </Activity>
         [% END %]
       </Activities>

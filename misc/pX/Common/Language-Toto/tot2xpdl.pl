@@ -8,6 +8,15 @@ use Data::Dumper;
 my $toto = do { local $/; <> };
 my $template_src = do { local $/; open FILE, 'xpdl.tt' or die 'argh'; <FILE> };
 
+my %position = (
+    Activity    =>  [ 200, 200 ],
+    New         =>  [ 200, 100 ],
+    Pending     =>  [ 350, 200 ],
+    Resolved    =>  [ 300, 300 ],
+    Reject      =>  [ 100, 300 ],
+    Anomaly     =>  [ 200, 400 ],
+);
+
 my $m = Language::Toto::Grammar->TOP( $toto );
 
 my %Workflow;
@@ -28,7 +37,6 @@ $template->process(\$template_src, \%Workflow)
     or die $template->error;
 
 
-
 sub extract_block {
     my $m = shift;
     my %block;
@@ -46,16 +54,18 @@ sub extract_block {
     # print " ",scalar( @transition ), " transitions \n";
     my @activities;
     push @activities, {
-        id => $ident,
+        id   => $ident,
+        x    => $position{Activity}[0],
+        y    => $position{Activity}[1],
     };
     for ( @transition ) {
         my $t = extract_transition($_);
         push @activities, $t;
         if ( $t->{type} eq 'New' ) {
             push @arrows, { 
-                to => $ident, 
+                to   => $ident, 
                 from => $t->{id},
-                id => $t->{id} . "_to_" . ${ident},
+                id   => $t->{id} . "_to_" . ${ident},
             };
         }
         else {
@@ -68,7 +78,7 @@ sub extract_block {
     }
 
     #print Dumper( @arrows );
-
+    
     return {
         id => $ident,
         name => $name,
@@ -90,7 +100,10 @@ sub extract_transition {
         # print "\n";
     
         return {
-            id => $plugin,
+            id   => $plugin,
+            type => $type,   # unused in xpdl
+            x    => $position{$type}[0],
+            y    => $position{$type}[1],
         };
     }
     elsif ( exists $m->{action} ) {
@@ -101,8 +114,10 @@ sub extract_transition {
         # print "\n";
     
         return {
-            id => $ident,
+            id   => $ident,
             type => $type,   # unused in xpdl
+            x    => $position{$type}[0],
+            y    => $position{$type}[1],
         };
     }
 }
