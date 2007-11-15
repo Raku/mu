@@ -372,7 +372,7 @@ my $method_new = {
     %::PROTO,    # provides _methods, _roles, _value, _isa, _dispatch.
     _value => {
         code => sub {
-            my $v = bless { %{ $_[0] }, _value => $_[1] }, DISPATCH;
+            my $v = { %{ $_[0] }, _value => $_[1] };
             for my $arg_count ( 1 .. $#_ ) {
                 my $arg = $_[$arg_count];
                 if (   $::NamedArgument
