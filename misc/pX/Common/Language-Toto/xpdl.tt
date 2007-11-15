@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package xmlns="http://www.wfmc.org/2002/XPDL1.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Id="newpkg" Name="newpkg"
+    xsi:schemaLocation="http://www.wfmc.org/2002/XPDL1.0 http://wfmc.org/standards/docs/TC-1025_schema_10_xpdl.xsd"
+>
+
+  <PackageHeader>
+    <XPDLVersion>1.0</XPDLVersion>
+    <Vendor>Together</Vendor>
+    <Created>2007-11-12 17:47:24</Created>
+  </PackageHeader>
+  <WorkflowProcesses>
+    [% FOREACH process = processes %]
+    <WorkflowProcess AccessLevel="PUBLIC" Id="[% process.id %]" Name="[% process.name %]">
+      <ProcessHeader>
+        <Created>2007-11-12 17:47:47</Created>
+      </ProcessHeader>
+      <DataFields>
+      </DataFields>
+      <Participants>
+      </Participants>
+      <Activities>
+        [% FOREACH activity = process.activities %]
+        <Activity Id="[% activity.id %]">
+        </Activity>
+        [% END %]
+      </Activities>
+      <Transitions>
+        [% FOREACH transition = process.transitions %]
+        <Transition From="[% transition.from %]" Id="[% transition.id %]" To="[% transition.to %]">
+        </Transition>
+        [% END %]
+      </Transitions>
+    </WorkflowProcess>
+    [% END %]
+  </WorkflowProcesses>
+</Package>

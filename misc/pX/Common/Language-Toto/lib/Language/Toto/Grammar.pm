@@ -3,7 +3,11 @@ use v6-alpha;
 grammar Language::Toto::Grammar;
 
 token TOP {
-    <block>+    |   { die "can't find any program blocks" }
+        [ 
+        |   $
+        |   <block>
+        ]**{50}   # XXX bug in the PCR regex engine - infinite loop
+    |   { die "no valid program blocks" }
 }
 
 token block {
@@ -17,6 +21,10 @@ token block {
         <block_description>   
                         |  { die "missing block description" }
     ]
+    [
+        <block_transition>+
+    ]
+    <.next_line>*
 }
 
 token block_header {
@@ -57,7 +65,37 @@ token block_description {
     ]+
 }
 
+token block_transition {
+    <.next_line>*
+    <.tab1>
+    [
+    |   $<type> := [ New      ]   <.spaces>   from
+    |   $<type> := [ Pending  ]   <.spaces>   on
+    |   $<type> := [ Resolved ]   <.spaces>   to
+    |   $<type> := [ Reject   ]   <.spaces>   to
+    |   $<type> := [ Anomaly  ]   <.spaces>   to
+    ]
+    <.spaces>
+    [
+    |   $<action> := [ Process   ]  <.spaces>   <ident>
+    |   $<action> := [ Procedure ]  <.spaces>   <ident>
+    |   $<action> := [ Activity  ]  <.spaces>   <ident>
+    |   '[' <plugin> ']'
+    ]
+    <.next_line>
+}
+
+token plugin {
+    [
+        <!before ']'> .  
+    ]+
+}
+
 # utilities
+
+token ident {
+    [ \S ]+
+}
 
 token spaces {
     [ ' ' | \t ]+
@@ -74,7 +112,7 @@ token tab2 {
 }
 
 token next_line {
-    <.spaces>? [ <.comment> | \n | $ ]
+    <.spaces>? [ <.comment> | \n ]
 }
 
 token comment {

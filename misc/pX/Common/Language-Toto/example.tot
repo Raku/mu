@@ -1,0 +1,28 @@
+
+Procedure   Acolhimento
+
+    Name    
+    
+        Procedimento de Acolhimento
+        
+    Description
+    
+        Parte do Processo de Contratação
+
+    New         from    Process Contratacao
+    Pending     on      Process CompraPortatil
+    Resolved    to      [Plug]
+
+Activity   Acolhimento2
+
+    Name    
+    
+        Procedimento de Acolhimento2
+        
+    Description
+    
+        Parte do Processo de Contratação2
+
+    New         from    Process Contratacao
+    Pending     on      Process CompraPortatil
+

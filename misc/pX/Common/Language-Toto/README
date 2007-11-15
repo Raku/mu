@@ -2,6 +2,10 @@ Language::Toto
 
     Toto is a Domain Specific Language for describing very simple workflows
 
+SYNOPSIS
+
+    perl tot2xpdl.pl < example.toto  > teste.xpdl
+
 AUTHORS
 
     Flavio S. Glock (fglock), Nelson Ferraz (nferraz), Daniel Ruoso (ruoso), Marco Lima (mago)
