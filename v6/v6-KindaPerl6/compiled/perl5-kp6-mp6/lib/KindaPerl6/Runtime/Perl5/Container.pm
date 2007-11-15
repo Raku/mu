@@ -9,7 +9,14 @@ Container.pm
 
 =head1 DESCRIPTION
 
-...
+This perl file (not package) contains the global classes for $::Container and
+other global classes that have $meta_Container for a parent.
+
+ * $::Container
+ * $::Scalar
+ * $::ArrayContainer
+ * $::HashContainer
+ * $::Routine
 
 =cut
 
@@ -324,9 +331,9 @@ my $meta_Routine = ::DISPATCH( $::Routine, 'HOW' );
 # add $meta_Routine as a parent to $meta_Method
 
 # Method isa Routine
-::DISPATCH( 
-    ::DISPATCH( $::Method, 'HOW' ), 
-    'add_parent', 
+::DISPATCH(
+    ::DISPATCH( $::Method, 'HOW' ),
+    'add_parent',
     $meta_Routine );
 
 # tests if a variable was initialized at all
@@ -365,10 +372,10 @@ $::UndefinedCell = KindaPerl6::Runtime::Perl5::MOP::make_class(
         #},
         INDEX => sub {
             my $self = shift;
-            warn "UndefinedCell.INDEX ",$self->{_scalar},"\n";
+            #warn "UndefinedCell.INDEX ",$self->{_scalar},"\n";
             # XXX TODO lazy autovivification
             if ( ! exists $self->{_scalar}{_value}{cell} ) {
-                ::DISPATCH( $self->{_scalar}, 'STORE',
+                ::DISPATCH_VAR( $self->{_scalar}, 'STORE',
                     ::DISPATCH( $::Array, 'new' )
                 );
             }
@@ -376,12 +383,14 @@ $::UndefinedCell = KindaPerl6::Runtime::Perl5::MOP::make_class(
         },
         LOOKUP => sub {
             my $self = shift;
-            warn "UndefinedCell.LOOKUP ",$self->{_scalar},"\n";
+            #warn "UndefinedCell.LOOKUP ",$self->{_scalar},"\n";
             # XXX TODO lazy autovivification
             if ( ! exists $self->{_scalar}{_value}{cell} ) {
-                ::DISPATCH( $self->{_scalar}, 'STORE',
+                #warn "will vivify a Hash\n";
+                ::DISPATCH_VAR( $self->{_scalar}, 'STORE',
                     ::DISPATCH( $::Hash, 'new' )
                 );
+                #warn "vivified a Hash\n";
             }
             return ::DISPATCH( $self->{_scalar}, 'LOOKUP', @_ );
         },
