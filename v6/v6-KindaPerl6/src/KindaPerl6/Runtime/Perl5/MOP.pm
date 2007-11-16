@@ -34,6 +34,13 @@ There are several key functions used though this package.
 
 http://feather.perl6.nl/syn/S12.html#Introspection
 
+=item _isa
+
+_isa, should be thought of like package @ISA, ie, the interpeter (ours) looks
+back though the _isa(s), to find a method that actually has the method name
+needed, before calling.  I believe that the method name is called on the
+current context the original $object->{ _dispatch }
+
 =back
 
 =cut
@@ -561,11 +568,6 @@ $::Object = {
 #--- Class
 
 =head2 $meta_Class
-
-_isa, should be thought of like package @ISA, ie, it looks back though the
-_isa(s), to find a method that actually has the method name needed, before
-calling.  I believe that the method name is called on the current context
-the original $object->{ _dispatch }
 
 =cut
 
