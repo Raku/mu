@@ -119,7 +119,7 @@ class Lit::Hash {
         my $str := '';
         my $field;
         for @$fields -> $field { 
-            $str := $str ~ ($field[0]).emit_perl5 ~ '->{_value} => ' ~ ($field[1]).emit_perl5 ~ ',';
+            $str := $str ~ ($field[0]).emit_perl5 ~ ' => ' ~ ($field[1]).emit_perl5 ~ ',';
         }; 
         '{ _hash => { ' ~ $str ~ ' } }' ~ Main::newline();
     }

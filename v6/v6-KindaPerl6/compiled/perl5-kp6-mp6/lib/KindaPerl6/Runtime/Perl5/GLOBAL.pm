@@ -75,7 +75,7 @@ package GLOBAL;
         ::DISPATCH( $::Hash, 'new', {
             _hash => {
                 map { (
-                        $_,
+                        ::DISPATCH( $::Str, 'new', $_ ),
                         ::DISPATCH( $::Str, 'new', $ENV{$_} )
                     ) } keys %ENV
             }
@@ -195,7 +195,8 @@ package GLOBAL;
         ::DISPATCH( $_[0], 'defined' ) 
     } 
     sub exists   { 
-        ::DISPATCH( VAR($_[0]), 'exists' );
+        # ::DISPATCH( VAR($_[0]), 'exists' );
+        ::DISPATCH( $_[0], 'exists' );
     } 
     sub true     { ::DISPATCH( $_[0], 'true' ) }  
     sub not      { ::DISPATCH( $::Bit, 'new', ! ( ::DISPATCH( $_[0], 'true' )->{_value} ) ) }  

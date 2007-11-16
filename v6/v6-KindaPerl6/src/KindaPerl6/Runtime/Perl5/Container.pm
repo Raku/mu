@@ -34,7 +34,7 @@ similar to _dispatch, except calls $invocant->_dispatch_VAR()
 sub ::DISPATCH_VAR {
     my $invocant = shift;
 
-    confess "DISPATCH_VAR: invalid object: ", Dumper($invocant), "\n"
+    confess "DISPATCH_VAR: calling .$_[0] on an invalid object: ", Dumper($invocant), "\n"
         unless $invocant->{_dispatch_VAR};
     $invocant->{_dispatch_VAR}( $invocant, @_ );
 }
@@ -104,22 +104,147 @@ dies, Read only - if the Container does the 'readonly' Role
 
 =cut
 
+#my $LOOKUP_sub;
+#my $INDEX_sub;
+
+$::LOOKUP_sub = sub {
+        #warn "ValueProxy.LOOKUP";
+        my $parent_container = $_[0]{_scalar}{_parent};
+        if ( ! $_[0]{_scalar}{_parent_exists}() ) { 
+            my $key = $_[1];
+            return ::DISPATCH( 
+                    $::ContainerProxy, 
+                    "new", 
+                    {
+                        FETCH   => sub { 
+                            #warn "Container.FETCH.{x}.FETCH!";                        
+                            my $self = shift;                        
+                            return $self->{_value}{cell}
+                                if exists $self->{_value}{cell};                                
+                            return ::DISPATCH( 
+                                        $::ValueProxy, 
+                                        "new", 
+                                        {
+                                            _parent => $self,
+                                            _parent_exists => sub { exists $self->{_value}{cell} },
+                                            INDEX  => $::INDEX_sub,
+                                            LOOKUP => $::LOOKUP_sub,
+                                        }
+                                    );
+                        },
+                        STORE   => sub { 
+                            #warn "STORE!";
+                            my $self = shift;
+                            ::DISPATCH_VAR( 
+                                ::DISPATCH(
+                                    ::DISPATCH_VAR( 
+                                        $parent_container, 
+                                        'STORE', 
+                                        ::DISPATCH( $::Hash, 'new' ), 
+                                    ),
+                                    'LOOKUP',
+                                    $key
+                                ),
+                                'STORE',
+                                @_
+                            );
+                        },
+                        BIND    => sub { die "lazy Container.FETCH.{}.BIND() not implemented"  },
+                    }
+            );
+        }
+        return ::DISPATCH( $parent_container, 'LOOKUP', @_ );
+    };
+
+$::INDEX_sub = sub {
+        #warn "ValueProxy.INDEX";
+        my $parent_container = $_[0]{_scalar}{_parent};
+        if ( ! $_[0]{_scalar}{_parent_exists}() ) { 
+            my $index = $_[1];
+            return ::DISPATCH( 
+                    $::ContainerProxy, 
+                    "new", 
+                    {
+                        FETCH   => sub { 
+                            #warn "Container.FETCH.[999].FETCH!";                        
+                            my $self = shift;                        
+                            return $self->{_value}{cell}
+                                if exists $self->{_value}{cell};                                
+                            return ::DISPATCH( 
+                                        $::ValueProxy, 
+                                        "new", 
+                                        {
+                                            _parent => $self,
+                                            _parent_exists => sub { exists $self->{_value}{cell} },
+                                            INDEX  => $::INDEX_sub,
+                                            LOOKUP => $::LOOKUP_sub,
+                                        }
+                                    );
+                        },
+                        STORE   => sub { 
+                            #warn "STORE!";
+                            my $self = shift;
+                            ::DISPATCH_VAR( 
+                                ::DISPATCH(
+                                    ::DISPATCH_VAR( 
+                                        $parent_container, 
+                                        'STORE', 
+                                        ::DISPATCH( $::Array, 'new' ), 
+                                    ),
+                                    'INDEX',
+                                    $index
+                                ),
+                                'STORE',
+                                @_
+                            );
+                        },
+                        BIND    => sub { die "lazy Container.FETCH.[].BIND() not implemented"  },
+                    }
+            );
+        }
+        return ::DISPATCH( $parent_container, 'INDEX', @_ );
+    };
+
 $::Container = KindaPerl6::Runtime::Perl5::MOP::make_class(
     proto   => $::Container,
     name    => 'Container',
     methods => {
+        new => sub {
+            my $v = {
+                %{ $_[0] },
+                _roles        => { container => 1, 'auto_deref' => 1 },
+                _dispatch_VAR => $::dispatch_VAR,
+            };
+        },
         FETCH => sub {
-              exists $_[0]{_value}{cell} 
-            ? $_[0]{_value}{cell} 
-            : ::DISPATCH( $::UndefinedCell, "new", $_[0] );
+            #warn "Container.FETCH";
+            my $self = shift;
+            
+            return $self->{_value}{cell}
+                if exists $self->{_value}{cell};
+                
+            return ::DISPATCH( 
+                        $::ValueProxy, 
+                        "new", 
+                        {
+                            _parent => $self,
+                            _parent_exists => sub {
+                                exists $self->{_value}{cell}
+                            },
+                            INDEX  => $::INDEX_sub,
+                            LOOKUP => $::LOOKUP_sub,
+                        },
+                    );
         },
         STORE => sub {
+            #warn "Container.STORE";
             die "attempt to modify a read-only value"
                 if $_[0]{_roles}{readonly};
             $_[0]{_value}{modified}{ $_[0]{_value}{name} } = 1;
             $_[0]{_value}{cell} = $_[1];
         },
         BIND => sub {
+            #warn "Container.BIND";
             # XXX - see old 'Type.pm'
             $_[0]{_value}{modified}{ $_[0]{_value}{name} } = 1;
             $_[1]{_value}{modified}{ $_[1]{_value}{name} } = 1;
@@ -136,26 +261,6 @@ $::Container = KindaPerl6::Runtime::Perl5::MOP::make_class(
             }
             $_[0];
         },
-        #LOOKUP => sub {
-        #    # XXX - this should never happen: FETCH should have returned a Hash instead
-        #    my $self = shift;
-        #    if ( ! defined $self->{_value}{_hash} ) {
-        #        $self = ::DISPATCH( $::HashProxy, "new", {
-        #            cell => $self->{_value},
-        #        });
-        #    }
-        #    ::DISPATCH( $self->{_value}, 'LOOKUP', @_ );
-        #},
-        #INDEX => sub {
-        #    # XXX - this should never happen: FETCH should have returned an Array instead
-        #    my $self = shift;
-        #    if ( ! defined $self->{_value}{_array} ) {  # XXX - will not always work!
-        #        $self = ::DISPATCH( $::ArrayProxy, "new", {
-        #            cell => $self->{_value},
-        #        });
-        #    }
-        #    ::DISPATCH( $self->{_value}, 'INDEX', @_ );
-        #},
     },
 );
 
@@ -350,49 +455,61 @@ $GLOBAL::Code_VAR_defined = ::DISPATCH(
 );
 
 
-# UndefinedCell is created when an uninitialized Container is FETCH'ed
+# ValueProxy is created when an uninitialized Container is FETCH'ed
 
-$::UndefinedCell = KindaPerl6::Runtime::Perl5::MOP::make_class(
-    proto   => $::UndefinedCell,
-    name    => "UndefinedCell",
+$::ValueProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
+    proto   => $::ValueProxy,
+    name    => "ValueProxy",
     parents => [ ::DISPATCH( $::Undef, 'HOW' ) ],
     methods => {
         new => sub {
+            #warn "ValueProxy.new\n";
             my $v = {
                 %{ $_[0] },
-                _scalar    => $_[1],  
+                _scalar    => $_[1],  # _parent, _parent_exists, exists, INDEX, LOOKUP
                 #   _value must not exist, because this is an Undef
             };
-            #warn "UndefinedCell.new $v->{_scalar} \n";
             return $v;
         },
-        #FETCH => sub { 
-        #    warn "UndefinedCell.FETCH \n";
-        #    $_[0] 
-        #},
+        # FETCH => sub { die "ValueProxy.FETCH !!!\n"; },
         INDEX => sub {
-            my $self = shift;
-            #warn "UndefinedCell.INDEX ",$self->{_scalar},"\n";
-            # XXX TODO lazy autovivification
-            if ( ! exists $self->{_scalar}{_value}{cell} ) {
-                ::DISPATCH_VAR( $self->{_scalar}, 'STORE',
-                    ::DISPATCH( $::Array, 'new' )
-                );
-            }
-            return ::DISPATCH( $self->{_scalar}, 'INDEX', @_ );
+            return $_[0]{_scalar}{INDEX}( @_ );
         },
         LOOKUP => sub {
-            my $self = shift;
-            #warn "UndefinedCell.LOOKUP ",$self->{_scalar},"\n";
-            # XXX TODO lazy autovivification
-            if ( ! exists $self->{_scalar}{_value}{cell} ) {
-                #warn "will vivify a Hash\n";
-                ::DISPATCH_VAR( $self->{_scalar}, 'STORE',
-                    ::DISPATCH( $::Hash, 'new' )
-                );
-                #warn "vivified a Hash\n";
-            }
-            return ::DISPATCH( $self->{_scalar}, 'LOOKUP', @_ );
+            return $_[0]{_scalar}{LOOKUP}( @_ );
+        },
+        exists => sub {
+            ::DISPATCH( $::Bit, 'new', 
+                $_[0]{_scalar}{_parent_exists}() ? 1 : 0 );
+        },
+    }
+);
+
+# ContainerProxy is created when an uninitialized Hash/Array is LOOKUP/INDEX'ed
+
+$::ContainerProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
+    proto   => $::ContainerProxy,
+    name    => "ContainerProxy",
+    parents => [ ::DISPATCH( $::Container, 'HOW' ) ],
+    methods => {
+        new => sub {
+            #warn "ContainerProxy.new\n";
+            my $v = {
+                %{ $_[0] },
+                _scalar       => $_[1],   #  FETCH, STORE, BIND
+                _roles        => { container => 1, 'auto_deref' => 1 },
+                _dispatch_VAR => $::dispatch_VAR,
+            };
+            return $v;
+        },
+        FETCH => sub {
+            return $_[0]{_scalar}{FETCH}( @_ );
+        },
+        STORE => sub {
+            return $_[0]{_scalar}{STORE}( @_ );
+        },
+        BIND => sub {
+            return $_[0]{_scalar}{BIND}( @_ );
         },
     }
 );

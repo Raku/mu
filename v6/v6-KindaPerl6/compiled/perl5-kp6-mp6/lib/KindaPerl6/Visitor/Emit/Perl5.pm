@@ -293,9 +293,7 @@ sub emit_perl5 {
                 $str
                   . (
                     $field->[0]->emit_perl5()
-                      . (
-                        '->{_value} => ' . ( $field->[1]->emit_perl5() . ',' )
-                      )
+                      . ( ' => ' . ( $field->[1]->emit_perl5() . ',' ) )
                   )
             );
         }

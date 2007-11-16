@@ -6,20 +6,67 @@ $::Hash = KindaPerl6::Runtime::Perl5::MOP::make_class(
     {
     
     new => sub {
-            my $v = {
-                %{ $_[0] },
-                _value => ( $_[1] || { _hash => {} } ),    
-                _dispatch_VAR => $::dispatch_VAR,           # XXX
+            my ( $proto, $param ) = @_;
+            my $self = {
+                %{ $proto },
+                _value => { _hash => {} },            # ( $_[1] || { _hash => {} } ),    
+                _dispatch_VAR => $::dispatch_VAR,     # XXX
             };
+            if ( $param ) {
+                for my $key ( keys %{ $param->{_hash} } ) {
+                    ::DISPATCH_VAR(
+                        ::DISPATCH( $self, 'LOOKUP', $key ),
+                        'STORE',
+                        ${ $param->{_hash} }{$key},
+                    );
+                }
+            }
+            return $self;
         },
     LOOKUP=>sub {
-            my $key = ::DISPATCH(::DISPATCH($_[1],"Str"),"p5landish");
-            $_[0]{_value}{_hash} = {}
-                unless defined $_[0]{_value}{_hash};  # XXX 
-            return ::DISPATCH($::HashCell,"new",{
-                    cell=> $_[0]{_value}{_hash},
-                    key => $key,
-                });
+            my $self = shift;
+            my $key  = ref($_[0])
+                    ? ::DISPATCH( ::DISPATCH($_[0], "Str" ), "p5landish" )
+                    : $_[0];
+            
+            return $self->{_value}{_hash}{$key}
+                if exists $self->{_value}{_hash}{$key};
+            
+            return ::DISPATCH( 
+                $::ContainerProxy, 
+                "new", 
+                {
+                    FETCH   => sub { 
+                            #warn "Hash.{}.FETCH!";                        
+                            my $self = shift;                        
+                            return $self->{_value}{cell}
+                                if exists $self->{_value}{cell};                                
+                            return ::DISPATCH( 
+                                        $::ValueProxy, 
+                                        "new", 
+                                        {
+                                            _parent => $self,
+                                            _parent_exists => sub { exists $self->{_value}{cell} },
+                                            INDEX  => $::INDEX_sub,
+                                            LOOKUP => $::LOOKUP_sub,
+                                        }
+                                    );
+                    },
+                    STORE   => sub { 
+                        #warn "Hash.{x}.STORE!";
+                        shift;
+                        my $cell = exists $self->{_value}{_hash}{$key}
+                                ? $self->{_value}{_hash}{$key}
+                                : ( $self->{_value}{_hash}{$key} = ::DISPATCH( $::Container, 'new' ) );
+                        ::DISPATCH_VAR( 
+                            $cell,
+                            'STORE',
+                            @_
+                        );
+                    },
+                    BIND    => sub { die "BIND!"  },
+                }
+            );
         },
     elems => sub {
             ::DISPATCH($::Int,"new",scalar(keys(%{$_[0]{_value}{_hash}})));
@@ -41,59 +88,6 @@ $::Hash = KindaPerl6::Runtime::Perl5::MOP::make_class(
         },
     p5landish=> sub { $_[0]{_value}{_hash} }
 });
-
-=head2 $::HashCell
-
-=head3 Parents:
-
-none
-
-=head3 Attributes:
-
-none
-
-=head3 Methods:
-
-=over
-
-=item new
-
-=item STORE
-
-=item FETCH
-
-=item exists
-
-=back
-
-=cut
-
-$::HashCell = KindaPerl6::Runtime::Perl5::MOP::make_class(
-    proto   => $::HashCell,
-    name    => "HashCell",
-    parent  => [$::meta_Container],
-    methods => {
-        new => sub {
-            my $v = {
-                %{ $_[0] },
-                _value        => $_[1],
-                _roles        => { 'container' => 1, 'auto_deref' => 1 },
-                _dispatch_VAR => $::dispatch_VAR,
-            };
-        },
-        STORE => sub {
-            ${ $_[0]{_value}{cell} }{ $_[0]{_value}{key} } = $_[1];
-        },
-        FETCH => sub {
-            exists ${ $_[0]{_value}{cell} }{ $_[0]{_value}{key} }
-                 ? ${ $_[0]{_value}{cell} }{ $_[0]{_value}{key} }
-                 : ::DISPATCH( $::UndefinedHashItem, 'new', $_[0] );
-        },
-        exists => sub {
-            ::DISPATCH( $::Bit, 'new', exists ${ $_[0]{_value}{cell} }{ $_[0]{_value}{key} } ? 1 : 0 );
-        },
-    }
-);
 
 
 $::HashProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
@@ -136,81 +130,5 @@ $::HashProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
             return [];
         },
 });
-
-$::HashProxyCell = KindaPerl6::Runtime::Perl5::MOP::make_class(
-    proto   => $::HashProxyCell,
-    name    => "HashProxyCell",
-    parent  => [$::meta_Container],
-    methods => {
-        new => sub {
-            my $v = {
-                %{ $_[0] },
-                _value        => $_[1],
-                _roles        => { 'container' => 1, 'auto_deref' => 1 },
-                _dispatch_VAR => $::dispatch_VAR,
-            };
-        },
-        STORE => sub {
-            my $self = shift;
-            # hash autovivify?
-            die "TODO";
-            if ( defined $self->{_value}{cell} ) {
-                return ::DISPATCH( $self->{_value} ,"elems" );
-            }
-
-            ${ $_[0]{_value}{cell} }{ $_[0]{_value}{key} } = $_[1];
-        },
-        FETCH => sub {
-            die "TODO";
-            exists ${ $_[0]{_value}{cell} }{ $_[0]{_value}{key} }
-                 ? ${ $_[0]{_value}{cell} }{ $_[0]{_value}{key} }
-                 : ::DISPATCH( $::UndefinedHashItem, 'new', $_[0] );
-        },
-        exists => sub {
-            die "TODO";
-            ::DISPATCH( $::Bit, 'new', exists ${ $_[0]{_value}{cell} }{ $_[0]{_value}{key} } ? 1 : 0 );
-        },
-    }
-);
-
-# XXX obsolete
-
-$::UndefinedHashItem = KindaPerl6::Runtime::Perl5::MOP::make_class(
-    proto   => $::UndefinedHashItem,
-    name    => "UndefinedHashItem",
-    parents => [ ::DISPATCH( $::Undef, 'HOW' ) ],
-    methods => {
-        new => sub {
-            my $v = {
-                %{ $_[0] },
-                _value        => $_[1],
-            };
-            print "UndefinedHashItem.new $v->{_value} \n";
-            return $v;
-        },
-        INDEX => sub {
-            my $self = shift;
-            print "UndefinedHashItem.INDEX ",$self->{_value},"\n";
-            # XXX TODO lazy autovivification
-            ::DISPATCH( $self->{_value}, 'STORE',
-                ::DISPATCH( $::Array, 'new' )
-            );
-            return ::DISPATCH( $self->{_value}, 'INDEX', @_ );
-        },
-        LOOKUP => sub {
-            my $self = shift;
-            print "UndefinedHashItem.LOOKUP ",$self->{_value},"\n";
-            
-            # XXX TODO lazy autovivification
-            #::DISPATCH( $self->{_value}, 'STORE',
-            #    ::DISPATCH( $::Hash, 'new' )
-            #);
-
-            ${ $self->{_value}{_value}{cell} }{ $self->{_value}{_value}{key} } = ::DISPATCH( $::Hash, 'new' );
-
-            return ::DISPATCH( $self->{_value}, 'LOOKUP', @_ );
-        },
-    }
-);
 
 1;
