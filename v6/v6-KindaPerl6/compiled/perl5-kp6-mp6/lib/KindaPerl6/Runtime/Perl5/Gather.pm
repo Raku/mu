@@ -10,7 +10,7 @@ take() is defined in GLOBAL.pm
 
 =head3 Parents:
 
-$::meta_Array
+$::Array
 
 =head3 Attributes:
 
@@ -24,10 +24,12 @@ none
 
 =cut
 
+my $meta_Array = ::DISPATCH($::Array,'HOW');
+
 $::Gather = KindaPerl6::Runtime::Perl5::MOP::make_class(
     proto   => $::Gather,
     name    => "Gather",
-    parents => [$::meta_Array],
+    parents => [$meta_Array],
     methods => {
 
         new => sub {

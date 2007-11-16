@@ -11,7 +11,7 @@ use KindaPerl6::Runtime::Perl5::Value;
 use KindaPerl6::Runtime::Perl5::Container;
 
 use KindaPerl6::Runtime::Perl6::Pair;
-use KindaPerl6::Runtime::Perl5::Pair;
+use KindaPerl6::Runtime::Perl5::Pair; # Must be after Runtime::Perl5::Value
 
 use KindaPerl6::Runtime::Perl6::NamedArgument;
 
@@ -35,7 +35,7 @@ use KindaPerl6::Runtime::Perl6::Int;
 # try to load gather/take (depends on 'Coro')
 eval {
     require KindaPerl6::Runtime::Perl6::Gather;
-    require KindaPerl6::Runtime::Perl5::Gather;
+    require KindaPerl6::Runtime::Perl5::Gather; # Must be after Runtime::Perl5::Array
 };
 
 # load the runtime

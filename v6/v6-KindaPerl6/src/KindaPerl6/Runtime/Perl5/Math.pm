@@ -28,6 +28,8 @@ Inf is currently set to 9 ** 9 ** 9 =
 
 =cut
 
+my $meta_Num = ::DISPATCH($::Num,'HOW');
+
 $::Math = KindaPerl6::Runtime::Perl5::MOP::make_class(
     name    => "Math",
     parents => [$meta_Num],

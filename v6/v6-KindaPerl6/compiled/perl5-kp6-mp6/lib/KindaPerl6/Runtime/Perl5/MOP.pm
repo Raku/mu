@@ -204,7 +204,9 @@ sub make_class {
 
     { # make sure that parents exist
         for my $parent ( @{ $args{parents} } ) {
-            warn "parent does not exist for $args{name}" unless defined $parent;
+            my @caller = caller;
+            my $from = "vi +$caller[2] $caller[1]\n";
+            warn "parent does not exist for $args{name}\n$from" unless defined $parent;
         }
     }
 

@@ -24,6 +24,8 @@ none
 
 =cut
 
+my $meta_Value = ::DISPATCH($::Value,'HOW');
+
 $::IO = KindaPerl6::Runtime::Perl5::MOP::make_class(
     name    => "IO",
     parents => [$meta_Value],

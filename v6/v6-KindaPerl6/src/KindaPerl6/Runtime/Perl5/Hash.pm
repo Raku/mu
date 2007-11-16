@@ -24,10 +24,12 @@ none
 
 =cut
 
+my $meta_Container = ::DISPATCH($::Container,'HOW');
+
 $::Hash = KindaPerl6::Runtime::Perl5::MOP::make_class(
     proto   => $::Hash,
     name    => 'Hash',
-    parents => [$::meta_Container],
+    parents => [$meta_Container],
     methods => {
 
         new => sub {
@@ -128,10 +130,12 @@ none
 
 =cut
 
+my $meta_Hash = ::DISPATCH($::Hash,'HOW');
+
 $::HashProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
     proto   => $::HashProxy,
     name    => 'HashProxy',
-    parents => [$::meta_Hash],
+    parents => [$meta_Hash],
     methods => {
 
         new => sub {

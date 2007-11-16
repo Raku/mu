@@ -20,6 +20,8 @@ This will die if Main::KP6_DISABLE_INSECURE_CODE is true.
 
 =cut
 
+my $meta_Value = ::DISPATCH($::Value,'HOW');
+
 $::Kp6Security = KindaPerl6::Runtime::Perl5::MOP::make_class(
     name    => 'Kp6Security',
     parents => [$meta_Value],
