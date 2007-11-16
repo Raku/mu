@@ -36,17 +36,6 @@ http://feather.perl6.nl/syn/S12.html#Introspection
 
 =back
 
-=head2 NOTES:
-
-In order to keep track of object "creation"
-I have put in Flags to identify various change points
-
-IE
-
-##DLOCAUS ::Object - AddMethod
-
-DLOCAUS is my IRC name, and is there so I can grep for it easily.
-
 =cut
 
 use v5;
@@ -224,7 +213,6 @@ sub make_class {
 
 # see below for defintion: search for "$meta_Object = "
 my $meta_Object;
-##DLOCAUS $meta_Object Delcared
 
 =head2 get_method_from_metaclass
 
@@ -268,8 +256,6 @@ returns undef on failure
 TODO: Should this "return;" intead of returning undef explicitly?
 
 =cut
-
-##DLOCAUS get_method_from_object depends on $meta_Object being declared.
 
 sub get_method_from_object {
     my ( $self, $method_name ) = ( shift, shift );
@@ -362,7 +348,6 @@ Basic (private) methods for all objects.
 
 =cut
 
-##DLOCAUS %::PROTO depends on $dispatch - declared above
 %::PROTO = (
     _methods  => undef,        # hash
     _roles    => undef,        # hash
@@ -383,7 +368,6 @@ a Method instance, implements B<.new>.
 
 =cut
 
-##DLOCAUS $method_new depends on $::NamedArgument
 
 my $method_new = {
     %::PROTO,    # provides _methods, _roles, _value, _isa, _dispatch.
@@ -437,7 +421,6 @@ which means it is a Method object with value "undef"
 
 =cut
 
-##DLOCAUS $meta_Method depends on %::PROTO
 
 my $meta_Method = {
     %::PROTO,    # provides _methods, _roles, _value, _isa, _dispatch.
@@ -490,8 +473,6 @@ Located near end of file
 
 =cut
 
-##DLOCAUS $::Method depends on %::PROTO, $meta_Method
-
 $::Method = {
     %::PROTO,    # provides _methods, _roles, _value, _isa, _dispatch.
     _isa => [$meta_Method],
@@ -519,16 +500,12 @@ a Class instance, implements Object
 
 =cut
 
-##DLOCAUS $meta_Object depends on %::PROTO
-
 $meta_Object = {
     %::PROTO,    # provides _methods, _roles, _value, _isa, _dispatch.
 
     # _name     => $_[3],
     _value => { class_name => 'Object', },
 };
-
-##DLOCAUS $meta_Object depends on $meta_Object, $method_new
 
 $meta_Object->{_value}{methods}{WHAT} = ::DISPATCH( $::Method, 'new', sub {$::Object} );
 $meta_Object->{_value}{methods}{HOW}  = ::DISPATCH( $::Method, 'new', sub {$meta_Object} );
@@ -591,8 +568,6 @@ calling.  I believe that the method name is called on the current context
 the original $object->{ _dispatch }
 
 =cut
-
-##DLOCAUS $meta_Class depends on %::PROTO
 
 my $meta_Class = {
     %::PROTO,    # provides _methods, _roles, _value, _isa, _dispatch.
@@ -789,8 +764,6 @@ $meta_Class->{_value}{methods}{add_method} = ::DISPATCH(
     )
 );
 
-##DLOCAUS $meta_Class -> add_method -> new depends on %::PROTO, $meta_Class
-
 ::DISPATCH(
     $meta_Class,
     'add_method',
@@ -847,8 +820,6 @@ none
 
 =cut
 
-##DLOCAUS $::Class depends on %::PROTO
-
 $::Class = {
     %::PROTO,    # provides _methods, _roles, _value, _isa, _dispatch.
     _isa => [$meta_Class],
@@ -894,8 +865,6 @@ $meta_Role->{_value}{methods} = { %{ $meta_Class->{_value}{methods} } };
 
 #--- finish Object
 
-##DLOCAUS &meta_isa is declared
-
 sub meta_isa {
     my $meta = shift;
     my $obj  = shift;
@@ -910,8 +879,6 @@ sub meta_isa {
 
 ##############################################################################
 #  $meta_Object is finished being built here.
-
-##DLOCAUS $meta_Object is also being declared here, depends on $::Bit
 
 ::DISPATCH(
     $meta_Object,
@@ -937,7 +904,6 @@ sub meta_isa {
     )
 );
 
-##DLOCAUS $meta_Object->does added depends on $Str, $::Bit
 ::DISPATCH(
     $meta_Object,
     'add_method',
@@ -984,7 +950,6 @@ sub meta_isa {
 );
 
 
-##DLOCAUS $meta_Object depends on $::Str
 # add .Str to $meta_Object
 ::DISPATCH(
     $meta_Object,
@@ -999,7 +964,6 @@ sub meta_isa {
     )
 );
 
-##DLOCAUS $meta_Object depends on $::Int
 # add .Int
 ::DISPATCH(
     $meta_Object,
@@ -1014,7 +978,6 @@ sub meta_isa {
     )
 );
 
-##DLOCAUS $meta_Object depends on $::Bit
 # add .true (Bit)
 ::DISPATCH(
     $meta_Object,
@@ -1029,7 +992,6 @@ sub meta_isa {
     )
 );
 
-##DLOCAUS $meta_Object depends on $::Bit
 # add .defined (Bit)
 ::DISPATCH(
     $meta_Object,
@@ -1045,7 +1007,6 @@ sub meta_isa {
 );
 
 # Object.FETCH is a no-op
-##DLOCAUS $meta_Object gets FETCH (no-op)
 
 ::DISPATCH( $meta_Object, 'add_method', 'FETCH', ::DISPATCH( $::Method, 'new', sub { $_[0] } ) );
 
@@ -1059,7 +1020,6 @@ my $method_readonly = ::DISPATCH(
     }
 );
 
-##DLOCAUS $meta_Object gets $method_readonly
 ::DISPATCH( $meta_Object, 'add_method', 'STORE', $method_readonly );
 
 
