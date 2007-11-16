@@ -5,6 +5,9 @@ use strict;
 
 use KindaPerl6::Runtime::Perl5::MOP;
 
+use KindaPerl6::Runtime::Perl5::Value;
+# Value also contains $::List, $::Subset, $::Code, $::Multi
+
 use KindaPerl6::Runtime::Perl5::Container;
 
 use KindaPerl6::Runtime::Perl6::Pair;
@@ -60,7 +63,7 @@ __END__
 
 =pod
 
-=head1 NAME 
+=head1 NAME
 
 KindaPerl6::Perl5::Runtime
 

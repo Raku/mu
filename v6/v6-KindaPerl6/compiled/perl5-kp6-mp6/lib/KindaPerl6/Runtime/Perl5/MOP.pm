@@ -36,6 +36,17 @@ http://feather.perl6.nl/syn/S12.html#Introspection
 
 =back
 
+=head2 NOTES:
+
+In order to keep track of object "creation"
+I have put in Flags to identify various change points
+
+IE
+
+##DLOCAUS ::Object - AddMethod
+
+DLOCAUS is my IRC name, and is there so I can grep for it easily.
+
 =cut
 
 use v5;
@@ -213,6 +224,7 @@ sub make_class {
 
 # see below for defintion: search for "$meta_Object = "
 my $meta_Object;
+##DLOCAUS $meta_Object Delcared
 
 =head2 get_method_from_metaclass
 
@@ -256,6 +268,8 @@ returns undef on failure
 TODO: Should this "return;" intead of returning undef explicitly?
 
 =cut
+
+##DLOCAUS get_method_from_object depends on $meta_Object being declared.
 
 sub get_method_from_object {
     my ( $self, $method_name ) = ( shift, shift );
@@ -348,6 +362,7 @@ Basic (private) methods for all objects.
 
 =cut
 
+##DLOCAUS %::PROTO depends on $dispatch - declared above
 %::PROTO = (
     _methods  => undef,        # hash
     _roles    => undef,        # hash
@@ -367,6 +382,8 @@ Basic (private) methods for all objects.
 a Method instance, implements B<.new>.
 
 =cut
+
+##DLOCAUS $method_new depends on $::NamedArgument
 
 my $method_new = {
     %::PROTO,    # provides _methods, _roles, _value, _isa, _dispatch.
@@ -420,6 +437,8 @@ which means it is a Method object with value "undef"
 
 =cut
 
+##DLOCAUS $meta_Method depends on %::PROTO
+
 my $meta_Method = {
     %::PROTO,    # provides _methods, _roles, _value, _isa, _dispatch.
     _value => {
@@ -471,6 +490,8 @@ Located near end of file
 
 =cut
 
+##DLOCAUS $::Method depends on %::PROTO, $meta_Method
+
 $::Method = {
     %::PROTO,    # provides _methods, _roles, _value, _isa, _dispatch.
     _isa => [$meta_Method],
@@ -498,12 +519,16 @@ a Class instance, implements Object
 
 =cut
 
+##DLOCAUS $meta_Object depends on %::PROTO
+
 $meta_Object = {
     %::PROTO,    # provides _methods, _roles, _value, _isa, _dispatch.
 
     # _name     => $_[3],
     _value => { class_name => 'Object', },
 };
+
+##DLOCAUS $meta_Object depends on $meta_Object, $method_new
 
 $meta_Object->{_value}{methods}{WHAT} = ::DISPATCH( $::Method, 'new', sub {$::Object} );
 $meta_Object->{_value}{methods}{HOW}  = ::DISPATCH( $::Method, 'new', sub {$meta_Object} );
@@ -566,6 +591,8 @@ calling.  I believe that the method name is called on the current context
 the original $object->{ _dispatch }
 
 =cut
+
+##DLOCAUS $meta_Class depends on %::PROTO
 
 my $meta_Class = {
     %::PROTO,    # provides _methods, _roles, _value, _isa, _dispatch.
@@ -762,6 +789,8 @@ $meta_Class->{_value}{methods}{add_method} = ::DISPATCH(
     )
 );
 
+##DLOCAUS $meta_Class -> add_method -> new depends on %::PROTO, $meta_Class
+
 ::DISPATCH(
     $meta_Class,
     'add_method',
@@ -818,6 +847,8 @@ none
 
 =cut
 
+##DLOCAUS $::Class depends on %::PROTO
+
 $::Class = {
     %::PROTO,    # provides _methods, _roles, _value, _isa, _dispatch.
     _isa => [$meta_Class],
@@ -860,256 +891,10 @@ my $meta_Role = ::DISPATCH( $::Role, 'HOW' );
 # copy Class methods
 $meta_Role->{_value}{methods} = { %{ $meta_Class->{_value}{methods} } };
 
-#--- Values
-
-=head2 $::Value
-
-$::Value is a $::Class object
-
-=head3 Parents
-
-none
-
-=head3 Attributes
-
-none
-
-=head3 Methods
-
-=over
-
-=item WHICH
-
-=item p5landish
-
-=item print
-
-=item FETCH
-
-=back
-
-=cut
-
-$::Value = make_class(
-    proto   => $::Value,
-    name    => 'Value',
-    methods => {
-        WHICH => sub {
-            ::DISPATCH( $::Str, 'new', "$_[0]{_value}" );
-        },
-        p5landish => sub {
-            $_[0]{_value};
-        },
-        print => sub {  # XXX
-            print $_[0]{_value};
-        },
-        FETCH => sub {
-
-            # -- FETCH is implemented in Object
-            $_[0];
-        },
-    }
-);
-
-my $meta_Value = ::DISPATCH( $::Value, 'HOW' );
-
-=head2 $::Str
-
-$::Str is a $::Class object
-
-=head3 Parents
-
-none
-
-=head3 Attributes
-
-none
-
-=head3 Methods
-
-=over
-
-=item perl
-
-=item Str
-
-=item true
-
-=item chars
-
-=back
-
-=cut
-
-$::Str = make_class(
-    proto   => $::Str,
-    name    => 'Str',
-    parents => [$meta_Value],
-    methods => {
-        perl => sub {
-            my $v = ::DISPATCH( $::Str, 'new', '\'' . $_[0]{_value} . '\'' );
-        },
-        Str => sub {
-            $_[0];
-        },
-        true => sub {
-            ::DISPATCH( $::Bit, 'new', ( $_[0]{_value} ne '' && $_[0]{_value} ne '0' ) ? 1 : 0 );
-        },
-        chars => sub {
-            ::DISPATCH( $::Int, 'new', length( $_[0]{_value} ) );
-        },
-    }
-);
-
-my $meta_Str = ::DISPATCH( $::Class, 'HOW', );
-
-=head2 $::Int
-
-$::Int is a $::Class object
-
-=head3 Parents
-
-none
-
-=head3 Attributes
-
-none
-
-=head3 Methods
-
-=over
-
-=item perl
-
-=item increment
-
-=item Str
-
-=item true
-
-=back
-
-=cut
-
-$::Int = make_class(
-    proto   => $::Int,
-    name    => 'Int',
-    parents => [$meta_Value],
-    methods => {
-        perl => sub {
-            my $v = ::DISPATCH( $::Str, 'new', $_[0]{_value} );
-        },
-        Str => sub {
-            my $v = ::DISPATCH( $::Str, 'new', $_[0]{_value} );
-        },
-        true => sub {
-            my $v = ::DISPATCH( $::Bit, 'new', ( $_[0]{_value} == 0 ? 0 : 1 ) );
-        },
-
-        # XXX - Bind to attributes fail, so to move on, a increment is interesting
-
-        increment => sub {
-            $_[0]{_value}++;
-            $_[0];
-        },
-    }
-);
-
-my $meta_Int = ::DISPATCH( $::Int, 'HOW' );
-
-=head2 $::Num
-
-$::Num is a $::Class object
-
-=head3 Parents
-
-none
-
-=head3 Attributes
-
-none
-
-=head3 Methods
-
-=over
-
-=item perl
-
-=item Str
-
-=item true
-
-=back
-
-=cut
-
-$::Num = make_class(
-    proto   => $::Num,
-    name    => 'Num',
-    parents => [$meta_Value],
-    methods => {
-        perl => sub {
-            my $v = ::DISPATCH( $::Str, 'new', $_[0]{_value} );
-        },
-        Str => sub {
-            my $v = ::DISPATCH( $::Str, 'new', $_[0]{_value} );
-        },
-        true => sub {
-            my $v = ::DISPATCH( $::Bit, 'new', $_[0]{_value} == 0 ? 0 : 1 );
-        },
-    }
-);
-
-my $meta_Num = ::DISPATCH( $::Num, 'HOW' );
-
-=head2 $::Bit
-
-$::Bit is a $::Class object
-
-=head3 Parents
-
-$meta_Value
-
-=head3 Attributes
-
-none
-
-=head3 Methods
-
-=over
-
-=item Str
-
-=item true
-
-=item perl
-
-Note, this returns a string 'True' or 'False'
-
-=back
-
-=cut
-
-$::Bit = make_class(
-    proto   => $::Bit,
-    name    => 'Bit',
-    parents => [$meta_Value],
-    methods => {
-        perl => sub {
-            my $v = ::DISPATCH( $::Str, 'new', $_[0]{_value} ? 'True' : 'False' );
-        },
-        Str => sub {
-            my $v = ::DISPATCH( $::Str, 'new', $_[0]{_value} );
-        },
-        true => sub {
-            my $v = ::DISPATCH( $::Bit, 'new', $_[0]{_value} );
-        },
-    }
-);
-
-my $meta_Bit = ::DISPATCH( $::Bit, 'HOW' );
 
 #--- finish Object
+
+##DLOCAUS &meta_isa is declared
 
 sub meta_isa {
     my $meta = shift;
@@ -1125,6 +910,8 @@ sub meta_isa {
 
 ##############################################################################
 #  $meta_Object is finished being built here.
+
+##DLOCAUS $meta_Object is also being declared here, depends on $::Bit
 
 ::DISPATCH(
     $meta_Object,
@@ -1150,6 +937,7 @@ sub meta_isa {
     )
 );
 
+##DLOCAUS $meta_Object->does added depends on $Str, $::Bit
 ::DISPATCH(
     $meta_Object,
     'add_method',
@@ -1195,6 +983,8 @@ sub meta_isa {
     )
 );
 
+
+##DLOCAUS $meta_Object depends on $::Str
 # add .Str to $meta_Object
 ::DISPATCH(
     $meta_Object,
@@ -1209,6 +999,7 @@ sub meta_isa {
     )
 );
 
+##DLOCAUS $meta_Object depends on $::Int
 # add .Int
 ::DISPATCH(
     $meta_Object,
@@ -1223,6 +1014,7 @@ sub meta_isa {
     )
 );
 
+##DLOCAUS $meta_Object depends on $::Bit
 # add .true (Bit)
 ::DISPATCH(
     $meta_Object,
@@ -1237,6 +1029,7 @@ sub meta_isa {
     )
 );
 
+##DLOCAUS $meta_Object depends on $::Bit
 # add .defined (Bit)
 ::DISPATCH(
     $meta_Object,
@@ -1252,6 +1045,8 @@ sub meta_isa {
 );
 
 # Object.FETCH is a no-op
+##DLOCAUS $meta_Object gets FETCH (no-op)
+
 ::DISPATCH( $meta_Object, 'add_method', 'FETCH', ::DISPATCH( $::Method, 'new', sub { $_[0] } ) );
 
 # Object.STORE is forbidden
@@ -1263,260 +1058,9 @@ my $method_readonly = ::DISPATCH(
             }
     }
 );
+
+##DLOCAUS $meta_Object gets $method_readonly
 ::DISPATCH( $meta_Object, 'add_method', 'STORE', $method_readonly );
-
-#--- back to Value
-
-=head2 $::Undef
-
-=head3 Parents
-
-none
-
-=head3 Attributes
-
-none
-
-=head3 Methods
-
-=over
-
-=item perl
-
-returns $::Str 'undef' a string
-
-=item Str
-
-returns $::Str '' as a string
-
-=item true
-
-returns $::Bit 0
-
-=item defined
-
-returns $::Bit 0
-
-=back
-
-=cut
-
-$::Undef = make_class(
-    proto   => $::Undef,
-    name    => "Undef",
-    parents => [$meta_Value],
-    methods => {
-        new     => sub { $_[0] },
-        perl    => sub { ::DISPATCH( $::Str, 'new', 'undef' ) },
-        Str     => sub { ::DISPATCH( $::Str, 'new', '' ) },
-        true    => sub { ::DISPATCH( $::Bit, 'new', 0 ) },
-        defined => sub { ::DISPATCH( $::Bit, 'new', 0 ) },
-    }
-);
-
-=head2 $::Code
-
-$::Code is a $::Class object
-
-=head3 Parents
-
-none
-
-=head3 Attributes
-
-=over
-
-=item code
-
-=item signature
-
-=item ast
-
-=back
-
-=head3 Methods
-
-=over
-
-=item perl
-
-=item APPLY
-
-warning: apply attempts to use $::Junction (not implemeneted (yet))
-
-=back
-
-=cut
-
-my $_apply;
-
-$_apply = sub {
-
-    # Note call to $_apply -> in deepest part of the for loop.
-    # XXX - use the attributes
-
-    my $self  = shift;    # the Code object
-    my @param = @_;
-
-    #print "param: \n"; #,Dumper(\@param);
-    # is there a Junction class?
-    if ($::Junction) {
-
-        #print "we've got junctions\n";
-        for my $index ( 0 .. $#param ) {
-            my $j = $param[$index];
-            next unless ref $j;
-            if ( ::DISPATCH( $j, 'does', $::Junction )->{_value} ) {
-                my @things = @{ ::DISPATCH( ::DISPATCH( $j, 'things' ), 'array' )->{_value}{_array} };
-                return ::DISPATCH(
-                    $::Junction,
-                    'new',
-                    {   type   => $j->{_value}{type},
-                        things => ::DISPATCH(
-                            $::Array, 'new',
-                            {   _array => [
-                                    map {
-                                        $param[$index] = $_;
-                                        $_apply->( $self, @param );
-                                        } @things
-                                ],
-                            }
-                        ),
-                    }
-                );
-            }
-        }
-    }
-
-    local $::ROUTINE = $self;
-    $self->{_value}{code}->(@_);
-};
-
-$::Code = make_class(
-    proto        => $::Code,
-    name         => 'Code',
-    parents      => [$meta_Value],
-    attributes => [qw | code signature ast |],
-    methods      => {
-        perl => sub {
-
-            # TODO - emit from $.ast
-            my $v = ::DISPATCH( $::Str, 'new', $_[0]{_value}{src} );
-            return ::DISPATCH( $::Str, 'new', '{ ... }' );
-        },
-        'APPLY'     => $_apply,
-        'p5landish' => sub {
-            $_[0]{_value}{code};
-        },
-    },
-);
-
-my $meta_Code = ::DISPATCH( $::Code, 'HOW' );
-
-=head2 $::List
-
-$::List at this time just uses its parent $meta_Value ( $::Value? )
-
-$::List is a $::Class object
-
-=head3 Parents:
-
-=over
-
-=item $meta_Value
-
-=back
-
-=head3 Attributes:
-
-none
-
-=head3 Methods:
-
-none
-
-=cut
-
-$::List = make_class(
-    proto   => $::List,
-    name    => 'List',
-    parents => [$meta_Value],
-    methods => {},
-);
-
-my $meta_List = ::DISPATCH( $::List, 'HOW' );
-
-# TODO - finish List implementation ...
-
-#--- Subset
-# TODO - hierarchical constraints - Array of Foo
-#    - use a linked list of Subsets ???
-# -> you can't subclass a subset
-
-=head2 $::Subset
-
-$::Subset is a $::Class object
-
-=head3 Parents:
-
-=over
-
-=item $meta_Value
-
-=back
-
-=head3 Attributes:
-
-=over
-
-=item base_class
-
-=item block
-
-=back
-
-=head3 Methods:
-
-=over
-
-=item perl
-
-=back
-
-=head3 Notes
-
-# -> if you instantiate a subset type you get an object of its base type
-#    ??? how to implement this?
-#    $subset->new() creates a Subset, for now
-#$meta_Subset->add_method(
-#    'new',
-#    ::DISPATCH( $::Method, 'new',
-#        sub {
-#            my $self = shift;
-#            my $base_type = $self->{_value}{base_type};
-#            ::DISPATCH( $base_type, 'new', @_ );
-#        }
-#    )
-#);
-
-=cut
-
-$::Subset = make_class(
-    proto        => $::Subset,
-    name         => 'Subset',
-    parents      => [$meta_Value],
-    attributes => [
-        'base_class',    # Class
-        'block'          # Code
-    ],
-    methods => {
-        perl => sub {
-            my $v = ::DISPATCH( $::Str, 'new', '::Subset( base_class => "...", block => "..." )' );
-        },
-    },
-);
-
-my $meta_Subset = ::DISPATCH( $::Subset, 'HOW' );
 
 
 # XXX should not need this!
@@ -1625,38 +1169,6 @@ $::Hash = make_class(
     methods => {}
 );
 
-=head2 $::Multi
-
-=head3 Parents:
-
-none
-
-=head3 Attributes:
-
-none
-
-=head3 Methods:
-
-=over
-
-=item APPLY
-
-=back
-
-=cut
-
-$::Multi = make_class(
-    proto   => $::Multi,
-    name    => 'Multi',
-    parents => [$meta_Code],
-    methods => {
-        APPLY => sub {
-            my $self = shift;
-            my $code = ::DISPATCH( $self, 'select', ::CAPTURIZE( \@_ ) );
-            ::DISPATCH( $code, 'APPLY', @_ );
-        },
-    }
-);
 
 1;
 
