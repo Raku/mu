@@ -72,27 +72,38 @@
 
 <h2>What is KindaPerl6?</h2>
 
-<p>KindaPerl6 (or kp6) is a Perl 6 compiler written in mp6, a subset of Perl 6.</p>
+<p>KindaPerl6 is an ongoing implementation of the <a href="http://perlcabal.org/syn/">full Perl6 specification</a> written in Perl6.</p>
 
-<p>It aims to implement all of the Perl 6 specification, and is currently in
-active development, the progess and future plans
-are indicated in the  Roadmap <a
-    href="http://svn.pugscode.org/pugs/v6/docs/kp6-roadmap.pod">[POD]</a>
-    <a href="http://moritz.faui2k3.org/pugs/v6/docs/kp6-roadmap.pod.html">[HTML]</a>.</p>
+<p>KindaPerl6 (kp6) like MostlyPerl6 (mp6) is a Perl 6 compiler written in
+a subset of Perl 6. Whereas mp6 was written with portability in mind, the
+initial goal of kp6 was to:</p>
 
-<p>kp6 has a very flexible architecture and has several emitters, the most
-advanced creates Perl 5 code.</p>
+<ul>
+<lh>provide an extra layer of semantics</lh>
+<li>lexical subroutines</li>
+<li>object metamodel</li>
+<li>begin-blocks</li>
+<li>proper containers</li>
+</ul>
 
-<p>The source code can be found in the <a
-href="http://svn.pugscode.org/pugs/v6/v6-KindaPerl6/">Pugs SVN
-repository</a>, development is usually discussed on #perl6 on
-irc.freenode.org.</p>
+<ul>
+<lh>improved compiler architecture</lh>
+<li>pluggable compilation workflow</li>
+<li>pluggable backends</li>
+<li>pluggable grammar engines</li>
+</ul>
+
+<p>Note: the most advanced backends produce Perl5 and CLISP code.</p>
+
+<p>Currently kp6 can be compiled with mp6, but work is ongoing to bootstrap
+kp6 to the point where it can compile itself.</p>
+
+<p>For more information on kp6, visit the <a href="http://dev.pugscode.org/wiki/v6">developers' wiki</a>
 
 <p>Main author ok kp6 is <a
 href="http://pt.wikipedia.org/wiki/Fl%C3%A1vio_Glock">Flávio Glock</a>.</p>
 
 </DIV>
-
 
 </TD>
 </TR>
