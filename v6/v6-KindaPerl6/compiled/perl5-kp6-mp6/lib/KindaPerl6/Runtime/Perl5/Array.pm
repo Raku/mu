@@ -12,7 +12,25 @@ none
 
 =head3 Methods:
 
-none
+=over
+
+=item new
+
+=item INDEX
+
+=item elems
+
+=item push
+
+=item pop
+
+=item shift
+
+=item unshift
+
+=item sort
+
+=item map
 
 =cut
 
@@ -83,6 +101,7 @@ $::Array = KindaPerl6::Runtime::Perl5::MOP::make_class(
         },
     map =>sub {
             my $sub = $_[1];
+            # arity: http://en.wikipedia.org/wiki/Arity, the number of arguments a function takes
             my $arity = ::DISPATCH( ::DISPATCH( $sub, 'signature' ), 'arity' )->{_value};
             #print "Array.map arity: $arity\n";
             my $result = ::DISPATCH( $::Array, 'new' );
@@ -135,7 +154,7 @@ none
 
 $::ArrayCell = KindaPerl6::Runtime::Perl5::MOP::make_class(
     proto   => $::ArrayCell,
-    name    => "ArrayCell",
+    name    => 'ArrayCell',
     parents  => [$::meta_Container],
     methods => {
         new => sub {

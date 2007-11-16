@@ -1066,17 +1066,7 @@ $::Signature::Item = make_class(
 
 =head2 $::Array
 
-=head3 Parents:
-
-none
-
-=head3 Attributes:
-
-none
-
-=head3 Methods:
-
-none
+Documentation for $::Array is in KindaPerl6/Runtime/Perl5/Array.pm
 
 =cut
 
