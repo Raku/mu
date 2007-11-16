@@ -174,13 +174,11 @@ sub ::MODIFIED {
 
 =head2 make_class
 
- make_class( methods => { method1 => ???, method2 => ???, ...  },
+ make_class( methods => { method_name => \sub, method_name => \sub, ...  },
              attributes => [ attribute1,attribute2, ... ],
              parents => [ parent1,parent2, ... ],
              proto => $proto
  );
-
- $proto is created via DispatchSugar, as $proto->{ _dispatch } is required
 
  See Also: %::PROTO (in this file)
 
@@ -189,11 +187,14 @@ sub ::MODIFIED {
 sub make_class {
     my %args  = @_;
     my $proto = delete $args{proto};
+
+    # proto will not be set by src/KindaPerl6/Runtime/Perl6/*.pm
     my $meta  = ( defined($proto) && ::DISPATCH( $proto, 'HOW' ) )
         || ::DISPATCH( $::Class, 'new', $args{name} );
 
     my %methods = %{ $args{methods} };
 
+    # iterate though each of the available methods
     while ( my ( $method_name, $sub ) = each %methods ) {
         ::DISPATCH( $meta, "redefine_method", $method_name, ::DISPATCH( $::Method, 'new', { code => $sub } ) );
     }
@@ -420,7 +421,6 @@ which means it is a Method object with value "undef"
 # http://irclog.perlgeek.de/perl6/2007-10-30#i_134420
 
 =cut
-
 
 my $meta_Method = {
     %::PROTO,    # provides _methods, _roles, _value, _isa, _dispatch.
