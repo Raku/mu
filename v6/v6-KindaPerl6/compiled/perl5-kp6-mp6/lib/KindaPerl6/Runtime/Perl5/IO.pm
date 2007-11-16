@@ -1,8 +1,32 @@
-# low level IO module
+# use strict; $meta_Value is not defined
+
+=head2 $::IO
+
+low level IO module
+
+If guard_insecure_code is on ($::Kp6Security) then this code will die.
+
+=head3 Parents:
+
+$::meta_Value
+
+=head3 Attributes:
+
+none
+
+=head3 Methods:
+
+=over
+
+=item mkdir
+
+=item rmdir
+
+=cut
 
 $::IO = KindaPerl6::Runtime::Perl5::MOP::make_class(
     name    => "IO",
-    parents  => [$meta_Value],
+    parents => [$meta_Value],
     methods => {
         mkdir => sub {
             ::DISPATCH( $::Kp6Security, 'guard_insecure_code' );
