@@ -117,7 +117,7 @@ if ( $opt{backend} eq "perl5rx" ) {
             {   tests   => \@tests,
                 backend => $opt{backend},
                 tap_new => {
-                    verbosity => $opt{verbose},
+                    verbose => $opt{verbose},
                 },
             }
         );
