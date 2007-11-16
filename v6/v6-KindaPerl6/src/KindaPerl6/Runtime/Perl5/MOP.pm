@@ -831,51 +831,20 @@ push @{ $meta_Object->{_isa} }, $meta_Class;
 
 #push @{$meta_Class->{_isa}}, $meta_Object;
 
-#--- Roles
-
-=head2 $::Role
-
-$::Role is a $::Class object
-
-=head3 Parents
-
-none
-
-=head3 Attributes
-
-none
-
-=head3 Methods
-
-All methods are the same as the ::Class methods
-
-=cut
-
-$::Role = make_class(
-    proto   => $::Role,
-    name    => 'Role',
-    methods => {},
-);
-
-my $meta_Role = ::DISPATCH( $::Role, 'HOW' );
-
-# copy Class methods
-$meta_Role->{_value}{methods} = { %{ $meta_Class->{_value}{methods} } };
-
-
 #--- finish Object
 
-sub meta_isa {
+my $meta_isa;
+$meta_isa = sub {
     my $meta = shift;
     my $obj  = shift;
     return 1
         if $meta->{_value}{class_name} eq $obj->{_value};
     for my $parent ( @{ $meta->{_value}{isa} } ) {
         return 1
-            if meta_isa( $parent, $obj );
+            if $meta_isa->( $parent, $obj );
     }
     return 0;
-}
+};
 
 ##############################################################################
 #  $meta_Object is finished being built here.
@@ -894,7 +863,7 @@ sub meta_isa {
             my $meta = ::DISPATCH( $self, 'HOW' );
             return ::DISPATCH(
                 $::Bit, 'new',
-                (   meta_isa( $meta, $obj )
+                (   $meta_isa->( $meta, $obj )
                         || $obj->{_value} eq 'Object'    # XXX
                     ? 1
                     : 0
@@ -1129,6 +1098,36 @@ $::Hash = make_class(
     methods => {}
 );
 
+#--- Roles
+
+=head2 $::Role
+
+$::Role is a $::Class object
+
+=head3 Parents
+
+none
+
+=head3 Attributes
+
+none
+
+=head3 Methods
+
+All methods are the same as the ::Class methods
+
+=cut
+
+$::Role = make_class(
+    proto   => $::Role,
+    name    => 'Role',
+    methods => {},
+);
+
+my $meta_Role = ::DISPATCH( $::Role, 'HOW' );
+
+# copy Class methods
+$meta_Role->{_value}{methods} = { %{ $meta_Class->{_value}{methods} } };
 
 1;
 

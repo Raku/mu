@@ -174,13 +174,11 @@ sub ::MODIFIED {
 
 =head2 make_class
 
- make_class( methods => { method1 => ???, method2 => ???, ...  },
+ make_class( methods => { method_name => \sub, method_name => \sub, ...  },
              attributes => [ attribute1,attribute2, ... ],
              parents => [ parent1,parent2, ... ],
              proto => $proto
  );
-
- $proto is created via DispatchSugar, as $proto->{ _dispatch } is required
 
  See Also: %::PROTO (in this file)
 
@@ -189,11 +187,14 @@ sub ::MODIFIED {
 sub make_class {
     my %args  = @_;
     my $proto = delete $args{proto};
+
+    # proto will not be set by src/KindaPerl6/Runtime/Perl6/*.pm
     my $meta  = ( defined($proto) && ::DISPATCH( $proto, 'HOW' ) )
         || ::DISPATCH( $::Class, 'new', $args{name} );
 
     my %methods = %{ $args{methods} };
 
+    # iterate though each of the available methods
     while ( my ( $method_name, $sub ) = each %methods ) {
         ::DISPATCH( $meta, "redefine_method", $method_name, ::DISPATCH( $::Method, 'new', { code => $sub } ) );
     }
@@ -420,7 +421,6 @@ which means it is a Method object with value "undef"
 # http://irclog.perlgeek.de/perl6/2007-10-30#i_134420
 
 =cut
-
 
 my $meta_Method = {
     %::PROTO,    # provides _methods, _roles, _value, _isa, _dispatch.
@@ -831,51 +831,20 @@ push @{ $meta_Object->{_isa} }, $meta_Class;
 
 #push @{$meta_Class->{_isa}}, $meta_Object;
 
-#--- Roles
-
-=head2 $::Role
-
-$::Role is a $::Class object
-
-=head3 Parents
-
-none
-
-=head3 Attributes
-
-none
-
-=head3 Methods
-
-All methods are the same as the ::Class methods
-
-=cut
-
-$::Role = make_class(
-    proto   => $::Role,
-    name    => 'Role',
-    methods => {},
-);
-
-my $meta_Role = ::DISPATCH( $::Role, 'HOW' );
-
-# copy Class methods
-$meta_Role->{_value}{methods} = { %{ $meta_Class->{_value}{methods} } };
-
-
 #--- finish Object
 
-sub meta_isa {
+my $meta_isa;
+$meta_isa = sub {
     my $meta = shift;
     my $obj  = shift;
     return 1
         if $meta->{_value}{class_name} eq $obj->{_value};
     for my $parent ( @{ $meta->{_value}{isa} } ) {
         return 1
-            if meta_isa( $parent, $obj );
+            if $meta_isa->( $parent, $obj );
     }
     return 0;
-}
+};
 
 ##############################################################################
 #  $meta_Object is finished being built here.
@@ -894,7 +863,7 @@ sub meta_isa {
             my $meta = ::DISPATCH( $self, 'HOW' );
             return ::DISPATCH(
                 $::Bit, 'new',
-                (   meta_isa( $meta, $obj )
+                (   $meta_isa->( $meta, $obj )
                         || $obj->{_value} eq 'Object'    # XXX
                     ? 1
                     : 0
@@ -1129,6 +1098,36 @@ $::Hash = make_class(
     methods => {}
 );
 
+#--- Roles
+
+=head2 $::Role
+
+$::Role is a $::Class object
+
+=head3 Parents
+
+none
+
+=head3 Attributes
+
+none
+
+=head3 Methods
+
+All methods are the same as the ::Class methods
+
+=cut
+
+$::Role = make_class(
+    proto   => $::Role,
+    name    => 'Role',
+    methods => {},
+);
+
+my $meta_Role = ::DISPATCH( $::Role, 'HOW' );
+
+# copy Class methods
+$meta_Role->{_value}{methods} = { %{ $meta_Class->{_value}{methods} } };
 
 1;
 
