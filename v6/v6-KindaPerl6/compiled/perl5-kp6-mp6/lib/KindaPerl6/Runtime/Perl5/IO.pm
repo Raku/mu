@@ -2,7 +2,7 @@
 
 $::IO = KindaPerl6::Runtime::Perl5::MOP::make_class(
     name    => "IO",
-    parent  => [$meta_Value],
+    parents  => [$meta_Value],
     methods => {
         mkdir => sub {
             ::DISPATCH( $::Kp6Security, 'guard_insecure_code' );

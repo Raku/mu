@@ -34,6 +34,13 @@ There are several key functions used though this package.
 
 http://feather.perl6.nl/syn/S12.html#Introspection
 
+=item _isa
+
+_isa, should be thought of like package @ISA, ie, the interpeter (ours) looks
+back though the _isa(s), to find a method that actually has the method name
+needed, before calling.  I believe that the method name is called on the
+current context the original $object->{ _dispatch }
+
 =back
 
 =cut
@@ -186,6 +193,14 @@ sub ::MODIFIED {
 
 sub make_class {
     my %args  = @_;
+
+    my %accepted = qw | methods 1 attributes 1 parents 1 proto 1 name 1 |;
+    for my $check ( keys %args ) {
+        my @caller = caller;
+        my $from = "($caller[1] $caller[0] line $caller[2])";
+        warn "Unknown argument \"$check\" given to " . __PACKAGE__ . "::make_class from:\n$from" unless defined $accepted{ $check };
+    }
+
     my $proto = delete $args{proto};
 
     # proto will not be set by src/KindaPerl6/Runtime/Perl6/*.pm
@@ -561,11 +576,6 @@ $::Object = {
 #--- Class
 
 =head2 $meta_Class
-
-_isa, should be thought of like package @ISA, ie, it looks back though the
-_isa(s), to find a method that actually has the method name needed, before
-calling.  I believe that the method name is called on the current context
-the original $object->{ _dispatch }
 
 =cut
 

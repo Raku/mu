@@ -193,6 +193,14 @@ sub ::MODIFIED {
 
 sub make_class {
     my %args  = @_;
+
+    my %accepted = qw | methods 1 attributes 1 parents 1 proto 1 name 1 |;
+    for my $check ( keys %args ) {
+        my @caller = caller;
+        my $from = "($caller[1] $caller[0] line $caller[2])";
+        warn "Unknown argument \"$check\" given to " . __PACKAGE__ . "::make_class from:\n$from" unless defined $accepted{ $check };
+    }
+
     my $proto = delete $args{proto};
 
     # proto will not be set by src/KindaPerl6/Runtime/Perl6/*.pm

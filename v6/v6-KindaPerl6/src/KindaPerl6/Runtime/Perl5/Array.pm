@@ -1,28 +1,44 @@
 use strict;
 
+=head2 $::Array
+
+=head3 Parents:
+
+none; however $::meta_List is being suggested
+
+=head3 Attributes:
+
+none
+
+=head3 Methods:
+
+none
+
+=cut
+
 $::Array = KindaPerl6::Runtime::Perl5::MOP::make_class(
-    proto => $::Array, 
-    name=>"Array",
-    parent=>[ 
+    proto => $::Array,
+    name=> 'Array',
+    parents=>[
             # $::meta_List ???
         ],
     methods=>
     {
-    
+
     new => sub {
             my $v = {
                 %{ $_[0] },
-                _value => $_[1],  
+                _value => $_[1],
                 _dispatch_VAR => $::dispatch_VAR,
             };
-            $v->{_value}{_array} = [] 
+            $v->{_value}{_array} = []
                 unless defined $v->{_value}{_array};
             $v;
         },
     INDEX=>sub {
             my $key = ::DISPATCH(::DISPATCH($_[1],"Int"),"p5landish");
             $_[0]{_value}{_array} = []
-                unless defined $_[0]{_value}{_array};  # XXX 
+                unless defined $_[0]{_value}{_array};  # XXX
             return ::DISPATCH($::ArrayCell,"new",{
                     cell=> $_[0]{_value}{_array},
                     key => $key,
@@ -52,13 +68,13 @@ $::Array = KindaPerl6::Runtime::Perl5::MOP::make_class(
         },
     sort =>sub {
             my $sub = $_[1];
-            ::DISPATCH( $::Array, 'new', 
+            ::DISPATCH( $::Array, 'new',
                     { _array => [
                             sort {
                                 ::DISPATCH(
                                         $sub,
-                                        "APPLY", 
-                                        $a, $b 
+                                        "APPLY",
+                                        $a, $b
                                     )->{_value};
                             } @{$_[0]{_value}{_array}}
                         ],
@@ -82,7 +98,7 @@ $::Array = KindaPerl6::Runtime::Perl5::MOP::make_class(
                 ::DISPATCH( $result, 'push',
                     ::DISPATCH(
                         $sub,
-                        "APPLY", 
+                        "APPLY",
                         @params,
                     )
                 );
@@ -95,7 +111,7 @@ $::Array = KindaPerl6::Runtime::Perl5::MOP::make_class(
 
 =head3 Parents:
 
-none
+$::meta_Container
 
 =head3 Attributes:
 
@@ -120,7 +136,7 @@ none
 $::ArrayCell = KindaPerl6::Runtime::Perl5::MOP::make_class(
     proto   => $::ArrayCell,
     name    => "ArrayCell",
-    parent  => [$::meta_Container],
+    parents  => [$::meta_Container],
     methods => {
         new => sub {
             my $v = {

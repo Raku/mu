@@ -1,17 +1,17 @@
 use strict;
 
 $::List = KindaPerl6::Runtime::Perl5::MOP::make_class(
-    proto => $::List, 
-    name=>"List",parent=>[$::meta_Value],methods=>
+    proto => $::List,
+    name=>"List",parents=>[$::meta_Value],methods=>
     {
-    
+
     new => sub {
             my $v = {
                 %{ $_[0] },
-                _value => $_[1],  
+                _value => $_[1],
                 _dispatch_VAR => $::dispatch_VAR,
             };
-            $v->{_value}{_array} = [] 
+            $v->{_value}{_array} = []
                 unless defined $v->{_value}{_array};
             $v;
         },
@@ -19,7 +19,7 @@ $::List = KindaPerl6::Runtime::Perl5::MOP::make_class(
             # XXX TODO - readonly!
             my $key = ::DISPATCH(::DISPATCH($_[1],"Int"),"p5landish");
             $_[0]{_value}{_array} = []
-                unless defined $_[0]{_value}{_array};  # XXX 
+                unless defined $_[0]{_value}{_array};  # XXX
             return ::DISPATCH($::ArrayCell,"new",{
                     cell=> $_[0]{_value}{_array},
                     key => $key,
@@ -51,13 +51,13 @@ $::List = KindaPerl6::Runtime::Perl5::MOP::make_class(
         },
     sort =>sub {
             my $sub = $_[1];
-            ::DISPATCH( $::List, 'new', 
+            ::DISPATCH( $::List, 'new',
                     { _array => [
                             sort {
                                 ::DISPATCH(
                                         $sub,
-                                        "APPLY", 
-                                        $a, $b 
+                                        "APPLY",
+                                        $a, $b
                                     )->{_value};
                             } @{$_[0]{_value}{_array}}
                         ],
@@ -73,7 +73,7 @@ $::List = KindaPerl6::Runtime::Perl5::MOP::make_class(
                 my @params = splice( @list, 0, $arity );
                 ::DISPATCH(
                     $sub,
-                    "APPLY", 
+                    "APPLY",
                     @params
                 );
             }

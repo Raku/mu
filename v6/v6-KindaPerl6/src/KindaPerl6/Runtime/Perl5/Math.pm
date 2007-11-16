@@ -1,6 +1,6 @@
 # low level Math module
 
-$::Math = KindaPerl6::Runtime::Perl5::MOP::make_class(name=>"Math",parent=>[$meta_Num],methods=>{
+$::Math = KindaPerl6::Runtime::Perl5::MOP::make_class(name=>"Math",parents=>[$meta_Num],methods=>{
     srand => sub {
                   my $self = shift;
                   my $seed = $_[0]{_value};

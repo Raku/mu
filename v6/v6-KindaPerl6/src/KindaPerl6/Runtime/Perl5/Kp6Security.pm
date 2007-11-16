@@ -2,7 +2,7 @@
 
 $::Kp6Security = KindaPerl6::Runtime::Perl5::MOP::make_class(
     name    => 'Kp6Security',
-    parent  => [$meta_Value],
+    parents  => [$meta_Value],
     methods => {
         guard_insecure_code => sub {
             if (Main::KP6_DISABLE_INSECURE_CODE) {
