@@ -194,11 +194,18 @@ sub ::MODIFIED {
 sub make_class {
     my %args  = @_;
 
+    # Check to make sure arguments are what we expect.
     my %accepted = qw | methods 1 attributes 1 parents 1 proto 1 name 1 |;
     for my $check ( keys %args ) {
         my @caller = caller;
         my $from = "($caller[1] $caller[0] line $caller[2])";
         warn "Unknown argument \"$check\" given to " . __PACKAGE__ . "::make_class from:\n$from" unless defined $accepted{ $check };
+    }
+
+    { # make sure that parents exist
+        for my $parent ( @{ $args{parents} } ) {
+            warn "parent does not exist for $args{name}" unless defined $parent;
+        }
     }
 
     my $proto = delete $args{proto};
@@ -1066,17 +1073,7 @@ $::Signature::Item = make_class(
 
 =head2 $::Array
 
-=head3 Parents:
-
-none
-
-=head3 Attributes:
-
-none
-
-=head3 Methods:
-
-none
+Documentation for $::Array is in KindaPerl6/Runtime/Perl5/Array.pm
 
 =cut
 
@@ -1088,17 +1085,7 @@ $::Array = make_class(
 
 =head2 $::Hash
 
-=head3 Parents:
-
-none
-
-=head3 Attributes:
-
-none
-
-=head3 Methods:
-
-none
+Documentation for $::Hash is in KindaPerl6/Runtime/Perl5/Hash.pm
 
 =cut
 
