@@ -4,7 +4,7 @@ use strict;
 
 =head3 Parents:
 
-none; however $::meta_List is being suggested
+$::Object 
 
 =head3 Attributes:
 
@@ -37,30 +37,47 @@ none
 $::Array = KindaPerl6::Runtime::Perl5::MOP::make_class(
     proto => $::Array,
     name=> 'Array',
-    parents=>[
-            # $::meta_List ???
-        ],
+    parents => [ ],   
     methods=>
     {
 
     new => sub {
-            my $v = {
-                %{ $_[0] },
-                _value => $_[1],
-                _dispatch_VAR => $::dispatch_VAR,
+            my ( $proto, $param ) = @_;
+            my $self = {
+                %{ $proto },
+                _value => { _array => [ ] },
             };
-            $v->{_value}{_array} = []
-                unless defined $v->{_value}{_array};
-            $v;
+            if ($param) {
+                for my $index ( 0 .. $#{ $param->{_array} } ) {
+                    ::DISPATCH_VAR( ::DISPATCH( $self, 'INDEX', $index ), 'STORE', ${ $param->{_array} }[$index], );
+                }
+            }
+            return $self;
         },
     INDEX=>sub {
-            my $key = ::DISPATCH(::DISPATCH($_[1],"Int"),"p5landish");
-            $_[0]{_value}{_array} = []
-                unless defined $_[0]{_value}{_array};  # XXX
-            return ::DISPATCH($::ArrayCell,"new",{
-                    cell=> $_[0]{_value}{_array},
-                    key => $key,
-                });
+            my $self = shift;
+            my $key
+                = ref( $_[0] )
+                ? ::DISPATCH( ::DISPATCH( $_[0], "Int" ), "p5landish" )
+                : $_[0];
+            return $self->{_value}{_array}[$key]
+                if exists $self->{_value}{_array}[$key];
+            return ::DISPATCH(
+                $::ContainerProxy,
+                "new",
+                {   
+                    STORE => sub {
+                        #warn "Array.[].STORE!";
+                        shift;
+                        my $cell
+                            = exists $self->{_value}{_array}[$key]
+                            ? $self->{_value}{_array}[$key]
+                            : ( $self->{_value}{_array}[$key] = ::DISPATCH( $::Container, 'new' ) );
+                        ::DISPATCH_VAR( $cell, 'STORE', @_ );
+                    },
+                    BIND => sub { die "BIND!" },
+                }
+            );
         },
     elems =>sub {
             ::DISPATCH($::Int, "new", scalar @{ $_[0]{_value}{_array} } );
@@ -125,58 +142,5 @@ $::Array = KindaPerl6::Runtime::Perl5::MOP::make_class(
             $result;
         },
 });
-
-=head2 $::ArrayCell
-
-=head3 Parents:
-
-$::meta_Container
-
-=head3 Attributes:
-
-none
-
-=head3 Methods:
-
-=over
-
-=item new
-
-=item STORE
-
-=item FETCH
-
-=item exists
-
-=back
-
-=cut
-
-$::ArrayCell = KindaPerl6::Runtime::Perl5::MOP::make_class(
-    proto   => $::ArrayCell,
-    name    => 'ArrayCell',
-    parents  => [$::meta_Container],
-    methods => {
-        new => sub {
-            my $v = {
-                %{ $_[0] },
-                _value        => $_[1],
-                _roles        => { 'container' => 1, 'auto_deref' => 1 },
-                _dispatch_VAR => $::dispatch_VAR,
-            };
-        },
-        STORE => sub {
-            ${ $_[0]{_value}{cell} }[ $_[0]{_value}{key} ] = $_[1];
-        },
-        FETCH => sub {
-            exists ${ $_[0]{_value}{cell} }[ $_[0]{_value}{key} ]
-                ? ${ $_[0]{_value}{cell} }[ $_[0]{_value}{key} ]
-                : ::DISPATCH( $::Undef, 'new', 0 );
-        },
-        exists => sub {
-            ::DISPATCH( $::Bit, 'new', exists ${ $_[0]{_value}{cell} }[ $_[0]{_value}{key} ] ? 1 : 0 );
-        },
-    }
-);
 
 1;

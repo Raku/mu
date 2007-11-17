@@ -4,7 +4,7 @@ use strict;
 
 =head3 Parents:
 
-$::meta_Container
+$::Object
 
 =head3 Attributes:
 
@@ -24,20 +24,18 @@ none
 
 =cut
 
-my $meta_Container = ::DISPATCH($::Container,'HOW');
 
 $::Hash = KindaPerl6::Runtime::Perl5::MOP::make_class(
     proto   => $::Hash,
     name    => 'Hash',
-    parents => [$meta_Container],
+    parents => [ ],
     methods => {
 
         new => sub {
             my ( $proto, $param ) = @_;
             my $self = {
                 %{$proto},
-                _value => { _hash => {} },    # ( $_[1] || { _hash => {} } ),
-                _dispatch_VAR => $::dispatch_VAR,    # XXX
+                _value => { _hash => {} }, 
             };
             if ($param) {
                 for my $key ( keys %{ $param->{_hash} } ) {
@@ -52,31 +50,13 @@ $::Hash = KindaPerl6::Runtime::Perl5::MOP::make_class(
                 = ref( $_[0] )
                 ? ::DISPATCH( ::DISPATCH( $_[0], "Str" ), "p5landish" )
                 : $_[0];
-
             return $self->{_value}{_hash}{$key}
                 if exists $self->{_value}{_hash}{$key};
-
             return ::DISPATCH(
                 $::ContainerProxy,
                 "new",
-                {   FETCH => sub {
-
-                        #warn "Hash.{}.FETCH!";
-                        my $self = shift;
-                        return $self->{_value}{cell}
-                            if exists $self->{_value}{cell};
-                        return ::DISPATCH(
-                            $::ValueProxy,
-                            "new",
-                            {   _parent        => $self,
-                                _parent_exists => sub { exists $self->{_value}{cell} },
-                                INDEX          => $::INDEX_sub,
-                                LOOKUP         => $::LOOKUP_sub,
-                            }
-                        );
-                    },
+                {   
                     STORE => sub {
-
                         #warn "Hash.{x}.STORE!";
                         shift;
                         my $cell
@@ -110,7 +90,7 @@ $::Hash = KindaPerl6::Runtime::Perl5::MOP::make_class(
 
 =head3 Parents:
 
-$::meta_Hash
+$::Hash
 
 head3 Attributes:
 
@@ -130,12 +110,11 @@ none
 
 =cut
 
-my $meta_Hash = ::DISPATCH($::Hash,'HOW');
 
 $::HashProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
     proto   => $::HashProxy,
     name    => 'HashProxy',
-    parents => [$meta_Hash],
+    parents => [ ::DISPATCH($::Hash,'HOW') ],
     methods => {
 
         new => sub {
