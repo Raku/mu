@@ -82,18 +82,21 @@ sub emit_perl5 {
                                                               . (
                                                                 'use '
                                                                   . (
-                                                                    Main::get_compiler_target_runtime(
+                                                                    Main::get_compiler_target_runtime
+                                                                      (
                                                                       )
                                                                       . (
                                                                         ';'
                                                                           . (
-                                                                            Main::newline(
+                                                                            Main::newline
+                                                                              (
                                                                               )
                                                                               . (
 'my $_MODIFIED; INIT { $_MODIFIED = {} }'
                                                                                   .
                                                                                   (
-                                                                                    Main::newline(
+                                                                                    Main::newline
+                                                                                      (
                                                                                       )
                                                                                       .
                                                                                       (
@@ -106,20 +109,23 @@ sub emit_perl5 {
 '}'
                                                                                                   .
                                                                                                   (
-                                                                                                    Main::newline(
+                                                                                                    Main::newline
+                                                                                                      (
                                                                                                       )
                                                                                                       .
                                                                                                       (
                                                                                                         $source
                                                                                                           .
                                                                                                           (
-                                                                                                            Main::newline(
+                                                                                                            Main::newline
+                                                                                                              (
                                                                                                               )
                                                                                                               .
                                                                                                               (
 '; 1 }'
                                                                                                                   .
-                                                                                                                  Main::newline(
+                                                                                                                  Main::newline
+                                                                                                                  (
                                                                                                                   )
                                                                                                               )
                                                                                                           )
@@ -493,7 +499,8 @@ sub emit_perl5 {
                                                                                                                                                   (
 ' } )'
                                                                                                                                                       .
-                                                                                                                                                      Main::newline(
+                                                                                                                                                      Main::newline
+                                                                                                                                                      (
                                                                                                                                                       )
                                                                                                                                                   )
                                                                                                                                               )
@@ -540,8 +547,29 @@ sub emit_perl5 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( 'do { '
-          . ( $self->emit_declarations() . ( $self->emit_body() . ' }' ) ) );
+    do {
+        if ( $self->{CATCH} ) {
+            (
+                'do { eval {'
+                  . (
+                    $self->emit_declarations()
+                      . (
+                        $self->emit_body()
+                          . (
+                            '};if ($@) {'
+                              . ( $self->{CATCH}->emit_perl5() . '}}' )
+                          )
+                      )
+                  )
+            );
+        }
+        else {
+            ( 'do {'
+                  . (
+                    $self->emit_declarations() . ( $self->emit_body() . '}' ) )
+            );
+        }
+      }
 }
 
 sub emit_body {
@@ -1213,7 +1241,8 @@ sub emit_perl5 {
                                                                                   (
 '}'
                                                                                       .
-                                                                                      Main::newline(
+                                                                                      Main::newline
+                                                                                      (
                                                                                       )
                                                                                   )
                                                                               )
@@ -1325,7 +1354,8 @@ sub emit_perl5 {
                                                                         $create
                                                                           . (
                                                                             '}'
-                                                                              . Main::newline(
+                                                                              . Main::newline
+                                                                              (
                                                                               )
                                                                           )
                                                                       )
@@ -1381,7 +1411,8 @@ sub emit_perl5 {
                                                                         $create
                                                                           . (
                                                                             '}'
-                                                                              . Main::newline(
+                                                                              . Main::newline
+                                                                              (
                                                                               )
                                                                           )
                                                                       )
@@ -1631,7 +1662,8 @@ sub emit_perl5 {
                                                                   . (
 '# emit_body'
                                                                       . (
-                                                                        Main::newline(
+                                                                        Main::newline
+                                                                          (
                                                                           )
                                                                           . (
                                                                             $self
@@ -1659,7 +1691,8 @@ sub emit_perl5 {
                                                                                               (
 ' } )'
                                                                                                   .
-                                                                                                  Main::newline(
+                                                                                                  Main::newline
+                                                                                                  (
                                                                                                   )
                                                                                               )
                                                                                           )

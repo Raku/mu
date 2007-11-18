@@ -169,9 +169,14 @@ class Lit::SigArgument {
 
 class Lit::Code {
     method emit_perl5 {
-          'do { ' 
+        if ($.CATCH) {
+          'do { eval {' 
         ~ self.emit_declarations ~ self.emit_body
-        ~ ' }';
+        ~ '};if ($@) {' ~ $.CATCH.emit_perl5 ~ '}}';
+        }
+        else {
+            'do {' ~ self.emit_declarations ~ self.emit_body ~ '}'
+        }
     };
     method emit_body {
         (@.body.>>emit_perl5).join('; ');

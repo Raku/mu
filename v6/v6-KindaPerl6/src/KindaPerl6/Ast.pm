@@ -301,6 +301,7 @@ class Lit::Code {
     has %.state;       #  is Mapping of Exp;  # State initializers, run upon first entry 
     has $.sig;         #  is Sig              # Signature
     has @.body;        #  is Seq of Exp;      # Code body 
+    has $.CATCH;       #  is Lit::Code;       # Exception handler
     #has @.parameters;  #  is Seq of Exp;      # Signature
     method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
@@ -316,6 +317,7 @@ class Lit::Code {
                 state => %.state,
                 sig   => $.sig,
                 body  => @.body,
+                CATCH => $.CATCH,
             }
     };
 }

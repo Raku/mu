@@ -354,6 +354,7 @@ sub pad   { @_ == 1 ? ( $_[0]->{pad} )   : ( $_[0]->{pad}   = $_[1] ) }
 sub state { @_ == 1 ? ( $_[0]->{state} ) : ( $_[0]->{state} = $_[1] ) }
 sub sig   { @_ == 1 ? ( $_[0]->{sig} )   : ( $_[0]->{sig}   = $_[1] ) }
 sub body  { @_ == 1 ? ( $_[0]->{body} )  : ( $_[0]->{body}  = $_[1] ) }
+sub CATCH { @_ == 1 ? ( $_[0]->{CATCH} ) : ( $_[0]->{CATCH} = $_[1] ) }
 
 sub emit {
     my $self   = shift;
@@ -373,6 +374,7 @@ sub attribs {
         'state' => $self->{state},
         'sig'   => $self->{sig},
         'body'  => $self->{body},
+        'CATCH' => $self->{CATCH},
     };
 }
 
