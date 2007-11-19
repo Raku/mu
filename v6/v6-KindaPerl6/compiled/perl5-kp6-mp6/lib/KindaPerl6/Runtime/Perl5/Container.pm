@@ -152,6 +152,9 @@ $::Container = KindaPerl6::Runtime::Perl5::MOP::make_class(
             }
             $_[0];
         },
+        exists => sub {
+            ::DISPATCH( $::Bit, 'new', 1 );
+        },
     },
 );
 
@@ -468,6 +471,12 @@ $::ContainerProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
         },
         BIND => sub {
             return $_[0]{_scalar}{BIND}( @_ );
+        },
+        exists => sub {
+            my $self = shift;                        
+            ::DISPATCH( $::Bit, 'new', 
+                exists $self->{_value}{cell} 
+                ? 1 : 0 );
         },
     }
 );
