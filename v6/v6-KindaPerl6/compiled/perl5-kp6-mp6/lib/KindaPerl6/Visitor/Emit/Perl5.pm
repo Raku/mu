@@ -1034,10 +1034,6 @@ sub emit_perl5 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    do {
-        if   ( ( $self->{code}->name() eq 'self' ) ) { return ('$self') }
-        else                                         { }
-    };
     return (
         (
             '::DISPATCH( '

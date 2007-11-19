@@ -437,12 +437,6 @@ class Call {
 
 class Apply {
     method emit_perl5 {
-        if     ( $.code.name eq 'self' )
-            # && ( @.arguments.elems == 0 )
-        {
-            return '$self';
-        }
-
         return  '::DISPATCH( ' ~ $.code.emit_perl5 ~ ', \'APPLY\', ' ~ (@.arguments.>>emit_perl5).join(', ') ~ ' )' ~ Main::newline();
     }
 }
