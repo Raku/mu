@@ -77,7 +77,9 @@ GetOptions(
     "verbose|verbosity|v=i" => \$opt{verbose},    # --verbose or -v
 );
 
-$opt{verbose} ||= defined $ENV{TEST_VERBOSE} && $ENV{TEST_VERBOSE};
+if ( $ENV{TEST_VERBOSE} && $ENV{TEST_VERBOSE} ) {
+    $opt{verbose} ||= $ENV{TEST_VERBOSE};
+}
 
 unless ( $opt{backend} ) {
     my $message = <<EOT;
@@ -117,7 +119,9 @@ if ( $opt{backend} eq "perl5rx" ) {
             {   tests   => \@tests,
                 backend => $opt{backend},
                 tap_new => {
-                    verbose => $opt{verbose},
+                    # in 3.03, the verbose is properly stated as verbosity
+                    # See: vi +66 /usr/local/share/perl/5.8.8/TAP/Harness.pm
+                    verbosity => $opt{verbose},
                 },
             }
         );
