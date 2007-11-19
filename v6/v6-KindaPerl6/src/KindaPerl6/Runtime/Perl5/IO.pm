@@ -8,7 +8,7 @@ If guard_insecure_code is on ($::Kp6Security) then this code will die.
 
 =head3 Parents:
 
-$::meta_Value
+$::Value
 
 =head3 Attributes:
 

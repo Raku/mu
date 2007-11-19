@@ -475,9 +475,9 @@ have "roles", a dispatcher $obj->{_dispatch}, a parent listing _isa, etc...
 
 =over
 
-=item $::meta_Routine
+=item $::Routine
 
-Located near end of file
+$::Routine is defined in Container.pm
 
 =back
 

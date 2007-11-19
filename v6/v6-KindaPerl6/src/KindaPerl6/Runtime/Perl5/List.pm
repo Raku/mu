@@ -4,7 +4,7 @@ use strict;
 
 =head3 Parents:
 
-$::meta_Value
+$::Value
 
 =head3 Attributes:
 

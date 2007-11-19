@@ -4,7 +4,7 @@
 
 =head3 Parents:
 
-$::meta_Num
+$::Num
 
 =head3 Attributes:
 
