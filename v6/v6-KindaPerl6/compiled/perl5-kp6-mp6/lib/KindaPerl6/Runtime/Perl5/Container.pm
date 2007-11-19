@@ -158,8 +158,6 @@ $::Container = KindaPerl6::Runtime::Perl5::MOP::make_class(
     },
 );
 
-# meta_Container is used in Runtime::Perl5::Hash & Runtime::Perl5::Array
-# do not localize
 my $meta_Container = ::DISPATCH( $::Container, 'HOW' );
 
 =head2 $::Scalar
