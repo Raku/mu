@@ -232,6 +232,11 @@ Change      Description
 
 =cut
 
+# these tests below can be run manually by
+# perl script/kp6 ../../t/01-sanity/01-tap.t
+# or if you want to see the perl output
+# perl script/kp6 -o test.pl ../../t/01-sanity/01-tap.t
+
 __DATA__
 ../../t/01-sanity/01-tap.t
 ../../t/01-sanity/03-equal.t
