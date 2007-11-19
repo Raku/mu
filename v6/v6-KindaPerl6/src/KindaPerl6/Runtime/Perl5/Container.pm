@@ -98,7 +98,7 @@ none
 
 =item STORE
 
-dies, Read only - if the Container does the 'readonly' Role 
+dies, Read only - if the Container does the 'readonly' Role
 
 =back
 
@@ -121,9 +121,9 @@ $::Container = KindaPerl6::Runtime::Perl5::MOP::make_class(
             my $self = shift;
             return $self->{_value}{cell}
                 if exists $self->{_value}{cell};
-            return ::DISPATCH( 
-                        $::ValueProxy, 
-                        "new", 
+            return ::DISPATCH(
+                        $::ValueProxy,
+                        "new",
                         { _parent => $self },
                     );
         },
@@ -160,7 +160,7 @@ $::Container = KindaPerl6::Runtime::Perl5::MOP::make_class(
 
 # meta_Container is used in Runtime::Perl5::Hash & Runtime::Perl5::Array
 # do not localize
-$::meta_Container = ::DISPATCH( $::Container, 'HOW' );
+my $meta_Container = ::DISPATCH( $::Container, 'HOW' );
 
 =head2 $::Scalar
 
@@ -170,7 +170,7 @@ $::Scalar is a $::Class object
 
 =over
 
-=item $::meta_Container
+=item $meta_Container
 
 =back
 
@@ -190,7 +190,7 @@ none
 
 $::Scalar = KindaPerl6::Runtime::Perl5::MOP::make_class(
     proto   => $::Scalar,
-    parents => [$::meta_Container],
+    parents => [$meta_Container],
     name    => 'Scalar',
     methods => {
         new => sub {
@@ -214,7 +214,7 @@ $::ArrayContainer is a $::Class object
 
 =over
 
-=item $::meta_Container
+=item $meta_Container
 
 =back
 
@@ -234,7 +234,7 @@ none
 
 $::ArrayContainer = KindaPerl6::Runtime::Perl5::MOP::make_class(
     proto   => $::ArrayContainer,
-    parents => [$::meta_Container],
+    parents => [$meta_Container],
     methods => {
         new => sub {
             my $v = {
@@ -252,7 +252,7 @@ $::ArrayContainer = KindaPerl6::Runtime::Perl5::MOP::make_class(
 
 $::HashContainer = KindaPerl6::Runtime::Perl5::MOP::make_class(
     proto   => $::HashContainer,
-    parents => [$::meta_Container],
+    parents => [$meta_Container],
     methods => {
         new => sub {
             my $v = {
@@ -276,7 +276,7 @@ $::Routine is a $::Class object
 
 =over
 
-=item $::meta_Routine
+=item $::Container
 
 =back
 
@@ -300,7 +300,7 @@ none
 
 $::Routine = KindaPerl6::Runtime::Perl5::MOP::make_class(
     proto   => $::Routine,
-    parents => [$::meta_Container],
+    parents => [$meta_Container],
     methods => {
         APPLY => sub {   # XXX this should be handled by normal FETCH+APPLY
             my $self = shift;
@@ -369,21 +369,21 @@ $::ValueProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
         LOOKUP => sub {
             #warn "ValueProxy.LOOKUP";
             my $parent_container = $_[0]{_scalar}{_parent};
-            if ( ! exists $parent_container->{_value}{cell} ) { 
+            if ( ! exists $parent_container->{_value}{cell} ) {
                 my $key = $_[1];
-                return ::DISPATCH( 
-                        $::ContainerProxy, 
-                        "new", 
+                return ::DISPATCH(
+                        $::ContainerProxy,
+                        "new",
                         {
-                            STORE   => sub { 
+                            STORE   => sub {
                                 #warn "STORE!";
                                 my $self = shift;
-                                ::DISPATCH_VAR( 
+                                ::DISPATCH_VAR(
                                     ::DISPATCH(
-                                        ::DISPATCH_VAR( 
-                                            $parent_container, 
-                                            'STORE', 
-                                            ::DISPATCH( $::Hash, 'new' ), 
+                                        ::DISPATCH_VAR(
+                                            $parent_container,
+                                            'STORE',
+                                            ::DISPATCH( $::Hash, 'new' ),
                                         ),
                                         'LOOKUP',
                                         $key
@@ -401,21 +401,21 @@ $::ValueProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
         INDEX => sub {
             #warn "ValueProxy.INDEX";
             my $parent_container = $_[0]{_scalar}{_parent};
-            if ( ! exists $parent_container->{_value}{cell} ) { 
+            if ( ! exists $parent_container->{_value}{cell} ) {
                 my $index = $_[1];
-                return ::DISPATCH( 
-                        $::ContainerProxy, 
-                        "new", 
+                return ::DISPATCH(
+                        $::ContainerProxy,
+                        "new",
                         {
-                            STORE   => sub { 
+                            STORE   => sub {
                                 #warn "STORE!";
                                 my $self = shift;
-                                ::DISPATCH_VAR( 
+                                ::DISPATCH_VAR(
                                     ::DISPATCH(
-                                        ::DISPATCH_VAR( 
-                                            $parent_container, 
-                                            'STORE', 
-                                            ::DISPATCH( $::Array, 'new' ), 
+                                        ::DISPATCH_VAR(
+                                            $parent_container,
+                                            'STORE',
+                                            ::DISPATCH( $::Array, 'new' ),
                                         ),
                                         'INDEX',
                                         $index
@@ -432,8 +432,8 @@ $::ValueProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
         },
         exists => sub {
             my $parent_container = $_[0]{_scalar}{_parent};
-            ::DISPATCH( $::Bit, 'new', 
-                exists $parent_container->{_value}{cell} 
+            ::DISPATCH( $::Bit, 'new',
+                exists $parent_container->{_value}{cell}
                 ? 1 : 0 );
         },
     }
@@ -457,12 +457,12 @@ $::ContainerProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
             return $v;
         },
         FETCH => sub {
-            my $self = shift;                        
+            my $self = shift;
             return $self->{_value}{cell}
-                if exists $self->{_value}{cell};                                
-            return ::DISPATCH( 
-                $::ValueProxy, 
-                "new", 
+                if exists $self->{_value}{cell};
+            return ::DISPATCH(
+                $::ValueProxy,
+                "new",
                 { _parent => $self }
             );
         },
@@ -473,9 +473,9 @@ $::ContainerProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
             return $_[0]{_scalar}{BIND}( @_ );
         },
         exists => sub {
-            my $self = shift;                        
-            ::DISPATCH( $::Bit, 'new', 
-                exists $self->{_value}{cell} 
+            my $self = shift;
+            ::DISPATCH( $::Bit, 'new',
+                exists $self->{_value}{cell}
                 ? 1 : 0 );
         },
     }
