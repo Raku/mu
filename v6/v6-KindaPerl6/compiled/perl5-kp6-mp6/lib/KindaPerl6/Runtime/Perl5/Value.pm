@@ -536,8 +536,6 @@ $::Subset = KindaPerl6::Runtime::Perl5::MOP::make_class(
     },
 );
 
-my $meta_Subset = ::DISPATCH( $::Subset, 'HOW' );
-
 =head2 $::Multi
 
 =head3 Parents:

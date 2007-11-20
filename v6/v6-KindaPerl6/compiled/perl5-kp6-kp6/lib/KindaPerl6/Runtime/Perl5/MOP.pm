@@ -122,7 +122,7 @@ returns the results of $object->{ _dispatch }( $object, @args )
 my %_dispatch_signatures;
 my $_dispatch_recursion = 0;
 
-sub ::DISPATCH {
+sub ::DISPATCH : lvalue {
     my $invocant = shift;
 
     unless ( $invocant->{_dispatch} ) {

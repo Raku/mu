@@ -3,7 +3,6 @@ use v6-alpha;
 
 grammar KindaPerl6::Grammar {
 
-token exp2 {  <exp> { return $$<exp> }  };
 
 token pair {
     |   <ident>                             #  key => value
