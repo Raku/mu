@@ -7,7 +7,7 @@ use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
-do { our $Code_say = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_say' } ) ;
+do {our $Code_say = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_say' } ) ;
 ;
 our $Code_all = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_all' } ) ;
 ;
@@ -40,7 +40,7 @@ our $Code_rmdir = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name 
 our $Code_p5token = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_p5token' } ) ;
 ;
 do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::GLOBAL )
-,"true"),"p5landish") ) { }  else { do { our $Code_say = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_say' } ) ;
+,"true"),"p5landish") ) { }  else { do {our $Code_say = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_say' } ) ;
 ;
 our $Code_all = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_all' } ) ;
 ;
@@ -76,7 +76,7 @@ do {::MODIFIED($::GLOBAL);
 $::GLOBAL = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'GLOBAL' )
  )
 , 'PROTOTYPE',  )
-} } } }
+}} } }
 ; do {::MODIFIED($Code_say);
 $Code_say = ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
@@ -328,8 +328,8 @@ $right_thunk = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'right_
  )
 } }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $right_thunk = $List__->{_value}{_array}[ $_param_index++ ];  } } ::DISPATCH_VAR( $left, 'STORE', ::DISPATCH( $left_thunk, 'APPLY',  )
  )
-; do { if (::DISPATCH(::DISPATCH($left,"true"),"p5landish") ) { do { ::DISPATCH( $right_thunk, 'APPLY',  )
- } }  else { do { $left } } }
+; do { if (::DISPATCH(::DISPATCH($left,"true"),"p5landish") ) { do {::DISPATCH( $right_thunk, 'APPLY',  )
+} }  else { do {$left} } }
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, 'new', { sigil  => '$', twigil => '', name   => 'left_thunk', value  => $::Undef, has_default    => ::DISPATCH( $::Bit, 'new', 0 )
 , is_named_only  => ::DISPATCH( $::Bit, 'new', 0 )
 , is_optional    => ::DISPATCH( $::Bit, 'new', 0 )
@@ -370,8 +370,8 @@ $right_thunk = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'right_
  )
 } }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $right_thunk = $List__->{_value}{_array}[ $_param_index++ ];  } } ::DISPATCH_VAR( $left, 'STORE', ::DISPATCH( $left_thunk, 'APPLY',  )
  )
-; do { if (::DISPATCH(::DISPATCH($left,"true"),"p5landish") ) { do { $left } }  else { do { ::DISPATCH( $right_thunk, 'APPLY',  )
- } } }
+; do { if (::DISPATCH(::DISPATCH($left,"true"),"p5landish") ) { do {$left} }  else { do {::DISPATCH( $right_thunk, 'APPLY',  )
+} } }
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, 'new', { sigil  => '$', twigil => '', name   => 'left_thunk', value  => $::Undef, has_default    => ::DISPATCH( $::Bit, 'new', 0 )
 , is_named_only  => ::DISPATCH( $::Bit, 'new', 0 )
 , is_optional    => ::DISPATCH( $::Bit, 'new', 0 )
@@ -471,8 +471,8 @@ $pos = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'pos' )
  )
 } }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $pos = $List__->{_value}{_array}[ $_param_index++ ];  } } do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', $str )
  )
-,"true"),"p5landish") ) { do { ::DISPATCH_VAR( $str, 'STORE', $_ )
- } }  else { ::DISPATCH($::Bit, "new", 0) } }
+,"true"),"p5landish") ) { do {::DISPATCH_VAR( $str, 'STORE', $_ )
+} }  else { ::DISPATCH($::Bit, "new", 0) } }
 ; return(::DISPATCH( $GLOBAL::Code_match_p5rx, 'APPLY', $regex, $str, $pos )
 )
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, 'new', { sigil  => '$', twigil => '', name   => 'self', value  => $::Undef, has_default    => ::DISPATCH( $::Bit, 'new', 0 )
@@ -511,5 +511,5 @@ $pos = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'pos' )
 ,  } )
 ,  ] } ), return   => $::Undef, } )
 ,  } )
-} }
+}}
 ; 1 }

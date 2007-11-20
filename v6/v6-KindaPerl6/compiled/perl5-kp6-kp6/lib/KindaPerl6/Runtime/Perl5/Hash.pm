@@ -1,50 +1,160 @@
 use strict;
 
+=head2 $::Hash
+
+=head3 Parents:
+
+$::Object
+
+=head3 Attributes:
+
+none
+
+=head3 Methods:
+
+=over
+
+=item LOOKUP
+
+=item elems
+
+=item pairs
+
+=item p5landish
+
+=cut
+
+
 $::Hash = KindaPerl6::Runtime::Perl5::MOP::make_class(
-    proto => $::Hash, 
-    name=>"Hash",parent=>[$::meta_Container],methods=>
-    {
-    
-    new => sub {
+    proto   => $::Hash,
+    name    => 'Hash',
+    parents => [ ],
+    methods => {
+
+        new => sub {
+            my ( $proto, $param ) = @_;
+            my $self = {
+                %{$proto},
+                _value => { _hash => {} }, 
+            };
+            if ($param) {
+                for my $key ( keys %{ $param->{_hash} } ) {
+                    ::DISPATCH_VAR( ::DISPATCH( $self, 'LOOKUP', $key ), 'STORE', ${ $param->{_hash} }{$key}, );
+                }
+            }
+            return $self;
+        },
+        LOOKUP => sub {
+            my $self = shift;
+            my $key
+                = ref( $_[0] )
+                ? ::DISPATCH( ::DISPATCH( $_[0], "Str" ), "p5landish" )
+                : $_[0];
+            return $self->{_value}{_hash}{$key}
+                if exists $self->{_value}{_hash}{$key};
+            return ::DISPATCH(
+                $::ContainerProxy,
+                "new",
+                {   
+                    STORE => sub {
+                        #warn "Hash.{x}.STORE!";
+                        shift;
+                        my $cell
+                            = exists $self->{_value}{_hash}{$key}
+                            ? $self->{_value}{_hash}{$key}
+                            : ( $self->{_value}{_hash}{$key} = ::DISPATCH( $::Container, 'new' ) );
+                        ::DISPATCH_VAR( $cell, 'STORE', @_ );
+                    },
+                    BIND => sub { die "BIND!" },
+                }
+            );
+        },
+        elems => sub {
+            ::DISPATCH( $::Int, "new", scalar( keys( %{ $_[0]{_value}{_hash} } ) ) );
+        },
+        pairs => sub {
+            ::DISPATCH(
+                $::Array, 'new',
+                {   _array => [
+                        map { ::DISPATCH( $::Pair, 'new', { key => ::DISPATCH( $::Str, 'new', $_ ), value => $_[0]{_value}{_hash}{$_}, } ) }
+                            keys %{ $_[0]{_value}{_hash} }
+                    ],
+                }
+            );
+        },
+        p5landish => sub { $_[0]{_value}{_hash} }
+    }
+);
+
+=head2 $::HashProxy
+
+=head3 Parents:
+
+$::Hash
+
+head3 Attributes:
+
+none
+
+=head3 Methods:
+
+=over
+
+=item LOOKUP
+
+=item elems
+
+=item pairs
+
+=item p5landish
+
+=cut
+
+
+$::HashProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
+    proto   => $::HashProxy,
+    name    => 'HashProxy',
+    parents => [ ::DISPATCH($::Hash,'HOW') ],
+    methods => {
+
+        new => sub {
             my $v = {
                 %{ $_[0] },
-                _value => ( $_[1] || { _hash => {} } ),    
-                _dispatch_VAR => $::dispatch_VAR,
+                _value => $_[1],    # undef or hash
             };
         },
-    STORE=>sub {
-            $_[0]{_value}{_hash} = ::DISPATCH($_[1],"hash")->{_value}{_hash};
-            #$_[0]{_value}{_hash} = $_[1]->{_value}{_hash};
-            $_[0];
+        LOOKUP => sub {
+            my $key = ::DISPATCH( ::DISPATCH( $_[1], "Str" ), "p5landish" );
+            return ::DISPATCH(
+                $::HashProxyCell,
+                "new",
+                {   cell => $_[0]{_value},
+                    key  => $key,
+                }
+            );
         },
-    LOOKUP=>sub {
-            my $key = ::DISPATCH(::DISPATCH($_[1],"Str"),"p5landish");
-            $_[0]{_value}{_hash} = {}
-                unless defined $_[0]{_value}{_hash};  # XXX 
-            return ::DISPATCH($::HashCell,"new",{
-                    cell=> $_[0]{_value}{_hash},
-                    key => $key,
-                });
+        elems => sub {
+            my $self = shift;
+            if ( defined $self->{_value} ) {
+                return ::DISPATCH( $self->{_value}, "elems" );
+            }
+            return ::DISPATCH( $::Int, "new", 0 );
         },
-    elems => sub {
-            ::DISPATCH($::Int,"new",scalar(keys(%{$_[0]{_value}{_hash}})));
+        pairs => sub {
+            my $self = shift;
+            if ( defined $self->{_value} ) {
+                return ::DISPATCH( $self->{_value}, "pairs" );
+            }
+            return ::DISPATCH( $::Array, "new", { _array => [] } );
         },
-    pairs => sub {
-            ::DISPATCH( $::Array, 'new', 
-                    { _array => [
-                          map {
-                                ::DISPATCH( $::Pair, 'new', {
-                                        key   => ::DISPATCH( $::Str, 'new', $_ ),
-                                        value => $_[0]{_value}{_hash}{$_},
-                                    } 
-                                )
-                            } 
-                            keys %{ $_[0]{_value}{_hash} }
-                        ],
-                    }
-                );
+        p5landish => sub {
+            my $self = shift;
+            if ( defined $self->{_value} ) {
+                return ::DISPATCH( $self->{_value}, "p5landish" );
+            }
+            return [];
         },
-    p5landish=> sub { $_[0]{_value}{_hash} }
-});
+    }
+);
 
 1;

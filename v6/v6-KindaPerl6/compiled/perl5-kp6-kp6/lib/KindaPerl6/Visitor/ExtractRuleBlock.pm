@@ -7,19 +7,21 @@ use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
-do { my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; INIT { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
+do {my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; INIT { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
 ;
 do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::KindaPerl6::Visitor::ExtractRuleBlock )
-,"true"),"p5landish") ) { }  else { do { my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; INIT { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
+,"true"),"p5landish") ) { }  else { do {my $count; $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } )  unless defined $count; INIT { $count = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$count' } ) }
 ;
 do {::MODIFIED($::KindaPerl6::Visitor::ExtractRuleBlock);
 $::KindaPerl6::Visitor::ExtractRuleBlock = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'KindaPerl6::Visitor::ExtractRuleBlock' )
  )
 , 'PROTOTYPE',  )
-} } } }
+}} } }
 ; ::DISPATCH( ::DISPATCH( $::KindaPerl6::Visitor::ExtractRuleBlock, 'HOW',  )
 , 'add_method', ::DISPATCH( $::Str, 'new', 'visit' )
-, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
+, ::DISPATCH( $::Code, 'new', { code => sub { 
+# emit_declarations
+my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
 my $node; $node = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$node' } )  unless defined $node; INIT { $node = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$node' } ) }
 ;
@@ -27,7 +29,11 @@ my $node_name; $node_name = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFI
 ;
 my $path; $path = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$path' } )  unless defined $path; INIT { $path = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$path' } ) }
 ;
-$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+
+# get $self
+$self = shift; 
+# emit_arguments
+my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
@@ -41,9 +47,11 @@ $node_name = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'node_nam
 } }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $node_name = $List__->{_value}{_array}[ $_param_index++ ];  }  if ( exists $Hash__->{_value}{_hash}{'path'} )  { do {::MODIFIED($path);
 $path = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'path' )
  )
-} }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $path = $List__->{_value}{_array}[ $_param_index++ ];  } } do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $node_name, ::DISPATCH( $::Str, 'new', 'Rule::Block' )
+} }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $path = $List__->{_value}{_array}[ $_param_index++ ];  } } 
+# emit_body
+do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $node_name, ::DISPATCH( $::Str, 'new', 'Rule::Block' )
  )
-,"true"),"p5landish") ) { do { my $comp_unit; $comp_unit = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$comp_unit' } )  unless defined $comp_unit; INIT { $comp_unit = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$comp_unit' } ) }
+,"true"),"p5landish") ) { do {my $comp_unit; $comp_unit = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$comp_unit' } )  unless defined $comp_unit; INIT { $comp_unit = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$comp_unit' } ) }
 ;
 my $name; $name = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$name' } )  unless defined $name; INIT { $name = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$name' } ) }
 ;
@@ -110,6 +118,10 @@ $name = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $
 , value           => ::DISPATCH( $::Val::Bit, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'bit' )
 , value           => ::DISPATCH( $::Str, 'new', '0' )
 ,  } ),  )
+,  } ), ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'has_default' )
+, value           => ::DISPATCH( $::Val::Bit, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'bit' )
+, value           => ::DISPATCH( $::Str, 'new', '0' )
+,  } ),  )
 ,  } ),  )
 ] }
  )
@@ -169,7 +181,7 @@ $name = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $
  )
 ; ::DISPATCH( $node, 'closure', $name )
 ; return($node)
- } }  else { ::DISPATCH($::Bit, "new", 0) } }
+} }  else { ::DISPATCH($::Bit, "new", 0) } }
 ; ::DISPATCH( $::Int, 'new', 0 )
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, 'new', { sigil  => '$', twigil => '', name   => 'node', value  => $::Undef, has_default    => ::DISPATCH( $::Bit, 'new', 0 )
 , is_named_only  => ::DISPATCH( $::Bit, 'new', 0 )
@@ -198,5 +210,5 @@ $name = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $
 ,  ] } ), return   => $::Undef, } )
 ,  } )
  )
-; $count }
+; $count}
 ; 1 }

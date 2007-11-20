@@ -782,7 +782,7 @@ sub sub {
                                                                                                           }
                                                                                                       }
                                                                                                     ,
-'\': missing closing curly bracket }'
+'\': missing closing curly bracket '
                                                                                                   )
                                                                                                   ;
                                                                                                 die
@@ -1382,7 +1382,7 @@ sub coro {
                                                                                                               }
                                                                                                           }
                                                                                                         ,
-'\': missing closing curly bracket }'
+'\': missing closing curly bracket '
                                                                                                       )
                                                                                                       ;
                                                                                                     die
@@ -1812,7 +1812,7 @@ sub arrow_sub {
                                                                             };
                                                                             do {
                                                                                 Main::say(
-'*** Syntax Error in sub: missing closing curly bracket } '
+'*** Syntax Error in sub: missing closing curly bracket  '
                                                                                   )
                                                                                   ;
                                                                                 die
@@ -2081,7 +2081,7 @@ sub bare_block {
                                                     do { [] };
                                                     do {
                                                         Main::say(
-'*** Syntax Error in Block: missing closing curly bracket } '
+'*** Syntax Error in Block: missing closing curly bracket  '
                                                         );
                                                         die('error in Block');
                                                     };

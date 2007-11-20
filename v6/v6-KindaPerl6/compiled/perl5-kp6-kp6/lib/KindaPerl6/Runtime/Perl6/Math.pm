@@ -7,27 +7,35 @@ use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
-do { do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Math )
-,"true"),"p5landish") ) { }  else { do { do {::MODIFIED($::Math);
+do {do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Math )
+,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Math);
 $::Math = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Math' )
  )
 , 'PROTOTYPE',  )
-} } } }
+}} } }
 ; ::DISPATCH( ::DISPATCH( $::Math, 'HOW',  )
 , 'add_parent', ::DISPATCH( $::Value, 'HOW',  )
  )
 ; ::DISPATCH( ::DISPATCH( $::Math, 'HOW',  )
 , 'add_method', ::DISPATCH( $::Str, 'new', 'NaN' )
-, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
+, ::DISPATCH( $::Code, 'new', { code => sub { 
+# emit_declarations
+my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
 my $self; $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } )  unless defined $self; INIT { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
 ;
-$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+
+# get $self
+$self = shift; 
+# emit_arguments
+my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } return(::DISPATCH( $GLOBAL::Code_infix_58__60__45__62_, 'APPLY', ::DISPATCH( $::Math, 'Inf',  )
+};{ my $_param_index = 0; } 
+# emit_body
+return(::DISPATCH( $GLOBAL::Code_infix_58__60__45__62_, 'APPLY', ::DISPATCH( $::Math, 'Inf',  )
 , ::DISPATCH( $::Math, 'Inf',  )
  )
 )
@@ -40,5 +48,5 @@ $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
 , array    => ::DISPATCH( $::Array, "new", { _array => [  ] } ), return   => $::Undef, } )
 ,  } )
  )
- }
+}
 ; 1 }

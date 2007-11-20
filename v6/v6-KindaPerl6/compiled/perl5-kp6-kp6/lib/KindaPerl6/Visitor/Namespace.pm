@@ -7,25 +7,27 @@ use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
-do { my $table; $table = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$table' } )  unless defined $table; INIT { $table = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$table' } ) }
-;
-do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::KindaPerl6::Visitor::Namespace )
-,"true"),"p5landish") ) { }  else { do { my $table; $table = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$table' } )  unless defined $table; INIT { $table = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$table' } ) }
-;
-do {::MODIFIED($::KindaPerl6::Visitor::Namespace);
+do {do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::KindaPerl6::Visitor::Namespace )
+,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::KindaPerl6::Visitor::Namespace);
 $::KindaPerl6::Visitor::Namespace = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'KindaPerl6::Visitor::Namespace' )
  )
 , 'PROTOTYPE',  )
-} } } }
+}} } }
 ; ::DISPATCH( ::DISPATCH( $::KindaPerl6::Visitor::Namespace, 'HOW',  )
 , 'add_method', ::DISPATCH( $::Str, 'new', 'visit' )
-, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
+, ::DISPATCH( $::Code, 'new', { code => sub { 
+# emit_declarations
+my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
 my $node; $node = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$node' } )  unless defined $node; INIT { $node = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$node' } ) }
 ;
 my $node_name; $node_name = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$node_name' } )  unless defined $node_name; INIT { $node_name = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$node_name' } ) }
 ;
-$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+
+# get $self
+$self = shift; 
+# emit_arguments
+my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
@@ -36,14 +38,17 @@ $node = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'node' )
 } }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $node = $List__->{_value}{_array}[ $_param_index++ ];  }  if ( exists $Hash__->{_value}{_hash}{'node_name'} )  { do {::MODIFIED($node_name);
 $node_name = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'node_name' )
  )
-} }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $node_name = $List__->{_value}{_array}[ $_param_index++ ];  } } do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $node_name, ::DISPATCH( $::Str, 'new', 'Var' )
+} }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $node_name = $List__->{_value}{_array}[ $_param_index++ ];  } } 
+# emit_body
+do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $node_name, ::DISPATCH( $::Str, 'new', 'Var' )
  )
-,"true"),"p5landish") ) { do { do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $node, 'namespace',  )
+,"true"),"p5landish") ) { do {do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $node, 'namespace',  )
  )
-,"true"),"p5landish") ) { do { return(::DISPATCH( $::Lookup, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'obj' )
-, value           => ::DISPATCH( $::Lookup, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'obj' )
+,"true"),"p5landish") ) { do {return(::DISPATCH( $::Call, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'invocant' )
+, value           => ::DISPATCH( $::Call, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'invocant' )
 , value           => ::DISPATCH( $::Var, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'namespace' )
-, value           => ::DISPATCH( $::Array, 'new', { _array => [] }
+, value           => ::DISPATCH( $::Array, 'new', { _array => [::DISPATCH( $::Str, 'new', 'GLOBAL' )
+] }
  )
 ,  } ), ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'name' )
 , value           => ::DISPATCH( $::Str, 'new', 'KP6' )
@@ -52,24 +57,35 @@ $node_name = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'node_nam
 ,  } ), ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'sigil' )
 , value           => ::DISPATCH( $::Str, 'new', '%' )
 ,  } ),  )
-,  } ), ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'index' )
-, value           => ::DISPATCH( $::Val::Buf, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'buf' )
+,  } ), ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'arguments' )
+, value           => ::DISPATCH( $::Array, 'new', { _array => [::DISPATCH( $::Val::Buf, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'buf' )
 , value           => ::DISPATCH( ::DISPATCH( $node, 'namespace',  )
 , 'join', ::DISPATCH( $::Str, 'new', '::' )
  )
 ,  } ),  )
-,  } ),  )
-,  } ), ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'index' )
-, value           => ::DISPATCH( $::Val::Buf, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'buf' )
-, value           => ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $table, 'LOOKUP', ::DISPATCH( $node, 'sigil',  )
+] }
  )
+,  } ), ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'method' )
+, value           => ::DISPATCH( $::Str, 'new', 'LOOKUP' )
+,  } ), ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'hyper' )
+, value           => ::DISPATCH( $::Str, 'new', '' )
+,  } ),  )
+,  } ), ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'arguments' )
+, value           => ::DISPATCH( $::Array, 'new', { _array => [::DISPATCH( $::Val::Buf, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'buf' )
+, value           => ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $node, 'sigil',  )
 , ::DISPATCH( $node, 'name',  )
  )
 ,  } ),  )
+] }
+ )
+,  } ), ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'method' )
+, value           => ::DISPATCH( $::Str, 'new', 'LOOKUP' )
+,  } ), ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'hyper' )
+, value           => ::DISPATCH( $::Str, 'new', '' )
 ,  } ),  )
 )
- } }  else { ::DISPATCH($::Bit, "new", 0) } }
- } }  else { ::DISPATCH($::Bit, "new", 0) } }
+} }  else { ::DISPATCH($::Bit, "new", 0) } }
+} }  else { ::DISPATCH($::Bit, "new", 0) } }
 ; return($::Undef)
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, 'new', { sigil  => '$', twigil => '', name   => 'node', value  => $::Undef, has_default    => ::DISPATCH( $::Bit, 'new', 0 )
 , is_named_only  => ::DISPATCH( $::Bit, 'new', 0 )
@@ -90,16 +106,5 @@ $node_name = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'node_nam
 ,  ] } ), return   => $::Undef, } )
 ,  } )
  )
-; do {::MODIFIED($table);
-$table = ::DISPATCH( $::Hash, 'new', { _hash => { ::DISPATCH( $::Str, 'new', '$' )
-->{_value} => ::DISPATCH( $::Str, 'new', 'Scalar_' )
-,::DISPATCH( $::Str, 'new', '@' )
-->{_value} => ::DISPATCH( $::Str, 'new', 'List_' )
-,::DISPATCH( $::Str, 'new', '%' )
-->{_value} => ::DISPATCH( $::Str, 'new', 'Hash_' )
-,::DISPATCH( $::Str, 'new', '&' )
-->{_value} => ::DISPATCH( $::Str, 'new', 'Code_' )
-, } }
- )
-} }
+}
 ; 1 }

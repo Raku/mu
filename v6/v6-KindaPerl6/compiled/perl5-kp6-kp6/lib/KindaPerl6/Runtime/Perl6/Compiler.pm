@@ -7,7 +7,7 @@ use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
-do { our $List_PAD = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List_PAD' } ) ;
+do {our $List_PAD = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List_PAD' } ) ;
 ;
 our $List_CHECK = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List_CHECK' } ) ;
 ;
@@ -30,7 +30,7 @@ our $Code_check_block = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED,
 our $Code_get_var = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_get_var' } ) ;
 ;
 do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::COMPILER )
-,"true"),"p5landish") ) { }  else { do { our $List_PAD = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List_PAD' } ) ;
+,"true"),"p5landish") ) { }  else { do {our $List_PAD = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List_PAD' } ) ;
 ;
 our $List_CHECK = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List_CHECK' } ) ;
 ;
@@ -56,7 +56,7 @@ do {::MODIFIED($::COMPILER);
 $::COMPILER = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'COMPILER' )
  )
 , 'PROTOTYPE',  )
-} } } }
+}} } }
 ; $List_PAD; $List_CHECK; do {::MODIFIED($Code_emit_perl6);
 $Code_emit_perl6 = ::DISPATCH( $::Code, 'new', { code => sub { my $perl6; $perl6 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$perl6' } )  unless defined $perl6; INIT { $perl6 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$perl6' } ) }
 ;
@@ -322,5 +322,5 @@ $name = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'name' )
 ,  } )
 ,  ] } ), return   => $::Undef, } )
 ,  } )
-} }
+}}
 ; 1 }

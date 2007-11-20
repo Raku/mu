@@ -63,13 +63,19 @@ package GLOBAL;
         prefix_58__60__45__62_
 
     );
-    
+
+    # This is used by Visitor::Namespace.pm, to store Namespaces with global variables
+    $GLOBAL::Hash_KP6 = 
+        ::DISPATCH( $::Hash, 'new', {
+            _hash => { }
+        } );
+
     # %*ENV
     $GLOBAL::Hash_ENV = 
         ::DISPATCH( $::Hash, 'new', {
             _hash => {
                 map { (
-                        $_,
+                        ::DISPATCH( $::Str, 'new', $_ ),
                         ::DISPATCH( $::Str, 'new', $ENV{$_} )
                     ) } keys %ENV
             }
@@ -190,6 +196,7 @@ package GLOBAL;
     } 
     sub exists   { 
         ::DISPATCH( VAR($_[0]), 'exists' );
+        # ::DISPATCH( $_[0], 'exists' );
     } 
     sub true     { ::DISPATCH( $_[0], 'true' ) }  
     sub not      { ::DISPATCH( $::Bit, 'new', ! ( ::DISPATCH( $_[0], 'true' )->{_value} ) ) }  

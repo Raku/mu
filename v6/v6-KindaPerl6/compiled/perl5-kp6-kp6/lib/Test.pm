@@ -7,12 +7,12 @@ use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
-do { our $Code_ok = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_ok' } ) ;
+do {our $Code_ok = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_ok' } ) ;
 ;
 our $Code_plan = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_plan' } ) ;
 ;
 do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Test )
-,"true"),"p5landish") ) { }  else { do { our $Code_ok = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_ok' } ) ;
+,"true"),"p5landish") ) { }  else { do {our $Code_ok = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_ok' } ) ;
 ;
 our $Code_plan = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_plan' } ) ;
 ;
@@ -20,7 +20,7 @@ do {::MODIFIED($::Test);
 $::Test = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Test' )
  )
 , 'PROTOTYPE',  )
-} } } }
+}} } }
 ; do {::MODIFIED($Code_ok);
 $Code_ok = ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
@@ -34,11 +34,11 @@ $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
 };{ my $_param_index = 0;  if ( exists $Hash__->{_value}{_hash}{'cond'} )  { do {::MODIFIED($cond);
 $cond = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'cond' )
  )
-} }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $cond = $List__->{_value}{_array}[ $_param_index++ ];  } } do { if (::DISPATCH(::DISPATCH($cond,"true"),"p5landish") ) { do { ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', 'ok' )
+} }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $cond = $List__->{_value}{_array}[ $_param_index++ ];  } } do { if (::DISPATCH(::DISPATCH($cond,"true"),"p5landish") ) { do {::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', 'ok' )
  )
- } }  else { do { ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', 'not ok' )
+} }  else { do {::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $::Str, 'new', 'not ok' )
  )
- } } }
+} } }
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, 'new', { sigil  => '$', twigil => '', name   => 'cond', value  => $::Undef, has_default    => ::DISPATCH( $::Bit, 'new', 0 )
 , is_named_only  => ::DISPATCH( $::Bit, 'new', 0 )
 , is_optional    => ::DISPATCH( $::Bit, 'new', 0 )
@@ -75,5 +75,5 @@ $number_of_test = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'num
 ,  } )
 ,  ] } ), return   => $::Undef, } )
 ,  } )
-} }
+}}
 ; 1 }

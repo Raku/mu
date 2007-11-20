@@ -130,6 +130,9 @@ class Rule::Constant {
             return '\\ ';
         };
 
+        if $str eq '#' {
+            return '\\#';
+        };
         if $str eq '$' {
             return '\\$';
         };

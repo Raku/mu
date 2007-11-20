@@ -7,21 +7,27 @@ use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
-do { do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::KindaPerl6::Visitor::MetaClass )
-,"true"),"p5landish") ) { }  else { do { do {::MODIFIED($::KindaPerl6::Visitor::MetaClass);
+do {do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::KindaPerl6::Visitor::MetaClass )
+,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::KindaPerl6::Visitor::MetaClass);
 $::KindaPerl6::Visitor::MetaClass = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'KindaPerl6::Visitor::MetaClass' )
  )
 , 'PROTOTYPE',  )
-} } } }
+}} } }
 ; ::DISPATCH( ::DISPATCH( $::KindaPerl6::Visitor::MetaClass, 'HOW',  )
 , 'add_method', ::DISPATCH( $::Str, 'new', 'visit' )
-, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
+, ::DISPATCH( $::Code, 'new', { code => sub { 
+# emit_declarations
+my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
 my $node; $node = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$node' } )  unless defined $node; INIT { $node = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$node' } ) }
 ;
 my $node_name; $node_name = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$node_name' } )  unless defined $node_name; INIT { $node_name = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$node_name' } ) }
 ;
-$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+
+# get $self
+$self = shift; 
+# emit_arguments
+my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
@@ -32,9 +38,11 @@ $node = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'node' )
 } }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $node = $List__->{_value}{_array}[ $_param_index++ ];  }  if ( exists $Hash__->{_value}{_hash}{'node_name'} )  { do {::MODIFIED($node_name);
 $node_name = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'node_name' )
  )
-} }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $node_name = $List__->{_value}{_array}[ $_param_index++ ];  } } do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $node_name, ::DISPATCH( $::Str, 'new', 'CompUnit' )
+} }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $node_name = $List__->{_value}{_array}[ $_param_index++ ];  } } 
+# emit_body
+do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $node_name, ::DISPATCH( $::Str, 'new', 'CompUnit' )
  )
-,"true"),"p5landish") ) { do { my $module; $module = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$module' } )  unless defined $module; INIT { $module = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$module' } ) }
+,"true"),"p5landish") ) { do {my $module; $module = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$module' } )  unless defined $module; INIT { $module = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$module' } ) }
 ;
 my $trait; $trait = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$trait' } )  unless defined $trait; INIT { $trait = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$trait' } ) }
 ;
@@ -46,7 +54,7 @@ $module = ::DISPATCH( $::Array, 'new', { _array => [] }
 }; do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $node, 'unit_type',  )
 , ::DISPATCH( $::Str, 'new', 'role' )
  )
-,"true"),"p5landish") ) { do { ::DISPATCH( $GLOBAL::Code_push, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $module )
+,"true"),"p5landish") ) { do {::DISPATCH( $GLOBAL::Code_push, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $module )
 , ::DISPATCH( $::Call, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'hyper' )
 , value           => ::DISPATCH( $::Str, 'new', '' )
 ,  } ), ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'arguments' )
@@ -63,7 +71,7 @@ $module = ::DISPATCH( $::Array, 'new', { _array => [] }
 ,  } ),  )
 ,  } ),  )
  )
- } }  else { do { my $metaclass; $metaclass = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$metaclass' } )  unless defined $metaclass; INIT { $metaclass = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$metaclass' } ) }
+} }  else { do {my $metaclass; $metaclass = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$metaclass' } )  unless defined $metaclass; INIT { $metaclass = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$metaclass' } ) }
 ;
 my $trait; $trait = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$trait' } )  unless defined $trait; INIT { $trait = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$trait' } ) }
 ;
@@ -76,7 +84,7 @@ my $pad; $pad = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => 
 do {::MODIFIED($metaclass);
 $metaclass = ::DISPATCH( $::Str, 'new', 'Class' )
 }; $trait; do { if (::DISPATCH(::DISPATCH(::DISPATCH( $node, 'traits',  )
-,"true"),"p5landish") ) { do { ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $node, 'traits',  )
+,"true"),"p5landish") ) { do {::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $node, 'traits',  )
  )
 , 'map', ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
@@ -94,10 +102,10 @@ $trait = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'trait' )
  )
 , ::DISPATCH( $::Str, 'new', 'meta' )
  )
-,"true"),"p5landish") ) { do { do {::MODIFIED($metaclass);
+,"true"),"p5landish") ) { do {do {::MODIFIED($metaclass);
 $metaclass = ::DISPATCH( $trait, 'INDEX', ::DISPATCH( $::Int, 'new', 1 )
  )
-} } }  else { ::DISPATCH($::Bit, "new", 0) } }
+}} }  else { ::DISPATCH($::Bit, "new", 0) } }
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, 'new', { sigil  => '$', twigil => '', name   => 'trait', value  => $::Undef, has_default    => ::DISPATCH( $::Bit, 'new', 0 )
 , is_named_only  => ::DISPATCH( $::Bit, 'new', 0 )
 , is_optional    => ::DISPATCH( $::Bit, 'new', 0 )
@@ -109,7 +117,7 @@ $metaclass = ::DISPATCH( $trait, 'INDEX', ::DISPATCH( $::Int, 'new', 1 )
 ,  ] } ), return   => $::Undef, } )
 ,  } )
  )
- } }  else { ::DISPATCH($::Bit, "new", 0) } }
+} }  else { ::DISPATCH($::Bit, "new", 0) } }
 ; do {::MODIFIED($metaobject);
 $metaobject = ::DISPATCH( $::Call, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'hyper' )
 , value           => ::DISPATCH( $::Str, 'new', '' )
@@ -127,9 +135,9 @@ $metaobject = ::DISPATCH( $::Call, 'new', ::DISPATCH( $::NamedArgument, "new", {
 ,  } ),  )
 }; do {::MODIFIED($body);
 $body = ::DISPATCH( $node, 'body',  )
-}; $pad; do { if (::DISPATCH(::DISPATCH($body,"true"),"p5landish") ) { do { do {::MODIFIED($pad);
+}; $pad; do { if (::DISPATCH(::DISPATCH($body,"true"),"p5landish") ) { do {do {::MODIFIED($pad);
 $pad = ::DISPATCH( $body, 'pad',  )
-} } }  else { ::DISPATCH($::Bit, "new", 0) } }
+}} }  else { ::DISPATCH($::Bit, "new", 0) } }
 ; ::DISPATCH( $GLOBAL::Code_push, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $module )
 , ::DISPATCH( $::If, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'cond' )
 , value           => ::DISPATCH( $::Apply, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'arguments' )
@@ -182,9 +190,9 @@ $pad = ::DISPATCH( $body, 'pad',  )
 ,  } ),  )
 ,  } ),  )
  )
- } } }
+} } }
 ; $trait; do { if (::DISPATCH(::DISPATCH(::DISPATCH( $node, 'traits',  )
-,"true"),"p5landish") ) { do { ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $node, 'traits',  )
+,"true"),"p5landish") ) { do {::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $node, 'traits',  )
  )
 , 'map', ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
@@ -202,7 +210,7 @@ $trait = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'trait' )
  )
 , ::DISPATCH( $::Str, 'new', 'does' )
  )
-,"true"),"p5landish") ) { do { ::DISPATCH( $GLOBAL::Code_push, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $module )
+,"true"),"p5landish") ) { do {::DISPATCH( $GLOBAL::Code_push, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $module )
 , ::DISPATCH( $::Call, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'hyper' )
 , value           => ::DISPATCH( $::Str, 'new', '' )
 ,  } ), ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'arguments' )
@@ -229,11 +237,11 @@ $trait = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'trait' )
 ,  } ),  )
 ,  } ),  )
  )
- } }  else { do { do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $trait, 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
+} }  else { do {do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $trait, 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
  )
 , ::DISPATCH( $::Str, 'new', 'is' )
  )
-,"true"),"p5landish") ) { do { ::DISPATCH( $GLOBAL::Code_push, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $module )
+,"true"),"p5landish") ) { do {::DISPATCH( $GLOBAL::Code_push, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $module )
 , ::DISPATCH( $::Call, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'hyper' )
 , value           => ::DISPATCH( $::Str, 'new', '' )
 ,  } ), ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'arguments' )
@@ -269,17 +277,17 @@ $trait = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'trait' )
 ,  } ),  )
 ,  } ),  )
  )
- } }  else { do { do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $trait, 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
+} }  else { do {do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $trait, 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
  )
 , ::DISPATCH( $::Str, 'new', 'meta' )
  )
-,"true"),"p5landish") ) { do {  } }  else { do { ::DISPATCH( $GLOBAL::Code_die, 'APPLY', ::DISPATCH( $::Str, 'new', 'unknown class trait: ' )
+,"true"),"p5landish") ) { do {} }  else { do {::DISPATCH( $GLOBAL::Code_die, 'APPLY', ::DISPATCH( $::Str, 'new', 'unknown class trait: ' )
 , ::DISPATCH( $trait, 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
  )
  )
- } } }
- } } }
- } } }
+} } }
+} } }
+} } }
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, 'new', { sigil  => '$', twigil => '', name   => 'trait', value  => $::Undef, has_default    => ::DISPATCH( $::Bit, 'new', 0 )
 , is_named_only  => ::DISPATCH( $::Bit, 'new', 0 )
 , is_optional    => ::DISPATCH( $::Bit, 'new', 0 )
@@ -291,11 +299,11 @@ $trait = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'trait' )
 ,  ] } ), return   => $::Undef, } )
 ,  } )
  )
- } }  else { ::DISPATCH($::Bit, "new", 0) } }
-; $item; do { if (::DISPATCH(::DISPATCH($node,"true"),"p5landish") ) { do { do { if (::DISPATCH(::DISPATCH(::DISPATCH( $node, 'body',  )
-,"true"),"p5landish") ) { do { do { if (::DISPATCH(::DISPATCH(::DISPATCH( ::DISPATCH( $node, 'body',  )
+} }  else { ::DISPATCH($::Bit, "new", 0) } }
+; $item; do { if (::DISPATCH(::DISPATCH($node,"true"),"p5landish") ) { do {do { if (::DISPATCH(::DISPATCH(::DISPATCH( $node, 'body',  )
+,"true"),"p5landish") ) { do {do { if (::DISPATCH(::DISPATCH(::DISPATCH( ::DISPATCH( $node, 'body',  )
 , 'body',  )
-,"true"),"p5landish") ) { do { ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $node, 'body',  )
+,"true"),"p5landish") ) { do {::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $node, 'body',  )
 , 'body',  )
  )
 , 'map', ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
@@ -312,7 +320,7 @@ $item = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'item' )
  )
 } }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $item = $List__->{_value}{_array}[ $_param_index++ ];  } } do { if (::DISPATCH(::DISPATCH(::DISPATCH( $item, 'isa', ::DISPATCH( $::Str, 'new', 'Method' )
  )
-,"true"),"p5landish") ) { do { ::DISPATCH( $GLOBAL::Code_push, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $module )
+,"true"),"p5landish") ) { do {::DISPATCH( $GLOBAL::Code_push, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $module )
 , ::DISPATCH( $::Call, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'hyper' )
 , value           => ::DISPATCH( $::Str, 'new', '' )
 ,  } ), ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'arguments' )
@@ -338,7 +346,7 @@ $item = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'item' )
 ,  } ),  )
 ,  } ),  )
  )
- } }  else { ::DISPATCH($::Bit, "new", 0) } }
+} }  else { ::DISPATCH($::Bit, "new", 0) } }
 ; do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60__38__38__62_, 'APPLY', ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
@@ -359,7 +367,7 @@ $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [  ] } ), return   => $::Undef, } )
 ,  } )
  )
-,"true"),"p5landish") ) { do { ::DISPATCH( $GLOBAL::Code_push, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $module )
+,"true"),"p5landish") ) { do {::DISPATCH( $GLOBAL::Code_push, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $module )
 , ::DISPATCH( $::Call, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'hyper' )
 , value           => ::DISPATCH( $::Str, 'new', '' )
 ,  } ), ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'arguments' )
@@ -386,7 +394,7 @@ $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
 ,  } ),  )
 ,  } ),  )
  )
- } }  else { ::DISPATCH($::Bit, "new", 0) } }
+} }  else { ::DISPATCH($::Bit, "new", 0) } }
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, 'new', { sigil  => '$', twigil => '', name   => 'item', value  => $::Undef, has_default    => ::DISPATCH( $::Bit, 'new', 0 )
 , is_named_only  => ::DISPATCH( $::Bit, 'new', 0 )
 , is_optional    => ::DISPATCH( $::Bit, 'new', 0 )
@@ -398,17 +406,17 @@ $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
 ,  ] } ), return   => $::Undef, } )
 ,  } )
  )
- } }  else { ::DISPATCH($::Bit, "new", 0) } }
- } }  else { ::DISPATCH($::Bit, "new", 0) } }
- } }  else { ::DISPATCH($::Bit, "new", 0) } }
-; $item; do { if (::DISPATCH(::DISPATCH($node,"true"),"p5landish") ) { do { my $body; $body = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$body' } )  unless defined $body; INIT { $body = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$body' } ) }
+} }  else { ::DISPATCH($::Bit, "new", 0) } }
+} }  else { ::DISPATCH($::Bit, "new", 0) } }
+} }  else { ::DISPATCH($::Bit, "new", 0) } }
+; $item; do { if (::DISPATCH(::DISPATCH($node,"true"),"p5landish") ) { do {my $body; $body = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$body' } )  unless defined $body; INIT { $body = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$body' } ) }
 ;
 my $pad; $pad = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pad' } )  unless defined $pad; INIT { $pad = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pad' } ) }
 ;
 do { if (::DISPATCH(::DISPATCH(::DISPATCH( $node, 'body',  )
-,"true"),"p5landish") ) { do { do { if (::DISPATCH(::DISPATCH(::DISPATCH( ::DISPATCH( $node, 'body',  )
+,"true"),"p5landish") ) { do {do { if (::DISPATCH(::DISPATCH(::DISPATCH( ::DISPATCH( $node, 'body',  )
 , 'body',  )
-,"true"),"p5landish") ) { do { ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $node, 'body',  )
+,"true"),"p5landish") ) { do {::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $node, 'body',  )
 , 'body',  )
  )
 , 'map', ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
@@ -460,14 +468,14 @@ $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [  ] } ), return   => $::Undef, } )
 ,  } )
  )
-,"true"),"p5landish") ) { do {  } }  else { do { do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', $module )
-,"true"),"p5landish") ) { do { do {::MODIFIED($module);
+,"true"),"p5landish") ) { do {} }  else { do {do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', $module )
+,"true"),"p5landish") ) { do {do {::MODIFIED($module);
 $module = ::DISPATCH( $::Array, 'new', { _array => [] }
  )
-} } }  else { ::DISPATCH($::Bit, "new", 0) } }
+}} }  else { ::DISPATCH($::Bit, "new", 0) } }
 ; ::DISPATCH( $GLOBAL::Code_push, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $module )
 , $item )
- } } }
+} } }
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, 'new', { sigil  => '$', twigil => '', name   => 'item', value  => $::Undef, has_default    => ::DISPATCH( $::Bit, 'new', 0 )
 , is_named_only  => ::DISPATCH( $::Bit, 'new', 0 )
 , is_optional    => ::DISPATCH( $::Bit, 'new', 0 )
@@ -479,13 +487,13 @@ $module = ::DISPATCH( $::Array, 'new', { _array => [] }
 ,  ] } ), return   => $::Undef, } )
 ,  } )
  )
- } }  else { ::DISPATCH($::Bit, "new", 0) } }
- } }  else { ::DISPATCH($::Bit, "new", 0) } }
+} }  else { ::DISPATCH($::Bit, "new", 0) } }
+} }  else { ::DISPATCH($::Bit, "new", 0) } }
 ; do {::MODIFIED($body);
 $body = ::DISPATCH( $node, 'body',  )
-}; $pad; do { if (::DISPATCH(::DISPATCH($body,"true"),"p5landish") ) { do { do {::MODIFIED($pad);
+}; $pad; do { if (::DISPATCH(::DISPATCH($body,"true"),"p5landish") ) { do {do {::MODIFIED($pad);
 $pad = ::DISPATCH( $body, 'pad',  )
-} } }  else { ::DISPATCH($::Bit, "new", 0) } }
+}} }  else { ::DISPATCH($::Bit, "new", 0) } }
 ; return(::DISPATCH( $::CompUnit, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'unit_type' )
 , value           => ::DISPATCH( $::Str, 'new', 'module' )
 ,  } ), ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'name' )
@@ -505,8 +513,8 @@ $pad = ::DISPATCH( $body, 'pad',  )
 , value           => $module,  } ),  )
 ,  } ),  )
 )
- } }  else { ::DISPATCH($::Bit, "new", 0) } }
- } }  else { ::DISPATCH($::Bit, "new", 0) } }
+} }  else { ::DISPATCH($::Bit, "new", 0) } }
+} }  else { ::DISPATCH($::Bit, "new", 0) } }
 ; return($::Undef)
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, 'new', { sigil  => '$', twigil => '', name   => 'node', value  => $::Undef, has_default    => ::DISPATCH( $::Bit, 'new', 0 )
 , is_named_only  => ::DISPATCH( $::Bit, 'new', 0 )
@@ -527,5 +535,5 @@ $pad = ::DISPATCH( $body, 'pad',  )
 ,  ] } ), return   => $::Undef, } )
 ,  } )
  )
- }
+}
 ; 1 }

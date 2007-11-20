@@ -7,12 +7,12 @@ use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
-do { our $Code_visit = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_visit' } ) ;
+do {our $Code_visit = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_visit' } ) ;
 ;
 our $Code_visit_subnode = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_visit_subnode' } ) ;
 ;
 do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::KindaPerl6::Traverse )
-,"true"),"p5landish") ) { }  else { do { our $Code_visit = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_visit' } ) ;
+,"true"),"p5landish") ) { }  else { do {our $Code_visit = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_visit' } ) ;
 ;
 our $Code_visit_subnode = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_visit_subnode' } ) ;
 ;
@@ -20,7 +20,7 @@ do {::MODIFIED($::KindaPerl6::Traverse);
 $::KindaPerl6::Traverse = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'KindaPerl6::Traverse' )
  )
 , 'PROTOTYPE',  )
-} } } }
+}} } }
 ; do {::MODIFIED($Code_visit);
 $Code_visit = ::DISPATCH( $::Code, 'new', { code => sub { my $result; $result = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$result' } )  unless defined $result; INIT { $result = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$result' } ) }
 ;
@@ -57,13 +57,13 @@ $path = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'path' )
  )
 } }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $path = $List__->{_value}{_array}[ $_param_index++ ];  } } do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', $path )
  )
-,"true"),"p5landish") ) { do { do {::MODIFIED($path);
+,"true"),"p5landish") ) { do {do {::MODIFIED($path);
 $path = ::DISPATCH( $::Array, 'new', { _array => [] }
  )
-} } }  else { ::DISPATCH($::Bit, "new", 0) } }
+}} }  else { ::DISPATCH($::Bit, "new", 0) } }
 ; do { if (::DISPATCH(::DISPATCH(::DISPATCH( $node, 'isa', ::DISPATCH( $::Str, 'new', 'Array' )
  )
-,"true"),"p5landish") ) { do { my $result; $result = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$result' } )  unless defined $result; INIT { $result = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$result' } ) }
+,"true"),"p5landish") ) { do {my $result; $result = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$result' } )  unless defined $result; INIT { $result = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$result' } ) }
 ;
 my $subitem; $subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subitem' } )  unless defined $subitem; INIT { $subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subitem' } ) }
 ;
@@ -98,10 +98,10 @@ $subitem = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'subitem' )
 ,  } )
  )
 ; return($result)
- } }  else { ::DISPATCH($::Bit, "new", 0) } }
+} }  else { ::DISPATCH($::Bit, "new", 0) } }
 ; do { if (::DISPATCH(::DISPATCH(::DISPATCH( $node, 'isa', ::DISPATCH( $::Str, 'new', 'Hash' )
  )
-,"true"),"p5landish") ) { do { my $result; $result = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$result' } )  unless defined $result; INIT { $result = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$result' } ) }
+,"true"),"p5landish") ) { do {my $result; $result = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$result' } )  unless defined $result; INIT { $result = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$result' } ) }
 ;
 my $subitem; $subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subitem' } )  unless defined $subitem; INIT { $subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subitem' } ) }
 ;
@@ -138,23 +138,23 @@ $subitem = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'subitem' )
 ,  } )
  )
 ; return($result)
- } }  else { ::DISPATCH($::Bit, "new", 0) } }
+} }  else { ::DISPATCH($::Bit, "new", 0) } }
 ; do { if (::DISPATCH(::DISPATCH(::DISPATCH( $node, 'isa', ::DISPATCH( $::Str, 'new', 'Str' )
  )
-,"true"),"p5landish") ) { do { return($node)
- } }  else { ::DISPATCH($::Bit, "new", 0) } }
+,"true"),"p5landish") ) { do {return($node)
+} }  else { ::DISPATCH($::Bit, "new", 0) } }
 ; do { if (::DISPATCH(::DISPATCH(::DISPATCH( $node, 'isa', ::DISPATCH( $::Str, 'new', 'Pad' )
  )
-,"true"),"p5landish") ) { do { return($node)
- } }  else { ::DISPATCH($::Bit, "new", 0) } }
+,"true"),"p5landish") ) { do {return($node)
+} }  else { ::DISPATCH($::Bit, "new", 0) } }
 ; do {::MODIFIED($path);
 $path = ::DISPATCH( $::Array, 'new', { _array => [$node, ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $path )
 ] }
  )
 }; do {::MODIFIED($result);
 $result = ::DISPATCH( $visitor, 'visit', $node, $node_name, $path )
-}; do { if (::DISPATCH(::DISPATCH($result,"true"),"p5landish") ) { do { return($result)
- } }  else { ::DISPATCH($::Bit, "new", 0) } }
+}; do { if (::DISPATCH(::DISPATCH($result,"true"),"p5landish") ) { do {return($result)
+} }  else { ::DISPATCH($::Bit, "new", 0) } }
 ; do {::MODIFIED($result);
 $result = ::DISPATCH( $::Hash, 'new', { _hash => {  } }
  )
@@ -251,8 +251,8 @@ $path = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'path' )
  )
 } }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $path = $List__->{_value}{_array}[ $_param_index++ ];  } } do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', $subnode )
  )
-,"true"),"p5landish") ) { do { return($::Undef)
- } }  else { ::DISPATCH($::Bit, "new", 0) } }
+,"true"),"p5landish") ) { do {return($::Undef)
+} }  else { ::DISPATCH($::Bit, "new", 0) } }
 ; do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60__124__124__62_, 'APPLY', ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
@@ -306,11 +306,11 @@ $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [  ] } ), return   => $::Undef, } )
 ,  } )
  )
-,"true"),"p5landish") ) { do { return(::DISPATCH( $Code_visit, 'APPLY', $visitor, $subnode, $::Undef, $path )
+,"true"),"p5landish") ) { do {return(::DISPATCH( $Code_visit, 'APPLY', $visitor, $subnode, $::Undef, $path )
 )
- } }  else { do { return(::DISPATCH( $subnode, 'emit', $visitor, $path )
+} }  else { do {return(::DISPATCH( $subnode, 'emit', $visitor, $path )
 )
- } } }
+} } }
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, 'new', { sigil  => '$', twigil => '', name   => 'visitor', value  => $::Undef, has_default    => ::DISPATCH( $::Bit, 'new', 0 )
 , is_named_only  => ::DISPATCH( $::Bit, 'new', 0 )
 , is_optional    => ::DISPATCH( $::Bit, 'new', 0 )
@@ -337,5 +337,5 @@ $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
 ,  } )
 ,  ] } ), return   => $::Undef, } )
 ,  } )
-} }
+}}
 ; 1 }

@@ -7,15 +7,17 @@ use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
-do { do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::KindaPerl6::Visitor::Emit::AstHTML )
-,"true"),"p5landish") ) { }  else { do { do {::MODIFIED($::KindaPerl6::Visitor::Emit::AstHTML);
+do {do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::KindaPerl6::Visitor::Emit::AstHTML )
+,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::KindaPerl6::Visitor::Emit::AstHTML);
 $::KindaPerl6::Visitor::Emit::AstHTML = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'KindaPerl6::Visitor::Emit::AstHTML' )
  )
 , 'PROTOTYPE',  )
-} } } }
+}} } }
 ; ::DISPATCH( ::DISPATCH( $::KindaPerl6::Visitor::Emit::AstHTML, 'HOW',  )
 , 'add_method', ::DISPATCH( $::Str, 'new', 'visit' )
-, ::DISPATCH( $::Code, 'new', { code => sub { my $result; $result = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$result' } )  unless defined $result; INIT { $result = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$result' } ) }
+, ::DISPATCH( $::Code, 'new', { code => sub { 
+# emit_declarations
+my $result; $result = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$result' } )  unless defined $result; INIT { $result = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$result' } ) }
 ;
 my $data; $data = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$data' } )  unless defined $data; INIT { $data = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$data' } ) }
 ;
@@ -25,7 +27,11 @@ my $node; $node = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name =
 ;
 my $node_name; $node_name = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$node_name' } )  unless defined $node_name; INIT { $node_name = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$node_name' } ) }
 ;
-$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+
+# get $self
+$self = shift; 
+# emit_arguments
+my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
@@ -36,7 +42,9 @@ $node = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'node' )
 } }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $node = $List__->{_value}{_array}[ $_param_index++ ];  }  if ( exists $Hash__->{_value}{_hash}{'node_name'} )  { do {::MODIFIED($node_name);
 $node_name = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'node_name' )
  )
-} }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $node_name = $List__->{_value}{_array}[ $_param_index++ ];  } } do {::MODIFIED($result);
+} }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $node_name = $List__->{_value}{_array}[ $_param_index++ ];  } } 
+# emit_body
+do {::MODIFIED($result);
 $result = ::DISPATCH( $::Str, 'new', '' )
 }; do {::MODIFIED($result);
 $result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '<span class="' )
@@ -76,7 +84,7 @@ $result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::
 }; do { if (::DISPATCH(::DISPATCH(::DISPATCH( ::DISPATCH( $data, 'LOOKUP', $item )
 , 'isa', ::DISPATCH( $::Str, 'new', 'Array' )
  )
-,"true"),"p5landish") ) { do { do {::MODIFIED($result);
+,"true"),"p5landish") ) { do {do {::MODIFIED($result);
 $result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::DISPATCH( $::Str, 'new', '[ ' )
  )
 }; ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $data, 'LOOKUP', $item )
@@ -95,15 +103,16 @@ $subitem = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'subitem' )
  )
 } }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $subitem = $List__->{_value}{_array}[ $_param_index++ ];  } } do { if (::DISPATCH(::DISPATCH(::DISPATCH( $subitem, 'isa', ::DISPATCH( $::Str, 'new', 'Array' )
  )
-,"true"),"p5landish") ) { do { do {::MODIFIED($result);
+,"true"),"p5landish") ) { do {do {::MODIFIED($result);
 $result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::DISPATCH( $::Str, 'new', ' [ ... ], ' )
  )
-} } }  else { do { do {::MODIFIED($result);
-$result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $subitem, 'emit', $self )
+}} }  else { do {do {::MODIFIED($result);
+$result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $subitem, 'emit', ::DISPATCH( $Code_self, 'APPLY',  )
+ )
 , ::DISPATCH( $::Str, 'new', ', ' )
  )
  )
-} } } }
+}} } }
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, 'new', { sigil  => '$', twigil => '', name   => 'subitem', value  => $::Undef, has_default    => ::DISPATCH( $::Bit, 'new', 0 )
 , is_named_only  => ::DISPATCH( $::Bit, 'new', 0 )
 , is_optional    => ::DISPATCH( $::Bit, 'new', 0 )
@@ -118,10 +127,10 @@ $result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::
 ; do {::MODIFIED($result);
 $result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::DISPATCH( $::Str, 'new', ' ], ' )
  )
-} } }  else { do { do { if (::DISPATCH(::DISPATCH(::DISPATCH( ::DISPATCH( $data, 'LOOKUP', $item )
+}} }  else { do {do { if (::DISPATCH(::DISPATCH(::DISPATCH( ::DISPATCH( $data, 'LOOKUP', $item )
 , 'isa', ::DISPATCH( $::Str, 'new', 'Hash' )
  )
-,"true"),"p5landish") ) { do { do {::MODIFIED($result);
+,"true"),"p5landish") ) { do {do {::MODIFIED($result);
 $result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::DISPATCH( $::Str, 'new', '{ ' )
  )
 }; ::DISPATCH( ::DISPATCH( $GLOBAL::Code_keys, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__37__62_, 'APPLY', ::DISPATCH( $data, 'LOOKUP', $item )
@@ -143,7 +152,8 @@ $subitem = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'subitem' )
 $result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $subitem, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' => ' )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( ::DISPATCH( $data, 'LOOKUP', $item )
 , 'LOOKUP', $subitem )
-, 'emit', $self )
+, 'emit', ::DISPATCH( $Code_self, 'APPLY',  )
+ )
 , ::DISPATCH( $::Str, 'new', ', ' )
  )
  )
@@ -163,10 +173,10 @@ $result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::
 ; do {::MODIFIED($result);
 $result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::DISPATCH( $::Str, 'new', ' }, ' )
  )
-} } }  else { do { do { if (::DISPATCH(::DISPATCH(::DISPATCH( ::DISPATCH( $data, 'LOOKUP', $item )
+}} }  else { do {do { if (::DISPATCH(::DISPATCH(::DISPATCH( ::DISPATCH( $data, 'LOOKUP', $item )
 , 'isa', ::DISPATCH( $::Str, 'new', 'Str' )
  )
-,"true"),"p5landish") ) { do { do {::MODIFIED($result);
+,"true"),"p5landish") ) { do {do {::MODIFIED($result);
 $result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', chr( 39 ) )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $data, 'LOOKUP', $item )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', chr( 39 ) )
@@ -175,15 +185,16 @@ $result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::
  )
  )
  )
-} } }  else { do { do {::MODIFIED($result);
+}} }  else { do {do {::MODIFIED($result);
 $result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $data, 'LOOKUP', $item )
-, 'emit', $self )
+, 'emit', ::DISPATCH( $Code_self, 'APPLY',  )
+ )
 , ::DISPATCH( $::Str, 'new', ', ' )
  )
  )
-} } } }
- } } }
- } } }
+}} } }
+} } }
+} } }
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, 'new', { sigil  => '$', twigil => '', name   => 'item', value  => $::Undef, has_default    => ::DISPATCH( $::Bit, 'new', 0 )
 , is_named_only  => ::DISPATCH( $::Bit, 'new', 0 )
 , is_optional    => ::DISPATCH( $::Bit, 'new', 0 )
@@ -220,5 +231,5 @@ $result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::
 ,  ] } ), return   => $::Undef, } )
 ,  } )
  )
- }
+}
 ; 1 }

@@ -7,12 +7,12 @@ use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
-do { do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Scope )
-,"true"),"p5landish") ) { }  else { do { do {::MODIFIED($::Scope);
+do {do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Scope )
+,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Scope);
 $::Scope = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Scope' )
  )
 , 'PROTOTYPE',  )
-} } } }
+}} } }
 ; ::DISPATCH( ::DISPATCH( $::Scope, 'HOW',  )
 , 'add_parent', ::DISPATCH( $::Value, 'HOW',  )
  )
@@ -24,19 +24,28 @@ $::Scope = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', '
  )
 ; ::DISPATCH( ::DISPATCH( $::Scope, 'HOW',  )
 , 'add_method', ::DISPATCH( $::Str, 'new', 'inner' )
-, ::DISPATCH( $::Code, 'new', { code => sub { my $inner; $inner = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$inner' } )  unless defined $inner; INIT { $inner = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$inner' } ) }
+, ::DISPATCH( $::Code, 'new', { code => sub { 
+# emit_declarations
+my $inner; $inner = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$inner' } )  unless defined $inner; INIT { $inner = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$inner' } ) }
 ;
 my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
 my $self; $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } )  unless defined $self; INIT { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
 ;
-$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+
+# get $self
+$self = shift; 
+# emit_arguments
+my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } ::DISPATCH_VAR( $inner, 'STORE', ::DISPATCH( $::Scope, 'new', ::DISPATCH( $::NamedArgument, 'new', { _argument_name_ => ::DISPATCH( $::Str, 'new', 'outer' )
-, value => $self } )
+};{ my $_param_index = 0; } 
+# emit_body
+::DISPATCH_VAR( $inner, 'STORE', ::DISPATCH( $::Scope, 'new', ::DISPATCH( $::NamedArgument, 'new', { _argument_name_ => ::DISPATCH( $::Str, 'new', 'outer' )
+, value => ::DISPATCH( $Code_self, 'APPLY',  )
+ } )
 , ::DISPATCH( $::NamedArgument, 'new', { _argument_name_ => ::DISPATCH( $::Str, 'new', 'vars' )
 , value => ::DISPATCH( $::Hash, 'new', { _hash => {  } }
  )
@@ -55,16 +64,25 @@ $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
  )
 ; ::DISPATCH( ::DISPATCH( $::Scope, 'HOW',  )
 , 'add_method', ::DISPATCH( $::Str, 'new', 'hash' )
-, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
+, ::DISPATCH( $::Code, 'new', { code => sub { 
+# emit_declarations
+my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
 my $self; $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } )  unless defined $self; INIT { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
 ;
-$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+
+# get $self
+$self = shift; 
+# emit_arguments
+my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } $self }, signature => ::DISPATCH( $::Signature, "new", { invocant => bless( {
+};{ my $_param_index = 0; } 
+# emit_body
+::DISPATCH( $Code_self, 'APPLY',  )
+ }, signature => ::DISPATCH( $::Signature, "new", { invocant => bless( {
                  'namespace' => [],
                  'name' => 'self',
                  'twigil' => '',
@@ -75,11 +93,17 @@ $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
  )
 ; ::DISPATCH( ::DISPATCH( $::Scope, 'HOW',  )
 , 'add_method', ::DISPATCH( $::Str, 'new', 'LOOKUP' )
-, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
+, ::DISPATCH( $::Code, 'new', { code => sub { 
+# emit_declarations
+my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
 my $key; $key = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$key' } )  unless defined $key; INIT { $key = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$key' } ) }
 ;
-$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+
+# get $self
+$self = shift; 
+# emit_arguments
+my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
@@ -87,19 +111,21 @@ $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
 };{ my $_param_index = 0;  if ( exists $Hash__->{_value}{_hash}{'key'} )  { do {::MODIFIED($key);
 $key = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'key' )
  )
-} }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $key = $List__->{_value}{_array}[ $_param_index++ ];  } } do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_exists, 'APPLY', ::DISPATCH( ::DISPATCH( $self, 'vars',  )
+} }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $key = $List__->{_value}{_array}[ $_param_index++ ];  } } 
+# emit_body
+do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_exists, 'APPLY', ::DISPATCH( ::DISPATCH( $self, 'vars',  )
 , 'LOOKUP', $key )
  )
-,"true"),"p5landish") ) { do { return(::DISPATCH( ::DISPATCH( $self, 'vars',  )
+,"true"),"p5landish") ) { do {return(::DISPATCH( ::DISPATCH( $self, 'vars',  )
 , 'LOOKUP', $key )
 )
- } }  else { ::DISPATCH($::Bit, "new", 0) } }
+} }  else { ::DISPATCH($::Bit, "new", 0) } }
 ; do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_defined, 'APPLY', ::DISPATCH( $self, 'outer',  )
  )
-,"true"),"p5landish") ) { do { return(::DISPATCH( ::DISPATCH( $self, 'outer',  )
+,"true"),"p5landish") ) { do {return(::DISPATCH( ::DISPATCH( $self, 'outer',  )
 , 'LOOKUP', $key )
 )
- } }  else { ::DISPATCH($::Bit, "new", 0) } }
+} }  else { ::DISPATCH($::Bit, "new", 0) } }
 ; return($::Undef)
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, 'new', { sigil  => '$', twigil => '', name   => 'key', value  => $::Undef, has_default    => ::DISPATCH( $::Bit, 'new', 0 )
 , is_named_only  => ::DISPATCH( $::Bit, 'new', 0 )
@@ -114,11 +140,17 @@ $key = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'key' )
  )
 ; ::DISPATCH( ::DISPATCH( $::Scope, 'HOW',  )
 , 'add_method', ::DISPATCH( $::Str, 'new', 'exists' )
-, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
+, ::DISPATCH( $::Code, 'new', { code => sub { 
+# emit_declarations
+my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
 my $key; $key = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$key' } )  unless defined $key; INIT { $key = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$key' } ) }
 ;
-$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+
+# get $self
+$self = shift; 
+# emit_arguments
+my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
@@ -126,19 +158,21 @@ $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
 };{ my $_param_index = 0;  if ( exists $Hash__->{_value}{_hash}{'key'} )  { do {::MODIFIED($key);
 $key = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'key' )
  )
-} }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $key = $List__->{_value}{_array}[ $_param_index++ ];  } } do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_exists, 'APPLY', ::DISPATCH( ::DISPATCH( $self, 'vars',  )
+} }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $key = $List__->{_value}{_array}[ $_param_index++ ];  } } 
+# emit_body
+do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_exists, 'APPLY', ::DISPATCH( ::DISPATCH( $self, 'vars',  )
 , 'LOOKUP', $key )
  )
-,"true"),"p5landish") ) { do { return(::DISPATCH( ::DISPATCH( $self, 'vars',  )
+,"true"),"p5landish") ) { do {return(::DISPATCH( ::DISPATCH( $self, 'vars',  )
 , 'LOOKUP', $key )
 )
- } }  else { ::DISPATCH($::Bit, "new", 0) } }
+} }  else { ::DISPATCH($::Bit, "new", 0) } }
 ; do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_defined, 'APPLY', ::DISPATCH( $self, 'outer',  )
  )
-,"true"),"p5landish") ) { do { return(::DISPATCH( ::DISPATCH( $self, 'outer',  )
+,"true"),"p5landish") ) { do {return(::DISPATCH( ::DISPATCH( $self, 'outer',  )
 , 'exists', $key )
 )
- } }  else { ::DISPATCH($::Bit, "new", 0) } }
+} }  else { ::DISPATCH($::Bit, "new", 0) } }
 ; return(::DISPATCH( $::Bit, 'new', 0 )
 )
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, 'new', { sigil  => '$', twigil => '', name   => 'key', value  => $::Undef, has_default    => ::DISPATCH( $::Bit, 'new', 0 )
@@ -154,11 +188,17 @@ $key = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'key' )
  )
 ; ::DISPATCH( ::DISPATCH( $::Scope, 'HOW',  )
 , 'add_method', ::DISPATCH( $::Str, 'new', 'create' )
-, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
+, ::DISPATCH( $::Code, 'new', { code => sub { 
+# emit_declarations
+my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
 my $key; $key = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$key' } )  unless defined $key; INIT { $key = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$key' } ) }
 ;
-$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+
+# get $self
+$self = shift; 
+# emit_arguments
+my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
@@ -166,13 +206,15 @@ $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
 };{ my $_param_index = 0;  if ( exists $Hash__->{_value}{_hash}{'key'} )  { do {::MODIFIED($key);
 $key = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'key' )
  )
-} }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $key = $List__->{_value}{_array}[ $_param_index++ ];  } } do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_exists, 'APPLY', ::DISPATCH( ::DISPATCH( $self, 'vars',  )
+} }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $key = $List__->{_value}{_array}[ $_param_index++ ];  } } 
+# emit_body
+do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_exists, 'APPLY', ::DISPATCH( ::DISPATCH( $self, 'vars',  )
 , 'LOOKUP', $key )
  )
-,"true"),"p5landish") ) { do { return(::DISPATCH( ::DISPATCH( $self, 'vars',  )
+,"true"),"p5landish") ) { do {return(::DISPATCH( ::DISPATCH( $self, 'vars',  )
 , 'LOOKUP', $key )
 )
- } }  else { ::DISPATCH($::Bit, "new", 0) } }
+} }  else { ::DISPATCH($::Bit, "new", 0) } }
 ; ::DISPATCH_VAR( ::DISPATCH( ::DISPATCH( $self, 'vars',  )
 , 'LOOKUP', $key )
 , 'STORE', $::Undef )
@@ -189,18 +231,26 @@ $key = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'key' )
  )
 ; ::DISPATCH( ::DISPATCH( $::Scope, 'HOW',  )
 , 'add_method', ::DISPATCH( $::Str, 'new', 'perl' )
-, ::DISPATCH( $::Code, 'new', { code => sub { my $s; $s = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$s' } )  unless defined $s; INIT { $s = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$s' } ) }
+, ::DISPATCH( $::Code, 'new', { code => sub { 
+# emit_declarations
+my $s; $s = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$s' } )  unless defined $s; INIT { $s = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$s' } ) }
 ;
 my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
 my $self; $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } )  unless defined $self; INIT { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
 ;
-$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+
+# get $self
+$self = shift; 
+# emit_arguments
+my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } ::DISPATCH_VAR( $s, 'STORE', ::DISPATCH( $::Str, 'new', '{ ' )
+};{ my $_param_index = 0; } 
+# emit_body
+::DISPATCH_VAR( $s, 'STORE', ::DISPATCH( $::Str, 'new', '{ ' )
  )
 ; ::DISPATCH( ::DISPATCH( $self, 'pairs',  )
 , 'map', ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
@@ -251,16 +301,24 @@ $pair = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'pair' )
  )
 ; ::DISPATCH( ::DISPATCH( $::Scope, 'HOW',  )
 , 'add_method', ::DISPATCH( $::Str, 'new', 'Str' )
-, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
+, ::DISPATCH( $::Code, 'new', { code => sub { 
+# emit_declarations
+my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
 my $self; $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } )  unless defined $self; INIT { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
 ;
-$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+
+# get $self
+$self = shift; 
+# emit_arguments
+my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, 'pairs',  )
+};{ my $_param_index = 0; } 
+# emit_body
+::DISPATCH( ::DISPATCH( ::DISPATCH( $self, 'pairs',  )
 , 'map', ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
 my $pair; $pair = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pair' } )  unless defined $pair; INIT { $pair = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pair' } ) }
@@ -302,18 +360,26 @@ $pair = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'pair' )
  )
 ; ::DISPATCH( ::DISPATCH( $::Scope, 'HOW',  )
 , 'add_method', ::DISPATCH( $::Str, 'new', 'keys' )
-, ::DISPATCH( $::Code, 'new', { code => sub { my $pairs; $pairs = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pairs' } )  unless defined $pairs; INIT { $pairs = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pairs' } ) }
+, ::DISPATCH( $::Code, 'new', { code => sub { 
+# emit_declarations
+my $pairs; $pairs = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pairs' } )  unless defined $pairs; INIT { $pairs = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pairs' } ) }
 ;
 my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
 my $self; $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } )  unless defined $self; INIT { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
 ;
-$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+
+# get $self
+$self = shift; 
+# emit_arguments
+my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } ::DISPATCH_VAR( $pairs, 'STORE', ::DISPATCH( $self, 'pairs',  )
+};{ my $_param_index = 0; } 
+# emit_body
+::DISPATCH_VAR( $pairs, 'STORE', ::DISPATCH( $self, 'pairs',  )
  )
 ; ::DISPATCH( $pairs, 'map', ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
@@ -350,18 +416,26 @@ $pair = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'pair' )
  )
 ; ::DISPATCH( ::DISPATCH( $::Scope, 'HOW',  )
 , 'add_method', ::DISPATCH( $::Str, 'new', 'values' )
-, ::DISPATCH( $::Code, 'new', { code => sub { my $pairs; $pairs = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pairs' } )  unless defined $pairs; INIT { $pairs = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pairs' } ) }
+, ::DISPATCH( $::Code, 'new', { code => sub { 
+# emit_declarations
+my $pairs; $pairs = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pairs' } )  unless defined $pairs; INIT { $pairs = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pairs' } ) }
 ;
 my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
 my $self; $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } )  unless defined $self; INIT { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
 ;
-$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+
+# get $self
+$self = shift; 
+# emit_arguments
+my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } ::DISPATCH_VAR( $pairs, 'STORE', ::DISPATCH( $self, 'pairs',  )
+};{ my $_param_index = 0; } 
+# emit_body
+::DISPATCH_VAR( $pairs, 'STORE', ::DISPATCH( $self, 'pairs',  )
  )
 ; ::DISPATCH( $pairs, 'map', ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
@@ -398,16 +472,24 @@ $pair = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'pair' )
  )
 ; ::DISPATCH( ::DISPATCH( $::Scope, 'HOW',  )
 , 'add_method', ::DISPATCH( $::Str, 'new', 'true' )
-, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
+, ::DISPATCH( $::Code, 'new', { code => sub { 
+# emit_declarations
+my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
 my $self; $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } )  unless defined $self; INIT { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
 ;
-$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+
+# get $self
+$self = shift; 
+# emit_arguments
+my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } ::DISPATCH( $GLOBAL::Code_infix_58__60__33__61__62_, 'APPLY', ::DISPATCH( $self, 'elems',  )
+};{ my $_param_index = 0; } 
+# emit_body
+::DISPATCH( $GLOBAL::Code_infix_58__60__33__61__62_, 'APPLY', ::DISPATCH( $self, 'elems',  )
 , ::DISPATCH( $::Int, 'new', 0 )
  )
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => bless( {
@@ -421,16 +503,24 @@ $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
  )
 ; ::DISPATCH( ::DISPATCH( $::Scope, 'HOW',  )
 , 'add_method', ::DISPATCH( $::Str, 'new', 'Int' )
-, ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
+, ::DISPATCH( $::Code, 'new', { code => sub { 
+# emit_declarations
+my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
 my $self; $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } )  unless defined $self; INIT { $self = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$self' } ) }
 ;
-$self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+
+# get $self
+$self = shift; 
+# emit_arguments
+my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } ::DISPATCH( $self, 'elems',  )
+};{ my $_param_index = 0; } 
+# emit_body
+::DISPATCH( $self, 'elems',  )
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => bless( {
                  'namespace' => [],
                  'name' => 'self',
@@ -440,5 +530,5 @@ $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
 , array    => ::DISPATCH( $::Array, "new", { _array => [  ] } ), return   => $::Undef, } )
 ,  } )
  )
- }
+}
 ; 1 }
