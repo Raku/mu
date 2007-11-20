@@ -42,6 +42,10 @@ ROADMAP
 
 0.0.1.16 - Last native types...
 
+0.0.1.17 - All the native types implement the mandatory methods.
+
+0.0.1.18 - The native types implement the APPLY method.
+
 0.0.2 - YAP6 is a shared library with a minimal but stable API.
 
 0.0.2.5 - Implement namespace as globally accessible
