@@ -22,7 +22,7 @@ void yap6_const_init() {
 }
 
 void yap6_const_destr() {
-  yap6_value_refcnt_dec(yap6_const_false);
-  yap6_value_refcnt_dec(yap6_const_true);
+  yap6_value_refcnt_dec((YAP6__CORE__Value*)yap6_const_false);
+  yap6_value_refcnt_dec((YAP6__CORE__Value*)yap6_const_true);
   yap6_value_refcnt_dec(yap6_const_undef);
 }

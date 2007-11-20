@@ -203,12 +203,51 @@ extern void yap6_list_dispatcher_init();
 extern YAP6__CORE__List* yap6_list_create();
 extern void yap6_list_dispatcher_destr();
 
+/*
+ * The YAP6__CORE__PairDispatcher is a type of container that
+ * also implements the GTKEY GTVAL STVAL methods.
+ */
+typedef struct YAP6__CORE__PairDispatcher {
+  pthread_rwlock_t* rwlock; int ref_cnt;
+  YAP6__CORE__Dispatcher* dispatcher;
+  YAP6__CORE__Value* (*APPLY)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value, 
+                               YAP6__CORE__Capture* arguments,
+                               YAP6__CORE__Value* wants);
+  void               (*DESTR)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
+  YAP6__CORE__string* (*STRNG)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
+  YAP6__CORE__int*   (*INTGR)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
+  YAP6__CORE__bool*  (*BOOLN)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
+  YAP6__CORE__string* (*WHICH)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
+  // REFCOUNT: the return of this method is counted as a refcount
+  YAP6__CORE__Value* (*GTKEY)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
+  // REFCOUNT: the return of this method is counted as a refcount
+  YAP6__CORE__Value* (*GTVAL)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
+  // REFCOUNT: the return of this method is counted as a refcount
+  YAP6__CORE__Value* (*STVAL)(YAP6__CORE__Dispatcher* self,
+                              YAP6__CORE__Value* value,
+                              YAP6__CORE__Value* newval);
+} YAP6__CORE__PairDispatcher;
+
 typedef struct YAP6__CORE__Pair {
   pthread_rwlock_t* rwlock; int ref_cnt;
-  YAP6__CORE__ListDispatcher* dispatcher;
+  YAP6__CORE__PairDispatcher* dispatcher;
   YAP6__CORE__Value* key;
   YAP6__CORE__Value* value;
 } YAP6__CORE__Pair;
+
+/* pair support */
+extern YAP6__CORE__PairDispatcher* yap6_const_pair_dispatcher;
+extern void yap6_pair_dispatcher_init();
+extern YAP6__CORE__Pair* yap6_pair_create(YAP6__CORE__Value* key, YAP6__CORE__Value* value);
+extern void yap6_pair_dispatcher_destr();
 
 typedef struct YAP6__CORE__HashDispatcher {
   pthread_rwlock_t* rwlock; int ref_cnt;
@@ -408,4 +447,40 @@ extern void yap6_value_unlock(YAP6__CORE__Value* value);
                                               (YAP6__CORE__Dispatcher*)value,\
                                               (YAP6__CORE__Value*)value,\
                                               (YAP6__CORE__Value*)newvalue))
+
+/* Dispatching mechanism... This can be rewritten in the future,
+   but for now, it's as simple as it gets */
+#define YAP6_PAIR_GTKEY(value) (value->dispatcher?\
+                                           ((YAP6__CORE__PairDispatcher*)value->dispatcher)->GTKEY(\
+                                              ((YAP6__CORE__Dispatcher*)value)->dispatcher,\
+                                              (YAP6__CORE__Value*)value\
+                                           ):\
+                                           ((YAP6__CORE__PairDispatcher*)value)->GTKEY(\
+                                              (YAP6__CORE__Dispatcher*)value,\
+                                              (YAP6__CORE__Value*)value))
+
+/* Dispatching mechanism... This can be rewritten in the future,
+   but for now, it's as simple as it gets */
+#define YAP6_PAIR_GTVAL(value) (value->dispatcher?\
+                                           ((YAP6__CORE__PairDispatcher*)value->dispatcher)->GTVAL(\
+                                              ((YAP6__CORE__Dispatcher*)value)->dispatcher,\
+                                              (YAP6__CORE__Value*)value\
+                                           ):\
+                                           ((YAP6__CORE__PairDispatcher*)value)->GTVAL(\
+                                              (YAP6__CORE__Dispatcher*)value,\
+                                              (YAP6__CORE__Value*)value))
+
+/* Dispatching mechanism... This can be rewritten in the future,
+   but for now, it's as simple as it gets */
+#define YAP6_PAIR_STVAL(value,newval) (value->dispatcher?\
+                                           ((YAP6__CORE__PairDispatcher*)value->dispatcher)->STVAL(\
+                                              ((YAP6__CORE__Dispatcher*)value)->dispatcher,\
+                                              (YAP6__CORE__Value*)value,\
+                                              (YAP6__CORE__Value*)newval\
+                                           ):\
+                                           ((YAP6__CORE__PairDispatcher*)value)->STVAL(\
+                                              (YAP6__CORE__Dispatcher*)value,\
+                                              (YAP6__CORE__Value*)value,\
+                                              (YAP6__CORE__Value*)newval))
+
 #endif
