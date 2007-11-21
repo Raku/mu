@@ -4,7 +4,7 @@ use v6-alpha;
 class KindaPerl6::Visitor::Emit::Perl5 {
     has $.visitor_args;
     # This visitor is a perl5 emitter
-    
+
     method visit ( $node ) {
         $node.emit_perl5($.visitor_args{'secure'});
     };
@@ -45,42 +45,42 @@ class CompUnit {
 }
 
 class Val::Int {
-    method emit_perl5 { 
-        # $.int 
+    method emit_perl5 {
+        # $.int
         '::DISPATCH( $::Int, \'new\', ' ~ $.int ~ ' )' ~ Main::newline();
     }
 }
 
 class Val::Bit {
-    method emit_perl5 { 
-        # $.bit 
+    method emit_perl5 {
+        # $.bit
         '::DISPATCH( $::Bit, \'new\', ' ~ $.bit ~ ' )' ~ Main::newline();
     }
 }
 
 class Val::Num {
-    method emit_perl5 { 
-        #$.num 
+    method emit_perl5 {
+        #$.num
         '::DISPATCH( $::Num, \'new\', ' ~ $.num ~ ' )' ~ Main::newline();
     }
 }
 
 class Val::Buf {
-    method emit_perl5 { 
-        # '\'' ~ $.buf ~ '\'' 
+    method emit_perl5 {
+        # '\'' ~ $.buf ~ '\''
         '::DISPATCH( $::Str, \'new\', ' ~ Main::singlequote() ~ Main::mangle_string( $.buf ) ~ Main::singlequote ~ ' )' ~ Main::newline();
     }
 }
 
 class Val::Char {
-    method emit_perl5 { 
+    method emit_perl5 {
         '::DISPATCH( $::Str, \'new\', chr( ' ~ $.char ~ ' ) )' ~ Main::newline();
     }
 }
 
 class Val::Undef {
-    method emit_perl5 { 
-        #'(undef)' 
+    method emit_perl5 {
+        #'(undef)'
         '$::Undef'
     }
 }
@@ -93,7 +93,7 @@ class Val::Object {
 }
 
 class Native::Buf {
-    method emit_perl5 { 
+    method emit_perl5 {
         die 'Emitting of Native::Buf not implemented';
         # '\'' ~ $.buf ~ '\''
     }
@@ -114,20 +114,20 @@ class Lit::Array {
 
 class Lit::Hash {
     method emit_perl5 {
-        # this is not a Perl 6 object, objects are created with a high-level Hash.new 
+        # this is not a Perl 6 object, objects are created with a high-level Hash.new
         my $fields := @.hash;
         my $str := '';
         my $field;
-        for @$fields -> $field { 
+        for @$fields -> $field {
             $str := $str ~ ($field[0]).emit_perl5 ~ ' => ' ~ ($field[1]).emit_perl5 ~ ',';
-        }; 
+        };
         '{ _hash => { ' ~ $str ~ ' } }' ~ Main::newline();
     }
 }
 
 class Lit::Pair {
     method emit_perl5 {
-        '::DISPATCH( $::Pair, \'new\', ' 
+        '::DISPATCH( $::Pair, \'new\', '
         ~ '{ key => '   ~ $.key.emit_perl5
         ~ ', value => ' ~ $.value.emit_perl5
         ~ ' } )' ~ Main::newline();
@@ -136,7 +136,7 @@ class Lit::Pair {
 
 class Lit::NamedArgument {
     method emit_perl5 {
-        '::DISPATCH( $::NamedArgument, \'new\', ' 
+        '::DISPATCH( $::NamedArgument, \'new\', '
         ~ '{ _argument_name_ => '   ~ $.key.emit_perl5
         ~ ', value => ' ~ ( defined($.value) ?? $.value.emit_perl5 !! 'undef' )   # XXX
         ~ ' } )' ~ Main::newline();
@@ -146,9 +146,9 @@ class Lit::NamedArgument {
 class Lit::SigArgument {
     method emit_perl5 {
 
-        '::DISPATCH( $::Signature::Item, \'new\', '     
-        ~ '{ ' 
-        
+        '::DISPATCH( $::Signature::Item, \'new\', '
+        ~ '{ '
+
         ~     'sigil  => \'' ~ $.key.sigil  ~ '\', '
         ~     'twigil => \'' ~ $.key.twigil ~ '\', '
         ~     'name   => \'' ~ $.key.name   ~ '\', '
@@ -170,7 +170,7 @@ class Lit::SigArgument {
 class Lit::Code {
     method emit_perl5 {
         if ($.CATCH) {
-          'do { eval {' 
+          'do { eval {'
         ~ self.emit_declarations ~ self.emit_body
         ~ '};if ($@) {' ~ $.CATCH.emit_perl5 ~ '}}';
         }
@@ -214,32 +214,32 @@ class Lit::Code {
         my $bind_ := ::Bind(parameters=>$array_,arguments=>::Call(invocant => $CAPTURE,method => 'array',arguments => []));
         $str := $str ~ $bind_.emit_perl5 ~ ';';
 
-        my $bind_hash := 
+        my $bind_hash :=
                      ::Bind(parameters=>$hash_, arguments=>::Call(invocant => $CAPTURE,method => 'hash', arguments => []));
         $str := $str ~ $bind_hash.emit_perl5 ~ ';';
 
         my $i := 0;
         my $field;
         $str := $str ~ '{ my $_param_index = 0; ';
-        for @($.sig.positional) -> $field { 
-        
+        for @($.sig.positional) -> $field {
+
             my $bind_named := ::Bind(
                     parameters => $field.key,
                     arguments  => ::Call(
-                            invocant  => $hash_, 
+                            invocant  => $hash_,
                             arguments => [ ::Val::Buf( buf => ($field.key).name ) ],
                             method    => 'LOOKUP',
-                        ), 
+                        ),
                 );
             my $bind_default := ::Bind(
                     parameters => $field.key,
-                    arguments  => $field.value, 
+                    arguments  => $field.value,
                 );
-                
-            $str := $str 
+
+            $str := $str
                     ~ ' if ( exists $Hash__->{_value}{_hash}{\'' ~ ($field.key).name ~ '\'} ) '
                     ~ ' { '
-                    ~     $bind_named.emit_perl5 
+                    ~     $bind_named.emit_perl5
                     ~ ' } '
                     ~ ' elsif ( exists $List__->{_value}{_array}[ $_param_index ] ) '
                     ~ ' { '
@@ -247,9 +247,9 @@ class Lit::Code {
                     ~         ' = $List__->{_value}{_array}[ $_param_index++ ]; '
                     ~ ' } ';
             if ($field.has_default).bit {
-                $str := $str 
-                    ~ ' else { ' 
-                    ~     $bind_default.emit_perl5 
+                $str := $str
+                    ~ ' else { '
+                    ~     $bind_default.emit_perl5
                     ~ ' } ';
             }
             $i := $i + 1;
@@ -267,15 +267,15 @@ class Lit::Object {
         my $str := '';
         # say @fields.map(sub { $_[0].emit_perl5 ~ ' => ' ~ $_[1].emit_perl5}).join(', ') ~ ')';
         my $field;
-        for @$fields -> $field { 
-            $str := $str 
+        for @$fields -> $field {
+            $str := $str
                 ~ '::DISPATCH( $::NamedArgument, "new", '
                 ~ '{ '
                 ~    '_argument_name_ => ' ~ ($field[0]).emit_perl5 ~ ', '
                 ~    'value           => ' ~ ($field[1]).emit_perl5 ~ ', '
                 ~ ' } ), '
                 ;
-        }; 
+        };
         '::DISPATCH( $::' ~ $.class ~ ', \'new\', ' ~ $str ~ ' )' ~ Main::newline();
     }
 }
@@ -284,12 +284,12 @@ class Lit::Object {
 class Assign {
     method emit_perl5 {
         # TODO - same as ::Bind
-        
+
         my $node := $.parameters;
-        
-        if $node.isa( 'Var' ) && @($node.namespace)     
+
+        if $node.isa( 'Var' ) && @($node.namespace)
         {
-            # it's a global, 
+            # it's a global,
             # and it should be autovivified
 
             $node :=
@@ -307,9 +307,9 @@ class Assign {
                         ),
                         $node,
                         ::Bind(
-                            'parameters' => $node,  
+                            'parameters' => $node,
                             'arguments'  => ::Call(
-                                'invocant' => ::Var( name => '::Scalar', twigil => '', sigil => '$', namespace => [ ] ),  
+                                'invocant' => ::Var( name => '::Scalar', twigil => '', sigil => '$', namespace => [ ] ),
                                 'method'   => 'new',
                                 'hyper'    => '',
                             ),
@@ -336,24 +336,24 @@ class Var {
             '%' => '$Hash_',
             '&' => '$Code_',
         };
-        
+
         if $.twigil eq '.' {
             return '::DISPATCH( $self, "' ~ $.name ~ '" )'  ~ Main::newline()
         };
         if $.twigil eq '!' {
             return '$self->{_value}{"' ~ $.name ~ '"}'  ~ Main::newline()
         };
-        
+
         if $.name eq '/' {
-            return $table{$.sigil} ~ 'MATCH' 
+            return $table{$.sigil} ~ 'MATCH'
         };
-        
-        return Main::mangle_name( $.sigil, $.twigil, $.name, $.namespace ); 
+
+        return Main::mangle_name( $.sigil, $.twigil, $.name, $.namespace );
     };
     #method perl {
     #    # this is used by the signature emitter
     #    # XXX rename this node, it may clash with a User class
-    #      '::DISPATCH( $::Var, "new", { ' 
+    #      '::DISPATCH( $::Var, "new", { '
     #    ~     'sigil  => \'' ~ $.sigil  ~ '\', '
     #    ~     'twigil => \'' ~ $.twigil ~ '\', '
     #    ~     'name   => \'' ~ $.name   ~ '\', '
@@ -364,9 +364,9 @@ class Var {
 
 class Bind {
     method emit_perl5 {
-    
+
         # XXX - replace Bind with Assign
-        if $.parameters.isa('Call') 
+        if $.parameters.isa('Call')
         {
             return ::Assign(parameters=>$.parameters,arguments=>$.arguments).emit_perl5;
         };
@@ -394,7 +394,7 @@ class Call {
             else {
                 $invocant := $.invocant.emit_perl5;
             }
-            
+
         }
         else {
             $invocant := $.invocant.emit_perl5;
@@ -402,12 +402,12 @@ class Call {
         if $invocant eq 'self' {
             $invocant := '$self';
         };
-        
+
         my $meth := $.method;
         if  $meth eq 'postcircumfix:<( )>'  {
-             $meth := '';  
+             $meth := '';
         };
-        
+
         my $call := (@.arguments.>>emit_perl5).join(', ');
         if ($.hyper) {
             # TODO - hyper + role
@@ -422,26 +422,39 @@ class Call {
                 '::DISPATCH( ' ~ $invocant ~ ', \'APPLY\', ' ~ $call ~ ' )' ~ Main::newline()
             }
             else {
-                  '::DISPATCH( ' 
+                  '::DISPATCH( '
                 ~ $invocant ~ ', '
                 ~ '\'' ~ $meth ~ '\', '
                 ~ $call
-                ~ ' )' 
+                ~ ' )'
                 ~ Main::newline()
             };
         };
-        
+
 
     }
 }
 
 class Apply {
     method emit_perl5 {
-        if     ( $.code.name eq 'self' ) 
-                # && ( @.arguments.elems == 0 ) 
-        { 
-            return '$self'; 
-        } 
+
+        # dlocaus @ #perl6 irc.freenode.net
+        # fglock's comment on this work around
+        # http://irclog.perlgeek.de/perl6/2007-11-21#i_148959
+        # He stated that the code is return $self, instead of trying to parse
+        # self().
+        # Removing this hack breaks the test cases when you do:
+        # perl Makefile.PL ; make forcerecompile ; make test
+        # November 21st, 2007 10:51am PDT.
+
+        if     ( $.code.name eq 'self' )
+                # && ( @.arguments.elems == 0 )
+        {
+            return '$self';
+        }
+
+        # end of hack.
+
         return  '::DISPATCH( ' ~ $.code.emit_perl5 ~ ', \'APPLY\', ' ~ (@.arguments.>>emit_perl5).join(', ') ~ ' )' ~ Main::newline();
     }
 }
@@ -456,14 +469,14 @@ class Return {
 
 class If {
     method emit_perl5 {
-        'do { if (::DISPATCH(::DISPATCH(' ~ $.cond.emit_perl5 ~ ',"true"),"p5landish") ) ' 
-        ~ ( $.body 
+        'do { if (::DISPATCH(::DISPATCH(' ~ $.cond.emit_perl5 ~ ',"true"),"p5landish") ) '
+        ~ ( $.body
             ?? '{ ' ~ $.body.emit_perl5 ~ ' } '
             !! '{ } '
           )
-        ~ ( $.otherwise 
-            ?? ' else { ' ~ $.otherwise.emit_perl5 ~ ' }' 
-            !! ' else { ::DISPATCH($::Bit, "new", 0) }' 
+        ~ ( $.otherwise
+            ?? ' else { ' ~ $.otherwise.emit_perl5 ~ ' }'
+            !! ' else { ::DISPATCH($::Bit, "new", 0) }'
           )
         ~ ' }' ~ Main::newline();
     }
@@ -472,15 +485,15 @@ class If {
 class While {
     method emit_perl5 {
         my $cond := $.cond;
-        if   $cond.isa( 'Var' ) 
-          && $cond.sigil eq '@' 
+        if   $cond.isa( 'Var' )
+          && $cond.sigil eq '@'
         {
         } else {
             $cond := ::Apply( code => ::Var(sigil=>'&',twigil=>'',name=>'prefix:<@>',namespace => [ 'GLOBAL' ],), arguments => [$cond] );
         }
-        'do { while (::DISPATCH(::DISPATCH(' ~ $.cond.emit_perl5 ~ ',"true"),"p5landish") ) ' 
-        ~ ' { ' 
-        ~     $.body.emit_perl5 
+        'do { while (::DISPATCH(::DISPATCH(' ~ $.cond.emit_perl5 ~ ',"true"),"p5landish") ) '
+        ~ ' { '
+        ~     $.body.emit_perl5
         ~ ' } }'
         ~ Main::newline();
     }
@@ -501,11 +514,11 @@ class Decl {
         if $decl eq 'our' {
             my $s;
             # ??? use vars --> because compile-time scope is too tricky to use 'our'
-            # ??? $s := 'use vars \'' ~ $.var.emit_perl5 ~ '\'; ';  
+            # ??? $s := 'use vars \'' ~ $.var.emit_perl5 ~ '\'; ';
             $s := 'our ';
 
             if ($.var).sigil eq '$' {
-                return $s 
+                return $s
                     ~ $.var.emit_perl5
                     ~ ' = ::DISPATCH( $::Scalar' ~ $create
                     ~ ' unless defined ' ~ $.var.emit_perl5 ~ '; '
@@ -516,7 +529,7 @@ class Decl {
                     ~ '}' ~ Main::newline()
             };
             if ($.var).sigil eq '&' {
-                return $s 
+                return $s
                     ~ $.var.emit_perl5
                     ~ ' = ::DISPATCH( $::Routine' ~ $create ~ ';' ~ Main::newline();
             };
@@ -531,9 +544,9 @@ class Decl {
             return $s ~ $.var.emit_perl5 ~ Main::newline();
         };
         if ($.var).sigil eq '$' {
-            return 
-                  $.decl ~ ' ' 
-                # ~ $.type ~ ' ' 
+            return
+                  $.decl ~ ' '
+                # ~ $.type ~ ' '
                 ~ $.var.emit_perl5 ~ '; '
                 ~ $.var.emit_perl5
                 ~ ' = ::DISPATCH( $::Scalar' ~ $create
@@ -546,9 +559,9 @@ class Decl {
                 ;
         };
         if ($.var).sigil eq '&' {
-            return 
-                  $.decl ~ ' ' 
-                # ~ $.type ~ ' ' 
+            return
+                  $.decl ~ ' '
+                # ~ $.type ~ ' '
                 ~ $.var.emit_perl5 ~ '; '
                 ~ $.var.emit_perl5
                 ~ ' = ::DISPATCH( $::Routine' ~ $create
@@ -561,21 +574,21 @@ class Decl {
                 ;
         };
         if ($.var).sigil eq '%' {
-            return $.decl ~ ' ' 
-                # ~ $.type 
+            return $.decl ~ ' '
+                # ~ $.type
                 ~ ' ' ~ $.var.emit_perl5
                 ~ ' = ::DISPATCH( $::HashContainer' ~ $create ~ '; '
                 ~ Main::newline();
         };
         if ($.var).sigil eq '@' {
-            return $.decl ~ ' ' 
-                # ~ $.type 
+            return $.decl ~ ' '
+                # ~ $.type
                 ~ ' ' ~ $.var.emit_perl5
                 ~ ' = ::DISPATCH( $::ArrayContainer' ~ $create ~ '; '
                 ~ Main::newline();
         };
-        return $.decl ~ ' ' 
-            # ~ $.type ~ ' ' 
+        return $.decl ~ ' '
+            # ~ $.type ~ ' '
             ~ $.var.emit_perl5;
     }
 }
@@ -586,7 +599,7 @@ class Sig {
         if $.invocant.isa( 'Var' ) {
             $inv := $.invocant.perl;
         }
-            
+
         my $pos;
         my $decl;
         for @($.positional) -> $decl {
@@ -617,7 +630,7 @@ class Capture {
         if defined $.array {
            $s := $s ~ 'array => ::DISPATCH( $::Array, "new", { _array => [ ';
                             my $item;
-           for @.array -> $item { 
+           for @.array -> $item {
                 $s := $s ~ $item.emit_perl5 ~ ', ';
             }
             $s := $s ~ ' ] } ),';
@@ -625,7 +638,7 @@ class Capture {
         if defined $.hash {
            $s := $s ~ 'hash => ::DISPATCH( $::Hash, "new", { _hash => { ';
                            my $item;
-           for @.hash -> $item { 
+           for @.hash -> $item {
                 $s := $s ~ ($item[0]).emit_perl5 ~ '->{_value} => ' ~ ($item[1]).emit_perl5 ~ ', ';
             }
             $s := $s ~ ' } } ),';
@@ -636,10 +649,10 @@ class Capture {
 
 class Subset {
     method emit_perl5 {
-          '::DISPATCH( $::Subset, "new", { ' 
-        ~ 'base_class => ' ~ $.base_class.emit_perl5 
+          '::DISPATCH( $::Subset, "new", { '
+        ~ 'base_class => ' ~ $.base_class.emit_perl5
         ~ ', '
-        ~ 'block => '    
+        ~ 'block => '
         ~       'sub { local $_ = shift; ' ~ ($.block.block).emit_perl5 ~ ' } '    # XXX
         ~ ' } )' ~ Main::newline();
     }
@@ -658,10 +671,10 @@ class Method {
         ~     '# emit_body'                  ~ Main::newline()
         ~     $.block.emit_body
         ~    ' }, '
-        ~   'signature => ' 
+        ~   'signature => '
         ~       $.block.emit_signature
         ~    ', '
-        ~ ' } )' 
+        ~ ' } )'
         ~ Main::newline();
     }
 }
@@ -669,15 +682,15 @@ class Method {
 class Sub {
     method emit_perl5 {
           '::DISPATCH( $::Code, \'new\', { '
-        ~   'code => sub { '  
-        ~       $.block.emit_declarations 
-        ~       $.block.emit_arguments 
+        ~   'code => sub { '
+        ~       $.block.emit_declarations
+        ~       $.block.emit_arguments
         ~       $.block.emit_body
         ~    ' }, '
-        ~   'signature => ' 
+        ~   'signature => '
         ~       $.block.emit_signature
         ~    ', '
-        ~ ' } )' 
+        ~ ' } )'
         ~ Main::newline();
     }
 }
@@ -685,23 +698,23 @@ class Sub {
 class Macro {
     method emit_perl5 {
           '::DISPATCH( $::Macro, \'new\', { '
-        ~   'code => sub { '  
-        ~       $.block.emit_declarations 
-        ~       $.block.emit_arguments 
+        ~   'code => sub { '
+        ~       $.block.emit_declarations
+        ~       $.block.emit_arguments
         ~       $.block.emit_body
         ~    ' }, '
-        ~   'signature => ' 
+        ~   'signature => '
         ~       $.block.emit_signature
         ~    ', '
-        ~ ' } )' 
+        ~ ' } )'
         ~ Main::newline();
     }
 }
 
 class Do {
     method emit_perl5 {
-        'do { ' ~ 
-          $.block.emit_perl5 ~ 
+        'do { ' ~
+          $.block.emit_perl5 ~
         ' }'
         ~ Main::newline();
     }
@@ -709,8 +722,8 @@ class Do {
 
 class BEGIN {
     method emit_perl5 {
-        'INIT { ' ~ 
-          $.block.emit_perl5 ~ 
+        'INIT { ' ~
+          $.block.emit_perl5 ~
         ' }'
     }
 }
@@ -730,7 +743,7 @@ class Use {
 
 =begin
 
-=head1 NAME 
+=head1 NAME
 
 KindaPerl6::Perl5::Emit::Perl5 - Code generator for KindaPerl6-in-Perl5
 
