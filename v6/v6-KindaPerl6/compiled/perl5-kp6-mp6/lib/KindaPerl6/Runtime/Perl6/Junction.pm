@@ -115,17 +115,13 @@
                                 $::Hash, 'new',
                                 {
                                     _hash => {
-                                        ::DISPATCH( $::Str, 'new', 'any' )
-                                          ->{_value} =>
+                                        ::DISPATCH( $::Str,   'new', 'any' ) =>
                                           ::DISPATCH( $::Str, 'new', ' | ' ),
-                                        ::DISPATCH( $::Str, 'new', 'none' )
-                                          ->{_value} =>
+                                        ::DISPATCH( $::Str,   'new', 'none' ) =>
                                           ::DISPATCH( $::Str, 'new', ' , ' ),
-                                        ::DISPATCH( $::Str, 'new', 'all' )
-                                          ->{_value} =>
+                                        ::DISPATCH( $::Str,   'new', 'all' ) =>
                                           ::DISPATCH( $::Str, 'new', ' & ' ),
-                                        ::DISPATCH( $::Str, 'new', 'one' )
-                                          ->{_value} =>
+                                        ::DISPATCH( $::Str,   'new', 'one' ) =>
                                           ::DISPATCH( $::Str, 'new', ' ^ ' ),
                                     }
                                 }
