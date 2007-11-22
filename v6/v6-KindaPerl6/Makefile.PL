@@ -485,4 +485,13 @@ however, make will not "add" that file to the list of files to be compiled.
 To fix this you will have to rebuild the Makefile.  "perl Makefile.PL"
 this is specific ONLY to MS Windows.
 
+=head2 COPYRIGHT
+
+Copyright 2007 by Flavio Soibelmann Glock and others.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
+
 =cut

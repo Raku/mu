@@ -12,18 +12,18 @@ class Junction {
     has $.type;
     has $.things;
 
-    method Str { 
+    method Str {
                 my %sep = {
                     "any" =>" | ",
                     "none"=>" , ",
                     "all" =>" & ",
                     "one" =>" ^ ",
-                };  
-                
+                };
+
                       ( ($.type eq '!') ?? 'none' !! '' )
-                    ~ "( "  
+                    ~ "( "
                     ~ ( @( $.things ) ).join( %sep{ $.type } )
-                    ~ " )"  
+                    ~ " )"
      };
 
     method perl { self.Str };
@@ -51,7 +51,7 @@ class Junction {
         if $.type eq 'one' {
             my $counter = 0;
             for @( $.things ) -> $thing {
-                if $thing { 
+                if $thing {
                     ++$counter;
                     if $counter > 1 {
                         return False;
@@ -65,3 +65,26 @@ class Junction {
 };
 
 # vim: sw=4 ts=4 expandtab syn=perl6
+
+=begin
+
+=head1 AUTHORS
+
+The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
+
+=head1 SEE ALSO
+
+The Perl 6 homepage at L<http://dev.perl.org/perl6>.
+
+The Pugs homepage at L<http://pugscode.org/>.
+
+=head1 COPYRIGHT
+
+Copyright 2007 by Flavio Soibelmann Glock and others.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
+
+=end

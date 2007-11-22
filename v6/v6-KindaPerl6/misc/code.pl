@@ -1,6 +1,6 @@
 
-use lib 
-    'lib5', 
+use lib
+    'lib5',
     '../v6-MiniPerl6/lib5';  # KindaPerl6::Visitor::EmitPerl5 needs this, because it is compiled with mp6
 use KindaPerl6::Perl5::Runtime;
 use KindaPerl6::Visitor::EmitPerl5;
@@ -16,13 +16,13 @@ my $s1 = Code->new(
             ( bless {
                 decl => 'my',
                 type => undef,
-                var  =>                
+                var  =>
                     ( bless {
                         sigil   => '$',
                         twigil  => '',
                         name    => 'x',
-                      }, 'Var' 
-                    ),            
+                      }, 'Var'
+                    ),
               }, 'Decl'
             ),
         ],
@@ -50,10 +50,10 @@ __END__
 package main;
 
 my $s1_clone;
-my $s1 = bless { 
+my $s1 = bless {
     my $x = 3;
     code  => sub { $x++ },
-    clone => sub { my $x = $x; 
+    clone => sub { my $x = $x;
         code  => sub { $x++ },
         clone => ...,   # deep copy, OUTER?
     },
@@ -82,11 +82,11 @@ __END__
 * clone
 * perl
 
-Lit::Code 
+Lit::Code
     %.pad;         #  is Mapping of Type; # All my/state/parameter variables
-    %.state;       #  is Mapping of Exp;  # State initializers, run upon first entry 
+    %.state;       #  is Mapping of Exp;  # State initializers, run upon first entry
     $.sig;         #  is Sig              # Signature
-    @.body;        #  is Seq of Exp;      # Code body 
+    @.body;        #  is Seq of Exp;      # Code body
 Pad
     $.outer
     @.lexicals
@@ -94,3 +94,27 @@ Pad
 
 =end
 
+
+
+=begin
+
+=head1 AUTHORS
+
+The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
+
+=head1 SEE ALSO
+
+The Perl 6 homepage at L<http://dev.perl.org/perl6>.
+
+The Pugs homepage at L<http://pugscode.org/>.
+
+=head1 COPYRIGHT
+
+Copyright 2007 by Flavio Soibelmann Glock and others.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
+
+=end

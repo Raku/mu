@@ -7,7 +7,7 @@ class Signature::Item {
     has $.twigil;
     has $.name;
     has $.value;
-    
+
     has $.is_named_only;
     has $.is_optional;  # !is_required
     # has $.is_longname;
@@ -15,7 +15,7 @@ class Signature::Item {
     has $.is_multidimensional;
     has $.is_rw;
     has $.is_copy;
-    
+
     method perl {
           ( $.is_named_only       ?? ':' !! '' )
         ~ ( $.is_slurpy           ?? '*' !! '' )
@@ -50,24 +50,47 @@ class Signature is Value {
     method perl {
         my $v;   # XXX kp6 ast processor bug
         my $s = ':( ';
-        
+
         if $.invocant.defined {
             $s = $s ~ $.invocant.perl ~ ': ';
         };
-        
-        for @.array -> $v { 
+
+        for @.array -> $v {
             $s = $s ~ $v.perl ~ ', ';
         };
-        
+
         # TODO
         #for $.hash.pairs -> $v {
         #    $s = $s ~ $v.perl ~ ', ';
         #};
-        
-        return $s ~ ' )' 
+
+        return $s ~ ' )'
     };
     method Str {
         self.perl;
     };
 }
 
+
+=begin
+
+=head1 AUTHORS
+
+The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
+
+=head1 SEE ALSO
+
+The Perl 6 homepage at L<http://dev.perl.org/perl6>.
+
+The Pugs homepage at L<http://pugscode.org/>.
+
+=head1 COPYRIGHT
+
+Copyright 2007 by Flavio Soibelmann Glock and others.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
+
+=end

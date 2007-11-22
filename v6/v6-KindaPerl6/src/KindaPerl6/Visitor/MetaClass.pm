@@ -17,20 +17,20 @@ class KindaPerl6::Visitor::MetaClass {
             # calls GLOBAL::import
             #push @$module, ::Apply(
             #    code      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'import' ),
-            #    arguments => [ 
+            #    arguments => [
             #        ::Val::Buf( buf => $node.name ),
             #    ],
             #);
-            
+
             # role or class/grammar/module ?
             if $node.unit_type eq 'role' {
                 push @$module, ::Call(
                     'hyper'     => '',
                     'arguments' => [
-                        ::Val::Buf( buf => $node.name ),  
+                        ::Val::Buf( buf => $node.name ),
                     ],
                     'method'   => 'new',
-                    'invocant' => ::Proto( name => 'KindaPerl6::Role' ),  
+                    'invocant' => ::Proto( name => 'KindaPerl6::Role' ),
                 );
             }
             else {
@@ -46,10 +46,10 @@ class KindaPerl6::Visitor::MetaClass {
                 my $metaobject := ::Call(
                     'hyper'     => '',
                     'arguments' => [
-                        ::Val::Buf( buf => $node.name ),  
+                        ::Val::Buf( buf => $node.name ),
                     ],
                     'method'   => 'new',
-                    'invocant' => ::Proto( name => $metaclass ),  
+                    'invocant' => ::Proto( name => $metaclass ),
                 );
                 # 'If' == avoid redefining the prototype object
                 my $body := $node.body;
@@ -57,19 +57,19 @@ class KindaPerl6::Visitor::MetaClass {
                 if ($body) {
                     $pad := $body.pad;
                 }
-                push @$module, 
+                push @$module,
                     ::If(
-                        cond      => 
+                        cond      =>
                            ::Apply(
                                 arguments => [ ::Proto( name => $node.name ) ],
                                 code => ::Var( name => 'VAR_defined', twigil => '', sigil => '&', namespace => [ ] ),
                             ),
                         body      => '',
-                        otherwise => 
+                        otherwise =>
                             ::Lit::Code(
-                                body => [ 
+                                body => [
                                     ::Bind(
-                                        'parameters' => ::Proto( name => $node.name ),  
+                                        'parameters' => ::Proto( name => $node.name ),
                                         'arguments'  => ::Call(
                                             'invocant' => $metaobject,
                                             'method'   => 'PROTOTYPE',
@@ -92,7 +92,7 @@ class KindaPerl6::Visitor::MetaClass {
                     push @$module, ::Call(
                         'hyper'     => '',
                         'arguments' => [
-                            ::Val::Buf( buf => $trait[1] ), 
+                            ::Val::Buf( buf => $trait[1] ),
                         ],
                         'method'    => 'add_role',
                         'invocant'  => ::Call(
@@ -103,7 +103,7 @@ class KindaPerl6::Visitor::MetaClass {
                                     name => $node.name
                                 )
                         ),
-                    ); 
+                    );
                 }
                 else {
                 if $trait[0] eq 'is' {
@@ -129,7 +129,7 @@ class KindaPerl6::Visitor::MetaClass {
                                    name => $node.name
                                 )
                         ),
-                    ); 
+                    );
                 }
                 else {
                     if $trait[0] eq 'meta' {
@@ -154,8 +154,8 @@ class KindaPerl6::Visitor::MetaClass {
                     push @$module, ::Call(
                         'hyper'     => '',
                         'arguments' => [
-                            ::Val::Buf( buf => $item.name ), 
-                            
+                            ::Val::Buf( buf => $item.name ),
+
                             $item,
                             # create Method
                             # ::Call(
@@ -182,12 +182,12 @@ class KindaPerl6::Visitor::MetaClass {
                                     name => $node.name
                                 )
                         ),
-                    ); 
+                    );
                 };
 
                 # ACCESSOR
                 if    ( $item.isa( 'Decl' ) )
-                   && ( $item.decl eq 'has' ) 
+                   && ( $item.decl eq 'has' )
                 {
                     # Bar->HOW->add_attribute($attribute_name, $attribute_meta_object)
                     push @$module, ::Call(
@@ -196,7 +196,7 @@ class KindaPerl6::Visitor::MetaClass {
                                     ::Val::Buf(
                                         buf => ($item.var).name,
                                     )
-                                                
+
 #                            ::Call(
 #                                'hyper'     => '',
 #                                'arguments' => [
@@ -220,9 +220,9 @@ class KindaPerl6::Visitor::MetaClass {
                                     name => $node.name
                                 )
                         ),
-                    ); 
+                    );
                 };
-                
+
                 # Class variables
                 # TODO
 
@@ -236,7 +236,7 @@ class KindaPerl6::Visitor::MetaClass {
             for @(($node.body).body) -> $item {
                 if    $item.isa( 'Method' )
                   ||  (  ( $item.isa( 'Decl' ) )
-                      && ( $item.decl eq 'has' ) 
+                      && ( $item.decl eq 'has' )
                       )
                 { }
                 else
@@ -254,7 +254,7 @@ class KindaPerl6::Visitor::MetaClass {
             if ($body) {
                 $pad := $body.pad;
             };
-            return ::CompUnit( 
+            return ::CompUnit(
                 unit_type => 'module',
                 name => $node.name,
                 body => ::Lit::Code(
@@ -271,3 +271,27 @@ class KindaPerl6::Visitor::MetaClass {
     };
 
 }
+
+
+=begin
+
+=head1 AUTHORS
+
+The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
+
+=head1 SEE ALSO
+
+The Perl 6 homepage at L<http://dev.perl.org/perl6>.
+
+The Pugs homepage at L<http://pugscode.org/>.
+
+=head1 COPYRIGHT
+
+Copyright 2007 by Flavio Soibelmann Glock and others.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
+
+=end

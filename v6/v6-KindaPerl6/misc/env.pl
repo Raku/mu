@@ -37,11 +37,11 @@ __END__
 sub dump1 {
     my $level = shift;
     "{ my " . join( ' = ', $d[$level]() ) . '; ' .
-    (   $level < $#d 
+    (   $level < $#d
         ? dump1( $level + 1 )
-        : '' 
+        : ''
     ) .
-    " }";    
+    " }";
 }
 
 print dump1(0), "\n";
@@ -56,23 +56,23 @@ use strict;
 my @v;  # pad stack
 my @d;  # pad inspectors
 
-$v[0] = do { 
-    my $x = 3; 
-    $d[0] = sub { '$x' => $x }; 
-    sub { $x; eval $_[0] } 
+$v[0] = do {
+    my $x = 3;
+    $d[0] = sub { '$x' => $x };
+    sub { $x; eval $_[0] }
 };  # set up closure
 
 $v[0]( ' print "x=$x\n" ' );   # execute in this context level
 print "sub=$v[0]\n";
 
-$v[1] = $v[0]( ' do { my $y = 4; 
-    $d[1] = sub { \'$y\' => $y }; 
+$v[1] = $v[0]( ' do { my $y = 4;
+    $d[1] = sub { \'$y\' => $y };
     sub { $y; eval $_[0] } } ' );  # add a pad level
 
 $v[1]( ' print "y=$y\n" ' );   # execute in this context level
 
-$v[2] = $v[1]( ' do { my $z = 7; 
-    $d[2] = sub { \'$z\' => $z }; 
+$v[2] = $v[1]( ' do { my $z = 7;
+    $d[2] = sub { \'$z\' => $z };
     sub { $z; eval $_[0] } } ' );  # add a pad level
 
 $v[2]( ' $y++ ' );   # execute in this context level
@@ -85,11 +85,11 @@ $v[2]( ' print "done\n" ' );   # execute in this context level
 sub dump1 {
     my $level = shift;
     "{ my " . join( ' = ', $d[$level]() ) . '; ' .
-    (   $level < $#d 
+    (   $level < $#d
         ? dump1( $level + 1 )
-        : '' 
+        : ''
     ) .
-    " }";    
+    " }";
 }
 
 print dump1(0), "\n";
@@ -139,7 +139,7 @@ sub do_something {
 }
 
 # main parser sub
-$env = sub { 
+$env = sub {
     print "init\n";
 };
 for ( @parsed ) {
@@ -151,18 +151,18 @@ __END__
 
 use strict;
 
-    INIT { 
-        Main::_begin_001_(); 
+    INIT {
+        Main::_begin_001_();
     }
-    
+
     package Main;
     use Data::Dump::Streamer;
-    my $y;  
-    my $z; 
+    my $y;
+    my $z;
     sub _begin_001_ {
-        my $x;  
-        $y = sub { $x };   
-        $z = sub { $x } 
+        my $x;
+        $y = sub { $x };
+        $z = sub { $x }
     }
     print Dump( $y );
     print Dump( $z );
@@ -171,12 +171,12 @@ __END__
 =pod
 
     module Main;
-    my $y;  
-    my $z; 
-    BEGIN { 
-        my $x;  
-        $y = { $x };   
-        $z = { $x } 
+    my $y;
+    my $z;
+    BEGIN {
+        my $x;
+        $y = { $x };
+        $z = { $x }
      }
 
 =cut
@@ -186,7 +186,7 @@ package Main;
     Compiler::set_scope();
 
 package Compiler;
-    
+
     use PadWalker qw(peek_my peek_our peek_sub closed_over);
 
     our $main_scope;
@@ -202,8 +202,31 @@ __END__
     # how to scope the sub into another module?
     my $_begin = sub {
         my $x;
-        $y = { $x };   
-        $z = { $x } 
+        $y = { $x };
+        $z = { $x }
     };
     # list side-effects?
-    
+
+
+=begin
+
+=head1 AUTHORS
+
+The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
+
+=head1 SEE ALSO
+
+The Perl 6 homepage at L<http://dev.perl.org/perl6>.
+
+The Pugs homepage at L<http://pugscode.org/>.
+
+=head1 COPYRIGHT
+
+Copyright 2007 by Flavio Soibelmann Glock and others.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
+
+=end

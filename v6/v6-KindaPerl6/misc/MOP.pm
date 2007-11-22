@@ -15,13 +15,13 @@ sub get_method_from_metaclass {
             #print "trying $parent ",$parent->{_class_name},"\n", Dumper($parent);
             #print "available $method_name ? @{[ keys %{$parent->{_value}{methods}} ]}\n";
             my $m = get_method_from_metaclass( $parent, $method_name );
-            return $m 
+            return $m
                 if $m;
         }
         return undef;
 }
 
-sub ::CALL { 
+sub ::CALL {
         # $method_name is unboxed
         my ($self, $method_name) = (shift, shift);
         #print "lookup $method_name in $self\n";
@@ -29,7 +29,7 @@ sub ::CALL {
         if ( ! defined $self->{_value} ) {
             # 'self' is a prototype object
             # it stringifies to the class name
-            return $self->{_class_name} if $method_name eq 'str'; 
+            return $self->{_class_name} if $method_name eq 'str';
         }
         # lookup local methods
         return $self->{_methods}{$method_name}{_value}->( $self, @_ )
@@ -38,13 +38,13 @@ sub ::CALL {
         for my $parent ( @{$self->{_isa}} ) {
             my $m = get_method_from_metaclass( $parent, $method_name );
             #print "found\n" if $m;
-            return $m->{_value}->( $self, @_ ) 
+            return $m->{_value}->( $self, @_ )
                 if $m;
         }
         die "no method: $method_name\n";
-}   
+}
 
-%::PROTO = ( 
+%::PROTO = (
     _methods  => undef, # hash
     _roles    => undef,
     _modified => undef,
@@ -59,9 +59,9 @@ sub ::CALL {
 my $method_new = {
     %::PROTO,
     _name     => '$method_new',
-    _value    => sub { 
+    _value    => sub {
                 print "Calling new from @{[ caller ]} \n";
-                my $v = { 
+                my $v = {
                     %{$_[0]},
                     _value => $_[1],
                     _name  => '',
@@ -118,7 +118,7 @@ my $meta_Class = {
         methods => {
             new => $method_new
         }
-    }, 
+    },
     _class_name => 'Class',
 };
 push @{$meta_Class->{_isa}}, $meta_Class;
@@ -131,10 +131,10 @@ $meta_Class->{_value}{methods}{add_method} = ::CALL( $::Method, 'new',
 );
 ::CALL( $meta_Class, 'add_method', 'WHAT', ::CALL( $::Method, 'new', sub { $::Class } ) );
 ::CALL( $meta_Class, 'add_method', 'HOW',  ::CALL( $::Method, 'new', sub { $meta_Class } ) );
-::CALL( $meta_Class, 'add_method', 'add_parent',  ::CALL( $::Method, 'new', 
+::CALL( $meta_Class, 'add_method', 'add_parent',  ::CALL( $::Method, 'new',
     sub { push @{$_[0]{_value}{isa}}, $_[1] } ) );
-::CALL( $meta_Class, 'add_method', 'new',  ::CALL( $::Method, 'new', 
-    sub { 
+::CALL( $meta_Class, 'add_method', 'new',  ::CALL( $::Method, 'new',
+    sub {
         print "Calling Class.new from @{[ caller ]} \n";
         # new Class( $prototype_container, $prototype_container_name, $meta_container, $meta_container_name, $class_name )
         shift;
@@ -184,20 +184,20 @@ my $meta_Value;
 
 my $meta_Undef;
 ::CALL( $::Class, 'new',    $::Undef, '$::Undef',    $meta_Undef, '$meta_Undef',    'Undef');
-::CALL( $meta_Undef, 'add_parent', $meta_Value );  
-::CALL( $meta_Undef, 'add_method', 'perl',         ::CALL( $::Method, 'new', 
+::CALL( $meta_Undef, 'add_parent', $meta_Value );
+::CALL( $meta_Undef, 'add_method', 'perl',         ::CALL( $::Method, 'new',
     sub { my $v = { %{$_[0]}, _value => 'undef' } } ) );
 
 my $meta_Str;
 ::CALL( $::Class, 'new',    $::Str, '$::Str',    $meta_Str, '$meta_Str',    'Str');
 ::CALL( $meta_Str, 'add_parent', $meta_Value );
-::CALL( $meta_Str, 'add_method', 'perl',           ::CALL( $::Method, 'new', 
+::CALL( $meta_Str, 'add_method', 'perl',           ::CALL( $::Method, 'new',
     sub { my $v = { %{$_[0]}, _value => '\'' . $_[0]{_value} . '\'' } } ) );
 
 my $meta_Int;
 ::CALL( $::Class, 'new',    $::Int, '$::Int',    $meta_Int, '$meta_Int',    'Int');
 ::CALL( $meta_Int, 'add_parent', $meta_Value );
-::CALL( $meta_Int, 'add_method', 'perl',           ::CALL( $::Method, 'new', 
+::CALL( $meta_Int, 'add_method', 'perl',           ::CALL( $::Method, 'new',
     sub { my $v = { %{$_[0]}, _value => $_[0]{_value} } } ) );
 
 
@@ -208,8 +208,8 @@ my $meta_Container;
 ::CALL( $meta_Container, 'add_method', 'IS_ARRAY',     ::CALL( $::Method, 'new', sub { 0 } ) );
 ::CALL( $meta_Container, 'add_method', 'IS_HASH',      ::CALL( $::Method, 'new', sub { 0 } ) );
 ::CALL( $meta_Container, 'add_method', 'IS_CONTAINER', ::CALL( $::Method, 'new', sub { 1 } ) );
-::CALL( $meta_Container, 'add_method', 'FETCH',        ::CALL( $::Method, 'new', 
-    sub { $_[0]{_value} ? $_[0]{_value} : $::Undef } 
+::CALL( $meta_Container, 'add_method', 'FETCH',        ::CALL( $::Method, 'new',
+    sub { $_[0]{_value} ? $_[0]{_value} : $::Undef }
 ) );
 
 my $meta_Scalar;
@@ -219,3 +219,26 @@ my $meta_Scalar;
 
 1;
 
+
+=begin
+
+=head1 AUTHORS
+
+The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
+
+=head1 SEE ALSO
+
+The Perl 6 homepage at L<http://dev.perl.org/perl6>.
+
+The Pugs homepage at L<http://pugscode.org/>.
+
+=head1 COPYRIGHT
+
+Copyright 2007 by Flavio Soibelmann Glock and others.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
+
+=end

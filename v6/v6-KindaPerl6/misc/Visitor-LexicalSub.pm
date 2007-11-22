@@ -11,9 +11,9 @@ Before:
 
     my sub abc { 123 }
     abc();
-    
+
 After:
-    
+
     my &abc := { 123 };
     &abc();
 
@@ -23,9 +23,9 @@ Before:
 
     our sub abc { 123 }
     abc();
-    
+
 After:
-    
+
     sub abc { 123 }    # for perl5 compat
     our &abc := \&abc;
     &abc();
@@ -49,25 +49,25 @@ class KindaPerl6::Visitor::LexicalSub {
     method visit ( $node ) {
 
         # TODO - add 'our' subs to the namespace
-        
+
         # sub x {...}  -->  our &x := sub {...}
         if    ( $node.isa( 'Sub' ) )
            && ( $node.name ne '' )   # only named subs
         {
-            return ::Bind(  
-                parameters => ::Decl(  
-                    decl  => 'our',  
-                    var   => ::Var(  
-                        name   => $node.name,  
-                        twigil => '',  
-                        sigil  => '&', 
-                        namespace => [ ], 
-                    ),  
-                    type  => '', 
-                ),  
-                arguments => ::Sub( 
-                    name  => '',  
-                    block => $node.block, 
+            return ::Bind(
+                parameters => ::Decl(
+                    decl  => 'our',
+                    var   => ::Var(
+                        name   => $node.name,
+                        twigil => '',
+                        sigil  => '&',
+                        namespace => [ ],
+                    ),
+                    type  => '',
+                ),
+                arguments => ::Sub(
+                    name  => '',
+                    block => $node.block,
                  ),
              );
         };
@@ -80,23 +80,23 @@ class KindaPerl6::Visitor::LexicalSub {
               )
            && ( (($node.arguments)[0]).isa( 'Sub' ) )
         {
-            # my sub xxx 
+            # my sub xxx
             #  is parsed as:
             # my( sub xxx )
-            return ::Bind(  
-                parameters => ::Decl(  
-                    decl  => $node.code,  
-                    var   => ::Var(  
-                        name   => (($node.arguments)[0]).name,  
-                        twigil => '',  
-                        sigil  => '&', 
+            return ::Bind(
+                parameters => ::Decl(
+                    decl  => $node.code,
+                    var   => ::Var(
+                        name   => (($node.arguments)[0]).name,
+                        twigil => '',
+                        sigil  => '&',
                         namespace => [ ],
-                    ),  
-                    type  => '', 
-                ),  
-                arguments => ::Sub( 
-                    name  => '',  
-                    block => (($node.arguments)[0]).block, 
+                    ),
+                    type  => '',
+                ),
+                arguments => ::Sub(
+                    name  => '',
+                    block => (($node.arguments)[0]).block,
                  ),
              );
         };
@@ -106,14 +106,14 @@ class KindaPerl6::Visitor::LexicalSub {
         if    ( $node.isa( 'Apply' ) )
            && ( $node.code ).isa( 'Str' )
         {
-            return ::Apply(  
+            return ::Apply(
                 arguments => $node.arguments,
-                code => ::Var(  
-                        name   => $node.code,  
-                        twigil => '',  
-                        sigil  => '&', 
+                code => ::Var(
+                        name   => $node.code,
+                        twigil => '',
+                        sigil  => '&',
                         namespace => [ ],
-                    ),   
+                    ),
              );
         };
 
@@ -122,3 +122,26 @@ class KindaPerl6::Visitor::LexicalSub {
 
 }
 
+
+=begin
+
+=head1 AUTHORS
+
+The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
+
+=head1 SEE ALSO
+
+The Perl 6 homepage at L<http://dev.perl.org/perl6>.
+
+The Pugs homepage at L<http://pugscode.org/>.
+
+=head1 COPYRIGHT
+
+Copyright 2007 by Flavio Soibelmann Glock and others.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
+
+=end

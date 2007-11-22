@@ -1,7 +1,7 @@
 use v6-alpha;
 class Array is Container {
     method perl {
-        '[ ' ~ (self.map( sub { $_.perl } )).join(', ') ~ ' ]' 
+        '[ ' ~ (self.map( sub { $_.perl } )).join(', ') ~ ' ]'
     };
     method Str {
         self.join( ' ' );
@@ -12,9 +12,9 @@ class Array is Container {
 
     method grep(&test) {
         my @result;
-        for @(self) -> $v { 
+        for @(self) -> $v {
             $_ := $v;   # this should be automatic ???
-            if test($v) { 
+            if test($v) {
                 @result.push($v);
             };
         };
@@ -24,7 +24,7 @@ class Array is Container {
     method join($sep) {
         my $result = '';
         my $s = '';
-        for @(self) -> $v { 
+        for @(self) -> $v {
             $result = $result ~ $s ~ $v;
             $s = $sep;
         };
@@ -34,7 +34,7 @@ class Array is Container {
     method uniq {
         my %h;
         my @res;
-        for @(self) -> $v { 
+        for @(self) -> $v {
             if !(%h{$v}) {
                 @res.push($v);
             };
@@ -72,3 +72,26 @@ class Array is Container {
 }
 
 # vim: sw=4 ts=4 expandtab syn=perl6
+
+=begin
+
+=head1 AUTHORS
+
+The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
+
+=head1 SEE ALSO
+
+The Perl 6 homepage at L<http://dev.perl.org/perl6>.
+
+The Pugs homepage at L<http://pugscode.org/>.
+
+=head1 COPYRIGHT
+
+Copyright 2007 by Flavio Soibelmann Glock and others.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
+
+=end

@@ -17,13 +17,13 @@ token control {
 };
 
 token block1 {
-    \{  <.opt_ws> 
-        { 
+    \{  <.opt_ws>
+        {
             COMPILER::add_pad();
         }
-        <exp_stmts> 
-        <.opt_ws> 
-    \} 
+        <exp_stmts>
+        <.opt_ws>
+    \}
         {
             my $env := COMPILER::current_pad();
             COMPILER::drop_pad();
@@ -37,7 +37,7 @@ token block1 {
 };
 
 token block2 {
-    <block1>  
+    <block1>
     { return $$<block1> }
 };
 
@@ -46,22 +46,22 @@ token if {
     <block1>
     [
         <.opt_ws>
-        else <.opt_ws> 
+        else <.opt_ws>
         <block2>
-        { 
-            return ::If( 
-                'cond'      => $$<exp>, 
-                'body'      => $$<block1>, 
+        {
+            return ::If(
+                'cond'      => $$<exp>,
+                'body'      => $$<block1>,
                 'otherwise' => $$<block2>,
             );
         }
     |
-        { 
-            return ::If( 
-                'cond' => $$<exp>, 
-                'body' => $$<block1>, 
+        {
+            return ::If(
+                'cond' => $$<exp>,
+                'body' => $$<block1>,
                 'otherwise' => undef,
-             ) 
+             )
         }
     ]
 };
@@ -71,17 +71,17 @@ token unless {
     <block1>
     [
         <.opt_ws>
-        else <.opt_ws> 
+        else <.opt_ws>
         <block2>
-        { 
-            return ::If( 
-                'cond'      => $$<exp>, 
+        {
+            return ::If(
+                'cond'      => $$<exp>,
                 'body'      => $$<block2>,
                 'otherwise' => $$<block1>,
             );
         }
     |
-        { 
+        {
             return ::If(
                 'cond' => $$<exp>,
                 'body' => undef,
@@ -93,16 +93,16 @@ token unless {
 
 token when {
     when <.ws> <exp_seq> <.opt_ws> <block1>
-    { 
-        return ::When( 
-            'parameters' => $$<exp_seq>, 
+    {
+        return ::When(
+            'parameters' => $$<exp_seq>,
             'body'       => $$<block1>,
             ) }
 };
 
 token for {
     for <.ws> <exp> <.opt_ws> <arrow_sub>
-    { 
+    {
             return ::Call(
                 hyper     => '',
                 arguments => [ $$<arrow_sub> ],
@@ -114,9 +114,9 @@ token for {
 
 token while {
     while <.ws> <exp> <.ws> <block1>
-    { 
-        return ::While( 
-            'cond' => $$<exp>, 
+    {
+        return ::While(
+            'cond' => $$<exp>,
             'body' => $$<block1>,
             ) }
 };
@@ -130,8 +130,31 @@ token ctrl_return {
     return <.ws> <exp>
     { return ::Return( 'result' => $$<exp> ) }
     |
-    return 
+    return
     { return ::Return( 'result' => ::Val::Undef() ) }
 };
 
 }
+
+=begin
+
+=head1 AUTHORS
+
+The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
+
+=head1 SEE ALSO
+
+The Perl 6 homepage at L<http://dev.perl.org/perl6>.
+
+The Pugs homepage at L<http://pugscode.org/>.
+
+=head1 COPYRIGHT
+
+Copyright 2007 by Flavio Soibelmann Glock and others.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
+
+=end

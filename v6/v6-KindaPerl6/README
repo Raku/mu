@@ -1,6 +1,6 @@
 At this moment, there are two source trees in this project:
 
- * src: This is the version that uses the mp6 compiler for  
+ * src: This is the version that uses the mp6 compiler for
     some files and that mixes kp6 and mp6 runtime.
 
  * lib-kp6-kp6: This is a pure-kp6 version of the above tree. Some
@@ -35,3 +35,25 @@ The differences between src and lib-kp6-kp6 currently are:
 
 * KindaPerl6::Runtime::Perl5::Runtime was changed
   to load the Perl6 version of the above files
+
+
+==================================
+
+AUTHORS
+
+The Pugs Team perl6-compiler@perl.org.
+
+SEE ALSO
+
+The Perl 6 homepage at http://dev.perl.org/perl6.
+
+The Pugs homepage at http://pugscode.org/.
+
+COPYRIGHT
+
+Copyright 2007 by Flavio Soibelmann Glock and others.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See http://www.perl.com/perl/misc/Artistic.html

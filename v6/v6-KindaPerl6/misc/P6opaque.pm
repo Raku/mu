@@ -3,7 +3,7 @@ use v6-alpha;
 module Perl6;
 
 $Perl6::P6opaque = {
-    _dispatch => 
+    _dispatch =>
         (
         -> ( $method, $invocant, $caller? ) {
                 if $method eq 'new' {
@@ -19,7 +19,7 @@ $Perl6::P6opaque = {
 };
 
 
-=head1 NAME 
+=head1 NAME
 
 Perl6::P6opaque - a base data structure for Perl6 objects
 
@@ -64,4 +64,3 @@ under the same terms as Perl itself.
 See L<http://www.perl.com/perl/misc/Artistic.html>
 
 =end
-

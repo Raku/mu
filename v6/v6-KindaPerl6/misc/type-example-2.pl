@@ -15,7 +15,7 @@ package TypeConstant;
     # $x = bless \( do{ my $v = 42 } ), 'TypeConstant';
     sub IS_ARRAY { 0 }
     sub IS_HASH  { 0 }
-    sub INDEX  { 
+    sub INDEX  {
         return $_[0]
             if $_[1] == 0;
         return $GLOBAL::undef;
@@ -23,7 +23,7 @@ package TypeConstant;
     sub LOOKUP {
         warn "not a hash";
     }
-    sub STORE  { 
+    sub STORE  {
         warn "Can't modify constant item";
         $_[0];
     }
@@ -33,7 +33,7 @@ package TypeInt;
     our @ISA = 'Scalar';
     sub IS_ARRAY { 0 }
     sub IS_HASH  { 0 }
-    sub INDEX  { 
+    sub INDEX  {
         # $scalar->INDEX( 0 ) just works
         return ${$_[0]}->INDEX( $_[1] )
             if ${$_[0]}->IS_ARRAY;
@@ -46,7 +46,7 @@ package TypeInt;
             if ${$_[0]}->IS_HASH;
         warn "not a hash";
     }
-    sub STORE  { 
+    sub STORE  {
         # <[particle]> yep, check if it can ->int, and call it if so, otherwise die or something
         warn "not a number: $_[1]" if $_[1] ne $_[1]+0;
         ${$_[0]} = $_[1];
@@ -57,16 +57,16 @@ package TypeIntArray;
     our @ISA = 'Array';
     sub IS_ARRAY { 1 }
     sub IS_HASH  { 0 }
-    sub INDEX  { 
+    sub INDEX  {
         # self, index
         # autovivify
             $_[0][$_[1]]
-        or  $_[0][$_[1]] = bless \( do{ my $v } ), 'TypeInt' 
+        or  $_[0][$_[1]] = bless \( do{ my $v } ), 'TypeInt'
     }
     sub LOOKUP {
         warn "not a hash";
     }
-    sub STORE  { 
+    sub STORE  {
         if ( $_[1]->IS_ARRAY ) {
             @{$_[0]} = @{$_[1]};
         }
@@ -76,7 +76,7 @@ package TypeIntArray;
         else {
             @{$_[0]} = ${$_[1]}
         }
-        # @{$_[0]} 
+        # @{$_[0]}
     }
     # Autovivification
     # problem - INDEX() thinks that $a[1] := undef or $a[1] := 0 are uninitialized elements
@@ -121,28 +121,28 @@ use strict;
 
 {
     my ($x,$y);
-    
+
     $x = bless \( do{ my $v } ), 'TypeInt';
-    
-    $y = $x; 
-    $x->STORE( 3 ); 
+
+    $y = $x;
+    $x->STORE( 3 );
     #print "x is a ",ref($x),"\n", Dump($x);
     #print "y is a ",ref($y),"\n", Dump($y);
-    
-    print $$y, " typed y (1)\n"; 
-    $y->STORE( 4 ); 
+
+    print $$y, " typed y (1)\n";
+    $y->STORE( 4 );
     print $$x, "\n";
-    
+
     $y->STORE( 42 );
-    print $$y, " typed y (2)\n"; 
+    print $$y, " typed y (2)\n";
     print $$x, "\n";
     $y->STORE( 'a' );
-    
+
     $x->STORE( 99 );
-    print $$y, " typed x (3)\n"; 
+    print $$y, " typed x (3)\n";
     print $$x, "\n";
     $x->STORE( 'a' );
-    
+
 }
 
 {
@@ -150,23 +150,46 @@ use strict;
 
     $x = bless [ ], 'TypeIntArray';
 
-    $y = $x; 
-    $x->INDEX( 0 )->STORE( 3 ); 
+    $y = $x;
+    $x->INDEX( 0 )->STORE( 3 );
     #print "x is a ",ref($x),"\n", Dump($x);
     #print "y is a ",ref($y),"\n", Dump($y);
-    
-    print ${$x->INDEX( 0 )}, " typed y (1)\n"; 
-    $y->INDEX( 0 )->STORE( 4 ); 
+
+    print ${$x->INDEX( 0 )}, " typed y (1)\n";
+    $y->INDEX( 0 )->STORE( 4 );
     print ${$x->INDEX( 0 )}, "\n";
-    
+
     $y->INDEX( 0 )->STORE( 42 );
-    print ${$y->INDEX( 0 )}, " typed y (2)\n"; 
+    print ${$y->INDEX( 0 )}, " typed y (2)\n";
     print ${$x->INDEX( 0 )}, "\n";
     $y->INDEX( 0 )->STORE( 'a' );
-    
+
     $x->INDEX( 0 )->STORE( 99 );
-    print ${$y->INDEX( 0 )}, " typed x (3)\n"; 
+    print ${$y->INDEX( 0 )}, " typed x (3)\n";
     print ${$x->INDEX( 0 )}, "\n";
     $x->INDEX( 0 )->STORE( 'a' );
 
 }
+
+=begin
+
+=head1 AUTHORS
+
+The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
+
+=head1 SEE ALSO
+
+The Perl 6 homepage at L<http://dev.perl.org/perl6>.
+
+The Pugs homepage at L<http://pugscode.org/>.
+
+=head1 COPYRIGHT
+
+Copyright 2007 by Flavio Soibelmann Glock and others.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
+
+=end

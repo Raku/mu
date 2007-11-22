@@ -5,9 +5,9 @@ package GLOBAL;
     use Data::Dumper;
     use Carp 'confess';
     #@ISA = qw(Exporter);
-    our @EXPORT = qw( 
+    our @EXPORT = qw(
         VAR
-        print 
+        print
         warn
         die
         exit
@@ -33,7 +33,7 @@ package GLOBAL;
         print_backtrace
 
         ternary_58__60__63__63__32__33__33__62_
-        
+
         infix_58__60_eq_62_
         infix_58__60_ne_62_
         infix_58__60__61__61__62_
@@ -52,12 +52,12 @@ package GLOBAL;
         infix_58__60_x_62_
         infix_58__60__47__47__62_
         infix_58__60__126__126__62_
-        
+
         prefix_58__60__33__62_
         prefix_58__60__36__62_
         prefix_58__60__37__62_
         prefix_58__60__126__62_
-        prefix_58__60__64__62_        
+        prefix_58__60__64__62_
         prefix_58__60__43__43__62_
         prefix_58__60__124__62_
         prefix_58__60__45__62_
@@ -65,13 +65,13 @@ package GLOBAL;
     );
 
     # This is used by Visitor::Namespace.pm, to store Namespaces with global variables
-    $GLOBAL::Hash_KP6 = 
+    $GLOBAL::Hash_KP6 =
         ::DISPATCH( $::Hash, 'new', {
             _hash => { }
         } );
 
     # %*ENV
-    $GLOBAL::Hash_ENV = 
+    $GLOBAL::Hash_ENV =
         ::DISPATCH( $::Hash, 'new', {
             _hash => {
                 map { (
@@ -91,33 +91,33 @@ package GLOBAL;
             ]
         } );
 
-=pod 
+=pod
     # XXX - hash key autovivification is not rw! please fix in MOP.pm
-       
+
     # %*ENV
-    $GLOBAL::Hash_ENV = 
+    $GLOBAL::Hash_ENV =
         ::DISPATCH( $::Hash, 'new', {
-                _hash => { } 
-            } ); 
+                _hash => { }
+            } );
     for ( keys %ENV ) {
-        ::DISPATCH( 
+        ::DISPATCH(
             ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', $_ ) ),
             'STORE',
             ::DISPATCH( $::Str, 'new', $ENV{$_} )
         );
-    }    
+    }
 =cut
-    
+
     ${"GLOBAL::Code_$_"} = \&{"GLOBAL::$_"} for @EXPORT;
-    $GLOBAL::Code_import = ::DISPATCH( $::Code, 'new', 
+    $GLOBAL::Code_import = ::DISPATCH( $::Code, 'new',
         { code => \&{"GLOBAL::import"}, src => '&GLOBAL::import' } );
 
     sub init_global {
         #print "Init GLOBAL\n";
         for ( @EXPORT ) {
             #print "Init \$GLOBAL::Code_$_ \n";
-            ${"GLOBAL::Code_$_"} = ::DISPATCH( $::Code, 'new', 
-                    {   code => ${"GLOBAL::Code_$_"}, 
+            ${"GLOBAL::Code_$_"} = ::DISPATCH( $::Code, 'new',
+                    {   code => ${"GLOBAL::Code_$_"},
                         #src  => '&GLOBAL::'.$_,
                         ast  => bless {
                                     namespace => [ 'GLOBAL', ],
@@ -132,39 +132,39 @@ package GLOBAL;
                         #            sigil     => '&',
                         #        ),
                     },
-                ); 
+                );
         }
     }
 
     # XXX - obsolete - GLOBAL is looked up at compile-time
     sub import {
         #print "@_\n";
-        my $pkg = _str( $_[0] ); 
+        my $pkg = _str( $_[0] );
         #print "IMPORT $pkg\n";
-        ${"${pkg}::Code_$_"} = ::DISPATCH( $::Code, 'new', 
-            { code => ${"GLOBAL::Code_$_"}, src => '&GLOBAL::'.$_ } ) 
+        ${"${pkg}::Code_$_"} = ::DISPATCH( $::Code, 'new',
+            { code => ${"GLOBAL::Code_$_"}, src => '&GLOBAL::'.$_ } )
             for @EXPORT;
     }
 
     sub _str {
         my $v = $_[0];
-        $v = ::DISPATCH( $v, 'Str' )   if ref($v); 
+        $v = ::DISPATCH( $v, 'Str' )   if ref($v);
         $v = ::DISPATCH( $v, 'FETCH' ) if ref($v);  # .Str may return a Scalar
-        return $v->{_value}            if ref($v); 
+        return $v->{_value}            if ref($v);
         $v;
     }
     sub _int {
         my $v = $_[0];
-        $v = ::DISPATCH( $v, 'Int' )   if ref($v); 
+        $v = ::DISPATCH( $v, 'Int' )   if ref($v);
         $v = ::DISPATCH( $v, 'FETCH' ) if ref($v);  # .Int may return a Scalar
-        return $v->{_value}            if ref($v); 
+        return $v->{_value}            if ref($v);
         $v;
     }
 
     sub VAR {
         # returns a proxy object that dispatches to the container
         my $container = shift;
-        return $container 
+        return $container
             unless exists $container->{_dispatch_VAR};
         return {
             _dispatch => sub {
@@ -175,8 +175,8 @@ package GLOBAL;
         };
     }
 
-    sub print { 
-        CORE::print map { 
+    sub print {
+        CORE::print map {
                 _str( $_ )
             } @_;
         True();
@@ -188,42 +188,42 @@ package GLOBAL;
     my $undef = ::DISPATCH( $::Undef, 'new', 0 );
     sub undef    { $undef }
     sub undefine { ::DISPATCH( $_[0], 'STORE', $undef ) }
-    sub defined  { 
+    sub defined  {
         #print "DEFINED? \n";
         return ::DISPATCH( $::Bit, 'new', 0 )
             unless defined $_[0];
-        ::DISPATCH( $_[0], 'defined' ) 
-    } 
-    sub exists   { 
+        ::DISPATCH( $_[0], 'defined' )
+    }
+    sub exists   {
         ::DISPATCH( VAR($_[0]), 'exists' );
         # ::DISPATCH( $_[0], 'exists' );
-    } 
-    sub true     { ::DISPATCH( $_[0], 'true' ) }  
-    sub not      { ::DISPATCH( $::Bit, 'new', ! ( ::DISPATCH( $_[0], 'true' )->{_value} ) ) }  
-    sub True     { ::DISPATCH( $::Bit, 'new',1 ) }  
+    }
+    sub true     { ::DISPATCH( $_[0], 'true' ) }
+    sub not      { ::DISPATCH( $::Bit, 'new', ! ( ::DISPATCH( $_[0], 'true' )->{_value} ) ) }
+    sub True     { ::DISPATCH( $::Bit, 'new',1 ) }
     sub warn     { CORE::warn( map { _str($_) } @_ ) }
     sub die      { Carp::confess( map { _str($_) } @_ ) }
     sub exit     { CORE::exit() }
     sub sleep    { CORE::sleep(_int($_[0])); return True; }
-    sub False    { ::DISPATCH( $::Bit, 'new', 0 ) }  
+    sub False    { ::DISPATCH( $::Bit, 'new', 0 ) }
     sub TODO     { confess("TODO"); }
     sub qw       {
-        ::DISPATCH( $::Array, 'new', { 
-                _array => [ 
+        ::DISPATCH( $::Array, 'new', {
+                _array => [
                     map {
                             ::DISPATCH( $::Str, 'new', $_ )
                         }
-                        eval("qw/"._str($_[0])."/") 
-                ] 
+                        eval("qw/"._str($_[0])."/")
+                ]
             } )
     }
     sub take {
         # this assumes 'Coro' and 'Scalar::Util' are already loaded
-        
+
         # XXX this "does nothing" but gather has problems without it ???
         _str($_[0]);
-        
-        push @{ $::GATHER{ Scalar::Util::refaddr( $Coro::current ) } }, 
+
+        push @{ $::GATHER{ Scalar::Util::refaddr( $Coro::current ) } },
             ::DISPATCH( $_[0], 'FETCH' );
         Coro::cede();
         return $_[0];
@@ -232,12 +232,12 @@ package GLOBAL;
 
     # TODO - macro
     #  ternary:<?? !!>
-    sub ternary_58__60__63__63__32__33__33__62_ : lvalue { 
+    sub ternary_58__60__63__63__32__33__33__62_ : lvalue {
         #print "ternary: ",caller(2), " $#_ $_[0], $_[1]\n";
         #print ::DISPATCH( $_[0], 'true' );
-        ::DISPATCH( $_[0], 'true' )->{_value} ? $_[1] : $_[2] 
+        ::DISPATCH( $_[0], 'true' )->{_value} ? $_[1] : $_[2]
     }
-    
+
     # &&
     # TODO - macro (moved to EmitPerl5 for now)
     # sub infix_58__60__38__38__62_   { true($_[0])->{_value} ? $_[1] : False }
@@ -246,11 +246,11 @@ package GLOBAL;
     # TODO - macro (moved to EmitPerl5 for now)
     # sub infix_58__60__124__124__62_ { ::DISPATCH( $::Bit, 'new', (::DISPATCH( $_[0], 'true' )->{_value} && $_[0] || ::DISPATCH( $_[1], 'true' )->{_value} && $_[1])) }
 
-    sub infix_58__60_eq_62_         
+    sub infix_58__60_eq_62_
     { ::DISPATCH( $::Bit, 'new', (_str($_[0]) eq _str($_[1])) ? 1 : 0) }  # infix:<eq>
-    sub infix_58__60_ne_62_         
+    sub infix_58__60_ne_62_
     { ::DISPATCH( $::Bit, 'new', (_str($_[0]) ne _str($_[1])) ? 1 : 0) }  # infix:<ne>
-    sub infix_58__60__61__61__62_   
+    sub infix_58__60__61__61__62_
     { ::DISPATCH( $::Bit, 'new', (_int($_[0]) == _int($_[1])) ? 1 : 0) }  # infix:<==>
     sub infix_58__60__60__61__62__62_
     { ::DISPATCH( $::Int, 'new', (_int($_[0]) <=> _int($_[1]))) }  # infix:<<=>>
@@ -274,18 +274,18 @@ package GLOBAL;
     }
 
 
-    sub infix_58__60__126__62_      
+    sub infix_58__60__126__62_
     { ::DISPATCH( $::Str, 'new', _str( $_[0] ) . _str( $_[1] ) ) }  # infix:<~>
-    sub infix_58__60__42__62_       
+    sub infix_58__60__42__62_
     { ::DISPATCH( $::Int, 'new', _int( $_[0] ) * _int( $_[1] ) ) }  # infix:<*>
-    sub infix_58__60__43__62_       
+    sub infix_58__60__43__62_
     { ::DISPATCH( $::Int, 'new', _int( $_[0] ) + _int( $_[1] ) ) }  # infix:<+>
-    sub infix_58__60__45__62_       
+    sub infix_58__60__45__62_
     { ::DISPATCH( $::Int, 'new', _int( $_[0] ) - _int( $_[1] ) ) }  # infix:<->
 
-    sub infix_58__60__47__62_       
+    sub infix_58__60__47__62_
     { ::DISPATCH( $::Int, 'new', _int( $_[0] ) / _int( $_[1] ) ) }  # infix:</>   XXX - Num
-    sub infix_58__60__62__62_  
+    sub infix_58__60__62__62_
     { ::DISPATCH( $::Bit, 'new', (_int($_[0]) > _int($_[1])) ? 1 : 0) }  # >
     sub infix_58__60__47__47__62_
     { die "not implemented"; }  # //  TODO
@@ -295,64 +295,64 @@ package GLOBAL;
         my $but   = ::DISPATCH( $_[1], 'FETCH' );
         my $class = ::DISPATCH( ::DISPATCH( $but, 'WHAT' ), 'Str' )->{_value};
         #print "class: $class \n";
-        
+
         # XXX fixme
         my $meth  = "";
         #$meth = "Str"  if $class eq "Str";
         #$meth = "Int"  if $class eq "Int";
-        $meth = "true" if $class eq "Bit";        
+        $meth = "true" if $class eq "Bit";
         # ???
         #die "don't know how to implement 'but' with $class"
         #    unless $meth;
 
         $value = { %{ $value } };
-        
+
         # XXX
         $value->{_methods}{$meth}  = ::DISPATCH( $::Method, 'new', sub { $but } )
             if $meth;
-        
+
         $value->{_methods}{$class} = ::DISPATCH( $::Method, 'new', sub { $but } );
-        
+
         return $value;
     }
     sub infix_58__60_x_62_ {    # x
-        return ::DISPATCH( $::Str, 'new', 
-                _str( $_[0] ) x _int( $_[1] ) 
+        return ::DISPATCH( $::Str, 'new',
+                _str( $_[0] ) x _int( $_[1] )
         );
     }
     sub infix_58__60__126__126__62_ {  # ~~
         return ::DISPATCH( $_[1], 'smartmatch', $_[0] );
     }
 
-    sub substr      
-    { 
+    sub substr
+    {
         #print " substr() parameters: ",
         #    join( ", " ,
-        #        _str( $_[0] ), _int( $_[1] ), _int( $_[2] ), _str( $_[3] ) 
+        #        _str( $_[0] ), _int( $_[1] ), _int( $_[2] ), _str( $_[3] )
         #    )
         #;
         if ( $#_ == 1 ) {
-            return ::DISPATCH( $::Str, 'new', 
-                substr( 
-                    _str( $_[0] ), _int( $_[1] ) 
+            return ::DISPATCH( $::Str, 'new',
+                substr(
+                    _str( $_[0] ), _int( $_[1] )
                 )
-            ) 
+            )
         }
         if ( $#_ == 2 ) {
             #warn "STACK TRACE--------------------------------------\n";
             #warn join("\n", map { join ', ', caller($_) } 1..6)."\n";
-            return ::DISPATCH( $::Str, 'new', 
-                substr( 
-                    _str( $_[0] ), _int( $_[1] ), _int( $_[2] ) 
+            return ::DISPATCH( $::Str, 'new',
+                substr(
+                    _str( $_[0] ), _int( $_[1] ), _int( $_[2] )
                 )
-            ) 
+            )
         }
         if ( $#_ == 3 ) {
-            return ::DISPATCH( $::Str, 'new', 
-                substr( 
-                    _str( $_[0] ), _int( $_[1] ), _int( $_[2] ), _str( $_[3] ) 
+            return ::DISPATCH( $::Str, 'new',
+                substr(
+                    _str( $_[0] ), _int( $_[1] ), _int( $_[2] ), _str( $_[3] )
                 )
-            ) 
+            )
         }
         die "Not enough arguments for substr";
     }
@@ -368,15 +368,15 @@ package GLOBAL;
     sub prefix_58__60__37__62_ { ::DISPATCH( $_[0], 'hash') }
 
     # prefix:<~>
-    sub prefix_58__60__126__62_ { ::DISPATCH( $::Str, 'new', _str( $_[0] ) ) }  
+    sub prefix_58__60__126__62_ { ::DISPATCH( $::Str, 'new', _str( $_[0] ) ) }
 
     # prefix:<!>
-    sub prefix_58__60__33__62_ { ::DISPATCH( $::Bit, 'new', ! ( ::DISPATCH( $_[0], 'true' )->{_value} ) ) }  
+    sub prefix_58__60__33__62_ { ::DISPATCH( $::Bit, 'new', ! ( ::DISPATCH( $_[0], 'true' )->{_value} ) ) }
 
     # prefix:<@>
-    sub prefix_58__60__64__62_      { 
+    sub prefix_58__60__64__62_      {
         ::DISPATCH( $_[0], 'array' )
-    }       
+    }
 
     # prefix:<++>
     sub prefix_58__60__43__43__62_ {
@@ -546,3 +546,26 @@ sub ::CAPTURIZE {
 }
 
 1;
+
+=begin
+
+=head1 AUTHORS
+
+The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
+
+=head1 SEE ALSO
+
+The Perl 6 homepage at L<http://dev.perl.org/perl6>.
+
+The Pugs homepage at L<http://pugscode.org/>.
+
+=head1 COPYRIGHT
+
+Copyright 2007 by Flavio Soibelmann Glock and others.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
+
+=end

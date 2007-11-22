@@ -4,7 +4,7 @@ use v6-alpha;
 grammar KindaPerl6::Grammar {
 
 token term {
-    | '...' 
+    | '...'
         { return ::Apply(
             'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'die', namespace => [ ] ),
             'arguments' => [],
@@ -22,46 +22,46 @@ token term {
 
     | <var>     { return $$<var> }     # $variable
     | <arrow_sub> { return $$<arrow_sub> }     # -> $param { code... }
-    | <prefix_op> <exp> 
+    | <prefix_op> <exp>
           { return ::Apply(
             'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'prefix:<' ~ $<prefix_op> ~ '>', namespace => [ ] ),
             'arguments' => [ $$<exp> ],
           ) }
 
     # Parenthesis, List
-    | \( <.opt_ws> 
+    | \( <.opt_ws>
         [
 
         | <exp> <.opt_ws> \)
-            { return $$<exp> }   # ( exp )        
-        | <pair> <.opt_ws> [ ',' <.opt_ws> | '' ] \) 
+            { return $$<exp> }   # ( exp )
+        | <pair> <.opt_ws> [ ',' <.opt_ws> | '' ] \)
             # special case - just for testing
             { return ::Lit::Pair( key => ($$<pair>)[0], value => ($$<pair>)[1] ) }
         | <exp_seq> <.opt_ws> \)
-            { return 
-                ::Call( 
-                    'invocant'  => ::Proto( name => 'List' ), 
+            { return
+                ::Call(
+                    'invocant'  => ::Proto( name => 'List' ),
                     'hyper'     => '',
                     'method'    => 'new',
-                    'arguments' => [ ::Lit::Array( 'array' => $$<exp_seq> ) ] 
+                    'arguments' => [ ::Lit::Array( 'array' => $$<exp_seq> ) ]
                 );
             }
         ]
-        
+
     # Pair, Hash, Bare block
-    | \{ <.opt_ws> 
+    | \{ <.opt_ws>
         [
-        |   <pair> <.opt_ws> , <.opt_ws> \} 
+        |   <pair> <.opt_ws> , <.opt_ws> \}
             { return ::Lit::Pair( key => ($$<pair>)[0], value => ($$<pair>)[1] ) }
-        |   <pair> <.opt_ws> \} 
-            { 
+        |   <pair> <.opt_ws> \}
+            {
                 return ::Lit::Code(
                     pad   => COMPILER::current_pad(),
                     state => { },
                     sig   =>
-                        ::Sig( 
-                            'invocant' => undef, 
-                            'positional' => [ ], 
+                        ::Sig(
+                            'invocant' => undef,
+                            'positional' => [ ],
                         ),
                     body  => [
                             ::Lit::Pair( key => ($$<pair>)[0], value => ($$<pair>)[1] )
@@ -69,31 +69,31 @@ token term {
                 );
             }
         |   <exp_mapping> <.opt_ws> \}
-            { return 
-                ::Call( 
-                    'invocant'  => ::Proto( name => 'Hash' ), 
+            { return
+                ::Call(
+                    'invocant'  => ::Proto( name => 'Hash' ),
                     'hyper'     => '',
                     'method'    => 'new',
-                    'arguments' => [ ::Lit::Hash( 'hash' => $$<exp_mapping> ) ] 
+                    'arguments' => [ ::Lit::Hash( 'hash' => $$<exp_mapping> ) ]
                 );
             }
-        |   <bare_block> 
-            { 
+        |   <bare_block>
+            {
                 return $$<bare_block>;
             }
         |
-            { 
+            {
                 die "syntax error inside bare block";
             }
-        ]    
-        
+        ]
+
     | \[ <.opt_ws> <exp_seq> <.opt_ws> \]
-            { return 
-                ::Call( 
-                    'invocant'  => ::Proto( name => 'Array' ), 
+            { return
+                ::Call(
+                    'invocant'  => ::Proto( name => 'Array' ),
                     'hyper'     => '',
                     'method'    => 'new',
-                    'arguments' => [ ::Lit::Array( 'array' => $$<exp_seq> ) ] 
+                    'arguments' => [ ::Lit::Array( 'array' => $$<exp_seq> ) ]
                 );
             }
 
@@ -106,11 +106,11 @@ token term {
         { return ::Capture( 'invocant' => undef, 'array' => [ $$<var> ], 'hash' => [ ] ); }
 
     | \$ \< <sub_or_method_name> \>
-        { return ::Call( 
-            'invocant'   => ::Var( 'sigil' => '$', 'twigil' => '', 'name' => '/', namespace => [ ] ), 
+        { return ::Call(
+            'invocant'   => ::Var( 'sigil' => '$', 'twigil' => '', 'name' => '/', namespace => [ ] ),
             'hyper' => '',
             'method' => 'LOOKUP',
-            'arguments' => [::Val::Buf( 'buf' => $$<sub_or_method_name> )] 
+            'arguments' => [::Val::Buf( 'buf' => $$<sub_or_method_name> )]
         ) }   # $<ident>
     | do <.opt_ws> <block1>
         # block1 is defined in the Grammar::Control module
@@ -120,40 +120,40 @@ token term {
     | <val>      { return $$<val> }     # 'value'
     | <lit>      { return $$<lit> }     # [literal construct]
 #   | <bind>     { return $$<bind>   }  # $lhs := $rhs
-    
-    | <token_sym>  
+
+    | <token_sym>
                  { return $$<token_sym>  }  # token:sym<...>  { regex... }
     | <token>    { return $$<token>      }  # token  { regex... }
     | <token_P5> { return $$<token_P5>   }  # token :P5 { regex... }
 
     | <proto>    { return $$<proto>  }  # proto  { code... }
-    | <multi_method> 
+    | <multi_method>
                  { return $$<multi_method> }  # multi method { code... }
     | <method>   { return $$<method> }  # method { code... }
-    | <multi_sub> 
+    | <multi_sub>
                  { return $$<multi_sub> }  # multi { code... }
     | <subset>                          # subset x of y where { code... }
-        { 
+        {
             if ($$<subset>).name ne '' {
                 # subset x ...  -->  our &x ::= subset ...
-                my $bind := ::Bind(  
-                    parameters => ::Proto(  
-                        name   => ($$<subset>).name,  
-                    ),  
-                    arguments => ::Subset( 
-                        name       => '',  
+                my $bind := ::Bind(
+                    parameters => ::Proto(
+                        name   => ($$<subset>).name,
+                    ),
+                    arguments => ::Subset(
+                        name       => '',
                         base_class => ($$<subset>).base_class,
-                        block      => ($$<subset>).block, 
+                        block      => ($$<subset>).block,
                     ),
                 );
                 COMPILER::begin_block( $bind );   # ::=   compile-time
                 return $bind;                         # :=    run-time
             };
             return $$<subset>;
-        }  
-        
+        }
+
     | <opt_declarator> <sub>               # my? sub xxx? { code... }
-        { 
+        {
             if ($$<sub>).name eq '' {
                 if ($$<opt_declarator>) eq '' {
                     return $$<sub>;
@@ -169,32 +169,32 @@ token term {
                 $decl := $$<opt_declarator>;
             };
             ( COMPILER::current_pad() ).add_lexicals( [
-                ::Decl(  
-                    decl  => $decl,  
-                    var   => ::Var(  
-                        name   => ($$<sub>).name,  
-                        twigil => '',  
-                        sigil  => '&', 
+                ::Decl(
+                    decl  => $decl,
+                    var   => ::Var(
+                        name   => ($$<sub>).name,
+                        twigil => '',
+                        sigil  => '&',
                         namespace => [ ],
-                    ),  
-                    type  => '', 
+                    ),
+                    type  => '',
                 ),
             ] );
-            my $bind := ::Bind(  
-                parameters => ::Var(  
-                    name   => ($$<sub>).name,  
-                    twigil => '',  
-                    sigil  => '&', 
+            my $bind := ::Bind(
+                parameters => ::Var(
+                    name   => ($$<sub>).name,
+                    twigil => '',
+                    sigil  => '&',
                     namespace => [ ],
-                ),  
+                ),
                 arguments => $$<sub>
             );
             #COMPILER::begin_block( $bind );   # ::=   compile-time
             return $bind;                         # :=    run-time
-        }  
+        }
 
     | <opt_declarator> <macro>               # my? macro xxx? { code... }
-        { 
+        {
             if ($$<macro>).name eq '' {
                 if ($$<opt_declarator>) eq '' {
                     return $$<macro>;
@@ -210,32 +210,32 @@ token term {
                 $decl := $$<opt_declarator>;
             };
             ( COMPILER::current_pad() ).add_lexicals( [
-                ::Decl(  
-                    decl  => $decl,  
-                    var   => ::Var(  
-                        name   => ($$<macro>).name,  
-                        twigil => '',  
-                        sigil  => '&', 
+                ::Decl(
+                    decl  => $decl,
+                    var   => ::Var(
+                        name   => ($$<macro>).name,
+                        twigil => '',
+                        sigil  => '&',
                         namespace => [ ],
-                    ),  
-                    type  => '', 
+                    ),
+                    type  => '',
                 ),
             ] );
-            my $bind := ::Bind(  
-                parameters => ::Var(  
-                    name   => ($$<macro>).name,  
-                    twigil => '',  
-                    sigil  => '&', 
+            my $bind := ::Bind(
+                parameters => ::Var(
+                    name   => ($$<macro>).name,
+                    twigil => '',
+                    sigil  => '&',
                     namespace => [ ],
-                ),  
+                ),
                 arguments => $$<macro>
             );
             #COMPILER::begin_block( $bind );   # ::=   compile-time
             return $bind;                         # :=    run-time
-        }  
+        }
 
     | <opt_declarator> <coro>               # my? coro xxx? { code... }
-        { 
+        {
             if ($$<coro>).name eq '' {
                 if ($$<opt_declarator>) eq '' {
                     return $$<coro>;
@@ -251,32 +251,32 @@ token term {
                 $decl := $$<opt_declarator>;
             };
             ( COMPILER::current_pad() ).add_lexicals( [
-                ::Decl(  
-                    decl  => $decl,  
-                    var   => ::Var(  
-                        name   => ($$<coro>).name,  
-                        twigil => '',  
-                        sigil  => '&', 
+                ::Decl(
+                    decl  => $decl,
+                    var   => ::Var(
+                        name   => ($$<coro>).name,
+                        twigil => '',
+                        sigil  => '&',
                         namespace => [ ],
-                    ),  
-                    type  => '', 
+                    ),
+                    type  => '',
                 ),
             ] );
-            my $bind := ::Bind(  
-                parameters => ::Var(  
-                    name   => ($$<coro>).name,  
-                    twigil => '',  
-                    sigil  => '&', 
+            my $bind := ::Bind(
+                parameters => ::Var(
+                    name   => ($$<coro>).name,
+                    twigil => '',
+                    sigil  => '&',
                     namespace => [ ],
-                ),  
+                ),
                 arguments => $$<coro>
             );
             #COMPILER::begin_block( $bind );   # ::=   compile-time
             return $bind;                         # :=    run-time
-        }  
+        }
 
     | <declarator> <.ws> <opt_type> <.opt_ws> <undeclared_var>   # my Int $variable
-        { 
+        {
             if ($$<declarator>) eq 'my' {
                 ( COMPILER::current_pad() ).add_lexicals( [
                     ::Decl( 'decl' => $$<declarator>, 'type' => $$<opt_type>, 'var' => $$<undeclared_var> ),
@@ -294,27 +294,27 @@ token term {
             # TODO - our, temp, state, has
             return ::Decl( 'decl' => $$<declarator>, 'type' => $$<opt_type>, 'var' => $$<undeclared_var> );
         }
-    | <begin_block> 
+    | <begin_block>
                 { return $$<begin_block> }  # BEGIN { code... }
-    | <check_block> 
+    | <check_block>
                 { return $$<check_block> }  # CHECK { code... }
     | gather <.ws> \{ <.opt_ws> <bare_block>      # gather { code... }
         { return
             ::Call(
                 hyper     => '',
-                arguments => [ 
-                    ::Sub( 
-                        'name'  => undef, 
+                arguments => [
+                    ::Sub(
+                        'name'  => undef,
                         'block' => $$<bare_block>,
                     ),
                 ],
                 method   => 'new',
                 invocant => ::Proto( name => 'Gather', ),
             );
-        } 
-    | is <.ws> <full_ident> 
+        }
+    | is <.ws> <full_ident>
         { die "<is> not implemented" }
-    | does <.ws> <full_ident> 
+    | does <.ws> <full_ident>
         { die "<does> not implemented" }
 
     | <control> { return $$<control> } # Various control structures.  Does _not_ appear in binding LHS
@@ -330,3 +330,26 @@ token term {
 
 };
 }
+
+=begin
+
+=head1 AUTHORS
+
+The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
+
+=head1 SEE ALSO
+
+The Perl 6 homepage at L<http://dev.perl.org/perl6>.
+
+The Pugs homepage at L<http://pugscode.org/>.
+
+=head1 COPYRIGHT
+
+Copyright 2007 by Flavio Soibelmann Glock and others.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
+
+=end

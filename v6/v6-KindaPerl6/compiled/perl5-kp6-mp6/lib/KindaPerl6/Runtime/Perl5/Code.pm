@@ -23,8 +23,8 @@ sub new {
     # enter - ENTER blocks
     # undo, keep, start, pre, post - UNDO, KEEP, START, PRE, POST blocks
     # inner - all other code blocks: for, do, while, try ...
-    my %data  = @_; 
-    my $code = $data{pad}->eval( $data{native_source} );  
+    my %data  = @_;
+    my $code = $data{pad}->eval( $data{native_source} );
     bless {
         %data,
         code  => $code,    # closure entry point
@@ -45,9 +45,9 @@ sub new {
 Compiled code example:
 
     sub { for 1,2,3 -> $x { say $x } }
-    
+
 is compiled to:
-    
+
     $sub = Code.new(
         pad => Pad.new( lexicals => [ $x ] ),
         code => { $GLOBAL::for->( List.new(1,2,3), $sub.inner.[0] ) }
@@ -74,15 +74,15 @@ is compiled to:
 print "CODE:CLONE\n";
 
 # create a new pad, and copy the lexicals to it.
-# optionally, move to another outer pad. 
+# optionally, move to another outer pad.
 sub clone {
     my $self = shift;
     my %data = @_;
     my $outer = $data{outer} || $self->{pad}->outer;
     # TODO - clone all lexical variables that the code uses, even if they are in outer pads
-    my $clone = (ref $self)->new( 
+    my $clone = (ref $self)->new(
         %{$self},
-        pad => $self->{pad}->clone( outer => $outer ), 
+        pad => $self->{pad}->clone( outer => $outer ),
     );
     # clone all inner closures recursively
     for my $block ( @Blocks ) {
@@ -95,7 +95,7 @@ sub clone {
 
 sub apply {
     my $self = shift;
-    # TODO 
+    # TODO
     # - signature,
     # - parameters
     # - want() context
@@ -111,7 +111,7 @@ sub apply {
 
     for ( @{$self->{pre}} ) {
         die "Invalid condition in PRE block. " . ( defined $@ ? $@ : '' )
-            unless $_->apply() 
+            unless $_->apply()
     }
 
     unless ( $self->{started} ) {
@@ -119,18 +119,18 @@ sub apply {
         $self->{started} = 1;
     }
     $_->apply() for @{$self->{enter}};
-    my $result = eval { $self->{code}() };   
+    my $result = eval { $self->{code}() };
     my $error = $@;
-    
+
     if ( $error ) {
         # TODO - finish catch, control
         # TODO - see 'use fatal'
         warn $@ unless @{$self->{catch}};
-        
+
         $_->apply() for @{$self->{catch}};
         $_->apply() for @{$self->{control}};
     }
-    
+
     $_->apply() for @{$self->{leave}};
     if ( $error ) {
         $_->apply() for @{$self->{undo}};
@@ -138,12 +138,12 @@ sub apply {
     else {
         $_->apply() for @{$self->{keep}};
     }
-    
+
     for ( @{$self->{post}} ) {
         die "Invalid condition in POST block. " . ( defined $@ ? $@ : '' )
-            unless $_->apply() 
+            unless $_->apply()
     }
-    
+
     $result;
 }
 
@@ -176,13 +176,13 @@ my $s1 = Code->new(
             ( bless {
                 decl => 'my',
                 type => undef,
-                var  =>                
+                var  =>
                     ( bless {
                         sigil   => '$',
                         twigil  => '',
                         name    => 'x',
-                      }, 'Var' 
-                    ),            
+                      }, 'Var'
+                    ),
               }, 'Decl'
             ),
         ],
@@ -204,3 +204,26 @@ print "s2: ",$s2->apply(), "\n";
 print "s1: ",$s1->apply(), "\n";
 print "s2: ",$s2->apply(), "\n";
 
+
+=begin
+
+=head1 AUTHORS
+
+The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
+
+=head1 SEE ALSO
+
+The Perl 6 homepage at L<http://dev.perl.org/perl6>.
+
+The Pugs homepage at L<http://pugscode.org/>.
+
+=head1 COPYRIGHT
+
+Copyright 2007 by Flavio Soibelmann Glock and others.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
+
+=end

@@ -32,25 +32,25 @@ use strict;
     package Match;
     use Data::Dumper;
     sub new {
-        bless { 
-            array  => [], 
-            hash   => {}, 
-            bool   => 0, 
+        bless {
+            array  => [],
+            hash   => {},
+            bool   => 0,
             result => undef,
-            from   => undef, 
-            to     => undef, 
+            from   => undef,
+            to     => undef,
             match_str => undef,
         }, $_[0];
     }
     sub clone {
-        bless { 
-            array  => [ @{$_[0]->{array}} ], 
-            hash   => { %{$_[0]->{hash}} }, 
-            bool   => $_[0]->{bool}, 
+        bless {
+            array  => [ @{$_[0]->{array}} ],
+            hash   => { %{$_[0]->{hash}} },
+            bool   => $_[0]->{bool},
             result => $_[0]->{result},
-            from   => $_[0]->{from}, 
-            to     => $_[0]->{to}, 
-            match_str => $_[0]->{match_str}, 
+            from   => $_[0]->{from},
+            to     => $_[0]->{to},
+            match_str => $_[0]->{match_str},
         }, ref $_[0];
     }
     sub array  :lvalue { $_[0]->{array} }
@@ -60,9 +60,9 @@ use strict;
     sub from   :lvalue { $_[0]->{from} }
     sub to     :lvalue { $_[0]->{to} }
     sub match_str :lvalue { $_[0]->{match_str} }
-    
+
     sub str {
-          $_[0]->bool 
+          $_[0]->bool
         ? substr( ${$_[0]->match_str}, $_[0]->from, $_[0]->to - $_[0]->from )
         : undef;
     }
@@ -82,7 +82,7 @@ use strict;
         if ( defined $previous ) {
             from_global_data( $previous );
         }
-        
+
         # XXX - use a dispatch table
         if ( $action eq 'create' ) {
             push @Matches, Match->new();
@@ -101,7 +101,7 @@ use strict;
         else {
             die "no action like '$action'"
         }
-        
+
         # print "action: $action [ @data ]\n";
 
     }
@@ -112,20 +112,20 @@ use strict;
 
 {
     package MyGrammar;
-      
+
     #  Perl 6:  regex rule0 { a* }
     our $rule0_qr = qr/
-          (?{ 
+          (?{
             local $GLOBAL::_M = [ $GLOBAL::_M, 'create', pos(), \$_ ];
             $GLOBAL::_M2 = $GLOBAL::_M;
-          })         
+          })
 
             a*
-            
-          (?{ 
+
+          (?{
             local $GLOBAL::_M = [ $GLOBAL::_M, 'to', pos() ];
             $GLOBAL::_M2 = $GLOBAL::_M;
-          })   
+          })
         /x;
 
     #our $rule0_sub = sub {
@@ -136,27 +136,27 @@ use strict;
 
     #  Perl 6:  regex rule1 { <rule0> aaaa }
     our $rule1_qr = qr/
-          (?{ 
+          (?{
             local $GLOBAL::_M = [ $GLOBAL::_M, 'create', pos(), \$_ ];
             $GLOBAL::_M2 = $GLOBAL::_M;
-          })                   
-          
+          })
+
             # Call Subrule
             (?:
-                (??{ 
-                    eval '$'.$GLOBAL::_Class.'::rule0_qr' 
+                (??{
+                    eval '$'.$GLOBAL::_Class.'::rule0_qr'
                 })
-                (?{ 
+                (?{
                     local $GLOBAL::_M = [ $GLOBAL::_M, 'capture' ];
                 })
             )
-          
+
           aaaa
-          
-          (?{ 
+
+          (?{
             local $GLOBAL::_M = [ $GLOBAL::_M, 'to', pos() ];
             $GLOBAL::_M2 = $GLOBAL::_M;
-          })   
+          })
         /x;
 
     #our $rule1_sub = sub {
@@ -168,24 +168,24 @@ use strict;
 }
 
 # This Grammar inherits the base Grammar, and redefine a subrule
-      
+
 {
     package MyGrammar2;
     use base 'MyGrammar';
-      
+
     #  Perl 6:  regex rule0 { b* }
     our $rule0_qr = qr/
-          (?{ 
+          (?{
             local $GLOBAL::_M = [ $GLOBAL::_M, 'create', pos(), \$_ ];
             $GLOBAL::_M2 = $GLOBAL::_M;
-          })         
+          })
 
             b*
-            
-          (?{ 
+
+          (?{
             local $GLOBAL::_M = [ $GLOBAL::_M, 'to', pos() ];
             $GLOBAL::_M2 = $GLOBAL::_M;
-          })   
+          })
         /x;
 
     #our $rule0_sub = sub {
@@ -200,10 +200,10 @@ use strict;
 {
     package MyGrammar3;
     use base 'MyGrammar';
-      
-    #  Perl 6: 
-    # 
-    #  method rule0 { 
+
+    #  Perl 6:
+    #
+    #  method rule0 {
     #        $/.from = pos();
     #        $/.to = pos() + 3;
     #        $/.bool = 1;
@@ -211,28 +211,28 @@ use strict;
     #  }
     #
     our $rule0_qr = qr/
-          (?{ 
+          (?{
             local $GLOBAL::_M = [ $GLOBAL::_M, 'create', pos(), \$_ ];
             $GLOBAL::_M2 = $GLOBAL::_M;
-          })         
-          (?{ 
+          })
+          (?{
             $GLOBAL::MATCH = Match->new();
             $GLOBAL::MATCH->from = pos;
             $GLOBAL::MATCH->match_str = \$_;
 
             $GLOBAL::_Class->rule0_sub();
-          })   
-          
-          (??{ 
+          })
+
+          (??{
             # (pos - to) ???
             '.{' . ($GLOBAL::MATCH->to - $GLOBAL::MATCH->from) . '}'
           })
 
-          (?{ 
+          (?{
             # TODO - unpack $GLOBAL::MATCH
             local $GLOBAL::_M = [ $GLOBAL::_M, 'to', pos() ];
             $GLOBAL::_M2 = $GLOBAL::_M;
-          })   
+          })
 
         /x;
 
@@ -250,17 +250,17 @@ use strict;
 }
 
 # This Grammar inherits the base Grammar, and redefine a recursive subrule
-      
+
 {
     package MyGrammar4;
     use base 'MyGrammar';
-      
+
     #  Perl 6:  regex rule0 { b <rule0> | <null> }
     our $rule0_qr = qr/
-          (?{ 
+          (?{
             local $GLOBAL::_M = [ $GLOBAL::_M, 'create', pos(), \$_ ];
             $GLOBAL::_M2 = $GLOBAL::_M;
-          })         
+          })
 
           (?:
                 # 'b' and recurse
@@ -268,21 +268,21 @@ use strict;
                 # recurse (Perl 5.10)
                 ## (?R)
                 # recurse (Perl 5.8)
-                (??{ 
-                    eval '$'.$GLOBAL::_Class.'::rule0_qr' 
+                (??{
+                    eval '$'.$GLOBAL::_Class.'::rule0_qr'
                 })
                 # optional capture
-                (?{ 
+                (?{
                     local $GLOBAL::_M = [ $GLOBAL::_M, 'capture' ];
                 })
           |
                 # or nothing
           )
 
-          (?{ 
+          (?{
             local $GLOBAL::_M = [ $GLOBAL::_M, 'to', pos() ];
             $GLOBAL::_M2 = $GLOBAL::_M;
-          })   
+          })
         /x;
 
     #our $rule0_sub = sub {
@@ -355,3 +355,27 @@ use Data::Dumper;
     is( $GLOBAL::MATCH->str, 'bbaaaa', 'recursive subrule' );
 }
 
+
+
+=begin
+
+=head1 AUTHORS
+
+The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
+
+=head1 SEE ALSO
+
+The Perl 6 homepage at L<http://dev.perl.org/perl6>.
+
+The Pugs homepage at L<http://pugscode.org/>.
+
+=head1 COPYRIGHT
+
+Copyright 2007 by Flavio Soibelmann Glock and others.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
+
+=end

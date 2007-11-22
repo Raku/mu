@@ -11,32 +11,32 @@ token double_quoted {
 token quoted_any { . }
 
 token quoted_array {
-    <before \@ > <var> \[ <.opt_ws> \]  
-        { 
+    <before \@ > <var> \[ <.opt_ws> \]
+        {
             return ::Apply(
                 'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'prefix:<~>', namespace => [ ] ),
                 'arguments' => [ $$<var> ],
-            ); 
+            );
         }
 }
 
 token quoted_hash {
-    <before \% > <var> \{ <.opt_ws> \}  
-        { 
+    <before \% > <var> \{ <.opt_ws> \}
+        {
             return ::Apply(
                 'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'prefix:<~>', namespace => [ ] ),
                 'arguments' => [ $$<var> ],
-            ); 
+            );
         }
 }
 
 token quoted_scalar {
     <before \$ > <var>
-        { 
+        {
             return ::Apply(
                 'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'prefix:<~>', namespace => [ ] ),
                 'arguments' => [ $$<var> ],
-            ); 
+            );
         }
 }
 
@@ -45,7 +45,7 @@ token quoted_exp {
     |  <quoted_hash>   { return $$<quoted_hash>   }
     |  <quoted_scalar> { return $$<quoted_scalar> }
     |  \' { return ::Val::Char( char => 39 ) }
-    |  \\ 
+    |  \\
         [  # see S02
         |   a  { return ::Val::Char( char =>  7 ) }
         |   b  { return ::Val::Char( char =>  8 ) }
@@ -58,21 +58,21 @@ token quoted_exp {
         |   \' { return ::Val::Char( char => 39 ) }
         |   \\ { return ::Val::Char( char => 92 ) }
         |   <quoted_any> { return ::Val::Buf( 'buf' => $$<quoted_any> ) }
-        ]    
+        ]
     |  [ \$ | \@ | \% | '' ] <double_quoted> { return ::Val::Buf( 'buf' => ~$/ ) }
 }
 
 token quoted_exp_seq {
-    <quoted_exp> 
+    <quoted_exp>
     [
     |  <before \" >     { return $$<quoted_exp>;}
-    |  
-        <quoted_exp_seq> 
-        {        
+    |
+        <quoted_exp_seq>
+        {
             return ::Apply(
                 'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'infix:<~>', namespace => [ ] ),
                 'arguments' => [ $$<quoted_exp>, $$<quoted_exp_seq> ],
-            ); 
+            );
         }
     ]
 }
@@ -80,19 +80,19 @@ token quoted_exp_seq {
 token single_quoted {
     |  \\ .  <single_quoted>
     |  <!before \' > . <single_quoted>
-    |  ''    
+    |  ''
 };
 
 token angle_quoted {
     |  \\ .  <angle_quoted>
     |  <!before \> > . <angle_quoted>
-    |  ''    
+    |  ''
 };
 
 token french_quoted {
     |  \\ .  <french_quoted>
     |  <!before \» > . <french_quoted>
-    |  ''    
+    |  ''
 };
 
 token val_buf {
@@ -101,3 +101,26 @@ token val_buf {
 };
 
 }
+
+=begin
+
+=head1 AUTHORS
+
+The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
+
+=head1 SEE ALSO
+
+The Perl 6 homepage at L<http://dev.perl.org/perl6>.
+
+The Pugs homepage at L<http://pugscode.org/>.
+
+=head1 COPYRIGHT
+
+Copyright 2007 by Flavio Soibelmann Glock and others.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
+
+=end

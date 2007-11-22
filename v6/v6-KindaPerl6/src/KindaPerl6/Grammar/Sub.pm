@@ -5,30 +5,30 @@ grammar KindaPerl6::Grammar {
 token method_sig {
     |   <.opt_ws> \( <.opt_ws>  <sig>  <.opt_ws>  \)
         { return $$<sig> }
-    |   { return ::Sig( 
-            'invocant' => ::Var( 
+    |   { return ::Sig(
+            'invocant' => ::Var(
                 'sigil'  => '$',
                 'twigil' => '',
                 'name'   => 'self',
-                'namespace' => [ ], 
-                ), 
-            'positional' => [ ], 
+                'namespace' => [ ],
+                ),
+            'positional' => [ ],
             ) }
 };
 token sub_sig {
     |   <.opt_ws> \( <.opt_ws>  <sig>  <.opt_ws>  \)
         { return $$<sig> }
-    |   { return ::Sig( 
+    |   { return ::Sig(
             'invocant' => undef,
-            'positional' => [ ], 
+            'positional' => [ ],
             ) }
 };
 
 token arrow_sub_sig {
     |   <exp_sig_list>
-        { return ::Sig( 
+        { return ::Sig(
             'invocant' =>   ::Val::Undef(),
-            'positional' => $$<exp_sig_list>, 
+            'positional' => $$<exp_sig_list>,
             ) }
     |   \( <.opt_ws>  <sig>  <.opt_ws>  \)
         { return $$<sig> }
@@ -36,17 +36,17 @@ token arrow_sub_sig {
 
 token sub {
     sub
-    <.ws>  <opt_name>  <.opt_ws> 
+    <.ws>  <opt_name>  <.opt_ws>
     <sub_sig>
-    <.opt_ws> \{ 
-        <.opt_ws>  
-        { 
+    <.opt_ws> \{
+        <.opt_ws>
+        {
             COMPILER::add_pad();
         }
-        <exp_stmts> 
-        <.opt_ws> 
+        <exp_stmts>
+        <.opt_ws>
     [   \}     | { say '*** Syntax Error in sub \'', $$<name>, '\': missing closing curly bracket '; die 'error in Block'; } ]
-    { 
+    {
         my $env := COMPILER::current_pad();
         COMPILER::drop_pad();
         KindaPerl6::Grammar::declare_parameters(
@@ -56,9 +56,9 @@ token sub {
                 # ($$<sub_sig>).invocant,
                 @(($$<sub_sig>).positional).>>key,
             ]
-        );    
-        return ::Sub( 
-            'name'  => $$<opt_name>, 
+        );
+        return ::Sub(
+            'name'  => $$<opt_name>,
             'block' => ::Lit::Code(
                 pad   => $env,
                 state => { },
@@ -71,17 +71,17 @@ token sub {
 
 token coro {
     coro
-    <.ws>  <opt_name>  <.opt_ws> 
+    <.ws>  <opt_name>  <.opt_ws>
     <sub_sig>
-    <.opt_ws> \{ 
-        <.opt_ws>  
-        { 
+    <.opt_ws> \{
+        <.opt_ws>
+        {
             COMPILER::add_pad();
         }
-        <exp_stmts> 
-        <.opt_ws> 
+        <exp_stmts>
+        <.opt_ws>
     [   \}     | { say '*** Syntax Error in coro \'', $$<name>, '\': missing closing curly bracket '; die 'error in Block'; } ]
-    { 
+    {
         my $env := COMPILER::current_pad();
         COMPILER::drop_pad();
         KindaPerl6::Grammar::declare_parameters(
@@ -91,9 +91,9 @@ token coro {
                 # ($$<sub_sig>).invocant,
                 @(($$<sub_sig>).positional).>>key,
             ]
-        );    
-        return ::Coro( 
-            'name'  => $$<opt_name>, 
+        );
+        return ::Coro(
+            'name'  => $$<opt_name>,
             'block' => ::Lit::Code(
                 pad   => $env,
                 state => { },
@@ -106,17 +106,17 @@ token coro {
 
 token arrow_sub {
     '->'
-    <.opt_ws> 
+    <.opt_ws>
     <arrow_sub_sig>
-    <.opt_ws> \{ 
-        <.opt_ws>  
-        { 
+    <.opt_ws> \{
+        <.opt_ws>
+        {
             COMPILER::add_pad();
         }
-        <exp_stmts> 
-        <.opt_ws> 
+        <exp_stmts>
+        <.opt_ws>
     [   \}     | { say '*** Syntax Error in sub: missing closing curly bracket  '; die 'error in Block'; } ]
-    { 
+    {
         my $env := COMPILER::current_pad();
         COMPILER::drop_pad();
         KindaPerl6::Grammar::declare_parameters(
@@ -126,9 +126,9 @@ token arrow_sub {
                 # ($$<sub_sig>).invocant,
                 @(($$<arrow_sub_sig>).positional).>>key,
             ]
-        );    
-        return ::Sub( 
-            'name'  => undef, 
+        );
+        return ::Sub(
+            'name'  => undef,
             'block' => ::Lit::Code(
                 pad   => $env,
                 state => { },
@@ -141,14 +141,14 @@ token arrow_sub {
 
 token bare_block {
     # used by gather { ... }
-    # \{ <.opt_ws>  
-        { 
+    # \{ <.opt_ws>
+        {
             COMPILER::add_pad();
         }
-        <exp_stmts> 
-        <.opt_ws> 
+        <exp_stmts>
+        <.opt_ws>
     [   \}     | { say '*** Syntax Error in Block: missing closing curly bracket  '; die 'error in Block'; } ]
-    { 
+    {
         my $env := COMPILER::current_pad();
         COMPILER::drop_pad();
         KindaPerl6::Grammar::declare_parameters(
@@ -158,14 +158,14 @@ token bare_block {
                 # ($$<sub_sig>).invocant,
                 # @(($$<sub_sig>).positional).>>key,
             ]
-        );    
+        );
         return ::Lit::Code(
                 pad   => $env,
                 state => { },
                 sig   =>
-                    ::Sig( 
-                        'invocant' => undef, 
-                        'positional' => [ ], 
+                    ::Sig(
+                        'invocant' => undef,
+                        'positional' => [ ],
                     ),
                 body  => $$<exp_stmts>,
             );
@@ -173,19 +173,19 @@ token bare_block {
 };
 
 token proto {
-    proto <.ws> [ [ method | token | rule | sub ] <.ws> | '' ] 
-        <namespace> <ident> <.ws> '{' <.opt_ws> '}'    
-        { 
+    proto <.ws> [ [ method | token | rule | sub ] <.ws> | '' ]
+        <namespace> <ident> <.ws> '{' <.opt_ws> '}'
+        {
             # proto token x { }
-            my $bind := ::Bind(  
+            my $bind := ::Bind(
                 parameters =>         # no pre-declaration checks ???
                         ::Var(
                             sigil     => '&',
                             twigil    => '',
                             name      => ~$<ident>,
                             namespace => $$<namespace>,
-                        ), 
-                arguments => 
+                        ),
+                arguments =>
                         ::Call(
                             'hyper'     => '',
                             'arguments' => [ ],
@@ -197,25 +197,25 @@ token proto {
             );
             COMPILER::begin_block( $bind );   # ::=   compile-time
             return $bind;                         # :=    run-time
-        }  
+        }
 }
 
 token method {
     method
-    <.ws>  <opt_name>  <.opt_ws> 
+    <.ws>  <opt_name>  <.opt_ws>
     <method_sig>
-    <.opt_ws> \{ <.opt_ws>  
+    <.opt_ws> \{ <.opt_ws>
         # { say ' parsing statement list ' }
-        { 
+        {
             COMPILER::add_pad();
         }
-        <exp_stmts> 
-        # { say ' got statement list ', ($$<exp_stmts>).perl } 
-        <.opt_ws> 
+        <exp_stmts>
+        # { say ' got statement list ', ($$<exp_stmts>).perl }
+        <.opt_ws>
     [   \}     | { say '*** Syntax Error in method \'', get_class_name(), '.', $$<name>, '\' near pos=', $/.to; die 'error in Block'; } ]
     {
         # say ' block: ', ($$<exp_stmts>).perl;
-        
+
         my $env   := COMPILER::current_pad();
         KindaPerl6::Grammar::declare_parameters(
             $env,
@@ -224,10 +224,10 @@ token method {
                 ($$<method_sig>).invocant,
                 @(($$<method_sig>).positional).>>key,
             ]
-        );    
+        );
         COMPILER::drop_pad();
-        return ::Method( 
-            'name'  => $$<opt_name>, 
+        return ::Method(
+            'name'  => $$<opt_name>,
             'block' => ::Lit::Code(
                 pad   => $env,
                 state => { },
@@ -239,27 +239,27 @@ token method {
 };
 
 token multi_method {
-    multi <.ws> method 
-    
+    multi <.ws> method
+
             # multi method { code... }
-            # &multi.add_variant( 
+            # &multi.add_variant(
             #    method ($a,$b,$c,$d) {
             #        say 'ok 4';
             #    }
             # );
 
-        <.ws>  <namespace> <ident>  <.opt_ws> 
+        <.ws>  <namespace> <ident>  <.opt_ws>
         <method_sig>
-        <.opt_ws> \{ <.opt_ws>  
-            { 
+        <.opt_ws> \{ <.opt_ws>
+            {
                 COMPILER::add_pad();
             }
-            <exp_stmts> 
-            <.opt_ws> 
+            <exp_stmts>
+            <.opt_ws>
         [   \}     | { say '*** Syntax Error in method \'', get_class_name(), '.', $$<ident>, '\' near pos=', $/.to; die 'error in Block'; } ]
         {
             # say ' block: ', ($$<exp_stmts>).perl;
-            
+
             my $env   := COMPILER::current_pad();
             KindaPerl6::Grammar::declare_parameters(
                 $env,
@@ -268,9 +268,9 @@ token multi_method {
                     ($$<method_sig>).invocant,
                     @(($$<method_sig>).positional).>>key,
                 ]
-            );    
+            );
             COMPILER::drop_pad();
-            return 
+            return
                 ::Call(
                     hyper     => '',
                     method   => 'add_variant',
@@ -279,9 +279,9 @@ token multi_method {
                             name      => $$<ident>,
                             twigil    => '',
                             sigil     => '&',
-                    ),              
+                    ),
                     arguments => [
-                        ::Method( 
+                        ::Method(
                             name  => '',
                             'block' => ::Lit::Code(
                                 pad   => $env,
@@ -291,26 +291,26 @@ token multi_method {
                             ),
                         ),
                     ],
-                );                  
-        }  
+                );
+        }
 
 }
 
 token multi_sub {
     multi <.ws> [ sub <.ws> | '' ]
-    
-        <namespace> <ident>  <.opt_ws> 
+
+        <namespace> <ident>  <.opt_ws>
         <sub_sig>
-        <.opt_ws> \{ <.opt_ws>  
-            { 
+        <.opt_ws> \{ <.opt_ws>
+            {
                 COMPILER::add_pad();
             }
-            <exp_stmts> 
-            <.opt_ws> 
+            <exp_stmts>
+            <.opt_ws>
         [   \}     | { say '*** Syntax Error in sub \'', get_class_name(), ' ', $$<ident>, '\' near pos=', $/.to; die 'error in Block'; } ]
         {
             # say ' block: ', ($$<exp_stmts>).perl;
-            
+
             my $env   := COMPILER::current_pad();
             KindaPerl6::Grammar::declare_parameters(
                 $env,
@@ -319,9 +319,9 @@ token multi_sub {
                     # ($$<sub_sig>).invocant,
                     @(($$<sub_sig>).positional).>>key,
                 ]
-            );    
+            );
             COMPILER::drop_pad();
-            return 
+            return
                 ::Call(
                     hyper     => '',
                     method   => 'add_variant',
@@ -330,9 +330,9 @@ token multi_sub {
                             name      => $$<ident>,
                             twigil    => '',
                             sigil     => '&',
-                    ),              
+                    ),
                     arguments => [
-                        ::Sub( 
+                        ::Sub(
                             name  => '',
                             'block' => ::Lit::Code(
                                 pad   => $env,
@@ -342,8 +342,8 @@ token multi_sub {
                             ),
                         ),
                     ],
-                );                  
-        }  
+                );
+        }
 }
 
 token token {
@@ -378,7 +378,7 @@ token token_sym {
         <KindaPerl6::Grammar::Regex.rule>
     \}
     {
-            return 
+            return
                 ::Call(
                     hyper     => '',
                     method   => 'add_token_variant',
@@ -387,33 +387,33 @@ token token_sym {
                             name      => $$<ident>,
                             twigil    => '',
                             sigil     => '&',
-                    ),              
+                    ),
                     arguments => [
                         ::Token(
-                            name  => undef,   
+                            name  => undef,
                             regex => $$<KindaPerl6::Grammar::Regex.rule>,
                             sym   => ~$<token_sym_ident>,
                         ),
                         ::Val::Buf( 'buf' => ~$<token_sym_ident> ),
                     ],
-                );                  
+                );
     }
 };
 
 
 token macro {
     macro
-    <.ws>  <opt_name>  <.opt_ws> 
+    <.ws>  <opt_name>  <.opt_ws>
     <sub_sig>
-    <.opt_ws> \{ 
-        <.opt_ws>  
-        { 
+    <.opt_ws> \{
+        <.opt_ws>
+        {
             COMPILER::add_pad();
         }
-        <exp_stmts> 
-        <.opt_ws> 
+        <exp_stmts>
+        <.opt_ws>
     [   \}     | { say '*** Syntax Error in macro \'', $$<name>, '\''; die 'error in Block'; } ]
-    { 
+    {
         my $env := COMPILER::current_pad();
         COMPILER::drop_pad();
         KindaPerl6::Grammar::declare_parameters(
@@ -423,9 +423,9 @@ token macro {
                 # ($$<sub_sig>).invocant,
                 @(($$<sub_sig>).positional).>>key,
             ]
-        );    
-        return ::Macro( 
-            'name'  => $$<opt_name>, 
+        );
+        return ::Macro(
+            'name'  => $$<opt_name>,
             'block' => ::Lit::Code(
                 pad   => $env,
                 state => { },
@@ -438,3 +438,26 @@ token macro {
 
 
 };
+
+=begin
+
+=head1 AUTHORS
+
+The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
+
+=head1 SEE ALSO
+
+The Perl 6 homepage at L<http://dev.perl.org/perl6>.
+
+The Pugs homepage at L<http://pugscode.org/>.
+
+=head1 COPYRIGHT
+
+Copyright 2007 by Flavio Soibelmann Glock and others.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
+
+=end

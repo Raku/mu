@@ -28,12 +28,12 @@ xxxx - Possible BEGIN workflow:
 # there is no subs in a namespace - everything is either our or my
 our $main::var;  # in declaration order
     package Main;
-    my $y;  
-    my $z; 
+    my $y;
+    my $z;
     our $_SUB_begin_001_ = sub {
-        my $x;  
-        $y = sub { $x };   
-        $z = sub { $x } 
+        my $x;
+        $y = sub { $x };
+        $z = sub { $x }
     }
     INIT { $Main::_SUB_begin_001_->() }
 
@@ -45,9 +45,9 @@ use strict;
 
 my $x;  BEGIN { $x = 4 };
 
-#   turns into 
+#   turns into
 
-my $__CEV_x1 = \do { my $x };  
+my $__CEV_x1 = \do { my $x };
 INIT {
         $$__CEV_x1 = 4;
   print Dump $__CEV_x1;
@@ -56,13 +56,13 @@ INIT {
 
 #---
 
-BEGIN { 
+BEGIN {
         use X @list;
 }
 
-#  turns into 
+#  turns into
 
-BEGIN { 
+BEGIN {
         require X;
         # no X calls 'unimport' instead of 'import'
         X.import( @list ) if UNIVERSAL::can('X', 'import');
@@ -100,7 +100,7 @@ BEGIN {
 
 #---
 
-my $__CEV_x1 = \do { my $x }; 
+my $__CEV_x1 = \do { my $x };
 INIT { say $$__CEV_x1;  LEAVE { undefine $__CEV_x1 } }
 
 #---
@@ -112,18 +112,18 @@ __END__
 - BEGIN blocks are executed at parse time
 
     token BEGIN { BEGIN <block> { execute_begin; return ... } }
-  
+
 - CEV = "compile-time existing variables" (luqui++)
 
 - This is one case when BEGIN has a variable which doesn't exist at compile-time:
-  
-    for 1,2 { 
-        my $x = sub { 
-                my $y;  
-                BEGIN { $y = 42 }; 
-                say $y 
-        };  
-        $x() 
+
+    for 1,2 {
+        my $x = sub {
+                my $y;
+                BEGIN { $y = 42 };
+                say $y
+        };
+        $x()
     }
 
 <luqui> so, how about this: it is illegal to assign to non-existant varaibles at compile-time
@@ -301,10 +301,33 @@ compilation x parsing
     no assignment, no binding
     note that signatures can also declare variables:
         sub x ( &todo ) { ... }
-        for @a -> $x { ... } 
+        for @a -> $x { ... }
 - what kind of things should not be executed?
     - no restrictions
 - need a global 'current compiler pad'
     - how to make it lexical?
     - maybe use $?GRAMMAR to store it, or COMPILING::<$?PAD>
-    
+
+
+=begin
+
+=head1 AUTHORS
+
+The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
+
+=head1 SEE ALSO
+
+The Perl 6 homepage at L<http://dev.perl.org/perl6>.
+
+The Pugs homepage at L<http://pugscode.org/>.
+
+=head1 COPYRIGHT
+
+Copyright 2007 by Flavio Soibelmann Glock and others.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
+
+=end

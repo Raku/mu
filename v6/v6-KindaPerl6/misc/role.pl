@@ -6,19 +6,19 @@ use KindaPerl6::Perl5::Runtime;
 { package X; my  $aaa = bless \( do{ my $v = $GLOBAL::undef } ), 'Type_Scalar'; my  $Code_m; ($GLOBAL::Code_import)->(); ( bless \( do{ my $v = 'KindaPerl6::Class' } ), 'Type_Constant_Buf' )->new(( bless \( do{ my $v = 'X' } ), 'Type_Constant_Buf' )); ( bless \( do{ my $v = 'X' } ), 'Type_Constant_Buf' )->HOW()->add_attribute(( bless \( do{ my $v = 'v' } ), 'Type_Constant_Buf' )); ( bless \( do{ my $v = 'X' } ), 'Type_Constant_Buf' )->HOW()->add_method(( bless \( do{ my $v = 'x' } ), 'Type_Constant_Buf' ), sub  { my $self = shift; my $List__ = \@_; do { [] }; ( bless \( do{ my $v = 2 } ), 'Type_Constant_Int' ) }); $aaa = ( bless \( do{ my $v = 123 } ), 'Type_Constant_Int' ); $GLOBAL::undef; use vars '$Code_k'; $Code_k  = sub  { my $List__ = \@_; ( bless \( do{ my $v = 2 } ), 'Type_Constant_Int' ) }; $Code_m = sub  { my $List__ = \@_; ( bless \( do{ my $v = 3 } ), 'Type_Constant_Int' ) } }
 
 ;
-{ package Main; my  $x = bless \( do{ my $v = $GLOBAL::undef } ), 'Type_Scalar'; ($GLOBAL::Code_import)->(); ( bless \( do{ my $v = 'KindaPerl6::Class' } ), 'Type_Constant_Buf' )->new(( bless \( do{ my $v = 'Main' } ), 'Type_Constant_Buf' )); $x->STORE(X->new( ( bless \( do{ my $v = 'v' } ), 'Type_Constant_Buf' ) => ( bless \( do{ my $v = 1 } ), 'Type_Constant_Int' ), )); 
+{ package Main; my  $x = bless \( do{ my $v = $GLOBAL::undef } ), 'Type_Scalar'; ($GLOBAL::Code_import)->(); ( bless \( do{ my $v = 'KindaPerl6::Class' } ), 'Type_Constant_Buf' )->new(( bless \( do{ my $v = 'Main' } ), 'Type_Constant_Buf' )); $x->STORE(X->new( ( bless \( do{ my $v = 'v' } ), 'Type_Constant_Buf' ) => ( bless \( do{ my $v = 1 } ), 'Type_Constant_Int' ), ));
 
-($Code_say)->($x->HOW()); 
-$x->v(( bless \( do{ my $v = 10 } ), 'Type_Constant_Int' )); 
+($Code_say)->($x->HOW());
+$x->v(( bless \( do{ my $v = 10 } ), 'Type_Constant_Int' ));
 ($Code_say)->($x->v());
 
-my $role = KindaPerl6::Role->new( 
-    bless \( do{ my $v = 'MyRole' } ), 'Type_Constant_Buf' 
+my $role = KindaPerl6::Role->new(
+    bless \( do{ my $v = 'MyRole' } ), 'Type_Constant_Buf'
 );
 
 #print "HOW: ",MyRole->HOW,"\n";
 
-$role->add_method( 
+$role->add_method(
     bless( \( do{ my $v = 'my_role' } ), 'Type_Constant_Buf' ),
     sub { print "my role!\n" },
 );
@@ -32,16 +32,40 @@ $role->add_role_to( $x );
     $x->FETCH->{_role_methods}{my_role}
   ? $x->FETCH->{_role_methods}{my_role}{code}()
   : $x->FETCH->my_role();
-  
+
   for ( $x->FETCH ) {
     $_->{_role_methods}{my_role}
   ? $_->{_role_methods}{my_role}{code}()
   : $_->my_role();
   }
-  
+
 }
 
 ;
 ( bless \( do{ my $v = 123 } ), 'Type_Constant_Int' )
 ;
 1;
+
+
+=begin
+
+=head1 AUTHORS
+
+The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
+
+=head1 SEE ALSO
+
+The Perl 6 homepage at L<http://dev.perl.org/perl6>.
+
+The Pugs homepage at L<http://pugscode.org/>.
+
+=head1 COPYRIGHT
+
+Copyright 2007 by Flavio Soibelmann Glock and others.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
+
+=end

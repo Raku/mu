@@ -4,23 +4,23 @@ class Gather is Array {
     has $.buf;
     has $.finished;
     method perl {
-        '( gather ' ~ $.code.perl ~ ' )' 
+        '( gather ' ~ $.code.perl ~ ' )'
     };
     method Str {
         (self.eager).Str;
     };
     method true {
         self._more;
-        return $.buf.true; 
+        return $.buf.true;
     };
-    method eager  { 
+    method eager  {
         while !$.finished { self._more };
         self.buf;
     };
     method lazy {
         self
     };
-    method elems  { 
+    method elems  {
         (self.eager).elems;
     };
     method hash {
@@ -31,11 +31,11 @@ class Gather is Array {
     };
     method INDEX ($i) {
         my $obj = self;
-        while !$obj.finished { 
+        while !$obj.finished {
                 if $i < ($obj.buf).elems {
                     return ($obj.buf)[$i];
                 };
-                $obj._more; 
+                $obj._more;
         };
         return ($obj.buf)[$i];
     };
@@ -45,7 +45,7 @@ class Gather is Array {
         my $arity = (&code.signature).arity;
         my $v = 0;
         while $v <= $obj.elems {
-        # while !$obj.finished { 
+        # while !$obj.finished {
             my @param;
             while @param.elems < $arity {
                 @param.push( $obj[ $v ] );
@@ -56,3 +56,26 @@ class Gather is Array {
         @res;
     };
 }
+
+=begin
+
+=head1 AUTHORS
+
+The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
+
+=head1 SEE ALSO
+
+The Perl 6 homepage at L<http://dev.perl.org/perl6>.
+
+The Pugs homepage at L<http://pugscode.org/>.
+
+=head1 COPYRIGHT
+
+Copyright 2007 by Flavio Soibelmann Glock and others.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
+
+=end

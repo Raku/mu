@@ -3,7 +3,7 @@ use v6-alpha;
 
 =begin
 
-This visitor attaches 'env' closures to the AST 
+This visitor attaches 'env' closures to the AST
 
 =end
 
@@ -23,18 +23,18 @@ class KindaPerl6::Visitor::CreateEnv {
         if ( $node.isa( 'Lit::Code' ) ) {
             my $temp_env      := $.env;
             my $temp_lexicals := $.lexicals;
-                        
+
             # get the lexical names from the body
             #$.env := undef;
             $.lexicals := [ ];
             my $body := KindaPerl6::Traverse::visit( self, $node.body );
 
-            # create this pad            
+            # create this pad
             my $node2 := ::Lit::Code(
-                pad   => ::Pad( 
-                    outer    => $temp_env, 
-                    lexicals => $.lexicals 
-                ),  
+                pad   => ::Pad(
+                    outer    => $temp_env,
+                    lexicals => $.lexicals
+                ),
                 state => $node.state,
                 sig   => $node.sig,
                 body  => $node.body,
@@ -49,18 +49,41 @@ class KindaPerl6::Visitor::CreateEnv {
             $.lexicals := $temp_lexicals;
             return $node2;
         };
-     
-        if  (  $node.isa( 'Decl' ) 
+
+        if  (  $node.isa( 'Decl' )
             && $node.decl eq 'my'
-            ) 
+            )
         {
             # XXX - expand Bind/Assign
             push @($.lexicals), $node;
             return $node.var;
         };
-                           
+
         return;
     };
 
 }
 
+
+=begin
+
+=head1 AUTHORS
+
+The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
+
+=head1 SEE ALSO
+
+The Perl 6 homepage at L<http://dev.perl.org/perl6>.
+
+The Pugs homepage at L<http://pugscode.org/>.
+
+=head1 COPYRIGHT
+
+Copyright 2007 by Flavio Soibelmann Glock and others.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
+
+=end

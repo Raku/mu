@@ -18,11 +18,11 @@ package KindaPerl6::Grammar;
 
     no warnings 'uninitialized';
 
-    sub space { 
-        my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2]; 
-        my $MATCH; 
-        $MATCH = KindaPerl6::Perl5::Match->new( 
-            'str' => $str,'from' => $pos,'to' => $pos, ); 
+    sub space {
+        my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2];
+        my $MATCH;
+        $MATCH = KindaPerl6::Perl5::Match->new(
+            'str' => $str,'from' => $pos,'to' => $pos, );
         $MATCH->bool(
             substr($str, $MATCH->to()) =~ m/^([[:space:]])/
             ? ( 1 + $MATCH->to( length( $1 ) + $MATCH->to() ))
@@ -30,10 +30,10 @@ package KindaPerl6::Grammar;
         );
         $MATCH;
     }
-    sub digit { 
-        my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2]; 
-        my $MATCH; $MATCH = KindaPerl6::Perl5::Match->new( 
-            'str' => $str,'from' => $pos,'to' => $pos, ); 
+    sub digit {
+        my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2];
+        my $MATCH; $MATCH = KindaPerl6::Perl5::Match->new(
+            'str' => $str,'from' => $pos,'to' => $pos, );
         $MATCH->bool(
             substr($str, $MATCH->to()) =~ m/^([[:digit:]])/
             ? ( 1 + $MATCH->to( length( $1 ) + $MATCH->to() ))
@@ -42,10 +42,10 @@ package KindaPerl6::Grammar;
         $MATCH;
     }
 
-    sub word { 
-            my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2]; 
-            my $MATCH; $MATCH = KindaPerl6::Perl5::Match->new( 
-                'str' => $str,'from' => $pos,'to' => $pos, ); 
+    sub word {
+            my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2];
+            my $MATCH; $MATCH = KindaPerl6::Perl5::Match->new(
+                'str' => $str,'from' => $pos,'to' => $pos, );
             $MATCH->bool(
                 substr($str, $MATCH->to()) =~ m/^([[:word:]])/
                 ? ( 1 + $MATCH->to( length( $1 ) + $MATCH->to() ))
@@ -53,10 +53,10 @@ package KindaPerl6::Grammar;
             );
             $MATCH;
     }
-    sub backslash { 
-            my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2]; 
-            my $MATCH; $MATCH = KindaPerl6::Perl5::Match->new( 
-                'str' => $str,'from' => $pos,'to' => $pos, ); 
+    sub backslash {
+            my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2];
+            my $MATCH; $MATCH = KindaPerl6::Perl5::Match->new(
+                'str' => $str,'from' => $pos,'to' => $pos, );
             $MATCH->bool(
                 substr($str, $MATCH->to(), 1) eq '\\'         # '
                 ? ( 1 + $MATCH->to( 1 + $MATCH->to() ))
@@ -64,11 +64,11 @@ package KindaPerl6::Grammar;
             );
             $MATCH;
     }
-        
-    sub newline { 
-        my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2]; 
-        my $MATCH; $MATCH = KindaPerl6::Perl5::Match->new( 
-            'str' => $str,'from' => $pos,'to' => $pos, ); 
+
+    sub newline {
+        my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2];
+        my $MATCH; $MATCH = KindaPerl6::Perl5::Match->new(
+            'str' => $str,'from' => $pos,'to' => $pos, );
         return $MATCH unless ord( substr($str, $MATCH->to()) ) == 10
             || ord( substr($str, $MATCH->to()) ) == 13;
         $MATCH->bool(
@@ -78,10 +78,10 @@ package KindaPerl6::Grammar;
         );
         $MATCH;
     }
-    sub not_newline { 
-        my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2]; 
-        my $MATCH; $MATCH = KindaPerl6::Perl5::Match->new( 
-            'str' => $str,'from' => $pos,'to' => $pos, 'bool' => 0 ); 
+    sub not_newline {
+        my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2];
+        my $MATCH; $MATCH = KindaPerl6::Perl5::Match->new(
+            'str' => $str,'from' => $pos,'to' => $pos, 'bool' => 0 );
         return $MATCH if ord( substr($str, $MATCH->to()) ) == 10
             || ord( substr($str, $MATCH->to()) ) == 13;
         $MATCH->to( 1 + $MATCH->to );
@@ -93,7 +93,7 @@ package KindaPerl6::Grammar;
 
 
 package Main;
-    
+
     sub print { print join( '', @_ ) }
     sub say   { print join( '', @_, "\n" ) }
     sub chars { length( $_[0] ) }
@@ -101,20 +101,20 @@ package Main;
     sub quote   { '"' }
     sub singlequote { "'" }
     sub backslash { "\\" }
-    sub isa { 
+    sub isa {
         my $ref = ref($_[0]);
-           (  $ref eq 'ARRAY' 
+           (  $ref eq 'ARRAY'
            && $_[1] eq 'Array'
            )
-        || (  $ref eq 'HASH' 
+        || (  $ref eq 'HASH'
            && $_[1] eq 'Hash'
            )
-        || (  $ref eq '' 
+        || (  $ref eq ''
            && $_[1] eq 'Str'
            )
         || $ref eq $_[1]
-        || (  ref( $_[1] ) 
-           && $ref eq ref( $_[1] ) 
+        || (  ref( $_[1] )
+           && $ref eq ref( $_[1] )
            )
     }
 
@@ -130,7 +130,7 @@ package Main;
             #Data::Dump::Streamer($_[0]);
         }
     }
-    
+
     sub yaml {
         my $can = UNIVERSAL::can($_[0] => 'yaml');
         if ($can) {
@@ -141,7 +141,7 @@ package Main;
             YAML::Syck::Dump($_[0]);
         }
     }
-      
+
     sub join {
         my $can = UNIVERSAL::can($_[0] => 'join');
         if ($can) {
@@ -151,7 +151,7 @@ package Main;
             join($_[1], @{$_[0]} );
         }
     }
-    
+
         my %table = (
             '$' => '',
             '@' => 'List_',
@@ -202,7 +202,7 @@ package Main;
         $s =~ s/(\\|\')/\\$1/g;
         $s;
     }
-    
+
     sub Dump {
         require Data::Dump::Streamer;
         Data::Dump::Streamer::Dump( @_ );
@@ -219,3 +219,26 @@ package Main;
     }
 
 1;
+
+=begin
+
+=head1 AUTHORS
+
+The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
+
+=head1 SEE ALSO
+
+The Perl 6 homepage at L<http://dev.perl.org/perl6>.
+
+The Pugs homepage at L<http://pugscode.org/>.
+
+=head1 COPYRIGHT
+
+Copyright 2007 by Flavio Soibelmann Glock and others.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
+
+=end
