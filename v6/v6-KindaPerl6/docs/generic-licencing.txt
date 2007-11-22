@@ -1,0 +1,70 @@
+######## Pod example
+
+=begin
+
+=head1 AUTHORS
+
+The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
+
+=head1 SEE ALSO
+
+The Perl 6 homepage at L<http://dev.perl.org/perl6>.
+
+The Pugs homepage at L<http://pugscode.org/>.
+
+=head1 COPYRIGHT
+
+Copyright 2007 by Flavio Soibelmann Glock and others.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
+
+=end
+
+
+######## html example
+
+<div class="copyright">
+<li>AUTHORS</li>
+<p>The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.</p>
+
+<li>SEE ALSO</li>
+
+<p>The Perl 6 homepage at <a href="http://dev.perl.org/perl6">http://dev.perl.org/perl6</a>.</p>
+
+<p>The Pugs homepage at <a href="http://pugscode.org">http://pugscode.org</a>.</p>
+
+<li>COPYRIGHT</li>
+
+<p>Copyright 2007 by Flavio Soibelmann Glock and others.</p>
+
+<p>This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.</p>
+
+<p>See <a href="http://www.perl.com/perl/misc/Artistic.html">http://www.perl.com/perl/misc/Artistic.html</a></p>
+
+</div>
+
+
+######## text example
+
+AUTHORS
+
+The Pugs Team perl6-compiler@perl.org.
+
+SEE ALSO
+
+The Perl 6 homepage at http://dev.perl.org/perl6.
+
+The Pugs homepage at http://pugscode.org/.
+
+COPYRIGHT
+
+Copyright 2007 by Flavio Soibelmann Glock and others.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See http://www.perl.com/perl/misc/Artistic.html
