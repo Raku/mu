@@ -12,11 +12,7 @@ sub visit {
     my $List__ = \@_;
     my $node;
     my $node_name;
-    do {
-        $node      = $List__->[0];
-        $node_name = $List__->[1];
-        [ $node, $node_name ];
-    };
+    do { $node = $List__->[0]; $node_name = $List__->[1]; [ $node, $node_name ] };
     do {
         if ( ( ( $node_name eq 'Call' ) && $node->hyper() ) ) {
             return (
@@ -24,21 +20,8 @@ sub visit {
                     'code'      => 'map',
                     'arguments' => [
                         Sub->new(
-                            'sig' => Sig->new(
-                                'invocant'   => (undef),
-                                'positional' => [],
-                            ),
-                            'block' => [
-                                Call->new(
-                                    'invocant' => Var->new(
-                                        'sigil'  => '$',
-                                        'twigil' => '',
-                                        'name'   => '_',
-                                    ),
-                                    'method'    => $node->method(),
-                                    'arguments' => $node->arguments(),
-                                )
-                            ],
+                            'sig' => Sig->new( 'invocant' => (undef), 'positional' => [], ),
+                            'block' => [ Call->new( 'invocant' => Var->new( 'sigil' => '$', 'twigil' => '', 'name' => '_', ), 'method' => $node->method(), 'arguments' => $node->arguments(), ) ],
                         ),
                         $node->invocant()
                     ],

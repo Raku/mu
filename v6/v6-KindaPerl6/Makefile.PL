@@ -6,20 +6,22 @@
 use strict;
 use ExtUtils::MakeMaker;
 
+my $perltidyrc = 'util/perltidyrc';
+
 # Makefile.PL needs to be rerun with a different KP6_TARGET in order to build kp6-mp6, kp6-kp6, or kp6-lisp
-my $KP6_TARGET = $ENV{KP6_TARGET} || "KP6-MP6";
+my $KP6_TARGET = $ENV{KP6_TARGET} || 'KP6-MP6';
 my %Kp6Build;
-if ( $KP6_TARGET eq "KP6-MP6" ) {
+if ( $KP6_TARGET eq 'KP6-MP6' ) {
     %Kp6Build = (
-        lib         => "compiled/perl5-kp6-mp6/lib",
-        module_lib  => "compiled/perl5-kp6-mp6/lib",
-        run_test    => "script/run_tests.pl --backend=perl5",
+        lib         => 'compiled/perl5-kp6-mp6/lib',
+        module_lib  => 'compiled/perl5-kp6-mp6/lib',
+        run_test    => 'script/run_tests.pl --backend=perl5',
         make        =>
 <<'END',
+
 compiled/perl5-kp6-mp6/lib/KindaPerl6/Runtime/Perl6/%.pm: src/KindaPerl6/Runtime/Perl6/%.pm
-	@echo "COMPILE = perl script/kp6 -Cperl5"
-	@echo COMPILE $< $@
-	@$(PERL) script/kp6 -Cperl5 $< > $@.temp ; \
+	@echo perl script/kp6 -Cperl5 -o $@.temp $<
+	@$(PERL) script/kp6 -Cperl5 -o $@.temp $< ; \
 		res=$$? ; \
 		if [ $$res = 0 -a -s $@.temp ] ; then \
 			mv $@.temp $@ ; \
@@ -28,10 +30,10 @@ compiled/perl5-kp6-mp6/lib/KindaPerl6/Runtime/Perl6/%.pm: src/KindaPerl6/Runtime
 			echo "*** Compilation failed with exit code: $$res!" ; \
 			exit; \
 		fi
+
 compiled/perl5-kp6-mp6/lib/%.pm: src-modules/%.pm
-	@echo "COMPILE = perl script/kp6 -Cperl5"
-	@echo COMPILE $< $@
-	@$(PERL) script/kp6 -Cperl5 $< > $@.temp ; \
+	# @echo perl script/kp6 -Cperl5 -o $@.temp $<
+	@$(PERL) script/kp6 -Cperl5 -o $@.temp $<  ; \
 		res=$$? ; \
 		if [ $$res = 0 -a -s $@.temp ] ; then \
 			mv $@.temp $@ ; \
@@ -48,7 +50,7 @@ compiled/perl5-kp6-mp6/lib/KindaPerl6.pm: src/KindaPerl6.pm
 	$(CP) $< $@
 
 compiled/perl5-kp6-mp6/lib/%.pm: src/%.pm
-	$(PERL) script/mp6.pl $< > $@
+	$(PERL) script/mp6.pl -o $@ $<
 
 END
 
@@ -62,12 +64,11 @@ elsif ( $KP6_TARGET eq "KP6-KP6" ) {
         make        =>
 <<'END',
 compiled/perl5-kp6-kp6/lib/KindaPerl6/Runtime/Perl6/%.pm: src/KindaPerl6/Runtime/Perl6/%.pm
-	$(PERL) script/kp6-kp6.pl -Cperl5rx < $< | perltidy -pro=util/perltidyrc > $@
+	$(PERL) script/kp6-kp6.pl -Cperl5rx < $< | perltidy -pro=$perltidyrc -o $@
 
 compiled/perl5-kp6-kp6/lib/%.pm: src-modules/%.pm
-	@echo "COMPILE = perl script/kp6-kp6.pl -Cperl5rx"
-	@echo COMPILE $< $@
-	@$(PERL) script/kp6-kp6.pl -Cperl5rx < $< | perltidy -pro=util/perltidyrc > $@.temp ; \
+	@echo perl script/kp6-kp6.pl -Cperl5rx $< $@
+	@$(PERL) script/kp6-kp6.pl -Cperl5rx < $< | perltidy -pro=$perltidyrc -o $@.temp ; \
 		res=$$? ; \
 		if [ $$res = 0 -a -s $@.temp ] ; then \
 			mv $@.temp $@ ; \
@@ -84,12 +85,11 @@ compiled/perl5-kp6-kp6/lib/KindaPerl6.pm: src/KindaPerl6.pm
 	$(CP) $< $@
 
 compiled/perl5-kp6-kp6/lib/%.pm: src/%.pm
-	$(PERL) script/kp6-kp6.pl -Cperl5rx < $< | perltidy -pro=util/perltidyrc > $@
+	$(PERL) script/kp6-kp6.pl -Cperl5rx < $< | perltidy -pro=$perltidyrc -o $@
 
 script/kp6-kp6.pl: src-script/kp6-kp6.pl
-	@echo "COMPILE = perl script/kp6-kp6.pl -Cperl5rx"
-	@echo COMPILE $< $@
-	@$(PERL) script/kp6-kp6.pl -Cperl5rx < $< | perltidy -pro=util/perltidyrc > $@.temp ; \
+	@echo perl script/kp6-kp6.pl -Cperl5rx $< $@
+	@$(PERL) script/kp6-kp6.pl -Cperl5rx < $< | perltidy -pro=$perltidyrc -o $@.temp ; \
 		res=$$? ; \
 		if [ $$res = 0 -a -s $@.temp ] ; then \
 			mv $@.temp $@ ; \
@@ -111,12 +111,12 @@ elsif ( $KP6_TARGET eq "KP6-BOOT" ) {
         make        =>
 <<'END',
 compiled/perl5-kp6-kp6/lib/KindaPerl6/Runtime/Perl6/%.pm: src/KindaPerl6/Runtime/Perl6/%.pm
-	$(PERL) script/kp6 -Cperl5rx --noperltidy < $< > $@
+	@echo perl script/kp6 -Cperl5rx --noperltidy -o $@ $<
+	$(PERL) script/kp6 -Cperl5rx --noperltidy -o $@ $<
 
 compiled/perl5-kp6-kp6/lib/%.pm: src-modules/%.pm
-	@echo "COMPILE = perl script/kp6 -Cperl5rx --noperltidy"
-	@echo COMPILE $< $@
-	@$(PERL) script/kp6 -Cperl5rx --noperltidy < $< > $@.temp ; \
+	@echo perl script/kp6 -Cperl5rx --noperltidy -o $@.temp $<
+	@$(PERL) script/kp6 -Cperl5rx --noperltidy -o $@.temp $<  ; \
 		res=$$? ; \
 		if [ $$res = 0 -a -s $@.temp ] ; then \
 			mv $@.temp $@ ; \
@@ -138,10 +138,12 @@ compiled/perl5-kp6-kp6/lib/KindaPerl6.pm: src/KindaPerl6.pm
 	$(CP) $< $@
 
 compiled/perl5-kp6-kp6/lib/%.pm: src/%.pm
-	$(PERL) script/kp6 -Cperl5rx --noperltidy < $< > $@
+	@echo perl script/kp6 -Cperl5rx --noperltidy -o $@ $<
+	$(PERL) script/kp6 -Cperl5rx --noperltidy -o $@ $<
 
 script/kp6-kp6.pl: src-script/kp6-kp6.pl
-	$(PERL) script/kp6 -Cperl5rx --noperltidy < $< > $@
+	@echo perl script/kp6 -Cperl5rx --noperltidy -o $@ $<
+	$(PERL) script/kp6 -Cperl5rx --noperltidy -o $@ $<
 
 END
 
@@ -154,8 +156,8 @@ elsif ( $KP6_TARGET =~ /^KP6-LISP(?:-([A-Za-z]+))?$/ ) {
     %Kp6Build = (
         # We don't use this and not defining this makes things break,
         # just use the same things as kp6-mp6
-        lib         => "compiled/cl/lib",
-        module_lib  => "compiled/cl/lib",
+        lib         => 'compiled/cl/lib',
+        module_lib  => 'compiled/cl/lib',
 
         run_test    => "script/run_tests.pl --backend=cl-$runtime",
         make        =>
@@ -405,7 +407,7 @@ forcerecompile:
 
 ## kp6 frontend in p6, uncomment to use
 #kp6-kp6.pl: kp6.p6
-#	$(PERL) script/kp6 -r kp6 < $< | perltidy -pro=util/perltidyrc > temp.pl ; \
+#	$(PERL) script/kp6 -r kp6 -o temp.pl $< ; \
 #		res=$$? ; \
 #		if [ $$res = 0 -a -s temp.pl ] ; then \
 #			cp temp.pl $@ ; \

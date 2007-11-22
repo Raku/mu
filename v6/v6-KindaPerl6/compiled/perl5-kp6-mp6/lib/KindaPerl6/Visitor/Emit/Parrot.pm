@@ -17,14 +17,11 @@ sub visit {
 
 package CompUnit;
 sub new { shift; bless {@_}, "CompUnit" }
-sub name { @_ == 1 ? ( $_[0]->{name} ) : ( $_[0]->{name} = $_[1] ) }
-
-sub attributes {
-    @_ == 1 ? ( $_[0]->{attributes} ) : ( $_[0]->{attributes} = $_[1] );
-}
-sub methods { @_ == 1 ? ( $_[0]->{methods} ) : ( $_[0]->{methods} = $_[1] ) }
-sub traits  { @_ == 1 ? ( $_[0]->{traits} )  : ( $_[0]->{traits}  = $_[1] ) }
-sub body    { @_ == 1 ? ( $_[0]->{body} )    : ( $_[0]->{body}    = $_[1] ) }
+sub name       { @_ == 1 ? ( $_[0]->{name} )       : ( $_[0]->{name}       = $_[1] ) }
+sub attributes { @_ == 1 ? ( $_[0]->{attributes} ) : ( $_[0]->{attributes} = $_[1] ) }
+sub methods    { @_ == 1 ? ( $_[0]->{methods} )    : ( $_[0]->{methods}    = $_[1] ) }
+sub traits     { @_ == 1 ? ( $_[0]->{traits} )     : ( $_[0]->{traits}     = $_[1] ) }
+sub body       { @_ == 1 ? ( $_[0]->{body} )       : ( $_[0]->{body}       = $_[1] ) }
 
 sub emit_parrot {
     my $self   = shift;
@@ -32,57 +29,28 @@ sub emit_parrot {
     do { [] };
     my $s = (
         '.namespace [ '
-          . (
+            . (
             Main::quote()
-              . (
+                . (
                 $self->{name}
-                  . (
+                    . (
                     Main::quote()
-                      . (
+                        . (
                         ' ] '
-                          . (
+                            . (
                             Main::newline()
-                              . (
+                                . (
                                 '.sub _ :main'
-                                  . (
+                                    . (
                                     Main::newline()
-                                      . (
-                                        $self->{body}->emit_parrot()
-                                          . (
-                                            Main::newline()
-                                              . (
-                                                '.end'
-                                                  . (
-                                                    Main::newline()
-                                                      . (
-                                                        Main::newline()
-                                                          . (
-                                                            '.sub '
-                                                              . (
-                                                                Main::quote()
-                                                                  . (
-'_class_vars_'
-                                                                      . (
-                                                                        Main::quote(
-                                                                          )
-                                                                          . Main::newline(
-                                                                          )
-                                                                      )
-                                                                  )
-                                                              )
-                                                          )
-                                                      )
-                                                  )
-                                              )
-                                          )
-                                      )
-                                  )
-                              )
-                          )
-                      )
-                  )
-              )
-          )
+                                        . ( $self->{body}->emit_parrot() . ( Main::newline() . ( '.end' . ( Main::newline() . ( Main::newline() . ( '.sub ' . ( Main::quote() . ( '_class_vars_' . ( Main::quote() . Main::newline() ) ) ) ) ) ) ) ) )
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+            )
     );
     $s = ( $s . ( '.end' . ( Main::newline() . Main::newline() ) ) );
     return ($s);
@@ -96,13 +64,7 @@ sub emit_parrot {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    (
-        '  $P0 = new .Integer'
-          . (
-            Main::newline()
-              . ( '  $P0 = ' . ( $self->{int} . Main::newline() ) )
-          )
-    );
+    ( '  $P0 = new .Integer' . ( Main::newline() . ( '  $P0 = ' . ( $self->{int} . Main::newline() ) ) ) );
 }
 
 package Val::Bit;
@@ -113,13 +75,7 @@ sub emit_parrot {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    (
-        '  $P0 = new .Integer'
-          . (
-            Main::newline()
-              . ( '  $P0 = ' . ( $self->{bit} . Main::newline() ) )
-          )
-    );
+    ( '  $P0 = new .Integer' . ( Main::newline() . ( '  $P0 = ' . ( $self->{bit} . Main::newline() ) ) ) );
 }
 
 package Val::Num;
@@ -130,13 +86,7 @@ sub emit_parrot {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    (
-        '  $P0 = new .Float'
-          . (
-            Main::newline()
-              . ( '  $P0 = ' . ( $self->{num} . Main::newline() ) )
-          )
-    );
+    ( '  $P0 = new .Float' . ( Main::newline() . ( '  $P0 = ' . ( $self->{num} . Main::newline() ) ) ) );
 }
 
 package Val::Buf;
@@ -147,19 +97,7 @@ sub emit_parrot {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    (
-        '  $P0 = new .String'
-          . (
-            Main::newline()
-              . (
-                '  $P0 = '
-                  . (
-                    Main::quote()
-                      . ( $self->{buf} . ( Main::quote() . Main::newline() ) )
-                  )
-              )
-          )
-    );
+    ( '  $P0 = new .String' . ( Main::newline() . ( '  $P0 = ' . ( Main::quote() . ( $self->{buf} . ( Main::quote() . Main::newline() ) ) ) ) ) );
 }
 
 package Val::Undef;
@@ -203,26 +141,11 @@ sub emit_parrot {
     do { [] };
     my $a = $self->{array};
     my $item;
-    my $s = (
-        '  save $P1'
-          . (
-            Main::newline()
-              . ( '  $P1 = new .ResizablePMCArray' . Main::newline() )
-          )
-    );
+    my $s = ( '  save $P1' . ( Main::newline() . ( '  $P1 = new .ResizablePMCArray' . Main::newline() ) ) );
     do {
-        for my $item ( @{$a} ) {
-            $s = ( $s . $item->emit_parrot() );
-            $s = ( $s . ( '  push $P1, $P0' . Main->newline() ) );
-        }
+        for my $item ( @{$a} ) { $s = ( $s . $item->emit_parrot() ); $s = ( $s . ( '  push $P1, $P0' . Main->newline() ) ) }
     };
-    my $s = (
-        $s
-          . (
-            '  $P0 = $P1'
-              . ( Main::newline() . ( '  restore $P1' . Main::newline() ) )
-          )
-    );
+    my $s = ( $s . ( '  $P0 = $P1' . ( Main::newline() . ( '  restore $P1' . Main::newline() ) ) ) );
     return ($s);
 }
 
@@ -236,41 +159,11 @@ sub emit_parrot {
     do { [] };
     my $a = $self->{hash};
     my $item;
-    my $s = (
-        '  save $P1'
-          . (
-            Main::newline()
-              . (
-                '  save $P2'
-                  . (
-                    Main::newline() . ( '  $P1 = new .Hash' . Main::newline() )
-                  )
-              )
-          )
-    );
+    my $s = ( '  save $P1' . ( Main::newline() . ( '  save $P2' . ( Main::newline() . ( '  $P1 = new .Hash' . Main::newline() ) ) ) ) );
     do {
-        for my $item ( @{$a} ) {
-            $s = ( $s . $item->[0]->emit_parrot() );
-            $s = ( $s . ( '  $P2 = $P0' . Main->newline() ) );
-            $s = ( $s . $item->[1]->emit_parrot() );
-            $s = ( $s . ( '  set $P1[$P2], $P0' . Main->newline() ) );
-        }
+        for my $item ( @{$a} ) { $s = ( $s . $item->[0]->emit_parrot() ); $s = ( $s . ( '  $P2 = $P0' . Main->newline() ) ); $s = ( $s . $item->[1]->emit_parrot() ); $s = ( $s . ( '  set $P1[$P2], $P0' . Main->newline() ) ) }
     };
-    my $s = (
-        $s
-          . (
-            '  $P0 = $P1'
-              . (
-                Main::newline()
-                  . (
-                    '  restore $P2'
-                      . (
-                        Main::newline() . ( '  restore $P1' . Main::newline() )
-                      )
-                  )
-              )
-          )
-    );
+    my $s = ( $s . ( '  $P0 = $P1' . ( Main::newline() . ( '  restore $P2' . ( Main::newline() . ( '  restore $P1' . Main::newline() ) ) ) ) ) );
     return ($s);
 }
 
@@ -306,16 +199,7 @@ sub emit_declarations {
     my $name;
     do {
         for my $name ( @{ $self->{pad}->variable_names() } ) {
-            my $decl = Decl->new(
-                'decl' => 'my',
-                'type' => '',
-                'var'  => Var->new(
-                    'sigil'     => '',
-                    'twigil'    => '',
-                    'name'      => $name,
-                    'namespace' => [],
-                ),
-            );
+            my $decl = Decl->new( 'decl' => 'my', 'type' => '', 'var' => Var->new( 'sigil' => '', 'twigil' => '', 'name' => $name, 'namespace' => [], ), );
             $s = ( $s . ( $name->emit_parrot() . ( ' ' . Main::newline() ) ) );
         }
     };
@@ -326,59 +210,23 @@ sub emit_arguments {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    my $array_ = Var->new(
-        'sigil'     => '@',
-        'twigil'    => '',
-        'name'      => '_',
-        'namespace' => [],
-    );
-    my $hash_ = Var->new(
-        'sigil'     => '%',
-        'twigil'    => '',
-        'name'      => '_',
-        'namespace' => [],
-    );
-    my $CAPTURE = Var->new(
-        'sigil'     => '$',
-        'twigil'    => '',
-        'name'      => 'CAPTURE',
-        'namespace' => [],
-    );
-    my $CAPTURE_decl =
-      Decl->new( 'decl' => 'my', 'type' => '', 'var' => $CAPTURE, );
+    my $array_  = Var->new( 'sigil' => '@', 'twigil' => '', 'name' => '_',       'namespace' => [], );
+    my $hash_   = Var->new( 'sigil' => '%', 'twigil' => '', 'name' => '_',       'namespace' => [], );
+    my $CAPTURE = Var->new( 'sigil' => '$', 'twigil' => '', 'name' => 'CAPTURE', 'namespace' => [], );
+    my $CAPTURE_decl = Decl->new( 'decl' => 'my', 'type' => '', 'var' => $CAPTURE, );
     my $str = '';
     $str = ( $str . $CAPTURE_decl->emit_parrot() );
     $str = ( $str . '::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));' );
-    my $bind_ = Bind->new(
-        'parameters' => $array_,
-        'arguments'  => Call->new(
-            'invocant'  => $CAPTURE,
-            'method'    => 'array',
-            'arguments' => [],
-        ),
-    );
+    my $bind_ = Bind->new( 'parameters' => $array_, 'arguments' => Call->new( 'invocant' => $CAPTURE, 'method' => 'array', 'arguments' => [], ), );
     $str = ( $str . ( $bind_->emit_parrot() . ' ' ) );
-    my $bind_hash = Bind->new(
-        'parameters' => $hash_,
-        'arguments'  => Call->new(
-            'invocant'  => $CAPTURE,
-            'method'    => 'hash',
-            'arguments' => [],
-        ),
-    );
+    my $bind_hash = Bind->new( 'parameters' => $hash_, 'arguments' => Call->new( 'invocant' => $CAPTURE, 'method' => 'hash', 'arguments' => [], ), );
     $str = ( $str . ( $bind_hash->emit_parrot() . ' ' ) );
     my $i = 0;
     my $field;
     do {
 
         for my $field ( @{ $self->{sig}->positional() } ) {
-            my $bind = Bind->new(
-                'parameters' => $field,
-                'arguments'  => Index->new(
-                    'obj'   => $array_,
-                    'index' => Val::Int->new( 'int' => $i, ),
-                ),
-            );
+            my $bind = Bind->new( 'parameters' => $field, 'arguments' => Index->new( 'obj' => $array_, 'index' => Val::Int->new( 'int' => $i, ), ), );
             $str = ( $str . ( $bind->emit_parrot() . ' ' ) );
             $i = ( $i + 1 );
         }
@@ -397,66 +245,11 @@ sub emit_parrot {
     do { [] };
     my $fields = $self->{fields};
     my $str    = '';
-    $str = (
-        '  save $P1'
-          . (
-            Main::newline()
-              . (
-                '  save $S2'
-                  . (
-                    Main::newline()
-                      . (
-                        '  $P1 = new '
-                          . (
-                            Main::quote()
-                              . (
-                                $self->{class}
-                                  . ( Main::quote() . Main::newline() )
-                              )
-                          )
-                      )
-                  )
-              )
-          )
-    );
+    $str = ( '  save $P1' . ( Main::newline() . ( '  save $S2' . ( Main::newline() . ( '  $P1 = new ' . ( Main::quote() . ( $self->{class} . ( Main::quote() . Main::newline() ) ) ) ) ) ) ) );
     do {
-        for my $field ( @{$fields} ) {
-            $str = (
-                $str
-                  . (
-                    $field->[0]->emit_parrot()
-                      . (
-                        '  $S2 = $P0'
-                          . (
-                            Main::newline()
-                              . (
-                                $field->[1]->emit_parrot()
-                                  . (
-                                    '  setattribute $P1, $S2, $P0'
-                                      . Main::newline()
-                                  )
-                              )
-                          )
-                      )
-                  )
-            );
-        }
+        for my $field ( @{$fields} ) { $str = ( $str . ( $field->[0]->emit_parrot() . ( '  $S2 = $P0' . ( Main::newline() . ( $field->[1]->emit_parrot() . ( '  setattribute $P1, $S2, $P0' . Main::newline() ) ) ) ) ) ) }
     };
-    $str = (
-        $str
-          . (
-            '  $P0 = $P1'
-              . (
-                Main::newline()
-                  . (
-                    '  restore $S2'
-                      . (
-                        Main::newline() . ( '  restore $P1' . Main::newline() )
-                      )
-                  )
-              )
-          )
-    );
+    $str = ( $str . ( '  $P0 = $P1' . ( Main::newline() . ( '  restore $S2' . ( Main::newline() . ( '  restore $P1' . Main::newline() ) ) ) ) ) );
     $str;
 }
 
@@ -506,12 +299,7 @@ sub emit_parrot {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    (
-        ( $self->{twigil} eq '.' )
-        ?       ( '  $P0 = getattribute self, \''
-              . ( $self->{name} . ( '\'' . Main::newline() ) ) )
-        : ( '  $P0 = ' . ( $self->full_name() . ( ' ' . Main::newline() ) ) )
-    );
+    ( ( $self->{twigil} eq '.' ) ? ( '  $P0 = getattribute self, \'' . ( $self->{name} . ( '\'' . Main::newline() ) ) ) : ( '  $P0 = ' . ( $self->full_name() . ( ' ' . Main::newline() ) ) ) );
 }
 
 sub name {
@@ -525,25 +313,14 @@ sub full_name {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    my $table =
-      { '$' => 'scalar_', '@' => 'list_', '%' => 'hash_', '&' => 'code_', };
-    (
-        ( $self->{twigil} eq '.' ) ? $self->{name}
-        : ( ( $self->{name} eq '/' ) ? ( $table->{ $self->{sigil} } . 'MATCH' )
-            : ( $table->{ $self->{sigil} } . $self->{name} ) )
-    );
+    my $table = { '$' => 'scalar_', '@' => 'list_', '%' => 'hash_', '&' => 'code_', };
+    ( ( $self->{twigil} eq '.' ) ? $self->{name} : ( ( $self->{name} eq '/' ) ? ( $table->{ $self->{sigil} } . 'MATCH' ) : ( $table->{ $self->{sigil} } . $self->{name} ) ) );
 }
 
 package Bind;
 sub new { shift; bless {@_}, "Bind" }
-
-sub parameters {
-    @_ == 1 ? ( $_[0]->{parameters} ) : ( $_[0]->{parameters} = $_[1] );
-}
-
-sub arguments {
-    @_ == 1 ? ( $_[0]->{arguments} ) : ( $_[0]->{arguments} = $_[1] );
-}
+sub parameters { @_ == 1 ? ( $_[0]->{parameters} ) : ( $_[0]->{parameters} = $_[1] ) }
+sub arguments  { @_ == 1 ? ( $_[0]->{arguments} )  : ( $_[0]->{arguments}  = $_[1] ) }
 
 sub emit_parrot {
     my $self   = shift;
@@ -556,14 +333,7 @@ sub emit_parrot {
             my $str = '';
             my $i   = 0;
             do {
-                for my $var ( @{$a} ) {
-                    my $bind = Bind->new(
-                        'parameters' => $var,
-                        'arguments'  => $b->[$i],
-                    );
-                    $str = ( $str . $bind->emit_parrot() );
-                    $i   = ( $i + 1 );
-                }
+                for my $var ( @{$a} ) { my $bind = Bind->new( 'parameters' => $var, 'arguments' => $b->[$i], ); $str = ( $str . $bind->emit_parrot() ); $i = ( $i + 1 ) }
             };
             return ( ( $str . $self->{parameters}->emit_parrot() ) );
         }
@@ -582,18 +352,12 @@ sub emit_parrot {
                     do {
                         for my $var2 ( @{$b} ) {
                             do {
-                                if ( ( $var2->[0]->buf() eq $var->[0]->buf() ) )
-                                {
-                                    $arg = $var2->[1];
+                                if ( ( $var2->[0]->buf() eq $var->[0]->buf() ) ) { $arg = $var2->[1] }
+                                else                                             { }
                                 }
-                                else { }
-                              }
                         }
                     };
-                    my $bind = Bind->new(
-                        'parameters' => $var->[1],
-                        'arguments'  => $arg,
-                    );
+                    my $bind = Bind->new( 'parameters' => $var->[1], 'arguments' => $arg, );
                     $str = ( $str . $bind->emit_parrot() );
                     $i   = ( $i + 1 );
                 }
@@ -609,77 +373,27 @@ sub emit_parrot {
             my $b     = $self->{arguments};
             my $str   = '';
             do {
-                for my $var ( @{$a} ) {
-                    my $bind = Bind->new(
-                        'parameters' => $var->[1],
-                        'arguments'  => Call->new(
-                            'invocant'  => $b,
-                            'method'    => $var->[0]->buf(),
-                            'arguments' => [],
-                            'hyper'     => 0,
-                        ),
-                    );
-                    $str = ( $str . $bind->emit_parrot() );
-                }
+                for my $var ( @{$a} ) { my $bind = Bind->new( 'parameters' => $var->[1], 'arguments' => Call->new( 'invocant' => $b, 'method' => $var->[0]->buf(), 'arguments' => [], 'hyper' => 0, ), ); $str = ( $str . $bind->emit_parrot() ) }
             };
             return ( ( $str . $self->{parameters}->emit_parrot() ) );
         }
         else { }
     };
     do {
-        if ( Main::isa( $self->{parameters}, 'Var' ) ) {
-            return (
-                (
-                    $self->{arguments}->emit_parrot()
-                      . (
-                        '  '
-                          . (
-                            $self->{parameters}->full_name()
-                              . ( ' = $P0' . Main::newline() )
-                          )
-                      )
-                )
-            );
-        }
-        else { }
+        if ( Main::isa( $self->{parameters}, 'Var' ) ) { return ( ( $self->{arguments}->emit_parrot() . ( '  ' . ( $self->{parameters}->full_name() . ( ' = $P0' . Main::newline() ) ) ) ) ) }
+        else                                           { }
     };
     do {
         if ( Main::isa( $self->{parameters}, 'Decl' ) ) {
             return (
-                (
-                    $self->{arguments}->emit_parrot()
-                      . (
+                (   $self->{arguments}->emit_parrot()
+                        . (
                         '  .local pmc '
-                          . (
+                            . (
                             $self->{parameters}->var()->full_name()
-                              . (
-                                Main::newline()
-                                  . (
-                                    '  '
-                                      . (
-                                        $self->{parameters}->var()->full_name()
-                                          . (
-                                            ' = $P0'
-                                              . (
-                                                Main::newline()
-                                                  . (
-                                                    '  .lex \''
-                                                      . (
-                                                        $self->{parameters}
-                                                          ->var()->full_name()
-                                                          . (
-                                                            '\', $P0'
-                                                              . Main::newline()
-                                                          )
-                                                      )
-                                                  )
-                                              )
-                                          )
-                                      )
-                                  )
-                              )
-                          )
-                      )
+                                . ( Main::newline() . ( '  ' . ( $self->{parameters}->var()->full_name() . ( ' = $P0' . ( Main::newline() . ( '  .lex \'' . ( $self->{parameters}->var()->full_name() . ( '\', $P0' . Main::newline() ) ) ) ) ) ) ) )
+                            )
+                        )
                 )
             );
         }
@@ -691,59 +405,31 @@ sub emit_parrot {
             my $obj   = $param->obj();
             my $index = $param->index();
             return (
-                (
-                    $self->{arguments}->emit_parrot()
-                      . (
+                (   $self->{arguments}->emit_parrot()
+                        . (
                         '  save $P2'
-                          . (
+                            . (
                             Main::newline()
-                              . (
+                                . (
                                 '  $P2 = $P0'
-                                  . (
+                                    . (
                                     Main::newline()
-                                      . (
+                                        . (
                                         '  save $P1'
-                                          . (
+                                            . (
                                             Main::newline()
-                                              . (
+                                                . (
                                                 $obj->emit_parrot()
-                                                  . (
-                                                    '  $P1 = $P0'
-                                                      . (
-                                                        Main::newline()
-                                                          . (
-                                                            $index->emit_parrot(
-                                                              )
-                                                              . (
-'  $P1[$P0] = $P2'
-                                                                  . (
-                                                                    Main::newline(
-                                                                      )
-                                                                      . (
-'  restore $P1'
-                                                                          . (
-                                                                            Main::newline(
-                                                                              )
-                                                                              . (
-'  restore $P2'
-                                                                                  .
-                                                                                  Main::newline(
-                                                                                  )
-                                                                              )
-                                                                          )
-                                                                      )
-                                                                  )
-                                                              )
-                                                          )
-                                                      )
-                                                  )
-                                              )
-                                          )
-                                      )
-                                  )
-                              )
-                          )
-                      )
+                                                    . (
+                                                    '  $P1 = $P0' . ( Main::newline() . ( $index->emit_parrot() . ( '  $P1[$P0] = $P2' . ( Main::newline() . ( '  restore $P1' . ( Main::newline() . ( '  restore $P2' . Main::newline() ) ) ) ) ) ) )
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        )
                 )
             );
         }
@@ -755,73 +441,37 @@ sub emit_parrot {
             my $obj   = $param->obj();
             my $index = $param->index();
             return (
-                (
-                    $self->{arguments}->emit_parrot()
-                      . (
+                (   $self->{arguments}->emit_parrot()
+                        . (
                         '  save $P2'
-                          . (
+                            . (
                             Main::newline()
-                              . (
+                                . (
                                 '  $P2 = $P0'
-                                  . (
+                                    . (
                                     Main::newline()
-                                      . (
+                                        . (
                                         '  save $P1'
-                                          . (
+                                            . (
                                             Main::newline()
-                                              . (
+                                                . (
                                                 $obj->emit_parrot()
-                                                  . (
-                                                    '  $P1 = $P0'
-                                                      . (
-                                                        Main::newline()
-                                                          . (
-                                                            $index->emit_parrot(
-                                                              )
-                                                              . (
-'  $P1[$P0] = $P2'
-                                                                  . (
-                                                                    Main::newline(
-                                                                      )
-                                                                      . (
-'  restore $P1'
-                                                                          . (
-                                                                            Main::newline(
-                                                                              )
-                                                                              . (
-'  restore $P2'
-                                                                                  .
-                                                                                  Main::newline(
-                                                                                  )
-                                                                              )
-                                                                          )
-                                                                      )
-                                                                  )
-                                                              )
-                                                          )
-                                                      )
-                                                  )
-                                              )
-                                          )
-                                      )
-                                  )
-                              )
-                          )
-                      )
+                                                    . (
+                                                    '  $P1 = $P0' . ( Main::newline() . ( $index->emit_parrot() . ( '  $P1[$P0] = $P2' . ( Main::newline() . ( '  restore $P1' . ( Main::newline() . ( '  restore $P2' . Main::newline() ) ) ) ) ) ) )
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        )
                 )
             );
         }
         else { }
     };
-    die(
-        (
-            'Not implemented binding: '
-              . (
-                $self->{parameters}
-                  . ( Main::newline() . $self->{parameters}->emit_parrot() )
-              )
-        )
-    );
+    die( ( 'Not implemented binding: ' . ( $self->{parameters} . ( Main::newline() . $self->{parameters}->emit_parrot() ) ) ) );
 }
 
 package Proto;
@@ -837,95 +487,26 @@ sub emit_parrot {
 
 package Call;
 sub new { shift; bless {@_}, "Call" }
-sub invocant { @_ == 1 ? ( $_[0]->{invocant} ) : ( $_[0]->{invocant} = $_[1] ) }
-sub hyper    { @_ == 1 ? ( $_[0]->{hyper} )    : ( $_[0]->{hyper}    = $_[1] ) }
-sub method   { @_ == 1 ? ( $_[0]->{method} )   : ( $_[0]->{method}   = $_[1] ) }
-
-sub arguments {
-    @_ == 1 ? ( $_[0]->{arguments} ) : ( $_[0]->{arguments} = $_[1] );
-}
+sub invocant  { @_ == 1 ? ( $_[0]->{invocant} )  : ( $_[0]->{invocant}  = $_[1] ) }
+sub hyper     { @_ == 1 ? ( $_[0]->{hyper} )     : ( $_[0]->{hyper}     = $_[1] ) }
+sub method    { @_ == 1 ? ( $_[0]->{method} )    : ( $_[0]->{method}    = $_[1] ) }
+sub arguments { @_ == 1 ? ( $_[0]->{arguments} ) : ( $_[0]->{arguments} = $_[1] ) }
 
 sub emit_parrot {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
     do {
-        if (
-            (
-                ( $self->{method} eq 'perl' )
-                || (
-                    ( $self->{method} eq 'yaml' )
-                    || (   ( $self->{method} eq 'say' )
-                        || ( $self->{method} eq 'join' ) )
-                )
-            )
-          )
-        {
+        if ( ( ( $self->{method} eq 'perl' ) || ( ( $self->{method} eq 'yaml' ) || ( ( $self->{method} eq 'say' ) || ( $self->{method} eq 'join' ) ) ) ) ) {
             do {
                 if ( $self->{hyper} ) {
                     return (
-                        (
-                            '[ map { Main::'
-                              . (
-                                $self->{method}
-                                  . (
-                                    '( $_, '
-                                      . (
-                                        ', '
-                                          . (
-                                            Main::join(
-                                                [
-                                                    map { $_->emit_parrot() }
-                                                      @{ $self->{arguments} }
-                                                ],
-                                                ''
-                                              )
-                                              . (
-                                                ')'
-                                                  . (
-                                                    ' } @{ '
-                                                      . (
-                                                        $self->{invocant}
-                                                          ->emit_parrot()
-                                                          . ' } ]'
-                                                      )
-                                                  )
-                                              )
-                                          )
-                                      )
-                                  )
-                              )
-                        )
-                    );
+                        ( '[ map { Main::' . ( $self->{method} . ( '( $_, ' . ( ', ' . ( Main::join( [ map { $_->emit_parrot() } @{ $self->{arguments} } ], '' ) . ( ')' . ( ' } @{ ' . ( $self->{invocant}->emit_parrot() . ' } ]' ) ) ) ) ) ) ) ) );
                 }
                 else {
-                    return (
-                        (
-                            'Main::' . (
-                                $self->{method} . (
-                                    '(' . (
-                                        $self->{invocant}->emit_parrot() . (
-                                            ', ' . (
-                                                Main::join(
-                                                    [
-                                                        map {
-                                                            $_->emit_parrot()
-                                                          } @{
-                                                            $self->{arguments}
-                                                          }
-                                                    ],
-                                                    ''
-                                                  )
-                                                  . ')'
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    );
+                    return ( ( 'Main::' . ( $self->{method} . ( '(' . ( $self->{invocant}->emit_parrot() . ( ', ' . ( Main::join( [ map { $_->emit_parrot() } @{ $self->{arguments} } ], '' ) . ')' ) ) ) ) ) ) );
                 }
-              }
+                }
         }
         else { }
     };
@@ -934,93 +515,38 @@ sub emit_parrot {
         if ( ( $meth eq 'postcircumfix:<( )>' ) ) { $meth = '' }
         else                                      { }
     };
-    my $call = (
-        '->'
-          . (
-            $meth
-              . (
-                '('
-                  . (
-                    Main::join(
-                        [ map { $_->emit_parrot() } @{ $self->{arguments} } ],
-                        '' )
-                      . ')'
-                  )
-              )
-          )
-    );
+    my $call = ( '->' . ( $meth . ( '(' . ( Main::join( [ map { $_->emit_parrot() } @{ $self->{arguments} } ], '' ) . ')' ) ) ) );
     do {
-        if ( $self->{hyper} ) {
-            return (
-                (
-                    '[ map { $_'
-                      . (
-                        $call
-                          . (
-                            ' } @{ '
-                              . ( $self->{invocant}->emit_parrot() . ' } ]' )
-                          )
-                      )
-                )
-            );
-        }
-        else { }
+        if ( $self->{hyper} ) { return ( ( '[ map { $_' . ( $call . ( ' } @{ ' . ( $self->{invocant}->emit_parrot() . ' } ]' ) ) ) ) ) }
+        else                  { }
     };
     my $List_args = $self->{arguments};
     my $str       = '';
     my $ii        = 10;
     do {
-        for my $arg ( @{$List_args} ) {
-            $str = ( $str . ( '  save $P' . ( $ii . Main::newline() ) ) );
-            $ii = ( $ii + 1 );
-        }
+        for my $arg ( @{$List_args} ) { $str = ( $str . ( '  save $P' . ( $ii . Main::newline() ) ) ); $ii = ( $ii + 1 ) }
     };
     my $i = 10;
     do {
-        for my $arg ( @{$List_args} ) {
-            $str = (
-                $str
-                  . (
-                    $arg->emit_parrot()
-                      . ( '  $P' . ( $i . ( ' = $P0' . Main::newline() ) ) )
-                  )
-            );
-            $i = ( $i + 1 );
-        }
+        for my $arg ( @{$List_args} ) { $str = ( $str . ( $arg->emit_parrot() . ( '  $P' . ( $i . ( ' = $P0' . Main::newline() ) ) ) ) ); $i = ( $i + 1 ) }
     };
-    $str = (
-        $str
-          . (
-            $self->{invocant}->emit_parrot()
-              . ( '  $P0 = $P0.' . ( $meth . '(' ) )
-          )
-    );
+    $str = ( $str . ( $self->{invocant}->emit_parrot() . ( '  $P0 = $P0.' . ( $meth . '(' ) ) ) );
     $i = 0;
     my $List_p;
     do {
-        for my $arg ( @{$List_args} ) {
-            $List_p->[$i] = ( '$P' . ( $i + 10 ) );
-            $i = ( $i + 1 );
-        }
+        for my $arg ( @{$List_args} ) { $List_p->[$i] = ( '$P' . ( $i + 10 ) ); $i = ( $i + 1 ) }
     };
-    $str =
-      ( $str . ( Main::join( $List_p, ', ' ) . ( ')' . Main::newline() ) ) );
+    $str = ( $str . ( Main::join( $List_p, ', ' ) . ( ')' . Main::newline() ) ) );
     do {
-        for my $arg ( @{$List_args} ) {
-            $ii = ( $ii - 1 );
-            $str = ( $str . ( '  restore $P' . ( $ii . Main::newline() ) ) );
-        }
+        for my $arg ( @{$List_args} ) { $ii = ( $ii - 1 ); $str = ( $str . ( '  restore $P' . ( $ii . Main::newline() ) ) ) }
     };
     return ($str);
 }
 
 package Apply;
 sub new { shift; bless {@_}, "Apply" }
-sub code { @_ == 1 ? ( $_[0]->{code} ) : ( $_[0]->{code} = $_[1] ) }
-
-sub arguments {
-    @_ == 1 ? ( $_[0]->{arguments} ) : ( $_[0]->{arguments} = $_[1] );
-}
+sub code      { @_ == 1 ? ( $_[0]->{code} )      : ( $_[0]->{code}      = $_[1] ) }
+sub arguments { @_ == 1 ? ( $_[0]->{arguments} ) : ( $_[0]->{arguments} = $_[1] ) }
 my $label = 100;
 
 sub emit_parrot {
@@ -1031,43 +557,10 @@ sub emit_parrot {
     do {
         if ( ( $code eq 'die' ) ) {
             return (
-                (
-                    '  $P0 = new .Exception'
-                      . (
-                        Main::newline()
-                          . (
-                            '  $P0['
-                              . (
-                                Main::quote()
-                                  . (
-                                    '_message'
-                                      . (
-                                        Main::quote()
-                                          . (
-                                            '] = '
-                                              . (
-                                                Main::quote()
-                                                  . (
-                                                    'something broke'
-                                                      . (
-                                                        Main::quote()
-                                                          . (
-                                                            Main::newline()
-                                                              . (
-                                                                '  throw $P0'
-                                                                  . Main::newline(
-                                                                  )
-                                                              )
-                                                          )
-                                                      )
-                                                  )
-                                              )
-                                          )
-                                      )
-                                  )
-                              )
-                          )
-                      )
+                (   '  $P0 = new .Exception'
+                        . (
+                        Main::newline() . ( '  $P0[' . ( Main::quote() . ( '_message' . ( Main::quote() . ( '] = ' . ( Main::quote() . ( 'something broke' . ( Main::quote() . ( Main::newline() . ( '  throw $P0' . Main::newline() ) ) ) ) ) ) ) ) ) )
+                        )
                 )
             );
         }
@@ -1076,31 +569,8 @@ sub emit_parrot {
     do {
         if ( ( $code eq 'say' ) ) {
             return (
-                (
-                    Main::join(
-                        [ map { $_->emit_parrot() } @{ $self->{arguments} } ],
-                        ( '  print $P0' . Main::newline() ) )
-                      . (
-                        '  print $P0'
-                          . (
-                            Main::newline()
-                              . (
-                                '  print '
-                                  . (
-                                    Main::quote()
-                                      . (
-                                        '\\'
-                                          . (
-                                            'n'
-                                              . (
-                                                Main::quote() . Main::newline()
-                                              )
-                                          )
-                                      )
-                                  )
-                              )
-                          )
-                      )
+                (   Main::join( [ map { $_->emit_parrot() } @{ $self->{arguments} } ], ( '  print $P0' . Main::newline() ) )
+                        . ( '  print $P0' . ( Main::newline() . ( '  print ' . ( Main::quote() . ( '\\' . ( 'n' . ( Main::quote() . Main::newline() ) ) ) ) ) ) )
                 )
             );
         }
@@ -1108,125 +578,58 @@ sub emit_parrot {
     };
     do {
         if ( ( $code eq 'print' ) ) {
-            return (
-                (
-                    Main::join(
-                        [ map { $_->emit_parrot() } @{ $self->{arguments} } ],
-                        ( '  print $P0' . Main::newline() ) )
-                      . ( '  print $P0' . Main::newline() )
-                )
-            );
+            return ( ( Main::join( [ map { $_->emit_parrot() } @{ $self->{arguments} } ], ( '  print $P0' . Main::newline() ) ) . ( '  print $P0' . Main::newline() ) ) );
         }
         else { }
     };
     do {
-        if ( ( $code eq 'array' ) ) {
-            return ( ( '  # TODO - array() is no-op' . Main::newline() ) );
-        }
-        else { }
+        if ( ( $code eq 'array' ) ) { return ( ( '  # TODO - array() is no-op' . Main::newline() ) ) }
+        else                        { }
     };
     do {
-        if ( ( $code eq 'prefix:<~>' ) ) {
-            return (
-                (
-                    $self->{arguments}->[0]->emit_parrot()
-                      . (
-                        '  $S0 = $P0'
-                          . (
-                            Main::newline()
-                              . ( '  $P0 = $S0' . Main::newline() )
-                          )
-                      )
-                )
-            );
-        }
-        else { }
+        if ( ( $code eq 'prefix:<~>' ) ) { return ( ( $self->{arguments}->[0]->emit_parrot() . ( '  $S0 = $P0' . ( Main::newline() . ( '  $P0 = $S0' . Main::newline() ) ) ) ) ) }
+        else                             { }
     };
     do {
-        if ( ( $code eq 'prefix:<!>' ) ) {
-            return (
-                If->new(
-                    'cond'      => $self->{arguments}->[0],
-                    'body'      => [ Val::Bit->new( 'bit' => 0, ) ],
-                    'otherwise' => [ Val::Bit->new( 'bit' => 1, ) ],
-                  )->emit_parrot()
-            );
-        }
-        else { }
+        if ( ( $code eq 'prefix:<!>' ) ) { return ( If->new( 'cond' => $self->{arguments}->[0], 'body' => [ Val::Bit->new( 'bit' => 0, ) ], 'otherwise' => [ Val::Bit->new( 'bit' => 1, ) ], )->emit_parrot() ) }
+        else                             { }
     };
     do {
-        if ( ( $code eq 'prefix:<?>' ) ) {
-            return (
-                If->new(
-                    'cond'      => $self->{arguments}->[0],
-                    'body'      => [ Val::Bit->new( 'bit' => 1, ) ],
-                    'otherwise' => [ Val::Bit->new( 'bit' => 0, ) ],
-                  )->emit_parrot()
-            );
-        }
-        else { }
+        if ( ( $code eq 'prefix:<?>' ) ) { return ( If->new( 'cond' => $self->{arguments}->[0], 'body' => [ Val::Bit->new( 'bit' => 1, ) ], 'otherwise' => [ Val::Bit->new( 'bit' => 0, ) ], )->emit_parrot() ) }
+        else                             { }
     };
     do {
-        if ( ( $code eq 'prefix:<$>' ) ) {
-            return ( ( '  # TODO - prefix:<$> is no-op' . Main::newline() ) );
-        }
-        else { }
+        if ( ( $code eq 'prefix:<$>' ) ) { return ( ( '  # TODO - prefix:<$> is no-op' . Main::newline() ) ) }
+        else                             { }
     };
     do {
-        if ( ( $code eq 'prefix:<@>' ) ) {
-            return ( ( '  # TODO - prefix:<@> is no-op' . Main::newline() ) );
-        }
-        else { }
+        if ( ( $code eq 'prefix:<@>' ) ) { return ( ( '  # TODO - prefix:<@> is no-op' . Main::newline() ) ) }
+        else                             { }
     };
     do {
-        if ( ( $code eq 'prefix:<%>' ) ) {
-            return ( ( '  # TODO - prefix:<%> is no-op' . Main::newline() ) );
-        }
-        else { }
+        if ( ( $code eq 'prefix:<%>' ) ) { return ( ( '  # TODO - prefix:<%> is no-op' . Main::newline() ) ) }
+        else                             { }
     };
     do {
         if ( ( $code eq 'infix:<~>' ) ) {
             return (
-                (
-                    $self->{arguments}->[0]->emit_parrot()
-                      . (
+                (   $self->{arguments}->[0]->emit_parrot()
+                        . (
                         '  $S0 = $P0'
-                          . (
+                            . (
                             Main::newline()
-                              . (
+                                . (
                                 '  save $S0'
-                                  . (
+                                    . (
                                     Main::newline()
-                                      . (
+                                        . (
                                         $self->{arguments}->[1]->emit_parrot()
-                                          . (
-                                            '  $S1 = $P0'
-                                              . (
-                                                Main::newline()
-                                                  . (
-                                                    '  restore $S0'
-                                                      . (
-                                                        Main::newline()
-                                                          . (
-'  $S0 = concat $S0, $S1'
-                                                              . (
-                                                                Main::newline()
-                                                                  . (
-'  $P0 = $S0'
-                                                                      . Main::newline(
-                                                                      )
-                                                                  )
-                                                              )
-                                                          )
-                                                      )
-                                                  )
-                                              )
-                                          )
-                                      )
-                                  )
-                              )
-                          )
-                      )
+                                            . ( '  $S1 = $P0' . ( Main::newline() . ( '  restore $S0' . ( Main::newline() . ( '  $S0 = concat $S0, $S1' . ( Main::newline() . ( '  $P0 = $S0' . Main::newline() ) ) ) ) ) ) )
+                                        )
+                                    )
+                                )
+                            )
+                        )
                 )
             );
         }
@@ -1235,33 +638,11 @@ sub emit_parrot {
     do {
         if ( ( $code eq 'infix:<+>' ) ) {
             return (
-                (
-                    '  save $P1'
-                      . (
+                (   '  save $P1'
+                        . (
                         Main::newline()
-                          . (
-                            $self->{arguments}->[0]->emit_parrot()
-                              . (
-                                '  $P1 = $P0'
-                                  . (
-                                    Main::newline()
-                                      . (
-                                        $self->{arguments}->[1]->emit_parrot()
-                                          . (
-                                            '  $P0 = $P1 + $P0'
-                                              . (
-                                                Main::newline()
-                                                  . (
-                                                    '  restore $P1'
-                                                      . Main::newline()
-                                                  )
-                                              )
-                                          )
-                                      )
-                                  )
-                              )
-                          )
-                      )
+                            . ( $self->{arguments}->[0]->emit_parrot() . ( '  $P1 = $P0' . ( Main::newline() . ( $self->{arguments}->[1]->emit_parrot() . ( '  $P0 = $P1 + $P0' . ( Main::newline() . ( '  restore $P1' . Main::newline() ) ) ) ) ) ) )
+                        )
                 )
             );
         }
@@ -1270,166 +651,81 @@ sub emit_parrot {
     do {
         if ( ( $code eq 'infix:<->' ) ) {
             return (
-                (
-                    '  save $P1'
-                      . (
+                (   '  save $P1'
+                        . (
                         Main::newline()
-                          . (
-                            $self->{arguments}->[0]->emit_parrot()
-                              . (
-                                '  $P1 = $P0'
-                                  . (
-                                    Main::newline()
-                                      . (
-                                        $self->{arguments}->[1]->emit_parrot()
-                                          . (
-                                            '  $P0 = $P1 - $P0'
-                                              . (
-                                                Main::newline()
-                                                  . (
-                                                    '  restore $P1'
-                                                      . Main::newline()
-                                                  )
-                                              )
-                                          )
-                                      )
-                                  )
-                              )
-                          )
-                      )
+                            . ( $self->{arguments}->[0]->emit_parrot() . ( '  $P1 = $P0' . ( Main::newline() . ( $self->{arguments}->[1]->emit_parrot() . ( '  $P0 = $P1 - $P0' . ( Main::newline() . ( '  restore $P1' . Main::newline() ) ) ) ) ) ) )
+                        )
                 )
             );
         }
         else { }
     };
     do {
-        if ( ( $code eq 'infix:<&&>' ) ) {
-            return (
-                If->new(
-                    'cond'      => $self->{arguments}->[0],
-                    'body'      => [ $self->{arguments}->[1] ],
-                    'otherwise' => [],
-                  )->emit_parrot()
-            );
-        }
-        else { }
+        if ( ( $code eq 'infix:<&&>' ) ) { return ( If->new( 'cond' => $self->{arguments}->[0], 'body' => [ $self->{arguments}->[1] ], 'otherwise' => [], )->emit_parrot() ) }
+        else                             { }
     };
     do {
-        if ( ( $code eq 'infix:<||>' ) ) {
-            return (
-                If->new(
-                    'cond'      => $self->{arguments}->[0],
-                    'body'      => [],
-                    'otherwise' => [ $self->{arguments}->[1] ],
-                  )->emit_parrot()
-            );
-        }
-        else { }
+        if ( ( $code eq 'infix:<||>' ) ) { return ( If->new( 'cond' => $self->{arguments}->[0], 'body' => [], 'otherwise' => [ $self->{arguments}->[1] ], )->emit_parrot() ) }
+        else                             { }
     };
     do {
         if ( ( $code eq 'infix:<eq>' ) ) {
             $label = ( $label + 1 );
             my $id = $label;
             return (
-                (
-                    $self->{arguments}->[0]->emit_parrot()
-                      . (
+                (   $self->{arguments}->[0]->emit_parrot()
+                        . (
                         '  $S0 = $P0'
-                          . (
+                            . (
                             Main::newline()
-                              . (
+                                . (
                                 '  save $S0'
-                                  . (
+                                    . (
                                     Main::newline()
-                                      . (
+                                        . (
                                         $self->{arguments}->[1]->emit_parrot()
-                                          . (
+                                            . (
                                             '  $S1 = $P0'
-                                              . (
+                                                . (
                                                 Main::newline()
-                                                  . (
+                                                    . (
                                                     '  restore $S0'
-                                                      . (
+                                                        . (
                                                         Main::newline()
-                                                          . (
-'  if $S0 == $S1 goto eq'
-                                                              . (
+                                                            . (
+                                                            '  if $S0 == $S1 goto eq'
+                                                                . (
                                                                 $id
-                                                                  . (
-                                                                    Main::newline(
-                                                                      )
-                                                                      . (
-'  $P0 = 0'
-                                                                          . (
-                                                                            Main::newline(
-                                                                              )
-                                                                              . (
-'  goto eq_end'
-                                                                                  .
-                                                                                  (
+                                                                    . (
+                                                                    Main::newline()
+                                                                        . (
+                                                                        '  $P0 = 0'
+                                                                            . (
+                                                                            Main::newline()
+                                                                                . (
+                                                                                '  goto eq_end'
+                                                                                    . (
                                                                                     $id
-                                                                                      .
-                                                                                      (
-                                                                                        Main::newline(
-                                                                                          )
-                                                                                          .
-                                                                                          (
-'eq'
-                                                                                              .
-                                                                                              (
-                                                                                                $id
-                                                                                                  .
-                                                                                                  (
-':'
-                                                                                                      .
-                                                                                                      (
-                                                                                                        Main::newline(
-                                                                                                          )
-                                                                                                          .
-                                                                                                          (
-'  $P0 = 1'
-                                                                                                              .
-                                                                                                              (
-                                                                                                                Main::newline(
-                                                                                                                  )
-                                                                                                                  .
-                                                                                                                  (
-'eq_end'
-                                                                                                                      .
-                                                                                                                      (
-                                                                                                                        $id
-                                                                                                                          .
-                                                                                                                          (
-':'
-                                                                                                                              .
-                                                                                                                              Main::newline(
-                                                                                                                              )
-                                                                                                                          )
-                                                                                                                      )
-                                                                                                                  )
-                                                                                                              )
-                                                                                                          )
-                                                                                                      )
-                                                                                                  )
-                                                                                              )
-                                                                                          )
-                                                                                      )
-                                                                                  )
-                                                                              )
-                                                                          )
-                                                                      )
-                                                                  )
-                                                              )
-                                                          )
-                                                      )
-                                                  )
-                                              )
-                                          )
-                                      )
-                                  )
-                              )
-                          )
-                      )
+                                                                                        . (
+                                                                                        Main::newline() . ( 'eq' . ( $id . ( ':' . ( Main::newline() . ( '  $P0 = 1' . ( Main::newline() . ( 'eq_end' . ( $id . ( ':' . Main::newline() ) ) ) ) ) ) ) ) )
+                                                                                        )
+                                                                                    )
+                                                                                )
+                                                                            )
+                                                                        )
+                                                                    )
+                                                                )
+                                                            )
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        )
                 )
             );
         }
@@ -1440,105 +736,58 @@ sub emit_parrot {
             $label = ( $label + 1 );
             my $id = $label;
             return (
-                (
-                    $self->{arguments}->[0]->emit_parrot()
-                      . (
+                (   $self->{arguments}->[0]->emit_parrot()
+                        . (
                         '  $S0 = $P0'
-                          . (
+                            . (
                             Main::newline()
-                              . (
+                                . (
                                 '  save $S0'
-                                  . (
+                                    . (
                                     Main::newline()
-                                      . (
+                                        . (
                                         $self->{arguments}->[1]->emit_parrot()
-                                          . (
+                                            . (
                                             '  $S1 = $P0'
-                                              . (
+                                                . (
                                                 Main::newline()
-                                                  . (
+                                                    . (
                                                     '  restore $S0'
-                                                      . (
+                                                        . (
                                                         Main::newline()
-                                                          . (
-'  if $S0 == $S1 goto eq'
-                                                              . (
+                                                            . (
+                                                            '  if $S0 == $S1 goto eq'
+                                                                . (
                                                                 $id
-                                                                  . (
-                                                                    Main::newline(
-                                                                      )
-                                                                      . (
-'  $P0 = 1'
-                                                                          . (
-                                                                            Main::newline(
-                                                                              )
-                                                                              . (
-'  goto eq_end'
-                                                                                  .
-                                                                                  (
+                                                                    . (
+                                                                    Main::newline()
+                                                                        . (
+                                                                        '  $P0 = 1'
+                                                                            . (
+                                                                            Main::newline()
+                                                                                . (
+                                                                                '  goto eq_end'
+                                                                                    . (
                                                                                     $id
-                                                                                      .
-                                                                                      (
-                                                                                        Main::newline(
-                                                                                          )
-                                                                                          .
-                                                                                          (
-'eq'
-                                                                                              .
-                                                                                              (
-                                                                                                $id
-                                                                                                  .
-                                                                                                  (
-':'
-                                                                                                      .
-                                                                                                      (
-                                                                                                        Main::newline(
-                                                                                                          )
-                                                                                                          .
-                                                                                                          (
-'  $P0 = 0'
-                                                                                                              .
-                                                                                                              (
-                                                                                                                Main::newline(
-                                                                                                                  )
-                                                                                                                  .
-                                                                                                                  (
-'eq_end'
-                                                                                                                      .
-                                                                                                                      (
-                                                                                                                        $id
-                                                                                                                          .
-                                                                                                                          (
-':'
-                                                                                                                              .
-                                                                                                                              Main::newline(
-                                                                                                                              )
-                                                                                                                          )
-                                                                                                                      )
-                                                                                                                  )
-                                                                                                              )
-                                                                                                          )
-                                                                                                      )
-                                                                                                  )
-                                                                                              )
-                                                                                          )
-                                                                                      )
-                                                                                  )
-                                                                              )
-                                                                          )
-                                                                      )
-                                                                  )
-                                                              )
-                                                          )
-                                                      )
-                                                  )
-                                              )
-                                          )
-                                      )
-                                  )
-                              )
-                          )
-                      )
+                                                                                        . (
+                                                                                        Main::newline() . ( 'eq' . ( $id . ( ':' . ( Main::newline() . ( '  $P0 = 0' . ( Main::newline() . ( 'eq_end' . ( $id . ( ':' . Main::newline() ) ) ) ) ) ) ) ) )
+                                                                                        )
+                                                                                    )
+                                                                                )
+                                                                            )
+                                                                        )
+                                                                    )
+                                                                )
+                                                            )
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        )
                 )
             );
         }
@@ -1549,96 +798,55 @@ sub emit_parrot {
             $label = ( $label + 1 );
             my $id = $label;
             return (
-                (
-                    '  save $P1'
-                      . (
+                (   '  save $P1'
+                        . (
                         Main::newline()
-                          . (
+                            . (
                             $self->{arguments}->[0]->emit_parrot()
-                              . (
+                                . (
                                 '  $P1 = $P0'
-                                  . (
+                                    . (
                                     Main::newline()
-                                      . (
+                                        . (
                                         $self->{arguments}->[1]->emit_parrot()
-                                          . (
+                                            . (
                                             '  if $P0 == $P1 goto eq'
-                                              . (
+                                                . (
                                                 $id
-                                                  . (
+                                                    . (
                                                     Main::newline()
-                                                      . (
+                                                        . (
                                                         '  $P0 = 0'
-                                                          . (
+                                                            . (
                                                             Main::newline()
-                                                              . (
+                                                                . (
                                                                 '  goto eq_end'
-                                                                  . (
+                                                                    . (
                                                                     $id
-                                                                      . (
-                                                                        Main::newline(
-                                                                          )
-                                                                          . (
+                                                                        . (
+                                                                        Main::newline()
+                                                                            . (
                                                                             'eq'
-                                                                              . (
+                                                                                . (
                                                                                 $id
-                                                                                  .
-                                                                                  (
-':'
-                                                                                      .
-                                                                                      (
-                                                                                        Main::newline(
-                                                                                          )
-                                                                                          .
-                                                                                          (
-'  $P0 = 1'
-                                                                                              .
-                                                                                              (
-                                                                                                Main::newline(
-                                                                                                  )
-                                                                                                  .
-                                                                                                  (
-'eq_end'
-                                                                                                      .
-                                                                                                      (
-                                                                                                        $id
-                                                                                                          .
-                                                                                                          (
-':'
-                                                                                                              .
-                                                                                                              (
-                                                                                                                Main::newline(
-                                                                                                                  )
-                                                                                                                  .
-                                                                                                                  (
-'  restore $P1'
-                                                                                                                      .
-                                                                                                                      Main::newline(
-                                                                                                                      )
-                                                                                                                  )
-                                                                                                              )
-                                                                                                          )
-                                                                                                      )
-                                                                                                  )
-                                                                                              )
-                                                                                          )
-                                                                                      )
-                                                                                  )
-                                                                              )
-                                                                          )
-                                                                      )
-                                                                  )
-                                                              )
-                                                          )
-                                                      )
-                                                  )
-                                              )
-                                          )
-                                      )
-                                  )
-                              )
-                          )
-                      )
+                                                                                    . (
+                                                                                    ':' . ( Main::newline() . ( '  $P0 = 1' . ( Main::newline() . ( 'eq_end' . ( $id . ( ':' . ( Main::newline() . ( '  restore $P1' . Main::newline() ) ) ) ) ) ) ) )
+                                                                                    )
+                                                                                )
+                                                                            )
+                                                                        )
+                                                                    )
+                                                                )
+                                                            )
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        )
                 )
             );
         }
@@ -1649,205 +857,111 @@ sub emit_parrot {
             $label = ( $label + 1 );
             my $id = $label;
             return (
-                (
-                    '  save $P1'
-                      . (
+                (   '  save $P1'
+                        . (
                         Main::newline()
-                          . (
+                            . (
                             $self->{arguments}->[0]->emit_parrot()
-                              . (
+                                . (
                                 '  $P1 = $P0'
-                                  . (
+                                    . (
                                     Main::newline()
-                                      . (
+                                        . (
                                         $self->{arguments}->[1]->emit_parrot()
-                                          . (
+                                            . (
                                             '  if $P0 == $P1 goto eq'
-                                              . (
+                                                . (
                                                 $id
-                                                  . (
+                                                    . (
                                                     Main::newline()
-                                                      . (
+                                                        . (
                                                         '  $P0 = 1'
-                                                          . (
+                                                            . (
                                                             Main::newline()
-                                                              . (
+                                                                . (
                                                                 '  goto eq_end'
-                                                                  . (
+                                                                    . (
                                                                     $id
-                                                                      . (
-                                                                        Main::newline(
-                                                                          )
-                                                                          . (
+                                                                        . (
+                                                                        Main::newline()
+                                                                            . (
                                                                             'eq'
-                                                                              . (
+                                                                                . (
                                                                                 $id
-                                                                                  .
-                                                                                  (
-':'
-                                                                                      .
-                                                                                      (
-                                                                                        Main::newline(
-                                                                                          )
-                                                                                          .
-                                                                                          (
-'  $P0 = 0'
-                                                                                              .
-                                                                                              (
-                                                                                                Main::newline(
-                                                                                                  )
-                                                                                                  .
-                                                                                                  (
-'eq_end'
-                                                                                                      .
-                                                                                                      (
-                                                                                                        $id
-                                                                                                          .
-                                                                                                          (
-':'
-                                                                                                              .
-                                                                                                              (
-                                                                                                                Main::newline(
-                                                                                                                  )
-                                                                                                                  .
-                                                                                                                  (
-'  restore $P1'
-                                                                                                                      .
-                                                                                                                      Main::newline(
-                                                                                                                      )
-                                                                                                                  )
-                                                                                                              )
-                                                                                                          )
-                                                                                                      )
-                                                                                                  )
-                                                                                              )
-                                                                                          )
-                                                                                      )
-                                                                                  )
-                                                                              )
-                                                                          )
-                                                                      )
-                                                                  )
-                                                              )
-                                                          )
-                                                      )
-                                                  )
-                                              )
-                                          )
-                                      )
-                                  )
-                              )
-                          )
-                      )
+                                                                                    . (
+                                                                                    ':' . ( Main::newline() . ( '  $P0 = 0' . ( Main::newline() . ( 'eq_end' . ( $id . ( ':' . ( Main::newline() . ( '  restore $P1' . Main::newline() ) ) ) ) ) ) ) )
+                                                                                    )
+                                                                                )
+                                                                            )
+                                                                        )
+                                                                    )
+                                                                )
+                                                            )
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        )
                 )
             );
         }
         else { }
     };
     do {
-        if ( ( $code eq 'ternary:<?? !!>' ) ) {
-            return (
-                If->new(
-                    'cond'      => $self->{arguments}->[0],
-                    'body'      => [ $self->{arguments}->[1] ],
-                    'otherwise' => [ $self->{arguments}->[2] ],
-                  )->emit_parrot()
-            );
-        }
-        else { }
+        if ( ( $code eq 'ternary:<?? !!>' ) ) { return ( If->new( 'cond' => $self->{arguments}->[0], 'body' => [ $self->{arguments}->[1] ], 'otherwise' => [ $self->{arguments}->[2] ], )->emit_parrot() ) }
+        else                                  { }
     };
     do {
-        if ( ( $code eq 'defined' ) ) {
-            return (
-                (
-                    $self->{arguments}->[0]->emit_parrot()
-                      . (
-                        '  $I0 = defined $P0'
-                          . (
-                            Main::newline()
-                              . ( '  $P0 = $I0' . Main::newline() )
-                          )
-                      )
-                )
-            );
-        }
-        else { }
+        if ( ( $code eq 'defined' ) ) { return ( ( $self->{arguments}->[0]->emit_parrot() . ( '  $I0 = defined $P0' . ( Main::newline() . ( '  $P0 = $I0' . Main::newline() ) ) ) ) ) }
+        else                          { }
     };
     do {
         if ( ( $code eq 'substr' ) ) {
             return (
-                (
-                    $self->{arguments}->[0]->emit_parrot()
-                      . (
+                (   $self->{arguments}->[0]->emit_parrot()
+                        . (
                         '  $S0 = $P0'
-                          . (
+                            . (
                             Main::newline()
-                              . (
+                                . (
                                 '  save $S0'
-                                  . (
+                                    . (
                                     Main::newline()
-                                      . (
+                                        . (
                                         $self->{arguments}->[1]->emit_parrot()
-                                          . (
+                                            . (
                                             '  $I0 = $P0'
-                                              . (
+                                                . (
                                                 Main::newline()
-                                                  . (
+                                                    . (
                                                     '  save $I0'
-                                                      . (
+                                                        . (
                                                         Main::newline()
-                                                          . (
-                                                            $self->{arguments}
-                                                              ->[2]
-                                                              ->emit_parrot()
-                                                              . (
+                                                            . (
+                                                            $self->{arguments}->[2]->emit_parrot()
+                                                                . (
                                                                 '  $I1 = $P0'
-                                                                  . (
-                                                                    Main::newline(
-                                                                      )
-                                                                      . (
-'  restore $I0'
-                                                                          . (
-                                                                            Main::newline(
-                                                                              )
-                                                                              . (
-'  restore $S0'
-                                                                                  .
-                                                                                  (
-                                                                                    Main::newline(
-                                                                                      )
-                                                                                      .
-                                                                                      (
-'  $S0 = substr $S0, $I0, $I1'
-                                                                                          .
-                                                                                          (
-                                                                                            Main::newline(
-                                                                                              )
-                                                                                              .
-                                                                                              (
-'  $P0 = $S0'
-                                                                                                  .
-                                                                                                  Main::newline(
-                                                                                                  )
-                                                                                              )
-                                                                                          )
-                                                                                      )
-                                                                                  )
-                                                                              )
-                                                                          )
-                                                                      )
-                                                                  )
-                                                              )
-                                                          )
-                                                      )
-                                                  )
-                                              )
-                                          )
-                                      )
-                                  )
-                              )
-                          )
-                      )
+                                                                    . (
+                                                                    Main::newline()
+                                                                        . (
+                                                                        '  restore $I0' . ( Main::newline() . ( '  restore $S0' . ( Main::newline() . ( '  $S0 = substr $S0, $I0, $I1' . ( Main::newline() . ( '  $P0 = $S0' . Main::newline() ) ) ) ) ) )
+                                                                        )
+                                                                    )
+                                                                )
+                                                            )
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        )
                 )
             );
         }
@@ -1858,40 +972,21 @@ sub emit_parrot {
     my $ii        = 10;
     my $arg;
     do {
-        for my $arg ( @{$List_args} ) {
-            $str = ( $str . ( '  save $P' . ( $ii . Main::newline() ) ) );
-            $ii = ( $ii + 1 );
-        }
+        for my $arg ( @{$List_args} ) { $str = ( $str . ( '  save $P' . ( $ii . Main::newline() ) ) ); $ii = ( $ii + 1 ) }
     };
     my $i = 10;
     do {
-        for my $arg ( @{$List_args} ) {
-            $str = (
-                $str
-                  . (
-                    $arg->emit_parrot()
-                      . ( '  $P' . ( $i . ( ' = $P0' . Main::newline() ) ) )
-                  )
-            );
-            $i = ( $i + 1 );
-        }
+        for my $arg ( @{$List_args} ) { $str = ( $str . ( $arg->emit_parrot() . ( '  $P' . ( $i . ( ' = $P0' . Main::newline() ) ) ) ) ); $i = ( $i + 1 ) }
     };
     $str = ( $str . ( '  $P0 = ' . ( $self->{code} . '(' ) ) );
     $i = 0;
     my $List_p;
     do {
-        for my $arg ( @{$List_args} ) {
-            $List_p->[$i] = ( '$P' . ( $i + 10 ) );
-            $i = ( $i + 1 );
-        }
+        for my $arg ( @{$List_args} ) { $List_p->[$i] = ( '$P' . ( $i + 10 ) ); $i = ( $i + 1 ) }
     };
-    $str =
-      ( $str . ( Main::join( $List_p, ', ' ) . ( ')' . Main::newline() ) ) );
+    $str = ( $str . ( Main::join( $List_p, ', ' ) . ( ')' . Main::newline() ) ) );
     do {
-        for my $arg ( @{$List_args} ) {
-            $ii = ( $ii - 1 );
-            $str = ( $str . ( '  restore $P' . ( $ii . Main::newline() ) ) );
-        }
+        for my $arg ( @{$List_args} ) { $ii = ( $ii - 1 ); $str = ( $str . ( '  restore $P' . ( $ii . Main::newline() ) ) ) }
     };
     return ($str);
 }
@@ -1904,18 +999,14 @@ sub emit_parrot {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( $self->{result}->emit_parrot()
-          . ( '  .return( $P0 )' . Main::newline() ) );
+    ( $self->{result}->emit_parrot() . ( '  .return( $P0 )' . Main::newline() ) );
 }
 
 package If;
 sub new { shift; bless {@_}, "If" }
-sub cond { @_ == 1 ? ( $_[0]->{cond} ) : ( $_[0]->{cond} = $_[1] ) }
-sub body { @_ == 1 ? ( $_[0]->{body} ) : ( $_[0]->{body} = $_[1] ) }
-
-sub otherwise {
-    @_ == 1 ? ( $_[0]->{otherwise} ) : ( $_[0]->{otherwise} = $_[1] );
-}
+sub cond      { @_ == 1 ? ( $_[0]->{cond} )      : ( $_[0]->{cond}      = $_[1] ) }
+sub body      { @_ == 1 ? ( $_[0]->{body} )      : ( $_[0]->{body}      = $_[1] ) }
+sub otherwise { @_ == 1 ? ( $_[0]->{otherwise} ) : ( $_[0]->{otherwise} = $_[1] ) }
 my $label = 100;
 
 sub emit_parrot {
@@ -1925,61 +1016,25 @@ sub emit_parrot {
     $label = ( $label + 1 );
     my $id = $label;
     return (
-        (
-            $self->{cond}->emit_parrot() . (
-                '  unless $P0 goto ifelse' . (
-                    $id . (
-                        Main::newline() . (
-                            Main::join(
-                                [
-                                    map { $_->emit_parrot() } @{ $self->{body} }
-                                ],
-                                ''
-                              )
-                              . (
-                                '  goto ifend' . (
-                                    $id . (
-                                        Main::newline() . (
-                                            'ifelse' . (
-                                                $id . (
-                                                    ':' . (
-                                                        Main::newline() . (
-                                                            Main::join(
-                                                                [
-                                                                    map {
-                                                                        $_
-                                                                          ->emit_parrot
-                                                                          ()
-                                                                      } @{
-                                                                        $self
-                                                                          ->{otherwise}
-                                                                      }
-                                                                ],
-                                                                ''
-                                                              )
-                                                              . (
-                                                                'ifend'
-                                                                  . (
-                                                                    $id
-                                                                      . (
-                                                                        ':'
-                                                                          . Main::newline(
-                                                                          )
-                                                                      )
-                                                                  )
-                                                              )
-                                                        )
-                                                    )
-                                                )
-                                            )
-                                        )
+        (   $self->{cond}->emit_parrot()
+                . (
+                '  unless $P0 goto ifelse'
+                    . (
+                    $id
+                        . (
+                        Main::newline()
+                            . (
+                            Main::join( [ map { $_->emit_parrot() } @{ $self->{body} } ], '' )
+                                . (
+                                '  goto ifend'
+                                    . (
+                                    $id . ( Main::newline() . ( 'ifelse' . ( $id . ( ':' . ( Main::newline() . ( Main::join( [ map { $_->emit_parrot() } @{ $self->{otherwise} } ], '' ) . ( 'ifend' . ( $id . ( ':' . Main::newline() ) ) ) ) ) ) ) ) )
                                     )
                                 )
-                              )
+                            )
                         )
                     )
                 )
-            )
         )
     );
 }
@@ -1996,50 +1051,16 @@ sub emit_parrot {
     do { [] };
     my $decl = $self->{decl};
     my $name = $self->{var}->name();
-    (
-        ( $decl eq 'has' )
-        ? (
-            '  addattribute self, '
-              . (
-                Main::quote() . ( $name . ( Main::quote() . Main::newline() ) )
-              )
-          )
-        : (
-            '  .local pmc '
-              . (
-                $self->{var}->full_name()
-                  . (
-                    ' '
-                      . (
-                        Main::newline()
-                          . (
-                            '  .lex \''
-                              . (
-                                $self->{var}->full_name()
-                                  . (
-                                    '\', '
-                                      . (
-                                        $self->{var}->full_name()
-                                          . ( ' ' . Main::newline() )
-                                      )
-                                  )
-                              )
-                          )
-                      )
-                  )
-              )
-        )
-    );
+    (     ( $decl eq 'has' )
+        ? ( '  addattribute self, ' . ( Main::quote() . ( $name . ( Main::quote() . Main::newline() ) ) ) )
+        : ( '  .local pmc ' . ( $self->{var}->full_name() . ( ' ' . ( Main::newline() . ( '  .lex \'' . ( $self->{var}->full_name() . ( '\', ' . ( $self->{var}->full_name() . ( ' ' . Main::newline() ) ) ) ) ) ) ) ) ) );
 }
 
 package Sig;
 sub new { shift; bless {@_}, "Sig" }
-sub invocant { @_ == 1 ? ( $_[0]->{invocant} ) : ( $_[0]->{invocant} = $_[1] ) }
-
-sub positional {
-    @_ == 1 ? ( $_[0]->{positional} ) : ( $_[0]->{positional} = $_[1] );
-}
-sub named { @_ == 1 ? ( $_[0]->{named} ) : ( $_[0]->{named} = $_[1] ) }
+sub invocant   { @_ == 1 ? ( $_[0]->{invocant} )   : ( $_[0]->{invocant}   = $_[1] ) }
+sub positional { @_ == 1 ? ( $_[0]->{positional} ) : ( $_[0]->{positional} = $_[1] ) }
+sub named      { @_ == 1 ? ( $_[0]->{named} )      : ( $_[0]->{named}      = $_[1] ) }
 
 sub emit_parrot {
     my $self   = shift;
@@ -2079,97 +1100,41 @@ sub emit_parrot {
     my $i        = 0;
     my $field;
     do {
-
-        for my $field ( @{$pos} ) {
-            $str = (
-                $str
-                  . (
-                    '  $P0 = params['
-                      . (
-                        $i
-                          . (
-                            ']'
-                              . (
-                                Main::newline()
-                                  . (
-                                    '  .lex \''
-                                      . (
-                                        $field->full_name()
-                                          . ( '\', $P0' . Main::newline() )
-                                      )
-                                  )
-                              )
-                          )
-                      )
-                  )
-            );
-            $i = ( $i + 1 );
-        }
+        for my $field ( @{$pos} ) { $str = ( $str . ( '  $P0 = params[' . ( $i . ( ']' . ( Main::newline() . ( '  .lex \'' . ( $field->full_name() . ( '\', $P0' . Main::newline() ) ) ) ) ) ) ) ); $i = ( $i + 1 ) }
     };
     return (
-        (
-            '.sub ' . (
-                Main::quote() . (
-                    $self->{name} . (
-                        Main::quote() . (
-                            ' :method :outer(' . (
-                                Main::quote() . (
-                                    '_class_vars_' . (
-                                        Main::quote() . (
-                                            ')' . (
-                                                Main::newline() . (
-'  .param pmc params  :slurpy'
-                                                      . (
-                                                        Main::newline() . (
-                                                            '  .lex \'' . (
-                                                                $invocant
-                                                                  ->full_name(
-                                                                  )
-                                                                  . (
-                                                                    '\', self'
-                                                                      . (
-                                                                        Main::newline(
-                                                                          )
-                                                                          . (
-                                                                            $str
-                                                                              . (
-                                                                                Main::join(
-                                                                                    [
-                                                                                        map
-                                                                                        {
-                                                                                            $_
-                                                                                              ->emit_parrot
-                                                                                              (
-                                                                                              )
-                                                                                          }
-                                                                                          @{
-                                                                                            $self
-                                                                                              ->
-                                                                                              {block}
-                                                                                          }
-                                                                                    ]
-                                                                                    ,
-''
-                                                                                  )
-                                                                                  .
-                                                                                  (
-'.end'
-                                                                                      .
-                                                                                      (
-                                                                                        Main::newline(
-                                                                                          )
-                                                                                          .
-                                                                                          Main::newline(
-                                                                                          )
-                                                                                      )
-                                                                                  )
-                                                                              )
-                                                                          )
-                                                                      )
-                                                                  )
+        (   '.sub '
+                . (
+                Main::quote()
+                    . (
+                    $self->{name}
+                        . (
+                        Main::quote()
+                            . (
+                            ' :method :outer('
+                                . (
+                                Main::quote()
+                                    . (
+                                    '_class_vars_'
+                                        . (
+                                        Main::quote()
+                                            . (
+                                            ')'
+                                                . (
+                                                Main::newline()
+                                                    . (
+                                                    '  .param pmc params  :slurpy'
+                                                        . (
+                                                        Main::newline()
+                                                            . (
+                                                            '  .lex \''
+                                                                . (
+                                                                $invocant->full_name()
+                                                                    . ( '\', self' . ( Main::newline() . ( $str . ( Main::join( [ map { $_->emit_parrot() } @{ $self->{block} } ], '' ) . ( '.end' . ( Main::newline() . Main::newline() ) ) ) ) ) )
+                                                                )
                                                             )
                                                         )
-                                                      )
+                                                    )
                                                 )
                                             )
                                         )
@@ -2179,7 +1144,6 @@ sub emit_parrot {
                         )
                     )
                 )
-            )
         )
     );
 }
@@ -2201,74 +1165,29 @@ sub emit_parrot {
     my $i        = 0;
     my $field;
     do {
-
-        for my $field ( @{$pos} ) {
-            $str = (
-                $str
-                  . (
-                    '  $P0 = params['
-                      . (
-                        $i
-                          . (
-                            ']'
-                              . (
-                                Main::newline()
-                                  . (
-                                    '  .lex \''
-                                      . (
-                                        $field->full_name()
-                                          . ( '\', $P0' . Main::newline() )
-                                      )
-                                  )
-                              )
-                          )
-                      )
-                  )
-            );
-            $i = ( $i + 1 );
-        }
+        for my $field ( @{$pos} ) { $str = ( $str . ( '  $P0 = params[' . ( $i . ( ']' . ( Main::newline() . ( '  .lex \'' . ( $field->full_name() . ( '\', $P0' . Main::newline() ) ) ) ) ) ) ) ); $i = ( $i + 1 ) }
     };
     return (
-        (
-            '.sub ' . (
-                Main::quote() . (
-                    $self->{name} . (
-                        Main::quote() . (
-                            ' :outer(' . (
-                                Main::quote() . (
-                                    '_class_vars_' . (
-                                        Main::quote() . (
-                                            ')' . (
-                                                Main::newline() . (
-'  .param pmc params  :slurpy'
-                                                      . (
-                                                        Main::newline() . (
-                                                            $str . (
-                                                                Main::join(
-                                                                    [
-                                                                        map {
-                                                                            $_
-                                                                              ->emit_parrot
-                                                                              ()
-                                                                          } @{
-                                                                            $self
-                                                                              ->{block}
-                                                                          }
-                                                                    ],
-                                                                    ''
-                                                                  )
-                                                                  . (
-                                                                    '.end'
-                                                                      . (
-                                                                        Main::newline(
-                                                                          )
-                                                                          . Main::newline(
-                                                                          )
-                                                                      )
-                                                                  )
-                                                            )
-                                                        )
-                                                      )
+        (   '.sub '
+                . (
+                Main::quote()
+                    . (
+                    $self->{name}
+                        . (
+                        Main::quote()
+                            . (
+                            ' :outer('
+                                . (
+                                Main::quote()
+                                    . (
+                                    '_class_vars_'
+                                        . (
+                                        Main::quote()
+                                            . (
+                                            ')'
+                                                . (
+                                                Main::newline()
+                                                    . ( '  .param pmc params  :slurpy' . ( Main::newline() . ( $str . ( Main::join( [ map { $_->emit_parrot() } @{ $self->{block} } ], '' ) . ( '.end' . ( Main::newline() . Main::newline() ) ) ) ) ) )
                                                 )
                                             )
                                         )
@@ -2278,7 +1197,6 @@ sub emit_parrot {
                         )
                     )
                 )
-            )
         )
     );
 }
@@ -2302,13 +1220,7 @@ sub emit_parrot {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    (
-        '  .include '
-          . (
-            Main::quote()
-              . ( $self->{mod} . ( Main::quote() . Main::newline() ) )
-          )
-    );
+    ( '  .include ' . ( Main::quote() . ( $self->{mod} . ( Main::quote() . Main::newline() ) ) ) );
 }
 
 1;

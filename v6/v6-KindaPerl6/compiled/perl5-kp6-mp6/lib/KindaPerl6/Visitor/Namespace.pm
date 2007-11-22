@@ -12,11 +12,7 @@ sub visit {
     my $List__ = \@_;
     my $node;
     my $node_name;
-    do {
-        $node      = $List__->[0];
-        $node_name = $List__->[1];
-        [ $node, $node_name ];
-    };
+    do { $node = $List__->[0]; $node_name = $List__->[1]; [ $node, $node_name ] };
     do {
         if ( ( $node_name eq 'Var' ) ) {
             do {
@@ -24,34 +20,19 @@ sub visit {
                     return (
                         Call->new(
                             'invocant' => Call->new(
-                                'invocant' => Var->new(
-                                    'namespace' => ['GLOBAL'],
-                                    'name'      => 'KP6',
-                                    'twigil'    => '',
-                                    'sigil'     => '%',
-                                ),
-                                'arguments' => [
-                                    Val::Buf->new(
-                                        'buf' => Main::join(
-                                            $node->namespace(), '::'
-                                        ),
-                                    )
-                                ],
-                                'method' => 'LOOKUP',
-                                'hyper'  => '',
+                                'invocant'  => Var->new( 'namespace'  => ['GLOBAL'],                     'name' => 'KP6', 'twigil' => '', 'sigil' => '%', ),
+                                'arguments' => [ Val::Buf->new( 'buf' => Main::join( $node->namespace(), '::' ), ) ],
+                                'method'    => 'LOOKUP',
+                                'hyper'     => '',
                             ),
-                            'arguments' => [
-                                Val::Buf->new(
-                                    'buf' => ( $node->sigil() . $node->name() ),
-                                )
-                            ],
-                            'method' => 'LOOKUP',
-                            'hyper'  => '',
+                            'arguments' => [ Val::Buf->new( 'buf' => ( $node->sigil() . $node->name() ), ) ],
+                            'method'    => 'LOOKUP',
+                            'hyper'     => '',
                         )
                     );
                 }
                 else { }
-              }
+                }
         }
         else { }
     };

@@ -24,6 +24,16 @@ mp6.pl --noperltidy perl6-code.pl > perl5-code.pl
 
 Do not try to emit pretty code.
 
+=item --perltidyrc=[file]
+
+use [file] for the perltidyrc file.  NOTE: this code will default to
+$ENV{ PERLTIDY } if available, and if not, it will default then to
+util/perltidyrc.
+
+=item -o or --output=[file]
+
+use [file] to write to the output.  If the file exists, it will be overwritten
+
 =back
 
 =cut
@@ -32,12 +42,28 @@ Do not try to emit pretty code.
 # Get command line options
 #
 
-my %opt = ( perltidy => 1 );
+my %opt = ( perltidy => 1, perltidyrc => '', output => '' );
 
 Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through require_order)], )->getoptions(
     # Prettify the code
     'perltidy!' => \$opt{perltidy},
+
+    # use which file?
+    'perltidyrc=s' => \$opt{perltidyrc},
+
+    # output
+    'o|output=s' => \$opt{output},
 );
+
+# Perl::Tidy's documentation is being updated to note that it has a ENV option
+if ( $opt{ perltidy} && ! $opt{perltidyrc} ) {
+    if ( $ENV{ PERLTIDY } ) { # I recommend you use YOUR full path
+        $opt{perltidyrc} = $ENV{ PERLTIDY };
+    } else {
+        $opt{perltidyrc} = 'util/perltidyrc';
+    }
+    die "No perltidyrc file is available for use" unless -e $opt{perltidyrc};
+}
 
 # We're done getting our parameters
 
@@ -97,21 +123,34 @@ $code .= "1;\n";
 # 276.
 # WARNING - WARNING - WARNING - WARNING - WARNING - WARNING - WARNING
 
-eval { require Perl::Tidy };    # do we have Perl::Tidy?
-$opt{perltidy} = 0 if $@;
-
-if ( $opt{perltidy} ) {
-    # destination will be STDOUT by default
-    my $dest;
-    Perl::Tidy::perltidy(
-        source      => \$code,
-        destination => $dest,    # destination is STDOUT -st in util/perltidyrc
-                                 # required to stop Perl::Tidy using the real @ARGV for some
-                                 # unknown (and wrong) reason
-        argv        => [],
-    );
+eval { require Perl::Tidy };
+if ( $@ ) {
+    $opt{perltidy} = 0;
 } else {
-    print $code;
+    $^W = 0; # perltidy globally turns on warnings, do NOT turn this on
+             # unless you want to see a lot of complaints.
+}
+
+{
+    my $output;
+    if ( $opt{ output } ) {
+    	$output = IO::File->new( $opt{ output }, 'w');
+    } else {
+     	$output = IO::Handle->new();
+        $output->fdopen(fileno(STDOUT),'w');
+    }
+
+    if ( $opt{perltidy} ) {
+        Perl::Tidy::perltidy(
+            source => \$code,
+            destination => $output,
+            perltidyrc => $opt{perltidyrc},
+            argv => '',
+         );
+    } else {
+    	$output->print( $code );
+    	$output->close();
+    }
 }
 
 #

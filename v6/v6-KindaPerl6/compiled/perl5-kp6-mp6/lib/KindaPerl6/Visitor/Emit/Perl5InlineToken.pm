@@ -24,30 +24,14 @@ sub emit_perl5_and_c {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    (
-        '{package '
-          . (
+    (   '{package '
+            . (
             $self->{name}
-              . (
-';use Inline C => Config,STRUCTS=>["match"];use Inline C => `cat "lib/KindaPerl6/Runtime/C/match.h"`.<<\'END\';'
-                  . (
-                    Main::newline()
-                      . (
-                        $self->emit_c()
-                          . (
-                            Main::newline()
-                              . (
-                                'END'
-                                  . (
-                                    Main::newline()
-                                      . ( '}' . $self->emit_perl5() )
-                                  )
-                              )
-                          )
-                      )
-                  )
-              )
-          )
+                . (
+                ';use Inline C => Config,STRUCTS=>["match"];use Inline C => `cat "lib/KindaPerl6/Runtime/C/match.h"`.<<\'END\';'
+                    . ( Main::newline() . ( $self->emit_c() . ( Main::newline() . ( 'END' . ( Main::newline() . ( '}' . $self->emit_perl5() ) ) ) ) ) )
+                )
+            )
     );
 }
 
@@ -58,29 +42,23 @@ sub emit_perl5 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    (
-        '::DISPATCH(::DISPATCH($::'
-          . (
+    (   '::DISPATCH(::DISPATCH($::'
+            . (
             $KindaPerl6::Visitor::Emit::Perl5::current_compunit
-              . (
+                . (
                 ',"HOW"),"add_method",::DISPATCH($::Str,"new",\''
-                  . (
+                    . (
                     $self->{name}
-                      . (
+                        . (
                         '\'),::DISPATCH($::Method,"new",sub {my $match = '
-                          . (
-                            Main::mangle_ident(
-                                (
-                                    $KindaPerl6::Visitor::Emit::Perl5::current_compunit
-                                      . ( '::' . $self->{name} )
-                                )
-                              )
-                              . '(GLOBAL::_str($_[1]),GLOBAL::_int($_[2]));::DISPATCH($::Match,"new",{match_str=>$_[1],bool=>::DISPATCH($::Bit,"new",$match->boolean),from=>::DISPATCH($::Int,"new",$match->from),to=>::DISPATCH($::Int,"new",$match->to)})}))'
-                          )
-                      )
-                  )
-              )
-          )
+                            . (
+                            Main::mangle_ident( ( $KindaPerl6::Visitor::Emit::Perl5::current_compunit . ( '::' . $self->{name} ) ) )
+                                . '(GLOBAL::_str($_[1]),GLOBAL::_int($_[2]));::DISPATCH($::Match,"new",{match_str=>$_[1],bool=>::DISPATCH($::Bit,"new",$match->boolean),from=>::DISPATCH($::Int,"new",$match->from),to=>::DISPATCH($::Int,"new",$match->to)})}))'
+                            )
+                        )
+                    )
+                )
+            )
     );
 }
 

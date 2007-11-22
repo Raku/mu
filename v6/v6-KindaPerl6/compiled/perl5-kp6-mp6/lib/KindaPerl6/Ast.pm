@@ -6,18 +6,12 @@ use MiniPerl6::Perl5::Match;
 
 package CompUnit;
 sub new { shift; bless {@_}, "CompUnit" }
-
-sub unit_type {
-    @_ == 1 ? ( $_[0]->{unit_type} ) : ( $_[0]->{unit_type} = $_[1] );
-}
-sub name   { @_ == 1 ? ( $_[0]->{name} )   : ( $_[0]->{name}   = $_[1] ) }
-sub traits { @_ == 1 ? ( $_[0]->{traits} ) : ( $_[0]->{traits} = $_[1] ) }
-
-sub attributes {
-    @_ == 1 ? ( $_[0]->{attributes} ) : ( $_[0]->{attributes} = $_[1] );
-}
-sub methods { @_ == 1 ? ( $_[0]->{methods} ) : ( $_[0]->{methods} = $_[1] ) }
-sub body    { @_ == 1 ? ( $_[0]->{body} )    : ( $_[0]->{body}    = $_[1] ) }
+sub unit_type  { @_ == 1 ? ( $_[0]->{unit_type} )  : ( $_[0]->{unit_type}  = $_[1] ) }
+sub name       { @_ == 1 ? ( $_[0]->{name} )       : ( $_[0]->{name}       = $_[1] ) }
+sub traits     { @_ == 1 ? ( $_[0]->{traits} )     : ( $_[0]->{traits}     = $_[1] ) }
+sub attributes { @_ == 1 ? ( $_[0]->{attributes} ) : ( $_[0]->{attributes} = $_[1] ) }
+sub methods    { @_ == 1 ? ( $_[0]->{methods} )    : ( $_[0]->{methods}    = $_[1] ) }
+sub body       { @_ == 1 ? ( $_[0]->{body} )       : ( $_[0]->{body}       = $_[1] ) }
 
 sub emit {
     my $self   = shift;
@@ -32,14 +26,7 @@ sub attribs {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    {
-        'unit_type'  => $self->{unit_type},
-        'name'       => $self->{name},
-        'traits'     => $self->{traits},
-        'attributes' => $self->{attributes},
-        'methods'    => $self->{methods},
-        'body'       => $self->{body},
-    };
+    { 'unit_type' => $self->{unit_type}, 'name' => $self->{name}, 'traits' => $self->{traits}, 'attributes' => $self->{attributes}, 'methods' => $self->{methods}, 'body' => $self->{body}, };
 }
 
 package Val::Int;
@@ -272,33 +259,16 @@ sub attribs {
 
 package Lit::SigArgument;
 sub new { shift; bless {@_}, "Lit::SigArgument" }
-sub key   { @_ == 1 ? ( $_[0]->{key} )   : ( $_[0]->{key}   = $_[1] ) }
-sub value { @_ == 1 ? ( $_[0]->{value} ) : ( $_[0]->{value} = $_[1] ) }
-sub type  { @_ == 1 ? ( $_[0]->{type} )  : ( $_[0]->{type}  = $_[1] ) }
-
-sub has_default {
-    @_ == 1 ? ( $_[0]->{has_default} ) : ( $_[0]->{has_default} = $_[1] );
-}
-
-sub is_named_only {
-    @_ == 1 ? ( $_[0]->{is_named_only} ) : ( $_[0]->{is_named_only} = $_[1] );
-}
-
-sub is_optional {
-    @_ == 1 ? ( $_[0]->{is_optional} ) : ( $_[0]->{is_optional} = $_[1] );
-}
-
-sub is_slurpy {
-    @_ == 1 ? ( $_[0]->{is_slurpy} ) : ( $_[0]->{is_slurpy} = $_[1] );
-}
-
-sub is_multidimensional {
-    @_ == 1
-      ? ( $_[0]->{is_multidimensional} )
-      : ( $_[0]->{is_multidimensional} = $_[1] );
-}
-sub is_rw   { @_ == 1 ? ( $_[0]->{is_rw} )   : ( $_[0]->{is_rw}   = $_[1] ) }
-sub is_copy { @_ == 1 ? ( $_[0]->{is_copy} ) : ( $_[0]->{is_copy} = $_[1] ) }
+sub key                 { @_ == 1 ? ( $_[0]->{key} )                 : ( $_[0]->{key}                 = $_[1] ) }
+sub value               { @_ == 1 ? ( $_[0]->{value} )               : ( $_[0]->{value}               = $_[1] ) }
+sub type                { @_ == 1 ? ( $_[0]->{type} )                : ( $_[0]->{type}                = $_[1] ) }
+sub has_default         { @_ == 1 ? ( $_[0]->{has_default} )         : ( $_[0]->{has_default}         = $_[1] ) }
+sub is_named_only       { @_ == 1 ? ( $_[0]->{is_named_only} )       : ( $_[0]->{is_named_only}       = $_[1] ) }
+sub is_optional         { @_ == 1 ? ( $_[0]->{is_optional} )         : ( $_[0]->{is_optional}         = $_[1] ) }
+sub is_slurpy           { @_ == 1 ? ( $_[0]->{is_slurpy} )           : ( $_[0]->{is_slurpy}           = $_[1] ) }
+sub is_multidimensional { @_ == 1 ? ( $_[0]->{is_multidimensional} ) : ( $_[0]->{is_multidimensional} = $_[1] ) }
+sub is_rw               { @_ == 1 ? ( $_[0]->{is_rw} )               : ( $_[0]->{is_rw}               = $_[1] ) }
+sub is_copy             { @_ == 1 ? ( $_[0]->{is_copy} )             : ( $_[0]->{is_copy}             = $_[1] ) }
 
 sub emit {
     my $self   = shift;
@@ -313,8 +283,7 @@ sub attribs {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    {
-        'key'                 => $self->{key},
+    {   'key'                 => $self->{key},
         'value'               => $self->{value},
         'type'                => $self->{type},
         'has_default'         => $self->{has_default},
@@ -369,13 +338,7 @@ sub attribs {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    {
-        'pad'   => $self->{pad},
-        'state' => $self->{state},
-        'sig'   => $self->{sig},
-        'body'  => $self->{body},
-        'CATCH' => $self->{CATCH},
-    };
+    { 'pad' => $self->{pad}, 'state' => $self->{state}, 'sig' => $self->{sig}, 'body' => $self->{body}, 'CATCH' => $self->{CATCH}, };
 }
 
 package Lit::Object;
@@ -401,13 +364,10 @@ sub attribs {
 
 package Var;
 sub new { shift; bless {@_}, "Var" }
-sub sigil  { @_ == 1 ? ( $_[0]->{sigil} )  : ( $_[0]->{sigil}  = $_[1] ) }
-sub twigil { @_ == 1 ? ( $_[0]->{twigil} ) : ( $_[0]->{twigil} = $_[1] ) }
-sub name   { @_ == 1 ? ( $_[0]->{name} )   : ( $_[0]->{name}   = $_[1] ) }
-
-sub namespace {
-    @_ == 1 ? ( $_[0]->{namespace} ) : ( $_[0]->{namespace} = $_[1] );
-}
+sub sigil     { @_ == 1 ? ( $_[0]->{sigil} )     : ( $_[0]->{sigil}     = $_[1] ) }
+sub twigil    { @_ == 1 ? ( $_[0]->{twigil} )    : ( $_[0]->{twigil}    = $_[1] ) }
+sub name      { @_ == 1 ? ( $_[0]->{name} )      : ( $_[0]->{name}      = $_[1] ) }
+sub namespace { @_ == 1 ? ( $_[0]->{namespace} ) : ( $_[0]->{namespace} = $_[1] ) }
 
 sub emit {
     my $self   = shift;
@@ -422,24 +382,13 @@ sub attribs {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    {
-        'sigil'     => $self->{sigil},
-        'twigil'    => $self->{twigil},
-        'name'      => $self->{name},
-        'namespace' => $self->{namespace},
-    };
+    { 'sigil' => $self->{sigil}, 'twigil' => $self->{twigil}, 'name' => $self->{name}, 'namespace' => $self->{namespace}, };
 }
 
 package Bind;
 sub new { shift; bless {@_}, "Bind" }
-
-sub parameters {
-    @_ == 1 ? ( $_[0]->{parameters} ) : ( $_[0]->{parameters} = $_[1] );
-}
-
-sub arguments {
-    @_ == 1 ? ( $_[0]->{arguments} ) : ( $_[0]->{arguments} = $_[1] );
-}
+sub parameters { @_ == 1 ? ( $_[0]->{parameters} ) : ( $_[0]->{parameters} = $_[1] ) }
+sub arguments  { @_ == 1 ? ( $_[0]->{arguments} )  : ( $_[0]->{arguments}  = $_[1] ) }
 
 sub emit {
     my $self   = shift;
@@ -459,14 +408,8 @@ sub attribs {
 
 package Assign;
 sub new { shift; bless {@_}, "Assign" }
-
-sub parameters {
-    @_ == 1 ? ( $_[0]->{parameters} ) : ( $_[0]->{parameters} = $_[1] );
-}
-
-sub arguments {
-    @_ == 1 ? ( $_[0]->{arguments} ) : ( $_[0]->{arguments} = $_[1] );
-}
+sub parameters { @_ == 1 ? ( $_[0]->{parameters} ) : ( $_[0]->{parameters} = $_[1] ) }
+sub arguments  { @_ == 1 ? ( $_[0]->{arguments} )  : ( $_[0]->{arguments}  = $_[1] ) }
 
 sub emit {
     my $self   = shift;
@@ -506,13 +449,10 @@ sub attribs {
 
 package Call;
 sub new { shift; bless {@_}, "Call" }
-sub invocant { @_ == 1 ? ( $_[0]->{invocant} ) : ( $_[0]->{invocant} = $_[1] ) }
-sub hyper    { @_ == 1 ? ( $_[0]->{hyper} )    : ( $_[0]->{hyper}    = $_[1] ) }
-sub method   { @_ == 1 ? ( $_[0]->{method} )   : ( $_[0]->{method}   = $_[1] ) }
-
-sub arguments {
-    @_ == 1 ? ( $_[0]->{arguments} ) : ( $_[0]->{arguments} = $_[1] );
-}
+sub invocant  { @_ == 1 ? ( $_[0]->{invocant} )  : ( $_[0]->{invocant}  = $_[1] ) }
+sub hyper     { @_ == 1 ? ( $_[0]->{hyper} )     : ( $_[0]->{hyper}     = $_[1] ) }
+sub method    { @_ == 1 ? ( $_[0]->{method} )    : ( $_[0]->{method}    = $_[1] ) }
+sub arguments { @_ == 1 ? ( $_[0]->{arguments} ) : ( $_[0]->{arguments} = $_[1] ) }
 
 sub emit {
     my $self   = shift;
@@ -527,21 +467,13 @@ sub attribs {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    {
-        'invocant'  => $self->{invocant},
-        'hyper'     => $self->{hyper},
-        'method'    => $self->{method},
-        'arguments' => $self->{arguments},
-    };
+    { 'invocant' => $self->{invocant}, 'hyper' => $self->{hyper}, 'method' => $self->{method}, 'arguments' => $self->{arguments}, };
 }
 
 package Apply;
 sub new { shift; bless {@_}, "Apply" }
-sub code { @_ == 1 ? ( $_[0]->{code} ) : ( $_[0]->{code} = $_[1] ) }
-
-sub arguments {
-    @_ == 1 ? ( $_[0]->{arguments} ) : ( $_[0]->{arguments} = $_[1] );
-}
+sub code      { @_ == 1 ? ( $_[0]->{code} )      : ( $_[0]->{code}      = $_[1] ) }
+sub arguments { @_ == 1 ? ( $_[0]->{arguments} ) : ( $_[0]->{arguments} = $_[1] ) }
 
 sub emit {
     my $self   = shift;
@@ -581,12 +513,9 @@ sub attribs {
 
 package If;
 sub new { shift; bless {@_}, "If" }
-sub cond { @_ == 1 ? ( $_[0]->{cond} ) : ( $_[0]->{cond} = $_[1] ) }
-sub body { @_ == 1 ? ( $_[0]->{body} ) : ( $_[0]->{body} = $_[1] ) }
-
-sub otherwise {
-    @_ == 1 ? ( $_[0]->{otherwise} ) : ( $_[0]->{otherwise} = $_[1] );
-}
+sub cond      { @_ == 1 ? ( $_[0]->{cond} )      : ( $_[0]->{cond}      = $_[1] ) }
+sub body      { @_ == 1 ? ( $_[0]->{body} )      : ( $_[0]->{body}      = $_[1] ) }
+sub otherwise { @_ == 1 ? ( $_[0]->{otherwise} ) : ( $_[0]->{otherwise} = $_[1] ) }
 
 sub emit {
     my $self   = shift;
@@ -601,11 +530,7 @@ sub attribs {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    {
-        'cond'      => $self->{cond},
-        'body'      => $self->{body},
-        'otherwise' => $self->{otherwise},
-    };
+    { 'cond' => $self->{cond}, 'body' => $self->{body}, 'otherwise' => $self->{otherwise}, };
 }
 
 package While;
@@ -648,20 +573,13 @@ sub attribs {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    {
-        'decl' => $self->{decl},
-        'type' => $self->{type},
-        'var'  => $self->{var},
-    };
+    { 'decl' => $self->{decl}, 'type' => $self->{type}, 'var' => $self->{var}, };
 }
 
 package Sig;
 sub new { shift; bless {@_}, "Sig" }
-sub invocant { @_ == 1 ? ( $_[0]->{invocant} ) : ( $_[0]->{invocant} = $_[1] ) }
-
-sub positional {
-    @_ == 1 ? ( $_[0]->{positional} ) : ( $_[0]->{positional} = $_[1] );
-}
+sub invocant   { @_ == 1 ? ( $_[0]->{invocant} )   : ( $_[0]->{invocant}   = $_[1] ) }
+sub positional { @_ == 1 ? ( $_[0]->{positional} ) : ( $_[0]->{positional} = $_[1] ) }
 
 sub emit {
     my $self   = shift;
@@ -698,21 +616,14 @@ sub attribs {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    {
-        'invocant' => $self->{invocant},
-        'array'    => $self->{array},
-        'hash'     => $self->{hash},
-    };
+    { 'invocant' => $self->{invocant}, 'array' => $self->{array}, 'hash' => $self->{hash}, };
 }
 
 package Subset;
 sub new { shift; bless {@_}, "Subset" }
-sub name { @_ == 1 ? ( $_[0]->{name} ) : ( $_[0]->{name} = $_[1] ) }
-
-sub base_class {
-    @_ == 1 ? ( $_[0]->{base_class} ) : ( $_[0]->{base_class} = $_[1] );
-}
-sub block { @_ == 1 ? ( $_[0]->{block} ) : ( $_[0]->{block} = $_[1] ) }
+sub name       { @_ == 1 ? ( $_[0]->{name} )       : ( $_[0]->{name}       = $_[1] ) }
+sub base_class { @_ == 1 ? ( $_[0]->{base_class} ) : ( $_[0]->{base_class} = $_[1] ) }
+sub block      { @_ == 1 ? ( $_[0]->{block} )      : ( $_[0]->{block}      = $_[1] ) }
 
 sub emit {
     my $self   = shift;
@@ -727,11 +638,7 @@ sub attribs {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    {
-        'name'       => $self->{name},
-        'base_class' => $self->{base_class},
-        'block'      => $self->{block},
-    };
+    { 'name' => $self->{name}, 'base_class' => $self->{base_class}, 'block' => $self->{block}, };
 }
 
 package Method;
@@ -857,11 +764,7 @@ sub attribs {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    {
-        'name'  => $self->{name},
-        'regex' => $self->{regex},
-        'sym'   => $self->{sym},
-    };
+    { 'name' => $self->{name}, 'regex' => $self->{regex}, 'sym' => $self->{sym}, };
 }
 
 package Do;
@@ -966,14 +869,7 @@ sub attribs {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    {
-        'term'   => $self->{term},
-        'quant'  => $self->{quant},
-        'greedy' => $self->{greedy},
-        'ws1'    => $self->{ws1},
-        'ws2'    => $self->{ws2},
-        'ws3'    => $self->{ws3},
-    };
+    { 'term' => $self->{term}, 'quant' => $self->{quant}, 'greedy' => $self->{greedy}, 'ws1' => $self->{ws1}, 'ws2' => $self->{ws2}, 'ws3' => $self->{ws3}, };
 }
 
 package Rule::Or;
@@ -1018,17 +914,9 @@ sub attribs {
 
 package Rule::Subrule;
 sub new { shift; bless {@_}, "Rule::Subrule" }
-
-sub metasyntax {
-    @_ == 1 ? ( $_[0]->{metasyntax} ) : ( $_[0]->{metasyntax} = $_[1] );
-}
-sub ident { @_ == 1 ? ( $_[0]->{ident} ) : ( $_[0]->{ident} = $_[1] ) }
-
-sub capture_to_array {
-    @_ == 1
-      ? ( $_[0]->{capture_to_array} )
-      : ( $_[0]->{capture_to_array} = $_[1] );
-}
+sub metasyntax       { @_ == 1 ? ( $_[0]->{metasyntax} )       : ( $_[0]->{metasyntax}       = $_[1] ) }
+sub ident            { @_ == 1 ? ( $_[0]->{ident} )            : ( $_[0]->{ident}            = $_[1] ) }
+sub capture_to_array { @_ == 1 ? ( $_[0]->{capture_to_array} ) : ( $_[0]->{capture_to_array} = $_[1] ) }
 
 sub emit {
     my $self   = shift;
@@ -1043,19 +931,12 @@ sub attribs {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    {
-        'metasyntax'       => $self->{metasyntax},
-        'ident'            => $self->{ident},
-        'capture_to_array' => $self->{capture_to_array},
-    };
+    { 'metasyntax' => $self->{metasyntax}, 'ident' => $self->{ident}, 'capture_to_array' => $self->{capture_to_array}, };
 }
 
 package Rule::SubruleNoCapture;
 sub new { shift; bless {@_}, "Rule::SubruleNoCapture" }
-
-sub metasyntax {
-    @_ == 1 ? ( $_[0]->{metasyntax} ) : ( $_[0]->{metasyntax} = $_[1] );
-}
+sub metasyntax { @_ == 1 ? ( $_[0]->{metasyntax} ) : ( $_[0]->{metasyntax} = $_[1] ) }
 
 sub emit {
     my $self   = shift;
@@ -1063,8 +944,7 @@ sub emit {
     my $visitor;
     my $path;
     do { $visitor = $List__->[0]; $path = $List__->[1]; [ $visitor, $path ] };
-    KindaPerl6::Traverse::visit( $visitor, $self, 'Rule::SubruleNoCapture',
-        $path );
+    KindaPerl6::Traverse::visit( $visitor, $self, 'Rule::SubruleNoCapture', $path );
 }
 
 sub attribs {
@@ -1093,11 +973,7 @@ sub attribs {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    {
-        'sigil'  => $self->{sigil},
-        'twigil' => $self->{twigil},
-        'name'   => $self->{name},
-    };
+    { 'sigil' => $self->{sigil}, 'twigil' => $self->{twigil}, 'name' => $self->{name}, };
 }
 
 package Rule::Constant;
@@ -1189,8 +1065,7 @@ sub emit {
     my $visitor;
     my $path;
     do { $visitor = $List__->[0]; $path = $List__->[1]; [ $visitor, $path ] };
-    KindaPerl6::Traverse::visit( $visitor, $self, 'Rule::InterpolateVar',
-        $path );
+    KindaPerl6::Traverse::visit( $visitor, $self, 'Rule::InterpolateVar', $path );
 }
 
 sub attribs {
@@ -1202,14 +1077,9 @@ sub attribs {
 
 package Rule::NamedCapture;
 sub new { shift; bless {@_}, "Rule::NamedCapture" }
-sub rule  { @_ == 1 ? ( $_[0]->{rule} )  : ( $_[0]->{rule}  = $_[1] ) }
-sub ident { @_ == 1 ? ( $_[0]->{ident} ) : ( $_[0]->{ident} = $_[1] ) }
-
-sub capture_to_array {
-    @_ == 1
-      ? ( $_[0]->{capture_to_array} )
-      : ( $_[0]->{capture_to_array} = $_[1] );
-}
+sub rule             { @_ == 1 ? ( $_[0]->{rule} )             : ( $_[0]->{rule}             = $_[1] ) }
+sub ident            { @_ == 1 ? ( $_[0]->{ident} )            : ( $_[0]->{ident}            = $_[1] ) }
+sub capture_to_array { @_ == 1 ? ( $_[0]->{capture_to_array} ) : ( $_[0]->{capture_to_array} = $_[1] ) }
 
 sub emit {
     my $self   = shift;
@@ -1224,28 +1094,14 @@ sub attribs {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    {
-        'rule'             => $self->{rule},
-        'ident'            => $self->{ident},
-        'capture_to_array' => $self->{capture_to_array},
-    };
+    { 'rule' => $self->{rule}, 'ident' => $self->{ident}, 'capture_to_array' => $self->{capture_to_array}, };
 }
 
 package Rule::Before;
 sub new { shift; bless {@_}, "Rule::Before" }
-sub rule { @_ == 1 ? ( $_[0]->{rule} ) : ( $_[0]->{rule} = $_[1] ) }
-
-sub assertion_modifier {
-    @_ == 1
-      ? ( $_[0]->{assertion_modifier} )
-      : ( $_[0]->{assertion_modifier} = $_[1] );
-}
-
-sub capture_to_array {
-    @_ == 1
-      ? ( $_[0]->{capture_to_array} )
-      : ( $_[0]->{capture_to_array} = $_[1] );
-}
+sub rule               { @_ == 1 ? ( $_[0]->{rule} )               : ( $_[0]->{rule}               = $_[1] ) }
+sub assertion_modifier { @_ == 1 ? ( $_[0]->{assertion_modifier} ) : ( $_[0]->{assertion_modifier} = $_[1] ) }
+sub capture_to_array   { @_ == 1 ? ( $_[0]->{capture_to_array} )   : ( $_[0]->{capture_to_array}   = $_[1] ) }
 
 sub emit {
     my $self   = shift;
@@ -1260,28 +1116,14 @@ sub attribs {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    {
-        'rule'               => $self->{rule},
-        'capture_to_array'   => $self->{capture_to_array},
-        'assertion_modifier' => $self->{assertion_modifier},
-    };
+    { 'rule' => $self->{rule}, 'capture_to_array' => $self->{capture_to_array}, 'assertion_modifier' => $self->{assertion_modifier}, };
 }
 
 package Rule::After;
 sub new { shift; bless {@_}, "Rule::After" }
-sub rule { @_ == 1 ? ( $_[0]->{rule} ) : ( $_[0]->{rule} = $_[1] ) }
-
-sub assertion_modifier {
-    @_ == 1
-      ? ( $_[0]->{assertion_modifier} )
-      : ( $_[0]->{assertion_modifier} = $_[1] );
-}
-
-sub capture_to_array {
-    @_ == 1
-      ? ( $_[0]->{capture_to_array} )
-      : ( $_[0]->{capture_to_array} = $_[1] );
-}
+sub rule               { @_ == 1 ? ( $_[0]->{rule} )               : ( $_[0]->{rule}               = $_[1] ) }
+sub assertion_modifier { @_ == 1 ? ( $_[0]->{assertion_modifier} ) : ( $_[0]->{assertion_modifier} = $_[1] ) }
+sub capture_to_array   { @_ == 1 ? ( $_[0]->{capture_to_array} )   : ( $_[0]->{capture_to_array}   = $_[1] ) }
 
 sub emit {
     my $self   = shift;
@@ -1296,11 +1138,7 @@ sub attribs {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    {
-        'rule'               => $self->{rule},
-        'capture_to_array'   => $self->{capture_to_array},
-        'assertion_modifier' => $self->{assertion_modifier},
-    };
+    { 'rule' => $self->{rule}, 'capture_to_array' => $self->{capture_to_array}, 'assertion_modifier' => $self->{assertion_modifier}, };
 }
 
 package Rule::NegateCharClass;
@@ -1313,8 +1151,7 @@ sub emit {
     my $visitor;
     my $path;
     do { $visitor = $List__->[0]; $path = $List__->[1]; [ $visitor, $path ] };
-    KindaPerl6::Traverse::visit( $visitor, $self, 'Rule::NegateCharClass',
-        $path );
+    KindaPerl6::Traverse::visit( $visitor, $self, 'Rule::NegateCharClass', $path );
 }
 
 sub attribs {
@@ -1346,14 +1183,9 @@ sub attribs {
 
 package Rule::Capture;
 sub new { shift; bless {@_}, "Rule::Capture" }
-sub rule     { @_ == 1 ? ( $_[0]->{rule} )     : ( $_[0]->{rule}     = $_[1] ) }
-sub position { @_ == 1 ? ( $_[0]->{position} ) : ( $_[0]->{position} = $_[1] ) }
-
-sub capture_to_array {
-    @_ == 1
-      ? ( $_[0]->{capture_to_array} )
-      : ( $_[0]->{capture_to_array} = $_[1] );
-}
+sub rule             { @_ == 1 ? ( $_[0]->{rule} )             : ( $_[0]->{rule}             = $_[1] ) }
+sub position         { @_ == 1 ? ( $_[0]->{position} )         : ( $_[0]->{position}         = $_[1] ) }
+sub capture_to_array { @_ == 1 ? ( $_[0]->{capture_to_array} ) : ( $_[0]->{capture_to_array} = $_[1] ) }
 
 sub emit {
     my $self   = shift;
@@ -1368,11 +1200,7 @@ sub attribs {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    {
-        'rule'             => $self->{rule},
-        'position'         => $self->{position},
-        'capture_to_array' => $self->{capture_to_array},
-    };
+    { 'rule' => $self->{rule}, 'position' => $self->{position}, 'capture_to_array' => $self->{capture_to_array}, };
 }
 
 1;

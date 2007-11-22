@@ -12,20 +12,13 @@ sub visit {
     my $List__ = \@_;
     my $node;
     my $node_name;
-    do {
-        $node      = $List__->[0];
-        $node_name = $List__->[1];
-        [ $node, $node_name ];
-    };
+    do { $node = $List__->[0]; $node_name = $List__->[1]; [ $node, $node_name ] };
     do {
         if ( ( $node_name eq 'CompUnit' ) ) {
             do {
-                if ( $node->body() ) {
-                    $node->body()->emit($self);
-                    return ($node);
+                if ( $node->body() ) { $node->body()->emit($self); return ($node) }
+                else                 { }
                 }
-                else { }
-              }
         }
         else { }
     };
@@ -47,23 +40,9 @@ sub visit {
                 if ( COMPILER::current_pad()->declaration($node) ) { }
                 else {
                     do {
-                        if (
-                            (
-                                ( $node->name() eq '/' )
-                                || (
-                                    ( $node->name() eq '_' )
-                                    || (
-                                        ( $node->twigil() eq '.' )
-                                        || (   ( $node->sigil() eq '&' )
-                                            && ( $node->name() eq 'self' ) )
-                                    )
-                                )
-                            )
-                          )
-                        {
+                        if   ( ( ( $node->name() eq '/' ) || ( ( $node->name() eq '_' ) || ( ( $node->twigil() eq '.' ) || ( ( $node->sigil() eq '&' ) && ( $node->name() eq 'self' ) ) ) ) ) ) { }
+                        else                                                                                                                                                                    { $node->namespace( ['GLOBAL'] ) }
                         }
-                        else { $node->namespace( ['GLOBAL'] ) }
-                      }
                 }
             };
             return ($node);

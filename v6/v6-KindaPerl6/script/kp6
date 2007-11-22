@@ -55,6 +55,10 @@ execute use the compiler backend.
 
 parse the file or -e, but do not run it
 
+=item -o or --output=[file]
+
+Send output to this file
+
 =item --secure
 
 Tell the emitter L<KindaPerl6::Visitor::Emit::*> emitter being used to
@@ -63,6 +67,12 @@ disable any unsafe features (e.g. C<system>).
 =item --noperltidy
 
 Do not try to emit pretty code.
+
+=item --perltidyrc=[file]
+
+use [file] for the perltidyrc file.  NOTE: this code will default to
+$ENV{ PERLTIDY } if available, and if not, it will default then to
+util/perltidyrc
 
 =item --do
 
@@ -89,7 +99,7 @@ modify it under the same terms as Perl itself.
 # Get command line options
 #
 
-my %opt = ( perltidy => 1 );
+my %opt = ( perltidy => 1, output => '' );
 
 Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through require_order)], )->getoptions(
 
@@ -118,8 +128,8 @@ Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through r
     # emitter options
     'secure' => \my $secure,
 
-    # Produce output
-    'o=s' => \$opt{o},
+    # Send output to this file, usually parsed perl5 code
+    'output|o=s' => \$opt{ output },
 
 ) or help();
 
@@ -133,6 +143,26 @@ help( verbose => 1, exitval => 0 )
 # Display version if requested
 version( exitval => 0 )
     if $opt{version};
+
+# turn on or off perltidy if it is available
+eval { require Perl::Tidy };
+if ( $@ ) {
+    $opt{perltidy} = 0;
+} else {
+    $^W = 0; # perltidy globally turns on warnings, do NOT turn this on
+             # unless you want to see a lot of complaints.
+
+    if ( $opt{perltidy}  && ! $opt{perltidyrc} ) {
+        # Perl::Tidy's documentation is being updated to note that it has a ENV option
+        if ( $ENV{ PERLTIDY } ) { # I recommend you use YOUR full path
+            $opt{perltidyrc} = $ENV{ PERLTIDY };
+        } else {
+            $opt{perltidyrc} = 'util/perltidyrc';
+        }
+
+        die "No perltidyrc file is available for use" unless -e $opt{perltidyrc};
+    }
+}
 
 #
 # Get the required runtime files for the backend we're using
@@ -289,14 +319,12 @@ for (@COMPILER::CHECK) {
     no warnings 'uninitialized';
 
     # did the user want us to output the file?
-    if ( $opt{o} ) {
-        die "Output file $opt{o} already exists" if -e $opt{o};
-
-        # I would like to perl::tidy this file, but the -st is embeded into
-        # the util/perltidyrc file.
-        die "Could not open $opt{o} for writing: $!" unless open my $fh, '>', $opt{o};
-        print $fh $out;
-        close $fh;
+    my $output;
+    if ( $opt{ output } ) {
+    	$output = IO::File->new( $opt{ output }, 'w');
+    } else {
+     	$output = IO::Handle->new();
+        $output->fdopen(fileno(STDOUT),'w');
     }
 
     # Make kp6 -e 'say "foo"' and echo 'say "foo"' | kp6 run stuff
@@ -309,18 +337,34 @@ for (@COMPILER::CHECK) {
             die "'ast' backend does not support compilation";
         }
         elsif ( $opt{C} ) {
-            print_perl($out);
+            if ( $opt{perltidy} ) {
+                Perl::Tidy::perltidy(
+                    source => \$out,
+                    destination => $output,
+                    perltidyrc => $opt{ perltidyrc },
+                    argv => '',
+                 );
+            } else {
+                print STDOUT $out
+            }
         }
     }
     elsif ( grep { $_ eq 'perl5' } @opt{qw(C B)} ) {
         if ( $opt{B} ) {
-        perl5_B:
-
             # Execute!
             run_piped_command("$EXECUTABLE_NAME -I$lib - -- @ARGV");
         }
         elsif ( $opt{C} ) {
-            print_perl($out);
+            if ( $opt{perltidy} ) {
+                Perl::Tidy::perltidy(
+                    source => \$out,
+                    destination => $output,
+                    perltidyrc => $opt{ perltidyrc },
+                    argv => '',
+                 );
+            } else {
+                print STDOUT $out
+            }
         }
     }
     elsif ( grep { $_ eq 'perl5rx' } @opt{qw(C B)} ) {
@@ -328,7 +372,16 @@ for (@COMPILER::CHECK) {
             run_piped_command("$EXECUTABLE_NAME -I lib5regex -I$lib - -- @ARGV");
         }
         elsif ( $opt{C} ) {
-            print_perl($out);
+            if ( $opt{perltidy} ) {
+                Perl::Tidy::perltidy(
+                    source => \$out,
+                    destination => $output,
+                    perltidyrc => $opt{ perltidyrc },
+                    argv => '',
+                 );
+            } else {
+                print STDOUT $out
+            }
         }
     }
     elsif ( grep { $_ =~ /^cl/ } @opt{qw(C B)} ) {
@@ -431,34 +484,6 @@ sub report_error {
     return "syntax error at position $pos, line $lines column $column:" . ( $first_line ? "\n" : "" ) . $line . "\n" . $whitespace . "^ HERE\n";
 }
 
-# Print perl code or ast with perltidy, use perltidy if we have it;
-# disable with --noperltidy
-sub print_perl {
-    my ($input_filename) = @_;
-
-    if ( $opt{perltidy} ) {
-
-        # perltidy option is set.
-        eval { require Perl::Tidy };    # do we have Perl::Tidy
-
-        unless ($@) {                   # error?
-            my $dest;
-            Perl::Tidy::perltidy(
-                source      => \$out,
-                destination => $dest,    # destination is STDOUT -st in util/perltidyrc
-                                         # required to stop Perl::Tidy using the real @ARGV for some
-                                         # unknown (and wrong) reason
-                argv        => [],
-            );
-            return 1;                    # Return a true code.
-        }
-    }
-
-    print $out;
-
-    return 1;                            # user does not have perltidy, but this is not an error
-}
-
 sub load_source {
     my $source;
 
@@ -469,12 +494,12 @@ sub load_source {
         my ( $file, @args ) = @ARGV;
 
         if ( $file and not $opt{e} ) {
-            
+
             # XXX where does '-w' come from?  - fglock
             if ( $file eq '-w' ) {
                 $file = shift @args;
             }
-            
+
             $source = slurp($file);
         }
         elsif ( $opt{e} ) {

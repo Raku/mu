@@ -21,42 +21,14 @@ sub css {
     do { [] };
     my $nl = Main::newline();
     return (
-        (
-            '<style type="text/css">'
-              . (
+        (   '<style type="text/css">'
+                . (
                 $nl
-                  . (
+                    . (
                     '.keyword { text-weight: bold; color: red; }'
-                      . (
-                        $nl
-                          . (
-                            '.builtin { color: red; }'
-                              . (
-                                $nl
-                                  . (
-                                    '.buffer { color: blue; }'
-                                      . (
-                                        $nl
-                                          . (
-                                            '.variable { color: green; }'
-                                              . (
-                                                $nl
-                                                  . (
-'.comp_unit { color: #555500; }'
-                                                      . (
-                                                        $nl
-                                                          . ( '</style>' . $nl )
-                                                      )
-                                                  )
-                                              )
-                                          )
-                                      )
-                                  )
-                              )
-                          )
-                      )
-                  )
-              )
+                        . ( $nl . ( '.builtin { color: red; }' . ( $nl . ( '.buffer { color: blue; }' . ( $nl . ( '.variable { color: green; }' . ( $nl . ( '.comp_unit { color: #555500; }' . ( $nl . ( '</style>' . $nl ) ) ) ) ) ) ) ) ) )
+                    )
+                )
         )
     );
 }
@@ -66,32 +38,7 @@ sub html_header {
     my $List__ = \@_;
     do { [] };
     my $nl = Main::newline();
-    return (
-        (
-            '<html>'
-              . (
-                $nl
-                  . (
-                    '<head>'
-                      . (
-                        $nl
-                          . (
-                            '<title>Auto-Generated P6 Code</title>'
-                              . (
-                                $nl
-                                  . (
-                                    css()
-                                      . (
-                                        '</head>' . ( $nl . ( '<body>' . $nl ) )
-                                      )
-                                  )
-                              )
-                          )
-                      )
-                  )
-              )
-        )
-    );
+    return ( ( '<html>' . ( $nl . ( '<head>' . ( $nl . ( '<title>Auto-Generated P6 Code</title>' . ( $nl . ( css() . ( '</head>' . ( $nl . ( '<body>' . $nl ) ) ) ) ) ) ) ) ) ) );
 }
 
 package CompUnit;
@@ -101,19 +48,7 @@ sub emit_html {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    (
-        '{ <span class="keyword">module</span> '
-          . (
-            $self->{name}
-              . (
-                ';<br />'
-                  . (
-                    Main::newline()
-                      . ( $self->{body}->emit_html() . ' }</span><br />' )
-                  )
-              )
-          )
-    );
+    ( '{ <span class="keyword">module</span> ' . ( $self->{name} . ( ';<br />' . ( Main::newline() . ( $self->{body}->emit_html() . ' }</span><br />' ) ) ) ) );
 }
 
 package Val::Int;
@@ -153,8 +88,7 @@ sub emit_html {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( '<span class="buffer">'
-          . ( '\'' . ( $self->{buf} . ( '\'' . '</span>' ) ) ) );
+    ( '<span class="buffer">' . ( '\'' . ( $self->{buf} . ( '\'' . '</span>' ) ) ) );
 }
 
 package Val::Undef;
@@ -174,13 +108,7 @@ sub emit_html {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    (
-        '::'
-          . (
-            Main::perl( $self->{class}, )
-              . ( '(' . ( Main::perl( $self->{fields}, ) . ')' ) )
-          )
-    );
+    ( '::' . ( Main::perl( $self->{class}, ) . ( '(' . ( Main::perl( $self->{fields}, ) . ')' ) ) ) );
 }
 
 package Native::Buf;
@@ -200,13 +128,7 @@ sub emit_html {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    (
-        '('
-          . (
-            Main::join( [ map { $_->emit_html() } @{ $self->{seq} } ], ', ' )
-              . ')'
-          )
-    );
+    ( '(' . ( Main::join( [ map { $_->emit_html() } @{ $self->{seq} } ], ', ' ) . ')' ) );
 }
 
 package Lit::Array;
@@ -216,13 +138,7 @@ sub emit_html {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    (
-        '['
-          . (
-            Main::join( [ map { $_->emit_html() } @{ $self->{array} } ], ', ' )
-              . ']'
-          )
-    );
+    ( '[' . ( Main::join( [ map { $_->emit_html() } @{ $self->{array} } ], ', ' ) . ']' ) );
 }
 
 package Lit::Hash;
@@ -235,18 +151,7 @@ sub emit_html {
     my $fields = $self->{hash};
     my $str    = '';
     do {
-        for my $field ( @{$fields} ) {
-            $str = (
-                $str
-                  . (
-                    $field->[0]->emit_html()
-                      . (
-                        ' <span class="operator>=&gt;</span> '
-                          . ( $field->[1]->emit_html() . ',' )
-                      )
-                  )
-            );
-        }
+        for my $field ( @{$fields} ) { $str = ( $str . ( $field->[0]->emit_html() . ( ' <span class="operator>=&gt;</span> ' . ( $field->[1]->emit_html() . ',' ) ) ) ) }
     };
     ( '{ ' . ( $str . ' }' ) );
 }
@@ -261,26 +166,11 @@ sub emit_html {
     my $s;
     do {
         for my $name ( @{ $self->{pad}->variable_names() } ) {
-            my $decl = Decl->new(
-                'decl' => 'my',
-                'type' => '',
-                'var' =>
-                  Var->new( 'sigil' => '', 'twigil' => '', 'name' => $name, ),
-            );
-            $s =
-              ( $s
-                  . ( $name->emit_html() . ( '; <br />' . Main::newline() ) ) );
+            my $decl = Decl->new( 'decl' => 'my', 'type' => '', 'var' => Var->new( 'sigil' => '', 'twigil' => '', 'name' => $name, ), );
+            $s = ( $s . ( $name->emit_html() . ( '; <br />' . Main::newline() ) ) );
         }
     };
-    return (
-        (
-            $s
-              . Main::join(
-                [ map { $_->emit_html() } @{ $self->{body} } ],
-                ( '; <br />' . Main::newline() )
-              )
-        )
-    );
+    return ( ( $s . Main::join( [ map { $_->emit_html() } @{ $self->{body} } ], ( '; <br />' . Main::newline() ) ) ) );
 }
 
 package Lit::Object;
@@ -293,15 +183,7 @@ sub emit_html {
     my $fields = $self->{fields};
     my $str    = '';
     do {
-        for my $field ( @{$fields} ) {
-            $str = (
-                $str
-                  . (
-                    $field->[0]->emit_html()
-                      . ( ' => ' . ( $field->[1]->emit_html() . ',' ) )
-                  )
-            );
-        }
+        for my $field ( @{$fields} ) { $str = ( $str . ( $field->[0]->emit_html() . ( ' => ' . ( $field->[1]->emit_html() . ',' ) ) ) ) }
     };
     ( $self->{class} . ( '.new( ' . ( $str . ' )' ) ) );
 }
@@ -313,8 +195,7 @@ sub emit_html {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( $self->{obj}->emit_html()
-          . ( '[' . ( $self->{index}->emit_html() . ']' ) ) );
+    ( $self->{obj}->emit_html() . ( '[' . ( $self->{index}->emit_html() . ']' ) ) );
 }
 
 package Lookup;
@@ -324,8 +205,7 @@ sub emit_html {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( $self->{obj}->emit_html()
-          . ( '{' . ( $self->{index}->emit_html() . '}' ) ) );
+    ( $self->{obj}->emit_html() . ( '{' . ( $self->{index}->emit_html() . '}' ) ) );
 }
 
 package Assign;
@@ -335,13 +215,7 @@ sub emit_html {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    (
-        $self->{parameters}->emit_html()
-          . (
-            ' <span class="op">=</span> '
-              . ( $self->{arguments}->emit_html() . '' )
-          )
-    );
+    ( $self->{parameters}->emit_html() . ( ' <span class="op">=</span> ' . ( $self->{arguments}->emit_html() . '' ) ) );
 }
 
 package Var;
@@ -351,35 +225,16 @@ sub emit_html {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    my $table =
-      { '$' => '$', '@' => '$List_', '%' => '$Hash_', '&' => '$Code_', };
+    my $table = { '$' => '$', '@' => '$List_', '%' => '$Hash_', '&' => '$Code_', };
     do {
-        if ( ( $self->{twigil} eq '.' ) ) {
-            return (
-                (
-                    '<span class="variable">$self->{'
-                      . ( $self->{name} . '}</span>' )
-                )
-            );
-        }
-        else { }
+        if ( ( $self->{twigil} eq '.' ) ) { return ( ( '<span class="variable">$self->{' . ( $self->{name} . '}</span>' ) ) ) }
+        else                              { }
     };
     do {
-        if ( ( $self->{name} eq '/' ) ) {
-            return ( ( $table->{ $self->{sigil} } . 'MATCH' ) );
-        }
-        else { }
+        if ( ( $self->{name} eq '/' ) ) { return ( ( $table->{ $self->{sigil} } . 'MATCH' ) ) }
+        else                            { }
     };
-    return (
-        (
-            '<span class="variable">'
-              . (
-                Main::mangle_name( $self->{sigil}, $self->{twigil},
-                    $self->{name} )
-                  . '</span>'
-              )
-        )
-    );
+    return ( ( '<span class="variable">' . ( Main::mangle_name( $self->{sigil}, $self->{twigil}, $self->{name} ) . '</span>' ) ) );
 }
 
 package Bind;
@@ -389,13 +244,7 @@ sub emit_html {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    (
-        $self->{parameters}->emit_html()
-          . (
-            ' <span class="operator>:=</span> '
-              . ( $self->{arguments}->emit_html() . '' )
-          )
-    );
+    ( $self->{parameters}->emit_html() . ( ' <span class="operator>:=</span> ' . ( $self->{arguments}->emit_html() . '' ) ) );
 }
 
 package Proto;
@@ -417,16 +266,12 @@ sub emit_html {
     do { [] };
     my $invocant;
     do {
-        if ( Main::isa( $self->{invocant}, 'Str' ) ) {
-            $invocant = ( '$::Class_' . $self->{invocant} );
-        }
+        if ( Main::isa( $self->{invocant}, 'Str' ) ) { $invocant = ( '$::Class_' . $self->{invocant} ) }
         else {
             do {
-                if ( Main::isa( $self->{invocant}, 'Val::Buf' ) ) {
-                    $invocant = ( '$::Class_' . $self->{invocant}->buf() );
+                if   ( Main::isa( $self->{invocant}, 'Val::Buf' ) ) { $invocant = ( '$::Class_' . $self->{invocant}->buf() ) }
+                else                                                { $invocant = $self->{invocant}->emit_html() }
                 }
-                else { $invocant = $self->{invocant}->emit_html() }
-              }
         }
     };
     do {
@@ -434,88 +279,17 @@ sub emit_html {
         else                           { }
     };
     do {
-        if (
-            (
-                ( $self->{method} eq 'perl' )
-                || (
-                    ( $self->{method} eq 'yaml' )
-                    || (
-                        ( $self->{method} eq 'say' )
-                        || (
-                            ( $self->{method} eq 'join' )
-                            || (   ( $self->{method} eq 'chars' )
-                                || ( $self->{method} eq 'isa' ) )
-                        )
-                    )
-                )
-            )
-          )
-        {
+        if ( ( ( $self->{method} eq 'perl' ) || ( ( $self->{method} eq 'yaml' ) || ( ( $self->{method} eq 'say' ) || ( ( $self->{method} eq 'join' ) || ( ( $self->{method} eq 'chars' ) || ( $self->{method} eq 'isa' ) ) ) ) ) ) ) {
             do {
                 if ( $self->{hyper} ) {
                     return (
-                        (
-                            '[ <span class="keyword">map</span> { Main::'
-                              . (
-                                $self->{method}
-                                  . (
-                                    '( $_, '
-                                      . (
-                                        ', '
-                                          . (
-                                            Main::join(
-                                                [
-                                                    map { $_->emit_html() }
-                                                      @{ $self->{arguments} }
-                                                ],
-                                                ', '
-                                              )
-                                              . (
-                                                ')'
-                                                  . (
-                                                    ' } @{ '
-                                                      . ( $invocant . ' } ]' )
-                                                  )
-                                              )
-                                          )
-                                      )
-                                  )
-                              )
-                        )
+                        ( '[ <span class="keyword">map</span> { Main::' . ( $self->{method} . ( '( $_, ' . ( ', ' . ( Main::join( [ map { $_->emit_html() } @{ $self->{arguments} } ], ', ' ) . ( ')' . ( ' } @{ ' . ( $invocant . ' } ]' ) ) ) ) ) ) ) )
                     );
                 }
                 else {
-                    return (
-                        (
-                            'Main::'
-                              . (
-                                $self->{method}
-                                  . (
-                                    '('
-                                      . (
-                                        $invocant
-                                          . (
-                                            ', '
-                                              . (
-                                                Main::join(
-                                                    [
-                                                        map { $_->emit_html() }
-                                                          @{
-                                                            $self->{arguments}
-                                                          }
-                                                    ],
-                                                    ', '
-                                                  )
-                                                  . ')'
-                                              )
-                                          )
-                                      )
-                                  )
-                              )
-                        )
-                    );
+                    return ( ( 'Main::' . ( $self->{method} . ( '(' . ( $invocant . ( ', ' . ( Main::join( [ map { $_->emit_html() } @{ $self->{arguments} } ], ', ' ) . ')' ) ) ) ) ) ) );
                 }
-              }
+                }
         }
         else { }
     };
@@ -524,102 +298,36 @@ sub emit_html {
         if ( ( $meth eq 'postcircumfix:<( )>' ) ) { $meth = '' }
         else                                      { }
     };
-    my $call =
-      Main::join( [ map { $_->emit_html() } @{ $self->{arguments} } ], ', ' );
+    my $call = Main::join( [ map { $_->emit_html() } @{ $self->{arguments} } ], ', ' );
     do {
-        if ( $self->{hyper} ) {
-            (
-                '[ <span class="map">map</span> { $_'
-                  . (
-                    '->'
-                      . (
-                        $meth
-                          . (
-                            '('
-                              . (
-                                $call . ( ') } @{ ' . ( $invocant . ' } ]' ) )
-                              )
-                          )
-                      )
-                  )
-            );
-        }
+        if ( $self->{hyper} ) { ( '[ <span class="map">map</span> { $_' . ( '->' . ( $meth . ( '(' . ( $call . ( ') } @{ ' . ( $invocant . ' } ]' ) ) ) ) ) ) ) }
         else {
-            (
-                '('
-                  . (
+            (   '('
+                    . (
                     $invocant
-                      . (
+                        . (
                         '->FETCH->{_role_methods}{'
-                          . (
+                            . (
                             $meth
-                              . (
+                                . (
                                 '}'
-                                  . (
+                                    . (
                                     ' ?? '
-                                      . (
+                                        . (
                                         $invocant
-                                          . (
+                                            . (
                                             '->FETCH->{_role_methods}{'
-                                              . (
-                                                $meth
-                                                  . (
-                                                    '}{code}'
-                                                      . (
-                                                        '('
-                                                          . (
-                                                            $invocant
-                                                              . (
-                                                                '->FETCH, '
-                                                                  . (
-                                                                    $call
-                                                                      . (
-                                                                        ')'
-                                                                          . (
-' !! '
-                                                                              . (
-                                                                                $invocant
-                                                                                  .
-                                                                                  (
-'->FETCH->'
-                                                                                      .
-                                                                                      (
-                                                                                        $meth
-                                                                                          .
-                                                                                          (
-'('
-                                                                                              .
-                                                                                              (
-                                                                                                $call
-                                                                                                  .
-                                                                                                  (
-')'
-                                                                                                      .
-')'
-                                                                                                  )
-                                                                                              )
-                                                                                          )
-                                                                                      )
-                                                                                  )
-                                                                              )
-                                                                          )
-                                                                      )
-                                                                  )
-                                                              )
-                                                          )
-                                                      )
-                                                  )
-                                              )
-                                          )
-                                      )
-                                  )
-                              )
-                          )
-                      )
-                  )
+                                                . ( $meth . ( '}{code}' . ( '(' . ( $invocant . ( '->FETCH, ' . ( $call . ( ')' . ( ' !! ' . ( $invocant . ( '->FETCH->' . ( $meth . ( '(' . ( $call . ( ')' . ')' ) ) ) ) ) ) ) ) ) ) ) ) ) )
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
             );
         }
-      }
+        }
 }
 
 package Apply;
@@ -629,24 +337,7 @@ sub emit_html {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    return (
-        (
-            '('
-              . (
-                $self->{code}->emit_html()
-                  . (
-                    ')('
-                      . (
-                        Main::join(
-                            [ map { $_->emit_html() } @{ $self->{arguments} } ],
-                            ', '
-                          )
-                          . ')'
-                      )
-                  )
-              )
-        )
-    );
+    return ( ( '(' . ( $self->{code}->emit_html() . ( ')(' . ( Main::join( [ map { $_->emit_html() } @{ $self->{arguments} } ], ', ' ) . ')' ) ) ) ) );
 }
 
 package Return;
@@ -656,14 +347,7 @@ sub emit_html {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    return (
-        (
-            '<span class="keyword">return ('
-              . (
-                $self->{result}->emit_html() . ( ')<br />' . Main::newline() )
-              )
-        )
-    );
+    return ( ( '<span class="keyword">return (' . ( $self->{result}->emit_html() . ( ')<br />' . Main::newline() ) ) ) );
 }
 
 package If;
@@ -673,34 +357,8 @@ sub emit_html {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    (
-        '<span class="keyword">do</span> { <span class="keyword">if</span> ( ${'
-          . (
-            $self->{cond}->emit_html()
-              . (
-                '->FETCH} ) { '
-                  . (
-                    $self->{body}->emit_html()
-                      . (
-                        ' } '
-                          . (
-                            (
-                                $self->{otherwise}
-                                ? (
-                                    ' else { '
-                                      . (
-                                        $self->{otherwise}->emit_html() . ' }'
-                                      )
-                                  )
-                                : ''
-                            )
-                            . ' }'
-                          )
-                      )
-                  )
-              )
-          )
-    );
+    ( '<span class="keyword">do</span> { <span class="keyword">if</span> ( ${'
+            . ( $self->{cond}->emit_html() . ( '->FETCH} ) { ' . ( $self->{body}->emit_html() . ( ' } ' . ( ( $self->{otherwise} ? ( ' else { ' . ( $self->{otherwise}->emit_html() . ' }' ) ) : '' ) . ' }' ) ) ) ) ) );
 }
 
 package Decl;
@@ -710,13 +368,7 @@ sub emit_html {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    return (
-        (
-            $self->{decl}
-              . (
-                ' ' . ( $self->{type} . ( ' ' . $self->{var}->emit_html() ) ) )
-        )
-    );
+    return ( ( $self->{decl} . ( ' ' . ( $self->{type} . ( ' ' . $self->{var}->emit_html() ) ) ) ) );
 }
 
 package Sig;
@@ -742,46 +394,12 @@ sub emit_html {
     my $str      = 'my $List__ = \@_; ';
     my $pos      = $sig->positional();
     do {
-
-        for my $field ( @{$pos} ) {
-            $str = ( $str . ( 'my ' . ( $field->emit_html() . '; ' ) ) );
-        }
+        for my $field ( @{$pos} ) { $str = ( $str . ( 'my ' . ( $field->emit_html() . '; ' ) ) ) }
     };
-    my $bind = Bind->new(
-        'parameters' => Lit::Array->new( 'array' => $sig->positional(), ),
-        'arguments' =>
-          Var->new( 'sigil' => '@', 'twigil' => '', 'name' => '_', ),
-    );
+    my $bind = Bind->new( 'parameters' => Lit::Array->new( 'array' => $sig->positional(), ), 'arguments' => Var->new( 'sigil' => '@', 'twigil' => '', 'name' => '_', ), );
     $str = ( $str . ( $bind->emit_html() . '; ' ) );
-    (
-        '<span class="keyword">sub</span> '
-          . (
-            $self->{name}
-              . (
-                ' { '
-                  . (
-                    '<span class="keyword">my</span> '
-                      . (
-                        $invocant->emit_html()
-                          . (
-                            ' = <span class="builtin">shift</span>; '
-                              . (
-                                '<br />'
-                                  . (
-                                    Main::newline()
-                                      . (
-                                        $str
-                                          . (
-                                            $self->{block}->emit_html() . ' }'
-                                          )
-                                      )
-                                  )
-                              )
-                          )
-                      )
-                  )
-              )
-          )
+    ( '<span class="keyword">sub</span> '
+            . ( $self->{name} . ( ' { ' . ( '<span class="keyword">my</span> ' . ( $invocant->emit_html() . ( ' = <span class="builtin">shift</span>; ' . ( '<br />' . ( Main::newline() . ( $str . ( $self->{block}->emit_html() . ' }' ) ) ) ) ) ) ) ) )
     );
 }
 
@@ -800,29 +418,17 @@ sub emit_html {
 
         if ( @{$pos} ) {
             do {
-                for my $field ( @{$pos} ) {
-                    $str =
-                      ( $str . ( 'my ' . ( $field->emit_html() . '; ' ) ) );
-                }
+                for my $field ( @{$pos} ) { $str = ( $str . ( 'my ' . ( $field->emit_html() . '; ' ) ) ) }
             };
-            my $bind = Bind->new(
-                'parameters' =>
-                  Lit::Array->new( 'array' => $sig->positional(), ),
-                'arguments' =>
-                  Var->new( 'sigil' => '@', 'twigil' => '', 'name' => '_', ),
-            );
+            my $bind = Bind->new( 'parameters' => Lit::Array->new( 'array' => $sig->positional(), ), 'arguments' => Var->new( 'sigil' => '@', 'twigil' => '', 'name' => '_', ), );
             $str = ( $str . ( $bind->emit_html() . '; ' ) );
         }
         else { }
     };
     my $code = ( 'sub { ' . ( $str . ( $self->{block}->emit_html() . ' }' ) ) );
     do {
-        if ( $self->{name} ) {
-            return (
-                ( '$Code_' . ( $self->{name} . ( ' :=  ' . ( $code . '' ) ) ) )
-            );
-        }
-        else { }
+        if ( $self->{name} ) { return ( ( '$Code_' . ( $self->{name} . ( ' :=  ' . ( $code . '' ) ) ) ) ) }
+        else                 { }
     };
     return ($code);
 }
@@ -834,14 +440,7 @@ sub emit_html {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    (
-        '<span class="keyword">do</span> { <br />'
-          . (
-            Main::newline()
-              . (
-                $self->{block}->emit_html() . ( '}<br />' . Main::newline() ) )
-          )
-    );
+    ( '<span class="keyword">do</span> { <br />' . ( Main::newline() . ( $self->{block}->emit_html() . ( '}<br />' . Main::newline() ) ) ) );
 }
 
 package BEGIN;
@@ -851,15 +450,7 @@ sub emit_html {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    (
-        '<span class="comp_unit">BEGIN</span> { <br />'
-          . (
-            Main::newline()
-              . (
-                $self->{block}->emit_html() . ( ' }<br />' . Main::newline() )
-              )
-          )
-    );
+    ( '<span class="comp_unit">BEGIN</span> { <br />' . ( Main::newline() . ( $self->{block}->emit_html() . ( ' }<br />' . Main::newline() ) ) ) );
 }
 
 package Use;
