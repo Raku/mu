@@ -380,11 +380,22 @@ class Var {
 class Bind {
     method emit_perl5 {
 
-        # XXX - replace Bind with Assign
+        # XXX - replace Bind with .BIND
         if $.parameters.isa('Call')
         {
-            return ::Assign(parameters=>$.parameters,arguments=>$.arguments).emit_perl5;
+            return 
+                  '::DISPATCH_VAR( '
+                ~   $.parameters.emit_perl5
+                ~   ', "BIND", '
+                ~   $.arguments.emit_perl5
+                ~ ' )'
         };
+
+        # XXX - replace Bind with Assign
+        #if $.parameters.isa('Call')
+        #{
+        #    return ::Assign(parameters=>$.parameters,arguments=>$.arguments).emit_perl5;
+        #};
 
         my $str := '::MODIFIED(' ~ $.parameters.emit_perl5 ~ ');' ~ Main::newline();
         $str := $str ~ $.parameters.emit_perl5 ~ ' = ' ~ $.arguments.emit_perl5;

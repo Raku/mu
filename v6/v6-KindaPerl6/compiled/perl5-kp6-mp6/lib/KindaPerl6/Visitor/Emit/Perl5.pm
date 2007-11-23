@@ -562,7 +562,7 @@ sub emit_perl5 {
     my $List__ = \@_;
     do { [] };
     do {
-        if ( Main::isa( $self->{parameters}, 'Call' ) ) { return ( Assign->new( 'parameters' => $self->{parameters}, 'arguments' => $self->{arguments}, )->emit_perl5() ) }
+        if ( Main::isa( $self->{parameters}, 'Call' ) ) { return ( ( '::DISPATCH_VAR( ' . ( $self->{parameters}->emit_perl5() . ( ', "BIND", ' . ( $self->{arguments}->emit_perl5() . ' )' ) ) ) ) ) }
         else                                            { }
     };
     my $str = ( '::MODIFIED(' . ( $self->{parameters}->emit_perl5() . ( ');' . Main::newline() ) ) );

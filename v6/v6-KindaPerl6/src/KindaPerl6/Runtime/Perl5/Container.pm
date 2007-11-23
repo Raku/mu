@@ -117,18 +117,18 @@ $::Container = KindaPerl6::Runtime::Perl5::MOP::make_class(
             };
         },
         FETCH => sub {
-            #warn "Container.FETCH";
+            #warn "Container.FETCH $_[0]";
             my $self = shift;
             return $self->{_value}{cell}
                 if exists $self->{_value}{cell};
             return ::DISPATCH(
                         $::ValueProxy,
                         "new",
-                        { _parent => $self },
+                        { _parent_container => $self },
                     );
         },
         STORE => sub {
-            #warn "Container.STORE";
+            #warn "Container.STORE $_[0]";
             die "attempt to modify a read-only value"
                 if $_[0]{_roles}{readonly};
             $_[0]{_value}{modified}{ $_[0]{_value}{name} } = 1;
@@ -141,8 +141,11 @@ $::Container = KindaPerl6::Runtime::Perl5::MOP::make_class(
             $_[1]{_value}{modified}{ $_[1]{_value}{name} } = 1;
             if ( $_[1]{_roles}{container} ) {
                 # Container := Container
-                die "bindind to proxy container is not implemented"
-                    unless exists $_[1]{_value}{cell};
+                if ( ! exists $_[1]{_value}{cell} ) {
+                    # bindind to proxy container
+                    # force autovivify
+                    ::DISPATCH_VAR( $_[1], 'STORE', $::Undef );
+                }
                 $_[0]{_value} = $_[1]{_value};
                 $_[0]{_roles}{readonly} = $_[1]{_roles}{readonly};
             }
@@ -360,7 +363,7 @@ $::ValueProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
             #warn "ValueProxy.new\n";
             my $v = {
                 %{ $_[0] },
-                _scalar    => $_[1],  #  _parent
+                _scalar    => $_[1],  #  _parent_container
                 #   _value must not exist, because this is an Undef
             };
             return $v;
@@ -368,7 +371,7 @@ $::ValueProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
         # FETCH => sub { die "ValueProxy.FETCH !!!\n"; },
         LOOKUP => sub {
             #warn "ValueProxy.LOOKUP";
-            my $parent_container = $_[0]{_scalar}{_parent};
+            my $parent_container = $_[0]{_scalar}{_parent_container};
             if ( ! exists $parent_container->{_value}{cell} ) {
                 my $key = $_[1];
                 return ::DISPATCH(
@@ -378,13 +381,33 @@ $::ValueProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
                             STORE   => sub {
                                 #warn "STORE!";
                                 my $self = shift;
+                                
+                                # if ( ! ::DISPATCH( 
+                                #            $GLOBAL::Code_exists,
+                                #            'APPLY',
+                                #            $parent_container, 
+                                #        )->{_value}
+                                #   ) {
+
+                                if ( ! exists $parent_container->{_value}{cell} ) {
+                                    #print "Autovivify Hash $parent_container\n";
+
+                                    die "attempt to modify a read-only value"
+                                        if $parent_container->{_roles}{readonly};
+                                    $parent_container->{_value}{modified}{ $parent_container->{_value}{name} } = 1;
+                                    $parent_container->{_value}{cell} = ::DISPATCH( $::Hash, 'new' );
+
+                                    #::DISPATCH_VAR(
+                                    #    $parent_container,
+                                    #    'STORE',
+                                    #    ::DISPATCH( $::Hash, 'new' ),
+                                    #);
+                                    die "Autovivification failed" if ( ! exists $parent_container->{_value}{cell} );
+                                }
+                                #die;
                                 ::DISPATCH_VAR(
                                     ::DISPATCH(
-                                        ::DISPATCH_VAR(
-                                            $parent_container,
-                                            'STORE',
-                                            ::DISPATCH( $::Hash, 'new' ),
-                                        ),
+                                        $parent_container, 
                                         'LOOKUP',
                                         $key
                                     ),
@@ -392,7 +415,35 @@ $::ValueProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
                                     @_
                                 );
                             },
-                            BIND    => sub { die "lazy Container.FETCH.{}.BIND() not implemented"  },
+                            BIND    => sub { 
+                                #warn "BIND!";
+                                my $self = shift;
+                                if ( ! exists $parent_container->{_value}{cell} ) {
+                                    #print "Autovivify Hash $parent_container\n";
+
+                                    die "attempt to modify a read-only value"
+                                        if $parent_container->{_roles}{readonly};
+                                    $parent_container->{_value}{modified}{ $parent_container->{_value}{name} } = 1;
+                                    $parent_container->{_value}{cell} = ::DISPATCH( $::Hash, 'new' );
+
+                                    #::DISPATCH_VAR(
+                                    #    $parent_container,
+                                    #    'STORE',
+                                    #    ::DISPATCH( $::Hash, 'new' ),
+                                    #);
+                                    die "Autovivification failed" if ( ! exists $parent_container->{_value}{cell} );
+                                }
+                                #die;
+                                ::DISPATCH_VAR(
+                                    ::DISPATCH(
+                                        $parent_container,  
+                                        'LOOKUP',
+                                        $key
+                                    ),
+                                    'BIND',
+                                    @_
+                                );
+                            },
                         }
                 );
             }
@@ -400,38 +451,48 @@ $::ValueProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
         },
         INDEX => sub {
             #warn "ValueProxy.INDEX";
-            my $parent_container = $_[0]{_scalar}{_parent};
+            my $parent_container = $_[0]{_scalar}{_parent_container};
             if ( ! exists $parent_container->{_value}{cell} ) {
-                my $index = $_[1];
+                my $key = $_[1];
                 return ::DISPATCH(
                         $::ContainerProxy,
                         "new",
                         {
                             STORE   => sub {
-                                #warn "STORE!";
                                 my $self = shift;
+                                if ( ! exists $parent_container->{_value}{cell} ) {
+                                    die "attempt to modify a read-only value"
+                                        if $parent_container->{_roles}{readonly};
+                                    $parent_container->{_value}{modified}{ $parent_container->{_value}{name} } = 1;
+                                    $parent_container->{_value}{cell} = ::DISPATCH( $::Array, 'new' );
+                                }
                                 ::DISPATCH_VAR(
-                                    ::DISPATCH(
-                                        ::DISPATCH_VAR(
-                                            $parent_container,
-                                            'STORE',
-                                            ::DISPATCH( $::Array, 'new' ),
-                                        ),
-                                        'INDEX',
-                                        $index
-                                    ),
+                                    ::DISPATCH( $parent_container, 'INDEX', $key ),
                                     'STORE',
                                     @_
                                 );
                             },
-                            BIND    => sub { die "lazy Container.FETCH.[].BIND() not implemented"  },
+                            BIND    => sub {
+                                my $self = shift;
+                                if ( ! exists $parent_container->{_value}{cell} ) {
+                                    die "attempt to modify a read-only value"
+                                        if $parent_container->{_roles}{readonly};
+                                    $parent_container->{_value}{modified}{ $parent_container->{_value}{name} } = 1;
+                                    $parent_container->{_value}{cell} = ::DISPATCH( $::Array, 'new' );
+                                }
+                                ::DISPATCH_VAR(
+                                    ::DISPATCH( $parent_container, 'INDEX', $key ),
+                                    'BIND',
+                                    @_
+                                );
+                            },
                         }
                 );
             }
             return ::DISPATCH( $parent_container, 'INDEX', @_ );
         },
         exists => sub {
-            my $parent_container = $_[0]{_scalar}{_parent};
+            my $parent_container = $_[0]{_scalar}{_parent_container};
             ::DISPATCH( $::Bit, 'new',
                 exists $parent_container->{_value}{cell}
                 ? 1 : 0 );
@@ -463,7 +524,7 @@ $::ContainerProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
             return ::DISPATCH(
                 $::ValueProxy,
                 "new",
-                { _parent => $self }
+                { _parent_container => $self }
             );
         },
         STORE => sub {
