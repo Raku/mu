@@ -379,13 +379,12 @@ $::ValueProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
                         "new",
                         {
                             STORE   => sub {
-                                my $self = shift;
+                                my $proxy = shift;
                                 if ( ! exists $parent_container->{_value}{cell} ) {
-                                    die "attempt to modify a read-only value"
-                                        if $parent_container->{_roles}{readonly};
+                                    my $hash = ::DISPATCH( $::Hash, 'new' );
+                                    ::DISPATCH_VAR( $parent_container, 'STORE', $hash );
                                     $parent_container->{_value}{modified}{ $parent_container->{_value}{name} } = 1;
-                                    $parent_container->{_value}{cell} = ::DISPATCH( $::Hash, 'new' );
-                                    die "Autovivification failed" if ( ! exists $parent_container->{_value}{cell} );
+                                    $parent_container->{_value}{cell} = $hash;
                                 }
                                 ::DISPATCH_VAR(
                                     ::DISPATCH( $parent_container, 'LOOKUP', $key ),
@@ -394,13 +393,12 @@ $::ValueProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
                                 );
                             },
                             BIND    => sub { 
-                                my $self = shift;
+                                my $proxy = shift;
                                 if ( ! exists $parent_container->{_value}{cell} ) {
-                                    die "attempt to modify a read-only value"
-                                        if $parent_container->{_roles}{readonly};
+                                    my $hash = ::DISPATCH( $::Hash, 'new' );
+                                    ::DISPATCH_VAR( $parent_container, 'STORE', $hash );
                                     $parent_container->{_value}{modified}{ $parent_container->{_value}{name} } = 1;
-                                    $parent_container->{_value}{cell} = ::DISPATCH( $::Hash, 'new' );
-                                    die "Autovivification failed" if ( ! exists $parent_container->{_value}{cell} );
+                                    $parent_container->{_value}{cell} = $hash;
                                 }
                                 ::DISPATCH_VAR(
                                     ::DISPATCH( $parent_container, 'LOOKUP', $key ),
@@ -423,12 +421,12 @@ $::ValueProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
                         "new",
                         {
                             STORE   => sub {
-                                my $self = shift;
+                                my $proxy = shift;
                                 if ( ! exists $parent_container->{_value}{cell} ) {
-                                    die "attempt to modify a read-only value"
-                                        if $parent_container->{_roles}{readonly};
+                                    my $array = ::DISPATCH( $::Array, 'new' );
+                                    ::DISPATCH_VAR( $parent_container, 'STORE', $array );
                                     $parent_container->{_value}{modified}{ $parent_container->{_value}{name} } = 1;
-                                    $parent_container->{_value}{cell} = ::DISPATCH( $::Array, 'new' );
+                                    $parent_container->{_value}{cell} = $array;
                                 }
                                 ::DISPATCH_VAR(
                                     ::DISPATCH( $parent_container, 'INDEX', $key ),
@@ -439,10 +437,10 @@ $::ValueProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
                             BIND    => sub {
                                 my $self = shift;
                                 if ( ! exists $parent_container->{_value}{cell} ) {
-                                    die "attempt to modify a read-only value"
-                                        if $parent_container->{_roles}{readonly};
+                                    my $array = ::DISPATCH( $::Array, 'new' );
+                                    ::DISPATCH_VAR( $parent_container, 'STORE', $array );
                                     $parent_container->{_value}{modified}{ $parent_container->{_value}{name} } = 1;
-                                    $parent_container->{_value}{cell} = ::DISPATCH( $::Array, 'new' );
+                                    $parent_container->{_value}{cell} = $array;
                                 }
                                 ::DISPATCH_VAR(
                                     ::DISPATCH( $parent_container, 'INDEX', $key ),
