@@ -75,7 +75,15 @@ $::Array = KindaPerl6::Runtime::Perl5::MOP::make_class(
                             : ( $self->{_value}{_array}[$key] = ::DISPATCH( $::Container, 'new' ) );
                         ::DISPATCH_VAR( $cell, 'STORE', @_ );
                     },
-                    BIND => sub { die "BIND!" },
+                    BIND => sub {
+                        #warn "Array.[].BIND!";
+                        shift;
+                        my $cell
+                            = exists $self->{_value}{_array}[$key]
+                            ? $self->{_value}{_array}[$key]
+                            : ( $self->{_value}{_array}[$key] = ::DISPATCH( $::Container, 'new' ) );
+                        ::DISPATCH_VAR( $cell, 'BIND', @_ );
+                    },
                 }
             );
         },
