@@ -237,14 +237,29 @@ class Lit::Code {
                 );
 
             $str := $str
-                    ~ ' if ( exists $Hash__->{_value}{_hash}{\'' ~ ($field.key).name ~ '\'} ) '
+                    ~ ' if ( ::DISPATCH( $GLOBAL::Code_exists, '
+                    ~   ' \'APPLY\', '
+                    ~   ' ::DISPATCH( '
+                    ~       ' $Hash__, \'LOOKUP\', '
+                    ~       ' ::DISPATCH( $::Str, \'new\', \'' ~ ($field.key).name ~ '\' ) '
+                    ~   ' ) )->{_value} '
+                    ~ ' ) '
                     ~ ' { '
                     ~     $bind_named.emit_perl5
                     ~ ' } '
-                    ~ ' elsif ( exists $List__->{_value}{_array}[ $_param_index ] ) '
+                    ~ ' elsif ( ::DISPATCH( $GLOBAL::Code_exists, '
+                    ~   ' \'APPLY\', '
+                    ~   ' ::DISPATCH( '
+                    ~       ' $List__, \'INDEX\', '
+                    ~       ' ::DISPATCH( $::Int, \'new\', $_param_index ) '
+                    ~   ' ) )->{_value} '
+                    ~ ' ) '
                     ~ ' { '
                     ~     ($field.key).emit_perl5
-                    ~         ' = $List__->{_value}{_array}[ $_param_index++ ]; '
+                    ~         ' = ::DISPATCH( '
+                    ~       ' $List__, \'INDEX\', '
+                    ~       ' ::DISPATCH( $::Int, \'new\', $_param_index++ ) '
+                    ~   ' ); '
                     ~ ' } ';
             if ($field.has_default).bit {
                 $str := $str

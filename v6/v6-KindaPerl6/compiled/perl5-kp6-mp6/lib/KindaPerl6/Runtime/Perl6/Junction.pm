@@ -229,13 +229,15 @@
                                                     };
                                                     {
                                                         my $_param_index = 0;
-                                                        if ( exists $Hash__->{_value}{_hash}{'thing'} ) {
+                                                        if ( ::DISPATCH( $GLOBAL::Code_exists, 'APPLY', ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'thing' ) ) )->{_value} ) {
                                                             do {
                                                                 ::MODIFIED($thing);
                                                                 $thing = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'thing' ) );
                                                                 }
                                                         }
-                                                        elsif ( exists $List__->{_value}{_array}[$_param_index] ) { $thing = $List__->{_value}{_array}[ $_param_index++ ]; }
+                                                        elsif ( ::DISPATCH( $GLOBAL::Code_exists, 'APPLY', ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', $_param_index ) ) )->{_value} ) {
+                                                            $thing = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', $_param_index++ ) );
+                                                        }
                                                     }
                                                     do {
                                                         if ( ::DISPATCH( ::DISPATCH( $thing, "true" ), "p5landish" ) ) {
@@ -310,13 +312,15 @@
                                                     };
                                                     {
                                                         my $_param_index = 0;
-                                                        if ( exists $Hash__->{_value}{_hash}{'thing'} ) {
+                                                        if ( ::DISPATCH( $GLOBAL::Code_exists, 'APPLY', ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'thing' ) ) )->{_value} ) {
                                                             do {
                                                                 ::MODIFIED($thing);
                                                                 $thing = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'thing' ) );
                                                                 }
                                                         }
-                                                        elsif ( exists $List__->{_value}{_array}[$_param_index] ) { $thing = $List__->{_value}{_array}[ $_param_index++ ]; }
+                                                        elsif ( ::DISPATCH( $GLOBAL::Code_exists, 'APPLY', ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', $_param_index ) ) )->{_value} ) {
+                                                            $thing = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', $_param_index++ ) );
+                                                        }
                                                     }
                                                     do {
                                                         if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', $thing ), "true" ), "p5landish" ) ) {
@@ -391,13 +395,15 @@
                                                     };
                                                     {
                                                         my $_param_index = 0;
-                                                        if ( exists $Hash__->{_value}{_hash}{'thing'} ) {
+                                                        if ( ::DISPATCH( $GLOBAL::Code_exists, 'APPLY', ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'thing' ) ) )->{_value} ) {
                                                             do {
                                                                 ::MODIFIED($thing);
                                                                 $thing = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'thing' ) );
                                                                 }
                                                         }
-                                                        elsif ( exists $List__->{_value}{_array}[$_param_index] ) { $thing = $List__->{_value}{_array}[ $_param_index++ ]; }
+                                                        elsif ( ::DISPATCH( $GLOBAL::Code_exists, 'APPLY', ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', $_param_index ) ) )->{_value} ) {
+                                                            $thing = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', $_param_index++ ) );
+                                                        }
                                                     }
                                                     do {
                                                         if ( ::DISPATCH( ::DISPATCH( $thing, "true" ), "p5landish" ) ) {
@@ -476,13 +482,15 @@
                                                     };
                                                     {
                                                         my $_param_index = 0;
-                                                        if ( exists $Hash__->{_value}{_hash}{'thing'} ) {
+                                                        if ( ::DISPATCH( $GLOBAL::Code_exists, 'APPLY', ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'thing' ) ) )->{_value} ) {
                                                             do {
                                                                 ::MODIFIED($thing);
                                                                 $thing = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'thing' ) );
                                                                 }
                                                         }
-                                                        elsif ( exists $List__->{_value}{_array}[$_param_index] ) { $thing = $List__->{_value}{_array}[ $_param_index++ ]; }
+                                                        elsif ( ::DISPATCH( $GLOBAL::Code_exists, 'APPLY', ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', $_param_index ) ) )->{_value} ) {
+                                                            $thing = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', $_param_index++ ) );
+                                                        }
                                                     }
                                                     do {
                                                         if ( ::DISPATCH( ::DISPATCH( $thing, "true" ), "p5landish" ) ) {

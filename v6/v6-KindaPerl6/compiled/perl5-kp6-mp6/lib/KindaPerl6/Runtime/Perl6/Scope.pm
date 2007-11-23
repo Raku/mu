@@ -187,13 +187,15 @@
                         };
                         {
                             my $_param_index = 0;
-                            if ( exists $Hash__->{_value}{_hash}{'key'} ) {
+                            if ( ::DISPATCH( $GLOBAL::Code_exists, 'APPLY', ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'key' ) ) )->{_value} ) {
                                 do {
                                     ::MODIFIED($key);
                                     $key = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'key' ) );
                                     }
                             }
-                            elsif ( exists $List__->{_value}{_array}[$_param_index] ) { $key = $List__->{_value}{_array}[ $_param_index++ ]; }
+                            elsif ( ::DISPATCH( $GLOBAL::Code_exists, 'APPLY', ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', $_param_index ) ) )->{_value} ) {
+                                $key = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', $_param_index++ ) );
+                            }
                         }
 
                         # emit_body
@@ -279,13 +281,15 @@
                         };
                         {
                             my $_param_index = 0;
-                            if ( exists $Hash__->{_value}{_hash}{'key'} ) {
+                            if ( ::DISPATCH( $GLOBAL::Code_exists, 'APPLY', ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'key' ) ) )->{_value} ) {
                                 do {
                                     ::MODIFIED($key);
                                     $key = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'key' ) );
                                     }
                             }
-                            elsif ( exists $List__->{_value}{_array}[$_param_index] ) { $key = $List__->{_value}{_array}[ $_param_index++ ]; }
+                            elsif ( ::DISPATCH( $GLOBAL::Code_exists, 'APPLY', ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', $_param_index ) ) )->{_value} ) {
+                                $key = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', $_param_index++ ) );
+                            }
                         }
 
                         # emit_body
@@ -371,13 +375,15 @@
                         };
                         {
                             my $_param_index = 0;
-                            if ( exists $Hash__->{_value}{_hash}{'key'} ) {
+                            if ( ::DISPATCH( $GLOBAL::Code_exists, 'APPLY', ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'key' ) ) )->{_value} ) {
                                 do {
                                     ::MODIFIED($key);
                                     $key = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'key' ) );
                                     }
                             }
-                            elsif ( exists $List__->{_value}{_array}[$_param_index] ) { $key = $List__->{_value}{_array}[ $_param_index++ ]; }
+                            elsif ( ::DISPATCH( $GLOBAL::Code_exists, 'APPLY', ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', $_param_index ) ) )->{_value} ) {
+                                $key = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', $_param_index++ ) );
+                            }
                         }
 
                         # emit_body
@@ -484,13 +490,15 @@
                                         };
                                         {
                                             my $_param_index = 0;
-                                            if ( exists $Hash__->{_value}{_hash}{'pair'} ) {
+                                            if ( ::DISPATCH( $GLOBAL::Code_exists, 'APPLY', ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'pair' ) ) )->{_value} ) {
                                                 do {
                                                     ::MODIFIED($pair);
                                                     $pair = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'pair' ) );
                                                     }
                                             }
-                                            elsif ( exists $List__->{_value}{_array}[$_param_index] ) { $pair = $List__->{_value}{_array}[ $_param_index++ ]; }
+                                            elsif ( ::DISPATCH( $GLOBAL::Code_exists, 'APPLY', ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', $_param_index ) ) )->{_value} ) {
+                                                $pair = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', $_param_index++ ) );
+                                            }
                                         }
                                         ::DISPATCH_VAR(
                                             $s, 'STORE',
@@ -619,13 +627,15 @@
                                             };
                                             {
                                                 my $_param_index = 0;
-                                                if ( exists $Hash__->{_value}{_hash}{'pair'} ) {
+                                                if ( ::DISPATCH( $GLOBAL::Code_exists, 'APPLY', ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'pair' ) ) )->{_value} ) {
                                                     do {
                                                         ::MODIFIED($pair);
                                                         $pair = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'pair' ) );
                                                         }
                                                 }
-                                                elsif ( exists $List__->{_value}{_array}[$_param_index] ) { $pair = $List__->{_value}{_array}[ $_param_index++ ]; }
+                                                elsif ( ::DISPATCH( $GLOBAL::Code_exists, 'APPLY', ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', $_param_index ) ) )->{_value} ) {
+                                                    $pair = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', $_param_index++ ) );
+                                                }
                                             }
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_,
@@ -748,13 +758,15 @@
                                         };
                                         {
                                             my $_param_index = 0;
-                                            if ( exists $Hash__->{_value}{_hash}{'pair'} ) {
+                                            if ( ::DISPATCH( $GLOBAL::Code_exists, 'APPLY', ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'pair' ) ) )->{_value} ) {
                                                 do {
                                                     ::MODIFIED($pair);
                                                     $pair = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'pair' ) );
                                                     }
                                             }
-                                            elsif ( exists $List__->{_value}{_array}[$_param_index] ) { $pair = $List__->{_value}{_array}[ $_param_index++ ]; }
+                                            elsif ( ::DISPATCH( $GLOBAL::Code_exists, 'APPLY', ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', $_param_index ) ) )->{_value} ) {
+                                                $pair = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', $_param_index++ ) );
+                                            }
                                         }
                                         ::DISPATCH( $pair, 'key', );
                                     },
@@ -869,13 +881,15 @@
                                         };
                                         {
                                             my $_param_index = 0;
-                                            if ( exists $Hash__->{_value}{_hash}{'pair'} ) {
+                                            if ( ::DISPATCH( $GLOBAL::Code_exists, 'APPLY', ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'pair' ) ) )->{_value} ) {
                                                 do {
                                                     ::MODIFIED($pair);
                                                     $pair = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'pair' ) );
                                                     }
                                             }
-                                            elsif ( exists $List__->{_value}{_array}[$_param_index] ) { $pair = $List__->{_value}{_array}[ $_param_index++ ]; }
+                                            elsif ( ::DISPATCH( $GLOBAL::Code_exists, 'APPLY', ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', $_param_index ) ) )->{_value} ) {
+                                                $pair = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', $_param_index++ ) );
+                                            }
                                         }
                                         ::DISPATCH( $pair, 'value', );
                                     },

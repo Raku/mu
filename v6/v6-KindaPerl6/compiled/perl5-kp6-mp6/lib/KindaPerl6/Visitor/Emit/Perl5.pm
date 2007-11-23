@@ -415,16 +415,64 @@ sub emit_arguments {
             $str = (
                 $str
                     . (
-                    ' if ( exists $Hash__->{_value}{_hash}{\''
+                    ' if ( ::DISPATCH( $GLOBAL::Code_exists, '
                         . (
-                        $field->key()->name()
+                        ' \'APPLY\', '
                             . (
-                            '\'} ) '
+                            ' ::DISPATCH( '
                                 . (
-                                ' { '
+                                ' $Hash__, \'LOOKUP\', '
                                     . (
-                                    $bind_named->emit_perl5()
-                                        . ( ' } ' . ( ' elsif ( exists $List__->{_value}{_array}[ $_param_index ] ) ' . ( ' { ' . ( $field->key()->emit_perl5() . ( ' = $List__->{_value}{_array}[ $_param_index++ ]; ' . ' } ' ) ) ) ) )
+                                    ' ::DISPATCH( $::Str, \'new\', \''
+                                        . (
+                                        $field->key()->name()
+                                            . (
+                                            '\' ) '
+                                                . (
+                                                ' ) )->{_value} '
+                                                    . (
+                                                    ' ) '
+                                                        . (
+                                                        ' { '
+                                                            . (
+                                                            $bind_named->emit_perl5()
+                                                                . (
+                                                                ' } '
+                                                                    . (
+                                                                    ' elsif ( ::DISPATCH( $GLOBAL::Code_exists, '
+                                                                        . (
+                                                                        ' \'APPLY\', '
+                                                                            . (
+                                                                            ' ::DISPATCH( '
+                                                                                . (
+                                                                                ' $List__, \'INDEX\', '
+                                                                                    . (
+                                                                                    ' ::DISPATCH( $::Int, \'new\', $_param_index ) '
+                                                                                        . (
+                                                                                        ' ) )->{_value} '
+                                                                                            . (
+                                                                                            ' ) '
+                                                                                                . (
+                                                                                                ' { '
+                                                                                                    . (
+                                                                                                    $field->key()->emit_perl5()
+                                                                                                        . ( ' = ::DISPATCH( ' . ( ' $List__, \'INDEX\', ' . ( ' ::DISPATCH( $::Int, \'new\', $_param_index++ ) ' . ( ' ); ' . ' } ' ) ) ) )
+                                                                                                    )
+                                                                                                )
+                                                                                            )
+                                                                                        )
+                                                                                    )
+                                                                                )
+                                                                            )
+                                                                        )
+                                                                    )
+                                                                )
+                                                            )
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                        )
                                     )
                                 )
                             )
