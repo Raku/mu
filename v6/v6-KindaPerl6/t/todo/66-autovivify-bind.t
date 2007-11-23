@@ -1,6 +1,6 @@
 use v6-alpha;
 
-say "1..11";
+say "1..12";
 
 my $s3;
 my $v3;
@@ -53,16 +53,23 @@ my $v9;
 ($s9[1])[2] = ($v9[1])[2];
 say "ok 9 - assignment from,to autovivified array";
 
+($s9[1])[2] = 42;
+if ($s9[1])[2] != 42 {
+    print "not "
+}
+say "ok 10 - array assignment worked";
+
+
 my $s10;
 my $v10;
 ($s10[1])[2] := ($v10[1])[2];
-say "ok 10 - bind from,to autovivified array";
+say "ok 11 - bind from,to autovivified array";
 
 ($s10[1])[2] := 42;
 if ($v10[1])[2] != 42 {
     print "not "
 }
-say "ok 11 - array binding worked";
+say "ok 12 - array binding worked";
 
 =begin
 
