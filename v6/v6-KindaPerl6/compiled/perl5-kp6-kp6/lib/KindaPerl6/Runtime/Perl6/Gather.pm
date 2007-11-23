@@ -173,8 +173,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
 };{ my $_param_index = 0; } 
 # emit_body
-::DISPATCH( $Code_self, 'APPLY',  )
- }, signature => ::DISPATCH( $::Signature, "new", { invocant => bless( {
+$self }, signature => ::DISPATCH( $::Signature, "new", { invocant => bless( {
                  'namespace' => [],
                  'name' => 'self',
                  'twigil' => '',
@@ -262,8 +261,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
 };{ my $_param_index = 0; } 
 # emit_body
-::DISPATCH( $Code_self, 'APPLY',  )
- }, signature => ::DISPATCH( $::Signature, "new", { invocant => bless( {
+$self }, signature => ::DISPATCH( $::Signature, "new", { invocant => bless( {
                  'namespace' => [],
                  'name' => 'self',
                  'twigil' => '',
@@ -296,8 +294,7 @@ $i = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'i' )
  )
 } }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $i = $List__->{_value}{_array}[ $_param_index++ ];  } } 
 # emit_body
-::DISPATCH_VAR( $obj, 'STORE', ::DISPATCH( $Code_self, 'APPLY',  )
- )
+::DISPATCH_VAR( $obj, 'STORE', $self )
 ; do { while (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $obj, 'finished',  )
  )
 ,"true"),"p5landish") )  { do {do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60__60__62_, 'APPLY', $i, ::DISPATCH( ::DISPATCH( $obj, 'buf',  )
@@ -353,8 +350,7 @@ $Code_code = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'code' )
  )
 } }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $Code_code = $List__->{_value}{_array}[ $_param_index++ ];  } } 
 # emit_body
-::DISPATCH_VAR( $obj, 'STORE', ::DISPATCH( $Code_self, 'APPLY',  )
- )
+::DISPATCH_VAR( $obj, 'STORE', $self )
 ; ::DISPATCH_VAR( $List_res, 'STORE', ::DISPATCH( $::Array, 'new', { _array => [] }
  )
  )

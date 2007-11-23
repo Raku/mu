@@ -44,8 +44,7 @@ $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
 };{ my $_param_index = 0; } 
 # emit_body
 ::DISPATCH_VAR( $inner, 'STORE', ::DISPATCH( $::Scope, 'new', ::DISPATCH( $::NamedArgument, 'new', { _argument_name_ => ::DISPATCH( $::Str, 'new', 'outer' )
-, value => ::DISPATCH( $Code_self, 'APPLY',  )
- } )
+, value => $self } )
 , ::DISPATCH( $::NamedArgument, 'new', { _argument_name_ => ::DISPATCH( $::Str, 'new', 'vars' )
 , value => ::DISPATCH( $::Hash, 'new', { _hash => {  } }
  )
@@ -81,8 +80,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
 };{ my $_param_index = 0; } 
 # emit_body
-::DISPATCH( $Code_self, 'APPLY',  )
- }, signature => ::DISPATCH( $::Signature, "new", { invocant => bless( {
+$self }, signature => ::DISPATCH( $::Signature, "new", { invocant => bless( {
                  'namespace' => [],
                  'name' => 'self',
                  'twigil' => '',

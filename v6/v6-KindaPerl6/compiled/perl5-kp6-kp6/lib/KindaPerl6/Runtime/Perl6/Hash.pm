@@ -336,8 +336,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
 };{ my $_param_index = 0; } 
 # emit_body
-::DISPATCH( $Code_self, 'APPLY',  )
- }, signature => ::DISPATCH( $::Signature, "new", { invocant => bless( {
+$self }, signature => ::DISPATCH( $::Signature, "new", { invocant => bless( {
                  'namespace' => [],
                  'name' => 'self',
                  'twigil' => '',

@@ -170,8 +170,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
 };{ my $_param_index = 0; } 
 # emit_body
-::DISPATCH( $Code_self, 'APPLY',  )
- }, signature => ::DISPATCH( $::Signature, "new", { invocant => bless( {
+$self }, signature => ::DISPATCH( $::Signature, "new", { invocant => bless( {
                  'namespace' => [],
                  'name' => 'self',
                  'twigil' => '',
@@ -204,8 +203,7 @@ $Code_test = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'test' )
  )
 } }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $Code_test = $List__->{_value}{_array}[ $_param_index++ ];  } } 
 # emit_body
-$List_result; ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $Code_self, 'APPLY',  )
- )
+$List_result; ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $self )
 , 'map', ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
 my $v; $v = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$v' } )  unless defined $v; INIT { $v = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$v' } ) }
@@ -269,8 +267,7 @@ $Code_proc = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'proc' )
  )
 } }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $Code_proc = $List__->{_value}{_array}[ $_param_index++ ];  } } 
 # emit_body
-$List_result; ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $Code_self, 'APPLY',  )
- )
+$List_result; ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $self )
 , 'map', ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
 my $v; $v = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$v' } )  unless defined $v; INIT { $v = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$v' } ) }
@@ -339,8 +336,7 @@ $sep = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'sep' )
  )
 ; ::DISPATCH_VAR( $s, 'STORE', ::DISPATCH( $::Str, 'new', '' )
  )
-; ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $Code_self, 'APPLY',  )
- )
+; ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $self )
 , 'map', ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
 my $v; $v = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$v' } )  unless defined $v; INIT { $v = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$v' } ) }
@@ -403,8 +399,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
 };{ my $_param_index = 0; } 
 # emit_body
-$Hash_h; $List_res; ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $Code_self, 'APPLY',  )
- )
+$Hash_h; $List_res; ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $self )
 , 'map', ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
 my $v; $v = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$v' } )  unless defined $v; INIT { $v = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$v' } ) }
@@ -512,12 +507,10 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
 };{ my $_param_index = 0; } 
 # emit_body
-::DISPATCH_VAR( $res, 'STORE', ::DISPATCH( ::DISPATCH( $Code_self, 'APPLY',  )
-, 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
+::DISPATCH_VAR( $res, 'STORE', ::DISPATCH( $self, 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
  )
  )
-; $v; ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $Code_self, 'APPLY',  )
- )
+; $v; ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $self )
 , 'map', ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
 my $v; $v = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$v' } )  unless defined $v; INIT { $v = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$v' } ) }
@@ -577,12 +570,10 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
 };{ my $_param_index = 0; } 
 # emit_body
-::DISPATCH_VAR( $res, 'STORE', ::DISPATCH( ::DISPATCH( $Code_self, 'APPLY',  )
-, 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
+::DISPATCH_VAR( $res, 'STORE', ::DISPATCH( $self, 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
  )
  )
-; $v; ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $Code_self, 'APPLY',  )
- )
+; $v; ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $self )
 , 'map', ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
 my $v; $v = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$v' } )  unless defined $v; INIT { $v = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$v' } ) }

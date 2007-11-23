@@ -359,7 +359,7 @@ for (@COMPILER::CHECK) {
                     argv => '',
                  );
             } else {
-                print STDOUT $out
+                print $output $out
             }
         }
     }
@@ -377,7 +377,7 @@ for (@COMPILER::CHECK) {
                     argv => '',
                  );
             } else {
-                print STDOUT $out
+                print $output $out
             }
         }
     }
@@ -394,7 +394,7 @@ for (@COMPILER::CHECK) {
                     argv => '',
                  );
             } else {
-                print STDOUT $out
+                print $output $out
             }
         }
     }

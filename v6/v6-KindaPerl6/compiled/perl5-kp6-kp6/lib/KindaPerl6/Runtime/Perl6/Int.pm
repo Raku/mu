@@ -38,8 +38,7 @@ $v = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'v' )
  )
 } }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $v = $List__->{_value}{_array}[ $_param_index++ ];  } } 
 # emit_body
-::DISPATCH( $GLOBAL::Code_infix_58__60__61__61__62_, 'APPLY', ::DISPATCH( $Code_self, 'APPLY',  )
-, $v )
+::DISPATCH( $GLOBAL::Code_infix_58__60__61__61__62_, 'APPLY', $self, $v )
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, 'new', { sigil  => '$', twigil => '', name   => 'v', value  => $::Undef, has_default    => ::DISPATCH( $::Bit, 'new', 0 )
 , is_named_only  => ::DISPATCH( $::Bit, 'new', 0 )
 , is_optional    => ::DISPATCH( $::Bit, 'new', 0 )
