@@ -124,7 +124,7 @@ $::Container = KindaPerl6::Runtime::Perl5::MOP::make_class(
             return ::DISPATCH(
                         $::ValueProxy,
                         "new",
-                        { _parent_container => $self },
+                        $self,
                     );
         },
         STORE => sub {
@@ -363,7 +363,7 @@ $::ValueProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
             #warn "ValueProxy.new\n";
             my $v = {
                 %{ $_[0] },
-                _scalar    => $_[1],  #  _parent_container
+                _parent_container    => $_[1], 
                 #   _value must not exist, because this is an Undef
             };
             return $v;
@@ -371,7 +371,7 @@ $::ValueProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
         # FETCH => sub { die "ValueProxy.FETCH !!!\n"; },
         LOOKUP => sub {
             #warn "ValueProxy.LOOKUP";
-            my $parent_container = $_[0]{_scalar}{_parent_container};
+            my $parent_container = $_[0]{_parent_container};
             if ( ! exists $parent_container->{_value}{cell} ) {
                 my $key = $_[1];
                 return ::DISPATCH(
@@ -379,67 +379,31 @@ $::ValueProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
                         "new",
                         {
                             STORE   => sub {
-                                #warn "STORE!";
                                 my $self = shift;
-                                
-                                # if ( ! ::DISPATCH( 
-                                #            $GLOBAL::Code_exists,
-                                #            'APPLY',
-                                #            $parent_container, 
-                                #        )->{_value}
-                                #   ) {
-
                                 if ( ! exists $parent_container->{_value}{cell} ) {
-                                    #print "Autovivify Hash $parent_container\n";
-
                                     die "attempt to modify a read-only value"
                                         if $parent_container->{_roles}{readonly};
                                     $parent_container->{_value}{modified}{ $parent_container->{_value}{name} } = 1;
                                     $parent_container->{_value}{cell} = ::DISPATCH( $::Hash, 'new' );
-
-                                    #::DISPATCH_VAR(
-                                    #    $parent_container,
-                                    #    'STORE',
-                                    #    ::DISPATCH( $::Hash, 'new' ),
-                                    #);
                                     die "Autovivification failed" if ( ! exists $parent_container->{_value}{cell} );
                                 }
-                                #die;
                                 ::DISPATCH_VAR(
-                                    ::DISPATCH(
-                                        $parent_container, 
-                                        'LOOKUP',
-                                        $key
-                                    ),
+                                    ::DISPATCH( $parent_container, 'LOOKUP', $key ),
                                     'STORE',
                                     @_
                                 );
                             },
                             BIND    => sub { 
-                                #warn "BIND!";
                                 my $self = shift;
                                 if ( ! exists $parent_container->{_value}{cell} ) {
-                                    #print "Autovivify Hash $parent_container\n";
-
                                     die "attempt to modify a read-only value"
                                         if $parent_container->{_roles}{readonly};
                                     $parent_container->{_value}{modified}{ $parent_container->{_value}{name} } = 1;
                                     $parent_container->{_value}{cell} = ::DISPATCH( $::Hash, 'new' );
-
-                                    #::DISPATCH_VAR(
-                                    #    $parent_container,
-                                    #    'STORE',
-                                    #    ::DISPATCH( $::Hash, 'new' ),
-                                    #);
                                     die "Autovivification failed" if ( ! exists $parent_container->{_value}{cell} );
                                 }
-                                #die;
                                 ::DISPATCH_VAR(
-                                    ::DISPATCH(
-                                        $parent_container,  
-                                        'LOOKUP',
-                                        $key
-                                    ),
+                                    ::DISPATCH( $parent_container, 'LOOKUP', $key ),
                                     'BIND',
                                     @_
                                 );
@@ -451,7 +415,7 @@ $::ValueProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
         },
         INDEX => sub {
             #warn "ValueProxy.INDEX";
-            my $parent_container = $_[0]{_scalar}{_parent_container};
+            my $parent_container = $_[0]{_parent_container};
             if ( ! exists $parent_container->{_value}{cell} ) {
                 my $key = $_[1];
                 return ::DISPATCH(
@@ -492,7 +456,7 @@ $::ValueProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
             return ::DISPATCH( $parent_container, 'INDEX', @_ );
         },
         exists => sub {
-            my $parent_container = $_[0]{_scalar}{_parent_container};
+            my $parent_container = $_[0]{_parent_container};
             ::DISPATCH( $::Bit, 'new',
                 exists $parent_container->{_value}{cell}
                 ? 1 : 0 );
@@ -511,7 +475,7 @@ $::ContainerProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
             #warn "ContainerProxy.new\n";
             my $v = {
                 %{ $_[0] },
-                _scalar       => $_[1],   #   STORE, BIND
+                _autovivify   => $_[1],   #   STORE, BIND
                 _roles        => { container => 1, 'auto_deref' => 1 },
                 _dispatch_VAR => $::dispatch_VAR,
             };
@@ -524,14 +488,14 @@ $::ContainerProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
             return ::DISPATCH(
                 $::ValueProxy,
                 "new",
-                { _parent_container => $self }
+                $self,
             );
         },
         STORE => sub {
-            return $_[0]{_scalar}{STORE}( @_ );
+            return $_[0]{_autovivify}{STORE}( @_ );
         },
         BIND => sub {
-            return $_[0]{_scalar}{BIND}( @_ );
+            return $_[0]{_autovivify}{BIND}( @_ );
         },
         exists => sub {
             my $self = shift;
