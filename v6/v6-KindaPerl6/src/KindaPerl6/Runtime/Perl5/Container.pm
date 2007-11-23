@@ -141,6 +141,8 @@ $::Container = KindaPerl6::Runtime::Perl5::MOP::make_class(
             $_[1]{_value}{modified}{ $_[1]{_value}{name} } = 1;
             if ( $_[1]{_roles}{container} ) {
                 # Container := Container
+                die "bindind to proxy container is not implemented"
+                    unless exists $_[1]{_value}{cell};
                 $_[0]{_value} = $_[1]{_value};
                 $_[0]{_roles}{readonly} = $_[1]{_roles}{readonly};
             }
