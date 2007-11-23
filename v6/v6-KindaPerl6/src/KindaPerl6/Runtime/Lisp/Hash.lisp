@@ -49,7 +49,7 @@
 #||
 (defmethod kp6-pairs ((self kp6-Hash) &key)
   "Returns an Array of key-value pairs in the hash in `maphash' order"
-  (make-instance 'kp6-Array :value 
+  (make-instance 'kp6-Array :value
     (let ((hash (kp6-value self))
           (values))
       (maphash #'(lambda (key val)
@@ -61,7 +61,7 @@
 
 (defmethod kp6-elems ((self kp6-Hash) &key)
   "Returns the number of elements in the hash"
-  (make-instance 'kp6-Int :value 
+  (make-instance 'kp6-Int :value
     (hash-table-count (kp6-value self))))
 
 (defmethod kp6-dispatch ((invocant kp6-Hash) interpreter (method (eql :true)) &rest parameters)
@@ -151,3 +151,22 @@
 		 (kp6-dispatch values interpreter :push (make-instance 'kp6-str :value key)))
 	     hash)
     values))
+
+;; AUTHORS
+;;
+;; The Pugs Team perl6-compiler@perl.org.
+;;
+;; SEE ALSO
+;;
+;; The Perl 6 homepage at http://dev.perl.org/perl6.
+;;
+;; The Pugs homepage at http://pugscode.org/.
+;;
+;; COPYRIGHT
+;;
+;; Copyright 2007 by Flavio Soibelmann Glock and others.
+;;
+;; This program is free software; you can redistribute it and/or modify it
+;; under the same terms as Perl itself.
+;;
+;; See http://www.perl.com/perl/misc/Artistic.html

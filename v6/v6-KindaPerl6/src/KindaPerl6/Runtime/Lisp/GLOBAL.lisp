@@ -58,7 +58,7 @@ result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
 
     (define-kp6-function ("infix:<eq>" :instance 'kp6-Bit) (($ first) ($ second))
       (string= (str* (VAR $ first)) (str* (VAR $ second))))
-    
+
     (define-kp6-function ("infix:<ne>" :instance 'kp6-Bit) (($ first) ($ second))
       (not (string= (str* (VAR $ first)) (str* (VAR $ second)))))
 
@@ -125,9 +125,28 @@ result in \(MAKE-INSTANCE 'KP6-BIT :VALUE 1\)\)."
 
     (define-kp6-function ("defined" :instance 'kp6-Bit) (($ object))
       (not (null (kp6-value (VAR $ object)))))
-    
+
     (define-kp6-function ("map" :interpreter interpreter) (($ array) ($ sub))
       (kp6-dispatch (VAR $ array) interpreter :map (VAR $ sub)))
-    
+
     (define-kp6-function ("join" :interpreter interpreter) (($ array) ($ sub))
       (kp6-dispatch (VAR $ array) interpreter :join (VAR $ sub)))))
+
+;; AUTHORS
+;;
+;; The Pugs Team perl6-compiler@perl.org.
+;;
+;; SEE ALSO
+;;
+;; The Perl 6 homepage at http://dev.perl.org/perl6.
+;;
+;; The Pugs homepage at http://pugscode.org/.
+;;
+;; COPYRIGHT
+;;
+;; Copyright 2007 by Flavio Soibelmann Glock and others.
+;;
+;; This program is free software; you can redistribute it and/or modify it
+;; under the same terms as Perl itself.
+;;
+;; See http://www.perl.com/perl/misc/Artistic.html
