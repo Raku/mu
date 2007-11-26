@@ -462,7 +462,7 @@ $::ContainerProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
         BIND => sub {
             my $self = shift;
             my $cell = $self->{_autovivify}( $self );
-            ::DISPATCH_VAR( $cell, 'STORE', @_ );
+            ::DISPATCH_VAR( $cell, 'BIND', @_ );
             $self->{_value} = $cell->{_value};
             $cell;
         },
