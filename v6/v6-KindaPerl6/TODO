@@ -9,9 +9,8 @@ TODO list for KindaPerl6
 - Longest token
     - implement an algorithm that we can use in the STD grammar
     
-- (DONE) Autovivification
-    - implement deep autovivification/laziness, such as $a[1]<x>[3].exists 
-    - this is needed by Namespace.pm, which implements namespaces in Perl 6
+- Strictness
+    - undeclared vars are now looked up in GLOBAL::, and end up being autovivified
 
 - Pads in Perl 6
     - see Scope.pm, Pad.pm
@@ -68,6 +67,10 @@ TODO list for KindaPerl6
 
 
 * Phase 4 "improved runtime"
+
+- (DONE) Autovivification
+    - implement deep autovivification/laziness, such as $a[1]<x>[3].exists 
+    - this is needed by Namespace.pm, which implements namespaces in Perl 6
 
 - TODO items are listed in the kp6-roadmap document
 
