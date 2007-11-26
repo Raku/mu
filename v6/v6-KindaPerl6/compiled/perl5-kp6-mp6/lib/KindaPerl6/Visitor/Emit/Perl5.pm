@@ -629,8 +629,8 @@ sub emit_perl5 {
     my $List__ = \@_;
     do { [] };
     do {
-        if   ( ( $self->{code}->name() eq 'self' ) ) { return ('$self') }
-        else                                         { }
+        if   ( ( Main::isa( $self->{code}, 'Var' ) && ( $self->{code}->name() eq 'self' ) ) ) { return ('$self') }
+        else                                                                                  { }
     };
     return ( ( '::DISPATCH( ' . ( $self->{code}->emit_perl5() . ( ', \'APPLY\', ' . ( Main::join( [ map { $_->emit_perl5() } @{ $self->{arguments} } ], ', ' ) . ( ' )' . Main::newline() ) ) ) ) ) );
 }

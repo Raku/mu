@@ -473,7 +473,7 @@ class Apply {
         # perl Makefile.PL ; make forcerecompile ; make test
         # November 21st, 2007 10:51am PDT.
 
-        if     ( $.code.name eq 'self' )
+        if  ( $.code.isa('Var') ) && ( $.code.name eq 'self' )
                 # && ( @.arguments.elems == 0 )
         {
             return '$self';
