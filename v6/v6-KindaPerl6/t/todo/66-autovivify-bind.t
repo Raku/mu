@@ -1,6 +1,6 @@
 use v6-alpha;
 
-say "1..16";
+say "1..17";
 
 my $s3;
 my $v3;
@@ -43,7 +43,7 @@ my $v8;
 say "ok 7 - bind from,to autovivified hash";
 
 ($s8{1}){2} := 42;
-if ($v8{1}){2} != 42 {
+if ($s8{1}){2} != 42 {
     print "not "
 }
 say "ok 8 - hash binding worked";
@@ -66,7 +66,7 @@ my $v10;
 say "ok 11 - bind from,to autovivified array";
 
 ($s10[1])[2] := 42;
-if ($v10[1])[2] != 42 {
+if ($s10[1])[2] != 42 {
     print "not "
 }
 say "ok 12 - array binding worked";
@@ -102,6 +102,15 @@ if $s14[1] != 42 {
     print "not "
 }
 say "ok 16 - array binding worked";
+
+
+my $s82;
+($s82{1}){2} := 42;
+if ($s82{1}){2} != 42 {
+    print "not "
+}
+say "ok 17 - hash binding worked, again";
+
 
 =begin
 
