@@ -113,6 +113,7 @@ $::Container = KindaPerl6::Runtime::Perl5::MOP::make_class(
             my $v = {
                 %{ $_[0] },
                 _roles        => { container => 1, 'auto_deref' => 1 },
+                _value        => {},
                 _dispatch_VAR => $::dispatch_VAR,
             };
         },
@@ -141,12 +142,17 @@ $::Container = KindaPerl6::Runtime::Perl5::MOP::make_class(
             $_[1]{_value}{modified}{ $_[1]{_value}{name} } = 1;
             if ( $_[1]{_roles}{container} ) {
                 # Container := Container
-                if ( ! exists $_[1]{_value}{cell} ) {
+                #if ( ! exists $_[1]{_value}{cell} ) {
                     # bindind to proxy container
                     # force autovivify
-                    ::DISPATCH_VAR( $_[1], 'STORE', $::Undef );
-                }
-                $_[0]{_value} = $_[1]{_value};
+                    #warn "autovivify";
+                    #::DISPATCH_VAR( $_[1], 'STORE', $::Undef );
+                    #$_[1]{_value} = {};
+                #}
+
+                # $_[0]{_value} = $_[1]{_value};
+                $_[0]->{_value}{$_} = $_[1]->{_value}{$_} for keys %{ $_[1]->{_value} };
+
                 $_[0]{_roles}{readonly} = $_[1]{_roles}{readonly};
             }
             else {
@@ -199,7 +205,7 @@ $::Scalar = KindaPerl6::Runtime::Perl5::MOP::make_class(
         new => sub {
             my $v = {
                 %{ $_[0] },
-                _value        => $_[1],   # { %{$_[1]}, cell => undef },
+                _value        => $_[1] || {},   # { %{$_[1]}, cell => undef },
                 _roles        => { container => 1, 'auto_deref' => 1 },
                 _dispatch_VAR => $::dispatch_VAR,
             };
@@ -242,7 +248,7 @@ $::ArrayContainer = KindaPerl6::Runtime::Perl5::MOP::make_class(
         new => sub {
             my $v = {
                 %{ $_[0] },
-                _value        => $_[1], # { %{$_[1]}, cell => undef },
+                _value        => $_[1] || {}, # { %{$_[1]}, cell => undef },
                 _roles        => { container => 1, 'auto_deref' => 1 },
                 _dispatch_VAR => $::dispatch_VAR,
             };
@@ -260,7 +266,7 @@ $::HashContainer = KindaPerl6::Runtime::Perl5::MOP::make_class(
         new => sub {
             my $v = {
                 %{ $_[0] },
-                _value        => $_[1], # { %{$_[1]}, cell => undef },
+                _value        => $_[1] || {}, # { %{$_[1]}, cell => undef },
                 _roles        => { container => 1, 'auto_deref' => 1 },
                 _dispatch_VAR => $::dispatch_VAR,
             };
@@ -313,7 +319,7 @@ $::Routine = KindaPerl6::Runtime::Perl5::MOP::make_class(
         new => sub {
             my $v = {
                 %{ $_[0] },
-                _value        => $_[1],                                     # { cell => undef },
+                _value        => $_[1] || {},                                     # { cell => undef },
                 _roles        => { container => 1, 'auto_apply' => 1, 'readonly' => 1 },
                 _dispatch_VAR => $::dispatch_VAR,
             };
@@ -377,36 +383,14 @@ $::ValueProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
                 return ::DISPATCH(
                         $::ContainerProxy,
                         "new",
-                        {
-                            STORE   => sub {
-                                my $proxy = shift;
+                        sub {
                                 if ( ! exists $parent_container->{_value}{cell} ) {
-                                    my $hash = ::DISPATCH( $::Hash, 'new' );
-                                    ::DISPATCH_VAR( $parent_container, 'STORE', $hash );
-                                    $parent_container->{_value}{modified}{ $parent_container->{_value}{name} } = 1;
-                                    $parent_container->{_value}{cell} = $hash;
+                                    ::DISPATCH_VAR( $parent_container, 'STORE', 
+                                        ::DISPATCH( $::Hash, 'new' )
+                                    );
                                 }
-                                ::DISPATCH_VAR(
-                                    ::DISPATCH( $parent_container, 'LOOKUP', $key ),
-                                    'STORE',
-                                    @_
-                                );
+                                ::DISPATCH( $parent_container, 'LOOKUP', $key );
                             },
-                            BIND    => sub { 
-                                my $proxy = shift;
-                                if ( ! exists $parent_container->{_value}{cell} ) {
-                                    my $hash = ::DISPATCH( $::Hash, 'new' );
-                                    ::DISPATCH_VAR( $parent_container, 'STORE', $hash );
-                                    $parent_container->{_value}{modified}{ $parent_container->{_value}{name} } = 1;
-                                    $parent_container->{_value}{cell} = $hash;
-                                }
-                                ::DISPATCH_VAR(
-                                    ::DISPATCH( $parent_container, 'LOOKUP', $key ),
-                                    'BIND',
-                                    @_
-                                );
-                            },
-                        }
                 );
             }
             return ::DISPATCH( $parent_container, 'LOOKUP', @_ );
@@ -419,36 +403,14 @@ $::ValueProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
                 return ::DISPATCH(
                         $::ContainerProxy,
                         "new",
-                        {
-                            STORE   => sub {
-                                my $proxy = shift;
+                        sub {
                                 if ( ! exists $parent_container->{_value}{cell} ) {
-                                    my $array = ::DISPATCH( $::Array, 'new' );
-                                    ::DISPATCH_VAR( $parent_container, 'STORE', $array );
-                                    $parent_container->{_value}{modified}{ $parent_container->{_value}{name} } = 1;
-                                    $parent_container->{_value}{cell} = $array;
+                                    ::DISPATCH_VAR( $parent_container, 'STORE', 
+                                        ::DISPATCH( $::Array, 'new' )
+                                    );
                                 }
-                                ::DISPATCH_VAR(
-                                    ::DISPATCH( $parent_container, 'INDEX', $key ),
-                                    'STORE',
-                                    @_
-                                );
+                                ::DISPATCH( $parent_container, 'INDEX', $key );
                             },
-                            BIND    => sub {
-                                my $self = shift;
-                                if ( ! exists $parent_container->{_value}{cell} ) {
-                                    my $array = ::DISPATCH( $::Array, 'new' );
-                                    ::DISPATCH_VAR( $parent_container, 'STORE', $array );
-                                    $parent_container->{_value}{modified}{ $parent_container->{_value}{name} } = 1;
-                                    $parent_container->{_value}{cell} = $array;
-                                }
-                                ::DISPATCH_VAR(
-                                    ::DISPATCH( $parent_container, 'INDEX', $key ),
-                                    'BIND',
-                                    @_
-                                );
-                            },
-                        }
                 );
             }
             return ::DISPATCH( $parent_container, 'INDEX', @_ );
@@ -473,8 +435,9 @@ $::ContainerProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
             #warn "ContainerProxy.new\n";
             my $v = {
                 %{ $_[0] },
-                _autovivify   => $_[1],   #   STORE, BIND
+                _autovivify   => $_[1],   #  sub
                 _roles        => { container => 1, 'auto_deref' => 1 },
+                _value        => {},
                 _dispatch_VAR => $::dispatch_VAR,
             };
             return $v;
@@ -490,10 +453,18 @@ $::ContainerProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
             );
         },
         STORE => sub {
-            return $_[0]{_autovivify}{STORE}( @_ );
+            my $self = shift;
+            my $cell = $self->{_autovivify}( $self );
+            ::DISPATCH_VAR( $cell, 'STORE', @_ );
+            $self->{_value} = $cell->{_value};
+            $cell;
         },
         BIND => sub {
-            return $_[0]{_autovivify}{BIND}( @_ );
+            my $self = shift;
+            my $cell = $self->{_autovivify}( $self );
+            ::DISPATCH_VAR( $cell, 'STORE', @_ );
+            $self->{_value} = $cell->{_value};
+            $cell;
         },
         exists => sub {
             my $self = shift;

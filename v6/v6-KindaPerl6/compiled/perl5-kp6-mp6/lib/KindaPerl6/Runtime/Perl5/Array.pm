@@ -65,32 +65,12 @@ $::Array = KindaPerl6::Runtime::Perl5::MOP::make_class(
             return ::DISPATCH(
                 $::ContainerProxy,
                 "new",
-                {
-                    STORE => sub {
-                        #warn "Array.[].STORE!";
-                        my $proxy = shift;
-                        my $cell
-                            = exists $self->{_value}{_array}[$key]
-                            ? $self->{_value}{_array}[$key]
-                            : ( $self->{_value}{_array}[$key] = ::DISPATCH( $::Container, 'new' ) );
-
-                        $proxy->{_parent_container}{_value} = $cell->{_value};
-
-                        ::DISPATCH_VAR( $cell, 'STORE', @_ );
+                sub {
+                        if ( ! exists $self->{_value}{_array}[$key] ) {
+                            $self->{_value}{_array}[$key] = ::DISPATCH( $::Container, 'new' );
+                        }
+                        $self->{_value}{_array}[$key];
                     },
-                    BIND => sub {
-                        #warn "Array.[].BIND!";
-                        my $proxy = shift;
-                        my $cell
-                            = exists $self->{_value}{_array}[$key]
-                            ? $self->{_value}{_array}[$key]
-                            : ( $self->{_value}{_array}[$key] = ::DISPATCH( $::Container, 'new' ) );
-
-                        $proxy->{_parent_container}{_value} = $cell->{_value};
-
-                        ::DISPATCH_VAR( $cell, 'BIND', @_ );
-                    },
-                }
             );
         },
     elems =>sub {

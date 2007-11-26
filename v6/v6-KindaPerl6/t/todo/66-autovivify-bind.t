@@ -1,6 +1,6 @@
 use v6-alpha;
 
-say "1..12";
+say "1..16";
 
 my $s3;
 my $v3;
@@ -70,6 +70,38 @@ if ($v10[1])[2] != 42 {
     print "not "
 }
 say "ok 12 - array binding worked";
+
+
+my $s11;
+$s11 = 42;
+if $s11 != 42 {
+    print "not "
+}
+say "ok 13 - scalar assignment worked";
+
+
+my $s12;
+$s12 := 42;
+if $s12 != 42 {
+    print "not "
+}
+say "ok 14 - scalar binding worked";
+
+
+my $s13;
+$s13{1} := 42;
+if $s13{1} != 42 {
+    print "not "
+}
+say "ok 15 - hash binding worked";
+
+
+my $s14;
+$s14[1] := 42;
+if $s14[1] != 42 {
+    print "not "
+}
+say "ok 16 - array binding worked";
 
 =begin
 
