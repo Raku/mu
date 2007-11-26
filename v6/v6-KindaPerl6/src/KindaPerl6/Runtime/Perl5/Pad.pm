@@ -279,9 +279,9 @@ sub begin_block {
         ),
     );
     shift @COMPILER::PAD;
-    #print "BEGIN AST: ",Dumper($begin_ast);
-    #print "BEGIN native: ", $begin_ast->emit( $visitor_emit_perl5  ) );
-    #print "data: ", Dumper( $data );
+    #print "BEGIN AST: ",Data::Dumper::Dumper($begin_ast);
+    #print "BEGIN native: ", $begin_ast->emit( $visitor_emit_perl5  );
+    #print "data: ", Data::Dumper::Dumper( $data );
 
     # - convert the 'result' data to ast
     my $source = $data->{_dispatch}( $data, 'perl' )->{_value};

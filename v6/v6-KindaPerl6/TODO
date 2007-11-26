@@ -9,8 +9,8 @@ TODO list for KindaPerl6
 - Longest token
     - implement an algorithm that we can use in the STD grammar
     
-- Autovivification
-    - (DONE) implement deep autovivification/laziness, such as $a[1]<x>[3].exists 
+- (DONE) Autovivification
+    - implement deep autovivification/laziness, such as $a[1]<x>[3].exists 
     - this is needed by Namespace.pm, which implements namespaces in Perl 6
 
 - Pads in Perl 6
@@ -40,10 +40,9 @@ TODO list for KindaPerl6
 - (DONE) hyperops
     write tests
     
-- undefined global variables are perl5 undef not perl6 Undef instances
+- (DONE) undefined global variables are perl5 undef not perl6 Undef instances
   - Visitor::Namespace was implemented to correct this.
-  - using Visitor::Namespace will require some refactoring in 
-  Runtime::Perl5::Global.pm
+  - using Visitor::Namespace will require some refactoring in Runtime::Perl5::Global.pm
   
 - (DONE) remove KindaPerl6::Runtime::Perl5::DispatchSugar
 
@@ -242,13 +241,14 @@ Visitor modules:
 
 Other:
 
-- star/GLOBAL namespace -- done!
+- (DONE) star/GLOBAL namespace
     zzz()
     --> ($_SUB_zzz || $GLOBAL::_SUB_zzz)->(@args)
     $*foo
     --> $GLOBAL::foo
     but:
-    TimToady> under strict there is no fallback to global unless you explicitly import (you also get a snapshot of GLOBAL imported automatically at the start of compilation)
+    TimToady> under strict there is no fallback to global unless you explicitly import 
+    (you also get a snapshot of GLOBAL imported automatically at the start of compilation)
   - what are the differences between compiling modules and compile plain-programs
 
 - OUTER namespace
