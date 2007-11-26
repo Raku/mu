@@ -551,6 +551,30 @@ sub emit_perl5 {
         if ( ( $self->{name} eq '/' ) ) { return ( ( $table->{ $self->{sigil} } . 'MATCH' ) ) }
         else                            { }
     };
+    do {
+        if ( @{ $self->{namespace} } ) {
+            my $s;
+            my $var = Main::mangle_name( $self->{sigil}, $self->{twigil}, $self->{name}, $self->{namespace} );
+            do {
+                if ( ( $self->{sigil} eq '$' ) ) { $s = '$::Scalar' }
+                else                             { }
+            };
+            do {
+                if ( ( $self->{sigil} eq '&' ) ) { $s = '$::Routine' }
+                else                             { }
+            };
+            do {
+                if ( ( $self->{sigil} eq '%' ) ) { $s = '$::HashContainer' }
+                else                             { }
+            };
+            do {
+                if ( ( $self->{sigil} eq '@' ) ) { $s = '$::ArrayContainer' }
+                else                             { }
+            };
+            return ( ( ' ( ' . ( $var . ( ' = ' . ( $var . ( ' || ::DISPATCH( ' . ( $s . ( ', "new", ) ' . ( ' ) ' . Main::newline() ) ) ) ) ) ) ) ) );
+        }
+        else { }
+    };
     return ( Main::mangle_name( $self->{sigil}, $self->{twigil}, $self->{name}, $self->{namespace} ) );
 }
 

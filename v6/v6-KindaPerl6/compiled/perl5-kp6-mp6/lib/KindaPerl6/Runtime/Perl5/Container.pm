@@ -313,8 +313,9 @@ $::Routine = KindaPerl6::Runtime::Perl5::MOP::make_class(
     methods => {
         APPLY => sub {   # XXX this should be handled by normal FETCH+APPLY
             my $self = shift;
-            local $::ROUTINE = $self->{_value}{cell};
-            $self->{_value}{cell}{_value}{code}->(@_);
+            my $r = ::DISPATCH_VAR( $self, "FETCH" );
+            local $::ROUTINE = $r;
+            $r->{_value}{code}->(@_);
         },
         new => sub {
             my $v = {

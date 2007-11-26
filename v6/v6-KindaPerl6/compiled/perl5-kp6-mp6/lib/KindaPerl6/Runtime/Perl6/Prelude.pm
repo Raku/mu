@@ -29,7 +29,7 @@
         our $Code_rmdir                       = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_rmdir' } );
         our $Code_p5token                     = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_p5token' } );
         do {
-            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::GLOBAL ), "true" ), "p5landish" ) ) { }
+            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", ) ), 'APPLY', $::GLOBAL ), "true" ), "p5landish" ) ) { }
             else {
                 do {
                     our $Code_say                         = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_say' } );
@@ -74,7 +74,12 @@
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         { my $_param_index = 0; }
-                        ::DISPATCH( $GLOBAL::Code_print, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__124__62_, 'APPLY', $List__ ), ::DISPATCH( $::Str, 'new', chr(10) ) );
+                        ::DISPATCH(
+                            ( $GLOBAL::Code_print = $GLOBAL::Code_print || ::DISPATCH( $::Routine, "new", ) ),
+                            'APPLY',
+                            ::DISPATCH( ( $GLOBAL::Code_prefix_58__60__124__62_ = $GLOBAL::Code_prefix_58__60__124__62_ || ::DISPATCH( $::Routine, "new", ) ), 'APPLY', $List__ ),
+                            ::DISPATCH( $::Str, 'new', chr(10) )
+                        );
                     },
                     signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), return => $::Undef, } ),
                 }
@@ -1049,14 +1054,26 @@
                                         }
                                     }
                                     do {
-                                        if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', $str ) ), "true" ), "p5landish" ) ) {
+                                        if (::DISPATCH(
+                                                ::DISPATCH(
+                                                    ::DISPATCH(
+                                                        ( $GLOBAL::Code_prefix_58__60__33__62_ = $GLOBAL::Code_prefix_58__60__33__62_ || ::DISPATCH( $::Routine, "new", ) ),
+                                                        'APPLY',
+                                                        ::DISPATCH( ( $GLOBAL::Code_defined = $GLOBAL::Code_defined || ::DISPATCH( $::Routine, "new", ) ), 'APPLY', $str )
+                                                    ),
+                                                    "true"
+                                                ),
+                                                "p5landish"
+                                            )
+                                            )
+                                        {
                                             do {
                                                 ::DISPATCH_VAR( $str, 'STORE', $_ );
                                                 }
                                         }
                                         else { ::DISPATCH( $::Bit, "new", 0 ) }
                                     };
-                                    return ( ::DISPATCH( $GLOBAL::Code_match_p5rx, 'APPLY', $regex, $str, $pos ) );
+                                    return ( ::DISPATCH( ( $GLOBAL::Code_match_p5rx = $GLOBAL::Code_match_p5rx || ::DISPATCH( $::Routine, "new", ) ), 'APPLY', $regex, $str, $pos ) );
                                 },
                                 signature => ::DISPATCH(
                                     $::Signature,

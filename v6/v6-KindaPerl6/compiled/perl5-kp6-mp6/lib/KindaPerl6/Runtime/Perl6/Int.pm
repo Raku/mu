@@ -13,7 +13,7 @@
     INIT { $_ = ::DISPATCH( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
     do {
         do {
-            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Int ), "true" ), "p5landish" ) ) { }
+            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", ) ), 'APPLY', $::Int ), "true" ), "p5landish" ) ) { }
             else {
                 do {
                     do {
@@ -68,7 +68,7 @@
                         }
 
                         # emit_body
-                        ::DISPATCH( $GLOBAL::Code_infix_58__60__61__61__62_, 'APPLY', $self, $v );
+                        ::DISPATCH( ( $GLOBAL::Code_infix_58__60__61__61__62_ = $GLOBAL::Code_infix_58__60__61__61__62_ || ::DISPATCH( $::Routine, "new", ) ), 'APPLY', $self, $v );
                     },
                     signature => ::DISPATCH(
                         $::Signature,

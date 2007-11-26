@@ -13,7 +13,7 @@
     INIT { $_ = ::DISPATCH( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
     do {
         do {
-            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Signature::Item ), "true" ), "p5landish" ) ) { }
+            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", ) ), 'APPLY', $::Signature::Item ), "true" ), "p5landish" ) ) { }
             else {
                 do {
                     do {
@@ -67,48 +67,89 @@
 
                         # emit_body
                         ::DISPATCH(
-                            $GLOBAL::Code_infix_58__60__126__62_,
+                            ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", ) ),
                             'APPLY',
-                            ::DISPATCH( $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_, 'APPLY', ::DISPATCH( $self, "is_named_only" ), ::DISPATCH( $::Str, 'new', ':' ), ::DISPATCH( $::Str, 'new', '' ) ),
                             ::DISPATCH(
-                                $GLOBAL::Code_infix_58__60__126__62_,
+                                ( $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_ = $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_ || ::DISPATCH( $::Routine, "new", ) ),
                                 'APPLY',
-                                ::DISPATCH( $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_, 'APPLY', ::DISPATCH( $self, "is_slurpy" ), ::DISPATCH( $::Str, 'new', '*' ), ::DISPATCH( $::Str, 'new', '' ) ),
+                                ::DISPATCH( $self, "is_named_only" ),
+                                ::DISPATCH( $::Str, 'new', ':' ),
+                                ::DISPATCH( $::Str, 'new', '' )
+                            ),
+                            ::DISPATCH(
+                                ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", ) ),
+                                'APPLY',
                                 ::DISPATCH(
-                                    $GLOBAL::Code_infix_58__60__126__62_,
+                                    ( $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_ = $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_ || ::DISPATCH( $::Routine, "new", ) ),
                                     'APPLY',
-                                    ::DISPATCH( $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_, 'APPLY', ::DISPATCH( $self, "is_multidimensional" ), ::DISPATCH( $::Str, 'new', '@' ), ::DISPATCH( $::Str, 'new', '' ) ),
+                                    ::DISPATCH( $self, "is_slurpy" ),
+                                    ::DISPATCH( $::Str, 'new', '*' ),
+                                    ::DISPATCH( $::Str, 'new', '' )
+                                ),
+                                ::DISPATCH(
+                                    ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", ) ),
+                                    'APPLY',
                                     ::DISPATCH(
-                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                        ( $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_ = $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_ || ::DISPATCH( $::Routine, "new", ) ),
+                                        'APPLY',
+                                        ::DISPATCH( $self, "is_multidimensional" ),
+                                        ::DISPATCH( $::Str, 'new', '@' ),
+                                        ::DISPATCH( $::Str, 'new', '' )
+                                    ),
+                                    ::DISPATCH(
+                                        ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", ) ),
                                         'APPLY',
                                         ::DISPATCH( $self, "sigil" ),
                                         ::DISPATCH(
-                                            $GLOBAL::Code_infix_58__60__126__62_,
+                                            ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", ) ),
                                             'APPLY',
                                             ::DISPATCH( $self, "twigil" ),
                                             ::DISPATCH(
-                                                $GLOBAL::Code_infix_58__60__126__62_,
+                                                ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", ) ),
                                                 'APPLY',
                                                 ::DISPATCH( $self, "name" ),
                                                 ::DISPATCH(
-                                                    $GLOBAL::Code_infix_58__60__126__62_,
+                                                    ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", ) ),
                                                     'APPLY',
-                                                    ::DISPATCH( $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_, 'APPLY', ::DISPATCH( $self, "is_optional" ), ::DISPATCH( $::Str, 'new', '?' ), ::DISPATCH( $::Str, 'new', '!' ) ),
                                                     ::DISPATCH(
-                                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                                        ( $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_ = $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_ || ::DISPATCH( $::Routine, "new", ) ),
+                                                        'APPLY',
+                                                        ::DISPATCH( $self, "is_optional" ),
+                                                        ::DISPATCH( $::Str, 'new', '?' ),
+                                                        ::DISPATCH( $::Str, 'new', '!' )
+                                                    ),
+                                                    ::DISPATCH(
+                                                        ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", ) ),
                                                         'APPLY',
                                                         ::DISPATCH(
-                                                            $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
+                                                            ( $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_ = $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_ || ::DISPATCH( $::Routine, "new", ) ),
                                                             'APPLY',
-                                                            ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', ::DISPATCH( $self, "value" ) ),
-                                                            ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' = ' ), ::DISPATCH( ::DISPATCH( $self, "value" ), 'perl', ) ),
-                                                            ::DISPATCH( $::Str,                               'new',   '' )
+                                                            ::DISPATCH( ( $GLOBAL::Code_defined = $GLOBAL::Code_defined || ::DISPATCH( $::Routine, "new", ) ), 'APPLY', ::DISPATCH( $self, "value" ) ),
+                                                            ::DISPATCH(
+                                                                ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", ) ),
+                                                                'APPLY',
+                                                                ::DISPATCH( $::Str, 'new', ' = ' ),
+                                                                ::DISPATCH( ::DISPATCH( $self, "value" ), 'perl', )
+                                                            ),
+                                                            ::DISPATCH( $::Str, 'new', '' )
                                                         ),
                                                         ::DISPATCH(
-                                                            $GLOBAL::Code_infix_58__60__126__62_,
+                                                            ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", ) ),
                                                             'APPLY',
-                                                            ::DISPATCH( $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_, 'APPLY', ::DISPATCH( $self, "is_rw" ),   ::DISPATCH( $::Str, 'new', ' is rw' ),   ::DISPATCH( $::Str, 'new', '' ) ),
-                                                            ::DISPATCH( $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_, 'APPLY', ::DISPATCH( $self, "is_copy" ), ::DISPATCH( $::Str, 'new', ' is copy' ), ::DISPATCH( $::Str, 'new', '' ) )
+                                                            ::DISPATCH(
+                                                                ( $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_ = $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_ || ::DISPATCH( $::Routine, "new", ) ),
+                                                                'APPLY',
+                                                                ::DISPATCH( $self, "is_rw" ),
+                                                                ::DISPATCH( $::Str, 'new', ' is rw' ),
+                                                                ::DISPATCH( $::Str, 'new', '' )
+                                                            ),
+                                                            ::DISPATCH(
+                                                                ( $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_ = $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_ || ::DISPATCH( $::Routine, "new", ) ),
+                                                                'APPLY',
+                                                                ::DISPATCH( $self, "is_copy" ),
+                                                                ::DISPATCH( $::Str, 'new', ' is copy' ),
+                                                                ::DISPATCH( $::Str, 'new', '' )
+                                                            )
                                                         )
                                                     )
                                                 )
@@ -155,7 +196,7 @@
     INIT { $_ = ::DISPATCH( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
     do {
         do {
-            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Signature ), "true" ), "p5landish" ) ) { }
+            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", ) ), 'APPLY', $::Signature ), "true" ), "p5landish" ) ) { }
             else {
                 do {
                     do {
@@ -203,7 +244,19 @@
 
                         # emit_body
                         do {
-                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', ::DISPATCH( $self, 'array', ) ) ), "true" ), "p5landish" ) ) {
+                            if (::DISPATCH(
+                                    ::DISPATCH(
+                                        ::DISPATCH(
+                                            ( $GLOBAL::Code_prefix_58__60__33__62_ = $GLOBAL::Code_prefix_58__60__33__62_ || ::DISPATCH( $::Routine, "new", ) ),
+                                            'APPLY',
+                                            ::DISPATCH( ( $GLOBAL::Code_defined = $GLOBAL::Code_defined || ::DISPATCH( $::Routine, "new", ) ), 'APPLY', ::DISPATCH( $self, 'array', ) )
+                                        ),
+                                        "true"
+                                    ),
+                                    "p5landish"
+                                )
+                                )
+                            {
                                 do {
                                     ::DISPATCH_VAR( ::DISPATCH( $self, 'array', ), 'STORE', ::DISPATCH( $::Array, 'new', { _array => [] } ) );
                                     }
@@ -277,8 +330,14 @@
                                     ::DISPATCH_VAR(
                                         $s, 'STORE',
                                         ::DISPATCH(
-                                            $GLOBAL::Code_infix_58__60__126__62_,
-                                            'APPLY', $s, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "invocant" ), 'perl', ), ::DISPATCH( $::Str, 'new', ': ' ) )
+                                            ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", ) ),
+                                            'APPLY', $s,
+                                            ::DISPATCH(
+                                                ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", ) ),
+                                                'APPLY',
+                                                ::DISPATCH( ::DISPATCH( $self, "invocant" ), 'perl', ),
+                                                ::DISPATCH( $::Str, 'new', ': ' )
+                                            )
                                         )
                                     );
                                     }
@@ -319,8 +378,15 @@
                                                 $v = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', $_param_index++ ) );
                                             }
                                         }
-                                        ::DISPATCH_VAR( $s, 'STORE',
-                                            ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $s, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $v, 'perl', ), ::DISPATCH( $::Str, 'new', ', ' ) ) ) );
+                                        ::DISPATCH_VAR(
+                                            $s, 'STORE',
+                                            ::DISPATCH(
+                                                ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", ) ),
+                                                'APPLY',
+                                                $s,
+                                                ::DISPATCH( ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", ) ), 'APPLY', ::DISPATCH( $v, 'perl', ), ::DISPATCH( $::Str, 'new', ', ' ) )
+                                            )
+                                        );
                                     },
                                     signature => ::DISPATCH(
                                         $::Signature,
@@ -354,7 +420,7 @@
                                 }
                             )
                         );
-                        return ( ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $s, ::DISPATCH( $::Str, 'new', ' )' ) ) );
+                        return ( ::DISPATCH( ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", ) ), 'APPLY', $s, ::DISPATCH( $::Str, 'new', ' )' ) ) );
                     },
                     signature => ::DISPATCH(
                         $::Signature,

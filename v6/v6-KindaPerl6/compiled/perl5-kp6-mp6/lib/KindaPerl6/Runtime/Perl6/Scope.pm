@@ -13,7 +13,7 @@
     INIT { $_ = ::DISPATCH( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
     do {
         do {
-            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Scope ), "true" ), "p5landish" ) ) { }
+            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", ) ), 'APPLY', $::Scope ), "true" ), "p5landish" ) ) { }
             else {
                 do {
                     do {
@@ -200,7 +200,8 @@
 
                         # emit_body
                         do {
-                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_exists, 'APPLY', ::DISPATCH( ::DISPATCH( $self, 'vars', ), 'LOOKUP', $key ) ), "true" ), "p5landish" ) ) {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( ( $GLOBAL::Code_exists = $GLOBAL::Code_exists || ::DISPATCH( $::Routine, "new", ) ), 'APPLY', ::DISPATCH( ::DISPATCH( $self, 'vars', ), 'LOOKUP', $key ) ), "true" ), "p5landish" ) )
+                            {
                                 do {
                                     return ( ::DISPATCH( ::DISPATCH( $self, 'vars', ), 'LOOKUP', $key ) );
                                     }
@@ -208,7 +209,7 @@
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
-                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', ::DISPATCH( $self, 'outer', ) ), "true" ), "p5landish" ) ) {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( ( $GLOBAL::Code_defined = $GLOBAL::Code_defined || ::DISPATCH( $::Routine, "new", ) ), 'APPLY', ::DISPATCH( $self, 'outer', ) ), "true" ), "p5landish" ) ) {
                                 do {
                                     return ( ::DISPATCH( ::DISPATCH( $self, 'outer', ), 'LOOKUP', $key ) );
                                     }
@@ -294,7 +295,8 @@
 
                         # emit_body
                         do {
-                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_exists, 'APPLY', ::DISPATCH( ::DISPATCH( $self, 'vars', ), 'LOOKUP', $key ) ), "true" ), "p5landish" ) ) {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( ( $GLOBAL::Code_exists = $GLOBAL::Code_exists || ::DISPATCH( $::Routine, "new", ) ), 'APPLY', ::DISPATCH( ::DISPATCH( $self, 'vars', ), 'LOOKUP', $key ) ), "true" ), "p5landish" ) )
+                            {
                                 do {
                                     return ( ::DISPATCH( ::DISPATCH( $self, 'vars', ), 'LOOKUP', $key ) );
                                     }
@@ -302,7 +304,7 @@
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         do {
-                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', ::DISPATCH( $self, 'outer', ) ), "true" ), "p5landish" ) ) {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( ( $GLOBAL::Code_defined = $GLOBAL::Code_defined || ::DISPATCH( $::Routine, "new", ) ), 'APPLY', ::DISPATCH( $self, 'outer', ) ), "true" ), "p5landish" ) ) {
                                 do {
                                     return ( ::DISPATCH( ::DISPATCH( $self, 'outer', ), 'exists', $key ) );
                                     }
@@ -388,7 +390,8 @@
 
                         # emit_body
                         do {
-                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_exists, 'APPLY', ::DISPATCH( ::DISPATCH( $self, 'vars', ), 'LOOKUP', $key ) ), "true" ), "p5landish" ) ) {
+                            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( ( $GLOBAL::Code_exists = $GLOBAL::Code_exists || ::DISPATCH( $::Routine, "new", ) ), 'APPLY', ::DISPATCH( ::DISPATCH( $self, 'vars', ), 'LOOKUP', $key ) ), "true" ), "p5landish" ) )
+                            {
                                 do {
                                     return ( ::DISPATCH( ::DISPATCH( $self, 'vars', ), 'LOOKUP', $key ) );
                                     }
@@ -503,15 +506,22 @@
                                         ::DISPATCH_VAR(
                                             $s, 'STORE',
                                             ::DISPATCH(
-                                                $GLOBAL::Code_infix_58__60__126__62_,
+                                                ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", ) ),
                                                 'APPLY', $s,
                                                 ::DISPATCH(
-                                                    $GLOBAL::Code_infix_58__60__126__62_,
+                                                    ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", ) ),
                                                     'APPLY',
                                                     ::DISPATCH( ::DISPATCH( $pair, 'key', ), 'perl', ),
                                                     ::DISPATCH(
-                                                        $GLOBAL::Code_infix_58__60__126__62_, 'APPLY',
-                                                        ::DISPATCH( $::Str, 'new', ' => ' ), ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $pair, 'value', ), 'perl', ), ::DISPATCH( $::Str, 'new', ', ' ) )
+                                                        ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", ) ),
+                                                        'APPLY',
+                                                        ::DISPATCH( $::Str, 'new', ' => ' ),
+                                                        ::DISPATCH(
+                                                            ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", ) ),
+                                                            'APPLY',
+                                                            ::DISPATCH( ::DISPATCH( $pair, 'value', ), 'perl', ),
+                                                            ::DISPATCH( $::Str, 'new', ', ' )
+                                                        )
                                                     )
                                                 )
                                             )
@@ -549,7 +559,7 @@
                                 }
                             )
                         );
-                        return ( ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $s, ::DISPATCH( $::Str, 'new', ' }' ) ) );
+                        return ( ::DISPATCH( ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", ) ), 'APPLY', $s, ::DISPATCH( $::Str, 'new', ' }' ) ) );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
@@ -638,10 +648,15 @@
                                                 }
                                             }
                                             ::DISPATCH(
-                                                $GLOBAL::Code_infix_58__60__126__62_,
+                                                ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", ) ),
                                                 'APPLY',
                                                 ::DISPATCH( $pair, 'key', ),
-                                                ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', chr(9) ), ::DISPATCH( $pair, 'value', ) )
+                                                ::DISPATCH(
+                                                    ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", ) ),
+                                                    'APPLY',
+                                                    ::DISPATCH( $::Str, 'new', chr(9) ),
+                                                    ::DISPATCH( $pair,  'value', )
+                                                )
                                             );
                                         },
                                         signature => ::DISPATCH(
@@ -977,7 +992,7 @@
                         { my $_param_index = 0; }
 
                         # emit_body
-                        ::DISPATCH( $GLOBAL::Code_infix_58__60__33__61__62_, 'APPLY', ::DISPATCH( $self, 'elems', ), ::DISPATCH( $::Int, 'new', 0 ) );
+                        ::DISPATCH( ( $GLOBAL::Code_infix_58__60__33__61__62_ = $GLOBAL::Code_infix_58__60__33__61__62_ || ::DISPATCH( $::Routine, "new", ) ), 'APPLY', ::DISPATCH( $self, 'elems', ), ::DISPATCH( $::Int, 'new', 0 ) );
                     },
                     signature => ::DISPATCH(
                         $::Signature,

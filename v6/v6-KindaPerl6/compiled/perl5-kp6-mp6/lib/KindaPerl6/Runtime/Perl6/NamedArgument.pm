@@ -13,7 +13,7 @@
     INIT { $_ = ::DISPATCH( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
     do {
         do {
-            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::NamedArgument ), "true" ), "p5landish" ) ) { }
+            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", ) ), 'APPLY', $::NamedArgument ), "true" ), "p5landish" ) ) { }
             else {
                 do {
                     do {
@@ -59,10 +59,15 @@
 
                         # emit_body
                         ::DISPATCH(
-                            $GLOBAL::Code_infix_58__60__126__62_,
+                            ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", ) ),
                             'APPLY',
                             ::DISPATCH( ::DISPATCH( $self, "_argument_name_" ), 'perl', ),
-                            ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' => ' ), ::DISPATCH( ::DISPATCH( $self, "value" ), 'perl', ) )
+                            ::DISPATCH(
+                                ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", ) ),
+                                'APPLY',
+                                ::DISPATCH( $::Str, 'new', ' => ' ),
+                                ::DISPATCH( ::DISPATCH( $self, "value" ), 'perl', )
+                            )
                         );
                     },
                     signature => ::DISPATCH(

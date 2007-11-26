@@ -363,6 +363,30 @@ class Var {
             return $table{$.sigil} ~ 'MATCH'
         };
 
+        if @($.namespace) {
+            my $s;
+            my $var := Main::mangle_name( $.sigil, $.twigil, $.name, $.namespace );
+
+            if $.sigil eq '$' {
+                $s := '$::Scalar';
+            };
+            if $.sigil eq '&' {
+                $s := '$::Routine';
+            };
+            if $.sigil eq '%' {
+                $s := '$::HashContainer';
+            };
+            if $.sigil eq '@' {
+                $s := '$::ArrayContainer';
+            };
+            
+            #return $var;
+            # XXX doesn't work???
+            return ' ( '   
+                ~ $var ~ ' = ' ~ $var ~ ' || ::DISPATCH( ' ~ $s ~ ', "new", ) '
+                ~ ' ) ' ~ Main::newline();
+        }
+
         return Main::mangle_name( $.sigil, $.twigil, $.name, $.namespace );
     };
     #method perl {
@@ -530,6 +554,7 @@ class Decl {
         my $decl := $.decl;
         my $name := $.var.name;
         if $decl eq 'has' {
+            # obsolete - "has" is handled by Visitor::MetaClass / Perl5::MOP
             return 'sub ' ~ $name ~ ' { ' ~
             '@_ == 1 ' ~
                 '? ( $_[0]->{' ~ $name ~ '} ) ' ~

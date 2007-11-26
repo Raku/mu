@@ -10,7 +10,7 @@ TODO list for KindaPerl6
     - implement an algorithm that we can use in the STD grammar
     
 - Autovivification
-    - implement deep autovivification/laziness, such as $a[1]<x>[3].exists 
+    - (DONE) implement deep autovivification/laziness, such as $a[1]<x>[3].exists 
     - this is needed by Namespace.pm, which implements namespaces in Perl 6
 
 - Pads in Perl 6
@@ -41,8 +41,7 @@ TODO list for KindaPerl6
     write tests
     
 - undefined global variables are perl5 undef not perl6 Undef instances
-  - Visitor::Namespace was implemented to correct this, but it depends
-  on hash-of-hash autovivification, which is not working.
+  - Visitor::Namespace was implemented to correct this.
   - using Visitor::Namespace will require some refactoring in 
   Runtime::Perl5::Global.pm
   
