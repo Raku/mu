@@ -364,14 +364,26 @@ $GLOBAL::Code_VAR_defined = ::DISPATCH(
 $::ValueProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
     proto   => $::ValueProxy,
     name    => "ValueProxy",
-    parents => [ ::DISPATCH( $::Undef, 'HOW' ) ],
+    parents => [ ::DISPATCH( $::Value, 'HOW' ) ],
     methods => {
         new => sub {
             #warn "ValueProxy.new\n";
+            my $dispatch = $::Value->{_dispatcher};
             my $v = {
                 %{ $_[0] },
                 _parent_container    => $_[1], 
                 #   _value must not exist, because this is an Undef
+                _dispatch => sub {
+                        my $self = shift;
+                        if ( ! exists $self->{_parent_container}{_value}{cell} ) {
+                            return $::Value->{_dispatch}( $self, @_ )
+                                if $_[0] eq "INDEX" || $_[0] eq "LOOKUP" || $_[0] eq "exists";
+                            return ::DISPATCH( $::Str, "new", "" )
+                                if $_[0] eq "Str";
+                            return ::DISPATCH( $::Undef, @_ );
+                        }
+                        ::DISPATCH( $self->{_parent_container}{_value}{cell}, @_ );
+                    },
             };
             return $v;
         },
