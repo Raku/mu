@@ -6,6 +6,8 @@ use Digest       ();
 use Getopt::Long ();
 use File::Spec::Functions qw(catdir);
 use English;
+use IO::File;
+use IO::Handle;
 
 # XXX: HACK around harness which calls us like this during `make test'
 # to find out what's in our @INC
