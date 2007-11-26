@@ -7,8 +7,13 @@ module Main {
     %a{'a'} := $var;
     say 'ok ' ~ %a{'a'};
     $var = 3;
-    say 'ok ' ~ %a{'a'};
+    if %a{'a'} == 3 {
+        say 'ok ' ~ %a{'a'};
+    } else {
+        say 'not ok 3';
+    }  
 }
+
 =begin
 
 =head1 AUTHORS
