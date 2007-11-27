@@ -13,18 +13,20 @@ class Junction {
     has $.things;
 
     method Str {
-                my %sep = {
-                    "any" =>" | ",
-                    "none"=>" , ",
-                    "all" =>" & ",
-                    "one" =>" ^ ",
-                };
+        my %sep = {
+            "any" =>" | ",
+            "none"=>" , ",
+            "all" =>" & ",
+            "one" =>" ^ ",
+        };
 
-                      ( ($.type eq '!') ?? 'none' !! '' )
-                    ~ "( "
-                    ~ ( @( $.things ) ).join( %sep{ $.type } )
-                    ~ " )"
-     };
+        # if $.type is not set then prefix with 'none'
+        #   or else prefix with nothing.
+        ( ($.type eq '!') ?? 'none' !! '' )
+            ~ "( "
+            ~ ( @( $.things ) ).join( %sep{ $.type } )
+            ~ " )"
+    };
 
     method perl { self.Str };
 
