@@ -91,7 +91,8 @@ my $ast; $ast = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => 
 ;
 my $res; $res = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$res' } )  unless defined $res; INIT { $res = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$res' } ) }
 ;
-::DISPATCH_VAR( $match, 'STORE', ::DISPATCH( $::KindaPerl6::Grammar, 'comp_unit', $code, $pos )
+::DISPATCH_VAR( $_, 'STORE', $code )
+; ::DISPATCH_VAR( $match, 'STORE', ::DISPATCH( $::KindaPerl6::Grammar, 'comp_unit', $pos )
  )
 ; ::DISPATCH_VAR( $ast, 'STORE', ::DISPATCH( $match, 'result',  )
  )

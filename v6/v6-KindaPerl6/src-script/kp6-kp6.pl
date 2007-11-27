@@ -36,7 +36,8 @@ module Main {
 
     while ($len > $pos) {
 
-        my $match = KindaPerl6::Grammar.comp_unit($code, $pos);
+        $_ = $code;
+        my $match = KindaPerl6::Grammar.comp_unit( $pos );
         my $ast = $match.result;
         if (!($ast.isa('CompUnit'))) {
             die 'AST IS:(' ~ $ast.result ~ ')';
