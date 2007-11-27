@@ -4,7 +4,7 @@ use strict;
 use KindaPerl6::Runtime::Perl5::Runtime;
 use KindaPerl6::Grammar::Quote;
 use KindaPerl6::Grammar;
-use Test::More tests => 3;
+use Test::More tests => 2;
 
 $_ = ::DISPATCH( $::Scalar, "new" );
 my $MATCH;
@@ -12,10 +12,11 @@ my $MATCH;
 ::DISPATCH_VAR( $_, 'STORE', ::DISPATCH( $::Str, 'new', '123' ) );
 $MATCH = ::DISPATCH( $::KindaPerl6::Grammar, 'term' );
 # ::DISPATCH( $GLOBAL::Code_print, 'APPLY', ::DISPATCH( $MATCH, 'perl', ) );
-ok( $MATCH->true, "double_quoted matched" );
-#print "# ",Data::Dumper::Dumper($MATCH->Str->{_value}),"\n";
+ok( $MATCH->true, " matched" );
+print "# ",$MATCH->result,"\n";
+print "# ",($MATCH->from),"\n";
 print "# ",($MATCH->to),"\n";
-ok( $MATCH->Str eq '123', "double_quoted Str" );
+ok( $MATCH->Str eq '123', " Str" );
 
 
 =begin
