@@ -164,7 +164,7 @@ $source = ::DISPATCH(  ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_in
 , ::DISPATCH(  ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', ::DISPATCH( $::Str, 'new', 'undef $GLOBAL::_M2; ' )
 , ::DISPATCH(  ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", )  ) 
-, 'APPLY', ::DISPATCH( $::Str, 'new', '( ref($_) ? $_->{_dispatch}( $_, "Str" )->{_value} : $_ ) =~ ' )
+, 'APPLY', ::DISPATCH( $::Str, 'new', '( ref($_) ? ::DISPATCH( $_, "Str" )->{_value} : $_ ) =~ ' )
 , ::DISPATCH(  ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', ::DISPATCH( $::Str, 'new', '/$_rule_' )
 , ::DISPATCH(  ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", )  ) 

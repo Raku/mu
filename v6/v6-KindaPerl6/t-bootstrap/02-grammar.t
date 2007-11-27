@@ -11,7 +11,7 @@ my $MATCH;
 
 ::DISPATCH_VAR( $_, 'STORE', ::DISPATCH( $::Str, 'new', '123' ) );
 $MATCH = ::DISPATCH( $::KindaPerl6::Grammar, 'term' );
-# ::DISPATCH( $GLOBAL::Code_print, 'APPLY', ::DISPATCH( $MATCH, 'perl', ) );
+print "# "; ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $MATCH, 'perl', ) );
 ok( $MATCH->true, " matched" );
 print "# ",$MATCH->result,"\n";
 print "# ",($MATCH->from),"\n";

@@ -98,7 +98,7 @@ $::List = KindaPerl6::Runtime::Perl5::MOP::make_class(
             my $sub = $_[1];
             # arity: http://en.wikipedia.org/wiki/Arity, the number of arguments a function takes
             my $arity = ::DISPATCH( ::DISPATCH( $sub, 'signature' ), 'arity' )->{_value};
-            print "List.map arity: $arity\n";
+            #print "List.map arity: $arity\n";
             my $result = ::DISPATCH( $::Array, 'new' );
             my @list = @{$_[0]{_value}{_array}};
             my @params;

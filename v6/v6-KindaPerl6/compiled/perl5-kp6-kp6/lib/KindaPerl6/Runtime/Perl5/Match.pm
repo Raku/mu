@@ -36,6 +36,17 @@ package Match;
                         unless defined $res;
                     return $res;
                 }
+                if ( $method eq 'perl' ) {
+                    return ::DISPATCH( $::Str, 'new', 
+                          'Match.new( ' 
+                        . join( ', ',
+                                'from => ' . $self->from,
+                                'to => '   . $self->to,
+                                'true => ' . $self->true,
+                                'str => '  . $self->match_str,
+                              )
+                        . ' )' );
+                }
                 
                 $self->$method( @param );
         };
