@@ -80,7 +80,7 @@ my $len; $len = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => 
  )
 ; ::DISPATCH_VAR( $pos, 'STORE', ::DISPATCH( $::Int, 'new', 0 )
  )
-; ::DISPATCH_VAR( $len, 'STORE', ::DISPATCH(  ( $GLOBAL::Code_length = $GLOBAL::Code_length || ::DISPATCH( $::Routine, "new", )  ) 
+; ::DISPATCH_VAR( $len, 'STORE', ::DISPATCH(  ( $GLOBAL::Code_chars = $GLOBAL::Code_chars || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $code )
  )
 ; do { while (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_infix_58__60__62__62_ = $GLOBAL::Code_infix_58__60__62__62_ || ::DISPATCH( $::Routine, "new", )  ) 

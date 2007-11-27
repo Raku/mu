@@ -32,7 +32,7 @@ module Main {
     $COMPILER::source_md5 = 'temporary_value';
 
     my $pos = 0;
-    my $len = length $code;
+    my $len = chars $code;
 
     while ($len > $pos) {
 

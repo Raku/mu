@@ -29,6 +29,7 @@ package GLOBAL;
         push
         qw
         take
+        length
 
         print_backtrace
 
@@ -353,6 +354,9 @@ package GLOBAL;
 
     sub chars {
         ::DISPATCH( $::Int, 'new', length(_str( $_[0] )) );
+    }
+    sub length {
+        die "length() is not specced - do you mean chars() ? ";
     }
 
 
