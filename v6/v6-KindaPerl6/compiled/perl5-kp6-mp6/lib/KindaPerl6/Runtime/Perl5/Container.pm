@@ -150,8 +150,8 @@ $::Container = KindaPerl6::Runtime::Perl5::MOP::make_class(
                     #$_[1]{_value} = {};
                 #}
 
-                # $_[0]{_value} = $_[1]{_value};
-                $_[0]->{_value}{$_} = $_[1]->{_value}{$_} for keys %{ $_[1]->{_value} };
+                $_[0]{_value} = $_[1]{_value};
+                #$_[0]->{_value}{$_} = $_[1]->{_value}{$_} for keys %{ $_[1]->{_value} };
 
                 $_[0]{_roles}{readonly} = $_[1]{_roles}{readonly};
             }
