@@ -135,6 +135,9 @@ $::Str = KindaPerl6::Runtime::Perl5::MOP::make_class(
         Str => sub {
             $_[0];
         },
+        say => sub {
+            print $_[0]{_value},"\n";
+        },
         true => sub {
             ::DISPATCH( $::Bit, 'new', ( $_[0]{_value} ne '' && $_[0]{_value} ne '0' ) ? 1 : 0 );
         },
