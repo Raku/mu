@@ -7,7 +7,8 @@ use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
-do {do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Multi )
+do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', $::Multi )
 ,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Multi);
 $::Multi = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Multi' )
  )
@@ -36,12 +37,14 @@ my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, 
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0;  if ( exists $Hash__->{_value}{_hash}{'code'} )  { do {::MODIFIED($code);
+};{ my $_param_index = 0;  if ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $Hash__, 'LOOKUP',  ::DISPATCH( $::Str, 'new', 'code' )  ) )->{_value}  )  { do {::MODIFIED($code);
 $code = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'code' )
  )
-} }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $code = $List__->{_value}{_array}[ $_param_index++ ];  } } 
+} }  elsif ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index )  ) )->{_value}  )  { $code = ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index++ )  );  } } 
 # emit_body
-do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', ::DISPATCH( $self, 'long_names',  )
+do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__33__62_ = $GLOBAL::Code_prefix_58__60__33__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', ::DISPATCH(  ( $GLOBAL::Code_defined = $GLOBAL::Code_defined || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', ::DISPATCH( $self, 'long_names',  )
  )
  )
 ,"true"),"p5landish") ) { do {::DISPATCH_VAR( ::DISPATCH( $self, 'long_names',  )
@@ -81,16 +84,21 @@ my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, 
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0;  if ( exists $Hash__->{_value}{_hash}{'capture'} )  { do {::MODIFIED($capture);
+};{ my $_param_index = 0;  if ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $Hash__, 'LOOKUP',  ::DISPATCH( $::Str, 'new', 'capture' )  ) )->{_value}  )  { do {::MODIFIED($capture);
 $capture = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'capture' )
  )
-} }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $capture = $List__->{_value}{_array}[ $_param_index++ ];  } } 
+} }  elsif ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index )  ) )->{_value}  )  { $capture = ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index++ )  );  } } 
 # emit_body
-do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', ::DISPATCH( $self, 'long_names',  )
+do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__33__62_ = $GLOBAL::Code_prefix_58__60__33__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', ::DISPATCH(  ( $GLOBAL::Code_defined = $GLOBAL::Code_defined || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', ::DISPATCH( $self, 'long_names',  )
  )
  )
-,"true"),"p5landish") ) { do {::DISPATCH( $GLOBAL::Code_die, 'APPLY', ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', 'can' )
-, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', chr( 39 ) )
+,"true"),"p5landish") ) { do {::DISPATCH(  ( $GLOBAL::Code_die = $GLOBAL::Code_die || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', ::DISPATCH(  ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', ::DISPATCH( $::Str, 'new', 'can' )
+, ::DISPATCH(  ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', ::DISPATCH( $::Str, 'new', chr( 39 ) )
 , ::DISPATCH( $::Str, 'new', 't resolve Multi dispatch' )
  )
  )
@@ -99,7 +107,8 @@ do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_,
 ; ::DISPATCH_VAR( $List_candidates, 'STORE', ::DISPATCH( $::Array, 'new', { _array => [] }
  )
  )
-; ::DISPATCH( ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $self, 'long_names',  )
+; ::DISPATCH( ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__64__62_ = $GLOBAL::Code_prefix_58__60__64__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', ::DISPATCH( $self, 'long_names',  )
  )
 , 'map', ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
@@ -110,10 +119,11 @@ my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, 
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0;  if ( exists $Hash__->{_value}{_hash}{'sub'} )  { do {::MODIFIED($sub);
+};{ my $_param_index = 0;  if ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $Hash__, 'LOOKUP',  ::DISPATCH( $::Str, 'new', 'sub' )  ) )->{_value}  )  { do {::MODIFIED($sub);
 $sub = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'sub' )
  )
-} }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $sub = $List__->{_value}{_array}[ $_param_index++ ];  } } do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60__61__61__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $sub, 'signature',  )
+} }  elsif ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index )  ) )->{_value}  )  { $sub = ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index++ )  );  } } do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_infix_58__60__61__61__62_ = $GLOBAL::Code_infix_58__60__61__61__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', ::DISPATCH( ::DISPATCH( $sub, 'signature',  )
 , 'arity',  )
 , ::DISPATCH( $capture, 'arity',  )
  )
@@ -130,15 +140,19 @@ $sub = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'sub' )
 ,  ] } ), return   => $::Undef, } )
 ,  } )
  )
-; do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60__61__61__62_, 'APPLY', ::DISPATCH( $List_candidates, 'elems',  )
+; do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_infix_58__60__61__61__62_ = $GLOBAL::Code_infix_58__60__61__61__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', ::DISPATCH( $List_candidates, 'elems',  )
 , ::DISPATCH( $::Int, 'new', 1 )
  )
 ,"true"),"p5landish") ) { do {return(::DISPATCH( $List_candidates, 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
  )
 )
 } }  else { ::DISPATCH($::Bit, "new", 0) } }
-; ::DISPATCH( $GLOBAL::Code_die, 'APPLY', ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', 'can' )
-, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', chr( 39 ) )
+; ::DISPATCH(  ( $GLOBAL::Code_die = $GLOBAL::Code_die || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', ::DISPATCH(  ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', ::DISPATCH( $::Str, 'new', 'can' )
+, ::DISPATCH(  ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', ::DISPATCH( $::Str, 'new', chr( 39 ) )
 , ::DISPATCH( $::Str, 'new', 't resolve Multi dispatch' )
  )
  )
@@ -194,7 +208,8 @@ use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
-do {do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::MultiToken )
+do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', $::MultiToken )
 ,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::MultiToken);
 $::MultiToken = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'MultiToken' )
  )
@@ -227,17 +242,19 @@ my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, 
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0;  if ( exists $Hash__->{_value}{_hash}{'code'} )  { do {::MODIFIED($code);
+};{ my $_param_index = 0;  if ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $Hash__, 'LOOKUP',  ::DISPATCH( $::Str, 'new', 'code' )  ) )->{_value}  )  { do {::MODIFIED($code);
 $code = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'code' )
  )
-} }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $code = $List__->{_value}{_array}[ $_param_index++ ];  }  if ( exists $Hash__->{_value}{_hash}{'sym'} )  { do {::MODIFIED($sym);
+} }  elsif ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index )  ) )->{_value}  )  { $code = ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index++ )  );  }  if ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $Hash__, 'LOOKUP',  ::DISPATCH( $::Str, 'new', 'sym' )  ) )->{_value}  )  { do {::MODIFIED($sym);
 $sym = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'sym' )
  )
-} }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $sym = $List__->{_value}{_array}[ $_param_index++ ];  } } 
+} }  elsif ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index )  ) )->{_value}  )  { $sym = ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index++ )  );  } } 
 # emit_body
 ::DISPATCH_VAR( $len, 'STORE', ::DISPATCH( $sym, 'chars',  )
  )
-; do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', ::DISPATCH( $self, 'token_length',  )
+; do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__33__62_ = $GLOBAL::Code_prefix_58__60__33__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', ::DISPATCH(  ( $GLOBAL::Code_defined = $GLOBAL::Code_defined || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', ::DISPATCH( $self, 'token_length',  )
  )
  )
 ,"true"),"p5landish") ) { do {::DISPATCH_VAR( ::DISPATCH( $self, 'token_length',  )
@@ -245,7 +262,9 @@ $sym = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'sym' )
  )
  )
 } }  else { ::DISPATCH($::Bit, "new", 0) } }
-; do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', ::DISPATCH( ::DISPATCH( $self, 'token_length',  )
+; do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__33__62_ = $GLOBAL::Code_prefix_58__60__33__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', ::DISPATCH(  ( $GLOBAL::Code_defined = $GLOBAL::Code_defined || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', ::DISPATCH( ::DISPATCH( $self, 'token_length',  )
 , 'LOOKUP', $len )
  )
  )
@@ -300,22 +319,25 @@ my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, 
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0;  if ( exists $Hash__->{_value}{_hash}{'capture'} )  { do {::MODIFIED($capture);
+};{ my $_param_index = 0;  if ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $Hash__, 'LOOKUP',  ::DISPATCH( $::Str, 'new', 'capture' )  ) )->{_value}  )  { do {::MODIFIED($capture);
 $capture = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'capture' )
  )
-} }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $capture = $List__->{_value}{_array}[ $_param_index++ ];  } } 
+} }  elsif ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index )  ) )->{_value}  )  { $capture = ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index++ )  );  } } 
 # emit_body
 do { if (::DISPATCH(::DISPATCH(::DISPATCH( $capture, 'isa', ::DISPATCH( $::Str, 'new', 'Capture' )
  )
-,"true"),"p5landish") ) { }  else { do {::DISPATCH( $GLOBAL::Code_die, 'APPLY', ::DISPATCH( $::Str, 'new', 'the parameter to Multi.select must be a Capture' )
+,"true"),"p5landish") ) { }  else { do {::DISPATCH(  ( $GLOBAL::Code_die = $GLOBAL::Code_die || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', ::DISPATCH( $::Str, 'new', 'the parameter to Multi.select must be a Capture' )
  )
 } } }
-; do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60__38__38__62_, 'APPLY', ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+; do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_infix_58__60__38__38__62_ = $GLOBAL::Code_infix_58__60__38__38__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', ::DISPATCH( $::Code, 'new', { code => sub { my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', ::DISPATCH( $self, 'token_length',  )
+};{ my $_param_index = 0; } ::DISPATCH(  ( $GLOBAL::Code_defined = $GLOBAL::Code_defined || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', ::DISPATCH( $self, 'token_length',  )
  )
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [  ] } ), return   => $::Undef, } )
 ,  } )
@@ -341,7 +363,8 @@ my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, 
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } ::DISPATCH( $GLOBAL::Code_infix_58__60__60__61__62__62_, 'APPLY', ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 )
+};{ my $_param_index = 0; } ::DISPATCH(  ( $GLOBAL::Code_infix_58__60__60__61__62__62_ = $GLOBAL::Code_infix_58__60__60__61__62__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 )
  )
 , ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
  )
@@ -359,16 +382,18 @@ my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, 
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0;  if ( exists $Hash__->{_value}{_hash}{'len'} )  { do {::MODIFIED($len);
+};{ my $_param_index = 0;  if ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $Hash__, 'LOOKUP',  ::DISPATCH( $::Str, 'new', 'len' )  ) )->{_value}  )  { do {::MODIFIED($len);
 $len = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'len' )
  )
-} }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $len = $List__->{_value}{_array}[ $_param_index++ ];  } } do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60__62__61__62_, 'APPLY', ::DISPATCH( $_, 'chars',  )
+} }  elsif ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index )  ) )->{_value}  )  { $len = ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index++ )  );  } } do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_infix_58__60__62__61__62_ = $GLOBAL::Code_infix_58__60__62__61__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', ::DISPATCH( $_, 'chars',  )
 , $len )
 ,"true"),"p5landish") ) { do {my $s; $s = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$s' } )  unless defined $s; INIT { $s = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$s' } ) }
 ;
 my  $Hash_syms = ::DISPATCH( $::HashContainer, 'new', { modified => $_MODIFIED, name => '$Hash_syms' } ) ; 
 ;
-::DISPATCH_VAR( $s, 'STORE', ::DISPATCH( $GLOBAL::Code_substr, 'APPLY', $_, ::DISPATCH( $::Int, 'new', 0 )
+::DISPATCH_VAR( $s, 'STORE', ::DISPATCH(  ( $GLOBAL::Code_substr = $GLOBAL::Code_substr || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', $_, ::DISPATCH( $::Int, 'new', 0 )
 , $len )
  )
 ; ::DISPATCH_VAR( $Hash_syms, 'STORE', ::DISPATCH( ::DISPATCH( $self, 'token_length',  )
@@ -384,10 +409,11 @@ my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, 
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0;  if ( exists $Hash__->{_value}{_hash}{'sym'} )  { do {::MODIFIED($sym);
+};{ my $_param_index = 0;  if ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $Hash__, 'LOOKUP',  ::DISPATCH( $::Str, 'new', 'sym' )  ) )->{_value}  )  { do {::MODIFIED($sym);
 $sym = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'sym' )
  )
-} }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $sym = $List__->{_value}{_array}[ $_param_index++ ];  } } do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $s, $sym )
+} }  elsif ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index )  ) )->{_value}  )  { $sym = ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index++ )  );  } } do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_infix_58__60_eq_62_ = $GLOBAL::Code_infix_58__60_eq_62_ || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', $s, $sym )
 ,"true"),"p5landish") ) { do {return(::DISPATCH( ::DISPATCH( $Hash_syms, 'LOOKUP', $sym )
 , 'select', $capture )
 )

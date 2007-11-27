@@ -29,7 +29,8 @@ our $Code_check_block = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED,
 ;
 our $Code_get_var = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_get_var' } ) ;
 ;
-do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::COMPILER )
+do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', $::COMPILER )
 ,"true"),"p5landish") ) { }  else { do {our $List_PAD = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List_PAD' } ) ;
 ;
 our $List_CHECK = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List_CHECK' } ) ;
@@ -69,10 +70,11 @@ my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, 
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0;  if ( exists $Hash__->{_value}{_hash}{'node'} )  { do {::MODIFIED($node);
+};{ my $_param_index = 0;  if ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $Hash__, 'LOOKUP',  ::DISPATCH( $::Str, 'new', 'node' )  ) )->{_value}  )  { do {::MODIFIED($node);
 $node = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'node' )
  )
-} }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $node = $List__->{_value}{_array}[ $_param_index++ ];  } } ::DISPATCH_VAR( $perl6, 'STORE', ::DISPATCH( $node, 'emit', $COMPILER::visitor_emit_perl6 )
+} }  elsif ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index )  ) )->{_value}  )  { $node = ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index++ )  );  } } ::DISPATCH_VAR( $perl6, 'STORE', ::DISPATCH( $node, 'emit',  ( $COMPILER::visitor_emit_perl6 = $COMPILER::visitor_emit_perl6 || ::DISPATCH( $::Scalar, "new", )  ) 
+ )
  )
 ; return($perl6)
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, 'new', { sigil  => '$', twigil => '', name   => 'node', value  => $::Undef, has_default    => ::DISPATCH( $::Bit, 'new', 0 )
@@ -106,12 +108,20 @@ $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
 ; ::DISPATCH_VAR( ::DISPATCH( $pad, 'namespace',  )
 , 'STORE', ::DISPATCH( $::Str, 'new', 'Main' )
  )
-; ::DISPATCH( $COMPILER::List_PAD, 'unshift', $pad )
-; ::DISPATCH_VAR( ::DISPATCH( $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $List_COMPILER::PAD )
-, $List_COMPILER::PAD, do {::MODIFIED($List_COMPILER::PAD);
-$List_COMPILER::PAD = ::DISPATCH( $::Scalar, 'new',  )
+; ::DISPATCH(  ( $COMPILER::List_PAD = $COMPILER::List_PAD || ::DISPATCH( $::ArrayContainer, "new", )  ) 
+, 'unshift', $pad )
+; ::DISPATCH_VAR( ::DISPATCH(  ( $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_ = $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', ::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY',  ( $List_COMPILER::PAD = $List_COMPILER::PAD || ::DISPATCH( $::Scalar, "new", )  ) 
+ )
+,  ( $List_COMPILER::PAD = $List_COMPILER::PAD || ::DISPATCH( $::Scalar, "new", )  ) 
+, do {::MODIFIED( ( $List_COMPILER::PAD = $List_COMPILER::PAD || ::DISPATCH( $::Scalar, "new", )  ) 
+);
+ ( $List_COMPILER::PAD = $List_COMPILER::PAD || ::DISPATCH( $::Scalar, "new", )  ) 
+ = ::DISPATCH( $::Scalar, 'new',  )
 } )
-, 'STORE', $COMPILER::List_PAD )
+, 'STORE',  ( $COMPILER::List_PAD = $COMPILER::List_PAD || ::DISPATCH( $::ArrayContainer, "new", )  ) 
+ )
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [  ] } ), return   => $::Undef, } )
 ,  } )
 }; do {::MODIFIED($Code_add_pad);
@@ -126,13 +136,14 @@ my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, 
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0;  if ( exists $Hash__->{_value}{_hash}{'namespace'} )  { do {::MODIFIED($namespace);
+};{ my $_param_index = 0;  if ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $Hash__, 'LOOKUP',  ::DISPATCH( $::Str, 'new', 'namespace' )  ) )->{_value}  )  { do {::MODIFIED($namespace);
 $namespace = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'namespace' )
  )
-} }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $namespace = $List__->{_value}{_array}[ $_param_index++ ];  } } ::DISPATCH_VAR( $pad, 'STORE', ::DISPATCH( $::Pad, 'new',  )
+} }  elsif ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index )  ) )->{_value}  )  { $namespace = ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index++ )  );  } } ::DISPATCH_VAR( $pad, 'STORE', ::DISPATCH( $::Pad, 'new',  )
  )
 ; ::DISPATCH_VAR( ::DISPATCH( $pad, 'outer',  )
-, 'STORE', ::DISPATCH( $COMPILER::List_PAD, 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
+, 'STORE', ::DISPATCH(  ( $COMPILER::List_PAD = $COMPILER::List_PAD || ::DISPATCH( $::ArrayContainer, "new", )  ) 
+, 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
  )
  )
 ; ::DISPATCH_VAR( ::DISPATCH( $pad, 'lexicals',  )
@@ -141,7 +152,8 @@ $namespace = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'namespac
  )
 ; ::DISPATCH_VAR( ::DISPATCH( $pad, 'namespace',  )
 , 'STORE', $namespace )
-; ::DISPATCH( $COMPILER::List_PAD, 'unshift', $pad )
+; ::DISPATCH(  ( $COMPILER::List_PAD = $COMPILER::List_PAD || ::DISPATCH( $::ArrayContainer, "new", )  ) 
+, 'unshift', $pad )
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, 'new', { sigil  => '$', twigil => '', name   => 'namespace', value  => $::Undef, has_default    => ::DISPATCH( $::Bit, 'new', 0 )
 , is_named_only  => ::DISPATCH( $::Bit, 'new', 0 )
 , is_optional    => ::DISPATCH( $::Bit, 'new', 0 )
@@ -160,7 +172,8 @@ my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, 
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } ::DISPATCH( $COMPILER::List_PAD, 'shift',  )
+};{ my $_param_index = 0; } ::DISPATCH(  ( $COMPILER::List_PAD = $COMPILER::List_PAD || ::DISPATCH( $::ArrayContainer, "new", )  ) 
+, 'shift',  )
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [  ] } ), return   => $::Undef, } )
 ,  } )
 }; do {::MODIFIED($Code_put_pad);
@@ -173,10 +186,11 @@ my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, 
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0;  if ( exists $Hash__->{_value}{_hash}{'pad'} )  { do {::MODIFIED($pad);
+};{ my $_param_index = 0;  if ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $Hash__, 'LOOKUP',  ::DISPATCH( $::Str, 'new', 'pad' )  ) )->{_value}  )  { do {::MODIFIED($pad);
 $pad = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'pad' )
  )
-} }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $pad = $List__->{_value}{_array}[ $_param_index++ ];  } } ::DISPATCH( $COMPILER::List_PAD, 'unshift', $pad )
+} }  elsif ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index )  ) )->{_value}  )  { $pad = ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index++ )  );  } } ::DISPATCH(  ( $COMPILER::List_PAD = $COMPILER::List_PAD || ::DISPATCH( $::ArrayContainer, "new", )  ) 
+, 'unshift', $pad )
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, 'new', { sigil  => '$', twigil => '', name   => 'pad', value  => $::Undef, has_default    => ::DISPATCH( $::Bit, 'new', 0 )
 , is_named_only  => ::DISPATCH( $::Bit, 'new', 0 )
 , is_optional    => ::DISPATCH( $::Bit, 'new', 0 )
@@ -195,7 +209,8 @@ my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, 
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0; } return(::DISPATCH( $COMPILER::List_PAD, 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
+};{ my $_param_index = 0; } return(::DISPATCH(  ( $COMPILER::List_PAD = $COMPILER::List_PAD || ::DISPATCH( $::ArrayContainer, "new", )  ) 
+, 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
  )
 )
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [  ] } ), return   => $::Undef, } )
@@ -210,10 +225,11 @@ my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, 
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0;  if ( exists $Hash__->{_value}{_hash}{'ast'} )  { do {::MODIFIED($ast);
+};{ my $_param_index = 0;  if ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $Hash__, 'LOOKUP',  ::DISPATCH( $::Str, 'new', 'ast' )  ) )->{_value}  )  { do {::MODIFIED($ast);
 $ast = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'ast' )
  )
-} }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $ast = $List__->{_value}{_array}[ $_param_index++ ];  } } ::DISPATCH( $Pad::Code_begin_block, 'APPLY', $ast )
+} }  elsif ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index )  ) )->{_value}  )  { $ast = ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index++ )  );  } } ::DISPATCH(  ( $Pad::Code_begin_block = $Pad::Code_begin_block || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', $ast )
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::Array, "new", { _array => [ ::DISPATCH( $::Signature::Item, 'new', { sigil  => '$', twigil => '', name   => 'ast', value  => $::Undef, has_default    => ::DISPATCH( $::Bit, 'new', 0 )
 , is_named_only  => ::DISPATCH( $::Bit, 'new', 0 )
 , is_optional    => ::DISPATCH( $::Bit, 'new', 0 )
@@ -236,13 +252,16 @@ my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, 
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0;  if ( exists $Hash__->{_value}{_hash}{'ast'} )  { do {::MODIFIED($ast);
+};{ my $_param_index = 0;  if ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $Hash__, 'LOOKUP',  ::DISPATCH( $::Str, 'new', 'ast' )  ) )->{_value}  )  { do {::MODIFIED($ast);
 $ast = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'ast' )
  )
-} }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $ast = $List__->{_value}{_array}[ $_param_index++ ];  } } ::DISPATCH_VAR( $pad, 'STORE', ::DISPATCH( $COMPILER::PAD, 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
+} }  elsif ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index )  ) )->{_value}  )  { $ast = ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index++ )  );  } } ::DISPATCH_VAR( $pad, 'STORE', ::DISPATCH(  ( $COMPILER::PAD = $COMPILER::PAD || ::DISPATCH( $::Scalar, "new", )  ) 
+, 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
  )
  )
-; ::DISPATCH( $GLOBAL::Code_push, 'APPLY', $COMPILER::List_CHECK, ::DISPATCH( $::Array, 'new', { _array => [$ast, $pad] }
+; ::DISPATCH(  ( $GLOBAL::Code_push = $GLOBAL::Code_push || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY',  ( $COMPILER::List_CHECK = $COMPILER::List_CHECK || ::DISPATCH( $::ArrayContainer, "new", )  ) 
+, ::DISPATCH( $::Array, 'new', { _array => [$ast, $pad] }
  )
  )
 ; return(::DISPATCH( $::Val::Undef, 'new',  )
@@ -275,16 +294,16 @@ my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, 
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 };do {::MODIFIED($Hash__);
 $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
-};{ my $_param_index = 0;  if ( exists $Hash__->{_value}{_hash}{'sigil'} )  { do {::MODIFIED($sigil);
+};{ my $_param_index = 0;  if ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $Hash__, 'LOOKUP',  ::DISPATCH( $::Str, 'new', 'sigil' )  ) )->{_value}  )  { do {::MODIFIED($sigil);
 $sigil = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'sigil' )
  )
-} }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $sigil = $List__->{_value}{_array}[ $_param_index++ ];  }  if ( exists $Hash__->{_value}{_hash}{'twigil'} )  { do {::MODIFIED($twigil);
+} }  elsif ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index )  ) )->{_value}  )  { $sigil = ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index++ )  );  }  if ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $Hash__, 'LOOKUP',  ::DISPATCH( $::Str, 'new', 'twigil' )  ) )->{_value}  )  { do {::MODIFIED($twigil);
 $twigil = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'twigil' )
  )
-} }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $twigil = $List__->{_value}{_array}[ $_param_index++ ];  }  if ( exists $Hash__->{_value}{_hash}{'name'} )  { do {::MODIFIED($name);
+} }  elsif ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index )  ) )->{_value}  )  { $twigil = ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index++ )  );  }  if ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $Hash__, 'LOOKUP',  ::DISPATCH( $::Str, 'new', 'name' )  ) )->{_value}  )  { do {::MODIFIED($name);
 $name = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'name' )
  )
-} }  elsif ( exists $List__->{_value}{_array}[ $_param_index ] )  { $name = $List__->{_value}{_array}[ $_param_index++ ];  } } ::DISPATCH_VAR( $var, 'STORE', ::DISPATCH( $::Var, 'new',  )
+} }  elsif ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index )  ) )->{_value}  )  { $name = ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index++ )  );  } } ::DISPATCH_VAR( $var, 'STORE', ::DISPATCH( $::Var, 'new',  )
  )
 ; ::DISPATCH_VAR( ::DISPATCH( $var, 'sigil',  )
 , 'STORE', $sigil )
@@ -292,7 +311,8 @@ $name = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'name' )
 , 'STORE', $twigil )
 ; ::DISPATCH_VAR( ::DISPATCH( $var, 'name',  )
 , 'STORE', $name )
-; ::DISPATCH_VAR( $pad, 'STORE', ::DISPATCH( $COMPILER::List_PAD, 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
+; ::DISPATCH_VAR( $pad, 'STORE', ::DISPATCH(  ( $COMPILER::List_PAD = $COMPILER::List_PAD || ::DISPATCH( $::ArrayContainer, "new", )  ) 
+, 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
  )
  )
 ; return($var)

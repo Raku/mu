@@ -269,7 +269,7 @@ package GLOBAL;
     }
 
     sub slurp {
-        warn '#XXX# Slurp only a prototype here!';
+        #warn '#XXX# Slurp only a prototype here!';
         return ::DISPATCH($::Str, 'new', (join '', <>) );
     }
 

@@ -56,36 +56,42 @@ sub emit_perl5 {
                                 . (
                                 Main::newline()
                                     . (
-                                    'use v5;'
+                                    '# AUTHORS, COPYRIGHT: Please look at the source file.'
                                         . (
                                         Main::newline()
                                             . (
-                                            'use strict;'
+                                            'use v5;'
                                                 . (
                                                 Main::newline()
                                                     . (
-                                                    'no strict "vars";'
+                                                    'use strict;'
                                                         . (
                                                         Main::newline()
                                                             . (
-                                                            set_secure_mode($args_secure)
+                                                            'no strict "vars";'
                                                                 . (
-                                                                'use '
+                                                                Main::newline()
                                                                     . (
-                                                                    Main::get_compiler_target_runtime()
+                                                                    set_secure_mode($args_secure)
                                                                         . (
-                                                                        ';'
+                                                                        'use '
                                                                             . (
-                                                                            Main::newline()
+                                                                            Main::get_compiler_target_runtime()
                                                                                 . (
-                                                                                'my $_MODIFIED; INIT { $_MODIFIED = {} }'
+                                                                                ';'
                                                                                     . (
                                                                                     Main::newline()
                                                                                         . (
-                                                                                        'INIT { '
+                                                                                        'my $_MODIFIED; INIT { $_MODIFIED = {} }'
                                                                                             . (
-                                                                                            '$_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); '
-                                                                                                . ( '}' . ( Main::newline() . ( $source . ( Main::newline() . ( '; 1 }' . Main::newline() ) ) ) ) )
+                                                                                            Main::newline()
+                                                                                                . (
+                                                                                                'INIT { '
+                                                                                                    . (
+                                                                                                    '$_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); '
+                                                                                                        . ( '}' . ( Main::newline() . ( $source . ( Main::newline() . ( '; 1 }' . Main::newline() ) ) ) ) )
+                                                                                                    )
+                                                                                                )
                                                                                             )
                                                                                         )
                                                                                     )

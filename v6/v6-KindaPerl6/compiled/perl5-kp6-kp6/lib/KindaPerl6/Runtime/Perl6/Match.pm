@@ -7,7 +7,8 @@ use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
-do {do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Match )
+do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', $::Match )
 ,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Match);
 $::Match = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Match' )
  )
@@ -55,10 +56,13 @@ do { if (::DISPATCH(::DISPATCH(::DISPATCH( $self, "result" )
 , 'Str',  )
 )
 } }  else { ::DISPATCH($::Bit, "new", 0) } }
-; ::DISPATCH( $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_, 'APPLY', ::DISPATCH( $self, "bool" )
-, ::DISPATCH( $GLOBAL::Code_substr, 'APPLY', ::DISPATCH( $self, "match_str" )
+; ::DISPATCH(  ( $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_ = $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', ::DISPATCH( $self, "bool" )
+, ::DISPATCH(  ( $GLOBAL::Code_substr = $GLOBAL::Code_substr || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', ::DISPATCH( $self, "match_str" )
 , ::DISPATCH( $self, "from" )
-, ::DISPATCH( $GLOBAL::Code_infix_58__60__45__62_, 'APPLY', ::DISPATCH( $self, "to" )
+, ::DISPATCH(  ( $GLOBAL::Code_infix_58__60__45__62_ = $GLOBAL::Code_infix_58__60__45__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', ::DISPATCH( $self, "to" )
 , ::DISPATCH( $self, "from" )
  )
  )

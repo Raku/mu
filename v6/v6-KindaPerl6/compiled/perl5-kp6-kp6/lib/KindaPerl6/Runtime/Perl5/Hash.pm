@@ -76,18 +76,12 @@ $::Hash = KindaPerl6::Runtime::Perl5::MOP::make_class(
             return ::DISPATCH(
                 $::ContainerProxy,
                 "new",
-                {
-                    STORE => sub {
-                        #warn "Hash.{x}.STORE!";
-                        shift;
-                        my $cell
-                            = exists $self->{_value}{_hash}{$key}
-                            ? $self->{_value}{_hash}{$key}
-                            : ( $self->{_value}{_hash}{$key} = ::DISPATCH( $::Container, 'new' ) );
-                        ::DISPATCH_VAR( $cell, 'STORE', @_ );
+                sub {
+                        if ( ! exists $self->{_value}{_hash}{$key} ) {
+                            $self->{_value}{_hash}{$key} = ::DISPATCH( $::Container, 'new' );
+                        }
+                        $self->{_value}{_hash}{$key};
                     },
-                    BIND => sub { die "BIND!" },
-                }
             );
         },
         elems => sub {

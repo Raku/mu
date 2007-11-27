@@ -113,22 +113,23 @@ $::Container = KindaPerl6::Runtime::Perl5::MOP::make_class(
             my $v = {
                 %{ $_[0] },
                 _roles        => { container => 1, 'auto_deref' => 1 },
+                _value        => {},
                 _dispatch_VAR => $::dispatch_VAR,
             };
         },
         FETCH => sub {
-            #warn "Container.FETCH";
+            #warn "Container.FETCH $_[0]";
             my $self = shift;
             return $self->{_value}{cell}
                 if exists $self->{_value}{cell};
             return ::DISPATCH(
                         $::ValueProxy,
                         "new",
-                        { _parent => $self },
+                        $self,
                     );
         },
         STORE => sub {
-            #warn "Container.STORE";
+            #warn "Container.STORE $_[0]";
             die "attempt to modify a read-only value"
                 if $_[0]{_roles}{readonly};
             $_[0]{_value}{modified}{ $_[0]{_value}{name} } = 1;
@@ -141,7 +142,17 @@ $::Container = KindaPerl6::Runtime::Perl5::MOP::make_class(
             $_[1]{_value}{modified}{ $_[1]{_value}{name} } = 1;
             if ( $_[1]{_roles}{container} ) {
                 # Container := Container
+                #if ( ! exists $_[1]{_value}{cell} ) {
+                    # bindind to proxy container
+                    # force autovivify
+                    #warn "autovivify";
+                    #::DISPATCH_VAR( $_[1], 'STORE', $::Undef );
+                    #$_[1]{_value} = {};
+                #}
+
                 $_[0]{_value} = $_[1]{_value};
+                #$_[0]->{_value}{$_} = $_[1]->{_value}{$_} for keys %{ $_[1]->{_value} };
+
                 $_[0]{_roles}{readonly} = $_[1]{_roles}{readonly};
             }
             else {
@@ -194,7 +205,7 @@ $::Scalar = KindaPerl6::Runtime::Perl5::MOP::make_class(
         new => sub {
             my $v = {
                 %{ $_[0] },
-                _value        => $_[1],   # { %{$_[1]}, cell => undef },
+                _value        => $_[1] || {},   # { %{$_[1]}, cell => undef },
                 _roles        => { container => 1, 'auto_deref' => 1 },
                 _dispatch_VAR => $::dispatch_VAR,
             };
@@ -237,7 +248,7 @@ $::ArrayContainer = KindaPerl6::Runtime::Perl5::MOP::make_class(
         new => sub {
             my $v = {
                 %{ $_[0] },
-                _value        => $_[1], # { %{$_[1]}, cell => undef },
+                _value        => $_[1] || {}, # { %{$_[1]}, cell => undef },
                 _roles        => { container => 1, 'auto_deref' => 1 },
                 _dispatch_VAR => $::dispatch_VAR,
             };
@@ -255,7 +266,7 @@ $::HashContainer = KindaPerl6::Runtime::Perl5::MOP::make_class(
         new => sub {
             my $v = {
                 %{ $_[0] },
-                _value        => $_[1], # { %{$_[1]}, cell => undef },
+                _value        => $_[1] || {}, # { %{$_[1]}, cell => undef },
                 _roles        => { container => 1, 'auto_deref' => 1 },
                 _dispatch_VAR => $::dispatch_VAR,
             };
@@ -302,13 +313,14 @@ $::Routine = KindaPerl6::Runtime::Perl5::MOP::make_class(
     methods => {
         APPLY => sub {   # XXX this should be handled by normal FETCH+APPLY
             my $self = shift;
-            local $::ROUTINE = $self->{_value}{cell};
-            $self->{_value}{cell}{_value}{code}->(@_);
+            my $r = ::DISPATCH_VAR( $self, "FETCH" );
+            local $::ROUTINE = $r;
+            $r->{_value}{code}->(@_);
         },
         new => sub {
             my $v = {
                 %{ $_[0] },
-                _value        => $_[1],                                     # { cell => undef },
+                _value        => $_[1] || {},                                     # { cell => undef },
                 _roles        => { container => 1, 'auto_apply' => 1, 'readonly' => 1 },
                 _dispatch_VAR => $::dispatch_VAR,
             };
@@ -352,84 +364,72 @@ $GLOBAL::Code_VAR_defined = ::DISPATCH(
 $::ValueProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
     proto   => $::ValueProxy,
     name    => "ValueProxy",
-    parents => [ ::DISPATCH( $::Undef, 'HOW' ) ],
+    parents => [ ::DISPATCH( $::Value, 'HOW' ) ],
     methods => {
         new => sub {
             #warn "ValueProxy.new\n";
+            my $dispatch = $::Value->{_dispatcher};
             my $v = {
                 %{ $_[0] },
-                _scalar    => $_[1],  #  _parent
+                _parent_container    => $_[1], 
                 #   _value must not exist, because this is an Undef
+                _dispatch => sub {
+                        my $self = shift;
+                        if ( ! exists $self->{_parent_container}{_value}{cell} ) {
+                            return $::Value->{_dispatch}( $self, @_ )
+                                if $_[0] eq "INDEX" || $_[0] eq "LOOKUP" || $_[0] eq "exists";
+                            return ::DISPATCH( $::Str, "new", "" )
+                                if $_[0] eq "Str";
+                            return ::DISPATCH( $::Undef, @_ );
+                        }
+                        ::DISPATCH( $self->{_parent_container}{_value}{cell}, @_ );
+                    },
             };
             return $v;
         },
         # FETCH => sub { die "ValueProxy.FETCH !!!\n"; },
         LOOKUP => sub {
             #warn "ValueProxy.LOOKUP";
-            my $parent_container = $_[0]{_scalar}{_parent};
+            my $parent_container = $_[0]{_parent_container};
             if ( ! exists $parent_container->{_value}{cell} ) {
                 my $key = $_[1];
                 return ::DISPATCH(
                         $::ContainerProxy,
                         "new",
-                        {
-                            STORE   => sub {
-                                #warn "STORE!";
-                                my $self = shift;
-                                ::DISPATCH_VAR(
-                                    ::DISPATCH(
-                                        ::DISPATCH_VAR(
-                                            $parent_container,
-                                            'STORE',
-                                            ::DISPATCH( $::Hash, 'new' ),
-                                        ),
-                                        'LOOKUP',
-                                        $key
-                                    ),
-                                    'STORE',
-                                    @_
-                                );
+                        sub {
+                                if ( ! exists $parent_container->{_value}{cell} ) {
+                                    ::DISPATCH_VAR( $parent_container, 'STORE', 
+                                        ::DISPATCH( $::Hash, 'new' )
+                                    );
+                                }
+                                ::DISPATCH( $parent_container, 'LOOKUP', $key );
                             },
-                            BIND    => sub { die "lazy Container.FETCH.{}.BIND() not implemented"  },
-                        }
                 );
             }
             return ::DISPATCH( $parent_container, 'LOOKUP', @_ );
         },
         INDEX => sub {
             #warn "ValueProxy.INDEX";
-            my $parent_container = $_[0]{_scalar}{_parent};
+            my $parent_container = $_[0]{_parent_container};
             if ( ! exists $parent_container->{_value}{cell} ) {
-                my $index = $_[1];
+                my $key = $_[1];
                 return ::DISPATCH(
                         $::ContainerProxy,
                         "new",
-                        {
-                            STORE   => sub {
-                                #warn "STORE!";
-                                my $self = shift;
-                                ::DISPATCH_VAR(
-                                    ::DISPATCH(
-                                        ::DISPATCH_VAR(
-                                            $parent_container,
-                                            'STORE',
-                                            ::DISPATCH( $::Array, 'new' ),
-                                        ),
-                                        'INDEX',
-                                        $index
-                                    ),
-                                    'STORE',
-                                    @_
-                                );
+                        sub {
+                                if ( ! exists $parent_container->{_value}{cell} ) {
+                                    ::DISPATCH_VAR( $parent_container, 'STORE', 
+                                        ::DISPATCH( $::Array, 'new' )
+                                    );
+                                }
+                                ::DISPATCH( $parent_container, 'INDEX', $key );
                             },
-                            BIND    => sub { die "lazy Container.FETCH.[].BIND() not implemented"  },
-                        }
                 );
             }
             return ::DISPATCH( $parent_container, 'INDEX', @_ );
         },
         exists => sub {
-            my $parent_container = $_[0]{_scalar}{_parent};
+            my $parent_container = $_[0]{_parent_container};
             ::DISPATCH( $::Bit, 'new',
                 exists $parent_container->{_value}{cell}
                 ? 1 : 0 );
@@ -448,8 +448,9 @@ $::ContainerProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
             #warn "ContainerProxy.new\n";
             my $v = {
                 %{ $_[0] },
-                _scalar       => $_[1],   #   STORE, BIND
+                _autovivify   => $_[1],   #  sub
                 _roles        => { container => 1, 'auto_deref' => 1 },
+                _value        => {},
                 _dispatch_VAR => $::dispatch_VAR,
             };
             return $v;
@@ -461,14 +462,22 @@ $::ContainerProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
             return ::DISPATCH(
                 $::ValueProxy,
                 "new",
-                { _parent => $self }
+                $self,
             );
         },
         STORE => sub {
-            return $_[0]{_scalar}{STORE}( @_ );
+            my $self = shift;
+            my $cell = $self->{_autovivify}( $self );
+            ::DISPATCH_VAR( $cell, 'STORE', @_ );
+            $self->{_value} = $cell->{_value};
+            $cell;
         },
         BIND => sub {
-            return $_[0]{_scalar}{BIND}( @_ );
+            my $self = shift;
+            my $cell = $self->{_autovivify}( $self );
+            ::DISPATCH_VAR( $cell, 'BIND', @_ );
+            $self->{_value} = $cell->{_value};
+            $cell;
         },
         exists => sub {
             my $self = shift;
