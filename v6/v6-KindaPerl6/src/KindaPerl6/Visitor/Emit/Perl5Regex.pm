@@ -52,7 +52,7 @@ class Token {
                         ~ 'sub { '
                         ~    'local $GLOBAL::_Class = shift; '
                         ~    'undef $GLOBAL::_M2; '
-                        ~    '( ref($_) ? $_->{_dispatch}( $_, "Str" )->{_value} : $_ ) =~ '
+                        ~    '( ref($_) ? ::DISPATCH( $_, "Str" )->{_value} : $_ ) =~ '
                         ~      '/$_rule_' ~ $.name ~ '/; '
                         
                         ~    'if ( $GLOBAL::_M2->[1] eq \'to\' ) { '
@@ -67,7 +67,7 @@ class Token {
                         ~    '@Match::Matches = (); '   # discard outer matches, if any
                         ~    'return $MATCH; '
                         ~ '} '
-                    # TODO Signature
+                    # TODO Signature and AST
                     ~ '} '
                 ~ '), '
 
