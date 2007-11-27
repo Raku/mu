@@ -22,29 +22,18 @@ none
 
 =item p5landish
 
+You have a Perl 6 string object that you want to compare using `eq`, for
+example. The object itself would be a Perl 6 object, and you would use
+p5landish on it to get at the actual string contained within it so you can
+compare it.
+
+In short, p5landish returns the actual value contained in the object.
+
+See: http://irclog.perlgeek.de/perl6/2007-11-27#i_152004
+
 =back
 
-=head1 AUTHORS
-
-The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
-
-=head1 SEE ALSO
-
-The Perl 6 homepage at L<http://dev.perl.org/perl6>.
-
-The Pugs homepage at L<http://pugscode.org/>.
-
-=head1 COPYRIGHT
-
-Copyright 2007 by Flavio Soibelmann Glock and others.
-
-This program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
-
-See L<http://www.perl.com/perl/misc/Artistic.html>
-
 =cut
-
 
 $::Hash = KindaPerl6::Runtime::Perl5::MOP::make_class(
     proto   => $::Hash,
@@ -123,8 +112,16 @@ none
 
 =item p5landish
 
-=cut
+You have a Perl 6 string object that you want to compare using `eq`, for
+example. The object itself would be a Perl 6 object, and you would use
+p5landish on it to get at the actual string contained within it so you can
+compare it.
 
+In short, p5landish returns the actual value contained in the object.
+
+See: http://irclog.perlgeek.de/perl6/2007-11-27#i_152004
+
+=cut
 
 $::HashProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
     proto   => $::HashProxy,
@@ -171,5 +168,26 @@ $::HashProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
         },
     }
 );
+
+=head1 AUTHORS
+
+The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
+
+=head1 SEE ALSO
+
+The Perl 6 homepage at L<http://dev.perl.org/perl6>.
+
+The Pugs homepage at L<http://pugscode.org/>.
+
+=head1 COPYRIGHT
+
+Copyright 2007 by Flavio Soibelmann Glock and others.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
+
+=cut
 
 1;

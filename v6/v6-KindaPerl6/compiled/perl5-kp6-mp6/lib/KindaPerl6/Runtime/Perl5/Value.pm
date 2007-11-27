@@ -56,6 +56,15 @@ none
 
 =item p5landish
 
+You have a Perl 6 string object that you want to compare using `eq`, for
+example. The object itself would be a Perl 6 object, and you would use
+p5landish on it to get at the actual string contained within it so you can
+compare it.
+
+In short, p5landish returns the actual value contained in the object.
+
+
+
 =item print
 
 =item FETCH
