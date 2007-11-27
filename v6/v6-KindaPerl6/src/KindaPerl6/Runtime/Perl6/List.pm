@@ -21,15 +21,6 @@ class List is Value {
         return @result;
     };
 
-    method map(&proc) {
-        my @result;
-        for @(self) -> $v {
-            $_ := $v;   # this should be automatic ???
-            @result.push(proc($v));
-        };
-        return @result;
-    };
-
     method join($sep) {
         my $result = '';
         my $s = '';

@@ -94,16 +94,30 @@ $::List = KindaPerl6::Runtime::Perl5::MOP::make_class(
             my $sub = $_[1];
             ::DISPATCH( $::List, 'new', { _array => [ sort { ::DISPATCH( $sub, "APPLY", $a, $b )->{_value}; } @{ $_[0]{_value}{_array} } ], } );
         },
-        for => sub {
+        map =>sub {
             my $sub = $_[1];
+            # arity: http://en.wikipedia.org/wiki/Arity, the number of arguments a function takes
             my $arity = ::DISPATCH( ::DISPATCH( $sub, 'signature' ), 'arity' )->{_value};
-
-            #print "ARITY: $arity\n";
-            my @list = @{ $_[0]{_value}{_array} };
-            while (@list) {
-                my @params = splice( @list, 0, $arity );
-                ::DISPATCH( $sub, "APPLY", @params );
-            }
+            print "List.map arity: $arity\n";
+            my $result = ::DISPATCH( $::Array, 'new' );
+            my @list = @{$_[0]{_value}{_array}};
+            my @params;
+            while ( @list ) {
+                if ( $arity ) {
+                    @params = splice( @list, 0, $arity );
+                }
+                else {
+                    $_ = shift @list;   # ???
+                }
+                ::DISPATCH( $result, 'push',
+                    ::DISPATCH(
+                        $sub,
+                        "APPLY",
+                        @params,
+                    )
+                );
+            };
+            $result;
         },
     }
 );
