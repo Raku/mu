@@ -390,9 +390,9 @@ $::ValueProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
         # FETCH => sub { die "ValueProxy.FETCH !!!\n"; },
         LOOKUP => sub {
             #warn "ValueProxy.LOOKUP";
-            my $parent_container = $_[0]{_parent_container};
+            my ( $self, @key ) = @_;
+            my $parent_container = $self->{_parent_container};
             if ( ! exists $parent_container->{_value}{cell} ) {
-                my $key = exists $_[1] ? $_[1] : undef;
                 return ::DISPATCH(
                         $::ContainerProxy,
                         "new",
@@ -403,20 +403,20 @@ $::ValueProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
                                     );
                                 }
                                 return $parent_container
-                                    unless defined $key;
-                                ::DISPATCH( $parent_container, 'LOOKUP', $key );
+                                    unless @key;
+                                ::DISPATCH( $parent_container, 'LOOKUP', @key );
                             },
                 );
             }
             return $parent_container
-                unless @_;
-            return ::DISPATCH( $parent_container, 'LOOKUP', @_ );
+                unless @key;
+            return ::DISPATCH( $parent_container, 'LOOKUP', @key );
         },
         INDEX => sub {
             #warn "ValueProxy.INDEX";
-            my $parent_container = $_[0]{_parent_container};
+            my ( $self, @key ) = @_;
+            my $parent_container = $self->{_parent_container};
             if ( ! exists $parent_container->{_value}{cell} ) {
-                my $key = exists $_[1] ? $_[1] : undef;
                 return ::DISPATCH(
                         $::ContainerProxy,
                         "new",
@@ -427,14 +427,14 @@ $::ValueProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
                                     );
                                 }
                                 return $parent_container
-                                    unless defined $key;
-                                ::DISPATCH( $parent_container, 'INDEX', $key );
+                                    unless @key;
+                                ::DISPATCH( $parent_container, 'INDEX', @key );
                             },
                 );
             }
             return $parent_container
-                unless @_;
-            return ::DISPATCH( $parent_container, 'INDEX', @_ );
+                unless @key;
+            return ::DISPATCH( $parent_container, 'INDEX', @key );
         },
         exists => sub {
             my $parent_container = $_[0]{_parent_container};
