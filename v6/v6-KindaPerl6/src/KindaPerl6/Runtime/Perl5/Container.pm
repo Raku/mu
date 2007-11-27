@@ -408,6 +408,8 @@ $::ValueProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
                             },
                 );
             }
+            return $parent_container
+                unless @_;
             return ::DISPATCH( $parent_container, 'LOOKUP', @_ );
         },
         INDEX => sub {
@@ -430,6 +432,8 @@ $::ValueProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
                             },
                 );
             }
+            return $parent_container
+                unless @_;
             return ::DISPATCH( $parent_container, 'INDEX', @_ );
         },
         exists => sub {
