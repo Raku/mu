@@ -63,7 +63,7 @@ compare it.
 
 In short, p5landish returns the actual value contained in the object.
 
-
+See: http://irclog.perlgeek.de/perl6/2007-11-27#i_152004
 
 =item print
 
@@ -102,7 +102,7 @@ $::Str is a $::Class object
 
 =head3 Parents
 
-none
+$::Value
 
 =head3 Attributes
 
