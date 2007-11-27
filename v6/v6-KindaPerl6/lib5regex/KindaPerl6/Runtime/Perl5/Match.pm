@@ -43,7 +43,15 @@ package Match;
                                 'from => ' . $self->from,
                                 'to => '   . $self->to,
                                 'true => ' . $self->true,
-                                'str => '  . $self->match_str,
+                                'str => '  . ${$self->match_str},
+                                'result => ' . 
+                                    do {
+                                        my $s =
+                                        eval {
+                                            ::DISPATCH( ::DISPATCH( $self, 'result' ), 'perl' )->{_value}
+                                        };
+                                        $@ ? $@ : $s;
+                                    },
                               )
                         . ' )' );
                 }
