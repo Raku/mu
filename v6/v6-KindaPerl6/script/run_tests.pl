@@ -171,6 +171,12 @@ sub run_tap_harness {
     my $args = shift;
 
     my $tap = { %{ $args->{tap_new} } };    # clone
+    if ( defined $tap->{verbosity} ) {
+        my $t = $tap->{verbosity}; # I am lazy
+        # make sure this is the right value
+        die "verbosity has an invalid value: $t ( 1, 0, -1, or -2 )\nDid you set \$ENV{TEST_VERBOSE} to a bad value?" unless
+            $t == 1 or $t == 0 or $t == -1 or $t == -2;
+    }
 
     # TAP::Harness 3.00 documentation is wrong
     # the correct invocation is { exec => [ $prog,$arg1,$arg2 ] }
