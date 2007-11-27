@@ -53,15 +53,13 @@ $::Hash = KindaPerl6::Runtime::Perl5::MOP::make_class(
     methods => {
 
         new => sub {
-            my ( $proto, $param ) = @_;
+            my ( $proto, @param ) = @_;
             my $self = {
                 %{$proto},
                 _value => { _hash => {} },
             };
-            if ($param) {
-                for my $key ( keys %{ $param->{_hash} } ) {
-                    ::DISPATCH_VAR( ::DISPATCH( $self, 'LOOKUP', $key ), 'STORE', ${ $param->{_hash} }{$key}, );
-                }
+            for my $pair ( @param ) {
+                ::DISPATCH_VAR( ::DISPATCH( $self, 'LOOKUP', $pair->[0] ), 'STORE', $pair->[1], );
             }
             return $self;
         },

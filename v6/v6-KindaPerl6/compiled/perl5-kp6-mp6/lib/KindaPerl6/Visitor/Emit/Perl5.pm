@@ -227,9 +227,9 @@ sub emit_perl5 {
     my $str    = '';
     my $field;
     do {
-        for my $field ( @{$fields} ) { $str = ( $str . ( $field->[0]->emit_perl5() . ( ' => ' . ( $field->[1]->emit_perl5() . ',' ) ) ) ) }
+        for my $field ( @{$fields} ) { $str = ( $str . ( '[ ' . ( $field->[0]->emit_perl5() . ( ', ' . ( $field->[1]->emit_perl5() . ' ],' ) ) ) ) ) }
     };
-    ( '{ _hash => { ' . ( $str . ( ' } }' . Main::newline() ) ) );
+    ( $str . Main::newline() );
 }
 
 package Lit::Pair;
@@ -880,12 +880,12 @@ sub emit_perl5 {
     };
     do {
         if ( defined( $self->{hash} ) ) {
-            $s = ( $s . 'hash => ::DISPATCH( $::Hash, "new", { _hash => { ' );
+            $s = ( $s . 'hash => ::DISPATCH( $::Hash, "new", ' );
             my $item;
             do {
-                for my $item ( @{ $self->{hash} } ) { $s = ( $s . ( $item->[0]->emit_perl5() . ( '->{_value} => ' . ( $item->[1]->emit_perl5() . ', ' ) ) ) ) }
+                for my $item ( @{ $self->{hash} } ) { $s = ( $s . ( '[ ' . ( $item->[0]->emit_perl5() . ( ', ' . ( $item->[1]->emit_perl5() . ' ], ' ) ) ) ) ) }
             };
-            $s = ( $s . ' } } ),' );
+            $s = ( $s . ' ),' );
         }
         else { }
     };

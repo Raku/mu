@@ -66,20 +66,16 @@ package GLOBAL;
 
     # This is used by Visitor::Namespace.pm, to store Namespaces with global variables
     $GLOBAL::Hash_KP6 =
-        ::DISPATCH( $::Hash, 'new', {
-            _hash => { }
-        } );
+        ::DISPATCH( $::Hash, 'new',  );
 
     # %*ENV
     $GLOBAL::Hash_ENV =
-        ::DISPATCH( $::Hash, 'new', {
-            _hash => {
-                map { (
+        ::DISPATCH( $::Hash, 'new', 
+                map { [
                         ::DISPATCH( $::Str, 'new', $_ ),
                         ::DISPATCH( $::Str, 'new', $ENV{$_} )
-                    ) } keys %ENV
-            }
-        } );
+                    ] } keys %ENV
+            );
 
     # @*ARGS
     $GLOBAL::List_ARGS =
@@ -96,9 +92,7 @@ package GLOBAL;
 
     # %*ENV
     $GLOBAL::Hash_ENV =
-        ::DISPATCH( $::Hash, 'new', {
-                _hash => { }
-            } );
+        ::DISPATCH( $::Hash, 'new' );
     for ( keys %ENV ) {
         ::DISPATCH(
             ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', $_ ) ),
@@ -528,14 +522,16 @@ sub ::CAPTURIZE {
             invocant => undef,  # TODO
             array =>
                 ::DISPATCH( $::Array, 'new', {
-                        _array => \@array,
-                    }
-                ),
+                            _array => \@array,
+                        }
+                    ),
             hash =>
-                ::DISPATCH( $::Hash, 'new', {
-                        _hash => \%hash,
-                    }
-                ),
+                ::DISPATCH( $::Hash, 'new', 
+                        map { [
+                                $_,         # ::DISPATCH( $::Str, 'new', $_ ),
+                                $hash{$_},  # ::DISPATCH( $::Str, 'new', $hash{$_} )
+                            ] } keys %hash
+                    ),
         }
     )
 }

@@ -120,9 +120,9 @@ class Lit::Hash {
         my $str := '';
         my $field;
         for @$fields -> $field {
-            $str := $str ~ ($field[0]).emit_perl5 ~ ' => ' ~ ($field[1]).emit_perl5 ~ ',';
+            $str := $str ~ '[ ' ~ ($field[0]).emit_perl5 ~ ', ' ~ ($field[1]).emit_perl5 ~ ' ],';
         };
-        '{ _hash => { ' ~ $str ~ ' } }' ~ Main::newline();
+        $str ~ Main::newline();
     }
 }
 
@@ -688,12 +688,12 @@ class Capture {
             $s := $s ~ ' ] } ),';
         };
         if defined $.hash {
-           $s := $s ~ 'hash => ::DISPATCH( $::Hash, "new", { _hash => { ';
-                           my $item;
-           for @.hash -> $item {
-                $s := $s ~ ($item[0]).emit_perl5 ~ '->{_value} => ' ~ ($item[1]).emit_perl5 ~ ', ';
+            $s := $s ~ 'hash => ::DISPATCH( $::Hash, "new", ';
+            my $item;
+            for @.hash -> $item {
+                $s := $s ~ '[ ' ~ ($item[0]).emit_perl5 ~ ', ' ~ ($item[1]).emit_perl5 ~ ' ], ';
             }
-            $s := $s ~ ' } } ),';
+            $s := $s ~ ' ),';
         };
         return $s ~ ' } )' ~ Main::newline();
     };
