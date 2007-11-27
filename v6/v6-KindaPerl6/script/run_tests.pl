@@ -176,8 +176,9 @@ sub run_tap_harness {
     # the correct invocation is { exec => [ $prog,$arg1,$arg2 ] }
     my @exec = ( $EXECUTABLE_NAME );
 
-    # this will cause odd behavior in TAP::Harness if you put '' in the array
-    push @exec, $extra_libs if $extra_libs;
+    # perl takes the code from STDIN if there is a blank argument IE
+    # perl '' test.pl
+    push @exec, $extra_libs if $extra_libs; # do not put in an "empty" argument
     push @exec, 'script/kp6';
     push @exec, '-B' . $args->{backend};
     $tap->{exec} = \@exec;
