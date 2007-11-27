@@ -392,7 +392,7 @@ $::ValueProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
             #warn "ValueProxy.LOOKUP";
             my $parent_container = $_[0]{_parent_container};
             if ( ! exists $parent_container->{_value}{cell} ) {
-                my $key = $_[1];
+                my $key = exists $_[1] ? $_[1] : undef;
                 return ::DISPATCH(
                         $::ContainerProxy,
                         "new",
@@ -402,6 +402,8 @@ $::ValueProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
                                         ::DISPATCH( $::Hash, 'new' )
                                     );
                                 }
+                                return $parent_container
+                                    unless defined $key;
                                 ::DISPATCH( $parent_container, 'LOOKUP', $key );
                             },
                 );
@@ -412,7 +414,7 @@ $::ValueProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
             #warn "ValueProxy.INDEX";
             my $parent_container = $_[0]{_parent_container};
             if ( ! exists $parent_container->{_value}{cell} ) {
-                my $key = $_[1];
+                my $key = exists $_[1] ? $_[1] : undef;
                 return ::DISPATCH(
                         $::ContainerProxy,
                         "new",
@@ -422,6 +424,8 @@ $::ValueProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
                                         ::DISPATCH( $::Array, 'new' )
                                     );
                                 }
+                                return $parent_container
+                                    unless defined $key;
                                 ::DISPATCH( $parent_container, 'INDEX', $key );
                             },
                 );

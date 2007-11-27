@@ -67,6 +67,8 @@ $::Hash = KindaPerl6::Runtime::Perl5::MOP::make_class(
         },
         LOOKUP => sub {
             my $self = shift;
+            return $self
+                unless @_;
             my $key
                 = ref( $_[0] )
                 ? ::DISPATCH( ::DISPATCH( $_[0], "Str" ), "p5landish" )

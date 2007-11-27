@@ -56,6 +56,8 @@ $::Array = KindaPerl6::Runtime::Perl5::MOP::make_class(
         },
     INDEX=>sub {
             my $self = shift;
+            return $self
+                unless @_;
             my $key
                 = ref( $_[0] )
                 ? ::DISPATCH( ::DISPATCH( $_[0], "Int" ), "p5landish" )
