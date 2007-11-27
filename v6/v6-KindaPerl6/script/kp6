@@ -345,7 +345,15 @@ for (@COMPILER::CHECK) {
 
     # Make kp6 -e 'say "foo"' and echo 'say "foo"' | kp6 run stuff
     # under the p5 backend
-    if ( !grep {defined} @opt{qw( B C do )} ) {
+    if ( $opt{ output } ) {
+            Perl::Tidy::perltidy(
+                source => \$out,
+                destination => $output,
+                perltidyrc => $opt{ perltidyrc },
+                argv => '',
+             );
+    }
+    elsif ( !grep {defined} @opt{qw( B C do )} ) {
         run_piped_command("$EXECUTABLE_NAME -I$lib - -- @ARGV");
     }
     elsif ( grep { $_ eq 'ast' } @opt{qw(C B)} ) {
@@ -396,13 +404,13 @@ for (@COMPILER::CHECK) {
                     argv => '',
                  );
             } else {
-                print $output $out
+                print $output $out;
             }
         }
     }
     elsif ( grep { $_ =~ /^cl/ } @opt{qw(C B)} ) {
         if ( $opt{C} ) {
-            print $out;
+            print $output $out;
         }
         elsif ( $opt{B} =~ /^cl(?:-(.*))$/ ) {
             my $compiler = $1;
@@ -419,7 +427,7 @@ for (@COMPILER::CHECK) {
         }
     }
     else {
-        print $out;
+        print $output $out;
     }
 }
 
