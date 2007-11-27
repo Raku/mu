@@ -174,8 +174,10 @@ sub run_tap_harness {
     if ( defined $tap->{verbosity} ) {
         my $t = $tap->{verbosity}; # I am lazy
         # make sure this is the right value
+        die "verbosity must be a number: '$t' is invalid" unless $t =~ /^[+-]?\d+$/;
         die "verbosity has an invalid value: $t ( 1, 0, -1, or -2 )\nDid you set \$ENV{TEST_VERBOSE} to a bad value?" unless
             $t == 1 or $t == 0 or $t == -1 or $t == -2;
+        delete $tap->{verbosity} unless $tap->{verbosity};
     }
 
     # TAP::Harness 3.00 documentation is wrong
