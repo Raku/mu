@@ -28,7 +28,13 @@ package Match;
                     return ::DISPATCH( $::Bit, 'new', 1 );  # it probably does
                 }
                 if ( $method eq 'scalar' ) {
-                    return $_[0]->result;
+                    return ::DISPATCH( $self, 'result' );
+                }
+                if ( $method eq 'result' ) {
+                    my $res = $self->result;
+                    return ::DISPATCH( $::Undef, 'new', )
+                        unless defined $res;
+                    return $res;
                 }
                 
                 $self->$method( @param );
