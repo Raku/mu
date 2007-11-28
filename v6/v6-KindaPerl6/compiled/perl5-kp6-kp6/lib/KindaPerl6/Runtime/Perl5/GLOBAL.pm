@@ -485,43 +485,40 @@ package GLOBAL;
 
 # -------
 
-sub ::CAPTURIZE {
-    my @array;
-    my %hash;
-
+    # match the parameter list to the signature specification
+    # XXX TODO
     #print "# CAPTURIZE: now at Code == $::ROUTINE \n";
     #my $signature = ::DISPATCH( ::DISPATCH( $::ROUTINE, 'signature' ), 'array' );
     # -- get the signature specification
     #my @sigs = @{ $signature->{_value}{_array} };
     #print "# sig = @{[ keys %{ $sigs[0] } ]} \n";
-    # -- get the runtime parameter list
-    my @params = @{ $_[0] };
 
-    # match the parameter list to the signature specification
-    # XXX TODO
-    for my $p ( @params ) {
-        #print "param @{[ keys( %{ $p->{_value} } ) ]} \n";
-        if (
+sub ::CAPTURIZE {
+    my @params = @{ $_[0] };    # get the runtime parameter list
 
-            # XXX .does bug?
-            # ::DISPATCH( $p, 'does', ::DISPATCH( $::Str, 'new', 'Pair' ) )
-            # ::DISPATCH( $p, 'does', $::Pair )
-
-               eval { exists( $p->{_value}{_argument_name_} ) }
-
-           ) {
-                my $key = ::DISPATCH( ::DISPATCH( $p, '_argument_name_' ), 'Str' )->{_value};
-                #print "named: $key \n";
-                my $value = ::DISPATCH( $p, 'value' );
-                #print "value: $value \n";
-                $hash{ $key } = $value;
-                #print "return\n";
+    my @array;
+    my %hash;
+    my $add_parameter;
+    $add_parameter = sub {
+        my $p = $_[0];
+        my $is_named =       
+                # XXX .does bug?
+                # ::DISPATCH( $p, 'does', ::DISPATCH( $::Str, 'new', 'Pair' ) )
+                # ::DISPATCH( $p, 'does', $::Pair )
+                eval { exists( $p->{_value}{_argument_name_} ) };
+        if ( $is_named ) {
+            my $key = ::DISPATCH( ::DISPATCH( $p, '_argument_name_' ), 'Str' )->{_value};
+            my $value = ::DISPATCH( $p, 'value' );
+            $hash{ $key } = $value;
         }
         else {
-                #print "positional: ", ::DISPATCH( $p, 'Str' )->{_value} ," \n";
-                push @array, $p;
+            push @array, $p;
         }
-    }
+    };
+
+    $add_parameter->( $_ )
+        for @params;
+
     ::DISPATCH( $::Capture, 'new', {
             invocant => undef,  # TODO
             array =>

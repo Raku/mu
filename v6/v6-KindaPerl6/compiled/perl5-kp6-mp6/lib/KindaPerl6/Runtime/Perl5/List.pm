@@ -72,6 +72,9 @@ $::List = KindaPerl6::Runtime::Perl5::MOP::make_class(
         STORE => sub {
             die "can't STORE to a List";
         },
+        eager => sub {
+            $_[0];
+        },
         elems => sub {
             ::DISPATCH( $::Int, "new", scalar @{ $_[0]{_value}{_array} } );
         },

@@ -1,5 +1,5 @@
 use v6-alpha;
-class Range is Value {
+class Range is List {
     has $.start;
     has $.end;
     method perl {
