@@ -249,7 +249,7 @@ $::ArrayContainer = KindaPerl6::Runtime::Perl5::MOP::make_class(
             my $v = {
                 %{ $_[0] },
                 _value        => $_[1] || {}, # { %{$_[1]}, cell => undef },
-                _roles        => { container => 1, 'auto_deref' => 1 },
+                _roles        => { array_container => 1, container => 1, 'auto_deref' => 1 },
                 _dispatch_VAR => $::dispatch_VAR,
             };
             $v->{_value}{cell} = ::DISPATCH( $::Array, "new" )
@@ -263,7 +263,15 @@ $::ArrayContainer = KindaPerl6::Runtime::Perl5::MOP::make_class(
             my $add_parameter;
             $add_parameter = sub {
                 my $p = $_[0];
-                if ( ::DISPATCH( $p, 'does', $::List )->{_value} ) {
+
+                if ( exists $p->{_roles}{array_container} ) {
+                    #warn "List:   ", ::DISPATCH( $p, "perl" )->{_value};
+                    my $list = $p->{_value}{cell};   # ::DISPATCH( $p, 'FETCH' );
+                    #warn "List:   ", ::DISPATCH( $list, "perl" )->{_value};
+                    $add_parameter->( $_ )
+                        for @{ $list->{_value}{_array} };
+                }
+                elsif ( ::DISPATCH( $p, 'does', $::List )->{_value} ) {
                     #warn "List:   ", ::DISPATCH( $p, "perl" )->{_value};
                     my $list = ::DISPATCH( $p, 'eager' );
                     #warn "List:   ", ::DISPATCH( $list, "perl" )->{_value};

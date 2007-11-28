@@ -55,6 +55,7 @@ $::Array = KindaPerl6::Runtime::Perl5::MOP::make_class(
             return $self;
         },
     FETCH => sub { @_ },
+    eager => sub { @_ },
     INDEX=>sub {
             my $self = shift;
             return $self
