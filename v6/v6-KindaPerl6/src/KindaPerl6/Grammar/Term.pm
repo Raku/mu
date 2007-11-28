@@ -90,10 +90,16 @@ token term {
     | \[ <.opt_ws> <exp_seq> <.opt_ws> \]
             { return
                 ::Call(
-                    'invocant'  => ::Proto( name => 'Array' ),
+                    'invocant'  => 
+                        ::Call(
+                            'invocant'  => ::Proto( name => 'ArrayContainer' ),
+                            'hyper'     => '',
+                            'method'    => 'new',
+                            'arguments' => [ ]
+                        ),
                     'hyper'     => '',
-                    'method'    => 'new',
-                    'arguments' => [ ::Lit::Array( 'array' => $$<exp_seq> ) ]
+                    'method'    => 'push',
+                    'arguments' => $$<exp_seq>,
                 );
             }
 

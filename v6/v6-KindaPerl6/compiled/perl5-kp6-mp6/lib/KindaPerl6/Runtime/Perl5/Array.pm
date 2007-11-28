@@ -4,8 +4,6 @@ use strict;
 
 =head3 Parents:
 
-$::Object
-
 =head3 Attributes:
 
 none
@@ -82,13 +80,13 @@ $::Array = KindaPerl6::Runtime::Perl5::MOP::make_class(
         },
     push =>sub {
             my $self = shift;
-            my @param = map { 
+            my @param = map {
                 my $v = ::DISPATCH( $::Scalar, "new" );
                 ::DISPATCH_VAR( $v, 'STORE', ::DISPATCH( $_, 'FETCH' ) );
                 $v;
             } @_;
-            ::DISPATCH($::Int, 'new', 
-                    ( push @{ $self->{_value}{_array} }, @param ) 
+            ::DISPATCH($::Int, 'new',
+                    ( push @{ $self->{_value}{_array} }, @param )
                 );
         },
     pop =>sub {
