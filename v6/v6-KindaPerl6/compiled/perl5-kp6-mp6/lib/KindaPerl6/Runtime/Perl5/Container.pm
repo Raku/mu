@@ -256,6 +256,29 @@ $::ArrayContainer = KindaPerl6::Runtime::Perl5::MOP::make_class(
                 unless exists $v->{_value}{cell};
             $v;
         },
+        STORE => sub {
+            my $self = shift;
+            #warn "\@Array.STORE";
+            my $array = $self->{_value}{cell} = ::DISPATCH( $::Array, "new" );
+            my $add_parameter;
+            $add_parameter = sub {
+                my $p = $_[0];
+                if ( ::DISPATCH( $p, 'does', $::List )->{_value} ) {
+                    #warn "List:   ", ::DISPATCH( $p, "perl" )->{_value};
+                    my $list = ::DISPATCH( $p, 'eager' );
+                    #warn "List:   ", ::DISPATCH( $list, "perl" )->{_value};
+                    $add_parameter->( $_ )
+                        for @{ $list->{_value}{_array} };
+                }
+                else {
+                    #warn "  Push: ", ::DISPATCH( $p, "perl" )->{_value};
+                    ::DISPATCH( $array, 'push', $p );
+                }
+            };
+            $add_parameter->( $_ )
+                for @_;
+            $self;
+        },
     }
 );
 
