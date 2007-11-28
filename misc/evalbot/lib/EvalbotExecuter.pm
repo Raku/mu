@@ -80,6 +80,13 @@ sub run {
     if (!length $response){
         $program = '( ( do { ' . $program . ' } ).perl ).say';
         $response = _fork_and_eval($program, $executer);
+        if (!length $response){
+            $response = "No output (you need to produce output to STDOUT)";
+        } else {
+            $response = "RESULT[$response]";
+        }
+    } else {
+        $response = "OUTPUT[$response]";
     }
     my $newline = '␤';
     $response =~ s/\n/$newline/g;
@@ -87,11 +94,7 @@ sub run {
         $response = substr $response, 0, $max_output_len - 3;
         $response .= '...';
     }
-    if (length $response){
-        return "OUTPUT[$response]";
-    } else {
-        return "No output (you need to produce output to STDOUT)";
-    }
+    return $response;
 }
 
 sub _fork_and_eval {
