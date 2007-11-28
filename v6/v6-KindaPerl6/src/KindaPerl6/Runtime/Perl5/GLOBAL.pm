@@ -71,7 +71,7 @@ package GLOBAL;
 
     # %*ENV
     $GLOBAL::Hash_ENV =
-        ::DISPATCH( $::Hash, 'new',
+        ::DISPATCH( $::Hash, 'new', 
                 map { [
                         ::DISPATCH( $::Str, 'new', $_ ),
                         ::DISPATCH( $::Str, 'new', $ENV{$_} )
@@ -240,16 +240,6 @@ package GLOBAL;
     # ||
     # TODO - macro (moved to EmitPerl5 for now)
     # sub infix_58__60__124__124__62_ { ::DISPATCH( $::Bit, 'new', (::DISPATCH( $_[0], 'true' )->{_value} && $_[0] || ::DISPATCH( $_[1], 'true' )->{_value} && $_[1])) }
-
-    # number    meaning
-    # 58        :
-    # 60        <
-    # 62        >
-    # 61        =
-    # 33        !
-    # thus, "infix_50_60_eq_62 is translated to infix_:_<_eq_>_ or if you remove
-    # the '_', it is translated to
-    # infix:<eq>
 
     sub infix_58__60_eq_62_
     { ::DISPATCH( $::Bit, 'new', (_str($_[0]) eq _str($_[1])) ? 1 : 0) }  # infix:<eq>
@@ -512,7 +502,7 @@ sub ::CAPTURIZE {
     $add_parameter = sub {
         my $p = $_[0];
         if ( ::DISPATCH( $p, 'does', $::NamedArgument )->{_value} ) {
-            push @hash, [
+            push @hash, [ 
                     ::DISPATCH( $p, '_argument_name_' ),
                     ::DISPATCH( $p, 'value' ),
                 ]
