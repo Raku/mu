@@ -619,10 +619,10 @@ sub term {
                                                                                 do {
                                                                                     return (
                                                                                         Call->new(
-                                                                                            'invocant'  => Call->new( 'invocant' => Proto->new( 'name' => 'ArrayContainer', ), 'hyper' => '', 'method' => 'new', 'arguments' => [], ),
+                                                                                            'invocant'  => Proto->new( 'name'         => 'Array', ),
                                                                                             'hyper'     => '',
-                                                                                            'method'    => 'push',
-                                                                                            'arguments' => ${ $MATCH->{'exp_seq'} },
+                                                                                            'method'    => 'new',
+                                                                                            'arguments' => [ Lit::Array->new( 'array' => ${ $MATCH->{'exp_seq'} }, ) ],
                                                                                         )
                                                                                     );
                                                                                 };

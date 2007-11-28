@@ -265,7 +265,7 @@ $::ArrayContainer = KindaPerl6::Runtime::Perl5::MOP::make_class(
                 my $p = $_[0];
 
                 if ( exists $p->{_roles}{array_container} ) {
-                    #warn "List:   ", ::DISPATCH( $p, "perl" )->{_value};
+                    #warn "STORE \@Array to \@Array:   ", ::DISPATCH( $p, "perl" )->{_value};
                     my $list = $p->{_value}{cell};   # ::DISPATCH( $p, 'FETCH' );
                     #warn "List:   ", ::DISPATCH( $list, "perl" )->{_value};
                     $add_parameter->( $_ )
