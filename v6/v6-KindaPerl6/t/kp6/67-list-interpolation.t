@@ -11,4 +11,4 @@ sub foo ($a, $b){
 	say "ok $b";
 }
 my @list = (1, 2);
-foo(@list);
+foo(|@list);
