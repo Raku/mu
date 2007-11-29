@@ -4,16 +4,16 @@ class KindaPerl6::Traverse {
 
     sub visit ( $visitor, $node, $node_name, $path ) {
         #say "visit " ~ $node ~ ' name ' ~ $node_name;
-        
+
         if !(defined( $path )) {
             $path := [ ];
         }
-        
+
         if $node.isa('Array') {
             my $result := [ ];
             my $subitem;
             for @($node) -> $subitem {
-                push @$result, visit_subnode( $visitor, $subitem, $path ); 
+                push @$result, visit_subnode( $visitor, $subitem, $path );
             };
             return $result;
         };
@@ -22,7 +22,7 @@ class KindaPerl6::Traverse {
             my $result := { };
             my $subitem;
             for keys %($node) -> $subitem {
-                $result{ $subitem } := visit_subnode( $visitor, $node{$subitem}, $path ); 
+                $result{ $subitem } := visit_subnode( $visitor, $node{$subitem}, $path );
             };
             return $result;
         };
@@ -36,32 +36,32 @@ class KindaPerl6::Traverse {
         };
 
         # do not include (arrays, pads, str) in the path
-        $path := [ $node, @($path) ];        
+        $path := [ $node, @($path) ];
         #say "Path: ",$path.perl;
 
         my $result := $visitor.visit( $node, $node_name, $path );
         if ( $result ) {
             return $result;
         };
-        
+
         my $result := { };
         my $data := $node.attribs;
         my $item;
         for keys %($data) -> $item {
-            $result{$item} := visit_subnode( $visitor, $data{$item}, $path );         
+            $result{$item} := visit_subnode( $visitor, $data{$item}, $path );
         };
         return $node.new(%$result);
-        
+
     }
 
     sub visit_subnode ( $visitor, $subnode, $path ) {
         if (!(defined $subnode)) {
             return;
         }
-        if     $subnode.isa('Array') 
-            || $subnode.isa('Hash') 
-            || $subnode.isa('Str') 
-            || $subnode.isa('Pad') 
+        if     $subnode.isa('Array')
+            || $subnode.isa('Hash')
+            || $subnode.isa('Str')
+            || $subnode.isa('Pad')
         {
             return visit( $visitor, $subnode, undef, $path );
         }
@@ -72,10 +72,7 @@ class KindaPerl6::Traverse {
 
 }
 
-
-=begin
-
-=head1 NAME 
+=head1 NAME
 
 KindaPerl6::Traverse - Tree traverser for KindaPerl6 AST
 
@@ -98,4 +95,4 @@ under the same terms as Perl itself.
 
 See L<http://www.perl.com/perl/misc/Artistic.html>
 
-=end
+=cut
