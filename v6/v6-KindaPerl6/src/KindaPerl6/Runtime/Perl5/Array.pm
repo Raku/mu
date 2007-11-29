@@ -46,9 +46,40 @@ $::Array = KindaPerl6::Runtime::Perl5::MOP::make_class(
                 _value => { _array => [ ] },
             };
             if ($param) {
-                for my $index ( 0 .. $#{ $param->{_array} } ) {
-                    ::DISPATCH_VAR( ::DISPATCH( $self, 'INDEX', $index ), 'STORE', ${ $param->{_array} }[$index], );
-                }
+            
+                my $index = 0;
+                                                
+                my $add_parameter;
+                $add_parameter = sub {
+                    my $p = $_[0];
+                    if ( exists $p->{_roles}{array_container} ) {
+                        #warn "STORE \@Array to \@Array:   ", ::DISPATCH( $p, "perl" )->{_value};
+                        my $list = $p->{_value}{cell};   # ::DISPATCH( $p, 'FETCH' );
+                        #warn "List:   ", ::DISPATCH( $list, "perl" )->{_value};
+                        $add_parameter->( $_ )
+                            for @{ $list->{_value}{_array} };
+                    }
+                    elsif ( ::DISPATCH( $p, 'does', $::List )->{_value} ) {
+                        #warn "List:   ", ::DISPATCH( $p, "perl" )->{_value};
+                        my $list = ::DISPATCH( $p, 'eager' );
+                        #warn "List:   ", ::DISPATCH( $list, "perl" )->{_value};
+                        $add_parameter->( $_ )
+                            for @{ $list->{_value}{_array} };
+                    }
+                    else {
+                        #warn "  Push: ", ::DISPATCH( $p, "perl" )->{_value};
+                        #::DISPATCH( $array, 'push', $p );
+                        ::DISPATCH_VAR( 
+                                ::DISPATCH( $self, 'INDEX', $index ), 
+                                'STORE', 
+                                $p, 
+                            );
+                        $index++;
+                    }
+                };
+                $add_parameter->( $_ )
+                    for @{ $param->{_array} };
+            
             }
             return $self;
         },
