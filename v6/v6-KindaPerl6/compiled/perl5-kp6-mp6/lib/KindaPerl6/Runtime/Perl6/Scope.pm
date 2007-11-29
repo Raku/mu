@@ -94,7 +94,7 @@
                                 },
                                 'Var'
                             ),
-                            array  => ::DISPATCH( $::Array, "new", { _array => [] } ),
+                            array  => ::DISPATCH( $::List, "new", { _array => [] } ),
                             return => $::Undef,
                         }
                     ),
@@ -145,7 +145,7 @@
                                 },
                                 'Var'
                             ),
-                            array  => ::DISPATCH( $::Array, "new", { _array => [] } ),
+                            array  => ::DISPATCH( $::List, "new", { _array => [] } ),
                             return => $::Undef,
                         }
                     ),
@@ -218,7 +218,7 @@
                         "new",
                         {   invocant => $::Undef,
                             array    => ::DISPATCH(
-                                $::Array, "new",
+                                $::List, "new",
                                 {   _array => [
                                         ::DISPATCH(
                                             $::Signature::Item,
@@ -311,7 +311,7 @@
                         "new",
                         {   invocant => $::Undef,
                             array    => ::DISPATCH(
-                                $::Array, "new",
+                                $::List, "new",
                                 {   _array => [
                                         ::DISPATCH(
                                             $::Signature::Item,
@@ -396,7 +396,7 @@
                         "new",
                         {   invocant => $::Undef,
                             array    => ::DISPATCH(
-                                $::Array, "new",
+                                $::List, "new",
                                 {   _array => [
                                         ::DISPATCH(
                                             $::Signature::Item,
@@ -519,7 +519,7 @@
                                         "new",
                                         {   invocant => $::Undef,
                                             array    => ::DISPATCH(
-                                                $::Array, "new",
+                                                $::List, "new",
                                                 {   _array => [
                                                         ::DISPATCH(
                                                             $::Signature::Item,
@@ -559,7 +559,7 @@
                                 },
                                 'Var'
                             ),
-                            array  => ::DISPATCH( $::Array, "new", { _array => [] } ),
+                            array  => ::DISPATCH( $::List, "new", { _array => [] } ),
                             return => $::Undef,
                         }
                     ),
@@ -647,7 +647,7 @@
                                             "new",
                                             {   invocant => $::Undef,
                                                 array    => ::DISPATCH(
-                                                    $::Array, "new",
+                                                    $::List, "new",
                                                     {   _array => [
                                                             ::DISPATCH(
                                                                 $::Signature::Item,
@@ -689,7 +689,7 @@
                                 },
                                 'Var'
                             ),
-                            array  => ::DISPATCH( $::Array, "new", { _array => [] } ),
+                            array  => ::DISPATCH( $::List, "new", { _array => [] } ),
                             return => $::Undef,
                         }
                     ),
@@ -769,7 +769,7 @@
                                         "new",
                                         {   invocant => $::Undef,
                                             array    => ::DISPATCH(
-                                                $::Array, "new",
+                                                $::List, "new",
                                                 {   _array => [
                                                         ::DISPATCH(
                                                             $::Signature::Item,
@@ -808,7 +808,7 @@
                                 },
                                 'Var'
                             ),
-                            array  => ::DISPATCH( $::Array, "new", { _array => [] } ),
+                            array  => ::DISPATCH( $::List, "new", { _array => [] } ),
                             return => $::Undef,
                         }
                     ),
@@ -888,7 +888,7 @@
                                         "new",
                                         {   invocant => $::Undef,
                                             array    => ::DISPATCH(
-                                                $::Array, "new",
+                                                $::List, "new",
                                                 {   _array => [
                                                         ::DISPATCH(
                                                             $::Signature::Item,
@@ -927,7 +927,7 @@
                                 },
                                 'Var'
                             ),
-                            array  => ::DISPATCH( $::Array, "new", { _array => [] } ),
+                            array  => ::DISPATCH( $::List, "new", { _array => [] } ),
                             return => $::Undef,
                         }
                     ),
@@ -978,7 +978,7 @@
                                 },
                                 'Var'
                             ),
-                            array  => ::DISPATCH( $::Array, "new", { _array => [] } ),
+                            array  => ::DISPATCH( $::List, "new", { _array => [] } ),
                             return => $::Undef,
                         }
                     ),
@@ -1029,7 +1029,7 @@
                                 },
                                 'Var'
                             ),
-                            array  => ::DISPATCH( $::Array, "new", { _array => [] } ),
+                            array  => ::DISPATCH( $::List, "new", { _array => [] } ),
                             return => $::Undef,
                         }
                     ),

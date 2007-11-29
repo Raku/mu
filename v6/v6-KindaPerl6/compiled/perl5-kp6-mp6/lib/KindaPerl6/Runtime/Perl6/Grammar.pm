@@ -208,7 +208,7 @@
                         "new",
                         {   invocant => $::Undef,
                             array    => ::DISPATCH(
-                                $::Array, "new",
+                                $::List, "new",
                                 {   _array => [
                                         ::DISPATCH(
                                             $::Signature::Item,
@@ -435,7 +435,7 @@
                         "new",
                         {   invocant => $::Undef,
                             array    => ::DISPATCH(
-                                $::Array, "new",
+                                $::List, "new",
                                 {   _array => [
                                         ::DISPATCH(
                                             $::Signature::Item,
@@ -662,7 +662,7 @@
                         "new",
                         {   invocant => $::Undef,
                             array    => ::DISPATCH(
-                                $::Array, "new",
+                                $::List, "new",
                                 {   _array => [
                                         ::DISPATCH(
                                             $::Signature::Item,
@@ -889,7 +889,7 @@
                         "new",
                         {   invocant => $::Undef,
                             array    => ::DISPATCH(
-                                $::Array, "new",
+                                $::List, "new",
                                 {   _array => [
                                         ::DISPATCH(
                                             $::Signature::Item,
@@ -1148,7 +1148,7 @@
                         "new",
                         {   invocant => $::Undef,
                             array    => ::DISPATCH(
-                                $::Array, "new",
+                                $::List, "new",
                                 {   _array => [
                                         ::DISPATCH(
                                             $::Signature::Item,
@@ -1375,7 +1375,7 @@
                         "new",
                         {   invocant => $::Undef,
                             array    => ::DISPATCH(
-                                $::Array, "new",
+                                $::List, "new",
                                 {   _array => [
                                         ::DISPATCH(
                                             $::Signature::Item,

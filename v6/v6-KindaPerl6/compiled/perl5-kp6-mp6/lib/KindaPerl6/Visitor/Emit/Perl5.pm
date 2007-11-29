@@ -642,7 +642,7 @@ sub emit_perl5 {
     my $call = Main::join( [ map { $_->emit_perl5() } @{ $self->{arguments} } ], ', ' );
     do {
         if ( $self->{hyper} ) {
-            ( '::DISPATCH( $::Array, "new", { _array => [ '
+            ( '::DISPATCH( $::List, "new", { _array => [ '
                     . ( 'map { ::DISPATCH( $_, "' . ( $meth . ( '", ' . ( $call . ( ') } ' . ( '@{ ::DISPATCH( ' . ( $invocant . ( ', "array" )->{_value}{_array} } ' . ( '] } )' . Main::newline() ) ) ) ) ) ) ) ) ) );
         }
         else {
@@ -855,7 +855,7 @@ sub emit_perl5 {
         for my $decl ( @{ $self->{positional} } ) { $pos = ( $pos . ( $decl->emit_perl5() . ', ' ) ) }
     };
     my $named = '';
-    ( '::DISPATCH( $::Signature, "new", { ' . ( 'invocant => ' . ( $inv . ( ', ' . ( 'array    => ::DISPATCH( $::Array, "new", { _array => [ ' . ( $pos . ( ' ] } ), ' . ( 'return   => $::Undef, ' . ( '} )' . Main::newline() ) ) ) ) ) ) ) ) );
+    ( '::DISPATCH( $::Signature, "new", { ' . ( 'invocant => ' . ( $inv . ( ', ' . ( 'array    => ::DISPATCH( $::List, "new", { _array => [ ' . ( $pos . ( ' ] } ), ' . ( 'return   => $::Undef, ' . ( '} )' . Main::newline() ) ) ) ) ) ) ) ) );
 }
 
 package Capture;
@@ -872,7 +872,7 @@ sub emit_perl5 {
     };
     do {
         if ( defined( $self->{array} ) ) {
-            $s = ( $s . 'array => ::DISPATCH( $::Array, "new", { _array => [ ' );
+            $s = ( $s . 'array => ::DISPATCH( $::List, "new", { _array => [ ' );
             my $item;
             do {
                 for my $item ( @{ $self->{array} } ) { $s = ( $s . ( $item->emit_perl5() . ', ' ) ) }

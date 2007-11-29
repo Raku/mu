@@ -91,7 +91,7 @@
                                 },
                                 'Var'
                             ),
-                            array  => ::DISPATCH( $::Array, "new", { _array => [] } ),
+                            array  => ::DISPATCH( $::List, "new", { _array => [] } ),
                             return => $::Undef,
                         }
                     ),
@@ -147,7 +147,7 @@
                                 },
                                 'Var'
                             ),
-                            array  => ::DISPATCH( $::Array, "new", { _array => [] } ),
+                            array  => ::DISPATCH( $::List, "new", { _array => [] } ),
                             return => $::Undef,
                         }
                     ),
@@ -198,7 +198,7 @@
                                 },
                                 'Var'
                             ),
-                            array  => ::DISPATCH( $::Array, "new", { _array => [] } ),
+                            array  => ::DISPATCH( $::List, "new", { _array => [] } ),
                             return => $::Undef,
                         }
                     ),
@@ -249,7 +249,7 @@
                                 },
                                 'Var'
                             ),
-                            array  => ::DISPATCH( $::Array, "new", { _array => [] } ),
+                            array  => ::DISPATCH( $::List, "new", { _array => [] } ),
                             return => $::Undef,
                         }
                     ),
@@ -300,7 +300,7 @@
                                 },
                                 'Var'
                             ),
-                            array  => ::DISPATCH( $::Array, "new", { _array => [] } ),
+                            array  => ::DISPATCH( $::List, "new", { _array => [] } ),
                             return => $::Undef,
                         }
                     ),
@@ -351,7 +351,7 @@
                                 },
                                 'Var'
                             ),
-                            array  => ::DISPATCH( $::Array, "new", { _array => [] } ),
+                            array  => ::DISPATCH( $::List, "new", { _array => [] } ),
                             return => $::Undef,
                         }
                     ),
@@ -402,7 +402,7 @@
                                 },
                                 'Var'
                             ),
-                            array  => ::DISPATCH( $::Array, "new", { _array => [] } ),
+                            array  => ::DISPATCH( $::List, "new", { _array => [] } ),
                             return => $::Undef,
                         }
                     ),
@@ -464,7 +464,7 @@
                                 },
                                 'Var'
                             ),
-                            array  => ::DISPATCH( $::Array, "new", { _array => [] } ),
+                            array  => ::DISPATCH( $::List, "new", { _array => [] } ),
                             return => $::Undef,
                         }
                     ),

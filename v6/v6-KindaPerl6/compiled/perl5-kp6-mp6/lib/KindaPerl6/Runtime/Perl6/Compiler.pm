@@ -90,7 +90,7 @@
                         "new",
                         {   invocant => $::Undef,
                             array    => ::DISPATCH(
-                                $::Array, "new",
+                                $::List, "new",
                                 {   _array => [
                                         ::DISPATCH(
                                             $::Signature::Item,
@@ -157,7 +157,7 @@
                             ( $COMPILER::List_PAD = $COMPILER::List_PAD || ::DISPATCH( $::ArrayContainer, "new", ) )
                         );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), return => $::Undef, } ),
+                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::List, "new", { _array => [] } ), return => $::Undef, } ),
                 }
             );
         };
@@ -206,7 +206,7 @@
                         "new",
                         {   invocant => $::Undef,
                             array    => ::DISPATCH(
-                                $::Array, "new",
+                                $::List, "new",
                                 {   _array => [
                                         ::DISPATCH(
                                             $::Signature::Item,
@@ -252,7 +252,7 @@
                         { my $_param_index = 0; }
                         ::DISPATCH( ( $COMPILER::List_PAD = $COMPILER::List_PAD || ::DISPATCH( $::ArrayContainer, "new", ) ), 'shift', );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), return => $::Undef, } ),
+                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::List, "new", { _array => [] } ), return => $::Undef, } ),
                 }
             );
         };
@@ -294,7 +294,7 @@
                         "new",
                         {   invocant => $::Undef,
                             array    => ::DISPATCH(
-                                $::Array, "new",
+                                $::List, "new",
                                 {   _array => [
                                         ::DISPATCH(
                                             $::Signature::Item,
@@ -340,7 +340,7 @@
                         { my $_param_index = 0; }
                         return ( ::DISPATCH( ( $COMPILER::List_PAD = $COMPILER::List_PAD || ::DISPATCH( $::ArrayContainer, "new", ) ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ) );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), return => $::Undef, } ),
+                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::List, "new", { _array => [] } ), return => $::Undef, } ),
                 }
             );
         };
@@ -382,7 +382,7 @@
                         "new",
                         {   invocant => $::Undef,
                             array    => ::DISPATCH(
-                                $::Array, "new",
+                                $::List, "new",
                                 {   _array => [
                                         ::DISPATCH(
                                             $::Signature::Item,
@@ -457,7 +457,7 @@
                         "new",
                         {   invocant => $::Undef,
                             array    => ::DISPATCH(
-                                $::Array, "new",
+                                $::List, "new",
                                 {   _array => [
                                         ::DISPATCH(
                                             $::Signature::Item,
@@ -557,7 +557,7 @@
                         "new",
                         {   invocant => $::Undef,
                             array    => ::DISPATCH(
-                                $::Array, "new",
+                                $::List, "new",
                                 {   _array => [
                                         ::DISPATCH(
                                             $::Signature::Item,

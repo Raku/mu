@@ -466,7 +466,7 @@ class Call {
         my $call := (@.arguments.>>emit_perl5).join(', ');
         if ($.hyper) {
             # TODO - hyper + role
-              '::DISPATCH( $::Array, "new", { _array => [ '
+              '::DISPATCH( $::List, "new", { _array => [ '
             ~     'map { ::DISPATCH( $_, "' ~ $meth ~ '", ' ~ $call ~ ') } '
             ~          '@{ ::DISPATCH( ' ~ $invocant ~ ', "array" )->{_value}{_array} } '
             ~ '] } )' ~ Main::newline();
@@ -668,7 +668,7 @@ class Sig {
 
           '::DISPATCH( $::Signature, "new", { '
         ~     'invocant => ' ~ $inv ~ ', '
-        ~     'array    => ::DISPATCH( $::Array, "new", { _array => [ ' ~ $pos   ~ ' ] } ), '
+        ~     'array    => ::DISPATCH( $::List, "new", { _array => [ ' ~ $pos   ~ ' ] } ), '
         # ~     'hash     => ::DISPATCH( $::Hash,  "new", { _hash  => { ' ~ $named ~ ' } } ), '
         ~     'return   => $::Undef, '
         ~ '} )'
@@ -686,7 +686,7 @@ class Capture {
             $s := $s ~ 'invocant => $::Undef, '
         };
         if defined $.array {
-           $s := $s ~ 'array => ::DISPATCH( $::Array, "new", { _array => [ ';
+           $s := $s ~ 'array => ::DISPATCH( $::List, "new", { _array => [ ';
                             my $item;
            for @.array -> $item {
                 $s := $s ~ $item.emit_perl5 ~ ', ';

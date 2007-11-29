@@ -80,7 +80,7 @@
                             ::DISPATCH( $::Str, 'new', chr(10) )
                         );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), return => $::Undef, } ),
+                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::List, "new", { _array => [] } ), return => $::Undef, } ),
                 }
             );
         };
@@ -120,7 +120,7 @@
                             )
                         );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), return => $::Undef, } ),
+                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::List, "new", { _array => [] } ), return => $::Undef, } ),
                 }
             );
         };
@@ -160,7 +160,7 @@
                             )
                         );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), return => $::Undef, } ),
+                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::List, "new", { _array => [] } ), return => $::Undef, } ),
                 }
             );
         };
@@ -200,7 +200,7 @@
                             )
                         );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), return => $::Undef, } ),
+                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::List, "new", { _array => [] } ), return => $::Undef, } ),
                 }
             );
         };
@@ -240,7 +240,7 @@
                             )
                         );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), return => $::Undef, } ),
+                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::List, "new", { _array => [] } ), return => $::Undef, } ),
                 }
             );
         };
@@ -294,7 +294,7 @@
                         "new",
                         {   invocant => $::Undef,
                             array    => ::DISPATCH(
-                                $::Array, "new",
+                                $::List, "new",
                                 {   _array => [
                                         ::DISPATCH(
                                             $::Signature::Item,
@@ -387,7 +387,7 @@
                         "new",
                         {   invocant => $::Undef,
                             array    => ::DISPATCH(
-                                $::Array, "new",
+                                $::List, "new",
                                 {   _array => [
                                         ::DISPATCH(
                                             $::Signature::Item,
@@ -480,7 +480,7 @@
                         "new",
                         {   invocant => $::Undef,
                             array    => ::DISPATCH(
-                                $::Array, "new",
+                                $::List, "new",
                                 {   _array => [
                                         ::DISPATCH(
                                             $::Signature::Item,
@@ -589,7 +589,7 @@
                         "new",
                         {   invocant => $::Undef,
                             array    => ::DISPATCH(
-                                $::Array, "new",
+                                $::List, "new",
                                 {   _array => [
                                         ::DISPATCH(
                                             $::Signature::Item,
@@ -695,7 +695,7 @@
                         "new",
                         {   invocant => $::Undef,
                             array    => ::DISPATCH(
-                                $::Array, "new",
+                                $::List, "new",
                                 {   _array => [
                                         ::DISPATCH(
                                             $::Signature::Item,
@@ -801,7 +801,7 @@
                         "new",
                         {   invocant => $::Undef,
                             array    => ::DISPATCH(
-                                $::Array, "new",
+                                $::List, "new",
                                 {   _array => [
                                         ::DISPATCH(
                                             $::Signature::Item,
@@ -863,7 +863,7 @@
                         { my $_param_index = 0; }
                         ::DISPATCH( $::Math, 'Inf', );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), return => $::Undef, } ),
+                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::List, "new", { _array => [] } ), return => $::Undef, } ),
                 }
             );
         };
@@ -886,7 +886,7 @@
                         { my $_param_index = 0; }
                         ::DISPATCH( $::Math, 'NaN', );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), return => $::Undef, } ),
+                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::List, "new", { _array => [] } ), return => $::Undef, } ),
                 }
             );
         };
@@ -909,7 +909,7 @@
                         { my $_param_index = 0; }
                         ::DISPATCH( $::IO, 'mkdir', $List__ );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), return => $::Undef, } ),
+                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::List, "new", { _array => [] } ), return => $::Undef, } ),
                 }
             );
         };
@@ -932,7 +932,7 @@
                         { my $_param_index = 0; }
                         ::DISPATCH( $::IO, 'rmdir', $List__ );
                     },
-                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::Array, "new", { _array => [] } ), return => $::Undef, } ),
+                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::List, "new", { _array => [] } ), return => $::Undef, } ),
                 }
             );
         };
@@ -1047,7 +1047,7 @@
                                     "new",
                                     {   invocant => $::Undef,
                                         array    => ::DISPATCH(
-                                            $::Array, "new",
+                                            $::List, "new",
                                             {   _array => [
                                                     ::DISPATCH(
                                                         $::Signature::Item,
@@ -1111,7 +1111,7 @@
                         "new",
                         {   invocant => $::Undef,
                             array    => ::DISPATCH(
-                                $::Array, "new",
+                                $::List, "new",
                                 {   _array => [
                                         ::DISPATCH(
                                             $::Signature::Item,
