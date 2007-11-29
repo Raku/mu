@@ -13,6 +13,8 @@ class Junction {
     has $.things;
 
     method Str {
+        # these are listed in
+        # http://feather.perl6.nl/syn/S09.html#Junctions
         my %sep = {
             "any" =>" | ",
             "none"=>" , ",
@@ -32,24 +34,36 @@ class Junction {
 
     method true {
         my $thing;  # XXX
+
+        # if any of the contents are true, then return true
+        # else return false
         if $.type eq 'any' {
             for @( $.things ) -> $thing {
                 if $thing { return True; };
             };
             return False;
         };
+
+        # if any of the contents are false, return false
+        # else return true
         if $.type eq 'all' {
             for @( $.things ) -> $thing {
                 if !$thing { return False; };
             };
             return True;
         };
+
+        # if any of the contents are true, return false
+        # else return true
         if $.type eq 'none' {
             for @( $.things ) -> $thing {
                 if $thing { return False; };
             };
             return True;
         };
+
+        # if ONLY of these items is true, return true
+        # else return false
         if $.type eq 'one' {
             my $counter = 0;
             for @( $.things ) -> $thing {
