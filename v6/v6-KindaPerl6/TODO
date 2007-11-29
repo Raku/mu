@@ -3,20 +3,9 @@ TODO list for KindaPerl6
 
 * Main Problems, unsorted
 
-- @array x $scalar
-
-    <TimToady>	kp6: my @a = [1,2,3]; say @a.elems
-	<exp_evalbot>	r18934: OUTPUT[3␤]
-	<TimToady>	that's not the perl6 answer...
-	<pmurias>	right, it should be 1
-	<TimToady>	could be okay for "kinda" though
-	<moritz_>	kp6: my @a = (1, 2, 3); say @a.elems;
-	<exp_evalbot>	r18934: OUTPUT[3␤]
-	<fglock>	pugs: my $a = [1,2,3]; say $a.elems; my @b = [1,2,3]; say @b.elems ;
-	<exp_evalbot>	OUTPUT[3␤1␤]
-
 - Perl 5 regex emitter
     - fix problem with delimiters inside code
+    - fix code-blocks in regex
     
 - Longest token
     - implement an algorithm that we can use in the STD grammar
@@ -48,25 +37,9 @@ TODO list for KindaPerl6
 
 * Phase 5 "improved grammar"
 
-- (DONE) hyperops
-    write tests
-    
-- (DONE) undefined global variables are perl5 undef not perl6 Undef instances
-  - Visitor::Namespace was implemented to correct this.
-  - using Visitor::Namespace will require some refactoring in Runtime::Perl5::Global.pm
-  
-- (DONE) remove KindaPerl6::Runtime::Perl5::DispatchSugar
-
 - foo(); sub foo() { say 'hi' }
   my &x; sub y { say 123 }; x(); BEGIN { &x := &y }
   
-- (DONE) my @x = (1,2,3); say @x
-  (DONE) {a => "b"}.{"a"}
-  (DONE) {a => "b"}{"a"}  # Pair LOOKUP
-
-- (DONE) move &say() to Prelude
-- (DONE) make [...] generate an Array object, (...) is List
-
 - kp6-in-kp6 shows several problems with delimiter characters,
   because it emits code inside perl 5 regexes.
   One possible solution is to move code blocks into subroutines.
@@ -80,11 +53,34 @@ TODO list for KindaPerl6
 
 * Phase 4 "improved runtime"
 
+- more TODO items are listed in the kp6-roadmap document
+
+- Assignment and Binding 
+
+    (DONE) array x list, assignment and binding
+
+    untested: hash x array x scalar
+        @a := $b; $b := @a; ...
+
+- (DONE) my @x = (1,2,3); say @x
+  (DONE) {a => "b"}.{"a"}
+  (DONE) {a => "b"}{"a"}  # Pair LOOKUP
+
+- (DONE) move &say() to Prelude
+- (DONE) make [...] generate an Array object, (...) is List
+
+- (DONE) hyperops
+    write tests
+    
+- (DONE) undefined global variables are perl5 undef not perl6 Undef instances
+  - Visitor::Namespace was implemented to correct this.
+  - using Visitor::Namespace will require some refactoring in Runtime::Perl5::Global.pm
+  
+- (DONE) remove KindaPerl6::Runtime::Perl5::DispatchSugar
+
 - (DONE) Autovivification
     - implement deep autovivification/laziness, such as $a[1]<x>[3].exists 
     - this is needed by Namespace.pm, which implements namespaces in Perl 6
-
-- TODO items are listed in the kp6-roadmap document
 
 
 * Phase 3 "regex compiler refactoring"
