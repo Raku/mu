@@ -136,7 +136,7 @@ $::Array = KindaPerl6::Runtime::Perl5::MOP::make_class(
         },
     sort =>sub {
             my $sub = $_[1];
-            ::DISPATCH( $::Array, 'new',
+            ::DISPATCH( $::List, 'new',
                     { _array => [
                             sort {
                                 ::DISPATCH(

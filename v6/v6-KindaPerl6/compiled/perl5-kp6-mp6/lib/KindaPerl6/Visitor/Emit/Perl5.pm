@@ -407,8 +407,8 @@ sub emit_arguments {
     $str = ( $str . $CAPTURE_decl->emit_perl5() );
     $str = ( $str . Decl->new( 'decl' => 'my', 'type' => '', 'var' => $array_, )->emit_perl5() );
     $str = ( $str . '::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));' );
-    my $bind_ = Bind->new( 'parameters' => $array_, 'arguments' => Call->new( 'invocant' => $CAPTURE, 'method' => 'array', 'arguments' => [], ), );
-    $str = ( $str . ( $bind_->emit_perl5() . ';' ) );
+    my $bind_array = Assign->new( 'parameters' => $array_, 'arguments' => Call->new( 'invocant' => $CAPTURE, 'method' => 'array', 'arguments' => [], ), );
+    $str = ( $str . ( $bind_array->emit_perl5() . ';' ) );
     my $bind_hash = Bind->new( 'parameters' => $hash_, 'arguments' => Call->new( 'invocant' => $CAPTURE, 'method' => 'hash', 'arguments' => [], ), );
     $str = ( $str . ( $bind_hash->emit_perl5() . ';' ) );
     my $i = 0;

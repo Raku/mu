@@ -213,11 +213,13 @@ class Lit::Code {
         $str := $str ~ ::Decl(decl=>'my',type=>'',var=>$array_).emit_perl5;
         $str := $str ~ '::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));';
 
-        my $bind_ := ::Bind(parameters=>$array_,arguments=>::Call(invocant => $CAPTURE,method => 'array',arguments => []));
-        $str := $str ~ $bind_.emit_perl5 ~ ';';
+        # XXX s/assign/bind/ ?
+        my $bind_array := 
+                    ::Assign(parameters=>$array_,arguments=>::Call(invocant => $CAPTURE,method => 'array',arguments => []));
+        $str := $str ~ $bind_array.emit_perl5 ~ ';';
 
         my $bind_hash :=
-                     ::Bind(parameters=>$hash_, arguments=>::Call(invocant => $CAPTURE,method => 'hash', arguments => []));
+                    ::Bind(parameters=>$hash_, arguments=>::Call(invocant => $CAPTURE,method => 'hash', arguments => []));
         $str := $str ~ $bind_hash.emit_perl5 ~ ';';
 
         my $i := 0;

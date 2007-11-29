@@ -535,6 +535,11 @@ $meta_Object->{_value}{methods}{WHAT} = ::DISPATCH( $::Method, 'new', sub {$::Ob
 $meta_Object->{_value}{methods}{HOW}  = ::DISPATCH( $::Method, 'new', sub {$meta_Object} );
 $meta_Object->{_value}{methods}{new}  = $method_new;
 
+$meta_Object->{_value}{methods}{exists} = ::DISPATCH( $::Method, 'new', sub {
+        ::DISPATCH( $::Bit, "new", 1 )
+    } );
+
+
 =head2 $::Object
 
 $::Object is a meta object.  $::Object contains a perl6 object.

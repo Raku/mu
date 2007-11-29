@@ -878,7 +878,7 @@ sub ::CAPTURIZE {
         $::Capture,
         'new',
         {   invocant => undef,                                                # TODO
-            array => ::DISPATCH( $::Array, 'new', { _array => \@array, } ),
+            array => ::DISPATCH( $::List, 'new', { _array => \@array, } ),
             hash => ::DISPATCH( $::Hash, 'new', @hash ),
         }
     );
