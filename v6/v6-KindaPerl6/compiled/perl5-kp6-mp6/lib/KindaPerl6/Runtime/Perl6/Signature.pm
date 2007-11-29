@@ -260,7 +260,7 @@
                                 )
                             {
                                 do {
-                                    ::DISPATCH_VAR( ::DISPATCH( $self, 'array', ), 'STORE', ::DISPATCH( ::DISPATCH( $::ArrayContainer, 'new', ), 'push', ) );
+                                    ::DISPATCH_VAR( ::DISPATCH( $self, 'array', ), 'STORE', ::DISPATCH( $::Array, 'new', { _array => [] } ) );
                                     }
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }

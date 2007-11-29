@@ -672,7 +672,7 @@ sub emit_perl5 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    return ( ( 'return(' . ( $self->{result}->emit_perl5() . ( ')' . Main::newline() ) ) ) );
+    ( 'return(' . ( $self->{result}->emit_perl5() . ( ')' . Main::newline() ) ) );
 }
 
 package If;

@@ -85,7 +85,7 @@
                                 )
                             {
                                 do {
-                                    ::DISPATCH_VAR( ::DISPATCH( $self, 'long_names', ), 'STORE', ::DISPATCH( ::DISPATCH( $::ArrayContainer, 'new', ), 'push', ) );
+                                    ::DISPATCH_VAR( ::DISPATCH( $self, 'long_names', ), 'STORE', ::DISPATCH( $::Array, 'new', { _array => [] } ) );
                                     }
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
@@ -203,7 +203,7 @@
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
-                        ::DISPATCH_VAR( $List_candidates, 'STORE', ::DISPATCH( ::DISPATCH( $::ArrayContainer, 'new', ), 'push', ) );
+                        ::DISPATCH_VAR( $List_candidates, 'STORE', ::DISPATCH( $::Array, 'new', { _array => [] } ) );
                         ::DISPATCH(
                             ::DISPATCH( ( $GLOBAL::Code_prefix_58__60__64__62_ = $GLOBAL::Code_prefix_58__60__64__62_ || ::DISPATCH( $::Routine, "new", ) ), 'APPLY', ::DISPATCH( $self, 'long_names', ) ),
                             'map',

@@ -297,7 +297,7 @@
                         { my $_param_index = 0; }
 
                         # emit_body
-                        ::DISPATCH( ::DISPATCH( $::ArrayContainer, 'new', ), 'push', ::DISPATCH( $self, "key" ), ::DISPATCH( $self, "value" ) );
+                        ::DISPATCH( $::Array, 'new', { _array => [ ::DISPATCH( $self, "key" ), ::DISPATCH( $self, "value" ) ] } );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
@@ -350,7 +350,7 @@
                         { my $_param_index = 0; }
 
                         # emit_body
-                        ::DISPATCH( ::DISPATCH( $::ArrayContainer, 'new', ), 'push', ::DISPATCH( $self, "key" ) );
+                        ::DISPATCH( $::Array, 'new', { _array => [ ::DISPATCH( $self, "key" ) ] } );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
@@ -403,7 +403,7 @@
                         { my $_param_index = 0; }
 
                         # emit_body
-                        ::DISPATCH( ::DISPATCH( $::ArrayContainer, 'new', ), 'push', ::DISPATCH( $self, "value" ) );
+                        ::DISPATCH( $::Array, 'new', { _array => [ ::DISPATCH( $self, "value" ) ] } );
                     },
                     signature => ::DISPATCH(
                         $::Signature,

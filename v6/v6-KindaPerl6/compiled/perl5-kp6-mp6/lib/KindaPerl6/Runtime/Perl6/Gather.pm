@@ -639,10 +639,10 @@
                         }
 
                         # emit_body
-                        ::DISPATCH_VAR( $obj,      'STORE', $self );
-                        ::DISPATCH_VAR( $List_res, 'STORE', ::DISPATCH( ::DISPATCH( $::ArrayContainer, 'new', ), 'push', ) );
-                        ::DISPATCH_VAR( $arity,    'STORE', ::DISPATCH( ::DISPATCH( $Code_code, 'signature', ), 'arity', ) );
-                        ::DISPATCH_VAR( $v,        'STORE', ::DISPATCH( $::Int, 'new', 0 ) );
+                        ::DISPATCH_VAR( $obj, 'STORE', $self );
+                        ::DISPATCH_VAR( $List_res, 'STORE', ::DISPATCH( $::Array, 'new', { _array => [] } ) );
+                        ::DISPATCH_VAR( $arity, 'STORE', ::DISPATCH( ::DISPATCH( $Code_code, 'signature', ), 'arity', ) );
+                        ::DISPATCH_VAR( $v, 'STORE', ::DISPATCH( $::Int, 'new', 0 ) );
                         do {
                             while (
                                 ::DISPATCH(

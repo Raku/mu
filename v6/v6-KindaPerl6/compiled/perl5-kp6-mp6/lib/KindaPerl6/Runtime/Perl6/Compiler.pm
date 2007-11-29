@@ -142,8 +142,8 @@
                         };
                         { my $_param_index = 0; }
                         ::DISPATCH_VAR( $pad, 'STORE', ::DISPATCH( $::Pad, 'new', ) );
-                        ::DISPATCH_VAR( ::DISPATCH( $pad, 'outer', ),     'STORE', $::Undef );
-                        ::DISPATCH_VAR( ::DISPATCH( $pad, 'lexicals', ),  'STORE', ::DISPATCH( ::DISPATCH( $::ArrayContainer, 'new', ), 'push', ) );
+                        ::DISPATCH_VAR( ::DISPATCH( $pad, 'outer', ), 'STORE', $::Undef );
+                        ::DISPATCH_VAR( ::DISPATCH( $pad, 'lexicals', ), 'STORE', ::DISPATCH( $::Array, 'new', { _array => [] } ) );
                         ::DISPATCH_VAR( ::DISPATCH( $pad, 'namespace', ), 'STORE', ::DISPATCH( $::Str, 'new', 'Main' ) );
                         ::DISPATCH( ( $COMPILER::List_PAD = $COMPILER::List_PAD || ::DISPATCH( $::ArrayContainer, "new", ) ), 'unshift', $pad );
                         ::DISPATCH_VAR(
@@ -203,7 +203,7 @@
                         }
                         ::DISPATCH_VAR( $pad, 'STORE', ::DISPATCH( $::Pad, 'new', ) );
                         ::DISPATCH_VAR( ::DISPATCH( $pad, 'outer', ), 'STORE', ::DISPATCH( ( $COMPILER::List_PAD = $COMPILER::List_PAD || ::DISPATCH( $::ArrayContainer, "new", ) ), 'INDEX', ::DISPATCH( $::Int, 'new', 0 ) ) );
-                        ::DISPATCH_VAR( ::DISPATCH( $pad, 'lexicals', ), 'STORE', ::DISPATCH( ::DISPATCH( $::ArrayContainer, 'new', ), 'push', ) );
+                        ::DISPATCH_VAR( ::DISPATCH( $pad, 'lexicals', ), 'STORE', ::DISPATCH( $::Array, 'new', { _array => [] } ) );
                         ::DISPATCH_VAR( ::DISPATCH( $pad, 'namespace', ), 'STORE', $namespace );
                         ::DISPATCH( ( $COMPILER::List_PAD = $COMPILER::List_PAD || ::DISPATCH( $::ArrayContainer, "new", ) ), 'unshift', $pad );
                     },
@@ -464,7 +464,7 @@
                             ( $GLOBAL::Code_push = $GLOBAL::Code_push || ::DISPATCH( $::Routine, "new", ) ),
                             'APPLY',
                             ( $COMPILER::List_CHECK = $COMPILER::List_CHECK || ::DISPATCH( $::ArrayContainer, "new", ) ),
-                            ::DISPATCH( ::DISPATCH( $::ArrayContainer, 'new', ), 'push', $ast, $pad )
+                            ::DISPATCH( $::Array, 'new', { _array => [ $ast, $pad ] } )
                         );
                         return ( ::DISPATCH( $::Val::Undef, 'new', ) );
                     },

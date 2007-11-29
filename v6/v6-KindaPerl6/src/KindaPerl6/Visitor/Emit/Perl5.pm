@@ -512,7 +512,9 @@ class Apply {
 
 class Return {
     method emit_perl5 {
-        return
+        # call .FETCH just in case it's a Container
+        # 'return( ::DISPATCH(' ~ $.result.emit_perl5 ~ ', "FETCH" ) )' ~ Main::newline();
+
         #'do { print Main::perl(caller(),' ~ $.result.emit_perl5 ~ '); return(' ~ $.result.emit_perl5 ~ ') }';
         'return(' ~ $.result.emit_perl5 ~ ')' ~ Main::newline();
     }
