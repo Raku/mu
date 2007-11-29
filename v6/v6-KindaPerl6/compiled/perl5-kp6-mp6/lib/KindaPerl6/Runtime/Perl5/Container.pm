@@ -265,25 +265,16 @@ $::ArrayContainer = KindaPerl6::Runtime::Perl5::MOP::make_class(
             $self;
         },
         BIND => sub {
-            #warn "Array.BIND";
-            #print "Array.BIND data: ", ::DISPATCH( ::DISPATCH( $_[1], "WHAT" ), "Str" )->{_value}, "\n";
-
             $_[0]{_value}{modified}{ $_[0]{_value}{name} } = 1;
             $_[1]{_value}{modified}{ $_[1]{_value}{name} } = 1;
 
             if ( exists $_[1]->{_roles}{array_container} ) {
                 # t/todo/69-list-binding.t - test 3
-                #print "# BIND \@Array to \@Array\n";
-                $_[0]{_value}{cell} = ::DISPATCH( $::Array, "new", { _array => [ 
-                        ] } );
                 $_[0]{_value}{cell} = $_[1]{_value}{cell};
                 return $_[0];
-
-                #return ::DISPATCH( $_[0], 'STORE', $_[1] );
             }
             if ( ::DISPATCH( $_[1], 'does', $::List )->{_value} ) {
                 # t/todo/69-list-binding.t - test 1
-                #print "# BIND \@Array to \@List\n";
                 $_[0]{_value}{cell} = ::DISPATCH( $::Array, "new", { _array => [ 
                             ::DISPATCH( $_[1], 'INDEX', 
                                     ::DISPATCH( $::Int, 'new', 0 )
