@@ -747,7 +747,7 @@ $meta_Class->{_value}{methods}{add_method} = ::DISPATCH(
                 # TODO - show inherited methods
                 # ??? - should this return the Methods and they stringify to method name ???
                 ::DISPATCH(
-                    $::Array, 'new',
+                    $::List, 'new',
                     {   _array => [
                             map { ::DISPATCH( $::Str, 'new', $_ ) }
                                 keys %{ $_[0]{_value}{methods} }
@@ -771,7 +771,7 @@ $meta_Class->{_value}{methods}{add_method} = ::DISPATCH(
                 # TODO - show inherited methods
                 # ??? - should this return the Methods and they stringify to method name ???
                 ::DISPATCH(
-                    $::Array, 'new',
+                    $::List, 'new',
                     {   _array => [
                             map { ::DISPATCH( $::Str, 'new', $_ ) }
                                 keys %{ $_[0]{_value}{attributes} }
@@ -1082,6 +1082,12 @@ Documentation for $::Array is in KindaPerl6/Runtime/Perl5/Array.pm
 $::Array = make_class(
     proto   => $::Array,
     name    => "Array",
+    methods => {}
+);
+
+$::List = make_class(
+    proto   => $::List,
+    name    => "List",
     methods => {}
 );
 

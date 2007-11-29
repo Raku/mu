@@ -405,7 +405,7 @@ $_apply = sub {
                     'new',
                     {   type   => $j->{_value}{type},
                         things => ::DISPATCH(
-                            $::Array, 'new',
+                            $::List, 'new',
                             {   _array => [
                                     map {
                                         $param[$index] = $_;

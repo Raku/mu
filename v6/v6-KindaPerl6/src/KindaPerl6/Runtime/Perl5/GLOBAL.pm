@@ -91,7 +91,7 @@ $GLOBAL::Hash_KP6 = ::DISPATCH( $::Hash, 'new', );
 $GLOBAL::Hash_ENV = ::DISPATCH( $::Hash, 'new', map { [ ::DISPATCH( $::Str, 'new', $_ ), ::DISPATCH( $::Str, 'new', $ENV{$_} ) ] } keys %ENV );
 
 # @*ARGS
-$GLOBAL::List_ARGS = ::DISPATCH( $::Array, 'new', { _array => [ map { ::DISPATCH( $::Str, 'new', $_ ) } @ARGV ] } );
+$GLOBAL::List_ARGS = ::DISPATCH( $::List, 'new', { _array => [ map { ::DISPATCH( $::Str, 'new', $_ ) } @ARGV ] } );
 
 # XXX - hash key autovivification is not rw! please fix in MOP.pm
 #
@@ -698,7 +698,7 @@ sub TODO {
 =cut
 
 sub qw {
-    ::DISPATCH( $::Array, 'new', { _array => [ map { ::DISPATCH( $::Str, 'new', $_ ) } eval( "qw/" . _str( $_[0] ) . "/" ) ] } );
+    ::DISPATCH( $::List, 'new', { _array => [ map { ::DISPATCH( $::Str, 'new', $_ ) } eval( "qw/" . _str( $_[0] ) . "/" ) ] } );
 }
 
 =head2 take

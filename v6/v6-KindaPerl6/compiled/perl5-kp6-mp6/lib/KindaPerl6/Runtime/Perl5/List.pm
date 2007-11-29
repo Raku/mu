@@ -96,7 +96,7 @@ $::List = KindaPerl6::Runtime::Perl5::MOP::make_class(
             # arity: http://en.wikipedia.org/wiki/Arity, the number of arguments a function takes
             my $arity = ::DISPATCH( ::DISPATCH( $sub, 'signature' ), 'arity' )->{_value};
             #print "List.map arity: $arity\n";
-            my $result = ::DISPATCH( $::Array, 'new' );
+            my $result = ::DISPATCH( $::List, 'new' );
             my @list = @{$_[0]{_value}{_array}};
             my @params;
             while ( @list ) {
@@ -106,13 +106,12 @@ $::List = KindaPerl6::Runtime::Perl5::MOP::make_class(
                 else {
                     $_ = shift @list;   # ???
                 }
-                ::DISPATCH( $result, 'push',
+                push @{ $result->{_value}{_array} },
                     ::DISPATCH(
                         $sub,
                         "APPLY",
                         @params,
-                    )
-                );
+                    );
             };
             $result;
         },

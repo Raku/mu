@@ -78,7 +78,7 @@ $::Hash = KindaPerl6::Runtime::Perl5::MOP::make_class(
         },
         pairs => sub {
             ::DISPATCH(
-                $::Array, 'new',
+                $::List, 'new',
                 {   _array => [
                         map { ::DISPATCH( $::Pair, 'new', { key => ::DISPATCH( $::Str, 'new', $_ ), value => $_[0]{_value}{_hash}{$_}, } ) }
                             keys %{ $_[0]{_value}{_hash} }
@@ -157,7 +157,7 @@ $::HashProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
             if ( defined $self->{_value} ) {
                 return ::DISPATCH( $self->{_value}, "pairs" );
             }
-            return ::DISPATCH( $::Array, "new", { _array => [] } );
+            return ::DISPATCH( $::List, "new", { _array => [] } );
         },
         p5landish => sub {
             my $self = shift;
