@@ -259,7 +259,59 @@ $::ArrayContainer = KindaPerl6::Runtime::Perl5::MOP::make_class(
         STORE => sub {
             my $self = shift;
             #warn "\@Array.STORE";
+            die "attempt to modify a read-only array"
+                if $self->{_roles}{readonly};
             $self->{_value}{cell} = ::DISPATCH( $::Array, "new", { _array => [ @_ ] } );
+            $self;
+        },
+        BIND => sub {
+            #warn "Array.BIND";
+
+            $_[0]{_value}{modified}{ $_[0]{_value}{name} } = 1;
+            $_[1]{_value}{modified}{ $_[1]{_value}{name} } = 1;
+
+            if ( exists $_[1]->{_roles}{array_container} ) {
+                # t/todo/69-list-binding.t - test 3
+                #print "# BIND \@Array to \@Array\n";
+                return ::DISPATCH( $_[0], 'STORE', $_[1] );
+            }
+            if ( ::DISPATCH( $_[1], 'does', $::List )->{_value} ) {
+                # t/todo/69-list-binding.t - test 1
+                #print "# BIND \@Array to \@List\n";
+                $_[0]{_value}{cell} = ::DISPATCH( $::Array, "new", { _array => [ 
+                            ::DISPATCH( $_[1], 'INDEX', 
+                                    ::DISPATCH( $::Int, 'new', 0 )
+                                )
+                        ] } );
+                return $_[0];
+            }
+            
+            if ( $_[1]{_roles}{container} ) {
+                $_[0]{_value} = $_[1]{_value};
+                $_[0]{_roles}{readonly} = $_[1]{_roles}{readonly};
+            }
+            else {
+                # Container := Object
+                # - add the read-only trait
+                $_[0]{_value}{cell}     = $_[1];
+                $_[0]{_roles}{readonly} = 1;
+            }
+            return $_[0];
+
+
+
+            my $self = shift;
+            my $p = shift;
+            $self->{_value}{modified}{ $self->{_value}{name} } = 1;
+            
+            if ( ::DISPATCH( $p, 'does', $::List )->{_value} ) {
+                $self->{_value}{cell} = ::DISPATCH( $::Array, "new", { _array => [ 
+                        ::DISPATCH( $p, "INDEX", ::DISPATCH( $::Int, "new", 0 ) )    # XXX $p may be empty
+                    ] } );
+            }
+            else {
+                $self->{_value}{cell} = ::DISPATCH( $::Array, "new", { _array => [ $p, @_ ] } );
+            }
             $self;
         },
     }

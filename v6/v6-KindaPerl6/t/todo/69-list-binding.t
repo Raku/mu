@@ -6,7 +6,7 @@ my @a;
 my @b;
 
 @a := (1,2,3);
-if @a.perl ne "1" { print "not " }
+if @a.perl ne "[ 1 ]" { print "not " }
 say "ok 1 - array := list  # ", @a.perl;
 
 @a := [1,2,3];
