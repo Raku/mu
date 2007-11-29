@@ -5,23 +5,23 @@ say "1..4";
 my @a;
 my @b;
 
-@a = (1,2,3);
-if @a.perl ne "[ 1, 2, 3 ]" { print "not " }
-say "ok 1 - array = list  # ", @a.perl;
+@a := (1,2,3);
+if @a.perl ne "1" { print "not " }
+say "ok 1 - array := list  # ", @a.perl;
 
-@a = [1,2,3];
+@a := [1,2,3];
 if @a.perl ne "[ [ 1, 2, 3 ] ]" { print "not " }
-say "ok 2 - array = [list]  # ", @a.perl;
+say "ok 2 - array := [list]  # ", @a.perl;
 
 @b = (1,2,3);
-@a = @b;
+@a := @b;
 if @a.perl ne "[ 1, 2, 3 ]" { print "not " }
-say "ok 3 - array = array  # ", @a.perl;
+say "ok 3 - array := array  # ", @a.perl;
 
 @b = (1,2,3);
-@a = [@b];
+@a := [@b];
 if @a.perl ne "[ [ 1, 2, 3 ] ]" { print "not " }
-say "ok 4 - array = [array]  # ", @a.perl;
+say "ok 4 - array := [array]  # ", @a.perl;
 
 
 =begin
