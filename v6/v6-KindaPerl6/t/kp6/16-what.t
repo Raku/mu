@@ -4,8 +4,13 @@ class X {
 
 class Main {
 
+    say "1..1";
+
     my $x = ::X();
-    say "ok ", $x.WHAT;
+    if  $x.WHAT ne "X"  {
+        print "not " 
+    }
+    say "ok 1";
 
 }
 
