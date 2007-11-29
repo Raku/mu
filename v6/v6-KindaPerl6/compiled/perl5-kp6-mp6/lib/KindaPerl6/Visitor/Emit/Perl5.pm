@@ -405,6 +405,7 @@ sub emit_arguments {
     my $CAPTURE_decl = Decl->new( 'decl' => 'my', 'type' => '', 'var' => $CAPTURE, );
     my $str = '';
     $str = ( $str . $CAPTURE_decl->emit_perl5() );
+    $str = ( $str . Decl->new( 'decl' => 'my', 'type' => '', 'var' => $array_, )->emit_perl5() );
     $str = ( $str . '::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));' );
     my $bind_ = Bind->new( 'parameters' => $array_, 'arguments' => Call->new( 'invocant' => $CAPTURE, 'method' => 'array', 'arguments' => [], ), );
     $str = ( $str . ( $bind_->emit_perl5() . ';' ) );
@@ -592,8 +593,10 @@ sub emit_perl5 {
     my $List__ = \@_;
     do { [] };
     do {
-        if ( Main::isa( $self->{parameters}, 'Call' ) ) { return ( ( '::DISPATCH_VAR( ' . ( $self->{parameters}->emit_perl5() . ( ', "BIND", ' . ( $self->{arguments}->emit_perl5() . ' )' ) ) ) ) ) }
-        else                                            { }
+        if ( ( Main::isa( $self->{parameters}, 'Call' ) || ( Main::isa( $self->{parameters}, 'Var' ) && ( $self->{parameters}->sigil() eq '@' ) ) ) ) {
+            return ( ( '::DISPATCH_VAR( ' . ( $self->{parameters}->emit_perl5() . ( ', "BIND", ' . ( $self->{arguments}->emit_perl5() . ' )' ) ) ) ) );
+        }
+        else { }
     };
     my $str = ( '::MODIFIED(' . ( $self->{parameters}->emit_perl5() . ( ');' . Main::newline() ) ) );
     $str = ( $str . ( $self->{parameters}->emit_perl5() . ( ' = ' . $self->{arguments}->emit_perl5() ) ) );

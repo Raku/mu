@@ -210,6 +210,7 @@ class Lit::Code {
         my $CAPTURE_decl := ::Decl(decl=>'my',type=>'',var=>$CAPTURE);
         my $str := '';
         $str := $str ~ $CAPTURE_decl.emit_perl5;
+        $str := $str ~ ::Decl(decl=>'my',type=>'',var=>$array_).emit_perl5;
         $str := $str ~ '::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));';
 
         my $bind_ := ::Bind(parameters=>$array_,arguments=>::Call(invocant => $CAPTURE,method => 'array',arguments => []));
@@ -406,7 +407,10 @@ class Bind {
     method emit_perl5 {
 
         # XXX - replace Bind with .BIND
-        if $.parameters.isa('Call')
+        if      $.parameters.isa('Call')
+            ||  (   $.parameters.isa('Var')
+                &&  ( ($.parameters).sigil eq '@' )
+                )
         {
             return 
                   '::DISPATCH_VAR( '
