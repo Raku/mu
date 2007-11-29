@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 22 Oct 2007
+   Last Modified: 29 Nov 2007
    Number: 5
-   Version: 67
+   Version: 68
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -585,8 +585,12 @@ In contrast
 
     <ident> !~~ ^ 'moose' $
 
-would allow any identifier containing "moose" as long as it is not
-equal to "moose".  For clarity it might be good to use extra brackets:
+would allow any identifier (including any identifier containing
+"moose" as a substring) as long as the identifier as a whole is not
+equal to "moose". (Note the anchors, which attach submatch to the
+beginning and end of the identifier as if that were the entire match.)
+When used as part of a longer match, for clarity it might be good to
+use extra brackets:
 
     [ <ident> !~~ ^ 'moose' $ ]
 
