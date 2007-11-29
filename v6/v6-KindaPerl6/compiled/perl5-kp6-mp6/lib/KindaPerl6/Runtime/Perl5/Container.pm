@@ -266,6 +266,7 @@ $::ArrayContainer = KindaPerl6::Runtime::Perl5::MOP::make_class(
         },
         BIND => sub {
             #warn "Array.BIND";
+            #print "Array.BIND data: ", ::DISPATCH( ::DISPATCH( $_[1], "WHAT" ), "Str" )->{_value}, "\n";
 
             $_[0]{_value}{modified}{ $_[0]{_value}{name} } = 1;
             $_[1]{_value}{modified}{ $_[1]{_value}{name} } = 1;
@@ -286,17 +287,14 @@ $::ArrayContainer = KindaPerl6::Runtime::Perl5::MOP::make_class(
                 return $_[0];
             }
             if ( ::DISPATCH( $_[1], 'does', $::Array )->{_value} ) {
-                #print "# BIND \@Array to [...]\n";
-                $_[0]{_value}{cell} = $_[1];
-                return $_[0];
-                
-                
-                # XXX infinite loop! ???
                 $_[0]{_value}{cell} = ::DISPATCH( $::Array, "new", { _array => [ 
                         ] } );
                 $_[0]{_value}{cell}{_value}{_array}[0] = $_[1];
+                return $_[0];
             }
 
+            print "data: ", ::DISPATCH( $_[1], "perl" )->{_value}, "\n";
+            print "type: ", ::DISPATCH( ::DISPATCH( $_[1], "WHAT" ), "Str" )->{_value}, "\n";
             die "invalid type on Array.BIND";
         },
     }
