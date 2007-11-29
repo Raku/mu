@@ -47,6 +47,10 @@ option will go away when the compiler has been bootstraped to kp6.
 
 parse the file or -e, but do not run it.
 
+=item -e 'commandline'
+
+May be used to enter one line of program.  
+            
 =item -B[backend]
 
 execute use the compiler backend.
