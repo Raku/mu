@@ -19,7 +19,7 @@ sub visit {
         else { }
     };
     do {
-        if ( Main::isa( $node, 'Array' ) ) {
+        if ( ( Main::isa( $node, 'Array' ) || Main::isa( $node, 'List' ) ) ) {
             my $result = [];
             my $subitem;
             do {
@@ -74,7 +74,7 @@ sub visit_subnode {
         else { }
     };
     do {
-        if ( ( Main::isa( $subnode, 'Array' ) || ( Main::isa( $subnode, 'Hash' ) || ( Main::isa( $subnode, 'Str' ) || Main::isa( $subnode, 'Pad' ) ) ) ) ) { return ( visit( $visitor, $subnode, (undef), $path ) ) }
+        if ( ( Main::isa( $subnode, 'Array' ) || ( Main::isa( $subnode, 'List' ) || ( Main::isa( $subnode, 'Hash' ) || ( Main::isa( $subnode, 'Str' ) || Main::isa( $subnode, 'Pad' ) ) ) ) ) ) { return ( visit( $visitor, $subnode, (undef), $path ) ) }
         else { return ( $subnode->emit( $visitor, $path ) ) }
         }
 }

@@ -9,7 +9,7 @@ class KindaPerl6::Traverse {
             $path := [ ];
         }
 
-        if $node.isa('Array') {
+        if $node.isa('Array') || $node.isa('List') {
             my $result := [ ];
             my $subitem;
             for @($node) -> $subitem {
@@ -59,6 +59,7 @@ class KindaPerl6::Traverse {
             return;
         }
         if     $subnode.isa('Array')
+            || $subnode.isa('List')
             || $subnode.isa('Hash')
             || $subnode.isa('Str')
             || $subnode.isa('Pad')

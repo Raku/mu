@@ -7,12 +7,13 @@ class KindaPerl6::Visitor::Emit::AstPerl {
 
     method visit ( $node, $node_name ) {
 
-        if $node.isa('Array') {
+        if $node.isa('Array') || $node.isa('List') 
+        {
             my $result := '';
             $result := $result ~ "[ ";
             my $subitem;
             for @($node) -> $subitem {
-                if $subitem.isa('Array') {
+                if $subitem.isa('Array') || $subitem.isa('List') {
                     $result := $result ~ self.visit( $subitem, 'Array' ) ~ ', ';
                 }
                 else {
@@ -39,7 +40,7 @@ class KindaPerl6::Visitor::Emit::AstPerl {
         my $item;
         for keys %($data) -> $item {
             $result := $result ~ " " ~ $item ~ " => ";
-            if ($data{$item}).isa('Array') {
+            if ($data{$item}).isa('Array') || ($data{$item}).isa('List') {
                 $result := $result ~ self.visit( $data{$item}, 'Array' ) ~ ", ";
             }
             else { 

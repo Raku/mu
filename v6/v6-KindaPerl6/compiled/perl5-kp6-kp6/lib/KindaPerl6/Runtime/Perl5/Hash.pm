@@ -22,29 +22,18 @@ none
 
 =item p5landish
 
+You have a Perl 6 string object that you want to compare using `eq`, for
+example. The object itself would be a Perl 6 object, and you would use
+p5landish on it to get at the actual string contained within it so you can
+compare it.
+
+In short, p5landish returns the actual value contained in the object.
+
+See: http://irclog.perlgeek.de/perl6/2007-11-27#i_152004
+
 =back
 
-=head1 AUTHORS
-
-The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
-
-=head1 SEE ALSO
-
-The Perl 6 homepage at L<http://dev.perl.org/perl6>.
-
-The Pugs homepage at L<http://pugscode.org/>.
-
-=head1 COPYRIGHT
-
-Copyright 2007 by Flavio Soibelmann Glock and others.
-
-This program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
-
-See L<http://www.perl.com/perl/misc/Artistic.html>
-
 =cut
-
 
 $::Hash = KindaPerl6::Runtime::Perl5::MOP::make_class(
     proto   => $::Hash,
@@ -89,7 +78,7 @@ $::Hash = KindaPerl6::Runtime::Perl5::MOP::make_class(
         },
         pairs => sub {
             ::DISPATCH(
-                $::Array, 'new',
+                $::List, 'new',
                 {   _array => [
                         map { ::DISPATCH( $::Pair, 'new', { key => ::DISPATCH( $::Str, 'new', $_ ), value => $_[0]{_value}{_hash}{$_}, } ) }
                             keys %{ $_[0]{_value}{_hash} }
@@ -101,75 +90,26 @@ $::Hash = KindaPerl6::Runtime::Perl5::MOP::make_class(
     }
 );
 
-=head2 $::HashProxy
 
-=head3 Parents:
+=head1 AUTHORS
 
-$::Hash
+The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
 
-head3 Attributes:
+=head1 SEE ALSO
 
-none
+The Perl 6 homepage at L<http://dev.perl.org/perl6>.
 
-=head3 Methods:
+The Pugs homepage at L<http://pugscode.org/>.
 
-=over
+=head1 COPYRIGHT
 
-=item LOOKUP
+Copyright 2007 by Flavio Soibelmann Glock and others.
 
-=item elems
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
 
-=item pairs
-
-=item p5landish
+See L<http://www.perl.com/perl/misc/Artistic.html>
 
 =cut
-
-
-$::HashProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
-    proto   => $::HashProxy,
-    name    => 'HashProxy',
-    parents => [ ::DISPATCH($::Hash,'HOW') ],
-    methods => {
-
-        new => sub {
-            my $v = {
-                %{ $_[0] },
-                _value => $_[1],    # undef or hash
-            };
-        },
-        LOOKUP => sub {
-            my $key = ::DISPATCH( ::DISPATCH( $_[1], "Str" ), "p5landish" );
-            return ::DISPATCH(
-                $::HashProxyCell,
-                "new",
-                {   cell => $_[0]{_value},
-                    key  => $key,
-                }
-            );
-        },
-        elems => sub {
-            my $self = shift;
-            if ( defined $self->{_value} ) {
-                return ::DISPATCH( $self->{_value}, "elems" );
-            }
-            return ::DISPATCH( $::Int, "new", 0 );
-        },
-        pairs => sub {
-            my $self = shift;
-            if ( defined $self->{_value} ) {
-                return ::DISPATCH( $self->{_value}, "pairs" );
-            }
-            return ::DISPATCH( $::Array, "new", { _array => [] } );
-        },
-        p5landish => sub {
-            my $self = shift;
-            if ( defined $self->{_value} ) {
-                return ::DISPATCH( $self->{_value}, "p5landish" );
-            }
-            return [];
-        },
-    }
-);
 
 1;

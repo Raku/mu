@@ -249,12 +249,49 @@ $::ArrayContainer = KindaPerl6::Runtime::Perl5::MOP::make_class(
             my $v = {
                 %{ $_[0] },
                 _value        => $_[1] || {}, # { %{$_[1]}, cell => undef },
-                _roles        => { container => 1, 'auto_deref' => 1 },
+                _roles        => { array_container => 1, container => 1, 'auto_deref' => 1 },
                 _dispatch_VAR => $::dispatch_VAR,
             };
             $v->{_value}{cell} = ::DISPATCH( $::Array, "new" )
                 unless exists $v->{_value}{cell};
             $v;
+        },
+        STORE => sub {
+            my $self = shift;
+            #warn "\@Array.STORE";
+            die "attempt to modify a read-only array"
+                if $self->{_roles}{readonly};
+            $self->{_value}{cell} = ::DISPATCH( $::Array, "new", { _array => [ @_ ] } );
+            $self;
+        },
+        BIND => sub {
+            $_[0]{_value}{modified}{ $_[0]{_value}{name} } = 1;
+            $_[1]{_value}{modified}{ $_[1]{_value}{name} } = 1;
+
+            if ( exists $_[1]->{_roles}{array_container} ) {
+                # t/todo/69-list-binding.t - test 3
+                $_[0]{_value}{cell} = $_[1]{_value}{cell};
+                return $_[0];
+            }
+            if ( ::DISPATCH( $_[1], 'does', $::List )->{_value} ) {
+                # t/todo/69-list-binding.t - test 1
+                $_[0]{_value}{cell} = ::DISPATCH( $::Array, "new", { _array => [ 
+                            ::DISPATCH( $_[1], 'INDEX', 
+                                    ::DISPATCH( $::Int, 'new', 0 )
+                                )
+                        ] } );
+                return $_[0];
+            }
+            if ( ::DISPATCH( $_[1], 'does', $::Array )->{_value} ) {
+                $_[0]{_value}{cell} = ::DISPATCH( $::Array, "new", { _array => [ 
+                        ] } );
+                $_[0]{_value}{cell}{_value}{_array}[0] = $_[1];
+                return $_[0];
+            }
+
+            print "data: ", ::DISPATCH( $_[1], "perl" )->{_value}, "\n";
+            print "type: ", ::DISPATCH( ::DISPATCH( $_[1], "WHAT" ), "Str" )->{_value}, "\n";
+            die "invalid type on Array.BIND";
         },
     }
 );

@@ -40,7 +40,7 @@ eval {
 
 # load the runtime
 
-for ( qw( IO Math Kp6Security ) ) {
+for ( qw( IO Math Kp6Security Range ) ) {
     eval "require KindaPerl6::Runtime::Perl5::$_";
     warn "*** Could not load runtime class $_: $@" if $@;
 }

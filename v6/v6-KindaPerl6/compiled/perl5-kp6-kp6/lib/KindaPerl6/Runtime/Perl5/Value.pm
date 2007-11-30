@@ -56,6 +56,15 @@ none
 
 =item p5landish
 
+You have a Perl 6 string object that you want to compare using `eq`, for
+example. The object itself would be a Perl 6 object, and you would use
+p5landish on it to get at the actual string contained within it so you can
+compare it.
+
+In short, p5landish returns the actual value contained in the object.
+
+See: http://irclog.perlgeek.de/perl6/2007-11-27#i_152004
+
 =item print
 
 =item FETCH
@@ -93,7 +102,7 @@ $::Str is a $::Class object
 
 =head3 Parents
 
-none
+$::Value
 
 =head3 Attributes
 
@@ -125,6 +134,9 @@ $::Str = KindaPerl6::Runtime::Perl5::MOP::make_class(
         },
         Str => sub {
             $_[0];
+        },
+        say => sub {
+            print $_[0]{_value},"\n";
         },
         true => sub {
             ::DISPATCH( $::Bit, 'new', ( $_[0]{_value} ne '' && $_[0]{_value} ne '0' ) ? 1 : 0 );
@@ -393,7 +405,7 @@ $_apply = sub {
                     'new',
                     {   type   => $j->{_value}{type},
                         things => ::DISPATCH(
-                            $::Array, 'new',
+                            $::List, 'new',
                             {   _array => [
                                     map {
                                         $param[$index] = $_;
