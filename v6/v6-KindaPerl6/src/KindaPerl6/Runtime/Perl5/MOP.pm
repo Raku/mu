@@ -653,30 +653,6 @@ $meta_Class->{_value}{methods}{add_method} = ::DISPATCH(
 ::DISPATCH(
     $meta_Class,
     'add_method',
-    'get_attributes',
-    ::DISPATCH(
-        $::Method,
-        'new',
-        {   code => sub {
-                my @attributes = keys %{ $_[0]{_value}{attributes} };
-                ::DISPATCH(
-                    $::List,
-                    "new",
-                    { _array => [
-                            map {
-                                    ::DISPATCH( $::Str, "new", $_ )
-                                } @attributes
-                        ]
-                    }
-                );
-            }
-        }
-    )
-);
-
-::DISPATCH(
-    $meta_Class,
-    'add_method',
     'add_attribute',
     ::DISPATCH(
         $::Method,
