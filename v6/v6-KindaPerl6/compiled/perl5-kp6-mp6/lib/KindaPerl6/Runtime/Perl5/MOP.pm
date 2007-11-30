@@ -997,7 +997,7 @@ $meta_isa = sub {
                             my $attribute = $_;
                             my $v = ::DISPATCH( $_[0], $attribute );
                             if ( ref $v ) {
-                                $v = ::DISPATCH( $_[0], 'perl' )->{_value};
+                                $v = ::DISPATCH( $v, 'perl' )->{_value};
                             }
                             "$attribute => $v"
                         } 
