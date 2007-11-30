@@ -4,18 +4,36 @@ use strict;
 use KindaPerl6::Runtime::Perl5::Runtime;
 use KindaPerl6::Grammar::Quote;
 use KindaPerl6::Grammar;
-use Test::More tests => 2;
+use Test::More tests => 4;
 
 $_ = ::DISPATCH( $::Scalar, "new" );
 my $MATCH;
 
+# digits
+
+print "# ** now testing: <digits> \n";
+::DISPATCH_VAR( $_, 'STORE', ::DISPATCH( $::Str, 'new', '123' ) );
+$MATCH = ::DISPATCH( $::KindaPerl6::Grammar, 'digits' );
+print "# "; ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $MATCH, 'perl', ) );
+print "# ",$MATCH->Str,"\n";
+ok( $MATCH->Str eq '123', " Str" );
+
+# val_int
+
+print "# ** now testing: <val_int> \n";
+::DISPATCH_VAR( $_, 'STORE', ::DISPATCH( $::Str, 'new', '123' ) );
+$MATCH = ::DISPATCH( $::KindaPerl6::Grammar, 'val_int' );
+print "# "; ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $MATCH, 'perl', ) );
+print "# ",$MATCH->Str,"\n";
+ok( $MATCH->Str eq '123', " Str" );
+
+# term
+
+print "# ** now testing: <term> \n";
 ::DISPATCH_VAR( $_, 'STORE', ::DISPATCH( $::Str, 'new', '123' ) );
 $MATCH = ::DISPATCH( $::KindaPerl6::Grammar, 'term' );
 print "# "; ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $MATCH, 'perl', ) );
-ok( $MATCH->true, " matched" );
-print "# ",$MATCH->result,"\n";
-print "# ",($MATCH->from),"\n";
-print "# ",($MATCH->to),"\n";
+print "# ",$MATCH->Str,"\n";
 ok( $MATCH->Str eq '123', " Str" );
 
 

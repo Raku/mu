@@ -32,6 +32,11 @@ package Match;
                 }
                 if ( $method eq 'result' ) {
                     my $res = $self->result;
+                    #if ( ! defined $res ) {
+                    #    my $s = $self->Str;
+                    #    return ::DISPATCH( $::Str, 'new', $s)
+                    #        if defined $s;
+                    #}
                     return ::DISPATCH( $::Undef, 'new', )
                         unless defined $res;
                     return $res;
@@ -87,7 +92,11 @@ package Match;
     sub hash   :lvalue { $_[0]->{hash} }
     
     sub true   :lvalue { $_[0]->{bool} }
-    sub result :lvalue { $_[0]->{result} }
+    sub result :lvalue { 
+          $_[0]->true  
+        ? $_[0]->{result} 
+        : ( $_[0]->{result} = undef );
+    }
     sub from   :lvalue { $_[0]->{from} }
     sub to     :lvalue { $_[0]->{to} }
     sub match_str :lvalue { $_[0]->{match_str} }
@@ -96,7 +105,7 @@ package Match;
           $_[0]->true 
         ? (
               defined $_[0]->{result}
-            ? ::DISPATCH( $_[0]->{result}, 'Str', )
+            ? ::DISPATCH( $_[0]->{result}, 'Str', )->{_value}
             : substr( ${$_[0]->match_str}, $_[0]->from, $_[0]->to - $_[0]->from )
           )
         : undef;

@@ -952,7 +952,21 @@ $meta_isa = sub {
         $::Method,
         'new',
         sub {
-            my $v = ::DISPATCH( $::Str, 'new', '::' . $_[0]{_isa}[0]{_value}{class_name} . '(...)' );
+            my $v = ::DISPATCH( $::Str, 'new', $_[0]{_isa}[0]{_value}{class_name} . '.new(...)' );
+        }
+    )
+);
+
+# add .perl to $meta_Object
+::DISPATCH(
+    $meta_Object,
+    'add_method',
+    'perl',
+    ::DISPATCH(
+        $::Method,
+        'new',
+        sub {
+            my $v = ::DISPATCH( $::Str, 'new', $_[0]{_isa}[0]{_value}{class_name} . '.new(...)' );
         }
     )
 );
