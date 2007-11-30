@@ -46,6 +46,9 @@ TODO list for KindaPerl6
 
 - t/kp6/grammar/15-capture-from-rule-block.t & t/kp6/grammar/17-???
   both go into infinite loops.
+
+  misc/grammar_17_15_bug_ilustration.t - shows what causes the bug
+
   a PERL5 file that expresses this bug in a nice debuggable format is in
   - pugs/misc/pX/dlocaus/kp6-grammar-test-15.pl
   - good luck!
