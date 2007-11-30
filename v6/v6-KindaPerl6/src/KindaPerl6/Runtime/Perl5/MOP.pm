@@ -992,7 +992,17 @@ $meta_isa = sub {
             my $class = ::DISPATCH( $_[0], "HOW" );  # XXX multiple inheritance ...
             my @attributes = keys %{ $class->{_value}{attributes} };
             ::DISPATCH( $::Str, 'new', $class->{_value}{class_name} . '.new(' 
-                . join( ', ', map { "$_ => ..." } @attributes ) 
+                . join( ', ', 
+                    map { 
+                            my $attribute = $_;
+                            my $v = ::DISPATCH( $_[0], $attribute );
+                            if ( ref $v ) {
+                                $v = ::DISPATCH( $v, 'perl' )->{_value};
+                            }
+                            "$attribute => $v"
+                        } 
+                        @attributes 
+                    ) 
                 . ')' );
         }
     )

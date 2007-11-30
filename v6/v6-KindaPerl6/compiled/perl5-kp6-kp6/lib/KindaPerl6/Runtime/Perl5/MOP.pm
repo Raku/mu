@@ -653,7 +653,7 @@ $meta_Class->{_value}{methods}{add_method} = ::DISPATCH(
 ::DISPATCH(
     $meta_Class,
     'add_method',
-    'attributes',
+    'get_attributes',
     ::DISPATCH(
         $::Method,
         'new',
@@ -662,9 +662,12 @@ $meta_Class->{_value}{methods}{add_method} = ::DISPATCH(
                 ::DISPATCH(
                     $::List,
                     "new",
-                    map {
-                            ::DISPATCH( $::Str, "new", $_ )
-                        } @attributes
+                    { _array => [
+                            map {
+                                    ::DISPATCH( $::Str, "new", $_ )
+                                } @attributes
+                        ]
+                    }
                 );
             }
         }
@@ -989,7 +992,17 @@ $meta_isa = sub {
             my $class = ::DISPATCH( $_[0], "HOW" );  # XXX multiple inheritance ...
             my @attributes = keys %{ $class->{_value}{attributes} };
             ::DISPATCH( $::Str, 'new', $class->{_value}{class_name} . '.new(' 
-                . join( ', ', map { "$_ => ..." } @attributes ) 
+                . join( ', ', 
+                    map { 
+                            my $attribute = $_;
+                            my $v = ::DISPATCH( $_[0], $attribute );
+                            if ( ref $v ) {
+                                $v = ::DISPATCH( $v, 'perl' )->{_value};
+                            }
+                            "$attribute => $v"
+                        } 
+                        @attributes 
+                    ) 
                 . ')' );
         }
     )
