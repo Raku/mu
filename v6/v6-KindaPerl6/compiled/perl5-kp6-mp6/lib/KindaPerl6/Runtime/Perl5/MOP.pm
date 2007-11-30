@@ -650,7 +650,30 @@ $meta_Class->{_value}{methods}{add_method} = ::DISPATCH(
     )
 );
 
-# TODO - "get attributes" ???
+::DISPATCH(
+    $meta_Class,
+    'add_method',
+    'get_attributes',
+    ::DISPATCH(
+        $::Method,
+        'new',
+        {   code => sub {
+                my @attributes = keys %{ $_[0]{_value}{attributes} };
+                ::DISPATCH(
+                    $::List,
+                    "new",
+                    { _array => [
+                            map {
+                                    ::DISPATCH( $::Str, "new", $_ )
+                                } @attributes
+                        ]
+                    }
+                );
+            }
+        }
+    )
+);
+
 ::DISPATCH(
     $meta_Class,
     'add_method',
@@ -943,7 +966,7 @@ $meta_isa = sub {
 );
 
 
-# add .Str to $meta_Object
+# add .Str to Object
 ::DISPATCH(
     $meta_Object,
     'add_method',
@@ -952,7 +975,25 @@ $meta_isa = sub {
         $::Method,
         'new',
         sub {
-            my $v = ::DISPATCH( $::Str, 'new', '::' . $_[0]{_isa}[0]{_value}{class_name} . '(...)' );
+            ::DISPATCH( $_[0], "perl" );
+        }
+    )
+);
+
+# add .perl to Object
+::DISPATCH(
+    $meta_Object,
+    'add_method',
+    'perl',
+    ::DISPATCH(
+        $::Method,
+        'new',
+        sub {
+            my $class = ::DISPATCH( $_[0], "HOW" );  # XXX multiple inheritance ...
+            my @attributes = keys %{ $class->{_value}{attributes} };
+            ::DISPATCH( $::Str, 'new', $class->{_value}{class_name} . '.new(' 
+                . join( ', ', map { "$_ => ..." } @attributes ) 
+                . ')' );
         }
     )
 );

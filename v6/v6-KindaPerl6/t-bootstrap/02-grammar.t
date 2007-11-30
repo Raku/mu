@@ -4,6 +4,7 @@ use strict;
 use KindaPerl6::Runtime::Perl5::Runtime;
 use KindaPerl6::Grammar::Quote;
 use KindaPerl6::Grammar;
+use KindaPerl6::AST;
 use Test::More tests => 4;
 
 $_ = ::DISPATCH( $::Scalar, "new" );
