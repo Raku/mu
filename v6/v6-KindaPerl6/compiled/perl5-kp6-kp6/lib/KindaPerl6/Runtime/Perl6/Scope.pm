@@ -1119,7 +1119,7 @@
                                                             {
                                                                 sigil  => '$',
                                                                 twigil => '',
-                                                                name  => 'pair',
+                                                                name => 'pair',
                                                                 value =>
                                                                   $::Undef,
                                                                 has_default =>
@@ -1718,7 +1718,7 @@
                                                             {
                                                                 sigil  => '$',
                                                                 twigil => '',
-                                                                name  => 'pair',
+                                                                name => 'pair',
                                                                 value =>
                                                                   $::Undef,
                                                                 has_default =>
@@ -1997,7 +1997,7 @@
                                                             {
                                                                 sigil  => '$',
                                                                 twigil => '',
-                                                                name  => 'pair',
+                                                                name => 'pair',
                                                                 value =>
                                                                   $::Undef,
                                                                 has_default =>

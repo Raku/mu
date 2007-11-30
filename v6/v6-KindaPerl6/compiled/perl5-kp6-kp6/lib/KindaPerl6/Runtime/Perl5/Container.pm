@@ -275,11 +275,14 @@ $::ArrayContainer = KindaPerl6::Runtime::Perl5::MOP::make_class(
             }
             if ( ::DISPATCH( $_[1], 'does', $::List )->{_value} ) {
                 # t/todo/69-list-binding.t - test 1
-                $_[0]{_value}{cell} = ::DISPATCH( $::Array, "new", { _array => [ 
+                $_[0]{_value}{cell} = ::DISPATCH( $::Array, "new" );
+                if ( ::DISPATCH( $_[1], 'elems' )->{_value} ) {
+                    ::DISPATCH( $_[0], 'push', 
                             ::DISPATCH( $_[1], 'INDEX', 
                                     ::DISPATCH( $::Int, 'new', 0 )
                                 )
-                        ] } );
+                        );
+                }
                 return $_[0];
             }
             if ( ::DISPATCH( $_[1], 'does', $::Array )->{_value} ) {

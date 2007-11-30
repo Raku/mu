@@ -263,7 +263,7 @@
                                                             }
                                                           )
                                                           unless
-                                                          defined $CAPTURE;
+                                                            defined $CAPTURE;
                                                         INIT {
                                                             $CAPTURE =
                                                               ::DISPATCH(
@@ -357,7 +357,7 @@
                                                             }
                                                           )
                                                           unless
-                                                          defined $CAPTURE;
+                                                            defined $CAPTURE;
                                                         INIT {
                                                             $CAPTURE =
                                                               ::DISPATCH(
@@ -648,8 +648,7 @@
                                                                 ::DISPATCH(
                                                                     $::Int,
                                                                     'new',
-                                                                    $_param_index
-                                                                      ++
+                                                                    $_param_index++
                                                                 )
                                                               );
                                                         }
@@ -689,8 +688,8 @@
                                                                                         }
                                                                                       )
                                                                                       unless
-                                                                                      defined
-                                                                                      $CAPTURE;
+                                                                                        defined
+                                                                                          $CAPTURE;
                                                                                     INIT
                                                                                     {
                                                                                         $CAPTURE
@@ -816,8 +815,8 @@
                                                                                         }
                                                                                       )
                                                                                       unless
-                                                                                      defined
-                                                                                      $CAPTURE;
+                                                                                        defined
+                                                                                          $CAPTURE;
                                                                                     INIT
                                                                                     {
                                                                                         $CAPTURE
@@ -1569,8 +1568,8 @@
                                                                             }
                                                                           )
                                                                           unless
-                                                                          defined
-                                                                          $CAPTURE;
+                                                                            defined
+                                                                              $CAPTURE;
                                                                         INIT {
                                                                             $CAPTURE
                                                                               = ::DISPATCH(
@@ -1682,8 +1681,8 @@
                                                                             }
                                                                           )
                                                                           unless
-                                                                          defined
-                                                                          $CAPTURE;
+                                                                            defined
+                                                                              $CAPTURE;
                                                                         INIT {
                                                                             $CAPTURE
                                                                               = ::DISPATCH(
@@ -1870,7 +1869,7 @@
                                                                     }
                                                                   )
                                                                   unless defined
-                                                                  $subitem;
+                                                                      $subitem;
                                                                 INIT {
                                                                     $subitem =
                                                                       ::DISPATCH(
@@ -1973,8 +1972,8 @@
                                                                                     }
                                                                                   )
                                                                                   unless
-                                                                                  defined
-                                                                                  $subitem;
+                                                                                    defined
+                                                                                      $subitem;
                                                                                 INIT
                                                                                 {
                                                                                     $subitem
@@ -2005,8 +2004,8 @@
                                                                                     }
                                                                                   )
                                                                                   unless
-                                                                                  defined
-                                                                                  $CAPTURE;
+                                                                                    defined
+                                                                                      $CAPTURE;
                                                                                 INIT
                                                                                 {
                                                                                     $CAPTURE
@@ -2139,8 +2138,7 @@
                                                                                             ::DISPATCH(
                                                                                                 $::Int,
 'new',
-                                                                                                $_param_index
-                                                                                                  ++
+                                                                                                $_param_index++
                                                                                             )
                                                                                           )
                                                                                           ;
@@ -2559,7 +2557,7 @@
                                                             {
                                                                 sigil  => '$',
                                                                 twigil => '',
-                                                                name  => 'item',
+                                                                name => 'item',
                                                                 value =>
                                                                   $::Undef,
                                                                 has_default =>

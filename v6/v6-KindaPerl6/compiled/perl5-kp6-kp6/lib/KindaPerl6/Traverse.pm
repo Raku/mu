@@ -406,7 +406,7 @@
                                                             }
                                                           )
                                                           unless
-                                                          defined $CAPTURE;
+                                                            defined $CAPTURE;
                                                         INIT {
                                                             $CAPTURE =
                                                               ::DISPATCH(
@@ -500,7 +500,7 @@
                                                             }
                                                           )
                                                           unless
-                                                          defined $CAPTURE;
+                                                            defined $CAPTURE;
                                                         INIT {
                                                             $CAPTURE =
                                                               ::DISPATCH(
@@ -778,8 +778,7 @@
                                                                 ::DISPATCH(
                                                                     $::Int,
                                                                     'new',
-                                                                    $_param_index
-                                                                      ++
+                                                                    $_param_index++
                                                                 )
                                                               );
                                                         }
@@ -1113,8 +1112,7 @@
                                                                 ::DISPATCH(
                                                                     $::Int,
                                                                     'new',
-                                                                    $_param_index
-                                                                      ++
+                                                                    $_param_index++
                                                                 )
                                                               );
                                                         }
@@ -1476,7 +1474,7 @@
                                                             {
                                                                 sigil  => '$',
                                                                 twigil => '',
-                                                                name  => 'item',
+                                                                name => 'item',
                                                                 value =>
                                                                   $::Undef,
                                                                 has_default =>
@@ -1935,7 +1933,7 @@
                                                             }
                                                           )
                                                           unless
-                                                          defined $CAPTURE;
+                                                            defined $CAPTURE;
                                                         INIT {
                                                             $CAPTURE =
                                                               ::DISPATCH(
@@ -2029,7 +2027,7 @@
                                                             }
                                                           )
                                                           unless
-                                                          defined $CAPTURE;
+                                                            defined $CAPTURE;
                                                         INIT {
                                                             $CAPTURE =
                                                               ::DISPATCH(
@@ -2107,8 +2105,8 @@
                                                                             }
                                                                           )
                                                                           unless
-                                                                          defined
-                                                                          $CAPTURE;
+                                                                            defined
+                                                                              $CAPTURE;
                                                                         INIT {
                                                                             $CAPTURE
                                                                               = ::DISPATCH(
@@ -2216,8 +2214,8 @@
                                                                             }
                                                                           )
                                                                           unless
-                                                                          defined
-                                                                          $CAPTURE;
+                                                                            defined
+                                                                              $CAPTURE;
                                                                         INIT {
                                                                             $CAPTURE
                                                                               = ::DISPATCH(
@@ -2306,8 +2304,8 @@
                                                                                             }
                                                                                           )
                                                                                           unless
-                                                                                          defined
-                                                                                          $CAPTURE;
+                                                                                            defined
+                                                                                              $CAPTURE;
                                                                                         INIT
                                                                                         {
                                                                                             $CAPTURE
@@ -2433,8 +2431,8 @@
                                                                                             }
                                                                                           )
                                                                                           unless
-                                                                                          defined
-                                                                                          $CAPTURE;
+                                                                                            defined
+                                                                                              $CAPTURE;
                                                                                         INIT
                                                                                         {
                                                                                             $CAPTURE
@@ -2536,8 +2534,8 @@
                                                                                                             }
                                                                                                           )
                                                                                                           unless
-                                                                                                          defined
-                                                                                                          $CAPTURE;
+                                                                                                            defined
+                                                                                                              $CAPTURE;
                                                                                                         INIT
                                                                                                         {
                                                                                                             $CAPTURE
@@ -2664,8 +2662,8 @@
                                                                                                             }
                                                                                                           )
                                                                                                           unless
-                                                                                                          defined
-                                                                                                          $CAPTURE;
+                                                                                                            defined
+                                                                                                              $CAPTURE;
                                                                                                         INIT
                                                                                                         {
                                                                                                             $CAPTURE

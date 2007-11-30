@@ -5583,7 +5583,7 @@
                                                             {
                                                                 sigil  => '$',
                                                                 twigil => '',
-                                                                name  => 'name',
+                                                                name => 'name',
                                                                 value =>
                                                                   $::Undef,
                                                                 has_default =>
@@ -8049,7 +8049,7 @@
                                                             }
                                                           )
                                                           unless
-                                                          defined $CAPTURE;
+                                                            defined $CAPTURE;
                                                         INIT {
                                                             $CAPTURE =
                                                               ::DISPATCH(
@@ -8142,7 +8142,7 @@
                                                             }
                                                           )
                                                           unless
-                                                          defined $CAPTURE;
+                                                            defined $CAPTURE;
                                                         INIT {
                                                             $CAPTURE =
                                                               ::DISPATCH(
@@ -9647,7 +9647,7 @@
                                                             }
                                                           )
                                                           unless
-                                                          defined $CAPTURE;
+                                                            defined $CAPTURE;
                                                         INIT {
                                                             $CAPTURE =
                                                               ::DISPATCH(
@@ -9743,7 +9743,7 @@
                                                             }
                                                           )
                                                           unless
-                                                          defined $CAPTURE;
+                                                            defined $CAPTURE;
                                                         INIT {
                                                             $CAPTURE =
                                                               ::DISPATCH(
@@ -9821,8 +9821,8 @@
                                                                             }
                                                                           )
                                                                           unless
-                                                                          defined
-                                                                          $CAPTURE;
+                                                                            defined
+                                                                              $CAPTURE;
                                                                         INIT {
                                                                             $CAPTURE
                                                                               = ::DISPATCH(
@@ -9933,8 +9933,8 @@
                                                                             }
                                                                           )
                                                                           unless
-                                                                          defined
-                                                                          $CAPTURE;
+                                                                            defined
+                                                                              $CAPTURE;
                                                                         INIT {
                                                                             $CAPTURE
                                                                               = ::DISPATCH(
@@ -11298,7 +11298,7 @@
                                                             }
                                                           )
                                                           unless
-                                                          defined $CAPTURE;
+                                                            defined $CAPTURE;
                                                         INIT {
                                                             $CAPTURE =
                                                               ::DISPATCH(
@@ -11393,7 +11393,7 @@
                                                             }
                                                           )
                                                           unless
-                                                          defined $CAPTURE;
+                                                            defined $CAPTURE;
                                                         INIT {
                                                             $CAPTURE =
                                                               ::DISPATCH(
@@ -12245,7 +12245,7 @@
                                                             }
                                                           )
                                                           unless
-                                                          defined $CAPTURE;
+                                                            defined $CAPTURE;
                                                         INIT {
                                                             $CAPTURE =
                                                               ::DISPATCH(
@@ -12338,7 +12338,7 @@
                                                             }
                                                           )
                                                           unless
-                                                          defined $CAPTURE;
+                                                            defined $CAPTURE;
                                                         INIT {
                                                             $CAPTURE =
                                                               ::DISPATCH(
@@ -15084,7 +15084,7 @@
                                                             {
                                                                 sigil  => '$',
                                                                 twigil => '',
-                                                                name  => 'decl',
+                                                                name => 'decl',
                                                                 value =>
                                                                   $::Undef,
                                                                 has_default =>
@@ -15406,8 +15406,7 @@
                         # emit_body
                         do {
                             ::MODIFIED($s);
-                            $s =
-                              ::DISPATCH( $::Str, 'new',
+                            $s = ::DISPATCH( $::Str, 'new',
                                 '::DISPATCH( $::Capture, "new", { ' );
                         };
                         do {
@@ -15700,8 +15699,7 @@
                                                                 ::DISPATCH(
                                                                     $::Int,
                                                                     'new',
-                                                                    $_param_index
-                                                                      ++
+                                                                    $_param_index++
                                                                 )
                                                             );
                                                         }
@@ -16035,8 +16033,7 @@
                                                                 ::DISPATCH(
                                                                     $::Int,
                                                                     'new',
-                                                                    $_param_index
-                                                                      ++
+                                                                    $_param_index++
                                                                 )
                                                             );
                                                         }

@@ -246,7 +246,7 @@
                         "new",
                         {
                             invocant => $::Undef,
-                            array    =>
+                            array =>
                               ::DISPATCH( $::List, "new", { _array => [] } ),
                             return => $::Undef,
                         }
@@ -312,7 +312,7 @@
                         "new",
                         {
                             invocant => $::Undef,
-                            array    =>
+                            array =>
                               ::DISPATCH( $::List, "new", { _array => [] } ),
                             return => $::Undef,
                         }
@@ -378,7 +378,7 @@
                         "new",
                         {
                             invocant => $::Undef,
-                            array    =>
+                            array =>
                               ::DISPATCH( $::List, "new", { _array => [] } ),
                             return => $::Undef,
                         }
@@ -444,7 +444,7 @@
                         "new",
                         {
                             invocant => $::Undef,
-                            array    =>
+                            array =>
                               ::DISPATCH( $::List, "new", { _array => [] } ),
                             return => $::Undef,
                         }
@@ -510,7 +510,7 @@
                         "new",
                         {
                             invocant => $::Undef,
-                            array    =>
+                            array =>
                               ::DISPATCH( $::List, "new", { _array => [] } ),
                             return => $::Undef,
                         }
@@ -1937,7 +1937,7 @@
                         "new",
                         {
                             invocant => $::Undef,
-                            array    =>
+                            array =>
                               ::DISPATCH( $::List, "new", { _array => [] } ),
                             return => $::Undef,
                         }
@@ -1982,7 +1982,7 @@
                         "new",
                         {
                             invocant => $::Undef,
-                            array    =>
+                            array =>
                               ::DISPATCH( $::List, "new", { _array => [] } ),
                             return => $::Undef,
                         }
@@ -2027,7 +2027,7 @@
                         "new",
                         {
                             invocant => $::Undef,
-                            array    =>
+                            array =>
                               ::DISPATCH( $::List, "new", { _array => [] } ),
                             return => $::Undef,
                         }
@@ -2072,7 +2072,7 @@
                         "new",
                         {
                             invocant => $::Undef,
-                            array    =>
+                            array =>
                               ::DISPATCH( $::List, "new", { _array => [] } ),
                             return => $::Undef,
                         }
