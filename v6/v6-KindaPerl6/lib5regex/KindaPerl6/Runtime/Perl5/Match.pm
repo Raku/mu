@@ -18,6 +18,7 @@ package Match;
                 }
                 if ( $method eq 'LOOKUP' ) {
                     my $what = ::DISPATCH( $param[0], 'Str' )->{_value}; 
+                    #print "** LOOKUP {$what} ** \n";
                     return $_[0]->{hash}{$what}; 
                 }
                 if ( $method eq 'does' ) {

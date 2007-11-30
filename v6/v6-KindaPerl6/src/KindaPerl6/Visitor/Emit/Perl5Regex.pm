@@ -224,7 +224,7 @@ class Rule::SpecialChar {
 class Rule::Block {
     method emit_perl5 {
         '(?{ ' 
-            ~ 'local $GLOBAL::_M = $GLOBAL::_M; '  # shallow copy
+            ~ 'local $GLOBAL::_M = [ $GLOBAL::_M, "to", pos() ]; '  # "finish" & shallow copy
 
             # construct a $/ view from what we already have
             ~    'Match::from_global_data( $GLOBAL::_M ); '

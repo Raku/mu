@@ -3379,8 +3379,9 @@
                                 ),
                                 'APPLY',
                                 ::DISPATCH(
-                                    $::Str, 'new',
-                                    'local $GLOBAL::_M = $GLOBAL::_M; '
+                                    $::Str,
+                                    'new',
+'local $GLOBAL::_M = [ $GLOBAL::_M, "to", pos() ]; '
                                 ),
                                 ::DISPATCH(
                                     (

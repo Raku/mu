@@ -356,7 +356,7 @@ sub emit_perl5 {
     do { [] };
     (   '(?{ '
             . (
-            'local $GLOBAL::_M = $GLOBAL::_M; '
+            'local $GLOBAL::_M = [ $GLOBAL::_M, "to", pos() ]; '
                 . (
                 'Match::from_global_data( $GLOBAL::_M ); '
                     . (
