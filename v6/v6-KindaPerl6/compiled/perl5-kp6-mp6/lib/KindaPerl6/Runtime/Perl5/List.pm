@@ -54,8 +54,6 @@ $::List = KindaPerl6::Runtime::Perl5::MOP::make_class(
         },
         INDEX => sub {
             my $key = ::DISPATCH( ::DISPATCH( $_[1], "Int" ), "p5landish" );
-            $_[0]{_value}{_array} = []
-                unless defined $_[0]{_value}{_array};    # XXX
             return ::DISPATCH( $::Undef, 'new' )
                 unless exists $_[0]{_value}{_array}[$key];
             return $_[0]{_value}{_array}[$key];

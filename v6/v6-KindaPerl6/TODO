@@ -44,7 +44,7 @@ TODO list for KindaPerl6
   because it emits code inside perl 5 regexes.
   One possible solution is to move code blocks into subroutines.
 
-- t/kp6/grammar/15-capture-from-rule-block.t & t/kp6/grammar/17-???
+- t/todo/grammar/15-capture-from-rule-block.t & t/todo/grammar/17-complex-return.t
   both go into infinite loops.
 
   misc/grammar_17_15_bug_ilustration.t - shows what causes the bug
@@ -60,9 +60,12 @@ TODO list for KindaPerl6
 
 - Assignment and Binding 
 
-    (DONE) array x list, assignment and binding
+    - (DONE) array x list, assignment and binding
 
-    untested: hash x array x scalar
+    - expression-binding and parameter-binding should share the same code
+        ($b, $a) := ( a => 1, b => 2 );
+
+    - untested: hash x array x scalar
         @a := $b; $b := @a; ...
 
 - (DONE) my @x = (1,2,3); say @x
