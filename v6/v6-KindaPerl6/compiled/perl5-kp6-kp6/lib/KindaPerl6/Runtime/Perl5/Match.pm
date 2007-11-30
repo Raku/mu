@@ -52,9 +52,9 @@ package Match;
                                 'str => '  . ${$self->match_str},
                                 'result => ' . 
                                     do {
-                                        my $s =
+                                        my $s;
                                         eval {
-                                            ::DISPATCH( ::DISPATCH( $self, 'result' ), 'perl' )->{_value}
+                                            $s = ::DISPATCH( ::DISPATCH( $self, 'result' ), 'perl' )->{_value}
                                         };
                                         $@ ? $@ : $s;
                                     },
