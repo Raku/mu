@@ -943,7 +943,7 @@ $meta_isa = sub {
 );
 
 
-# add .Str to $meta_Object
+# add .Str to Object
 ::DISPATCH(
     $meta_Object,
     'add_method',
@@ -952,12 +952,12 @@ $meta_isa = sub {
         $::Method,
         'new',
         sub {
-            my $v = ::DISPATCH( $::Str, 'new', $_[0]{_isa}[0]{_value}{class_name} . '.new(...)' );
+            ::DISPATCH( $_[0], "perl" );
         }
     )
 );
 
-# add .perl to $meta_Object
+# add .perl to Object
 ::DISPATCH(
     $meta_Object,
     'add_method',
@@ -966,7 +966,11 @@ $meta_isa = sub {
         $::Method,
         'new',
         sub {
-            my $v = ::DISPATCH( $::Str, 'new', $_[0]{_isa}[0]{_value}{class_name} . '.new(...)' );
+            my $class = ::DISPATCH( $_[0], "HOW" );  # XXX multiple inheritance ...
+            my @attributes = keys %{ $class->{_value}{attributes} };
+            ::DISPATCH( $::Str, 'new', $class->{_value}{class_name} . '.new(' 
+                . join( ', ', map { "$_ => ..." } @attributes ) 
+                . ')' );
         }
     )
 );
