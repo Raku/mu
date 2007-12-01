@@ -553,7 +553,7 @@ op1 "async" = \v -> do
         { threadId      = tid
         , threadLock    = lock
         }
-    return undef
+--WV: async should return the thread id!    return undef
 op1 "listen" = \v -> do
     port    <- fromVal v
     socket  <- guardIO $ listenOn (PortNumber $ fromInteger port)
