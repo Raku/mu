@@ -61,6 +61,9 @@ package Match;
                               )
                         . ' )' );
                 }
+                if ( $method eq 'Str' ) {
+                    return ::DISPATCH($::Str,'new',$self->Str);
+                }
                 
                 $self->$method( @param );
         };

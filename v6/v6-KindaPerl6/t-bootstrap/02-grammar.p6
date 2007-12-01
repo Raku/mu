@@ -19,29 +19,27 @@ say "# ** now testing: <digits>";
 $_ = '123';
 my $MATCH = KindaPerl6::Grammar.digits();
 say "# ",($MATCH.perl);
-#say "# ",($MATCH.Str);
-#ok( $MATCH.Str eq '123');
+say "# ",($MATCH.Str);
+ok( $MATCH.Str eq '123');
 
-=begin
 # val_int
 
-print "# ** now testing: <val_int> \n";
-::DISPATCH_VAR( $_, 'STORE', ::DISPATCH( $::Str, 'new', '123' ) );
-$MATCH = ::DISPATCH( $::KindaPerl6::Grammar, 'val_int' );
-print "# "; ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $MATCH, 'perl', ) );
-print "# ",$MATCH->Str,"\n";
-ok( $MATCH->Str eq '123', " Str" );
+say "# ** now testing: <val_int>";
+$_ = '123';
+my $MATCH = KindaPerl6::Grammar.val_int();
+say "# ",($MATCH.perl);
+say "# ",($MATCH.Str);
+ok( $MATCH.Str eq '123');
 
 # term
 
-print "# ** now testing: <term> \n";
-::DISPATCH_VAR( $_, 'STORE', ::DISPATCH( $::Str, 'new', '123' ) );
-$MATCH = ::DISPATCH( $::KindaPerl6::Grammar, 'term' );
-print "# "; ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $MATCH, 'perl', ) );
-print "# ",$MATCH->Str,"\n";
-ok( $MATCH->Str eq '123', " Str" );
+say "# ** now testing: <term>";
+$_ = '123';
+my $MATCH = KindaPerl6::Grammar.term();
+say "# ",($MATCH.perl);
+say "# ",($MATCH.Str);
+ok( $MATCH.Str eq '123');
 
-=end
 
 
 =begin
