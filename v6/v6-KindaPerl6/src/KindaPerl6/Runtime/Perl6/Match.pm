@@ -27,22 +27,6 @@ class Match is Capture {
     method true {
         return ($.bool).true;
     };
-
-    method set_from {
-        $.from = $_[0];
-    };
-
-    method set_to {
-        $.to = $_[0];
-    };
-
-    method set_bool {
-        $.bool = $_[0];
-    };
-
-    method set_match_str {
-        $.match_str = $_[0];
-    };
 }
 
 
