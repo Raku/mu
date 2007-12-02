@@ -17,9 +17,6 @@ class Multi is Code {
     has @.long_names;    # sub/method multi-dispatch
 
     method add_variant ( $code ) {
-
-        #say "# add_variant: ", $code.WHAT;
-
         if !( defined( self.long_names ) ) {
             self.long_names = [ ];   # XXX accessor init bug
         };
@@ -29,36 +26,26 @@ class Multi is Code {
 
 
     method select ( $capture ) {
-
-        #say "# capture isa ", $capture.WHAT;
-        #say "capture: $capture";
-
-
-        # sub/method dispatch
-
         if !( defined( self.long_names ) ) {
-            die "can't resolve Multi dispatch";
+            die "can't resolve Multi dispatch (the Multi has no long names) ";
         };
 
-        my @candidates = [ ];
-        #say '# testing ', (self.long_names).elems, " candidates in ", (self.long_names).WHAT;
+        my @candidates = ( );
 
         for @(self.long_names) -> $sub {
-            #say "# testing sub "; #, $sub;
-            #say $sub.WHAT;
-            #say "signature: ", $sub.signature, "\n";
-            if ($sub.signature).arity == $capture.arity {
+            if (($sub.signature).arity == $capture.arity) {
                 @candidates.push( $sub );
             };
         };
 
-        #say '# ', @candidates.elems, ' subs matched the arity';
         if @candidates.elems == 1 {
             return @candidates[0];
         };
+        if @candidates.elems > 1 {
+            die "Multi dispatch is ambiguous. Matching variants "~(@candidates).perl;
+        }
 
-        #say "capture: ", $capture;
-        die "can't resolve Multi dispatch";
+        die "can't resolve Multi dispatch - no matching variant found";
     }
 
     method perl {

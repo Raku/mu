@@ -418,7 +418,7 @@
                                                 ::DISPATCH(
                                                     $::Str,
                                                     'new',
-                                                    't resolve Multi dispatch'
+'t resolve Multi dispatch (the Multi has no long names) '
                                                 )
                                             )
                                         )
@@ -428,7 +428,7 @@
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
                         ::DISPATCH_VAR( $List_candidates, 'STORE',
-                            ::DISPATCH( $::Array, 'new', { _array => [] } ) );
+                            ::DISPATCH( $::List, 'new', { _array => [] } ) );
                         ::DISPATCH(
                             ::DISPATCH(
                                 (
@@ -709,6 +709,62 @@
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
+                        do {
+                            if (
+                                ::DISPATCH(
+                                    ::DISPATCH(
+                                        ::DISPATCH(
+                                            (
+                                                $GLOBAL::Code_infix_58__60__62__62_
+                                                  = $GLOBAL::Code_infix_58__60__62__62_
+                                                  || ::DISPATCH(
+                                                    $::Routine, "new",
+                                                  )
+                                            ),
+                                            'APPLY',
+                                            ::DISPATCH(
+                                                $List_candidates, 'elems',
+                                            ),
+                                            ::DISPATCH( $::Int, 'new', 1 )
+                                        ),
+                                        "true"
+                                    ),
+                                    "p5landish"
+                                )
+                              )
+                            {
+                                do {
+                                    ::DISPATCH(
+                                        (
+                                            $GLOBAL::Code_die =
+                                              $GLOBAL::Code_die
+                                              || ::DISPATCH( $::Routine, "new",
+                                              )
+                                        ),
+                                        'APPLY',
+                                        ::DISPATCH(
+                                            (
+                                                $GLOBAL::Code_infix_58__60__126__62_
+                                                  = $GLOBAL::Code_infix_58__60__126__62_
+                                                  || ::DISPATCH(
+                                                    $::Routine, "new",
+                                                  )
+                                            ),
+                                            'APPLY',
+                                            ::DISPATCH(
+                                                $::Str,
+                                                'new',
+'Multi dispatch is ambiguous. Matching variants '
+                                            ),
+                                            ::DISPATCH(
+                                                $List_candidates, 'perl',
+                                            )
+                                        )
+                                    );
+                                  }
+                            }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
+                        };
                         ::DISPATCH(
                             (
                                 $GLOBAL::Code_die = $GLOBAL::Code_die
@@ -732,8 +788,9 @@
                                     'APPLY',
                                     ::DISPATCH( $::Str, 'new', chr(39) ),
                                     ::DISPATCH(
-                                        $::Str, 'new',
-                                        't resolve Multi dispatch'
+                                        $::Str,
+                                        'new',
+'t resolve Multi dispatch - no matching variant found'
                                     )
                                 )
                             )
@@ -1437,7 +1494,7 @@
                                                             }
                                                           )
                                                           unless
-                                                            defined $CAPTURE;
+                                                          defined $CAPTURE;
                                                         INIT {
                                                             $CAPTURE =
                                                               ::DISPATCH(
@@ -1537,7 +1594,7 @@
                                                             }
                                                           )
                                                           unless
-                                                            defined $CAPTURE;
+                                                          defined $CAPTURE;
                                                         INIT {
                                                             $CAPTURE =
                                                               ::DISPATCH(
@@ -1670,7 +1727,7 @@
                                                             }
                                                           )
                                                           unless
-                                                            defined $CAPTURE;
+                                                          defined $CAPTURE;
                                                         INIT {
                                                             $CAPTURE =
                                                               ::DISPATCH(
@@ -1907,7 +1964,8 @@
                                                                 ::DISPATCH(
                                                                     $::Int,
                                                                     'new',
-                                                                    $_param_index++
+                                                                    $_param_index
+                                                                      ++
                                                                 )
                                                             );
                                                         }
@@ -1951,7 +2009,7 @@
                                                                     }
                                                                   )
                                                                   unless
-                                                                    defined $s;
+                                                                  defined $s;
                                                                 INIT {
                                                                     $s =
                                                                       ::DISPATCH(
@@ -2050,8 +2108,8 @@
                                                                                     }
                                                                                   )
                                                                                   unless
-                                                                                    defined
-                                                                                      $sym;
+                                                                                  defined
+                                                                                  $sym;
                                                                                 INIT
                                                                                 {
                                                                                     $sym
@@ -2082,8 +2140,8 @@
                                                                                     }
                                                                                   )
                                                                                   unless
-                                                                                    defined
-                                                                                      $CAPTURE;
+                                                                                  defined
+                                                                                  $CAPTURE;
                                                                                 INIT
                                                                                 {
                                                                                     $CAPTURE
@@ -2216,7 +2274,8 @@
                                                                                             ::DISPATCH(
                                                                                                 $::Int,
 'new',
-                                                                                                $_param_index++
+                                                                                                $_param_index
+                                                                                                  ++
                                                                                             )
                                                                                           )
                                                                                           ;
