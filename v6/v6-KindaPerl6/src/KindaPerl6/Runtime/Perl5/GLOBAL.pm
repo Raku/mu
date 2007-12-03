@@ -326,6 +326,7 @@ Calls CORE::warn
 
 sub warn {
     CORE::warn( map { _str($_) } @_ );
+    True();
 }
 
 =head2 die
