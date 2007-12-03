@@ -261,7 +261,7 @@ my @visitors;
             unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::AstPerl';
     }
     elsif ( grep { $_ eq 'perl5' } @opt{qw(C B)} ) {
-        push @visitor_sequence, qw( ExtractRuleBlock Token MetaClass ShortCircuit Global Emit::Perl5 )
+        push @visitor_sequence, qw( ExtractRuleBlock Token MetaClass  Global Emit::Perl5 )  # ShortCircuit
             unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Perl5';
     }
     elsif ( grep { $_ eq 'parrot' } @opt{qw(C B)} ) {
@@ -273,13 +273,13 @@ my @visitors;
             unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Lisp';
     }
     elsif ( grep { $_ eq 'perl5rx' } @opt{qw(C B)} ) {
-        push @visitor_sequence, qw( RegexCapture MetaClass ShortCircuit Global Emit::Perl5Regex )
+        push @visitor_sequence, qw( RegexCapture MetaClass  Global Emit::Perl5Regex )  # ShortCircuit
             unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Perl5Regex';
     }
     elsif ( !@visitor_sequence ) {
 
         # this is the default sequence
-        push @visitor_sequence, qw( ExtractRuleBlock Token MetaClass ShortCircuit Global Emit::Perl5 );
+        push @visitor_sequence, qw( ExtractRuleBlock Token MetaClass  Global Emit::Perl5 );  # ShortCircuit
     }
 
     push @visitor_sequence, 'Emit::AstPerl'

@@ -1,45 +1,38 @@
-say "1..1";
-say "not ok 1";
+#say "1..1";
 
-# deliberate death;
-# this test case will not complete (infinite loop?).
-# I am breaking this code so that the test case still fails.
-# test cases
-#      t/kp6/grammar/15-capture-from-rule-block.t
-#      t/kp6/grammar/17-complex-return.t
-#
-# are both broken with what appears to be the same bug?
-# dlocaus@irc.freenode.net #perl6
-#
-#
-#
-#grammar MyGrammar {
-#    token t1 {
-#        'a' { return ::Foo( 'a' => 6 ); }
-#    };
-#    token t2 {
-#        <t1> 'b' { return ::Bar( 't1' => $$<t1>, 'b' => 'ok 4' ); }
-#    };
-#};
-#class Foo {
-#    has $.a;
-#};
-#class Bar {
-#    has $.t1;
-#    has $.b;
-#};
+grammar MyGrammar {
+    token t1 {
+        'a' { return Foo.new( 'a' => 6 ); }
+    };
+    token t2 {
+        <t1> 'b' { return Bar.new( 't1' => $$<t1>, 'b' => 'ok 4' ); }
+    };
+};
+class Foo {
+    has $.a;
+};
+class Bar {
+    has $.t1;
+    has $.b;
+};
+
 #module Main {
-#    say '1..6';
-#    $_ = 'ab';
-#    my $match = MyGrammar.t2();
-#    if $match { say 'ok 1'; };
-#    my $result = $$match;
-#    if $result { say 'ok 2'; };
-#    if $result.isa('Bar') { say 'ok 3'; };
-#    say $result.b;
-#    my $t1 = $result.t1;
-#    if $t1 { say 'ok 5'; } else { say 'not ok 5' };
-#    say 'ok ' ~ $t1.a;
+    say '1..6';
+    $_ = 'ab';
+    my $match = MyGrammar.t2();
+    if $match { say 'ok 1'; } else { say 'not ok 1' };
+    my $result = $$match;
+    if $result { say 'ok 2'; } else { say 'not ok 2' };
+    if $result.isa('Bar') { say 'ok 3'; } else { say 'not ok 3' };
+
+    if $result.b eq 'ok 4' { say 'ok 4'; } else { say 'not ok 4' };
+    # say $result.b;
+    
+    my $t1 = $result.t1;
+    if $t1 { say 'ok 5'; } else { say 'not ok 5' };
+
+    if $t1.does('t1') && ($t1.a eq '6') { say 'ok 6'; } else { say 'not ok 6' };
+    #say 'ok ' ~ $t1.a;
 #};
 
 =begin

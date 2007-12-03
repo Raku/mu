@@ -665,6 +665,31 @@ sub emit_perl5 {
         if   ( ( Main::isa( $self->{code}, 'Var' ) && ( $self->{code}->name() eq 'self' ) ) ) { return ('$self') }
         else                                                                                  { }
     };
+    do {
+        if ( ( Main::isa( $self->{code}, 'Var' ) && ( $self->{code}->name() eq 'infix:<&&>' ) ) ) {
+            return (
+                (   'do { '
+                        . (
+                        'my $_tmp1 = '
+                            . (
+                            $self->{arguments}->[0]->emit_perl5() . ( '; ' . ( '::DISPATCH( $_tmp1, "true" )->{_value} ' . ( '? ' . ( $self->{arguments}->[1]->emit_perl5() . ( ': ::DISPATCH( $::Bit, "new", 0 )' . ( ' }' . Main::newline() ) ) ) ) ) )
+                            )
+                        )
+                )
+            );
+        }
+        else { }
+    };
+    do {
+        if ( ( Main::isa( $self->{code}, 'Var' ) && ( $self->{code}->name() eq 'infix:<||>' ) ) ) {
+            return (
+                (   'do { '
+                        . ( 'my $_tmp1 = ' . ( $self->{arguments}->[0]->emit_perl5() . ( '; ' . ( '::DISPATCH( $_tmp1, "true" )->{_value} ' . ( '? $_tmp1' . ( ': ' . ( $self->{arguments}->[1]->emit_perl5() . ( ' }' . Main::newline() ) ) ) ) ) ) ) )
+                )
+            );
+        }
+        else { }
+    };
     return ( ( '::DISPATCH( ' . ( $self->{code}->emit_perl5() . ( ', \'APPLY\', ' . ( Main::join( [ map { $_->emit_perl5() } @{ $self->{arguments} } ], ', ' ) . ( ' )' . Main::newline() ) ) ) ) ) );
 }
 

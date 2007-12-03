@@ -495,22 +495,43 @@ class Call {
 class Apply {
     method emit_perl5 {
 
-        # dlocaus @ #perl6 irc.freenode.net
-        # fglock's comment on this work around
-        # http://irclog.perlgeek.de/perl6/2007-11-21#i_148959
-        # He stated that the code is return $self, instead of trying to parse
-        # self().
-        # Removing this hack breaks the test cases when you do:
-        # perl Makefile.PL ; make forcerecompile ; make test
-        # November 21st, 2007 10:51am PDT.
 
         if  ( $.code.isa('Var') ) && ( $.code.name eq 'self' )
-                # && ( @.arguments.elems == 0 )
         {
+            # dlocaus @ #perl6 irc.freenode.net
+            # fglock's comment on this work around
+            # http://irclog.perlgeek.de/perl6/2007-11-21#i_148959
+            # He stated that the code is return $self, instead of trying to parse
+            # self().
+            # Removing this hack breaks the test cases when you do:
+            # perl Makefile.PL ; make forcerecompile ; make test
+            # November 21st, 2007 10:51am PDT.
             return '$self';
         }
 
-        # end of hack.
+        if  ( $.code.isa('Var') ) && ( $.code.name eq 'infix:<&&>' )
+        {
+            # hack for shortcircuiting "&&"
+            # as an alternative hack, see Visitor::ShortCircuit
+            return  'do { '
+                        ~ 'my $_tmp1 = ' ~ ((@.arguments[0]).emit_perl5) ~ '; '
+                        ~ '::DISPATCH( $_tmp1, "true" )->{_value} '
+                        ~ '? ' ~ ((@.arguments[1]).emit_perl5) 
+                        ~ ': ::DISPATCH( $::Bit, "new", 0 )' 
+                ~ ' }' ~ Main::newline();
+        }
+
+        if  ( $.code.isa('Var') ) && ( $.code.name eq 'infix:<||>' )
+        {
+            # hack for shortcircuiting "||"
+            # as an alternative hack, see Visitor::ShortCircuit
+            return  'do { '
+                        ~ 'my $_tmp1 = ' ~ ((@.arguments[0]).emit_perl5) ~ '; '
+                        ~ '::DISPATCH( $_tmp1, "true" )->{_value} '
+                        ~ '? $_tmp1' 
+                        ~ ': ' ~ ((@.arguments[1]).emit_perl5) 
+                ~ ' }' ~ Main::newline();
+        }
 
         return  '::DISPATCH( ' ~ $.code.emit_perl5 ~ ', \'APPLY\', ' ~ (@.arguments.>>emit_perl5).join(', ') ~ ' )' ~ Main::newline();
     }
