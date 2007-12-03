@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 26 Sep 2007
+  Last Modified: 3 Dec 2007
   Number: 2
-  Version: 119
+  Version: 120
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -616,6 +616,10 @@ is defined:
 Perl 6 intrinsically supports big integers and rationals through its
 system of type declarations.  C<Int> automatically supports promotion
 to arbitrary precision, as well as holding C<Inf> and C<NaN> values.
+Note that C<Int> assumes 2's complement arithmetic, so C<+^1 == -2>
+is guaranteed.  (Native C<int> operations need not support this on
+machines that are not natively 2's complement.  You must convert to
+and from C<Int> to do portable bitops on such ancient hardware.)
 
 (C<Num> may support arbitrary-precision floating-point arithmetic, but
 is not required to unless we can do so portably and efficiently.  C<Num>

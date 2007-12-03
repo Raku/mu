@@ -587,7 +587,7 @@ In contrast
 
 would allow any identifier (including any identifier containing
 "moose" as a substring) as long as the identifier as a whole is not
-equal to "moose". (Note the anchors, which attach submatch to the
+equal to "moose". (Note the anchors, which attach the submatch to the
 beginning and end of the identifier as if that were the entire match.)
 When used as part of a longer match, for clarity it might be good to
 use extra brackets:
