@@ -167,7 +167,7 @@ sub add_control_block { }
 __END__
 
 package Main;
-use Data::Dump::Streamer;
+#use Data::Dump::Streamer;
 
 my $s1 = Code->new(
     pad => Pad->new(

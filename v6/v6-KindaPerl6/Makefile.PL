@@ -237,7 +237,6 @@ WriteMakefile(
         qw(
               Carp                  0
               Exporter              0
-              Data::Dump::Streamer  0
               Data::Dumper          0
               Perl::Tidy            0
         ),

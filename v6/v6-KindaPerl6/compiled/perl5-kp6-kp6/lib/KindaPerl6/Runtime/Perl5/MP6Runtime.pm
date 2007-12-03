@@ -204,8 +204,9 @@ package Main;
     }
 
     sub Dump {
-        require Data::Dump::Streamer;
-        Data::Dump::Streamer::Dump( @_ );
+        die "Dump is not implemented";
+        #require Data::Dump::Streamer;
+        #Data::Dump::Streamer::Dump( @_ );
     }
 
     sub get_compiler_target_runtime {
