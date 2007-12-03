@@ -6,6 +6,7 @@ use KindaPerl6::Ast;
 say "1..4";
 my $count=0;
 sub ok($ok) {
+    $count = $count + 1;
     if ($ok) {
         say "ok $count";
     } else {
@@ -29,9 +30,28 @@ $_ = '123';
 my $MATCH = KindaPerl6::Grammar.val_int();
 say "# ",($MATCH.perl);
 say "# ",($MATCH.Str);
-ok( $MATCH.Str eq '123');
+ok( $MATCH.Str eq "Val::Int.new(int => '123')");
 
-# term
+# simple term
+
+say "# ** now testing: <term>";
+$_ = '...';
+my $MATCH = KindaPerl6::Grammar.term();
+say "# ",($MATCH.perl);
+say "# ",($MATCH.Str);
+ok( $MATCH.Str eq "Apply.new(arguments => [  ], code => Var.new(namespace => [  ], name => 'die', twigil => '', sigil => '&'))");
+
+# simple term
+
+say "# ** now testing: <term>";
+$_ = 'Inf';
+my $MATCH = KindaPerl6::Grammar.term();
+say "# ",($MATCH.perl);
+say "# ",($MATCH.Str);
+ok( $MATCH.Str eq "   Inf   ");;
+
+
+#term
 
 say "# ** now testing: <term>";
 $_ = '123';

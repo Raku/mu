@@ -7,7 +7,7 @@ module Test {
         }
     }
     sub plan($number_of_test) {
-        say "1.."~$number_of_test;
+        say "1..$number_of_test";
     }
 }
 
