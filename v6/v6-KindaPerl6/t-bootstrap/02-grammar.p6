@@ -1,3 +1,9 @@
+
+# how to run this program before bootstrapping:
+#
+# $ perl script/kp6 -Cperl5rx t-bootstrap/02-grammar.p6 | perl -I compiled/perl5-kp6-kp6/lib
+#
+
 use KindaPerl6::Runtime::Perl5::Runtime;
 use KindaPerl6::Grammar::Quote;
 use KindaPerl6::Grammar;
