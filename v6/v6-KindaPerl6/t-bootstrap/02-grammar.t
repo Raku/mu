@@ -5,7 +5,7 @@ use KindaPerl6::Runtime::Perl5::Runtime;
 use KindaPerl6::Grammar::Quote;
 use KindaPerl6::Grammar;
 use KindaPerl6::Ast;
-use Test::More tests => 4;
+use Test::More tests => 3;
 
 $_ = ::DISPATCH( $::Scalar, "new" );
 my $MATCH;
@@ -26,7 +26,7 @@ print "# ** now testing: <val_int> \n";
 $MATCH = ::DISPATCH( $::KindaPerl6::Grammar, 'val_int' );
 print "# "; ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $MATCH, 'perl', ) );
 print "# ",$MATCH->Str,"\n";
-ok( $MATCH->Str eq '123', " Str" );
+ok( $MATCH->Str eq "Val::Int.new(int => '123')", " Str" );
 
 # term
 
