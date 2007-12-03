@@ -4081,7 +4081,7 @@ sub capture {
                                         my $ret = sub {
                                             my $List__ = \@_;
                                             do { [] };
-                                            do { return ( Capture->new( 'invocant' => ${ $MATCH->{'exp'} }, 'array' => ${ $MATCH->{'exp_parameter_list'} }, 'hash' => [], ) ) };
+                                            do { return ( Lit::Capture->new( 'invocant' => ${ $MATCH->{'exp'} }, 'array' => ${ $MATCH->{'exp_parameter_list'} }, 'hash' => [], ) ) };
                                             '974^213';
                                             }
                                             ->();
@@ -4109,7 +4109,7 @@ sub capture {
                             my $ret = sub {
                                 my $List__ = \@_;
                                 do { [] };
-                                do { return ( Capture->new( 'invocant' => (undef), 'array' => [], 'hash' => ${ $MATCH->{'exp_mapping'} }, ) ) };
+                                do { return ( Lit::Capture->new( 'invocant' => (undef), 'array' => [], 'hash' => ${ $MATCH->{'exp_mapping'} }, ) ) };
                                 '974^213';
                                 }
                                 ->();
@@ -4299,7 +4299,7 @@ sub subset {
                                                                                                                                     my $env = COMPILER::current_pad();
                                                                                                                                     COMPILER::drop_pad();
                                                                                                                                     return (
-                                                                                                                                        Subset->new(
+                                                                                                                                        Lit::Subset->new(
                                                                                                                                             'name'       => ${ $MATCH->{'full_ident'} },
                                                                                                                                             'base_class' => Proto->new( 'name' => ${ $MATCH->{'base_class'} }, ),
                                                                                                                                             'block'      => Sub->new(

@@ -574,9 +574,9 @@ token invocant {
 token capture {
     # TODO - exp_seq / exp_mapping == positional / named 
     |  <exp>\:  <.opt_ws> <exp_parameter_list> 
-        { return ::Capture( 'invocant' => $$<exp>, 'array' => $$<exp_parameter_list>, 'hash' => [ ] ); }
+        { return ::Lit::Capture( 'invocant' => $$<exp>, 'array' => $$<exp_parameter_list>, 'hash' => [ ] ); }
     |  <exp_mapping> 
-        { return ::Capture( 'invocant' => undef, 'array' => [ ], 'hash' => $$<exp_mapping> ); }
+        { return ::Lit::Capture( 'invocant' => undef, 'array' => [ ], 'hash' => $$<exp_mapping> ); }
 };
 
 token base_class { <full_ident> }
@@ -600,7 +600,7 @@ token subset {
         # say ' block: ', ($$<exp_stmts>).perl;
         my $env := COMPILER::current_pad();
         COMPILER::drop_pad();
-        return ::Subset( 
+        return ::Lit::Subset( 
             'name'  => $$<full_ident>, 
             'base_class' => 
                 ::Proto( name => $$<base_class> ), 

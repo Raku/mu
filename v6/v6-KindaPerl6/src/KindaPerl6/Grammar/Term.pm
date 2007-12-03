@@ -101,9 +101,9 @@ token term {
     | \\ \( <.opt_ws> <capture> <.opt_ws> \)
         { return $$<capture> }                                # \( exp, ... )
     | \\ \( <.opt_ws> <exp_seq> <.opt_ws> \)
-        { return ::Capture( 'invocant' => undef, 'array' => $$<exp_seq>, 'hash' => [ ] ); }
+        { return ::Lit::Capture( 'invocant' => undef, 'array' => $$<exp_seq>, 'hash' => [ ] ); }
     | \\ <var>
-        { return ::Capture( 'invocant' => undef, 'array' => [ $$<var> ], 'hash' => [ ] ); }
+        { return ::Lit::Capture( 'invocant' => undef, 'array' => [ $$<var> ], 'hash' => [ ] ); }
 
     | \$ \< <sub_or_method_name> \>
         { return ::Call(
@@ -140,7 +140,7 @@ token term {
                     parameters => ::Proto(
                         name   => ($$<subset>).name,
                     ),
-                    arguments => ::Subset(
+                    arguments => ::Lit::Subset(
                         name       => '',
                         base_class => ($$<subset>).base_class,
                         block      => ($$<subset>).block,

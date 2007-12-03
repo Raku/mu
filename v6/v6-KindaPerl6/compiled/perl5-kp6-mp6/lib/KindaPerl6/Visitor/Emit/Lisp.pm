@@ -767,8 +767,8 @@ sub emit_lisp {
     return ($str);
 }
 
-package Capture;
-sub new { shift; bless {@_}, "Capture" }
+package Lit::Capture;
+sub new { shift; bless {@_}, "Lit::Capture" }
 
 sub emit_lisp {
     my $self   = shift;
@@ -806,8 +806,8 @@ sub emit_lisp {
     return ( ( $s . ')' ) );
 }
 
-package Subset;
-sub new { shift; bless {@_}, "Subset" }
+package Lit::Subset;
+sub new { shift; bless {@_}, "Lit::Subset" }
 
 sub emit_lisp {
     my $self   = shift;

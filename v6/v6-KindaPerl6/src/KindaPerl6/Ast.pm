@@ -561,7 +561,7 @@ class Sig {
     };
 }
 
-class Capture {
+class Lit::Capture {
     has $.invocant;
     has $.array;
     has $.hash;
@@ -569,7 +569,7 @@ class Capture {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
-            'Capture',
+            'Lit::Capture',
             $path,
         );
     };
@@ -582,7 +582,7 @@ class Capture {
     };
 }
 
-class Subset {
+class Lit::Subset {
     has $.name;
     has $.base_class;
     has $.block;
@@ -590,7 +590,7 @@ class Subset {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
-            'Subset',
+            'Lit::Subset',
             $path,
         );
     };

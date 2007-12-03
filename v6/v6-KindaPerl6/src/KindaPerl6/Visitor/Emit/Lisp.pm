@@ -500,7 +500,7 @@ class Sig {
     };
 }
 
-class Capture {
+class Lit::Capture {
     method emit_lisp ($interpreter, $indent) {
         my $s := '(kp6-new \'capture ';
         if defined $.invocant {
@@ -529,7 +529,7 @@ class Capture {
     };
 }
 
-class Subset {
+class Lit::Subset {
     method emit_lisp ($interpreter, $indent) {
 	return '(kp6-error ' ~ $interpreter ~ ' \'kp6-not-implemented :feature "subsets")';
     }

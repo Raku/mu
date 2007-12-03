@@ -883,8 +883,8 @@ sub emit_perl5 {
     ( '::DISPATCH( $::Signature, "new", { ' . ( 'invocant => ' . ( $inv . ( ', ' . ( 'array    => ::DISPATCH( $::List, "new", { _array => [ ' . ( $pos . ( ' ] } ), ' . ( 'return   => $::Undef, ' . ( '} )' . Main::newline() ) ) ) ) ) ) ) ) );
 }
 
-package Capture;
-sub new { shift; bless {@_}, "Capture" }
+package Lit::Capture;
+sub new { shift; bless {@_}, "Lit::Capture" }
 
 sub emit_perl5 {
     my $self   = shift;
@@ -920,8 +920,8 @@ sub emit_perl5 {
     return ( ( $s . ( ' } )' . Main::newline() ) ) );
 }
 
-package Subset;
-sub new { shift; bless {@_}, "Subset" }
+package Lit::Subset;
+sub new { shift; bless {@_}, "Lit::Subset" }
 
 sub emit_perl5 {
     my $self   = shift;

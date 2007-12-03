@@ -699,7 +699,7 @@ class Sig {
     };
 }
 
-class Capture {
+class Lit::Capture {
     method emit_perl5 {
         my $s := '::DISPATCH( $::Capture, "new", { ';
         if defined $.invocant {
@@ -728,7 +728,7 @@ class Capture {
     };
 }
 
-class Subset {
+class Lit::Subset {
     method emit_perl5 {
           '::DISPATCH( $::Subset, "new", { '
         ~ 'base_class => ' ~ $.base_class.emit_perl5

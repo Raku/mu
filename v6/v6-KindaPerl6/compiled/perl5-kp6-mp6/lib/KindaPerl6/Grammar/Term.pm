@@ -716,7 +716,7 @@ sub term {
                                                                                         my $ret = sub {
                                                                                             my $List__ = \@_;
                                                                                             do { [] };
-                                                                                            do { return ( Capture->new( 'invocant' => (undef), 'array' => ${ $MATCH->{'exp_seq'} }, 'hash' => [], ) ) };
+                                                                                            do { return ( Lit::Capture->new( 'invocant' => (undef), 'array' => ${ $MATCH->{'exp_seq'} }, 'hash' => [], ) ) };
                                                                                             '974^213';
                                                                                             }
                                                                                             ->();
@@ -747,7 +747,7 @@ sub term {
                                                                             my $ret = sub {
                                                                                 my $List__ = \@_;
                                                                                 do { [] };
-                                                                                do { return ( Capture->new( 'invocant' => (undef), 'array' => [ ${ $MATCH->{'var'} } ], 'hash' => [], ) ) };
+                                                                                do { return ( Lit::Capture->new( 'invocant' => (undef), 'array' => [ ${ $MATCH->{'var'} } ], 'hash' => [], ) ) };
                                                                                 '974^213';
                                                                                 }
                                                                                 ->();
@@ -1142,7 +1142,7 @@ sub term {
                                                                                                                                         if ( ( ${ $MATCH->{'subset'} }->name() ne '' ) ) {
                                                                                                                                             my $bind = Bind->new(
                                                                                                                                                 'parameters' => Proto->new( 'name' => ${ $MATCH->{'subset'} }->name(), ),
-                                                                                                                                                'arguments'  => Subset->new(
+                                                                                                                                                'arguments'  => Lit::Subset->new(
                                                                                                                                                     'name'       => '',
                                                                                                                                                     'base_class' => ${ $MATCH->{'subset'} }->base_class(),
                                                                                                                                                     'block'      => ${ $MATCH->{'subset'} }->block(),

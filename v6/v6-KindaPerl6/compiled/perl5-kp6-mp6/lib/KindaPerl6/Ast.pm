@@ -597,8 +597,8 @@ sub attribs {
     { 'invocant' => $self->{invocant}, 'positional' => $self->{positional}, };
 }
 
-package Capture;
-sub new { shift; bless {@_}, "Capture" }
+package Lit::Capture;
+sub new { shift; bless {@_}, "Lit::Capture" }
 sub invocant { @_ == 1 ? ( $_[0]->{invocant} ) : ( $_[0]->{invocant} = $_[1] ) }
 sub array    { @_ == 1 ? ( $_[0]->{array} )    : ( $_[0]->{array}    = $_[1] ) }
 sub hash     { @_ == 1 ? ( $_[0]->{hash} )     : ( $_[0]->{hash}     = $_[1] ) }
@@ -609,7 +609,7 @@ sub emit {
     my $visitor;
     my $path;
     do { $visitor = $List__->[0]; $path = $List__->[1]; [ $visitor, $path ] };
-    KindaPerl6::Traverse::visit( $visitor, $self, 'Capture', $path );
+    KindaPerl6::Traverse::visit( $visitor, $self, 'Lit::Capture', $path );
 }
 
 sub attribs {
@@ -619,8 +619,8 @@ sub attribs {
     { 'invocant' => $self->{invocant}, 'array' => $self->{array}, 'hash' => $self->{hash}, };
 }
 
-package Subset;
-sub new { shift; bless {@_}, "Subset" }
+package Lit::Subset;
+sub new { shift; bless {@_}, "Lit::Subset" }
 sub name       { @_ == 1 ? ( $_[0]->{name} )       : ( $_[0]->{name}       = $_[1] ) }
 sub base_class { @_ == 1 ? ( $_[0]->{base_class} ) : ( $_[0]->{base_class} = $_[1] ) }
 sub block      { @_ == 1 ? ( $_[0]->{block} )      : ( $_[0]->{block}      = $_[1] ) }
@@ -631,7 +631,7 @@ sub emit {
     my $visitor;
     my $path;
     do { $visitor = $List__->[0]; $path = $List__->[1]; [ $visitor, $path ] };
-    KindaPerl6::Traverse::visit( $visitor, $self, 'Subset', $path );
+    KindaPerl6::Traverse::visit( $visitor, $self, 'Lit::Subset', $path );
 }
 
 sub attribs {
