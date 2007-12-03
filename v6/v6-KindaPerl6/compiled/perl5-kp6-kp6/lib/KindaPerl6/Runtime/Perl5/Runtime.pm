@@ -56,6 +56,7 @@ use KindaPerl6::Runtime::Perl5::Pad;
 use KindaPerl6::Runtime::Perl5::Wrap;
 use KindaPerl6::Runtime::Perl5::GLOBAL;
 use KindaPerl6::Runtime::Perl5::Grammar;
+use KindaPerl6::Runtime::Perl6::Grammar;
 
 1;
 

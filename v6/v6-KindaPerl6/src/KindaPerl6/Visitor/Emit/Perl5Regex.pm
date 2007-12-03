@@ -24,21 +24,23 @@ class Token {
         my $source := 
           'do { '
             ~ 'use vars qw($_rule_' ~ $.name ~ '); ' 
-            ~ '$_rule_' ~ $.name ~ ' = qr' ~ chr(0) 
-            
-            ~ '(?{ '
-            ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
-            ~   '$GLOBAL::_M2 = $GLOBAL::_M; '
-            ~ '})'
+            ~ 'INIT { '
+                ~ '$_rule_' ~ $.name ~ ' = qr' ~ chr(0) 
+                
+                ~ '(?{ '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
+                ~   '$GLOBAL::_M2 = $GLOBAL::_M; '
+                ~ '})'
 
-            ~ $regex_source 
-            
-            ~ '(?{ '
-            ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
-            ~   '$GLOBAL::_M2 = $GLOBAL::_M; '
-            ~ '})'
+                ~ $regex_source 
+                
+                ~ '(?{ '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
+                ~   '$GLOBAL::_M2 = $GLOBAL::_M; '
+                ~ '})'
 
-            ~ chr(0) ~ 'x; '  ~ Main::newline() 
+                ~ chr(0) ~ 'x; '  ~ Main::newline() 
+            ~ '}' ~ Main::newline() 
 
             # create the method, using the OO metamodel
             # OUTER::<$_> := string to match

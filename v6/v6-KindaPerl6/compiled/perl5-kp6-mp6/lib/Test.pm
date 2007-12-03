@@ -40,11 +40,9 @@
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
                         INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+                        my $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
-                        do {
-                            ::MODIFIED($List__);
-                            $List__ = ::DISPATCH( $CAPTURE, 'array', );
-                        };
+                        ::DISPATCH_VAR( $List__, 'STORE', ::DISPATCH( $CAPTURE, 'array', ) );
                         do {
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
@@ -79,7 +77,7 @@
                         "new",
                         {   invocant => $::Undef,
                             array    => ::DISPATCH(
-                                $::Array, "new",
+                                $::List, "new",
                                 {   _array => [
                                         ::DISPATCH(
                                             $::Signature::Item,
@@ -118,11 +116,9 @@
                         my $CAPTURE;
                         $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
                         INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
+                        my $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } );
                         ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
-                        do {
-                            ::MODIFIED($List__);
-                            $List__ = ::DISPATCH( $CAPTURE, 'array', );
-                        };
+                        ::DISPATCH_VAR( $List__, 'STORE', ::DISPATCH( $CAPTURE, 'array', ) );
                         do {
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
@@ -139,15 +135,23 @@
                                 $number_of_test = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', $_param_index++ ) );
                             }
                         }
-                        ::DISPATCH( ( $GLOBAL::Code_say = $GLOBAL::Code_say || ::DISPATCH( $::Routine, "new", ) ),
-                            'APPLY', ::DISPATCH( ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", ) ), 'APPLY', ::DISPATCH( $::Str, 'new', '1..' ), $number_of_test ) );
+                        ::DISPATCH(
+                            ( $GLOBAL::Code_say = $GLOBAL::Code_say || ::DISPATCH( $::Routine, "new", ) ),
+                            'APPLY',
+                            ::DISPATCH(
+                                ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", ) ),
+                                'APPLY',
+                                ::DISPATCH( $::Str, 'new', '1..' ),
+                                ::DISPATCH( ( $GLOBAL::Code_prefix_58__60__126__62_ = $GLOBAL::Code_prefix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", ) ), 'APPLY', $number_of_test )
+                            )
+                        );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
                         "new",
                         {   invocant => $::Undef,
                             array    => ::DISPATCH(
-                                $::Array, "new",
+                                $::List, "new",
                                 {   _array => [
                                         ::DISPATCH(
                                             $::Signature::Item,

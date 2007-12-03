@@ -337,7 +337,15 @@
                                 ),
                                 'APPLY',
                                 ::DISPATCH( $::Str, 'new', '1..' ),
-                                $number_of_test
+                                ::DISPATCH(
+                                    (
+                                        $GLOBAL::Code_prefix_58__60__126__62_ =
+                                          $GLOBAL::Code_prefix_58__60__126__62_
+                                          || ::DISPATCH( $::Routine, "new", )
+                                    ),
+                                    'APPLY',
+                                    $number_of_test
+                                )
                             )
                         );
                     },
