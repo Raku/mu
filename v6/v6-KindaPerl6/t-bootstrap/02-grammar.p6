@@ -57,6 +57,16 @@ say "# ",($MATCH.Str);
 ok( $MATCH.Str eq "Apply.new(arguments => [  ], code => Var.new(namespace => [  ], name => 'Inf', twigil => '', sigil => '&'))");;
 
 
+# $var 
+
+say "# ** now testing: <var>";
+$_ = '$var';
+my $MATCH = KindaPerl6::Grammar.var();
+say "# ",($MATCH.perl);
+say "# ",($MATCH.Str);
+ok( $MATCH.Str eq "Var.new(namespace => [  ], name => 'var', twigil => '', sigil => '$'))");;
+
+
 # $var term
 
 say "# ** now testing: <term> with \$var";
@@ -64,7 +74,7 @@ $_ = '$var';
 my $MATCH = KindaPerl6::Grammar.term();
 say "# ",($MATCH.perl);
 say "# ",($MATCH.Str);
-ok( $MATCH.Str eq "Apply.new(arguments => [  ], code => Var.new(namespace => [  ], name => 'Inf', twigil => '', sigil => '&'))");;
+ok( $MATCH.Str eq "Var.new(namespace => [  ], name => 'var', twigil => '', sigil => '$'))");;
 
 
 #term
