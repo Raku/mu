@@ -54,7 +54,7 @@ $_ = 'Inf';
 my $MATCH = KindaPerl6::Grammar.term();
 say "# ",($MATCH.perl);
 say "# ",($MATCH.Str);
-ok( $MATCH.Str eq "   Inf   ");;
+ok( $MATCH.Str eq "Apply.new(arguments => [  ], code => Var.new(namespace => [  ], name => 'Inf', twigil => '', sigil => '&'))");;
 
 
 #term
