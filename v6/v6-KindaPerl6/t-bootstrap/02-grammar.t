@@ -5,7 +5,7 @@ use KindaPerl6::Runtime::Perl5::Runtime;
 use KindaPerl6::Grammar::Quote;
 use KindaPerl6::Grammar;
 use KindaPerl6::Ast;
-use Test::More tests => 3;
+use Test::More tests => 4;
 
 $_ = ::DISPATCH( $::Scalar, "new" );
 my $MATCH;
@@ -27,6 +27,25 @@ $MATCH = ::DISPATCH( $::KindaPerl6::Grammar, 'val_int' );
 print "# "; ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $MATCH, 'perl', ) );
 print "# ",$MATCH->Str,"\n";
 ok( $MATCH->Str eq "Val::Int.new(int => '123')", " Str" );
+
+# simple term
+
+print "# ** now testing: <term> \n";
+::DISPATCH_VAR( $_, 'STORE', ::DISPATCH( $::Str, 'new', '...' ) );
+$MATCH = ::DISPATCH( $::KindaPerl6::Grammar, 'term' );
+print "# "; ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $MATCH, 'perl', ) );
+print "# ",$MATCH->Str,"\n";
+ok( $MATCH->Str eq "Apply.new(arguments => [  ], code => Var.new(namespace => [  ], name => 'die', twigil => '', sigil => '&'))",
+    " Str" );
+
+# simple term
+
+print "# ** now testing: <term> \n";
+::DISPATCH_VAR( $_, 'STORE', ::DISPATCH( $::Str, 'new', 'Inf' ) );
+$MATCH = ::DISPATCH( $::KindaPerl6::Grammar, 'term' );
+print "# "; ::DISPATCH( $GLOBAL::Code_say, 'APPLY', ::DISPATCH( $MATCH, 'perl', ) );
+print "# ",$MATCH->Str,"\n";
+ok( $MATCH->Str eq "   Inf   ", " Str" );
 
 # term
 
