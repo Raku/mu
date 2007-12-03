@@ -11,12 +11,12 @@ use KindaPerl6::Ast;
 
 say "1..4";
 my $count=0;
-sub ok($ok) {
+sub ok($ok,$desc) {
     $count = $count + 1;
     if ($ok) {
-        say "ok $count";
+        say "ok $count - $desc";
     } else {
-        say "not ok $count";
+        say "not ok $count - $desc";
     }
 }
 
@@ -27,7 +27,7 @@ $_ = '123';
 my $MATCH = KindaPerl6::Grammar.digits();
 say "# ",($MATCH.perl);
 say "# ",($MATCH.Str);
-ok( $MATCH.Str eq '123');
+ok( $MATCH.Str eq '123','digits');
 
 # val_int
 
@@ -36,7 +36,7 @@ $_ = '123';
 my $MATCH = KindaPerl6::Grammar.val_int();
 say "# ",($MATCH.perl);
 say "# ",($MATCH.Str);
-ok( $MATCH.Str eq "Val::Int.new(int => '123')");
+ok( $MATCH.Str eq "Val::Int.new(int => '123')",'val_int');
 
 # simple term
 
@@ -45,7 +45,7 @@ $_ = '...';
 my $MATCH = KindaPerl6::Grammar.term();
 say "# ",($MATCH.perl);
 say "# ",($MATCH.Str);
-ok( $MATCH.Str eq "Apply.new(arguments => [  ], code => Var.new(namespace => [  ], name => 'die', twigil => '', sigil => '&'))");
+ok( $MATCH.Str eq "Apply.new(arguments => [  ], code => Var.new(namespace => [  ], name => 'die', twigil => '', sigil => '&'))",'term ...');
 
 # simple term
 
@@ -54,7 +54,7 @@ $_ = 'Inf';
 my $MATCH = KindaPerl6::Grammar.term();
 say "# ",($MATCH.perl);
 say "# ",($MATCH.Str);
-ok( $MATCH.Str eq "Apply.new(arguments => [  ], code => Var.new(namespace => [  ], name => 'Inf', twigil => '', sigil => '&'))");;
+ok( $MATCH.Str eq "Apply.new(arguments => [  ], code => Var.new(namespace => [  ], name => 'Inf', twigil => '', sigil => '&'))",'term Inf');;
 
 
 # $var 
@@ -64,7 +64,7 @@ $_ = '$var';
 my $MATCH = KindaPerl6::Grammar.var();
 say "# ",($MATCH.perl);
 say "# ",($MATCH.Str);
-ok( $MATCH.Str eq "Var.new(namespace => [  ], name => 'var', twigil => '', sigil => '$'))");;
+ok( $MATCH.Str eq "Var.new(namespace => [  ], name => 'var', twigil => '', sigil => '$'))",'$var');;
 
 
 # $var term
@@ -74,7 +74,7 @@ $_ = '$var';
 my $MATCH = KindaPerl6::Grammar.term();
 say "# ",($MATCH.perl);
 say "# ",($MATCH.Str);
-ok( $MATCH.Str eq "Var.new(namespace => [  ], name => 'var', twigil => '', sigil => '$'))");;
+ok( $MATCH.Str eq "Var.new(namespace => [  ], name => 'var', twigil => '', sigil => '$'))",'$var term');
 
 
 #term
@@ -84,7 +84,7 @@ $_ = '123';
 my $MATCH = KindaPerl6::Grammar.term();
 say "# ",($MATCH.perl);
 say "# ",($MATCH.Str);
-ok( $MATCH.Str eq '123');
+ok( $MATCH.Str eq '123','term');
 
 
 
