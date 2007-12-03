@@ -12,6 +12,7 @@ package Match;
     # This is the Perl 5 <--> Perl 6 bridge code
     my $perl6_dispatcher =  sub { 
                 my ($self, $method, @param) = @_;
+                #print "# perl5rx Match method: $method\n";
                 
                 if ( $method eq 'true' ) {
                     return ::DISPATCH( $::Bit, 'new', $_[0]->{bool} )
@@ -19,7 +20,11 @@ package Match;
                 if ( $method eq 'LOOKUP' ) {
                     my $what = ::DISPATCH( $param[0], 'Str' )->{_value}; 
                     #print "** LOOKUP {$what} ** \n";
-                    return $_[0]->{hash}{$what}; 
+                    my $r = $_[0]->{hash}{$what}; 
+                    if ( ref($r) eq "ARRAY" ) {
+                        return ::DISPATCH( $::Array, "new", { _array => [ @$r ] } );
+                    }
+                    return $r; 
                 }
                 if ( $method eq 'does' ) {
                     my $what = ::DISPATCH( $param[0], 'Str' )->{_value};                    
