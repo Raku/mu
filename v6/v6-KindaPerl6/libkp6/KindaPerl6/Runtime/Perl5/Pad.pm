@@ -22,8 +22,8 @@ my $visitor_global      = ::DISPATCH( $::KindaPerl6::Visitor::Global,        'ne
     my $perl6_dispatcher =  sub {
                 my ($self, $method, @param) = @_;
 
-                print "# Calling Pad.$method \n";
-                return $self->$method( @param );
+                #print "# Calling Pad.$method \n";
+                #return $self->$method( @param );
 
                 # TODO
 
@@ -35,10 +35,12 @@ my $visitor_global      = ::DISPATCH( $::KindaPerl6::Visitor::Global,        'ne
                     return $_[0]->{hash}{$what};
                 }
                 if ( $method eq 'does' ) {
+                    return ::DISPATCH( $::Bit, 'new', 0 )
+                        if $param[0] eq $::List;   # XXX
                     my $what = ::DISPATCH( $param[0], 'Str' )->{_value};
                     return ::DISPATCH( $::Bit, 'new', 0 )
                         if $what eq 'Junction';
-                    #print "MATCH DOES $what ???\n";
+                    #print "Pad.does $what ???\n";
                     return ::DISPATCH( $::Bit, 'new', 1 );  # it probably does
                 }
                 if ( $method eq 'scalar' ) {
