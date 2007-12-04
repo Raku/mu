@@ -26,7 +26,7 @@ class Token {
             ~ 'use vars qw($_rule_' ~ $.name ~ '); ' ~ Main::newline()
             ~ 'INIT { ' ~ Main::newline()
                 ~   Main::indent(
-                      '$_rule_' ~ $.name ~ ' = qr' ~ chr(0) 
+                      '$_rule_' ~ $.name ~ ' = qr' ~ chr(0)  ~ Main::newline()
                     
                     ~ '(?{ ' ~ Main::newline()
                     ~   Main::indent(

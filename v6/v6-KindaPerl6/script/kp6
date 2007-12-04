@@ -229,11 +229,8 @@ my $lib;
     }
 
     require KindaPerl6::Runtime::Perl5::Runtime;
-    require KindaPerl6::Grammar;
     require KindaPerl6::Traverse;
-    require KindaPerl6::Ast;
     require KindaPerl6::Grammar::Regex;
-    require KindaPerl6::Runtime::Perl5::Compiler;
 
     if ( $opt{runtime} eq 'kp6' ) {
         $ENV{KP6_TARGET_RUNTIME} = 'KindaPerl6::Runtime::Perl5::KP6Runtime';

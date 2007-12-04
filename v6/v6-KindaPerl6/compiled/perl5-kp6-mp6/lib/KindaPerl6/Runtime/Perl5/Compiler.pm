@@ -97,7 +97,6 @@ sub get_var {
     return $var;
 }
 
-
 {
     COMPILER::init_global;
 }

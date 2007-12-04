@@ -58,6 +58,10 @@ use KindaPerl6::Runtime::Perl5::GLOBAL;
 use KindaPerl6::Runtime::Perl5::Grammar;
 use KindaPerl6::Runtime::Perl6::Grammar;
 
+use KindaPerl6::Grammar;
+use KindaPerl6::Ast;
+use KindaPerl6::Runtime::Perl5::Compiler;
+
 1;
 
 __END__
