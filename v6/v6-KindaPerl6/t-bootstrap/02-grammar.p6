@@ -125,6 +125,35 @@ ok( $MATCH.Str eq "Apply.new(arguments => [ Val::Int.new(int => '123'), Val::Int
     'term');
 
 
+
+say "# ** now testing: -> \$param { Inf } <term>";
+$_ = '-> $param { Inf }';
+my $MATCH = KindaPerl6::Grammar.term();
+say "# ",($MATCH.perl);
+say "# ",($MATCH.Str);
+ok( $MATCH.Str eq "Apply.new(arguments => [ Val::Int.new(int => '123'), Val::Int.new(int => '456') ], code => Var.new(namespace => [  ], name => 'infix:<+>', twigil => '', sigil => '&'))",
+    'term');
+
+
+
+say "# ** now testing: -123 <term>";
+$_ = '-(123)';
+my $MATCH = KindaPerl6::Grammar.term();
+say "# ",($MATCH.perl);
+say "# ",($MATCH.Str);
+ok( $MATCH.Str eq "Apply.new(arguments => [ Val::Int.new(int => '123'), Val::Int.new(int => '456') ], code => Var.new(namespace => [  ], name => 'infix:<+>', twigil => '', sigil => '&'))",
+    'term');
+
+
+say "# ** now testing: list <term>";
+$_ = '(456)';
+my $MATCH = KindaPerl6::Grammar.term();
+say "# ",($MATCH.perl);
+say "# ",($MATCH.Str);
+ok( $MATCH.Str eq "Apply.new(arguments => [ Val::Int.new(int => '123'), Val::Int.new(int => '456') ], code => Var.new(namespace => [  ], name => 'infix:<+>', twigil => '', sigil => '&'))",
+    'term');
+
+
 =begin
 
 =head1 AUTHORS
