@@ -18,9 +18,10 @@ none
 
 =item new
 
+=back
+
 =cut
 
-#
 $::P6Opaque = make_class(
     name    => 'P6Opaque',
     methods => {
@@ -30,8 +31,8 @@ $::P6Opaque = make_class(
             my $self    = shift;
             my $capture = ::CAPTURIZE( \@_ );
             print GLOBAL::_str($capture), "\n";
-            my $dispatcher = ::DISPATCH( $capture, "LOOKUP", ::DISPATCH( $::Str, 'new', 'dispatcher' ) );
-            my $data       = ::DISPATCH( $capture, "LOOKUP", ::DISPATCH( $::Str, 'new', 'data' ) );
+            my $dispatcher = ::DISPATCH( $capture, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'dispatcher' ) );
+            my $data       = ::DISPATCH( $capture, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'data' ) );
             return {
                 _dispatch => sub {
                     my $self   = shift;
@@ -43,7 +44,9 @@ $::P6Opaque = make_class(
     }
 );
 
-=begin
+1;
+
+__END__
 
 =head1 AUTHORS
 
@@ -64,4 +67,4 @@ under the same terms as Perl itself.
 
 See L<http://www.perl.com/perl/misc/Artistic.html>
 
-=end
+=cut
