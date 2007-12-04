@@ -408,9 +408,10 @@ $_apply = sub {
                             $::List, 'new',
                             {   _array => [
                                     map {
-                                        $param[$index] = $_;
-                                        $_apply->( $self, @param );
-                                        } @things
+                                            $param[$index] = $_;
+                                            $_apply->( $self, @param );
+                                        } 
+                                        @things
                                 ],
                             }
                         ),

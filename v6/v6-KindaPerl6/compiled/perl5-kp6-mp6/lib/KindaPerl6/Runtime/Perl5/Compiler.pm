@@ -8,6 +8,7 @@ use Data::Dumper;
         drop_pad put_pad current_pad
         begin_block check_block get_var
     );
+    ${"COMPILER::Code_$_"} = \&{"COMPILER::$_"} for @EXPORT;
     sub init_global {
         for ( @EXPORT ) {
             ${"COMPILER::Code_$_"} = ::DISPATCH( $::Code, 'new',
