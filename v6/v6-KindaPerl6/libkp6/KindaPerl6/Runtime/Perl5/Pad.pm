@@ -185,7 +185,9 @@ sub add_lexicals {  # [ Decl, Decl, ... ]
 sub declaration { # Var
     my ( $self, $var ) = @_;
 
-    if ( @{$var->namespace} ) {
+    # Perl 5: if ( @{ $var->namespace } ) {
+    # Perl 6: if ($var.namespace).elems {
+    if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( ::DISPATCH( $var, 'namespace', ), 'elems', ), "true" ), "p5landish" ) ) {    
         # global variable, doesn't require predeclaration
         return $var;   # XXX
     }
