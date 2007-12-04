@@ -36,7 +36,9 @@ my $visitor_global      = ::DISPATCH( $::KindaPerl6::Visitor::Global,        'ne
                 }
                 if ( $method eq 'does' ) {
                     return ::DISPATCH( $::Bit, 'new', 0 )
-                        if $param[0] eq $::List;   # XXX
+                        if $param[0] eq $::List   # XXX
+                        || $param[0] eq $::NamedArgument
+                        ;
                     my $what = ::DISPATCH( $param[0], 'Str' )->{_value};
                     return ::DISPATCH( $::Bit, 'new', 0 )
                         if $what eq 'Junction';

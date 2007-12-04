@@ -71,6 +71,7 @@
                 $::Code, 'new',
                 {
                     code => sub {
+                        print "entering declare_parameters\n";
                         my $decl;
                         $decl =
                           ::DISPATCH( $::Scalar, 'new',
@@ -127,13 +128,16 @@
                         my $List__ =
                           ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
+                        print "calling CAPTURIZE\n";
                         ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                        print "returned from CAPTURIZE\n";
                         ::DISPATCH_VAR( $List__, 'STORE',
                             ::DISPATCH( $CAPTURE, 'array', ) );
                         do {
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
+                        print "got named and positionals\n";
                         {
                             my $_param_index = 0;
                             if (
@@ -215,6 +219,7 @@
                         }
                         $decl;
                         $var;
+                        print "entering parameter sub\n";
                         ::DISPATCH(
                             ::DISPATCH(
                                 (

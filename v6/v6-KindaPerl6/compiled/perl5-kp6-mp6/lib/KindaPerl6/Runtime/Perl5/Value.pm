@@ -156,7 +156,7 @@ $::Int is a $::Class object
 
 =head3 Parents
 
-none
+$::Value
 
 =head3 Attributes
 
@@ -210,7 +210,7 @@ $::Num is a $::Class object
 
 =head3 Parents
 
-none
+$::Value
 
 =head3 Attributes
 
@@ -255,7 +255,7 @@ $::Bit is a $::Class object
 
 =head3 Parents
 
-$meta_Value
+$::Value
 
 =head3 Attributes
 
@@ -302,7 +302,7 @@ my $meta_Bit = ::DISPATCH( $::Bit, 'HOW' );
 
 =head3 Parents
 
-$meta_Value
+$::Value
 
 =head3 Attributes
 
@@ -334,7 +334,7 @@ returns $::Bit 0
 
 $::Undef = KindaPerl6::Runtime::Perl5::MOP::make_class(
     proto   => $::Undef,
-    name    => "Undef",
+    name    => 'Undef',
     parents => [$meta_Value],
     methods => {
         new     => sub { $_[0] },
@@ -352,7 +352,7 @@ $::Code is a $::Class object
 
 =head3 Parents
 
-$meta_Value
+$::Value
 
 =head3 Attributes
 
@@ -410,7 +410,7 @@ $_apply = sub {
                                     map {
                                             $param[$index] = $_;
                                             $_apply->( $self, @param );
-                                        } 
+                                        }
                                         @things
                                 ],
                             }
@@ -492,11 +492,7 @@ $::Subset is a $::Class object
 
 =head3 Parents:
 
-=over
-
-=item $meta_Value
-
-=back
+$::Value
 
 =head3 Attributes:
 
@@ -553,7 +549,7 @@ $::Subset = KindaPerl6::Runtime::Perl5::MOP::make_class(
 
 =head3 Parents:
 
-none
+$::Code
 
 =head3 Attributes:
 
@@ -583,7 +579,6 @@ $::Multi = KindaPerl6::Runtime::Perl5::MOP::make_class(
 );
 
 1;
-=begin
 
 =head1 AUTHORS
 
@@ -604,4 +599,4 @@ under the same terms as Perl itself.
 
 See L<http://www.perl.com/perl/misc/Artistic.html>
 
-=end
+=cut

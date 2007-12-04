@@ -226,8 +226,6 @@ package Main;
 
 1;
 
-=begin
-
 =head1 AUTHORS
 
 The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
@@ -247,4 +245,4 @@ under the same terms as Perl itself.
 
 See L<http://www.perl.com/perl/misc/Artistic.html>
 
-=end
+=cut

@@ -371,6 +371,8 @@ Basic (private) methods for all objects.
      '_dispatch'   => $dispatch, # see MOP.pm $dispatch = sub { ...
  };
 
+%::PROTO, is a base hash that is used by $::(class) packages.
+
 =cut
 
 %::PROTO = (
@@ -392,7 +394,6 @@ Basic (private) methods for all objects.
 a Method instance, implements B<.new>.
 
 =cut
-
 
 my $method_new = {
     %::PROTO,    # provides _methods, _roles, _value, _isa, _dispatch.
@@ -477,7 +478,8 @@ have "roles", a dispatcher $obj->{_dispatch}, a parent listing _isa, etc...
 
 =item $::Routine
 
-$::Routine is defined in Container.pm
+$::Routine is defined in Container.pm. Note, the parent is directly added
+to the parent tree in Container.pm after the code for $::Routine.
 
 =back
 
@@ -967,18 +969,18 @@ $meta_isa = sub {
         sub {
             my $class = ::DISPATCH( $_[0], "HOW" );  # XXX multiple inheritance ...
             my @attributes = keys %{ $class->{_value}{attributes} };
-            ::DISPATCH( $::Str, 'new', $class->{_value}{class_name} . '.new(' 
-                . join( ', ', 
-                    map { 
+            ::DISPATCH( $::Str, 'new', $class->{_value}{class_name} . '.new('
+                . join( ', ',
+                    map {
                             my $attribute = $_;
                             my $v = ::DISPATCH( $_[0], $attribute );
                             if ( ref $v ) {
                                 $v = ::DISPATCH( $v, 'perl' )->{_value};
                             }
                             "$attribute => $v"
-                        } 
-                        @attributes 
-                    ) 
+                        }
+                        @attributes
+                    )
                 . ')' );
         }
     )

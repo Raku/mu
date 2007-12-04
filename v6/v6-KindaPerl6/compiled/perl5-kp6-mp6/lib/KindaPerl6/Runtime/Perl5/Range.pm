@@ -38,25 +38,23 @@ my $meta_Value = ::DISPATCH($::Value,'HOW');
 
 $::Range = KindaPerl6::Runtime::Perl5::MOP::make_class(
     proto   => $::Range,
-    name    => "Range",
+    name    => 'Range',
     parents => [$meta_Value],
     methods => {
         eager => sub {
                 my $self = shift;
-                ::DISPATCH( $::List, 'new', { _array => [ 
-                        map { 
-                                ::DISPATCH( $::Int, 'new', $_ ) 
+                ::DISPATCH( $::List, 'new', { _array => [
+                        map {
+                                ::DISPATCH( $::Int, 'new', $_ )
                             }
-                            ::DISPATCH( ::DISPATCH( $self, 'start' ), 'p5landish' ) .. 
-                            ::DISPATCH( ::DISPATCH( $self, 'end' ),   'p5landish' ) 
+                            ::DISPATCH( ::DISPATCH( $self, 'start' ), 'p5landish' ) ..
+                            ::DISPATCH( ::DISPATCH( $self, 'end' ),   'p5landish' )
                     ], } );
             },
     }
 );
 
 1;
-
-=begin
 
 =head1 AUTHORS
 
@@ -77,4 +75,4 @@ under the same terms as Perl itself.
 
 See L<http://www.perl.com/perl/misc/Artistic.html>
 
-=end
+=cut

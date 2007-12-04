@@ -32,13 +32,21 @@ none
 
 =item for
 
+=item eager
+
+=item INDEX
+
+=item map
+
+=item new
+
 =cut
 
 my $meta_Value = ::DISPATCH($::Value,'HOW');
 
 $::List = KindaPerl6::Runtime::Perl5::MOP::make_class(
     proto   => $::List,
-    name    => "List",
+    name    => 'List',
     parents => [$meta_Value],
     methods => {
 
@@ -53,7 +61,7 @@ $::List = KindaPerl6::Runtime::Perl5::MOP::make_class(
             $v;
         },
         INDEX => sub {
-            my $key = ::DISPATCH( ::DISPATCH( $_[1], "Int" ), "p5landish" );
+            my $key = ::DISPATCH( ::DISPATCH( $_[1], 'Int' ), 'p5landish' );
             return ::DISPATCH( $::Undef, 'new' )
                 unless exists $_[0]{_value}{_array}[$key];
             return $_[0]{_value}{_array}[$key];
@@ -62,28 +70,27 @@ $::List = KindaPerl6::Runtime::Perl5::MOP::make_class(
             $_[0];
         },
         STORE => sub {
-            die "can't STORE to a List";
+            die "Cannot STORE to a List";
         },
         eager => sub {
             $_[0];
         },
         elems => sub {
-            ::DISPATCH( $::Int, "new", scalar @{ $_[0]{_value}{_array} } );
+            ::DISPATCH( $::Int, 'new', scalar @{ $_[0]{_value}{_array} } );
         },
         push => sub {
-            die "can't push to a List";
+            die "Cannot push to a List";
         },
         pop => sub {
             my $self = shift;
             pop @{ $self->{_value}{_array} };
         },
-
         shift => sub {
             my $self = shift;
             shift @{ $self->{_value}{_array} }, @_;    # XXX process List properly
         },
         unshift => sub {
-            die "can't unshift to a List";
+            die "Cannot unshift to a List";
         },
         sort => sub {
             my $sub = $_[1];
@@ -118,8 +125,6 @@ $::List = KindaPerl6::Runtime::Perl5::MOP::make_class(
 
 1;
 
-=begin
-
 =head1 AUTHORS
 
 The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
@@ -139,4 +144,4 @@ under the same terms as Perl itself.
 
 See L<http://www.perl.com/perl/misc/Artistic.html>
 
-=end
+=cut
