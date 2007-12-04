@@ -33,16 +33,16 @@ class Token {
                               'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; ' ~ Main::newline() 
                             ~ '$GLOBAL::_M2 = $GLOBAL::_M; ' 
                         )
-                    ~ '})'
+                    ~ '})' ~ Main::newline()
 
-                    ~ Main::indent( $regex_source ) ~ Main::newline()
+                    ~ $regex_source ~ Main::newline()
                     
                     ~ '(?{ ' ~ Main::newline()
                     ~   Main::indent(
                               'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; ' ~ Main::newline() 
                             ~ '$GLOBAL::_M2 = $GLOBAL::_M; '
                         )
-                    ~ '})'
+                    ~ '})' ~ Main::newline()
 
                     ~ chr(0) ~ 'x; '  
                 )
