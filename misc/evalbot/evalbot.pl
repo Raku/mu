@@ -51,7 +51,7 @@ package Evalbot;
             kp6     => \&exec_kp6,
             pugs    => \&exec_pugs,
             perl6   => \&exec_eval,
-#            nqp     => \&exec_nqp,
+            nqp     => \&exec_nqp,
             p6      => \&exec_p6,
             );
     my $regex = $prefix . '(' . join('|',  keys %executer) . ")$postfix";
@@ -123,7 +123,7 @@ package Evalbot;
         my ($tmp_fh, $name) = tempfile();
         print $tmp_fh $program;
         close $tmp_fh;
-        system "./parrot languages/nqp/nqp.pbc $name >> $filename 2>&1";
+        system "./parrot compilers/nqp/nqp.pbc $name >> $filename 2>&1";
         unlink $name;
         chdir $FindBin::Bin;
         return;
