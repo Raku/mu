@@ -717,9 +717,9 @@
 'APPLY',
                                                                                                         ::DISPATCH(
                                                                                                             (
-                                                                                                                $Main::Code_indent
+                                                                                                                $Main::Code_newline
                                                                                                                   =
-                                                                                                                  $Main::Code_indent
+                                                                                                                  $Main::Code_newline
                                                                                                                   ||
                                                                                                                   ::DISPATCH(
                                                                                                                     $::Routine,
@@ -728,7 +728,6 @@
                                                                                                             )
                                                                                                             ,
 'APPLY',
-                                                                                                            $regex_source
                                                                                                           )
                                                                                                         ,
                                                                                                         ::DISPATCH(
@@ -744,21 +743,7 @@
                                                                                                             )
                                                                                                             ,
 'APPLY',
-                                                                                                            ::DISPATCH(
-                                                                                                                (
-                                                                                                                    $Main::Code_newline
-                                                                                                                      =
-                                                                                                                      $Main::Code_newline
-                                                                                                                      ||
-                                                                                                                      ::DISPATCH(
-                                                                                                                        $::Routine,
-"new",
-                                                                                                                      )
-                                                                                                                )
-                                                                                                                ,
-'APPLY',
-                                                                                                              )
-                                                                                                            ,
+                                                                                                            $regex_source,
                                                                                                             ::DISPATCH(
                                                                                                                 (
                                                                                                                     $GLOBAL::Code_infix_58__60__126__62_
@@ -773,9 +758,18 @@
                                                                                                                 ,
 'APPLY',
                                                                                                                 ::DISPATCH(
-                                                                                                                    $::Str,
-'new',
-'(?{ '
+                                                                                                                    (
+                                                                                                                        $Main::Code_newline
+                                                                                                                          =
+                                                                                                                          $Main::Code_newline
+                                                                                                                          ||
+                                                                                                                          ::DISPATCH(
+                                                                                                                            $::Routine,
+"new",
+                                                                                                                          )
+                                                                                                                    )
+                                                                                                                    ,
+'APPLY',
                                                                                                                   )
                                                                                                                 ,
                                                                                                                 ::DISPATCH(
@@ -792,18 +786,9 @@
                                                                                                                     ,
 'APPLY',
                                                                                                                     ::DISPATCH(
-                                                                                                                        (
-                                                                                                                            $Main::Code_newline
-                                                                                                                              =
-                                                                                                                              $Main::Code_newline
-                                                                                                                              ||
-                                                                                                                              ::DISPATCH(
-                                                                                                                                $::Routine,
-"new",
-                                                                                                                              )
-                                                                                                                        )
-                                                                                                                        ,
-'APPLY',
+                                                                                                                        $::Str,
+'new',
+'(?{ '
                                                                                                                       )
                                                                                                                     ,
                                                                                                                     ::DISPATCH(
@@ -821,9 +806,9 @@
 'APPLY',
                                                                                                                         ::DISPATCH(
                                                                                                                             (
-                                                                                                                                $Main::Code_indent
+                                                                                                                                $Main::Code_newline
                                                                                                                                   =
-                                                                                                                                  $Main::Code_indent
+                                                                                                                                  $Main::Code_newline
                                                                                                                                   ||
                                                                                                                                   ::DISPATCH(
                                                                                                                                     $::Routine,
@@ -832,6 +817,90 @@
                                                                                                                             )
                                                                                                                             ,
 'APPLY',
+                                                                                                                          )
+                                                                                                                        ,
+                                                                                                                        ::DISPATCH(
+                                                                                                                            (
+                                                                                                                                $GLOBAL::Code_infix_58__60__126__62_
+                                                                                                                                  =
+                                                                                                                                  $GLOBAL::Code_infix_58__60__126__62_
+                                                                                                                                  ||
+                                                                                                                                  ::DISPATCH(
+                                                                                                                                    $::Routine,
+"new",
+                                                                                                                                  )
+                                                                                                                            )
+                                                                                                                            ,
+'APPLY',
+                                                                                                                            ::DISPATCH(
+                                                                                                                                (
+                                                                                                                                    $Main::Code_indent
+                                                                                                                                      =
+                                                                                                                                      $Main::Code_indent
+                                                                                                                                      ||
+                                                                                                                                      ::DISPATCH(
+                                                                                                                                        $::Routine,
+"new",
+                                                                                                                                      )
+                                                                                                                                )
+                                                                                                                                ,
+'APPLY',
+                                                                                                                                ::DISPATCH(
+                                                                                                                                    (
+                                                                                                                                        $GLOBAL::Code_infix_58__60__126__62_
+                                                                                                                                          =
+                                                                                                                                          $GLOBAL::Code_infix_58__60__126__62_
+                                                                                                                                          ||
+                                                                                                                                          ::DISPATCH(
+                                                                                                                                            $::Routine,
+"new",
+                                                                                                                                          )
+                                                                                                                                    )
+                                                                                                                                    ,
+'APPLY',
+                                                                                                                                    ::DISPATCH(
+                                                                                                                                        $::Str,
+'new',
+'local $GLOBAL::_M = [ $GLOBAL::_M, \\\'to\\\', pos() ]; '
+                                                                                                                                      )
+                                                                                                                                    ,
+                                                                                                                                    ::DISPATCH(
+                                                                                                                                        (
+                                                                                                                                            $GLOBAL::Code_infix_58__60__126__62_
+                                                                                                                                              =
+                                                                                                                                              $GLOBAL::Code_infix_58__60__126__62_
+                                                                                                                                              ||
+                                                                                                                                              ::DISPATCH(
+                                                                                                                                                $::Routine,
+"new",
+                                                                                                                                              )
+                                                                                                                                        )
+                                                                                                                                        ,
+'APPLY',
+                                                                                                                                        ::DISPATCH(
+                                                                                                                                            (
+                                                                                                                                                $Main::Code_newline
+                                                                                                                                                  =
+                                                                                                                                                  $Main::Code_newline
+                                                                                                                                                  ||
+                                                                                                                                                  ::DISPATCH(
+                                                                                                                                                    $::Routine,
+"new",
+                                                                                                                                                  )
+                                                                                                                                            )
+                                                                                                                                            ,
+'APPLY',
+                                                                                                                                          )
+                                                                                                                                        ,
+                                                                                                                                        ::DISPATCH(
+                                                                                                                                            $::Str,
+'new',
+'$GLOBAL::_M2 = $GLOBAL::_M; '
+                                                                                                                                        )
+                                                                                                                                    )
+                                                                                                                                )
+                                                                                                                              )
+                                                                                                                            ,
                                                                                                                             ::DISPATCH(
                                                                                                                                 (
                                                                                                                                     $GLOBAL::Code_infix_58__60__126__62_
@@ -848,7 +917,7 @@
                                                                                                                                 ::DISPATCH(
                                                                                                                                     $::Str,
 'new',
-'local $GLOBAL::_M = [ $GLOBAL::_M, \\\'to\\\', pos() ]; '
+'})'
                                                                                                                                   )
                                                                                                                                 ,
                                                                                                                                 ::DISPATCH(
@@ -880,70 +949,44 @@
                                                                                                                                       )
                                                                                                                                     ,
                                                                                                                                     ::DISPATCH(
-                                                                                                                                        $::Str,
-'new',
-'$GLOBAL::_M2 = $GLOBAL::_M; '
-                                                                                                                                    )
-                                                                                                                                )
-                                                                                                                            )
-                                                                                                                          )
-                                                                                                                        ,
-                                                                                                                        ::DISPATCH(
-                                                                                                                            (
-                                                                                                                                $GLOBAL::Code_infix_58__60__126__62_
-                                                                                                                                  =
-                                                                                                                                  $GLOBAL::Code_infix_58__60__126__62_
-                                                                                                                                  ||
-                                                                                                                                  ::DISPATCH(
-                                                                                                                                    $::Routine,
+                                                                                                                                        (
+                                                                                                                                            $GLOBAL::Code_infix_58__60__126__62_
+                                                                                                                                              =
+                                                                                                                                              $GLOBAL::Code_infix_58__60__126__62_
+                                                                                                                                              ||
+                                                                                                                                              ::DISPATCH(
+                                                                                                                                                $::Routine,
 "new",
-                                                                                                                                  )
-                                                                                                                            )
-                                                                                                                            ,
+                                                                                                                                              )
+                                                                                                                                        )
+                                                                                                                                        ,
 'APPLY',
-                                                                                                                            ::DISPATCH(
-                                                                                                                                $::Str,
-'new',
-'})'
-                                                                                                                              )
-                                                                                                                            ,
-                                                                                                                            ::DISPATCH(
-                                                                                                                                (
-                                                                                                                                    $GLOBAL::Code_infix_58__60__126__62_
-                                                                                                                                      =
-                                                                                                                                      $GLOBAL::Code_infix_58__60__126__62_
-                                                                                                                                      ||
-                                                                                                                                      ::DISPATCH(
-                                                                                                                                        $::Routine,
+                                                                                                                                        ::DISPATCH(
+                                                                                                                                            (
+                                                                                                                                                $GLOBAL::Code_chr
+                                                                                                                                                  =
+                                                                                                                                                  $GLOBAL::Code_chr
+                                                                                                                                                  ||
+                                                                                                                                                  ::DISPATCH(
+                                                                                                                                                    $::Routine,
 "new",
-                                                                                                                                      )
-                                                                                                                                )
-                                                                                                                                ,
+                                                                                                                                                  )
+                                                                                                                                            )
+                                                                                                                                            ,
 'APPLY',
-                                                                                                                                ::DISPATCH(
-                                                                                                                                    (
-                                                                                                                                        $GLOBAL::Code_chr
-                                                                                                                                          =
-                                                                                                                                          $GLOBAL::Code_chr
-                                                                                                                                          ||
-                                                                                                                                          ::DISPATCH(
-                                                                                                                                            $::Routine,
-"new",
+                                                                                                                                            ::DISPATCH(
+                                                                                                                                                $::Int,
+'new',
+                                                                                                                                                0
+                                                                                                                                            )
                                                                                                                                           )
-                                                                                                                                    )
-                                                                                                                                    ,
-'APPLY',
-                                                                                                                                    ::DISPATCH(
-                                                                                                                                        $::Int,
-'new',
-                                                                                                                                        0
-                                                                                                                                    )
-                                                                                                                                  )
-                                                                                                                                ,
-                                                                                                                                ::DISPATCH(
-                                                                                                                                    $::Str,
+                                                                                                                                        ,
+                                                                                                                                        ::DISPATCH(
+                                                                                                                                            $::Str,
 'new',
 'x; '
+                                                                                                                                        )
+                                                                                                                                    )
                                                                                                                                 )
                                                                                                                             )
                                                                                                                         )

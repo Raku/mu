@@ -51,10 +51,27 @@ package Match;
                     return ::DISPATCH( $::Str, 'new', 
                           'Match.new( ' 
                         . join( ', ',
-                                'from => ' . $self->from,
-                                'to => '   . $self->to,
-                                'true => ' . $self->true,
+                                'from => '   . $self->from,
+                                'to => '     . $self->to,
+                                'true => '   . $self->true,
                                 'str => \''  . ${$self->match_str} . '\'',
+                                'array => [ ' 
+                                    . join( ', ',
+                                            map { 
+                                                    $_ 
+                                                }
+                                                @{$self->{array}} 
+                                        ) 
+                                    . ' ]',
+                                'hash => { '   
+                                    . join( ' ', 
+                                            map { 
+                                                    my $v = ${$self->{hash}}{ $_ };
+                                                    $_ . ' => ' . $v . ',' 
+                                                }
+                                                keys %{$self->{hash}} 
+                                        ) 
+                                    . ' }',
                                 'result => ' . 
                                     do {
                                         my $s;
