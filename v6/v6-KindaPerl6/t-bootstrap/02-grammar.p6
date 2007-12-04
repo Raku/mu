@@ -104,6 +104,26 @@ say "# ",($MATCH.Str);
 ok( $MATCH.Str eq "Val::Int.new(int => '123')",'term');
 
 
+#exp
+
+say "# ** now testing: <exp>";
+$_ = '123';
+my $MATCH = KindaPerl6::Grammar.exp();
+say "# ",($MATCH.perl);
+say "# ",($MATCH.Str);
+ok( $MATCH.Str eq "Val::Int.new(int => '123')",'term');
+
+
+#exp
+
+say "# ** now testing: bigger <exp>";
+$_ = '123+456';
+my $MATCH = KindaPerl6::Grammar.exp();
+say "# ",($MATCH.perl);
+say "# ",($MATCH.Str);
+ok( $MATCH.Str eq "Apply.new(arguments => [ Val::Int.new(int => '123'), Val::Int.new(int => '456') ], code => Var.new(namespace => [  ], name => 'infix:<+>', twigil => '', sigil => '&'))",
+    'term');
+
 
 =begin
 
