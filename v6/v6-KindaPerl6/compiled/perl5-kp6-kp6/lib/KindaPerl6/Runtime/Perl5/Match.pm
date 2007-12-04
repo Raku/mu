@@ -57,7 +57,12 @@ package Match;
                                 'from => '   . $self->from,
                                 'to => '     . $self->to,
                                 'true => '   . $self->true,
-                                'str => \''  . ${$self->match_str} . '\'',
+                                'str => '    
+                                    . '\''  . ${$self->match_str} . '\'',
+                                    # . (   ref( ${$self->match_str} )
+                                    #    ? ::DISPATCH( ${$self->match_str}, 'perl' )->{_value}
+                                    #    : '\''  . ${$self->match_str} . '\''
+                                    #  ),
                                 'array => [ ' 
                                     . join( ', ',
                                             map { 
