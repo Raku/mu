@@ -66,8 +66,6 @@ use KindaPerl6::Runtime::Perl5::Compiler;
 
 __END__
 
-=pod
-
 =head1 NAME
 
 KindaPerl6::Perl5::Runtime
