@@ -197,7 +197,7 @@ sub try_package {
     if (not try_compile
         ($code , $ghc, @packages),
     ) {
-        # We are missing mtl,network,whatever somehow, 
+        # We are missing mtl,network,time,whatever somehow,
         # likely because GHC 6.6's extra pkg is not there
         die <<"EOD";
 *** Could not load the "$ghcpkg" package in your GHC installation.
@@ -268,6 +268,11 @@ sub set_postamble {
                 "import Network.BSD\n"
                 . "main = let x = defaultProtocol in return x\n"  
                 );
+    try_package($ghc,
+                'time',
+                "import Data.Time\n"
+                . "main = return 1\n"
+               );
 
     #
     # We probably need to promote this to a config.yml + autodetect
