@@ -665,49 +665,12 @@
                         do {
                             if (::DISPATCH(
                                     ::DISPATCH(
-                                        ::DISPATCH(
-                                            ( $GLOBAL::Code_infix_58__60__38__38__62_ = $GLOBAL::Code_infix_58__60__38__38__62_ || ::DISPATCH( $::Routine, "new", ) ),
-                                            'APPLY',
-                                            ::DISPATCH(
-                                                $::Code, 'new',
-                                                {   code => sub {
-                                                        my $CAPTURE;
-                                                        $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
-                                                        INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
-                                                        my $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                                                        ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
-                                                        ::DISPATCH_VAR( $List__, 'STORE', ::DISPATCH( $CAPTURE, 'array', ) );
-                                                        do {
-                                                            ::MODIFIED($Hash__);
-                                                            $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
-                                                        };
-                                                        { my $_param_index = 0; }
-                                                        ::DISPATCH( ( $GLOBAL::Code_defined = $GLOBAL::Code_defined || ::DISPATCH( $::Routine, "new", ) ), 'APPLY', ::DISPATCH( $self, 'token_length', ) );
-                                                    },
-                                                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::List, "new", { _array => [] } ), return => $::Undef, } ),
-                                                }
-                                            ),
-                                            ::DISPATCH(
-                                                $::Code,
-                                                'new',
-                                                {   code => sub {
-                                                        my $CAPTURE;
-                                                        $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) unless defined $CAPTURE;
-                                                        INIT { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
-                                                        my $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } );
-                                                        ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
-                                                        ::DISPATCH_VAR( $List__, 'STORE', ::DISPATCH( $CAPTURE, 'array', ) );
-                                                        do {
-                                                            ::MODIFIED($Hash__);
-                                                            $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
-                                                        };
-                                                        { my $_param_index = 0; }
-                                                        ::DISPATCH( ::DISPATCH( $self, 'token_length', ), 'keys', );
-                                                    },
-                                                    signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array => ::DISPATCH( $::List, "new", { _array => [] } ), return => $::Undef, } ),
-                                                }
-                                            )
-                                        ),
+                                        do {
+                                            my $_tmp1 = ::DISPATCH( ( $GLOBAL::Code_defined = $GLOBAL::Code_defined || ::DISPATCH( $::Routine, "new", ) ), 'APPLY', ::DISPATCH( $self, 'token_length', ) );
+                                            ::DISPATCH( $_tmp1, "true" )->{_value}
+                                                ? ::DISPATCH( ::DISPATCH( $self, 'token_length', ), 'keys', )
+                                                : ::DISPATCH( $::Bit, "new", 0 );
+                                        },
                                         "true"
                                     ),
                                     "p5landish"

@@ -22,24 +22,30 @@ class Token {
     method emit_perl5 {
         my $regex_source := ($.regex).emit_perl5;
         my $source := 
-          'do { '
-            ~ 'use vars qw($_rule_' ~ $.name ~ '); ' 
-            ~ 'INIT { '
-                ~ '$_rule_' ~ $.name ~ ' = qr' ~ chr(0) 
-                
-                ~ '(?{ '
-                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
-                ~   '$GLOBAL::_M2 = $GLOBAL::_M; '
-                ~ '})'
+          'do { ' ~ Main::newline()
+            ~ 'use vars qw($_rule_' ~ $.name ~ '); ' ~ Main::newline()
+            ~ 'INIT { ' ~ Main::newline()
+                ~   Main::indent(
+                      '$_rule_' ~ $.name ~ ' = qr' ~ chr(0) 
+                    
+                    ~ '(?{ ' ~ Main::newline()
+                    ~   Main::indent(
+                              'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; ' ~ Main::newline() 
+                            ~ '$GLOBAL::_M2 = $GLOBAL::_M; ' 
+                        )
+                    ~ '})'
 
-                ~ $regex_source 
-                
-                ~ '(?{ '
-                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
-                ~   '$GLOBAL::_M2 = $GLOBAL::_M; '
-                ~ '})'
+                    ~ Main::indent( $regex_source ) ~ Main::newline()
+                    
+                    ~ '(?{ ' ~ Main::newline()
+                    ~   Main::indent(
+                              'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; ' ~ Main::newline() 
+                            ~ '$GLOBAL::_M2 = $GLOBAL::_M; '
+                        )
+                    ~ '})'
 
-                ~ chr(0) ~ 'x; '  ~ Main::newline() 
+                    ~ chr(0) ~ 'x; '  
+                )
             ~ '}' ~ Main::newline() 
 
             # create the method, using the OO metamodel
@@ -228,24 +234,28 @@ class Rule::SpecialChar {
 
 class Rule::Block {
     method emit_perl5 {
-        '(?{ ' 
-            ~ 'local $GLOBAL::_M = [ $GLOBAL::_M, "to", pos() ]; '  # "finish" & shallow copy
+        '(?{ ' ~ Main::newline()
+            ~ Main::indent(
+                 'local $GLOBAL::_M = [ $GLOBAL::_M, "to", pos() ]; ' ~ Main::newline()  # "finish" & shallow copy
 
             # construct a $/ view from what we already have
-            ~    'Match::from_global_data( $GLOBAL::_M ); '
+            ~    'Match::from_global_data( $GLOBAL::_M ); ' ~ Main::newline()
             ~    '$MATCH = '   # ???                    
-            ~    '$GLOBAL::MATCH = pop @Match::Matches; '
-            ~    '@Match::Matches = (); '   # discard outer matches, if any
+            ~    '$GLOBAL::MATCH = pop @Match::Matches; ' ~ Main::newline()
+            ~    '@Match::Matches = (); ' ~ Main::newline()  # discard outer matches, if any
             # ~ ' use Data::Dumper; print "Rule::Block current match: ",Dumper($MATCH),"\n"; '
 
-            ~ 'my $ret = ( sub {' 
-                   ~ $.closure.emit_perl5
-                   ~  '; "974^213" '
-            ~ '} )->();' 
+            ~ 'my $ret = ( sub {' ~ Main::newline()
+                    ~ Main::indent(
+                           $.closure.emit_perl5
+                        ~  '; "974^213" '
+                    )
+            ~ '} )->();' ~ Main::newline()
             ~ 'if ( $ret ne "974^213" ) {' 
                 ~   '$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $ret ]; '
                 # TODO - (*ACCEPT) and exit
             ~ '};' 
+            ) 
         ~ ' })'
     }
 }

@@ -238,202 +238,21 @@
                             if (
                                 ::DISPATCH(
                                     ::DISPATCH(
-                                        ::DISPATCH(
-                                            (
-                                                $GLOBAL::Code_infix_58__60__124__124__62_
-                                                  = $GLOBAL::Code_infix_58__60__124__124__62_
-                                                  || ::DISPATCH(
-                                                    $::Routine, "new",
-                                                  )
-                                            ),
-                                            'APPLY',
-                                            ::DISPATCH(
-                                                $::Code, 'new',
-                                                {
-                                                    code => sub {
-                                                        my $CAPTURE;
-                                                        $CAPTURE = ::DISPATCH(
-                                                            $::Scalar,
-                                                            'new',
-                                                            {
-                                                                modified =>
-                                                                  $_MODIFIED,
-                                                                name =>
-                                                                  '$CAPTURE'
-                                                            }
-                                                          )
-                                                          unless
-                                                            defined $CAPTURE;
-                                                        INIT {
-                                                            $CAPTURE =
-                                                              ::DISPATCH(
-                                                                $::Scalar,
-                                                                'new',
-                                                                {
-                                                                    modified =>
-                                                                      $_MODIFIED,
-                                                                    name =>
-                                                                      '$CAPTURE'
-                                                                }
-                                                              );
-                                                        }
-                                                        my $List__ = ::DISPATCH(
-                                                            $::ArrayContainer,
-                                                            'new',
-                                                            {
-                                                                modified =>
-                                                                  $_MODIFIED,
-                                                                name =>
-                                                                  '$List__'
-                                                            }
-                                                        );
-                                                        ::DISPATCH_VAR(
-                                                            $CAPTURE,
-                                                            "STORE",
-                                                            ::CAPTURIZE( \@_ )
-                                                        );
-                                                        ::DISPATCH_VAR(
-                                                            $List__,
-                                                            'STORE',
-                                                            ::DISPATCH(
-                                                                $CAPTURE,
-                                                                'array',
-                                                            )
-                                                        );
-                                                        do {
-                                                            ::MODIFIED($Hash__);
-                                                            $Hash__ =
-                                                              ::DISPATCH(
-                                                                $CAPTURE,
-                                                                'hash',
-                                                              );
-                                                        };
-                                                        {
-                                                            my $_param_index =
-                                                              0;
-                                                        }
-                                                        ::DISPATCH(
-                                                            $node,
-                                                            'isa',
-                                                            ::DISPATCH(
-                                                                $::Str,
-                                                                'new',
-                                                                'Array'
-                                                            )
-                                                        );
-                                                    },
-                                                    signature => ::DISPATCH(
-                                                        $::Signature,
-                                                        "new",
-                                                        {
-                                                            invocant =>
-                                                              $::Undef,
-                                                            array => ::DISPATCH(
-                                                                $::List,
-                                                                "new",
-                                                                {
-                                                                    _array => []
-                                                                }
-                                                            ),
-                                                            return => $::Undef,
-                                                        }
-                                                    ),
-                                                }
-                                            ),
-                                            ::DISPATCH(
-                                                $::Code,
-                                                'new',
-                                                {
-                                                    code => sub {
-                                                        my $CAPTURE;
-                                                        $CAPTURE = ::DISPATCH(
-                                                            $::Scalar,
-                                                            'new',
-                                                            {
-                                                                modified =>
-                                                                  $_MODIFIED,
-                                                                name =>
-                                                                  '$CAPTURE'
-                                                            }
-                                                          )
-                                                          unless
-                                                            defined $CAPTURE;
-                                                        INIT {
-                                                            $CAPTURE =
-                                                              ::DISPATCH(
-                                                                $::Scalar,
-                                                                'new',
-                                                                {
-                                                                    modified =>
-                                                                      $_MODIFIED,
-                                                                    name =>
-                                                                      '$CAPTURE'
-                                                                }
-                                                              );
-                                                        }
-                                                        my $List__ = ::DISPATCH(
-                                                            $::ArrayContainer,
-                                                            'new',
-                                                            {
-                                                                modified =>
-                                                                  $_MODIFIED,
-                                                                name =>
-                                                                  '$List__'
-                                                            }
-                                                        );
-                                                        ::DISPATCH_VAR(
-                                                            $CAPTURE,
-                                                            "STORE",
-                                                            ::CAPTURIZE( \@_ )
-                                                        );
-                                                        ::DISPATCH_VAR(
-                                                            $List__,
-                                                            'STORE',
-                                                            ::DISPATCH(
-                                                                $CAPTURE,
-                                                                'array',
-                                                            )
-                                                        );
-                                                        do {
-                                                            ::MODIFIED($Hash__);
-                                                            $Hash__ =
-                                                              ::DISPATCH(
-                                                                $CAPTURE,
-                                                                'hash',
-                                                              );
-                                                        };
-                                                        {
-                                                            my $_param_index =
-                                                              0;
-                                                        }
-                                                        ::DISPATCH(
-                                                            $node,
-                                                            'isa',
-                                                            ::DISPATCH(
-                                                                $::Str, 'new',
-                                                                'List'
-                                                            )
-                                                        );
-                                                    },
-                                                    signature => ::DISPATCH(
-                                                        $::Signature,
-                                                        "new",
-                                                        {
-                                                            invocant =>
-                                                              $::Undef,
-                                                            array => ::DISPATCH(
-                                                                $::List,
-                                                                "new",
-                                                                {
-                                                                    _array => []
-                                                                }
-                                                            ),
-                                                            return => $::Undef,
-                                                        }
-                                                    ),
-                                                }
-                                            )
-                                        ),
+                                        do {
+                                            my $_tmp1 = ::DISPATCH(
+                                                $node, 'isa',
+                                                ::DISPATCH(
+                                                    $::Str, 'new', 'Array'
+                                                )
+                                            );
+                                            ::DISPATCH( $_tmp1, "true" )
+                                              ->{_value} ? $_tmp1 : ::DISPATCH(
+                                                $node, 'isa',
+                                                ::DISPATCH(
+                                                    $::Str, 'new', 'List'
+                                                )
+                                              );
+                                        },
                                         "true"
                                     ),
                                     "p5landish"
@@ -657,271 +476,33 @@
                                                         if (
                                                             ::DISPATCH(
                                                                 ::DISPATCH(
-                                                                    ::DISPATCH(
-                                                                        (
-                                                                            $GLOBAL::Code_infix_58__60__124__124__62_
-                                                                              = $GLOBAL::Code_infix_58__60__124__124__62_
-                                                                              || ::DISPATCH(
-                                                                                $::Routine,
-"new",
-                                                                              )
-                                                                        ),
-                                                                        'APPLY',
-                                                                        ::DISPATCH(
-                                                                            $::Code,
-'new',
-                                                                            {
-                                                                                code =>
-                                                                                  sub
-                                                                                {
-                                                                                    my $CAPTURE;
-                                                                                    $CAPTURE
-                                                                                      =
-                                                                                      ::DISPATCH(
-                                                                                        $::Scalar,
-'new',
-                                                                                        {
-                                                                                            modified =>
-                                                                                              $_MODIFIED,
-                                                                                            name =>
-'$CAPTURE'
-                                                                                        }
-                                                                                      )
-                                                                                      unless
-                                                                                        defined
-                                                                                          $CAPTURE;
-                                                                                    INIT
-                                                                                    {
-                                                                                        $CAPTURE
-                                                                                          =
-                                                                                          ::DISPATCH(
-                                                                                            $::Scalar,
-'new',
-                                                                                            {
-                                                                                                modified =>
-                                                                                                  $_MODIFIED,
-                                                                                                name =>
-'$CAPTURE'
-                                                                                            }
-                                                                                          )
-                                                                                          ;
-                                                                                    }
-                                                                                    my $List__
-                                                                                      =
-                                                                                      ::DISPATCH(
-                                                                                        $::ArrayContainer,
-'new',
-                                                                                        {
-                                                                                            modified =>
-                                                                                              $_MODIFIED,
-                                                                                            name =>
-'$List__'
-                                                                                        }
-                                                                                      )
-                                                                                      ;
-                                                                                    ::DISPATCH_VAR(
-                                                                                        $CAPTURE,
-"STORE",
-                                                                                        ::CAPTURIZE(
-                                                                                            \
-                                                                                              @_
-                                                                                        )
-                                                                                      )
-                                                                                      ;
-                                                                                    ::DISPATCH_VAR(
-                                                                                        $List__,
-'STORE',
-                                                                                        ::DISPATCH(
-                                                                                            $CAPTURE,
-'array',
-                                                                                        )
-                                                                                      )
-                                                                                      ;
-                                                                                    do
-                                                                                    {
-                                                                                        ::MODIFIED(
-                                                                                            $Hash__
-                                                                                          )
-                                                                                          ;
-                                                                                        $Hash__
-                                                                                          =
-                                                                                          ::DISPATCH(
-                                                                                            $CAPTURE,
-'hash',
-                                                                                          )
-                                                                                          ;
-                                                                                    };
-                                                                                    {
-                                                                                        my $_param_index
-                                                                                          =
-                                                                                          0
-                                                                                          ;
-                                                                                    }
-                                                                                    ::DISPATCH(
-                                                                                        $subitem,
+                                                                    do {
+                                                                        my $_tmp1
+                                                                          = ::DISPATCH(
+                                                                            $subitem,
 'isa',
-                                                                                        ::DISPATCH(
-                                                                                            $::Str,
+                                                                            ::DISPATCH(
+                                                                                $::Str,
 'new',
 'Array'
-                                                                                        )
-                                                                                      )
-                                                                                      ;
-                                                                                  }
-                                                                                ,
-                                                                                signature =>
-                                                                                  ::DISPATCH(
-                                                                                    $::Signature,
-"new",
-                                                                                    {
-                                                                                        invocant =>
-                                                                                          $::Undef,
-                                                                                        array =>
-                                                                                          ::DISPATCH(
-                                                                                            $::List,
-"new",
-                                                                                            {
-                                                                                                _array =>
-                                                                                                  [
-                                                                                                  ]
-                                                                                            }
-                                                                                          )
-                                                                                        ,
-                                                                                        return =>
-                                                                                          $::Undef,
-                                                                                    }
-                                                                                  )
-                                                                                ,
-                                                                            }
-                                                                        ),
+                                                                            )
+                                                                          );
                                                                         ::DISPATCH(
-                                                                            $::Code,
-'new',
-                                                                            {
-                                                                                code =>
-                                                                                  sub
-                                                                                {
-                                                                                    my $CAPTURE;
-                                                                                    $CAPTURE
-                                                                                      =
-                                                                                      ::DISPATCH(
-                                                                                        $::Scalar,
-'new',
-                                                                                        {
-                                                                                            modified =>
-                                                                                              $_MODIFIED,
-                                                                                            name =>
-'$CAPTURE'
-                                                                                        }
-                                                                                      )
-                                                                                      unless
-                                                                                        defined
-                                                                                          $CAPTURE;
-                                                                                    INIT
-                                                                                    {
-                                                                                        $CAPTURE
-                                                                                          =
-                                                                                          ::DISPATCH(
-                                                                                            $::Scalar,
-'new',
-                                                                                            {
-                                                                                                modified =>
-                                                                                                  $_MODIFIED,
-                                                                                                name =>
-'$CAPTURE'
-                                                                                            }
-                                                                                          )
-                                                                                          ;
-                                                                                    }
-                                                                                    my $List__
-                                                                                      =
-                                                                                      ::DISPATCH(
-                                                                                        $::ArrayContainer,
-'new',
-                                                                                        {
-                                                                                            modified =>
-                                                                                              $_MODIFIED,
-                                                                                            name =>
-'$List__'
-                                                                                        }
-                                                                                      )
-                                                                                      ;
-                                                                                    ::DISPATCH_VAR(
-                                                                                        $CAPTURE,
-"STORE",
-                                                                                        ::CAPTURIZE(
-                                                                                            \
-                                                                                              @_
-                                                                                        )
-                                                                                      )
-                                                                                      ;
-                                                                                    ::DISPATCH_VAR(
-                                                                                        $List__,
-'STORE',
-                                                                                        ::DISPATCH(
-                                                                                            $CAPTURE,
-'array',
-                                                                                        )
-                                                                                      )
-                                                                                      ;
-                                                                                    do
-                                                                                    {
-                                                                                        ::MODIFIED(
-                                                                                            $Hash__
-                                                                                          )
-                                                                                          ;
-                                                                                        $Hash__
-                                                                                          =
-                                                                                          ::DISPATCH(
-                                                                                            $CAPTURE,
-'hash',
-                                                                                          )
-                                                                                          ;
-                                                                                    };
-                                                                                    {
-                                                                                        my $_param_index
-                                                                                          =
-                                                                                          0
-                                                                                          ;
-                                                                                    }
-                                                                                    ::DISPATCH(
-                                                                                        $subitem,
+                                                                            $_tmp1,
+"true"
+                                                                          )
+                                                                          ->{_value}
+                                                                          ? $_tmp1
+                                                                          : ::DISPATCH(
+                                                                            $subitem,
 'isa',
-                                                                                        ::DISPATCH(
-                                                                                            $::Str,
+                                                                            ::DISPATCH(
+                                                                                $::Str,
 'new',
 'List'
-                                                                                        )
-                                                                                      )
-                                                                                      ;
-                                                                                  }
-                                                                                ,
-                                                                                signature =>
-                                                                                  ::DISPATCH(
-                                                                                    $::Signature,
-"new",
-                                                                                    {
-                                                                                        invocant =>
-                                                                                          $::Undef,
-                                                                                        array =>
-                                                                                          ::DISPATCH(
-                                                                                            $::List,
-"new",
-                                                                                            {
-                                                                                                _array =>
-                                                                                                  [
-                                                                                                  ]
-                                                                                            }
-                                                                                          )
-                                                                                        ,
-                                                                                        return =>
-                                                                                          $::Undef,
-                                                                                    }
-                                                                                  )
-                                                                                ,
-                                                                            }
-                                                                        )
-                                                                    ),
+                                                                            )
+                                                                          );
+                                                                    },
                                                                     "true"
                                                                 ),
                                                                 "p5landish"
@@ -1539,243 +1120,40 @@
                                             if (
                                                 ::DISPATCH(
                                                     ::DISPATCH(
-                                                        ::DISPATCH(
-                                                            (
-                                                                $GLOBAL::Code_infix_58__60__124__124__62_
-                                                                  = $GLOBAL::Code_infix_58__60__124__124__62_
-                                                                  || ::DISPATCH(
-                                                                    $::Routine,
-                                                                    "new",
-                                                                  )
-                                                            ),
-                                                            'APPLY',
+                                                        do {
+                                                            my $_tmp1 =
+                                                              ::DISPATCH(
+                                                                ::DISPATCH(
+                                                                    $data,
+                                                                    'LOOKUP',
+                                                                    $item
+                                                                ),
+                                                                'isa',
+                                                                ::DISPATCH(
+                                                                    $::Str,
+                                                                    'new',
+                                                                    'Array'
+                                                                )
+                                                              );
                                                             ::DISPATCH(
-                                                                $::Code,
-                                                                'new',
-                                                                {
-                                                                    code =>
-                                                                      sub {
-                                                                        my $CAPTURE;
-                                                                        $CAPTURE
-                                                                          = ::DISPATCH(
-                                                                            $::Scalar,
-'new',
-                                                                            {
-                                                                                modified =>
-                                                                                  $_MODIFIED,
-                                                                                name =>
-'$CAPTURE'
-                                                                            }
-                                                                          )
-                                                                          unless
-                                                                            defined
-                                                                              $CAPTURE;
-                                                                        INIT {
-                                                                            $CAPTURE
-                                                                              = ::DISPATCH(
-                                                                                $::Scalar,
-'new',
-                                                                                {
-                                                                                    modified =>
-                                                                                      $_MODIFIED,
-                                                                                    name =>
-'$CAPTURE'
-                                                                                }
-                                                                              );
-                                                                        }
-                                                                        my $List__
-                                                                          = ::DISPATCH(
-                                                                            $::ArrayContainer,
-'new',
-                                                                            {
-                                                                                modified =>
-                                                                                  $_MODIFIED,
-                                                                                name =>
-'$List__'
-                                                                            }
-                                                                          );
-                                                                        ::DISPATCH_VAR(
-                                                                            $CAPTURE,
-"STORE",
-                                                                            ::CAPTURIZE(
-                                                                                \
-                                                                                  @_
-                                                                            )
-                                                                        );
-                                                                        ::DISPATCH_VAR(
-                                                                            $List__,
-'STORE',
-                                                                            ::DISPATCH(
-                                                                                $CAPTURE,
-'array',
-                                                                            )
-                                                                        );
-                                                                        do {
-                                                                            ::MODIFIED(
-                                                                                $Hash__
-                                                                            );
-                                                                            $Hash__
-                                                                              = ::DISPATCH(
-                                                                                $CAPTURE,
-'hash',
-                                                                              );
-                                                                        };
-                                                                        {
-                                                                            my $_param_index
-                                                                              = 0
-                                                                              ;
-                                                                        }
-                                                                        ::DISPATCH(
-                                                                            ::DISPATCH(
-                                                                                $data,
-'LOOKUP',
-                                                                                $item
-                                                                            ),
-'isa',
-                                                                            ::DISPATCH(
-                                                                                $::Str,
-'new',
-'Array'
-                                                                            )
-                                                                        );
-                                                                      },
-                                                                    signature =>
-                                                                      ::DISPATCH(
-                                                                        $::Signature,
-                                                                        "new",
-                                                                        {
-                                                                            invocant =>
-                                                                              $::Undef,
-                                                                            array =>
-                                                                              ::DISPATCH(
-                                                                                $::List,
-"new",
-                                                                                {
-                                                                                    _array =>
-                                                                                      [
-                                                                                      ]
-                                                                                }
-                                                                              ),
-                                                                            return =>
-                                                                              $::Undef,
-                                                                        }
-                                                                      ),
-                                                                }
-                                                            ),
-                                                            ::DISPATCH(
-                                                                $::Code,
-                                                                'new',
-                                                                {
-                                                                    code =>
-                                                                      sub {
-                                                                        my $CAPTURE;
-                                                                        $CAPTURE
-                                                                          = ::DISPATCH(
-                                                                            $::Scalar,
-'new',
-                                                                            {
-                                                                                modified =>
-                                                                                  $_MODIFIED,
-                                                                                name =>
-'$CAPTURE'
-                                                                            }
-                                                                          )
-                                                                          unless
-                                                                            defined
-                                                                              $CAPTURE;
-                                                                        INIT {
-                                                                            $CAPTURE
-                                                                              = ::DISPATCH(
-                                                                                $::Scalar,
-'new',
-                                                                                {
-                                                                                    modified =>
-                                                                                      $_MODIFIED,
-                                                                                    name =>
-'$CAPTURE'
-                                                                                }
-                                                                              );
-                                                                        }
-                                                                        my $List__
-                                                                          = ::DISPATCH(
-                                                                            $::ArrayContainer,
-'new',
-                                                                            {
-                                                                                modified =>
-                                                                                  $_MODIFIED,
-                                                                                name =>
-'$List__'
-                                                                            }
-                                                                          );
-                                                                        ::DISPATCH_VAR(
-                                                                            $CAPTURE,
-"STORE",
-                                                                            ::CAPTURIZE(
-                                                                                \
-                                                                                  @_
-                                                                            )
-                                                                        );
-                                                                        ::DISPATCH_VAR(
-                                                                            $List__,
-'STORE',
-                                                                            ::DISPATCH(
-                                                                                $CAPTURE,
-'array',
-                                                                            )
-                                                                        );
-                                                                        do {
-                                                                            ::MODIFIED(
-                                                                                $Hash__
-                                                                            );
-                                                                            $Hash__
-                                                                              = ::DISPATCH(
-                                                                                $CAPTURE,
-'hash',
-                                                                              );
-                                                                        };
-                                                                        {
-                                                                            my $_param_index
-                                                                              = 0
-                                                                              ;
-                                                                        }
-                                                                        ::DISPATCH(
-                                                                            ::DISPATCH(
-                                                                                $data,
-'LOOKUP',
-                                                                                $item
-                                                                            ),
-'isa',
-                                                                            ::DISPATCH(
-                                                                                $::Str,
-'new',
-'List'
-                                                                            )
-                                                                        );
-                                                                      },
-                                                                    signature =>
-                                                                      ::DISPATCH(
-                                                                        $::Signature,
-                                                                        "new",
-                                                                        {
-                                                                            invocant =>
-                                                                              $::Undef,
-                                                                            array =>
-                                                                              ::DISPATCH(
-                                                                                $::List,
-"new",
-                                                                                {
-                                                                                    _array =>
-                                                                                      [
-                                                                                      ]
-                                                                                }
-                                                                              ),
-                                                                            return =>
-                                                                              $::Undef,
-                                                                        }
-                                                                      ),
-                                                                }
-                                                            )
-                                                        ),
+                                                                $_tmp1,
+                                                                "true"
+                                                              )->{_value}
+                                                              ? $_tmp1
+                                                              : ::DISPATCH(
+                                                                ::DISPATCH(
+                                                                    $data,
+                                                                    'LOOKUP',
+                                                                    $item
+                                                                ),
+                                                                'isa',
+                                                                ::DISPATCH(
+                                                                    $::Str,
+                                                                    'new',
+                                                                    'List'
+                                                                )
+                                                              );
+                                                        },
                                                         "true"
                                                     ),
                                                     "p5landish"

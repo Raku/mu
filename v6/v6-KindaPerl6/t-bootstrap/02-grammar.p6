@@ -72,6 +72,8 @@ ok( $MATCH.Str eq '$','sigil $');
 say "# ** now testing: <var> with \$/";
 $_ = '$/';
 my $MATCH = KindaPerl6::Grammar.var();
+say "# survived";
+say "# ",($MATCH.true);
 say "# ",($MATCH.perl);
 say "# ",($MATCH.Str);
 ok( $MATCH.Str eq "Var.new(namespace => [  ], name => '/', twigil => '', sigil => '$'))",'$/');

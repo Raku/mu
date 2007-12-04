@@ -202,6 +202,11 @@ package Main;
         $s =~ s/(\\|\')/\\$1/g;
         $s;
     }
+    sub indent {
+        my $s = shift;
+        $s =~ s/^/    /mg;
+        $s . "\n";
+    }
 
     sub Dump {
         die "Dump is not implemented";
