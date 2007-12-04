@@ -22,11 +22,14 @@ package Match;
                     #print "** LOOKUP {$what} ** \n";
                     my $r = $_[0]->{hash}{$what}; 
                     if ( ref($r) eq "ARRAY" ) {
+                        #print "return ARRAY\n";
                         return ::DISPATCH( $::Array, "new", { _array => [ @$r ] } );
                     }
                     return $r; 
                 }
                 if ( $method eq 'does' ) {
+                    return ::DISPATCH( $::Bit, 'new', 0 )
+                        if $param[0] eq $::List;   # XXX
                     my $what = ::DISPATCH( $param[0], 'Str' )->{_value};                    
                     return ::DISPATCH( $::Bit, 'new', 0 )
                         if $what eq 'Junction';
@@ -66,8 +69,10 @@ package Match;
                                 'hash => { '   
                                     . join( ' ', 
                                             map { 
-                                                    my $v = ${$self->{hash}}{ $_ };
-                                                    $_ . ' => ' . $v . ',' 
+                                                    my $k = $_;
+                                                    #my $v = ${$self->{hash}}{ $k };
+                                                    my $v = ::DISPATCH( $self, 'LOOKUP', ::DISPATCH( $::Str, 'new', $k ) );
+                                                    $k . ' => ' . ::DISPATCH( $v, 'perl' )->{_value} . ',' 
                                                 }
                                                 keys %{$self->{hash}} 
                                         ) 
