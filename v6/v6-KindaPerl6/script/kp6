@@ -304,7 +304,6 @@ $COMPILER::source_md5 = Digest->new("MD5")->add($source)->hexdigest;
 
 my $pos = 0;
 my $out;
-COMPILER::env_init();
 while ( $pos < length($source) ) {
     my $p = KindaPerl6::Grammar->comp_unit( $source, $pos );
 

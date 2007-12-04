@@ -99,7 +99,8 @@ sub get_var {
 }
 
 {
-    COMPILER::init_global;
+    COMPILER::init_global;   # export structures to Perl 6
+    COMPILER::env_init();    # create the PAD stack
 }
 
 
