@@ -312,6 +312,10 @@ sub emit_perl5 {
         else                     { }
     };
     do {
+        if   ( ( $str eq '/' ) ) { return ('\\/') }
+        else                     { }
+    };
+    do {
         if   ( ( $str eq '\\' ) ) { return ('\\\\') }
         else                      { }
     };
@@ -549,8 +553,8 @@ sub emit_perl5 {
     do { [] };
     my $meth = ( '\'$_rule_' . ( $self->{metasyntax} . '\'' ) );
     do {
-        if   ( $self->{capture_to_array} ) { ( '(?:' . ( '(??{ eval ' . ( $meth . ( ' })' . ( '(?{ ' . ( 'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture_to_array", "' . ( $self->{ident} . ( '" ]; ' . ( '})' . ')' ) ) ) ) ) ) ) ) ) }
-        else                               { ( '(?:' . ( '(??{ eval ' . ( $meth . ( ' })' . ( '(?{ ' . ( 'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "' .          ( $self->{ident} . ( '" ]; ' . ( '})' . ')' ) ) ) ) ) ) ) ) ) }
+        if   ( $self->{capture_to_array} ) { ( '(?:' . ( '(??{ eval ' . ( $meth . ( ' })' . ( '(?{ ' . ( 'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture_to_array", "' . ( $self->{metasyntax} . ( '" ]; ' . ( '})' . ')' ) ) ) ) ) ) ) ) ) }
+        else                               { ( '(?:' . ( '(??{ eval ' . ( $meth . ( ' })' . ( '(?{ ' . ( 'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "' .          ( $self->{metasyntax} . ( '" ]; ' . ( '})' . ')' ) ) ) ) ) ) ) ) ) }
         }
 }
 

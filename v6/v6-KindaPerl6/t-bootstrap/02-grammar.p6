@@ -76,7 +76,7 @@ say "# survived";
 say "# ",($MATCH.true);
 say "# ",($MATCH.perl);
 say "# ",($MATCH.Str);
-ok( $MATCH.Str eq "Var.new(namespace => [  ], name => '/', twigil => '', sigil => '$'))",'$/');
+ok( $MATCH.Str eq "Var.new(namespace => [  ], name => '/', twigil => '', sigil => '$')",'$/');
 
 
 # $var 

@@ -196,6 +196,9 @@ class Rule::Constant {
             return '\\}';
         };
 
+        if $str eq '/' {
+            return '\\/';
+        };
         if $str eq '\\' {
             return '\\\\';
         };
@@ -401,7 +404,7 @@ class Rule::Subrule {
               '(?:'
                 ~ '(??{ eval ' ~ $meth ~ ' })'
                 ~ '(?{ '
-                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture_to_array", "' ~ $.ident ~ '" ]; '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture_to_array", "' ~ $.metasyntax ~ '" ]; '
                 ~ '})'
             ~ ')'
         }
@@ -409,7 +412,7 @@ class Rule::Subrule {
               '(?:'
                 ~ '(??{ eval ' ~ $meth ~ ' })'
                 ~ '(?{ '
-                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "' ~ $.ident ~ '" ]; '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "' ~ $.metasyntax ~ '" ]; '
                 ~ '})'
             ~ ')'
         }
