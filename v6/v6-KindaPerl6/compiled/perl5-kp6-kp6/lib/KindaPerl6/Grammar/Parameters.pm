@@ -234,6 +234,7 @@
                                 $::Code, 'new',
                                 {
                                     code => sub {
+                                        print "entering 'for'\n";
                                         my $List__ = ::DISPATCH(
                                             $::ArrayContainer,
                                             'new',
@@ -349,6 +350,7 @@
                                                 );
                                             }
                                         }
+                                        print "got 'for' parameter list\n";
                                         do {
                                             if (
                                                 ::DISPATCH(
@@ -367,6 +369,8 @@
                                                 )
                                               )
                                             {
+                                                print "parameter is Var\n";
+                                                print "possible autovivification bug in ",'@($decl)',"\n";
                                                 do {
                                                     ::DISPATCH(
                                                         (
@@ -523,6 +527,7 @@
                                 }
                             )
                         );
+                        print "will add_lexicals\n";
                         ::DISPATCH( $env, 'add_lexicals', $decl );
                     },
                     signature => ::DISPATCH(
