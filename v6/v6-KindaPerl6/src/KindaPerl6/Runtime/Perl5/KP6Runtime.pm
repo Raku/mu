@@ -1,23 +1,48 @@
 
 use v5;
 
-$| = 1;
-
-use KindaPerl6::Runtime::Perl5::MOP;
-use KindaPerl6::Runtime::Perl5::MP6Runtime;
-#use KindaPerl6::Runtime::Perl5::Pad;
-use KindaPerl6::Runtime::Perl6::Pad;
-use KindaPerl6::Runtime::Perl5::Wrap;
-use KindaPerl6::Runtime::Perl5::GLOBAL;
-use KindaPerl6::Runtime::Perl5::Grammar;
-
     $Main::Code_newline = ::DISPATCH( $::Code, 'new',
-        { code => sub { ::DISPATCH( $::Str, 'new', "\n") }, src => '&Main::newline' } );
+        { 
+            code => sub { 
+                    ::DISPATCH( $::Str, 'new', "\n") 
+                }, 
+            src => '&Main::newline' 
+        } );
 
     $Main::Code_get_compiler_target_runtime = ::DISPATCH( $::Code, 'new',
         { code => sub { ::DISPATCH( $::Str, 'new', 'KindaPerl6::Runtime::Perl5::KP6Runtime') }, src => '&Main::newline' } );
 
     $Main::Code_V6_COMPILER_NAME = ::DISPATCH( $::Code, 'new', { code => sub { ::DISPATCH( $::Str, 'new', 'Bootstrapped KP6')}});
+
+    $Main::Code_mangle_name = ::DISPATCH( $::Code, 'new',
+        { 
+            code => sub { 
+                    my ($sigil, $twigil, $name, $namespace) = @_;
+                    
+                    $sigil = ::DISPATCH( $sigil, 'Str' )->{_value};
+                    $twigil = ::DISPATCH( $twigil, 'Str' )->{_value};
+                    $name = ::DISPATCH( $name, 'Str' )->{_value};
+                    $namespace = ::DISPATCH( $namespace, 'INDEX' )->{_value}{_array};
+                    
+                    #print "mangle: ($sigil, $twigil, $name, [ @$namespace ] )\n" if $namespace;
+                    $name = CORE::join( '::', @$namespace, $name ) if $namespace;
+                    $name =~ s/ ([^a-zA-Z0-9_:] | (?<!:):(?!:)) / '_'.ord($1).'_' /xge;
+                    my @name = split( /::/, $name );
+                    $name[-1] = $table{$sigil} . $name[-1];
+                    #print "name: @name \n";
+                    if  (  $twigil eq '*'
+                        && @name   == 1
+                        )
+                    {
+                        unshift @name, 'GLOBAL';
+                    }
+                    return ::DISPATCH( $::Str, 'new', 
+                                '$' . CORE::join( '::', @name )   # XXX - no twigil
+                        );   
+                }, 
+            src => '&Main::mangle_name' 
+        } );
+
 1;
 
 __END__

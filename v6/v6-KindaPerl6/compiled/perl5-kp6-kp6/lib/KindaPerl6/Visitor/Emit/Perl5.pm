@@ -8650,6 +8650,9 @@
                 {
                     code => sub {
 
+
+                        print "Var.emit_perl5\n";
+
                         # emit_declarations
                         my $table;
                         $table =
@@ -8724,6 +8727,7 @@
                                 ],
                             );
                         };
+                        print "created table\n";
                         do {
                             if (
                                 ::DISPATCH(
@@ -8746,6 +8750,7 @@
                                 )
                               )
                             {
+                                print "if...\n";
                                 do {
                                     return (
                                         ::DISPATCH(
@@ -8803,6 +8808,7 @@
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
+                        print "if 2 ...\n";
                         do {
                             if (
                                 ::DISPATCH(
@@ -8825,6 +8831,7 @@
                                 )
                               )
                             {
+                                print "if 3 ...\n";
                                 do {
                                     return (
                                         ::DISPATCH(
@@ -8881,6 +8888,7 @@
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
+                        print "if 4 ...\n";
                         do {
                             if (
                                 ::DISPATCH(
@@ -8903,6 +8911,7 @@
                                 )
                               )
                             {
+                                print "if 5 ...\n";
                                 do {
                                     return (
                                         ::DISPATCH(
@@ -8927,6 +8936,7 @@
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
+                                print "if 6 ...\n";
                         do {
                             if (
                                 ::DISPATCH(
@@ -8948,6 +8958,7 @@
                                 )
                               )
                             {
+                                print "if 7 ...\n";
                                 do {
                                     my $s;
                                     $s = ::DISPATCH(
@@ -9286,6 +9297,10 @@
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
+                        print "if 8 ...\n";
+                        
+                        print "code: ", ::DISPATCH( $Main::Code_mangle_name, 'perl' )->{_value},"\n";
+                        
                         return (
                             ::DISPATCH(
                                 (
@@ -12220,6 +12235,7 @@
                   }
             }
         };
+        print "** ADDING METHOD emit_perl5\n";
         ::DISPATCH(
             ::DISPATCH( $::Decl, 'HOW', ),
             'add_method',
@@ -12229,6 +12245,7 @@
                 {
                     code => sub {
 
+        print "** DECL.emit_perl5\n";
                         # emit_declarations
                         my $decl;
                         $decl =
@@ -12310,6 +12327,9 @@
                             $name =
                               ::DISPATCH( ::DISPATCH( $self, "var" ), 'name', );
                         };
+                        
+                        print "HAS?\n";
+                        
                         do {
                             if (
                                 ::DISPATCH(
@@ -12487,6 +12507,7 @@
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
+                        print "create...\n";
                         do {
                             ::MODIFIED($create);
                             $create = ::DISPATCH(
@@ -12516,6 +12537,7 @@
                                 )
                             );
                         };
+                        print "our?\n";
                         do {
                             if (
                                 ::DISPATCH(
@@ -13604,6 +13626,7 @@
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
+                        print "eq sigil...\n";
                         do {
                             if (
                                 ::DISPATCH(

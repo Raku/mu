@@ -75,7 +75,9 @@ sub new {
         ||  $parent->namespace;
 
     my @declarations = map {
-        $_->emit_perl5
+        print "emit_perl5: ", ::DISPATCH( $_, 'perl' )->{_value}, "\n";
+        print "emit_perl5: ", ::DISPATCH( $_, 'emit_perl5' )->{_value}, "\n";
+        ::DISPATCH( $_, 'emit_perl5' );
     } @{$data{lexicals}};
     my @names = map {
         $_->var->emit_perl5
@@ -157,9 +159,12 @@ sub emit {
 sub add_lexicals {  # [ Decl, Decl, ... ]
     my $self  = shift;
 
+    #print "add_lexicals: ", ::DISPATCH( $_[0], 'perl' )->{_value}, "\n";
+    my @lexicals = @{ ::DISPATCH( $_[0], 'INDEX' )->{_value}{_array} };
+
     # look for new lexicals only
     my @new_lexicals;
-    VARS: for my $new ( @{$_[0]} ) {
+    VARS: for my $new ( @lexicals ) {
         for my $old ( @{$self->{variable_names}} ) {
             if ( _var_eq( $new->var, $old->var ) )
             {
@@ -209,14 +214,8 @@ sub declaration { # Var
 }
 
 sub _var_eq {
-    my ( $new, $old ) = @_;
-    (  $new->name   eq $old->name
-    && $new->twigil eq $old->twigil
-    && $new->sigil  eq $old->sigil
-
-    && join( '::', @{$new->namespace} ) eq join( '::', @{$old->namespace} )
-
-    )
+    my ( $new, $old ) = @_;    
+    ::DISPATCH( $new, 'perl' )->{_value} eq ::DISPATCH( $old, 'perl' )->{_value}
 }
 
 # returns a hashref with names of variables that were modified with .STORE or .BIND

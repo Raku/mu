@@ -61,6 +61,7 @@ use KindaPerl6::Runtime::Perl6::Grammar;
 use KindaPerl6::Grammar;
 use KindaPerl6::Ast;
 use KindaPerl6::Runtime::Perl5::Compiler;
+use KindaPerl6::Runtime::Perl5::KP6Runtime;
 
 1;
 
