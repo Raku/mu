@@ -11,6 +11,7 @@
 <li><a href="#howto">How to...</a>
 <li><a href="http://dev.pugscode.org/browser/v6/v6-KindaPerl6/docs/bookmarks.html">Useful book marks</a>
 <li><a href="#huh">Huh? ** 2  (huh? squared)</a>
+<li><a href="#trees">Cannot see the forest for the trees.</a>
 </ul>
 
 <hr>
@@ -86,6 +87,33 @@ links make for good reading... before you read the perl6 documentation.
 The perl5 code that pulls off this feature: <a href="http://search.cpan.org/dist/Class-Prototyped/lib/Class/Prototyped.pm">http://search.cpan.org/dist/Class-Prototyped/lib/Class/Prototyped.pm</a>.
 <li>Objects (Autoboxing is interesting): <a href="http://en.wikipedia.org/wiki/Autoboxing#Autoboxing">http://en.wikipedia.org/wiki/Autoboxing#Autoboxing</a>
 </ul>
+
+<li><a name="trees">Cannot see the forest for the trees.</a>
+<p>One of the things that got me early on, was that I could not see the big
+picture.
+<p>So, here it goes.  mp6.pl (miniperl6) is used to compile/translate some of
+the KP6 perl6 code into perl5 code.   The resulting perl5 code is used to
+provide a run time enviroment for code (a script or a one liner) translated by
+kp6 (script/kp6) into perl5 code.
+
+<p>Urk!.  That translates into this.
+<ol>
+
+<li>Compile kp6 (written in perl6) libraries (src/KindaPerl6/Runtime/Perl6/*.pm)
+using miniperl6 to provide a run time foundation for code compiled by script/kp6.
+<i>These go into lib/compiled-kp6-mp6/KindaPerl6/Runtime/* ..</i>.
+<p>These libraries provide an emulation of the perl6 enviroment.
+<p>Miniperl6 converts only a small subset of perl6 into perl5 code.
+
+<li>Compile a script or a one liner via script/kp6.  <p>For example, if you
+compile test.pl (perl6) via <b>perl script/kp6 -o perl5code.pl test.pl</b>.
+<p><i> -o [output file.pl]</i>
+<p><i> test.pl is the perl6 code</i>
+
+<li>Execute the resulting perl5code.pl using the lib/compiled-kp6-mp6/...
+libraries to emulate the perl6 enviroment, which is class creation, variable
+allocation, inheritance, etc...
+</ol>
 
 </body>
 </html>
