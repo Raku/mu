@@ -1,5 +1,6 @@
 
 use v5;
+use strict;
 
     $Main::Code_newline = ::DISPATCH( $::Code, 'new',
         { 
@@ -14,6 +15,12 @@ use v5;
 
     $Main::Code_V6_COMPILER_NAME = ::DISPATCH( $::Code, 'new', { code => sub { ::DISPATCH( $::Str, 'new', 'Bootstrapped KP6')}});
 
+        my %table = (
+            '$' => '',
+            '@' => 'List_',
+            '%' => 'Hash_',
+            '&' => 'Code_',
+        );
     $Main::Code_mangle_name = ::DISPATCH( $::Code, 'new',
         { 
             code => sub { 
