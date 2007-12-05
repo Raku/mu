@@ -6852,9 +6852,72 @@
                                     ),
                                     'APPLY',
                                     ::DISPATCH(
-                                        $::Str,
-                                        'new',
-'\\\'$\\\'.$GLOBAL::_Class.\\\'::_regex_'
+                                        (
+                                            $GLOBAL::Code_infix_58__60__126__62_
+                                              = $GLOBAL::Code_infix_58__60__126__62_
+                                              || ::DISPATCH( $::Routine, "new",
+                                              )
+                                        ),
+                                        'APPLY',
+                                        ::DISPATCH( $::Str, 'new', chr(39) ),
+                                        ::DISPATCH(
+                                            (
+                                                $GLOBAL::Code_infix_58__60__126__62_
+                                                  = $GLOBAL::Code_infix_58__60__126__62_
+                                                  || ::DISPATCH(
+                                                    $::Routine, "new",
+                                                  )
+                                            ),
+                                            'APPLY',
+                                            ::DISPATCH( $::Str, 'new', '$' ),
+                                            ::DISPATCH(
+                                                (
+                                                    $GLOBAL::Code_infix_58__60__126__62_
+                                                      = $GLOBAL::Code_infix_58__60__126__62_
+                                                      || ::DISPATCH(
+                                                        $::Routine, "new",
+                                                      )
+                                                ),
+                                                'APPLY',
+                                                ::DISPATCH(
+                                                    $::Str, 'new', chr(39)
+                                                ),
+                                                ::DISPATCH(
+                                                    (
+                                                        $GLOBAL::Code_infix_58__60__126__62_
+                                                          = $GLOBAL::Code_infix_58__60__126__62_
+                                                          || ::DISPATCH(
+                                                            $::Routine, "new",
+                                                          )
+                                                    ),
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $::Str, 'new',
+                                                        '.$GLOBAL::_Class.'
+                                                    ),
+                                                    ::DISPATCH(
+                                                        (
+                                                            $GLOBAL::Code_infix_58__60__126__62_
+                                                              = $GLOBAL::Code_infix_58__60__126__62_
+                                                              || ::DISPATCH(
+                                                                $::Routine,
+                                                                "new",
+                                                              )
+                                                        ),
+                                                        'APPLY',
+                                                        ::DISPATCH(
+                                                            $::Str, 'new',
+                                                            chr(39)
+                                                        ),
+                                                        ::DISPATCH(
+                                                            $::Str,
+                                                            'new',
+                                                            '::_regex_'
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                        )
                                     ),
                                     ::DISPATCH(
                                         (
@@ -6865,7 +6928,7 @@
                                         ),
                                         'APPLY',
                                         ::DISPATCH( $self, "metasyntax" ),
-                                        ::DISPATCH( $::Str, 'new', '\\\'' )
+                                        ::DISPATCH( $::Str, 'new', chr(39) )
                                     )
                                 )
                             );

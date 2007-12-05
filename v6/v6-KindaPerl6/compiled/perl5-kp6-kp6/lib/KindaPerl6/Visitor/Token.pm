@@ -2164,9 +2164,23 @@
                                                 ),
                                                 'APPLY',
                                                 ::DISPATCH(
-                                                    $::Str,
-                                                    'new',
-'if $m2 { $MATCH.to = ($m2.to + 0); $MATCH{\\\''
+                                                    (
+                                                        $GLOBAL::Code_infix_58__60__126__62_
+                                                          = $GLOBAL::Code_infix_58__60__126__62_
+                                                          || ::DISPATCH(
+                                                            $::Routine, "new",
+                                                          )
+                                                    ),
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $::Str,
+                                                        'new',
+'if $m2 { $MATCH.to = ($m2.to + 0); $MATCH{'
+                                                    ),
+                                                    ::DISPATCH(
+                                                        $::Str, 'new',
+                                                        chr(39)
+                                                    )
                                                 ),
                                                 ::DISPATCH(
                                                     (
@@ -2191,9 +2205,25 @@
                                                         ),
                                                         'APPLY',
                                                         ::DISPATCH(
-                                                            $::Str,
-                                                            'new',
-'\\\'} = $m2; 1 } else { 0 } '
+                                                            (
+                                                                $GLOBAL::Code_infix_58__60__126__62_
+                                                                  = $GLOBAL::Code_infix_58__60__126__62_
+                                                                  || ::DISPATCH(
+                                                                    $::Routine,
+                                                                    "new",
+                                                                  )
+                                                            ),
+                                                            'APPLY',
+                                                            ::DISPATCH(
+                                                                $::Str,
+                                                                'new',
+                                                                chr(39)
+                                                            ),
+                                                            ::DISPATCH(
+                                                                $::Str,
+                                                                'new',
+'} = $m2; 1 } else { 0 } '
+                                                            )
                                                         ),
                                                         ::DISPATCH(
                                                             $::Str, 'new',
@@ -2910,9 +2940,37 @@
                             ),
                             'APPLY',
                             ::DISPATCH(
-                                $::Str,
-                                'new',
-'do { if (\\\'\\\' ne substr( $str, $MATCH.to, 1 )) {'
+                                (
+                                    $GLOBAL::Code_infix_58__60__126__62_ =
+                                      $GLOBAL::Code_infix_58__60__126__62_
+                                      || ::DISPATCH( $::Routine, "new", )
+                                ),
+                                'APPLY',
+                                ::DISPATCH( $::Str, 'new', 'do { if (' ),
+                                ::DISPATCH(
+                                    (
+                                        $GLOBAL::Code_infix_58__60__126__62_ =
+                                          $GLOBAL::Code_infix_58__60__126__62_
+                                          || ::DISPATCH( $::Routine, "new", )
+                                    ),
+                                    'APPLY',
+                                    ::DISPATCH( $::Str, 'new', chr(39) ),
+                                    ::DISPATCH(
+                                        (
+                                            $GLOBAL::Code_infix_58__60__126__62_
+                                              = $GLOBAL::Code_infix_58__60__126__62_
+                                              || ::DISPATCH( $::Routine, "new",
+                                              )
+                                        ),
+                                        'APPLY',
+                                        ::DISPATCH( $::Str, 'new', chr(39) ),
+                                        ::DISPATCH(
+                                            $::Str,
+                                            'new',
+' ne substr( $str, $MATCH.to, 1 )) {'
+                                        )
+                                    )
+                                )
                             ),
                             ::DISPATCH(
                                 (

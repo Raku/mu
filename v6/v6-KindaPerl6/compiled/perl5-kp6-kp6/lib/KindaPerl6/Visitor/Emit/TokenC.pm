@@ -1730,7 +1730,16 @@
                                 ),
                                 'APPLY',
                                 ::DISPATCH( $self, "closure" ),
-                                ::DISPATCH( $::Str, 'new', '\\n")' )
+                                ::DISPATCH(
+                                    (
+                                        $GLOBAL::Code_infix_58__60__126__62_ =
+                                          $GLOBAL::Code_infix_58__60__126__62_
+                                          || ::DISPATCH( $::Routine, "new", )
+                                    ),
+                                    'APPLY',
+                                    ::DISPATCH( $::Str, 'new', chr(92) ),
+                                    ::DISPATCH( $::Str, 'new', 'n")' )
+                                )
                             )
                         );
                     },
@@ -2237,8 +2246,27 @@
                         { my $_param_index = 0; }
 
                         # emit_body
-                        ::DISPATCH( $::Str, 'new',
-                            'printf("Rule::Dot stub\\n")' );
+                        ::DISPATCH(
+                            (
+                                $GLOBAL::Code_infix_58__60__126__62_ =
+                                  $GLOBAL::Code_infix_58__60__126__62_
+                                  || ::DISPATCH( $::Routine, "new", )
+                            ),
+                            'APPLY',
+                            ::DISPATCH(
+                                $::Str, 'new', 'printf("Rule::Dot stub'
+                            ),
+                            ::DISPATCH(
+                                (
+                                    $GLOBAL::Code_infix_58__60__126__62_ =
+                                      $GLOBAL::Code_infix_58__60__126__62_
+                                      || ::DISPATCH( $::Routine, "new", )
+                                ),
+                                'APPLY',
+                                ::DISPATCH( $::Str, 'new', chr(92) ),
+                                ::DISPATCH( $::Str, 'new', 'n")' )
+                            )
+                        );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
@@ -2371,8 +2399,28 @@
                         { my $_param_index = 0; }
 
                         # emit_body
-                        ::DISPATCH( $::Str, 'new',
-                            'printf("Rule::SpecialChar stub\\n")' );
+                        ::DISPATCH(
+                            (
+                                $GLOBAL::Code_infix_58__60__126__62_ =
+                                  $GLOBAL::Code_infix_58__60__126__62_
+                                  || ::DISPATCH( $::Routine, "new", )
+                            ),
+                            'APPLY',
+                            ::DISPATCH(
+                                $::Str, 'new',
+                                'printf("Rule::SpecialChar stub'
+                            ),
+                            ::DISPATCH(
+                                (
+                                    $GLOBAL::Code_infix_58__60__126__62_ =
+                                      $GLOBAL::Code_infix_58__60__126__62_
+                                      || ::DISPATCH( $::Routine, "new", )
+                                ),
+                                'APPLY',
+                                ::DISPATCH( $::Str, 'new', chr(92) ),
+                                ::DISPATCH( $::Str, 'new', 'n")' )
+                            )
+                        );
                     },
                     signature => ::DISPATCH(
                         $::Signature,

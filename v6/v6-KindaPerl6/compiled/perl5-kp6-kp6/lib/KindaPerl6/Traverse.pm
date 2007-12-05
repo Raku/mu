@@ -597,7 +597,8 @@
                                                                 ::DISPATCH(
                                                                     $::Int,
                                                                     'new',
-                                                                    $_param_index++
+                                                                    $_param_index
+                                                                      ++
                                                                 )
                                                               );
                                                         }
@@ -931,7 +932,8 @@
                                                                 ::DISPATCH(
                                                                     $::Int,
                                                                     'new',
-                                                                    $_param_index++
+                                                                    $_param_index
+                                                                      ++
                                                                 )
                                                               );
                                                         }

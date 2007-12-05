@@ -375,12 +375,12 @@ class Rule::SubruleNoCapture {
         #    !! ( '\'$\'.$GLOBAL::_Class.\'::_rule_' ~ $.metasyntax ~ '\'' );
         
         # XXX - Temporary hack
-        my $meth := '\'$' ~ Main::mangle_perl5rx_metasyntax( $.metasyntax ) ~ '\'';
+        my $meth := '$' ~ Main::mangle_perl5rx_metasyntax( $.metasyntax );
 
         # XXX - param passing
         
           '(?:'
-            ~ '(??{ eval ' ~ $meth ~ ' })'
+            ~ '(??{ ' ~ $meth ~ ' })'
             ~ '(?{ '
             ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; '
             ~ '})'
@@ -396,13 +396,13 @@ class Rule::Subrule {
         #    !! ( '\'$\'.$GLOBAL::_Class.\'::_rule_' ~ $.metasyntax ~ '\'' );
         
         # XXX - Temporary hack
-        my $meth := '\'$' ~ Main::mangle_perl5rx_metasyntax( $.metasyntax ) ~ '\'';
+        my $meth := '$' ~ Main::mangle_perl5rx_metasyntax( $.metasyntax );
 
         # XXX - named capture; param passing
         
         if $.capture_to_array {
               '(?:'
-                ~ '(??{ eval ' ~ $meth ~ ' })'
+                ~ '(??{ ' ~ $meth ~ ' })'
                 ~ '(?{ '
                 ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture_to_array", "' ~ $.metasyntax ~ '" ]; '
                 ~ '})'
@@ -410,7 +410,7 @@ class Rule::Subrule {
         }
         else {    
               '(?:'
-                ~ '(??{ eval ' ~ $meth ~ ' })'
+                ~ '(??{ ' ~ $meth ~ ' })'
                 ~ '(?{ '
                 ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "' ~ $.metasyntax ~ '" ]; '
                 ~ '})'

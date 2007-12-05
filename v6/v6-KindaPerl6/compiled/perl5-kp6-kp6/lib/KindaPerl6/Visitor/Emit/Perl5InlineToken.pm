@@ -337,9 +337,61 @@
                                     ),
                                     'APPLY',
                                     ::DISPATCH(
-                                        $::Str,
-                                        'new',
-';use Inline C => Config,STRUCTS=>["match"];use Inline C => `cat "lib/KindaPerl6/Runtime/C/match.h"`.<<\\\'END\\\';'
+                                        (
+                                            $GLOBAL::Code_infix_58__60__126__62_
+                                              = $GLOBAL::Code_infix_58__60__126__62_
+                                              || ::DISPATCH( $::Routine, "new",
+                                              )
+                                        ),
+                                        'APPLY',
+                                        ::DISPATCH(
+                                            $::Str,
+                                            'new',
+';use Inline C => Config,STRUCTS=>["match"];use Inline C => `cat "lib/KindaPerl6/Runtime/C/match.h"`.<<'
+                                        ),
+                                        ::DISPATCH(
+                                            (
+                                                $GLOBAL::Code_infix_58__60__126__62_
+                                                  = $GLOBAL::Code_infix_58__60__126__62_
+                                                  || ::DISPATCH(
+                                                    $::Routine, "new",
+                                                  )
+                                            ),
+                                            'APPLY',
+                                            ::DISPATCH(
+                                                $::Str, 'new', chr(39)
+                                            ),
+                                            ::DISPATCH(
+                                                (
+                                                    $GLOBAL::Code_infix_58__60__126__62_
+                                                      = $GLOBAL::Code_infix_58__60__126__62_
+                                                      || ::DISPATCH(
+                                                        $::Routine, "new",
+                                                      )
+                                                ),
+                                                'APPLY',
+                                                ::DISPATCH(
+                                                    $::Str, 'new', 'END'
+                                                ),
+                                                ::DISPATCH(
+                                                    (
+                                                        $GLOBAL::Code_infix_58__60__126__62_
+                                                          = $GLOBAL::Code_infix_58__60__126__62_
+                                                          || ::DISPATCH(
+                                                            $::Routine, "new",
+                                                          )
+                                                    ),
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $::Str, 'new',
+                                                        chr(39)
+                                                    ),
+                                                    ::DISPATCH(
+                                                        $::Str, 'new', ';'
+                                                    )
+                                                )
+                                            )
+                                        )
                                     ),
                                     ::DISPATCH(
                                         (
@@ -608,9 +660,19 @@
                                     ),
                                     'APPLY',
                                     ::DISPATCH(
-                                        $::Str,
-                                        'new',
-',"HOW"),"add_method",::DISPATCH($::Str,"new",\\\''
+                                        (
+                                            $GLOBAL::Code_infix_58__60__126__62_
+                                              = $GLOBAL::Code_infix_58__60__126__62_
+                                              || ::DISPATCH( $::Routine, "new",
+                                              )
+                                        ),
+                                        'APPLY',
+                                        ::DISPATCH(
+                                            $::Str,
+                                            'new',
+',"HOW"),"add_method",::DISPATCH($::Str,"new",'
+                                        ),
+                                        ::DISPATCH( $::Str, 'new', chr(39) )
                                     ),
                                     ::DISPATCH(
                                         (
@@ -631,9 +693,22 @@
                                             ),
                                             'APPLY',
                                             ::DISPATCH(
-                                                $::Str,
-                                                'new',
-'\\\'),::DISPATCH($::Method,"new",sub {my $match = '
+                                                (
+                                                    $GLOBAL::Code_infix_58__60__126__62_
+                                                      = $GLOBAL::Code_infix_58__60__126__62_
+                                                      || ::DISPATCH(
+                                                        $::Routine, "new",
+                                                      )
+                                                ),
+                                                'APPLY',
+                                                ::DISPATCH(
+                                                    $::Str, 'new', chr(39)
+                                                ),
+                                                ::DISPATCH(
+                                                    $::Str,
+                                                    'new',
+'),::DISPATCH($::Method,"new",sub {my $match = '
+                                                )
                                             ),
                                             ::DISPATCH(
                                                 (

@@ -1550,7 +1550,7 @@
                                                             }
                                                           )
                                                           unless
-                                                            defined $CAPTURE;
+                                                          defined $CAPTURE;
                                                         INIT {
                                                             $CAPTURE =
                                                               ::DISPATCH(
@@ -1787,7 +1787,8 @@
                                                                 ::DISPATCH(
                                                                     $::Int,
                                                                     'new',
-                                                                    $_param_index++
+                                                                    $_param_index
+                                                                      ++
                                                                 )
                                                             );
                                                         }
@@ -1831,7 +1832,7 @@
                                                                     }
                                                                   )
                                                                   unless
-                                                                    defined $s;
+                                                                  defined $s;
                                                                 INIT {
                                                                     $s =
                                                                       ::DISPATCH(
@@ -1930,8 +1931,8 @@
                                                                                     }
                                                                                   )
                                                                                   unless
-                                                                                    defined
-                                                                                      $sym;
+                                                                                  defined
+                                                                                  $sym;
                                                                                 INIT
                                                                                 {
                                                                                     $sym
@@ -1962,8 +1963,8 @@
                                                                                     }
                                                                                   )
                                                                                   unless
-                                                                                    defined
-                                                                                      $CAPTURE;
+                                                                                  defined
+                                                                                  $CAPTURE;
                                                                                 INIT
                                                                                 {
                                                                                     $CAPTURE
@@ -2096,7 +2097,8 @@
                                                                                             ::DISPATCH(
                                                                                                 $::Int,
 'new',
-                                                                                                $_param_index++
+                                                                                                $_param_index
+                                                                                                  ++
                                                                                             )
                                                                                           )
                                                                                           ;

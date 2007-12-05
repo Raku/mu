@@ -467,7 +467,8 @@
                                                                 ::DISPATCH(
                                                                     $::Int,
                                                                     'new',
-                                                                    $_param_index++
+                                                                    $_param_index
+                                                                      ++
                                                                 )
                                                               );
                                                         }
@@ -1247,7 +1248,7 @@
                                                                     }
                                                                   )
                                                                   unless defined
-                                                                      $subitem;
+                                                                  $subitem;
                                                                 INIT {
                                                                     $subitem =
                                                                       ::DISPATCH(
@@ -1350,8 +1351,8 @@
                                                                                     }
                                                                                   )
                                                                                   unless
-                                                                                    defined
-                                                                                      $subitem;
+                                                                                  defined
+                                                                                  $subitem;
                                                                                 INIT
                                                                                 {
                                                                                     $subitem
@@ -1382,8 +1383,8 @@
                                                                                     }
                                                                                   )
                                                                                   unless
-                                                                                    defined
-                                                                                      $CAPTURE;
+                                                                                  defined
+                                                                                  $CAPTURE;
                                                                                 INIT
                                                                                 {
                                                                                     $CAPTURE
@@ -1516,7 +1517,8 @@
                                                                                             ::DISPATCH(
                                                                                                 $::Int,
 'new',
-                                                                                                $_param_index++
+                                                                                                $_param_index
+                                                                                                  ++
                                                                                             )
                                                                                           )
                                                                                           ;

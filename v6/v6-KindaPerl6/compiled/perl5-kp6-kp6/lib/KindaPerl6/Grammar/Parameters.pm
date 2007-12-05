@@ -71,7 +71,6 @@
                 $::Code, 'new',
                 {
                     code => sub {
-                        print "entering declare_parameters\n";
                         my $decl;
                         $decl =
                           ::DISPATCH( $::Scalar, 'new',
@@ -128,16 +127,13 @@
                         my $List__ =
                           ::DISPATCH( $::ArrayContainer, 'new',
                             { modified => $_MODIFIED, name => '$List__' } );
-                        print "calling CAPTURIZE\n";
                         ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
-                        print "returned from CAPTURIZE\n";
                         ::DISPATCH_VAR( $List__, 'STORE',
                             ::DISPATCH( $CAPTURE, 'array', ) );
                         do {
                             ::MODIFIED($Hash__);
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
-                        print "got named and positionals\n";
                         {
                             my $_param_index = 0;
                             if (
@@ -219,7 +215,6 @@
                         }
                         $decl;
                         $var;
-                        print "entering parameter sub\n";
                         ::DISPATCH(
                             ::DISPATCH(
                                 (
@@ -234,7 +229,6 @@
                                 $::Code, 'new',
                                 {
                                     code => sub {
-                                        print "entering 'for'\n";
                                         my $List__ = ::DISPATCH(
                                             $::ArrayContainer,
                                             'new',
@@ -350,7 +344,6 @@
                                                 );
                                             }
                                         }
-                                        print "got 'for' parameter list\n";
                                         do {
                                             if (
                                                 ::DISPATCH(
@@ -369,8 +362,6 @@
                                                 )
                                               )
                                             {
-                                                print "parameter is Var\n";
-                                                print "possible autovivification bug in ",'@($decl)',"\n";
                                                 do {
                                                     ::DISPATCH(
                                                         (
@@ -527,7 +518,6 @@
                                 }
                             )
                         );
-                        print "will add_lexicals\n";
                         ::DISPATCH( $env, 'add_lexicals', $decl );
                     },
                     signature => ::DISPATCH(
@@ -615,7 +605,8 @@
         do {
             use vars qw($_rule_exp_parameter_named);
             INIT {
-                $_rule_exp_parameter_named = qr (?{ 
+                $_rule_exp_parameter_named = qr 
+    (?{ 
         local $GLOBAL::_M = [ $GLOBAL::_M, 'create', pos(), \$_ ]; 
         $GLOBAL::_M2 = $GLOBAL::_M; 
     })
@@ -779,7 +770,8 @@
         do {
             use vars qw($_rule_exp_parameter_item);
             INIT {
-                $_rule_exp_parameter_item = qr (?{ 
+                $_rule_exp_parameter_item = qr 
+    (?{ 
         local $GLOBAL::_M = [ $GLOBAL::_M, 'create', pos(), \$_ ]; 
         $GLOBAL::_M2 = $GLOBAL::_M; 
     })
@@ -882,7 +874,8 @@
         do {
             use vars qw($_rule_exp_parameter_list);
             INIT {
-                $_rule_exp_parameter_list = qr (?{ 
+                $_rule_exp_parameter_list = qr 
+    (?{ 
         local $GLOBAL::_M = [ $GLOBAL::_M, 'create', pos(), \$_ ]; 
         $GLOBAL::_M2 = $GLOBAL::_M; 
     })

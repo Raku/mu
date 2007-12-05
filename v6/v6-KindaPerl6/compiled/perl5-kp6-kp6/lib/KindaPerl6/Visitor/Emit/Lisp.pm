@@ -492,9 +492,39 @@
                                                 ),
                                                 'APPLY',
                                                 ::DISPATCH(
-                                                    $::Str,
-                                                    'new',
-'  (when (null (find-package \\\'kp6-lisp))'
+                                                    (
+                                                        $GLOBAL::Code_infix_58__60__126__62_
+                                                          = $GLOBAL::Code_infix_58__60__126__62_
+                                                          || ::DISPATCH(
+                                                            $::Routine, "new",
+                                                          )
+                                                    ),
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $::Str,
+                                                        'new',
+'  (when (null (find-package '
+                                                    ),
+                                                    ::DISPATCH(
+                                                        (
+                                                            $GLOBAL::Code_infix_58__60__126__62_
+                                                              = $GLOBAL::Code_infix_58__60__126__62_
+                                                              || ::DISPATCH(
+                                                                $::Routine,
+                                                                "new",
+                                                              )
+                                                        ),
+                                                        'APPLY',
+                                                        ::DISPATCH(
+                                                            $::Str, 'new',
+                                                            chr(39)
+                                                        ),
+                                                        ::DISPATCH(
+                                                            $::Str,
+                                                            'new',
+                                                            'kp6-lisp))'
+                                                        )
+                                                    )
                                                 ),
                                                 ::DISPATCH(
                                                     (
@@ -2826,9 +2856,26 @@
                             ),
                             'APPLY',
                             ::DISPATCH(
-                                $::Str,
-                                'new',
-                                '(make-instance \\\'kp6-Char :value (code-char '
+                                (
+                                    $GLOBAL::Code_infix_58__60__126__62_ =
+                                      $GLOBAL::Code_infix_58__60__126__62_
+                                      || ::DISPATCH( $::Routine, "new", )
+                                ),
+                                'APPLY',
+                                ::DISPATCH( $::Str, 'new', '(make-instance ' ),
+                                ::DISPATCH(
+                                    (
+                                        $GLOBAL::Code_infix_58__60__126__62_ =
+                                          $GLOBAL::Code_infix_58__60__126__62_
+                                          || ::DISPATCH( $::Routine, "new", )
+                                    ),
+                                    'APPLY',
+                                    ::DISPATCH( $::Str, 'new', chr(39) ),
+                                    ::DISPATCH(
+                                        $::Str, 'new',
+                                        'kp6-Char :value (code-char '
+                                    )
+                                )
                             ),
                             ::DISPATCH(
                                 (
@@ -3453,9 +3500,28 @@
                                 'APPLY',
                                 $interpreter,
                                 ::DISPATCH(
-                                    $::Str,
-                                    'new',
-' \\\'kp6-not-implemented :feature "literal objects")'
+                                    (
+                                        $GLOBAL::Code_infix_58__60__126__62_ =
+                                          $GLOBAL::Code_infix_58__60__126__62_
+                                          || ::DISPATCH( $::Routine, "new", )
+                                    ),
+                                    'APPLY',
+                                    ::DISPATCH( $::Str, 'new', ' ' ),
+                                    ::DISPATCH(
+                                        (
+                                            $GLOBAL::Code_infix_58__60__126__62_
+                                              = $GLOBAL::Code_infix_58__60__126__62_
+                                              || ::DISPATCH( $::Routine, "new",
+                                              )
+                                        ),
+                                        'APPLY',
+                                        ::DISPATCH( $::Str, 'new', chr(39) ),
+                                        ::DISPATCH(
+                                            $::Str,
+                                            'new',
+'kp6-not-implemented :feature "literal objects")'
+                                        )
+                                    )
                                 )
                             )
                         );
@@ -3764,9 +3830,28 @@
                                 'APPLY',
                                 $interpreter,
                                 ::DISPATCH(
-                                    $::Str,
-                                    'new',
-' \\\'kp6-not-implemented :feature "Native::Buf objects")'
+                                    (
+                                        $GLOBAL::Code_infix_58__60__126__62_ =
+                                          $GLOBAL::Code_infix_58__60__126__62_
+                                          || ::DISPATCH( $::Routine, "new", )
+                                    ),
+                                    'APPLY',
+                                    ::DISPATCH( $::Str, 'new', ' ' ),
+                                    ::DISPATCH(
+                                        (
+                                            $GLOBAL::Code_infix_58__60__126__62_
+                                              = $GLOBAL::Code_infix_58__60__126__62_
+                                              || ::DISPATCH( $::Routine, "new",
+                                              )
+                                        ),
+                                        'APPLY',
+                                        ::DISPATCH( $::Str, 'new', chr(39) ),
+                                        ::DISPATCH(
+                                            $::Str,
+                                            'new',
+'kp6-not-implemented :feature "Native::Buf objects")'
+                                        )
+                                    )
                                 )
                             )
                         );
@@ -5134,8 +5219,26 @@
                             ),
                             'APPLY',
                             ::DISPATCH(
-                                $::Str, 'new',
-                                '(let ((hash (make-instance \\\'kp6-Hash)))'
+                                (
+                                    $GLOBAL::Code_infix_58__60__126__62_ =
+                                      $GLOBAL::Code_infix_58__60__126__62_
+                                      || ::DISPATCH( $::Routine, "new", )
+                                ),
+                                'APPLY',
+                                ::DISPATCH(
+                                    $::Str, 'new',
+                                    '(let ((hash (make-instance '
+                                ),
+                                ::DISPATCH(
+                                    (
+                                        $GLOBAL::Code_infix_58__60__126__62_ =
+                                          $GLOBAL::Code_infix_58__60__126__62_
+                                          || ::DISPATCH( $::Routine, "new", )
+                                    ),
+                                    'APPLY',
+                                    ::DISPATCH( $::Str, 'new', chr(39) ),
+                                    ::DISPATCH( $::Str, 'new', 'kp6-Hash)))' )
+                                )
                             ),
                             ::DISPATCH(
                                 (
@@ -5813,9 +5916,54 @@
                             ),
                             'APPLY',
                             ::DISPATCH(
-                                $::Str,
-                                'new',
-'(make-kp6-argument \\\'named (make-instance \\\'kp6-pair :key '
+                                (
+                                    $GLOBAL::Code_infix_58__60__126__62_ =
+                                      $GLOBAL::Code_infix_58__60__126__62_
+                                      || ::DISPATCH( $::Routine, "new", )
+                                ),
+                                'APPLY',
+                                ::DISPATCH(
+                                    $::Str, 'new', '(make-kp6-argument '
+                                ),
+                                ::DISPATCH(
+                                    (
+                                        $GLOBAL::Code_infix_58__60__126__62_ =
+                                          $GLOBAL::Code_infix_58__60__126__62_
+                                          || ::DISPATCH( $::Routine, "new", )
+                                    ),
+                                    'APPLY',
+                                    ::DISPATCH( $::Str, 'new', chr(39) ),
+                                    ::DISPATCH(
+                                        (
+                                            $GLOBAL::Code_infix_58__60__126__62_
+                                              = $GLOBAL::Code_infix_58__60__126__62_
+                                              || ::DISPATCH( $::Routine, "new",
+                                              )
+                                        ),
+                                        'APPLY',
+                                        ::DISPATCH(
+                                            $::Str, 'new',
+                                            'named (make-instance '
+                                        ),
+                                        ::DISPATCH(
+                                            (
+                                                $GLOBAL::Code_infix_58__60__126__62_
+                                                  = $GLOBAL::Code_infix_58__60__126__62_
+                                                  || ::DISPATCH(
+                                                    $::Routine, "new",
+                                                  )
+                                            ),
+                                            'APPLY',
+                                            ::DISPATCH(
+                                                $::Str, 'new', chr(39)
+                                            ),
+                                            ::DISPATCH(
+                                                $::Str, 'new',
+                                                'kp6-pair :key '
+                                            )
+                                        )
+                                    )
+                                )
                             ),
                             ::DISPATCH(
                                 (
@@ -6150,9 +6298,54 @@
                             ),
                             'APPLY',
                             ::DISPATCH(
-                                $::Str,
-                                'new',
-'(make-kp6-argument \\\'named (make-instance \\\'kp6-pair :key '
+                                (
+                                    $GLOBAL::Code_infix_58__60__126__62_ =
+                                      $GLOBAL::Code_infix_58__60__126__62_
+                                      || ::DISPATCH( $::Routine, "new", )
+                                ),
+                                'APPLY',
+                                ::DISPATCH(
+                                    $::Str, 'new', '(make-kp6-argument '
+                                ),
+                                ::DISPATCH(
+                                    (
+                                        $GLOBAL::Code_infix_58__60__126__62_ =
+                                          $GLOBAL::Code_infix_58__60__126__62_
+                                          || ::DISPATCH( $::Routine, "new", )
+                                    ),
+                                    'APPLY',
+                                    ::DISPATCH( $::Str, 'new', chr(39) ),
+                                    ::DISPATCH(
+                                        (
+                                            $GLOBAL::Code_infix_58__60__126__62_
+                                              = $GLOBAL::Code_infix_58__60__126__62_
+                                              || ::DISPATCH( $::Routine, "new",
+                                              )
+                                        ),
+                                        'APPLY',
+                                        ::DISPATCH(
+                                            $::Str, 'new',
+                                            'named (make-instance '
+                                        ),
+                                        ::DISPATCH(
+                                            (
+                                                $GLOBAL::Code_infix_58__60__126__62_
+                                                  = $GLOBAL::Code_infix_58__60__126__62_
+                                                  || ::DISPATCH(
+                                                    $::Routine, "new",
+                                                  )
+                                            ),
+                                            'APPLY',
+                                            ::DISPATCH(
+                                                $::Str, 'new', chr(39)
+                                            ),
+                                            ::DISPATCH(
+                                                $::Str, 'new',
+                                                'kp6-pair :key '
+                                            )
+                                        )
+                                    )
+                                )
                             ),
                             ::DISPATCH(
                                 (
@@ -8053,9 +8246,32 @@
                                     'APPLY',
                                     $interpreter,
                                     ::DISPATCH(
-                                        $::Str,
-                                        'new',
-' \\\'kp6-not-implemented :feature "literal objects")'
+                                        (
+                                            $GLOBAL::Code_infix_58__60__126__62_
+                                              = $GLOBAL::Code_infix_58__60__126__62_
+                                              || ::DISPATCH( $::Routine, "new",
+                                              )
+                                        ),
+                                        'APPLY',
+                                        ::DISPATCH( $::Str, 'new', ' ' ),
+                                        ::DISPATCH(
+                                            (
+                                                $GLOBAL::Code_infix_58__60__126__62_
+                                                  = $GLOBAL::Code_infix_58__60__126__62_
+                                                  || ::DISPATCH(
+                                                    $::Routine, "new",
+                                                  )
+                                            ),
+                                            'APPLY',
+                                            ::DISPATCH(
+                                                $::Str, 'new', chr(39)
+                                            ),
+                                            ::DISPATCH(
+                                                $::Str,
+                                                'new',
+'kp6-not-implemented :feature "literal objects")'
+                                            )
+                                        )
                                     )
                                 )
                             )
@@ -9469,9 +9685,28 @@
                                 'APPLY',
                                 $interpreter,
                                 ::DISPATCH(
-                                    $::Str,
-                                    'new',
-' \\\'kp6-not-implemented :feature "assigning to anything other than variables")'
+                                    (
+                                        $GLOBAL::Code_infix_58__60__126__62_ =
+                                          $GLOBAL::Code_infix_58__60__126__62_
+                                          || ::DISPATCH( $::Routine, "new", )
+                                    ),
+                                    'APPLY',
+                                    ::DISPATCH( $::Str, 'new', ' ' ),
+                                    ::DISPATCH(
+                                        (
+                                            $GLOBAL::Code_infix_58__60__126__62_
+                                              = $GLOBAL::Code_infix_58__60__126__62_
+                                              || ::DISPATCH( $::Routine, "new",
+                                              )
+                                        ),
+                                        'APPLY',
+                                        ::DISPATCH( $::Str, 'new', chr(39) ),
+                                        ::DISPATCH(
+                                            $::Str,
+                                            'new',
+'kp6-not-implemented :feature "assigning to anything other than variables")'
+                                        )
+                                    )
                                 )
                             )
                         );
@@ -11573,9 +11808,32 @@
                                     'APPLY',
                                     $interpreter,
                                     ::DISPATCH(
-                                        $::Str,
-                                        'new',
-' \\\'kp6-not-implemented :feature "proto-objects")'
+                                        (
+                                            $GLOBAL::Code_infix_58__60__126__62_
+                                              = $GLOBAL::Code_infix_58__60__126__62_
+                                              || ::DISPATCH( $::Routine, "new",
+                                              )
+                                        ),
+                                        'APPLY',
+                                        ::DISPATCH( $::Str, 'new', ' ' ),
+                                        ::DISPATCH(
+                                            (
+                                                $GLOBAL::Code_infix_58__60__126__62_
+                                                  = $GLOBAL::Code_infix_58__60__126__62_
+                                                  || ::DISPATCH(
+                                                    $::Routine, "new",
+                                                  )
+                                            ),
+                                            'APPLY',
+                                            ::DISPATCH(
+                                                $::Str, 'new', chr(39)
+                                            ),
+                                            ::DISPATCH(
+                                                $::Str,
+                                                'new',
+'kp6-not-implemented :feature "proto-objects")'
+                                            )
+                                        )
                                     )
                                 )
                             )
@@ -13033,9 +13291,37 @@
                                             ),
                                             'APPLY',
                                             ::DISPATCH(
-                                                $::Str,
-                                                'new',
-'(make-instance \\\'kp6-Bit :value (or (kp6-true '
+                                                (
+                                                    $GLOBAL::Code_infix_58__60__126__62_
+                                                      = $GLOBAL::Code_infix_58__60__126__62_
+                                                      || ::DISPATCH(
+                                                        $::Routine, "new",
+                                                      )
+                                                ),
+                                                'APPLY',
+                                                ::DISPATCH(
+                                                    $::Str, 'new',
+                                                    '(make-instance '
+                                                ),
+                                                ::DISPATCH(
+                                                    (
+                                                        $GLOBAL::Code_infix_58__60__126__62_
+                                                          = $GLOBAL::Code_infix_58__60__126__62_
+                                                          || ::DISPATCH(
+                                                            $::Routine, "new",
+                                                          )
+                                                    ),
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $::Str, 'new',
+                                                        chr(39)
+                                                    ),
+                                                    ::DISPATCH(
+                                                        $::Str,
+                                                        'new',
+'kp6-Bit :value (or (kp6-true '
+                                                    )
+                                                )
                                             ),
                                             ::DISPATCH(
                                                 (
@@ -13137,9 +13423,37 @@
                                             ),
                                             'APPLY',
                                             ::DISPATCH(
-                                                $::Str,
-                                                'new',
-'(make-instance \\\'kp6-Bit :value (and (kp6-dispatch (kp6-dispatch '
+                                                (
+                                                    $GLOBAL::Code_infix_58__60__126__62_
+                                                      = $GLOBAL::Code_infix_58__60__126__62_
+                                                      || ::DISPATCH(
+                                                        $::Routine, "new",
+                                                      )
+                                                ),
+                                                'APPLY',
+                                                ::DISPATCH(
+                                                    $::Str, 'new',
+                                                    '(make-instance '
+                                                ),
+                                                ::DISPATCH(
+                                                    (
+                                                        $GLOBAL::Code_infix_58__60__126__62_
+                                                          = $GLOBAL::Code_infix_58__60__126__62_
+                                                          || ::DISPATCH(
+                                                            $::Routine, "new",
+                                                          )
+                                                    ),
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $::Str, 'new',
+                                                        chr(39)
+                                                    ),
+                                                    ::DISPATCH(
+                                                        $::Str,
+                                                        'new',
+'kp6-Bit :value (and (kp6-dispatch (kp6-dispatch '
+                                                    )
+                                                )
                                             ),
                                             ::DISPATCH(
                                                 (
@@ -13341,9 +13655,37 @@
                                             ),
                                             'APPLY',
                                             ::DISPATCH(
-                                                $::Str,
-                                                'new',
-'(make-instance \\\'kp6-Bit :value (or (kp6-dispatch (kp6-dispatch '
+                                                (
+                                                    $GLOBAL::Code_infix_58__60__126__62_
+                                                      = $GLOBAL::Code_infix_58__60__126__62_
+                                                      || ::DISPATCH(
+                                                        $::Routine, "new",
+                                                      )
+                                                ),
+                                                'APPLY',
+                                                ::DISPATCH(
+                                                    $::Str, 'new',
+                                                    '(make-instance '
+                                                ),
+                                                ::DISPATCH(
+                                                    (
+                                                        $GLOBAL::Code_infix_58__60__126__62_
+                                                          = $GLOBAL::Code_infix_58__60__126__62_
+                                                          || ::DISPATCH(
+                                                            $::Routine, "new",
+                                                          )
+                                                    ),
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $::Str, 'new',
+                                                        chr(39)
+                                                    ),
+                                                    ::DISPATCH(
+                                                        $::Str,
+                                                        'new',
+'kp6-Bit :value (or (kp6-dispatch (kp6-dispatch '
+                                                    )
+                                                )
                                             ),
                                             ::DISPATCH(
                                                 (
@@ -13915,9 +14257,39 @@
                                                 ),
                                                 'APPLY', $str,
                                                 ::DISPATCH(
-                                                    $::Str,
-                                                    'new',
-' (make-instance \\\'kp6-positional-parameter :value '
+                                                    (
+                                                        $GLOBAL::Code_infix_58__60__126__62_
+                                                          = $GLOBAL::Code_infix_58__60__126__62_
+                                                          || ::DISPATCH(
+                                                            $::Routine, "new",
+                                                          )
+                                                    ),
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $::Str,
+                                                        'new',
+                                                        ' (make-instance '
+                                                    ),
+                                                    ::DISPATCH(
+                                                        (
+                                                            $GLOBAL::Code_infix_58__60__126__62_
+                                                              = $GLOBAL::Code_infix_58__60__126__62_
+                                                              || ::DISPATCH(
+                                                                $::Routine,
+                                                                "new",
+                                                              )
+                                                        ),
+                                                        'APPLY',
+                                                        ::DISPATCH(
+                                                            $::Str, 'new',
+                                                            chr(39)
+                                                        ),
+                                                        ::DISPATCH(
+                                                            $::Str,
+                                                            'new',
+'kp6-positional-parameter :value '
+                                                        )
+                                                    )
                                                 )
                                             );
                                         };
@@ -16446,9 +16818,62 @@
                                         ),
                                         'APPLY',
                                         ::DISPATCH(
-                                            $::Str,
-                                            'new',
-' \\\'kp6-not-implemented :feature "\\\\"'
+                                            (
+                                                $GLOBAL::Code_infix_58__60__126__62_
+                                                  = $GLOBAL::Code_infix_58__60__126__62_
+                                                  || ::DISPATCH(
+                                                    $::Routine, "new",
+                                                  )
+                                            ),
+                                            'APPLY',
+                                            ::DISPATCH( $::Str, 'new', ' ' ),
+                                            ::DISPATCH(
+                                                (
+                                                    $GLOBAL::Code_infix_58__60__126__62_
+                                                      = $GLOBAL::Code_infix_58__60__126__62_
+                                                      || ::DISPATCH(
+                                                        $::Routine, "new",
+                                                      )
+                                                ),
+                                                'APPLY',
+                                                ::DISPATCH(
+                                                    $::Str, 'new', chr(39)
+                                                ),
+                                                ::DISPATCH(
+                                                    (
+                                                        $GLOBAL::Code_infix_58__60__126__62_
+                                                          = $GLOBAL::Code_infix_58__60__126__62_
+                                                          || ::DISPATCH(
+                                                            $::Routine, "new",
+                                                          )
+                                                    ),
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $::Str,
+                                                        'new',
+'kp6-not-implemented :feature "'
+                                                    ),
+                                                    ::DISPATCH(
+                                                        (
+                                                            $GLOBAL::Code_infix_58__60__126__62_
+                                                              = $GLOBAL::Code_infix_58__60__126__62_
+                                                              || ::DISPATCH(
+                                                                $::Routine,
+                                                                "new",
+                                                              )
+                                                        ),
+                                                        'APPLY',
+                                                        ::DISPATCH(
+                                                            $::Str, 'new',
+                                                            chr(92)
+                                                        ),
+                                                        ::DISPATCH(
+                                                            $::Str, 'new',
+                                                            '"'
+                                                        )
+                                                    )
+                                                )
+                                            )
                                         ),
                                         ::DISPATCH(
                                             (
@@ -16460,8 +16885,21 @@
                                             ),
                                             'APPLY', $decl,
                                             ::DISPATCH(
-                                                $::Str, 'new',
-                                                '\\\\" variables")'
+                                                (
+                                                    $GLOBAL::Code_infix_58__60__126__62_
+                                                      = $GLOBAL::Code_infix_58__60__126__62_
+                                                      || ::DISPATCH(
+                                                        $::Routine, "new",
+                                                      )
+                                                ),
+                                                'APPLY',
+                                                ::DISPATCH(
+                                                    $::Str, 'new', chr(92)
+                                                ),
+                                                ::DISPATCH(
+                                                    $::Str, 'new',
+                                                    '" variables")'
+                                                )
                                             )
                                         )
                                     )
@@ -16767,8 +17205,27 @@
                         # emit_body
                         do {
                             ::MODIFIED($str);
-                            $str = ::DISPATCH( $::Str, 'new',
-                                '(make-instance \\\'kp6-signature' );
+                            $str = ::DISPATCH(
+                                (
+                                    $GLOBAL::Code_infix_58__60__126__62_ =
+                                      $GLOBAL::Code_infix_58__60__126__62_
+                                      || ::DISPATCH( $::Routine, "new", )
+                                ),
+                                'APPLY',
+                                ::DISPATCH( $::Str, 'new', '(make-instance ' ),
+                                ::DISPATCH(
+                                    (
+                                        $GLOBAL::Code_infix_58__60__126__62_ =
+                                          $GLOBAL::Code_infix_58__60__126__62_
+                                          || ::DISPATCH( $::Routine, "new", )
+                                    ),
+                                    'APPLY',
+                                    ::DISPATCH( $::Str, 'new', chr(39) ),
+                                    ::DISPATCH(
+                                        $::Str, 'new', 'kp6-signature'
+                                    )
+                                )
+                            );
                         };
                         do {
                             if (
@@ -16985,9 +17442,41 @@
                                                     ),
                                                     'APPLY',
                                                     ::DISPATCH(
-                                                        $::Str,
-                                                        'new',
-' (make-instance \\\'kp6-named-parameter :name '
+                                                        (
+                                                            $GLOBAL::Code_infix_58__60__126__62_
+                                                              = $GLOBAL::Code_infix_58__60__126__62_
+                                                              || ::DISPATCH(
+                                                                $::Routine,
+                                                                "new",
+                                                              )
+                                                        ),
+                                                        'APPLY',
+                                                        ::DISPATCH(
+                                                            $::Str,
+                                                            'new',
+                                                            ' (make-instance '
+                                                        ),
+                                                        ::DISPATCH(
+                                                            (
+                                                                $GLOBAL::Code_infix_58__60__126__62_
+                                                                  = $GLOBAL::Code_infix_58__60__126__62_
+                                                                  || ::DISPATCH(
+                                                                    $::Routine,
+                                                                    "new",
+                                                                  )
+                                                            ),
+                                                            'APPLY',
+                                                            ::DISPATCH(
+                                                                $::Str,
+                                                                'new',
+                                                                chr(39)
+                                                            ),
+                                                            ::DISPATCH(
+                                                                $::Str,
+                                                                'new',
+'kp6-named-parameter :name '
+                                                            )
+                                                        )
                                                     ),
                                                     ::DISPATCH(
                                                         (
@@ -17410,8 +17899,25 @@
                         # emit_body
                         do {
                             ::MODIFIED($s);
-                            $s = ::DISPATCH( $::Str, 'new',
-                                '(kp6-new \\\'capture ' );
+                            $s = ::DISPATCH(
+                                (
+                                    $GLOBAL::Code_infix_58__60__126__62_ =
+                                      $GLOBAL::Code_infix_58__60__126__62_
+                                      || ::DISPATCH( $::Routine, "new", )
+                                ),
+                                'APPLY',
+                                ::DISPATCH( $::Str, 'new', '(kp6-new ' ),
+                                ::DISPATCH(
+                                    (
+                                        $GLOBAL::Code_infix_58__60__126__62_ =
+                                          $GLOBAL::Code_infix_58__60__126__62_
+                                          || ::DISPATCH( $::Routine, "new", )
+                                    ),
+                                    'APPLY',
+                                    ::DISPATCH( $::Str, 'new', chr(39) ),
+                                    ::DISPATCH( $::Str, 'new', 'capture ' )
+                                )
+                            );
                         };
                         do {
                             if (
@@ -17705,7 +18211,8 @@
                                                                 ::DISPATCH(
                                                                     $::Int,
                                                                     'new',
-                                                                    $_param_index++
+                                                                    $_param_index
+                                                                      ++
                                                                 )
                                                             );
                                                         }
@@ -18041,7 +18548,8 @@
                                                                 ::DISPATCH(
                                                                     $::Int,
                                                                     'new',
-                                                                    $_param_index++
+                                                                    $_param_index
+                                                                      ++
                                                                 )
                                                             );
                                                         }
@@ -18544,9 +19052,32 @@
                                     'APPLY',
                                     $interpreter,
                                     ::DISPATCH(
-                                        $::Str,
-                                        'new',
-' \\\'kp6-not-implemented :feature "subsets")'
+                                        (
+                                            $GLOBAL::Code_infix_58__60__126__62_
+                                              = $GLOBAL::Code_infix_58__60__126__62_
+                                              || ::DISPATCH( $::Routine, "new",
+                                              )
+                                        ),
+                                        'APPLY',
+                                        ::DISPATCH( $::Str, 'new', ' ' ),
+                                        ::DISPATCH(
+                                            (
+                                                $GLOBAL::Code_infix_58__60__126__62_
+                                                  = $GLOBAL::Code_infix_58__60__126__62_
+                                                  || ::DISPATCH(
+                                                    $::Routine, "new",
+                                                  )
+                                            ),
+                                            'APPLY',
+                                            ::DISPATCH(
+                                                $::Str, 'new', chr(39)
+                                            ),
+                                            ::DISPATCH(
+                                                $::Str,
+                                                'new',
+'kp6-not-implemented :feature "subsets")'
+                                            )
+                                        )
                                     )
                                 )
                             )
@@ -18857,9 +19388,32 @@
                                     'APPLY',
                                     $interpreter,
                                     ::DISPATCH(
-                                        $::Str,
-                                        'new',
-' \\\'kp6-not-implemented :feature "methods")'
+                                        (
+                                            $GLOBAL::Code_infix_58__60__126__62_
+                                              = $GLOBAL::Code_infix_58__60__126__62_
+                                              || ::DISPATCH( $::Routine, "new",
+                                              )
+                                        ),
+                                        'APPLY',
+                                        ::DISPATCH( $::Str, 'new', ' ' ),
+                                        ::DISPATCH(
+                                            (
+                                                $GLOBAL::Code_infix_58__60__126__62_
+                                                  = $GLOBAL::Code_infix_58__60__126__62_
+                                                  || ::DISPATCH(
+                                                    $::Routine, "new",
+                                                  )
+                                            ),
+                                            'APPLY',
+                                            ::DISPATCH(
+                                                $::Str, 'new', chr(39)
+                                            ),
+                                            ::DISPATCH(
+                                                $::Str,
+                                                'new',
+'kp6-not-implemented :feature "methods")'
+                                            )
+                                        )
                                     )
                                 )
                             )
@@ -19821,9 +20375,32 @@
                                     'APPLY',
                                     $interpreter,
                                     ::DISPATCH(
-                                        $::Str,
-                                        'new',
-' \\\'kp6-not-implemented :feature "BEGIN blocks")'
+                                        (
+                                            $GLOBAL::Code_infix_58__60__126__62_
+                                              = $GLOBAL::Code_infix_58__60__126__62_
+                                              || ::DISPATCH( $::Routine, "new",
+                                              )
+                                        ),
+                                        'APPLY',
+                                        ::DISPATCH( $::Str, 'new', ' ' ),
+                                        ::DISPATCH(
+                                            (
+                                                $GLOBAL::Code_infix_58__60__126__62_
+                                                  = $GLOBAL::Code_infix_58__60__126__62_
+                                                  || ::DISPATCH(
+                                                    $::Routine, "new",
+                                                  )
+                                            ),
+                                            'APPLY',
+                                            ::DISPATCH(
+                                                $::Str, 'new', chr(39)
+                                            ),
+                                            ::DISPATCH(
+                                                $::Str,
+                                                'new',
+'kp6-not-implemented :feature "BEGIN blocks")'
+                                            )
+                                        )
                                     )
                                 )
                             )
@@ -20161,9 +20738,32 @@
                                     'APPLY',
                                     $interpreter,
                                     ::DISPATCH(
-                                        $::Str,
-                                        'new',
-' \\\'kp6-not-implemented :feature "importing modules")'
+                                        (
+                                            $GLOBAL::Code_infix_58__60__126__62_
+                                              = $GLOBAL::Code_infix_58__60__126__62_
+                                              || ::DISPATCH( $::Routine, "new",
+                                              )
+                                        ),
+                                        'APPLY',
+                                        ::DISPATCH( $::Str, 'new', ' ' ),
+                                        ::DISPATCH(
+                                            (
+                                                $GLOBAL::Code_infix_58__60__126__62_
+                                                  = $GLOBAL::Code_infix_58__60__126__62_
+                                                  || ::DISPATCH(
+                                                    $::Routine, "new",
+                                                  )
+                                            ),
+                                            'APPLY',
+                                            ::DISPATCH(
+                                                $::Str, 'new', chr(39)
+                                            ),
+                                            ::DISPATCH(
+                                                $::Str,
+                                                'new',
+'kp6-not-implemented :feature "importing modules")'
+                                            )
+                                        )
                                     )
                                 )
                             )

@@ -50,6 +50,22 @@ use strict;
             src => '&Main::mangle_name' 
         } );
 
+    $Main::Code_mangle_perl5rx_metasyntax = ::DISPATCH( $::Code, 'new',
+        { 
+            code => sub { 
+                    my $s = shift;
+                    $s = ::DISPATCH( $s, 'Str' )->{_value};
+                    if ( $s =~ /\./ ) {
+                        $s =~ s/(\.)/::_rule_/;   # '$KindaPerl6::Grammar.ws' -> ::_rule_ws
+                    }
+                    else {
+                        $s = '_rule_' . $s;   # '$_rule_ws'
+                    }
+                    ::DISPATCH( $::Str, "new", $s );
+                }, 
+            src => '&Main::mangle_perl5rx_metasyntax' 
+        } );
+
 1;
 
 __END__
