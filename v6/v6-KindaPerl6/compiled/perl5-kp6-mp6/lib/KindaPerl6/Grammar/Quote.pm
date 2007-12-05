@@ -61,6 +61,51 @@ sub double_quoted {
     return ($MATCH);
 }
 
+sub single_quoted {
+    my $grammar = shift;
+    my $List__  = \@_;
+    my $str;
+    my $pos;
+    do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
+    my $MATCH;
+    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH->bool(
+        do {
+            my $pos1 = $MATCH->to();
+            (   do {
+                    (   do {
+                            my $tmp = $MATCH;
+                            $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $tmp->to(), 'to' => $tmp->to(), 'bool' => 1, );
+                            $MATCH->bool(
+                                do {
+                                    my $pos1 = $MATCH->to();
+                                    (   do { ( ( '\\' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) }
+                                            || do { $MATCH->to($pos1); ( ( '\'' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) }
+                                    );
+                                    }
+                            );
+                            $tmp->bool( ( $MATCH ? 0 : 1 ) );
+                            $MATCH = $tmp;
+                            ( $MATCH ? 1 : 0 );
+                            }
+                            && (
+                            ( ( '' ne substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
+                                my $m2 = $grammar->single_quoted( $str, $MATCH->to() );
+                                do {
+                                    if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'single_quoted'} = $m2; 1 }
+                                    else     {0}
+                                    }
+                            }
+                            )
+                    );
+                    }
+                    || do { $MATCH->to($pos1); 1 }
+            );
+            }
+    );
+    return ($MATCH);
+}
+
 sub quoted_any {
     my $grammar = shift;
     my $List__  = \@_;
@@ -639,6 +684,108 @@ sub quoted_exp {
     return ($MATCH);
 }
 
+sub single_quoted_exp {
+    my $grammar = shift;
+    my $List__  = \@_;
+    my $str;
+    my $pos;
+    do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
+    my $MATCH;
+    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH->bool(
+        do {
+            my $pos1 = $MATCH->to();
+            (   do {
+                    (   ( ( '\\' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
+                            ( ( '\'' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
+                                my $ret = sub {
+                                    my $List__ = \@_;
+                                    do { [] };
+                                    do { return ( Val::Char->new( 'char' => 39, ) ) };
+                                    '974^213';
+                                    }
+                                    ->();
+                                do {
+                                    if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                                    else                         { }
+                                };
+                                1;
+                            }
+                        )
+                    );
+                    }
+                    || (
+                    do {
+                        $MATCH->to($pos1);
+                        (   ( ( '\\' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
+                                ( ( '\\' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
+                                    my $ret = sub {
+                                        my $List__ = \@_;
+                                        do { [] };
+                                        do { return ( Val::Char->new( 'char' => 92, ) ) };
+                                        '974^213';
+                                        }
+                                        ->();
+                                    do {
+                                        if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                                        else                         { }
+                                    };
+                                    1;
+                                }
+                            )
+                        );
+                    }
+                    || (do {
+                            $MATCH->to($pos1);
+                            (   ( ( '\\' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
+                                    my $ret = sub {
+                                        my $List__ = \@_;
+                                        do { [] };
+                                        do { return ( Val::Char->new( 'char' => 92, ) ) };
+                                        '974^213';
+                                        }
+                                        ->();
+                                    do {
+                                        if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                                        else                         { }
+                                    };
+                                    1;
+                                    }
+                            );
+                        }
+                        || do {
+                            $MATCH->to($pos1);
+                            (   do {
+                                    my $m2 = $grammar->single_quoted( $str, $MATCH->to() );
+                                    do {
+                                        if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'single_quoted'} = $m2; 1 }
+                                        else     {0}
+                                        }
+                                    }
+                                    && do {
+                                    my $ret = sub {
+                                        my $List__ = \@_;
+                                        do { [] };
+                                        do { return ( Val::Buf->new( 'buf' => ( "" . $MATCH ), ) ) };
+                                        '974^213';
+                                        }
+                                        ->();
+                                    do {
+                                        if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                                        else                         { }
+                                    };
+                                    1;
+                                    }
+                            );
+                        }
+                    )
+                    )
+            );
+            }
+    );
+    return ($MATCH);
+}
+
 sub quoted_exp_seq {
     my $grammar = shift;
     my $List__  = \@_;
@@ -727,7 +874,7 @@ sub quoted_exp_seq {
     return ($MATCH);
 }
 
-sub single_quoted {
+sub single_quoted_exp_seq {
     my $grammar = shift;
     my $List__  = \@_;
     my $str;
@@ -738,48 +885,82 @@ sub single_quoted {
     $MATCH->bool(
         do {
             my $pos1 = $MATCH->to();
-            (   do {
-                    (   ( ( '\\' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
-                            ( ( '' ne substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
-                                my $m2 = $grammar->single_quoted( $str, $MATCH->to() );
-                                do {
-                                    if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'single_quoted'} = $m2; 1 }
-                                    else     {0}
-                                    }
+            do {
+                (   do {
+                        my $m2 = $grammar->single_quoted_exp( $str, $MATCH->to() );
+                        do {
+                            if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'single_quoted_exp'} = $m2; 1 }
+                            else     {0}
                             }
-                        )
-                    );
-                    }
-                    || (
-                    do {
-                        $MATCH->to($pos1);
+                        }
+                        && do {
+                        my $pos1 = $MATCH->to();
                         (   do {
-                                my $tmp = $MATCH;
-                                $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $tmp->to(), 'to' => $tmp->to(), 'bool' => 1, );
-                                $MATCH->bool(
-                                    do {
-                                        my $pos1 = $MATCH->to();
-                                        do { ( ( '\'' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) }
+                                (   do {
+                                        my $tmp = $MATCH;
+                                        $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $tmp->to(), 'to' => $tmp->to(), 'bool' => 1, );
+                                        $MATCH->bool(
+                                            do {
+                                                my $pos1 = $MATCH->to();
+                                                do { ( ( '\'' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) }
+                                                }
+                                        );
+                                        $tmp->bool( ( $MATCH ? 1 : 0 ) );
+                                        $MATCH = $tmp;
+                                        ( $MATCH ? 1 : 0 );
+                                        }
+                                        && do {
+                                        my $ret = sub {
+                                            my $List__ = \@_;
+                                            do { [] };
+                                            do { return ( ${ $MATCH->{'single_quoted_exp'} } ) };
+                                            '974^213';
+                                            }
+                                            ->();
+                                        do {
+                                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                                            else                         { }
+                                        };
+                                        1;
                                         }
                                 );
-                                $tmp->bool( ( $MATCH ? 0 : 1 ) );
-                                $MATCH = $tmp;
-                                ( $MATCH ? 1 : 0 );
                                 }
-                                && (
-                                ( ( '' ne substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
-                                    my $m2 = $grammar->single_quoted( $str, $MATCH->to() );
-                                    do {
-                                        if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'single_quoted'} = $m2; 1 }
-                                        else     {0}
+                                || do {
+                                $MATCH->to($pos1);
+                                (   do {
+                                        my $m2 = $grammar->single_quoted_exp_seq( $str, $MATCH->to() );
+                                        do {
+                                            if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'single_quoted_exp_seq'} = $m2; 1 }
+                                            else     {0}
+                                            }
                                         }
+                                        && do {
+                                        my $ret = sub {
+                                            my $List__ = \@_;
+                                            do { [] };
+                                            do {
+                                                return (
+                                                    Apply->new(
+                                                        'code'      => Var->new( 'sigil'                     => '&', 'twigil' => '', 'name' => 'infix:<~>', 'namespace' => [], ),
+                                                        'arguments' => [ ${ $MATCH->{'single_quoted_exp'} }, ${ $MATCH->{'single_quoted_exp_seq'} } ],
+                                                    )
+                                                );
+                                            };
+                                            '974^213';
+                                            }
+                                            ->();
+                                        do {
+                                            if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                                            else                         { }
+                                        };
+                                        1;
+                                        }
+                                );
                                 }
-                                )
                         );
-                    }
-                    || do { $MATCH->to($pos1); 1 }
-                    )
-            );
+                        }
+                );
+                }
             }
     );
     return ($MATCH);
@@ -943,9 +1124,9 @@ sub val_buf {
                     $MATCH->to($pos1);
                     (   ( ( '\'' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
                             do {
-                                my $m2 = $grammar->single_quoted( $str, $MATCH->to() );
+                                my $m2 = $grammar->single_quoted_exp_seq( $str, $MATCH->to() );
                                 do {
-                                    if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'single_quoted'} = $m2; 1 }
+                                    if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'single_quoted_exp_seq'} = $m2; 1 }
                                     else     {0}
                                     }
                             }
@@ -953,7 +1134,7 @@ sub val_buf {
                                     my $ret = sub {
                                         my $List__ = \@_;
                                         do { [] };
-                                        do { return ( Val::Buf->new( 'buf' => ( "" . $MATCH->{'single_quoted'} ), ) ) };
+                                        do { return ( ${ $MATCH->{'single_quoted_exp_seq'} } ) };
                                         '974^213';
                                         }
                                         ->();

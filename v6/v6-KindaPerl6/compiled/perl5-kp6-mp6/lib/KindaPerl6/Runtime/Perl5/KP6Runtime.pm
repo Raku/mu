@@ -4,7 +4,6 @@ use v5;
     $Main::Code_newline = ::DISPATCH( $::Code, 'new',
         { 
             code => sub { 
-                    die "(kp6)Main::newline()\n";
                     ::DISPATCH( $::Str, 'new', "\n") 
                 }, 
             src => '&Main::newline' 
@@ -18,8 +17,13 @@ use v5;
     $Main::Code_mangle_name = ::DISPATCH( $::Code, 'new',
         { 
             code => sub { 
-                    die "(kp6)Main::mangle_name()\n";
                     my ($sigil, $twigil, $name, $namespace) = @_;
+                    
+                    $sigil = ::DISPATCH( $sigil, 'Str' )->{_value};
+                    $twigil = ::DISPATCH( $twigil, 'Str' )->{_value};
+                    $name = ::DISPATCH( $name, 'Str' )->{_value};
+                    $namespace = ::DISPATCH( $namespace, 'INDEX' )->{_value}{_array};
+                    
                     #print "mangle: ($sigil, $twigil, $name, [ @$namespace ] )\n" if $namespace;
                     $name = CORE::join( '::', @$namespace, $name ) if $namespace;
                     $name =~ s/ ([^a-zA-Z0-9_:] | (?<!:):(?!:)) / '_'.ord($1).'_' /xge;
@@ -32,7 +36,9 @@ use v5;
                     {
                         unshift @name, 'GLOBAL';
                     }
-                    return '$' . CORE::join( '::', @name );   # XXX - no twigil
+                    return ::DISPATCH( $::Str, 'new', 
+                                '$' . CORE::join( '::', @name )   # XXX - no twigil
+                        );   
                 }, 
             src => '&Main::mangle_name' 
         } );

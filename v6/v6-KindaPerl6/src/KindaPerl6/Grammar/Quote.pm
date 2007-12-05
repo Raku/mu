@@ -8,6 +8,11 @@ token double_quoted {
     |  ''
 };
 
+token single_quoted {
+    |  <!before \\ | \' > . <single_quoted>
+    |  ''
+};
+
 token quoted_any { . }
 
 token quoted_array {
@@ -62,6 +67,13 @@ token quoted_exp {
     |  [ \$ | \@ | \% | '' ] <double_quoted> { return ::Val::Buf( 'buf' => ~$/ ) }
 }
 
+token single_quoted_exp {
+    |   \\  \'   { return ::Val::Char( char => 39 ) }
+    |   \\  \\   { return ::Val::Char( char => 92 ) }
+    |   \\       { return ::Val::Char( char => 92 ) }
+    |  <single_quoted> { return ::Val::Buf( 'buf' => ~$/ ) }
+}
+
 token quoted_exp_seq {
     <quoted_exp>
     [
@@ -77,11 +89,20 @@ token quoted_exp_seq {
     ]
 }
 
-token single_quoted {
-    |  \\ .  <single_quoted>
-    |  <!before \' > . <single_quoted>
-    |  ''
-};
+token single_quoted_exp_seq {
+    <single_quoted_exp>
+    [
+    |  <before \' >     { return $$<single_quoted_exp>;}
+    |
+        <single_quoted_exp_seq>
+        {
+            return ::Apply(
+                'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'infix:<~>', namespace => [ ] ),
+                'arguments' => [ $$<single_quoted_exp>, $$<single_quoted_exp_seq> ],
+            );
+        }
+    ]
+}
 
 token angle_quoted {
     |  \\ .  <angle_quoted>
@@ -97,7 +118,7 @@ token french_quoted {
 
 token val_buf {
     | \" <quoted_exp_seq> \" { return $$<quoted_exp_seq> }
-    | \' <single_quoted>  \' { return ::Val::Buf( 'buf' => ~$<single_quoted> ) }
+    | \' <single_quoted_exp_seq> \' { return $$<single_quoted_exp_seq> }
 };
 
 }
