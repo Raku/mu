@@ -20,6 +20,8 @@ none
 
 =over
 
+=item new
+
 =item more
 
 =back
@@ -49,7 +51,7 @@ my $meta_Array = ::DISPATCH($::Array,'HOW');
 
 $::Gather = KindaPerl6::Runtime::Perl5::MOP::make_class(
     proto   => $::Gather,
-    name    => "Gather",
+    name    => 'Gather',
     parents => [$meta_Array],
     methods => {
 
@@ -57,7 +59,7 @@ $::Gather = KindaPerl6::Runtime::Perl5::MOP::make_class(
             my $code            = $_[1];
             my $gather_finished = ::DISPATCH( $::Bit, 'new', 0 );
             my $gather_coro     = Coro::async {
-                ::DISPATCH( $code, "APPLY" );
+                ::DISPATCH( $code, 'APPLY' );
 
                 # cleanup the pointer to the lazy buffer
                 delete $::GATHER{ Scalar::Util::refaddr($Coro::current) };
@@ -82,3 +84,4 @@ $::Gather = KindaPerl6::Runtime::Perl5::MOP::make_class(
     },
 );
 
+1;

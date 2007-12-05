@@ -204,9 +204,6 @@ print "s2: ",$s2->apply(), "\n";
 print "s1: ",$s1->apply(), "\n";
 print "s2: ",$s2->apply(), "\n";
 
-
-=begin
-
 =head1 AUTHORS
 
 The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
@@ -226,4 +223,4 @@ under the same terms as Perl itself.
 
 See L<http://www.perl.com/perl/misc/Artistic.html>
 
-=end
+=cut

@@ -14,6 +14,8 @@ none
 
 =item new
 
+=item eager
+
 =item INDEX
 
 =item elems
@@ -46,9 +48,9 @@ $::Array = KindaPerl6::Runtime::Perl5::MOP::make_class(
                 _value => { _array => [ ] },
             };
             if ($param) {
-            
+
                 my $index = 0;
-                                                
+
                 my $add_parameter;
                 $add_parameter = sub {
                     my $p = $_[0];
@@ -69,17 +71,17 @@ $::Array = KindaPerl6::Runtime::Perl5::MOP::make_class(
                     else {
                         #warn "  Push: ", ::DISPATCH( $p, "perl" )->{_value};
                         #::DISPATCH( $array, 'push', $p );
-                        ::DISPATCH_VAR( 
-                                ::DISPATCH( $self, 'INDEX', $index ), 
-                                'STORE', 
-                                $p, 
+                        ::DISPATCH_VAR(
+                                ::DISPATCH( $self, 'INDEX', $index ),
+                                'STORE',
+                                $p,
                             );
                         $index++;
                     }
                 };
                 $add_parameter->( $_ )
                     for @{ $param->{_array} };
-            
+
             }
             return $self;
         },
@@ -177,8 +179,6 @@ $::Array = KindaPerl6::Runtime::Perl5::MOP::make_class(
 
 1;
 
-=begin
-
 =head1 AUTHORS
 
 The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
@@ -198,4 +198,4 @@ under the same terms as Perl itself.
 
 See L<http://www.perl.com/perl/misc/Artistic.html>
 
-=end
+=cut

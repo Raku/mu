@@ -118,7 +118,6 @@ $::Container = KindaPerl6::Runtime::Perl5::MOP::make_class(
             };
         },
         FETCH => sub {
-            #warn "Container.FETCH $_[0]";
             my $self = shift;
             return $self->{_value}{cell}
                 if exists $self->{_value}{cell};
@@ -415,7 +414,12 @@ $::ValueProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
                         my $self = shift;
                         if ( ! exists $self->{_parent_container}{_value}{cell} ) {
                             return $::Value->{_dispatch}( $self, @_ )
-                                if $_[0] eq "INDEX" || $_[0] eq "LOOKUP" || $_[0] eq "exists";
+                                if $_[0] eq "INDEX" 
+                                || $_[0] eq "LOOKUP" 
+                                || $_[0] eq "array" 
+                                || $_[0] eq "hash" 
+                                || $_[0] eq "push" 
+                                || $_[0] eq "exists";
                             return ::DISPATCH( $::Str, "new", "" )
                                 if $_[0] eq "Str";
                             return ::DISPATCH( $::Undef, @_ );
@@ -426,6 +430,26 @@ $::ValueProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
             return $v;
         },
         # FETCH => sub { die "ValueProxy.FETCH !!!\n"; },
+
+        array => sub {   # XXX .array is now .INDEX()
+            my $self = shift;
+            ::DISPATCH( $self, 'INDEX', @_ );
+        },
+        hash => sub {   # XXX .hash is now .LOOKUP()
+            my $self = shift;
+            ::DISPATCH( $self, 'LOOKUP', @_ );
+        },
+        push => sub {   
+            my $self = shift;
+            my $parent_container = $self->{_parent_container};
+            if ( ! exists $parent_container->{_value}{cell} ) {
+                ::DISPATCH_VAR( $parent_container, 'STORE', 
+                        ::DISPATCH( $::Array, 'new' )
+                    );
+            }
+            return ::DISPATCH( $parent_container, 'push', @_ );
+        },
+
         LOOKUP => sub {
             #warn "ValueProxy.LOOKUP";
             my ( $self, @key ) = @_;
@@ -451,7 +475,6 @@ $::ValueProxy = KindaPerl6::Runtime::Perl5::MOP::make_class(
             return ::DISPATCH( $parent_container, 'LOOKUP', @key );
         },
         INDEX => sub {
-            #warn "ValueProxy.INDEX";
             my ( $self, @key ) = @_;
             my $parent_container = $self->{_parent_container};
             if ( ! exists $parent_container->{_value}{cell} ) {

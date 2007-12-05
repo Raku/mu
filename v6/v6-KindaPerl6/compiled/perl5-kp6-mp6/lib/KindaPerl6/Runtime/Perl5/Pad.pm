@@ -1,8 +1,24 @@
-
 package Pad;
+
+=head1 NAME
+
+Pad - Provides namespace for the runtime enviroment.
+
+=head1 VERSION
+
+Version 0.01
+
+=head1 SYNOPSIS
+
+This packages provides a bunch of functions to mimic perl6 most are exported
+into the callers package.
+
+=head1 FUNCTIONS
+
+=cut
+
 use strict;
 use Carp;
-
 
 use KindaPerl6::Visitor::Emit::AstPerl;
 use KindaPerl6::Visitor::Emit::Perl5;
@@ -18,6 +34,15 @@ my $visitor_metamodel   = KindaPerl6::Visitor::MetaClass->new();
 my $visitor_token       = KindaPerl6::Visitor::Token->new();
 my $visitor_global      = KindaPerl6::Visitor::Global->new();
 
+=head2 new
+
+Runtime::Perl5::Pad->new(
+    namespace   =>
+    lexicals    =>
+    outer       =>  # outer scope
+);
+
+=cut
 
 sub new {
     #print __PACKAGE__,"->new [",Dump(\@_),"]\n";
@@ -36,6 +61,7 @@ sub new {
                 namespace      => 'Main',
                 parent         => undef,
             }, $class;
+
     my $namespace =
             $data{namespace}
         ||  $parent->namespace;
@@ -43,6 +69,7 @@ sub new {
     my @declarations = map {
         $_->emit_perl5
     } @{$data{lexicals}};
+
     my @names = map {
         $_->var->emit_perl5
     } @{$data{lexicals}};
@@ -56,6 +83,7 @@ sub new {
             .     'eval $_[0] or do{ Carp::carp( $@ ) if $@ }; '
             . '} ';
     #print "Pad.new $cmd\n";
+
     bless {
         evaluator      => $parent->eval( $cmd ),
         variable_names => $data{lexicals},
@@ -64,8 +92,16 @@ sub new {
     }, $class;
 }
 
-# create a new pad, and copy the lexicals to it.
-# optionally, move to another outer pad.
+=head2 clone
+
+Create a new pad and copy the lexicals to it.
+
+Optionally, move to another outer pad.
+
+This does not do a deap clone
+
+=cut
+
 sub clone {
     my $self = shift;
     my %data = @_;
@@ -74,32 +110,87 @@ sub clone {
         lexicals  => $self->lexicals,
         namespace => $self->namespace,
     );
+
     # copy the lexical values
     # the pads still share the OUTER pads
     my @names = map {
         $_->var->emit_perl5
     } @{$self->{variable_names}};
     #print Dump( @names );
+
     local $@;
     for my $name ( @names ) {
         local $Pad::Temp = $self->eval( $name );
         eval { $Pad::Temp = $Pad::Temp->clone };
         $clone->eval( $name . ' = $Pad::Temp ' );
     }
+
     $clone;
 }
+
+=head2 eval
+
+ $pad->eval( ??? )
+
+evaluator is declared in subroutine new
+
+=cut
 
 sub eval {
     #print "Pad.eval $_[1]\n";
     $_[0]{evaluator}( $_[1] )
 }
 
-sub variable_names { $_[0]{variable_names} } # XXX  - remove
-sub lexicals { $_[0]{variable_names} }
+=head2 variable_names
 
-sub namespace { $_[0]{namespace} }
+XXX -  this needs to be removed.
 
-sub outer { $_[0]{parent} }
+variable_names is the same as lexicals (below)
+
+=cut
+
+sub variable_names {
+    $_[0]{variable_names}
+}
+
+=head2 lexicals
+
+=cut
+
+sub lexicals {
+    $_[0]{variable_names}
+}
+
+=head2 namespace
+
+ my $namespace = $pad->namespace();
+
+returns the namespace
+
+=cut
+
+sub namespace {
+    $_[0]{namespace}
+}
+
+=head2 outer
+
+ my $outer = $pad->outer();
+
+=cut
+
+sub outer {
+    $_[0]{parent}
+}
+
+=head2 emit
+
+This returns a perl5? segment of code declaring the ::Pad.  This is similar
+to dumping itself.
+
+ my $perl6 = $pad->emit();
+
+=cut
 
 sub emit {
     # XXX in 'Visitor::Emit::AstPerl.pm'
@@ -119,6 +210,14 @@ sub emit {
     return $s . ')';
 }
 
+=head2 add_lexicals
+
+$pad->add_lexicals( [
+    TODO: What does a declaration look like?
+] );
+
+=cut
+
 sub add_lexicals {  # [ Decl, Decl, ... ]
     my $self  = shift;
 
@@ -136,21 +235,34 @@ sub add_lexicals {  # [ Decl, Decl, ... ]
     }
     #print "add_lexicals: @new_lexicals\n";
 
+    # create a new inner
     my $inner = Pad->new(
         outer    => $self,
         lexicals => \@new_lexicals,
         # namespace ,
         add_lexicals => 1,
     );
+
+    # set the evaluator to the new evalulator
     $self->{evaluator} = $inner->{evaluator};
+
+    # appened the new lexicals to variable_names
+    # XXX: Could this be faster as
+    # push @{ $self->{variable_names} }, @new_lexicals;
     $self->{variable_names} = [
         @{$self->{variable_names}},
         @new_lexicals,
     ];
+
     $self;
 }
 
-# look up for a variable's declaration
+=head2 declaration
+
+look up a variable declaration
+
+=cut
+
 sub declaration { # Var
     my ( $self, $var ) = @_;
 
@@ -163,6 +275,11 @@ sub declaration { # Var
         return $decl
             if ( _var_eq( $decl->var, $var ) );
     }
+
+    # XXX: Would this be better off as
+    # return $self->{parent}->declaration( $var ) if $self->{parent};
+    # return; # no undef
+
     if ( $self->{parent} ) {
         return $self->{parent}->declaration( $var );
     }
@@ -170,6 +287,12 @@ sub declaration { # Var
         return undef
     }
 }
+
+=head2 _var_eq
+
+Returns true if the sigil, twigil, name, and namespace are the same.
+
+=cut
 
 sub _var_eq {
     my ( $new, $old ) = @_;
@@ -182,11 +305,25 @@ sub _var_eq {
     )
 }
 
-# returns a hashref with names of variables that were modified with .STORE or .BIND
-# XXX - modified since when?
+=head2 side_effects
+
+returns a hashref with names of variables that were modified with .STORE or .BIND
+XXX - modified since when?
+
+=cut
+
 sub side_effects {
     keys %{ $_[0]->eval( '$_MODIFIED' ) };
 }
+
+
+###############################################################################
+# Abstract Syntax Tree Code
+###############################################################################
+
+=head2 eval_ast
+
+=cut
 
 sub eval_ast {
     my $self     = shift;
@@ -197,8 +334,15 @@ sub eval_ast {
     return $self->eval( $code );
 }
 
-# This is a subroutine, not a method
-# TODO - replace COMPILER::Pad with a scalar, and then traverse the Pads using .outer instead
+=head2 begin_block
+
+This is a subroutine, not a method
+
+TODO - replace COMPILER::Pad with a scalar, and then traverse the Pads using
+.outer instead
+
+=cut
+
 sub begin_block {
     # this routine is called by begin-blocks at compile time, in order to execute the code
     # Input: '::Lit::Code' AST node
@@ -211,6 +355,7 @@ sub begin_block {
         lexicals  => [ ],
         namespace => $_[0],  # optional
     );
+
     my $data = $COMPILER::PAD[0]->eval_ast( $ast );  # XXX - want() context
     shift @COMPILER::PAD;
     die "At BEGIN: " . $@ if $@;
@@ -262,11 +407,13 @@ sub begin_block {
             push @begin_stmts, @$$p;
         }
     }
+
     unshift @COMPILER::PAD, Pad->new(
         outer     => $COMPILER::PAD[0],
         lexicals  => [ ],
         namespace => $_[0],  # optional
     );
+
     my $begin_ast = BEGIN->new(
         block => Lit::Code->new(
             sig   => Sig->new(
@@ -314,12 +461,13 @@ sub begin_block {
     return $final_ast;
 }
 
-
 1;
 
 __END__
 
 package main;
+
+# this code can't be right, the new subroutine doesn't match usage.
 
 my $env1 = Pad->new( undef, ['$x'] );
 
@@ -349,8 +497,6 @@ $env3->eval( ' my $j = 123 ' );
 $env3->eval( ' print "j=$j\n" ' );
 print "end\n";
 
-=begin
-
 =head1 AUTHORS
 
 The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
@@ -370,4 +516,4 @@ under the same terms as Perl itself.
 
 See L<http://www.perl.com/perl/misc/Artistic.html>
 
-=end
+=cut

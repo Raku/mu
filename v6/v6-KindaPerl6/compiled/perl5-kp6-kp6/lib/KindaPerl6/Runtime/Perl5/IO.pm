@@ -48,20 +48,20 @@ See L<http://www.perl.com/perl/misc/Artistic.html>
 my $meta_Value = ::DISPATCH($::Value,'HOW');
 
 $::IO = KindaPerl6::Runtime::Perl5::MOP::make_class(
-    name    => "IO",
+    name    => 'IO',
     parents => [$meta_Value],
     methods => {
         mkdir => sub {
             ::DISPATCH( $::Kp6Security, 'guard_insecure_code' );
             my $self    = shift;
             my $dirname = GLOBAL::_str( $_[0] );
-            ::DISPATCH( $::Int, "new", mkdir($dirname) ? 1 : 0 );
+            ::DISPATCH( $::Int, 'new', mkdir($dirname) ? 1 : 0 );
         },
         rmdir => sub {
             ::DISPATCH( $::Kp6Security, 'guard_insecure_code' );
             my $self    = shift;
             my $dirname = GLOBAL::_str( $_[0] );
-            ::DISPATCH( $::Int, "new", rmdir($dirname) ? 1 : 0 );
+            ::DISPATCH( $::Int, 'new', rmdir($dirname) ? 1 : 0 );
         },
     }
 );
