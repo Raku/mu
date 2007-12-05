@@ -64,13 +64,39 @@ use overload (
     fallback => 1,
 );
 
+=head1 INSIDE OUT CLASS
+
+Internal to Match.pm is %_data which will store the information for the object.
+
+ $_data{ 1234 } -> {
+                        from => ?,
+                        to => ?,
+                        capture => ?,
+                        bool => ?,
+                        match => [],
+                        named => {},
+                        state => ?, # obsolete?
+                    }
+ $_data{ 2345 } -> { ... }
+
+The "key" for the object is the memory address for the object as returned by
+Scalar::Util::refaddr.
+
 =head1 FUNCTIONS
 
 =head2 new
 
- class method
  ::fail can be called from inside closures
  sub ::fail { $::_V6_SUCCEED = 0 }
+
+ KindaPerl6::Perl5::Match->new(
+     from => ?,
+     to => ?,
+     capture => ?,
+     bool => ?,
+     match => [],
+     named => {},
+ );
 
 =cut
 
@@ -78,7 +104,11 @@ sub new {
     my $class = shift;
     my $obj = bless \$class, $class;
     #print "Match->new( @_ ) ",(refaddr $obj),"\n";
+
+    # assign $_data{ memory address } = { arguments }
     $_data{ refaddr $obj } = { @_ };
+
+    # refaddr $obj, will be the internal "name" of this object.
     return $obj;
 }
 
@@ -153,7 +183,6 @@ Accessor method for "bool"
 sub bool {
     @_ == 1 ? ( $_data{refaddr $_[0]}{bool} ) : ( $_data{refaddr $_[0]}{bool} = $_[1] )
 }
-
 
 =head2 scalar
 
