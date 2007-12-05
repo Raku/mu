@@ -7,6 +7,10 @@ class Match is Capture {
     has $.bool;
     has $.match_str;
 
+    method perl {
+        "Match.new( ... )"
+    }
+
     method Str {
         if ($.result) {
             return $.result.Str;
