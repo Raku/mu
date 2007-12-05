@@ -48,6 +48,9 @@ my $visitor_global      = ::DISPATCH( $::KindaPerl6::Visitor::Global,        'ne
                 if ( $method eq 'scalar' ) {
                     return $_[0]->result;
                 }
+                if ( $method eq 'perl' ) {
+                    return ::DISPATCH( $::Str, 'new', 'Pad.new( ... )' )
+                }
 
                 $self->$method( @param );
         };
@@ -129,7 +132,7 @@ sub clone {
 }
 
 sub eval {
-    print "Pad.eval $_[1]\n";
+    #print "Pad.eval $_[1]\n";
     $_[0]{evaluator}( $_[1] )
 }
 
