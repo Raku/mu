@@ -61,7 +61,7 @@ class Token {
                         ~    'local $GLOBAL::_Class = shift; '
                         ~    'undef $GLOBAL::_M2; '
                         ~    '( ref($_) ? ::DISPATCH( $_, "Str" )->{_value} : $_ ) =~ '
-                        ~      '/$_rule_' ~ $.name ~ '/; '
+                        ~      '/$' ~ Main::mangle_perl5rx_metasyntax( $.name ) ~ '/; '
                         
                         ~    'if ( $GLOBAL::_M2->[1] eq \'to\' ) { '
                         ~        'Match::from_global_data( $GLOBAL::_M2 ); '
@@ -375,7 +375,7 @@ class Rule::SubruleNoCapture {
         #    !! ( '\'$\'.$GLOBAL::_Class.\'::_rule_' ~ $.metasyntax ~ '\'' );
         
         # XXX - Temporary hack
-        my $meth := '\'$_rule_' ~ $.metasyntax ~ '\'';
+        my $meth := '\'$' ~ Main::mangle_perl5rx_metasyntax( $.metasyntax ) ~ '\'';
 
         # XXX - param passing
         
@@ -396,7 +396,7 @@ class Rule::Subrule {
         #    !! ( '\'$\'.$GLOBAL::_Class.\'::_rule_' ~ $.metasyntax ~ '\'' );
         
         # XXX - Temporary hack
-        my $meth := '\'$_rule_' ~ $.metasyntax ~ '\'';
+        my $meth := '\'$' ~ Main::mangle_perl5rx_metasyntax( $.metasyntax ) ~ '\'';
 
         # XXX - named capture; param passing
         

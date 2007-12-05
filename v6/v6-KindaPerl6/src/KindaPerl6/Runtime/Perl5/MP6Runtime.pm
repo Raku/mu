@@ -202,6 +202,16 @@ package Main;
         $s =~ s/(\\|\')/\\$1/g;
         $s;
     }
+    sub mangle_perl5rx_metasyntax {
+        my $s = shift;
+        if ( $s =~ /\./ ) {
+            $s =~ s/(\.)/::_rule_/;   # '$KindaPerl6::Grammar.ws' -> ::_rule_ws
+        }
+        else {
+            $s = '_rule_' . $s;   # '$_rule_ws'
+        }
+        $s;
+    }
     sub indent {
         my $s = shift;
         $s =~ s/^/    /mg;

@@ -119,9 +119,9 @@ sub emit_perl5 {
                                                                                                     . (
                                                                                                     '( ref($_) ? ::DISPATCH( $_, "Str" )->{_value} : $_ ) =~ '
                                                                                                         . (
-                                                                                                        '/$_rule_'
+                                                                                                        '/$'
                                                                                                             . (
-                                                                                                            $self->{name}
+                                                                                                            Main::mangle_perl5rx_metasyntax( $self->{name} )
                                                                                                                 . (
                                                                                                                 '/; '
                                                                                                                     . (
@@ -543,7 +543,7 @@ sub emit_perl5 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    my $meth = ( '\'$_rule_' . ( $self->{metasyntax} . '\'' ) );
+    my $meth = ( '\'$' . ( Main::mangle_perl5rx_metasyntax( $self->{metasyntax} ) . '\'' ) );
     ( '(?:' . ( '(??{ eval ' . ( $meth . ( ' })' . ( '(?{ ' . ( 'local $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; ' . ( '})' . ')' ) ) ) ) ) ) );
 }
 
@@ -554,7 +554,7 @@ sub emit_perl5 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    my $meth = ( '\'$_rule_' . ( $self->{metasyntax} . '\'' ) );
+    my $meth = ( '\'$' . ( Main::mangle_perl5rx_metasyntax( $self->{metasyntax} ) . '\'' ) );
     do {
         if   ( $self->{capture_to_array} ) { ( '(?:' . ( '(??{ eval ' . ( $meth . ( ' })' . ( '(?{ ' . ( 'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture_to_array", "' . ( $self->{metasyntax} . ( '" ]; ' . ( '})' . ')' ) ) ) ) ) ) ) ) ) }
         else                               { ( '(?:' . ( '(??{ eval ' . ( $meth . ( ' })' . ( '(?{ ' . ( 'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "' .          ( $self->{metasyntax} . ( '" ]; ' . ( '})' . ')' ) ) ) ) ) ) ) ) ) }
