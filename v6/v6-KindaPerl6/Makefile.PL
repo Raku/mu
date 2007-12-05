@@ -149,6 +149,50 @@ END
 
     );
 }
+elsif ( $KP6_TARGET eq "KP6-BOOT-NOREGEX" ) {
+    %Kp6Build = (
+        lib         => "compiled/perl5-kp6-kp6-noregex/lib",
+        module_lib  => "compiled/perl5-kp6-kp6-noregex/lib",
+        run_test    => "script/run_tests_kp6_kp6.pl",  # TODO
+        make        =>
+<<'END',
+compiled/perl5-kp6-kp6-noregex/lib/KindaPerl6/Runtime/Perl6/%.pm: src/KindaPerl6/Runtime/Perl6/%.pm
+	@echo perl script/kp6 -Cperl5 --noperltidy -o $@ $<
+	$(PERL) script/kp6 -Cperl5 --noperltidy -o $@ $<
+
+compiled/perl5-kp6-kp6-noregex/lib/%.pm: src-modules/%.pm
+	@echo perl script/kp6 -Cperl5 --noperltidy -o $@.temp $<
+	@$(PERL) script/kp6 -Cperl5 --noperltidy -o $@.temp $<  ; \
+		res=$$? ; \
+		if [ $$res = 0 -a -s $@.temp ] ; then \
+			mv $@.temp $@ ; \
+		else \
+			echo "*** Compilation failed with exit code: $$res!" ; \
+			exit; \
+		fi
+
+compiled/perl5-kp6-kp6-noregex/lib/KindaPerl6/Runtime/Perl5/Pad.pm: libkp6/KindaPerl6/Runtime/Perl5/Pad.pm
+	$(CP) $< $@
+
+compiled/perl5-kp6-kp6-noregex/lib/KindaPerl6/Runtime/Perl5/%.pm: src/KindaPerl6/Runtime/Perl5/%.pm
+	$(CP) $< $@
+
+compiled/perl5-kp6-kp6-noregex/lib/KindaPerl6.pm: src/KindaPerl6.pm
+	$(CP) $< $@
+
+compiled/perl5-kp6-kp6-noregex/lib/%.pm: src/%.pm
+	@echo perl script/kp6 -Cperl5 --noperltidy -o $@ $<
+	$(PERL) script/kp6 -Cperl5 --noperltidy -o $@ $<
+
+# TODO
+# script/kp6-kp6.pl: src-script/kp6-kp6.pl
+#	@echo perl script/kp6 -Cperl5rx --noperltidy -o $@ $<
+#	$(PERL) script/kp6 -Cperl5rx --noperltidy -o $@ $<
+
+END
+
+    );
+}
 elsif ( $KP6_TARGET =~ /^KP6-LISP(?:-([A-Za-z]+))?$/ ) {
     #die "not yet implemented KP6_TARGET '$KP6_TARGET', can't continue";
     my $runtime = lc($1) || 'sbcl';
