@@ -75,12 +75,13 @@ sub new {
         ||  $parent->namespace;
 
     my @declarations = map {
-        print "emit_perl5: ", ::DISPATCH( $_, 'perl' )->{_value}, "\n";
-        print "emit_perl5: ", ::DISPATCH( $_, 'emit_perl5' )->{_value}, "\n";
-        ::DISPATCH( $_, 'emit_perl5' );
+        #print "emit_perl5: ", ::DISPATCH( $_, 'perl' )->{_value}, "\n";
+        #print "emit_perl5: ", ::DISPATCH( $_, 'emit_perl5' )->{_value}, "\n";
+        ::DISPATCH( $_, 'emit_perl5' )->{_value};
     } @{$data{lexicals}};
     my @names = map {
-        $_->var->emit_perl5
+        #$_->var->emit_perl5
+        ::DISPATCH( ::DISPATCH( $_, 'var' ), 'emit_perl5' )->{_value};
     } @{$data{lexicals}};
 
     #print Dump( @names );
@@ -127,7 +128,7 @@ sub clone {
 }
 
 sub eval {
-    #print "Pad.eval $_[1]\n";
+    print "Pad.eval $_[1]\n";
     $_[0]{evaluator}( $_[1] )
 }
 
