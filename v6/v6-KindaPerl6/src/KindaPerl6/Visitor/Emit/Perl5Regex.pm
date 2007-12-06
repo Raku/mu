@@ -248,23 +248,11 @@ class Rule::Block {
             ~    '@Match::Matches = (); ' ~ Main::newline()  # discard outer matches, if any
             # ~ ' use Data::Dumper; print "Rule::Block current match: ",Dumper($MATCH),"\n"; '
 
-            ~ 'my $ret = ( sub {' ~ Main::newline()
-                    ~ Main::indent(
-                           $.closure.emit_perl5
-                        ~  '; "974^213" '
-                    )
-            ~ '} )->();' ~ Main::newline()
+            ~    $.closure.emit_perl5 ~ '; '
             
-            
-            ~ 'if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { '
-                ~   '$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $GLOBAL::_REGEX_RETURN_ ]; '
-            ~ '}' 
-            
-            # XXX old way: "return" instead of "make"
-            ~ 'elsif ( $ret ne "974^213" ) {' 
-                ~   '$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $ret ]; '
-                # TODO - (*ACCEPT) and exit
-            ~ '};' 
+            ~    'if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { '
+                 ~   '$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $GLOBAL::_REGEX_RETURN_ ]; '
+            ~    '}'             
             ) 
         ~ ' })'
     }

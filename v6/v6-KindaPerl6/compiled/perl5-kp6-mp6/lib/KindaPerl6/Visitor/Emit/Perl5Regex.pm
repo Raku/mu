@@ -396,25 +396,11 @@ sub emit_perl5 {
                                                         . (
                                                         Main::newline()
                                                             . (
-                                                            'my $ret = ( sub {'
+                                                            $self->{closure}->emit_perl5()
                                                                 . (
-                                                                Main::newline()
+                                                                '; '
                                                                     . (
-                                                                    Main::indent( ( $self->{closure}->emit_perl5() . '; "974^213" ' ) )
-                                                                        . (
-                                                                        '} )->();'
-                                                                            . (
-                                                                            Main::newline()
-                                                                                . (
-                                                                                'if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { '
-                                                                                    . (
-                                                                                    '$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $GLOBAL::_REGEX_RETURN_ ]; '
-                                                                                        . ( '}' . ( 'elsif ( $ret ne "974^213" ) {' . ( '$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $ret ]; ' . '};' ) ) )
-                                                                                    )
-                                                                                )
-                                                                            )
-                                                                        )
-                                                                    )
+                                                                    'if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { ' . ( '$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $GLOBAL::_REGEX_RETURN_ ]; ' . '}' ) )
                                                                 )
                                                             )
                                                         )
