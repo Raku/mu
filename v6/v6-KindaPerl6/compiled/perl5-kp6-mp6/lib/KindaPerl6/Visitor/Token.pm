@@ -224,13 +224,29 @@ sub emit_token {
     return (
         (   'do { '
                 . (
-                'my $ret = self.'
+                'my $_regex_return_; '
                     . (
-                    $self->{closure}
+                    'my $ret = self.'
                         . (
-                        '($MATCH);'
+                        $self->{closure}
                             . (
-                            'if $ret ne "sTrNgE V4l" {' . ( 'if (%*ENV{"KP6_TOKEN_DEBUGGER"}) { say "<<< some closure returning... " }; ' . ( '$MATCH.result = $ret; ' . ( '$MATCH.bool = 1; ' . ( 'return $MATCH;' . ( '};' . ( '1' . '}' ) ) ) ) ) )
+                            '($MATCH); '
+                                . (
+                                'if defined( $_regex_return ) { '
+                                    . (
+                                    '$MATCH.result = $_regex_return; '
+                                        . (
+                                        '$MATCH.bool = 1; '
+                                            . (
+                                            '}; '
+                                                . (
+                                                'if $ret ne "sTrNgE V4l" {'
+                                                    . ( 'if (%*ENV{"KP6_TOKEN_DEBUGGER"}) { say "<<< some closure returning... " }; ' . ( '$MATCH.result = $ret; ' . ( '$MATCH.bool = 1; ' . ( 'return $MATCH;' . ( '};' . ( '1' . '}' ) ) ) ) ) )
+                                                )
+                                            )
+                                        )
+                                    )
+                                )
                             )
                         )
                     )

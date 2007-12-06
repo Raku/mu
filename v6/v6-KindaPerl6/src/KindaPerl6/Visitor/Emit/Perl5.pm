@@ -533,6 +533,14 @@ class Apply {
                 ~ ' }' ~ Main::newline();
         }
 
+        if  ( $.code.isa('Var') ) && ( $.code.name eq 'make' )
+        {
+            # hack for "make" (S05)
+            return  '::DISPATCH( '
+                        ~ '$_regex_return_, "STORE", ' ~ ((@.arguments[0]).emit_perl5) ~ ''
+                ~ ' )' ~ Main::newline();
+        }
+
         return  '::DISPATCH( ' ~ $.code.emit_perl5 ~ ', \'APPLY\', ' ~ (@.arguments.>>emit_perl5).join(', ') ~ ' )' ~ Main::newline();
     }
 }

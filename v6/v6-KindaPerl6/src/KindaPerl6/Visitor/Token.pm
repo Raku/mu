@@ -216,8 +216,14 @@ class Rule::Block {
     method emit_token {
         #XXX - avoid code -> ast -> code 
         #warn $.closure.emit_perl6;
-        return 'do { ' ~ 
-             'my $ret = self.'~$.closure ~ '($MATCH);' ~
+        return 'do { ' 
+             ~ 'my $_regex_return_; ' 
+             ~ 'my $ret = self.'~ $.closure ~ '($MATCH); ' 
+             ~ 'if defined( $_regex_return ) { '
+                ~ '$MATCH.result = $_regex_return; ' 
+                ~ '$MATCH.bool = 1; ' 
+             ~ '}; ' 
+             ~
              'if $ret ne "sTrNgE V4l" {' ~
                 'if (%*ENV{"KP6_TOKEN_DEBUGGER"}) { say "<<< some closure returning... " }; ' ~
                 '$MATCH.result = $ret; ' ~
