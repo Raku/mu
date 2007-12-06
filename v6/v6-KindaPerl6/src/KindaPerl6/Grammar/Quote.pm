@@ -18,7 +18,7 @@ token quoted_any { . }
 token quoted_array {
     <before \@ > <var> \[ <.opt_ws> \]
         {
-            return ::Apply(
+            make ::Apply(
                 'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'prefix:<~>', namespace => [ ] ),
                 'arguments' => [ $$<var> ],
             );
@@ -28,7 +28,7 @@ token quoted_array {
 token quoted_hash {
     <before \% > <var> \{ <.opt_ws> \}
         {
-            return ::Apply(
+            make ::Apply(
                 'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'prefix:<~>', namespace => [ ] ),
                 'arguments' => [ $$<var> ],
             );
@@ -38,7 +38,7 @@ token quoted_hash {
 token quoted_scalar {
     <before \$ > <var>
         {
-            return ::Apply(
+            make ::Apply(
                 'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'prefix:<~>', namespace => [ ] ),
                 'arguments' => [ $$<var> ],
             );
@@ -46,42 +46,42 @@ token quoted_scalar {
 }
 
 token quoted_exp {
-    |  <quoted_array>  { return $$<quoted_array>  }
-    |  <quoted_hash>   { return $$<quoted_hash>   }
-    |  <quoted_scalar> { return $$<quoted_scalar> }
-    |  \' { return ::Val::Char( char => 39 ) }
+    |  <quoted_array>  { make $$<quoted_array>  }
+    |  <quoted_hash>   { make $$<quoted_hash>   }
+    |  <quoted_scalar> { make $$<quoted_scalar> }
+    |  \' { make ::Val::Char( char => 39 ) }
     |  \\
         [  # see S02
-        |   a  { return ::Val::Char( char =>  7 ) }
-        |   b  { return ::Val::Char( char =>  8 ) }
-        |   t  { return ::Val::Char( char =>  9 ) }
-        |   n  { return ::Val::Char( char => 10 ) }
-        |   f  { return ::Val::Char( char => 12 ) }
-        |   r  { return ::Val::Char( char => 13 ) }
-        |   e  { return ::Val::Char( char => 27 ) }
-        |   \" { return ::Val::Char( char => 34 ) }
-        |   \' { return ::Val::Char( char => 39 ) }
-        |   \\ { return ::Val::Char( char => 92 ) }
-        |   <quoted_any> { return ::Val::Buf( 'buf' => $$<quoted_any> ) }
+        |   a  { make ::Val::Char( char =>  7 ) }
+        |   b  { make ::Val::Char( char =>  8 ) }
+        |   t  { make ::Val::Char( char =>  9 ) }
+        |   n  { make ::Val::Char( char => 10 ) }
+        |   f  { make ::Val::Char( char => 12 ) }
+        |   r  { make ::Val::Char( char => 13 ) }
+        |   e  { make ::Val::Char( char => 27 ) }
+        |   \" { make ::Val::Char( char => 34 ) }
+        |   \' { make ::Val::Char( char => 39 ) }
+        |   \\ { make ::Val::Char( char => 92 ) }
+        |   <quoted_any> { make ::Val::Buf( 'buf' => $$<quoted_any> ) }
         ]
-    |  [ \$ | \@ | \% | '' ] <double_quoted> { return ::Val::Buf( 'buf' => ~$/ ) }
+    |  [ \$ | \@ | \% | '' ] <double_quoted> { make ::Val::Buf( 'buf' => ~$/ ) }
 }
 
 token single_quoted_exp {
-    |   \\  \'   { return ::Val::Char( char => 39 ) }
-    |   \\  \\   { return ::Val::Char( char => 92 ) }
-    |   \\       { return ::Val::Char( char => 92 ) }
-    |  <single_quoted> { return ::Val::Buf( 'buf' => ~$/ ) }
+    |   \\  \'   { make ::Val::Char( char => 39 ) }
+    |   \\  \\   { make ::Val::Char( char => 92 ) }
+    |   \\       { make ::Val::Char( char => 92 ) }
+    |  <single_quoted> { make ::Val::Buf( 'buf' => ~$/ ) }
 }
 
 token quoted_exp_seq {
     <quoted_exp>
     [
-    |  <before \" >     { return $$<quoted_exp>;}
+    |  <before \" >     { make $$<quoted_exp>;}
     |
         <quoted_exp_seq>
         {
-            return ::Apply(
+            make ::Apply(
                 'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'infix:<~>', namespace => [ ] ),
                 'arguments' => [ $$<quoted_exp>, $$<quoted_exp_seq> ],
             );
@@ -92,11 +92,11 @@ token quoted_exp_seq {
 token single_quoted_exp_seq {
     <single_quoted_exp>
     [
-    |  <before \' >     { return $$<single_quoted_exp>;}
+    |  <before \' >     { make $$<single_quoted_exp>;}
     |
         <single_quoted_exp_seq>
         {
-            return ::Apply(
+            make ::Apply(
                 'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'infix:<~>', namespace => [ ] ),
                 'arguments' => [ $$<single_quoted_exp>, $$<single_quoted_exp_seq> ],
             );
@@ -117,8 +117,8 @@ token french_quoted {
 };
 
 token val_buf {
-    | \" <quoted_exp_seq> \" { return $$<quoted_exp_seq> }
-    | \' <single_quoted_exp_seq> \' { return $$<single_quoted_exp_seq> }
+    | \" <quoted_exp_seq> \" { make $$<quoted_exp_seq> }
+    | \' <single_quoted_exp_seq> \' { make $$<single_quoted_exp_seq> }
 };
 
 }

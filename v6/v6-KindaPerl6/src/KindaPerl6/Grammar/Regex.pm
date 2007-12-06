@@ -52,7 +52,7 @@ token parsed_code {
     {
         my $env := COMPILER::current_pad();
         COMPILER::drop_pad();
-        return ::Lit::Code(
+        make ::Lit::Code(
                     pad   => $env,
                     state => { },
                     sig   => ::Sig( 'invocant' => undef, 'positional' => [ ] ),
@@ -62,10 +62,10 @@ token parsed_code {
 };
 
 token named_capture_body {
-    | \(  <rule>        \)  { return ::Rule::Capture( 'rule' => $$<rule> ) }
-    | \[  <rule>        \]  { return $$<rule> } 
+    | \(  <rule>        \)  { make ::Rule::Capture( 'rule' => $$<rule> ) }
+    | \[  <rule>        \]  { make $$<rule> } 
     | \<  <metasyntax>  \>  
-            { return ::Rule::Subrule( 'metasyntax' => $$<metasyntax> ) }
+            { make ::Rule::Subrule( 'metasyntax' => $$<metasyntax> ) }
     | { die 'invalid alias syntax' }
 };
 
@@ -73,18 +73,18 @@ token variables {
     |
         '$<'
         <ident> \> 
-        { return '$/{' ~ '\'' ~ $<ident> ~ '\'' ~ '}' }
+        { make '$/{' ~ '\'' ~ $<ident> ~ '\'' ~ '}' }
     |
         # TODO
         <KindaPerl6::Grammar.sigil> 
         <KindaPerl6::Grammar.digits>
-        { return $<KindaPerl6::Grammar.sigil> ~ '/[' ~ $<KindaPerl6::Grammar.digits> ~ ']' }
+        { make $<KindaPerl6::Grammar.sigil> ~ '/[' ~ $<KindaPerl6::Grammar.digits> ~ ']' }
     |
         <KindaPerl6::Grammar.sigil> 
         <KindaPerl6::Grammar.twigil> 
         <KindaPerl6::Grammar.full_ident> 
         {
-            return ::Rule::Var( 
+            make ::Rule::Var( 
                     'sigil'  => ~$<KindaPerl6::Grammar.sigil>,
                     'twigil' => ~$<KindaPerl6::Grammar.twigil>,
                     'name'   => ~$<KindaPerl6::Grammar.full_ident>
@@ -97,80 +97,80 @@ token assertion_modifier { '!' | '?' | '' };
 token rule_terms {
     |   '('
         <rule> \)
-        { return ::Rule::Capture( 'rule' => $$<rule> ) }
+        { make ::Rule::Capture( 'rule' => $$<rule> ) }
     |   '<('
         <rule>  ')>'
-        { return ::Rule::CaptureResult( 'rule' => $$<rule> ) }
+        { make ::Rule::CaptureResult( 'rule' => $$<rule> ) }
     |   '<' <assertion_modifier> 'after'
         <.ws> <rule> \> 
-        { return ::Rule::After( 'rule' => $$<rule>, 'assertion_modifier' => $$<assertion_modifier> ) }
+        { make ::Rule::After( 'rule' => $$<rule>, 'assertion_modifier' => $$<assertion_modifier> ) }
     |   '<' <assertion_modifier> 'before'
         <.ws> <rule> \> 
-        { return ::Rule::Before( 'rule' => $$<rule>, 'assertion_modifier' => $$<assertion_modifier> ) }
+        { make ::Rule::Before( 'rule' => $$<rule>, 'assertion_modifier' => $$<assertion_modifier> ) }
     # |   '<!before'
     #    <.ws> <rule> \> 
-    #    { return ::Rule::NotBefore( 'rule' => $$<rule> ) }
+    #    { make ::Rule::NotBefore( 'rule' => $$<rule> ) }
     |   '<!'
         # TODO
         <metasyntax> \> 
-        { return { negate  => { 'metasyntax' => $$<metasyntax> } } }
+        { make { negate  => { 'metasyntax' => $$<metasyntax> } } }
     |   '<+'
         # TODO
         <char_class>  \> 
-        { return ::Rule::CharClass( 'chars' => ~$<char_class> ) }
+        { make ::Rule::CharClass( 'chars' => ~$<char_class> ) }
     |   '<-'
         # TODO
         <char_class> \>
-        { return ::Rule::NegateCharClass( 'chars' => ~$<char_class> ) }
+        { make ::Rule::NegateCharClass( 'chars' => ~$<char_class> ) }
     |   \'
         <literal> \' 
-        { return ::Rule::Constant( 'constant' => $$<literal> ) }
+        { make ::Rule::Constant( 'constant' => $$<literal> ) }
     |   \< 
         [  
             <variables>   \>
             # { say 'matching < variables ...' }
             {
                 # say 'found < hash-variable >';
-                return ::Rule::InterpolateVar( 'var' => $$<variables> )
+                make ::Rule::InterpolateVar( 'var' => $$<variables> )
             }
         |
             \?
             { warn "<? ...> not implemented - maybe you mean <. ...> ?" }
             <metasyntax>  \>
-            { return ::Rule::SubruleNoCapture( 'metasyntax' => $$<metasyntax> ) }
+            { make ::Rule::SubruleNoCapture( 'metasyntax' => $$<metasyntax> ) }
         |
             \.
             <metasyntax>  \>
-            { return ::Rule::SubruleNoCapture( 'metasyntax' => $$<metasyntax> ) }
+            { make ::Rule::SubruleNoCapture( 'metasyntax' => $$<metasyntax> ) }
         |
             # TODO
             <metasyntax>  \>
-            { return ::Rule::Subrule( 'metasyntax' => $$<metasyntax> ) }
+            { make ::Rule::Subrule( 'metasyntax' => $$<metasyntax> ) }
         ]
     |   \{ 
         <parsed_code>  
-        { return ::Rule::Block( 'closure' => $$<parsed_code> ) }
+        { make ::Rule::Block( 'closure' => $$<parsed_code> ) }
     |   <KindaPerl6::Grammar.backslash>  
         [
 # TODO
 #        | [ x | X ] <[ 0..9 a..f A..F ]]>+
 #          #  \x0021    \X0021
-#          { return ::Rule::SpecialChar( char => '\\' ~ $/ ) }
+#          { make ::Rule::SpecialChar( char => '\\' ~ $/ ) }
 #        | [ o | O ] <[ 0..7 ]>+
 #          #  \x0021    \X0021
-#          { return ::Rule::SpecialChar( char => '\\' ~ $/ ) }
+#          { make ::Rule::SpecialChar( char => '\\' ~ $/ ) }
 #        | ( x | X | o | O ) \[ (<-[ \] ]>*) \]
 #          #  \x[0021]  \X[0021]
-#          { return ::Rule::SpecialChar( char => '\\' ~ $0 ~ $1 ) }
+#          { make ::Rule::SpecialChar( char => '\\' ~ $0 ~ $1 ) }
         | <any>
           #  \e  \E
-          { return ::Rule::SpecialChar( 'char' => $$<any> ) }
+          { make ::Rule::SpecialChar( 'char' => $$<any> ) }
         ]
     |   \. 
-        { return ::Rule::Dot( 'dot' => 1 ) }
+        { make ::Rule::Dot( 'dot' => 1 ) }
     |   '[' 
         <rule> ']' 
-        { return $$<rule> }
+        { make $$<rule> }
 
 };
 
@@ -180,7 +180,7 @@ token term {
        # XXX special case for $<xxx> := (...) 
        '$<' <ident> '>' <.ws>? ':=' <.ws>? '(' <rule> ')'
           { 
-            return ::Rule::NamedCapture(
+            make ::Rule::NamedCapture(
                 'rule' =>  $$<rule>,
                 'ident' => $$<ident>
             ); 
@@ -190,14 +190,14 @@ token term {
        <variables>
        [  <.ws>? ':=' <.ws>? <named_capture_body>
           { 
-            return ::Rule::NamedCapture(
+            make ::Rule::NamedCapture(
                 'rule' =>  $$<named_capture_body>,
                 'ident' => $$<variables>
             ); 
           }
        |
           { 
-            return $$<variables>
+            make $$<variables>
           }
        ]
     | 
@@ -205,15 +205,15 @@ token term {
         <rule_terms>
         { 
             #print 'term: ', Dumper( $_[0]->data );
-            return $$<rule_terms> 
+            make $$<rule_terms> 
         }
     |  <!before \] | \} | \) | \> | \: | \? | \+ | \* | \| | \& | \/ > <any>   # TODO - <...>* - optimize!
-        { return ::Rule::Constant( 'constant' => $$<any> ) }
+        { make ::Rule::Constant( 'constant' => $$<any> ) }
 };
 
 token quant {
     |   '**' <.KindaPerl6::Grammar.opt_ws> \{  <parsed_code>  
-        { return { 'closure' => $$<parsed_code> } }
+        { make { 'closure' => $$<parsed_code> } }
     |   [  \? | \* | \+  ]
 };
 
@@ -230,7 +230,7 @@ token quantifier {
         [
             <quant> <greedy>
             <.KindaPerl6::Grammar.opt_ws3>
-            { return ::Rule::Quantifier(
+            { make ::Rule::Quantifier(
                     'term'    => $$<term>,
                     'quant'   => $$<quant>,
                     'greedy'  => $$<greedy>,
@@ -240,7 +240,7 @@ token quantifier {
                 )
             }
         |
-            { return $$<term> }
+            { make $$<term> }
         ]
 };
 
@@ -248,17 +248,17 @@ token concat_list {
     <quantifier>
     [
         <concat_list> 
-        { return [ $$<quantifier>, @($$<concat_list>) ] }
+        { make [ $$<quantifier>, @($$<concat_list>) ] }
     |
-        { return [ $$<quantifier> ] }
+        { make [ $$<quantifier> ] }
     ]
     |
-        { return [] }
+        { make [] }
 };
 
 token concat {
     <concat_list>
-    { return ::Rule::Concat( 'concat' => $$<concat_list> ) }
+    { make ::Rule::Concat( 'concat' => $$<concat_list> ) }
 };
 
 token or_list {
@@ -266,12 +266,12 @@ token or_list {
     [
         '|'
         <or_list> 
-        { return [ $$<concat>, @($$<or_list>) ] }
+        { make [ $$<concat>, @($$<or_list>) ] }
     |
-        { return [ $$<concat> ] }
+        { make [ $$<concat> ] }
     ]
     |
-        { return [] }
+        { make [] }
 };
 
 token rule {
@@ -280,7 +280,7 @@ token rule {
     <or_list>
     { 
         # say 'found Rule';
-        return ::Rule::Or( 'or' => $$<or_list> ) 
+        make ::Rule::Or( 'or' => $$<or_list> ) 
     }
 };
 

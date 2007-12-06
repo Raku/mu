@@ -5,22 +5,22 @@ grammar KindaPerl6::Grammar {
 
     # has $.is_longname; ???
     token sig_type {
-        |   [ '::' | '' ]  <full_ident> <.ws>  { return $$<full_ident> }
-        |   ''                                 { return '' }
+        |   [ '::' | '' ]  <full_ident> <.ws>  { make $$<full_ident> }
+        |   ''                                 { make '' }
     }
     token sig_default_value {
-        |   <.opt_ws> '=' <.opt_ws> <exp> <.opt_ws> { return { has_default => 1, default => $$<exp>, } }
-        |   ''                                      { return { has_default => 0, default => ::Val::Undef( ), } }
+        |   <.opt_ws> '=' <.opt_ws> <exp> <.opt_ws> { make { has_default => 1, default => $$<exp>, } }
+        |   ''                                      { make { has_default => 0, default => ::Val::Undef( ), } }
     }
-    token sig_named_only       { ':' { return 1 } | { return 0 } }
+    token sig_named_only       { ':' { make 1 } | { make 0 } }
     token sig_optional         {
-        |   '?'            { return 1 }
-        |   [ '!' | '' ]   { return 0 }
+        |   '?'            { make 1 }
+        |   [ '!' | '' ]   { make 0 }
     }
-    token sig_slurpy           { '*' { return 1 } | { return 0 } }
-    token sig_multidimensional { '@' { return 1 } | { return 0 } }
-    token sig_rw               { <.ws> 'is' <.ws> 'rw'   { return 1 } | { return 0 } }
-    token sig_copy             { <.ws> 'is' <.ws> 'copy' { return 1 } | { return 0 } }
+    token sig_slurpy           { '*' { make 1 } | { make 0 } }
+    token sig_multidimensional { '@' { make 1 } | { make 0 } }
+    token sig_rw               { <.ws> 'is' <.ws> 'rw'   { make 1 } | { make 0 } }
+    token sig_copy             { <.ws> 'is' <.ws> 'copy' { make 1 } | { make 0 } }
 
     token exp_sig_item {
             <sig_type>
@@ -33,7 +33,7 @@ grammar KindaPerl6::Grammar {
             <sig_default_value>
             <sig_rw> <sig_copy>   # XXX no order !!!
 
-            { return ::Lit::SigArgument(
+            { make ::Lit::SigArgument(
                     key           => ::Var(
                             sigil     => ~$<sigil>,
                             twigil    => '',
@@ -57,12 +57,12 @@ grammar KindaPerl6::Grammar {
         |   <exp_sig_item>
             [
             |   <.opt_ws> \, <.opt_ws> <exp_sig_list>
-                { return [ $$<exp_sig_item>, @( $$<exp_sig_list> ) ] }
+                { make [ $$<exp_sig_item>, @( $$<exp_sig_list> ) ] }
             |   <.opt_ws> [ \, <.opt_ws> | '' ]
-                { return [ $$<exp_sig_item> ] }
+                { make [ $$<exp_sig_item> ] }
             ]
         |
-            { return [ ] }
+            { make [ ] }
     };
 
     token sig {
@@ -72,7 +72,7 @@ grammar KindaPerl6::Grammar {
         {
             # say ' invocant: ', ($$<invocant>).perl;
             # say ' positional: ', ($$<exp_seq>).perl;
-            return ::Sig( 'invocant' => $$<invocant>, 'positional' => $$<exp_sig_list>, );
+            make ::Sig( 'invocant' => $$<invocant>, 'positional' => $$<exp_sig_list>, );
         }
     };
 

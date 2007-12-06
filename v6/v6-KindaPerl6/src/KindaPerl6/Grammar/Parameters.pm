@@ -34,28 +34,28 @@ grammar KindaPerl6::Grammar {
         |   <ident>                             #  key => value
             <.opt_ws> '=>' <.opt_ws>
             <exp>
-            { return [ ::Val::Buf( 'buf' => ~$<ident> ), $$<exp> ] }
+            { make [ ::Val::Buf( 'buf' => ~$<ident> ), $$<exp> ] }
         |   \: <ident> \< <angle_quoted> \>     #  :key<value>
             {
-                return [
+                make [
                     ::Val::Buf( 'buf' => ~$<ident> ),
                     ::Val::Buf( 'buf' => ~$<angle_quoted> ) ]
             }
         |   \: <ident> \( <.opt_ws> <exp> <.opt_ws> \)   #  :key(value)
             {
-                return [
+                make [
                     ::Val::Buf( 'buf' => ~$<ident> ),
                     $$<exp> ]
             }
         |   \: <ident>                          #  :key
             {
-                return [
+                make [
                     ::Val::Buf( 'buf' => ~$<ident> ),
                     ::Val::Bit( 'bit' => 1 ) ]
             }
         |   \: <sigil> <ident>                  #  :$var
             {
-                return [
+                make [
                     ::Val::Buf( 'buf' => ~$<ident> ),
                     ::Var( 'sigil' => ~$$<sigil>, 'twigil' => '', 'name' => $$<ident>, namespace => [ ] ) ]
             }
@@ -64,24 +64,24 @@ grammar KindaPerl6::Grammar {
 
     token exp_parameter_item {
         |   <exp_parameter_named>
-            { return ::Lit::NamedArgument(
+            { make ::Lit::NamedArgument(
                     key           => ($$<exp_parameter_named>)[0],
                     value         => ($$<exp_parameter_named>)[1],
                 ) }
-        |   <pair>  { return ::Lit::Pair( key => ($$<pair>)[0], value => ($$<pair>)[1] ) }
-        |   <exp>   { return $$<exp>  }
+        |   <pair>  { make ::Lit::Pair( key => ($$<pair>)[0], value => ($$<pair>)[1] ) }
+        |   <exp>   { make $$<exp>  }
     }
 
     token exp_parameter_list {
         |   <exp_parameter_item>
             [
             |   <.opt_ws> \, <.opt_ws> <exp_parameter_list>
-                { return [ $$<exp_parameter_item>, @( $$<exp_parameter_list> ) ] }
+                { make [ $$<exp_parameter_item>, @( $$<exp_parameter_list> ) ] }
             |   <.opt_ws> [ \, <.opt_ws> | '' ]
-                { return [ $$<exp_parameter_item> ] }
+                { make [ $$<exp_parameter_item> ] }
             ]
         |
-            { return [ ] }
+            { make [ ] }
     };
 
 

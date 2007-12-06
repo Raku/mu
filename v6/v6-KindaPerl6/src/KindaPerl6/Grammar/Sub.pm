@@ -4,8 +4,8 @@ grammar KindaPerl6::Grammar {
 
 token method_sig {
     |   <.opt_ws> \( <.opt_ws>  <sig>  <.opt_ws>  \)
-        { return $$<sig> }
-    |   { return ::Sig(
+        { make $$<sig> }
+    |   { make ::Sig(
             'invocant' => ::Var(
                 'sigil'  => '$',
                 'twigil' => '',
@@ -17,8 +17,8 @@ token method_sig {
 };
 token sub_sig {
     |   <.opt_ws> \( <.opt_ws>  <sig>  <.opt_ws>  \)
-        { return $$<sig> }
-    |   { return ::Sig(
+        { make $$<sig> }
+    |   { make ::Sig(
             'invocant' => undef,
             'positional' => [ ],
             ) }
@@ -26,12 +26,12 @@ token sub_sig {
 
 token arrow_sub_sig {
     |   <exp_sig_list>
-        { return ::Sig(
+        { make ::Sig(
             'invocant' =>   ::Val::Undef(),
             'positional' => $$<exp_sig_list>,
             ) }
     |   \( <.opt_ws>  <sig>  <.opt_ws>  \)
-        { return $$<sig> }
+        { make $$<sig> }
 }
 
 token sub {
@@ -57,7 +57,7 @@ token sub {
                 @(($$<sub_sig>).positional).>>key,
             ]
         );
-        return ::Sub(
+        make ::Sub(
             'name'  => $$<opt_name>,
             'block' => ::Lit::Code(
                 pad   => $env,
@@ -92,7 +92,7 @@ token coro {
                 @(($$<sub_sig>).positional).>>key,
             ]
         );
-        return ::Coro(
+        make ::Coro(
             'name'  => $$<opt_name>,
             'block' => ::Lit::Code(
                 pad   => $env,
@@ -127,7 +127,7 @@ token arrow_sub {
                 @(($$<arrow_sub_sig>).positional).>>key,
             ]
         );
-        return ::Sub(
+        make ::Sub(
             'name'  => undef,
             'block' => ::Lit::Code(
                 pad   => $env,
@@ -159,7 +159,7 @@ token bare_block {
                 # @(($$<sub_sig>).positional).>>key,
             ]
         );
-        return ::Lit::Code(
+        make ::Lit::Code(
                 pad   => $env,
                 state => { },
                 sig   =>
@@ -196,7 +196,7 @@ token proto {
                         ),
             );
             #COMPILER::begin_block( $bind );   # ::=   compile-time
-            return $bind;                         # :=    run-time
+            make $bind;                         # :=    run-time
         }
 }
 
@@ -226,7 +226,7 @@ token method {
             ]
         );
         COMPILER::drop_pad();
-        return ::Method(
+        make ::Method(
             'name'  => $$<opt_name>,
             'block' => ::Lit::Code(
                 pad   => $env,
@@ -353,7 +353,7 @@ token token {
         <KindaPerl6::Grammar::Regex.rule>
     \}
     {
-        return ::Token(
+        make ::Token(
             name  => ~$<opt_name>,
             regex => $$<KindaPerl6::Grammar::Regex.rule>,
             sym   => undef,
@@ -365,9 +365,9 @@ token token_sym_ident {
 
     # TODO - process whitespace in angle_quoted and french_quoted strings
 
-    |  sym \< <angle_quoted>  \>    { return ~$<angle_quoted> }
-    |  sym \« <french_quoted> \»    { return ~$<french_quoted> }
-    |  <ident>                      { return ~$<ident> }
+    |  sym \< <angle_quoted>  \>    { make ~$<angle_quoted> }
+    |  sym \« <french_quoted> \»    { make ~$<french_quoted> }
+    |  <ident>                      { make ~$<ident> }
 }
 
 token token_sym {
@@ -424,7 +424,7 @@ token macro {
                 @(($$<sub_sig>).positional).>>key,
             ]
         );
-        return ::Macro(
+        make ::Macro(
             'name'  => $$<opt_name>,
             'block' => ::Lit::Code(
                 pad   => $env,

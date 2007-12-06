@@ -11,20 +11,20 @@ grammar KindaPerl6::Grammar {
             [
             |   <.stmt_sep> <exp_stmts>
                 [<.stmt_sep> | <.opt_ws>]
-                { return [ $$<exp>, @( $$<exp_stmts> ) ] }
+                { make [ $$<exp>, @( $$<exp_stmts> ) ] }
             |   [<.stmt_sep> | <.opt_ws>]
-                { return [ $$<exp> ] }
+                { make [ $$<exp> ] }
             ]
-        | { return [] }
+        | { make [] }
     };
     token exp_stmts2 {
         <exp>
             [
             |   <.stmt_sep> <exp_stmts>
                 [<.stmt_sep> | <.opt_ws>]
-                { return [ $$<exp>, @( $$<exp_stmts> ) ] }
+                { make [ $$<exp>, @( $$<exp_stmts> ) ] }
             |   [<.stmt_sep> | <.opt_ws>]
-                { return [ $$<exp> ] }
+                { make [ $$<exp> ] }
             ]
     };
 

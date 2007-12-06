@@ -5,25 +5,25 @@ grammar KindaPerl6::Grammar {
 
 token term {
     | '...'
-        { return ::Apply(
+        { make ::Apply(
             'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'die', namespace => [ ] ),
             'arguments' => [],
           ) }
     | Inf  <!before <.word> | _ | <.digit> >
-        { return ::Apply(
+        { make ::Apply(
             'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'Inf', namespace => [ ] ),
             'arguments' => [],
           ) }
     | NaN  <!before <.word> | _ | <.digit> >
-        { return ::Apply(
+        { make ::Apply(
             'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'NaN', namespace => [ ] ),
             'arguments' => [],
           ) }
 
-    | <var>     { return $$<var> }     # $variable
-    | <arrow_sub> { return $$<arrow_sub> }     # -> $param { code... }
+    | <var>     { make $$<var> }     # $variable
+    | <arrow_sub> { make $$<arrow_sub> }     # -> $param { code... }
     | <prefix_op> <exp>
-          { return ::Apply(
+          { make ::Apply(
             'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'prefix:<' ~ $<prefix_op> ~ '>', namespace => [ ] ),
             'arguments' => [ $$<exp> ],
           ) }
@@ -33,10 +33,10 @@ token term {
         [
 
         | <exp> <.opt_ws> \)
-            { return $$<exp> }   # ( exp )
+            { make $$<exp> }   # ( exp )
         | <pair> <.opt_ws> [ ',' <.opt_ws> | '' ] \)
             # special case - just for testing
-            { return ::Lit::Pair( key => ($$<pair>)[0], value => ($$<pair>)[1] ) }
+            { make ::Lit::Pair( key => ($$<pair>)[0], value => ($$<pair>)[1] ) }
         | <exp_seq> <.opt_ws> \)
             { return
                 ::Call(
@@ -52,10 +52,10 @@ token term {
     | \{ <.opt_ws>
         [
         |   <pair> <.opt_ws> , <.opt_ws> \}
-            { return ::Lit::Pair( key => ($$<pair>)[0], value => ($$<pair>)[1] ) }
+            { make ::Lit::Pair( key => ($$<pair>)[0], value => ($$<pair>)[1] ) }
         |   <pair> <.opt_ws> \}
             {
-                return ::Lit::Code(
+                make ::Lit::Code(
                     pad   => COMPILER::current_pad(),
                     state => { },
                     sig   =>
@@ -79,7 +79,7 @@ token term {
             }
         |   <bare_block>
             {
-                return $$<bare_block>;
+                make $$<bare_block>;
             }
         |
             {
@@ -99,14 +99,14 @@ token term {
 
     # Capture
     | \\ \( <.opt_ws> <capture> <.opt_ws> \)
-        { return $$<capture> }                                # \( exp, ... )
+        { make $$<capture> }                                # \( exp, ... )
     | \\ \( <.opt_ws> <exp_seq> <.opt_ws> \)
-        { return ::Lit::Capture( 'invocant' => undef, 'array' => $$<exp_seq>, 'hash' => [ ] ); }
+        { make ::Lit::Capture( 'invocant' => undef, 'array' => $$<exp_seq>, 'hash' => [ ] ); }
     | \\ <var>
-        { return ::Lit::Capture( 'invocant' => undef, 'array' => [ $$<var> ], 'hash' => [ ] ); }
+        { make ::Lit::Capture( 'invocant' => undef, 'array' => [ $$<var> ], 'hash' => [ ] ); }
 
     | \$ \< <sub_or_method_name> \>
-        { return ::Call(
+        { make ::Call(
             'invocant'   => ::Var( 'sigil' => '$', 'twigil' => '', 'name' => '/', namespace => [ ] ),
             'hyper' => '',
             'method' => 'LOOKUP',
@@ -114,24 +114,24 @@ token term {
         ) }   # $<ident>
     | do <.opt_ws> <block1>
         # block1 is defined in the Grammar::Control module
-        { return ::Do( 'block' => $$<block1> ) }
+        { make ::Do( 'block' => $$<block1> ) }
     | use <.ws> <full_ident> <use_from_perl5> [ - <ident> | '' ]
-        { return ::Use( 'mod' => $$<full_ident>,'perl5' => $$<use_from_perl5> ) }
-    | <val>      { return $$<val> }     # 'value'
-    | <lit>      { return $$<lit> }     # [literal construct]
-#   | <bind>     { return $$<bind>   }  # $lhs := $rhs
+        { make ::Use( 'mod' => $$<full_ident>,'perl5' => $$<use_from_perl5> ) }
+    | <val>      { make $$<val> }     # 'value'
+    | <lit>      { make $$<lit> }     # [literal construct]
+#   | <bind>     { make $$<bind>   }  # $lhs := $rhs
 
     | <token_sym>
-                 { return $$<token_sym>  }  # token:sym<...>  { regex... }
-    | <token>    { return $$<token>      }  # token  { regex... }
-    | <token_P5> { return $$<token_P5>   }  # token :P5 { regex... }
+                 { make $$<token_sym>  }  # token:sym<...>  { regex... }
+    | <token>    { make $$<token>      }  # token  { regex... }
+    | <token_P5> { make $$<token_P5>   }  # token :P5 { regex... }
 
-    | <proto>    { return $$<proto>  }  # proto  { code... }
+    | <proto>    { make $$<proto>  }  # proto  { code... }
     | <multi_method>
-                 { return $$<multi_method> }  # multi method { code... }
-    | <method>   { return $$<method> }  # method { code... }
+                 { make $$<multi_method> }  # multi method { code... }
+    | <method>   { make $$<method> }  # method { code... }
     | <multi_sub>
-                 { return $$<multi_sub> }  # multi { code... }
+                 { make $$<multi_sub> }  # multi { code... }
     | <subset>                          # subset x of y where { code... }
         {
             if ($$<subset>).name ne '' {
@@ -147,16 +147,16 @@ token term {
                     ),
                 );
                 COMPILER::begin_block( $bind );   # ::=   compile-time
-                return $bind;                         # :=    run-time
+                make $bind;                         # :=    run-time
             };
-            return $$<subset>;
+            make $$<subset>;
         }
 
     | <opt_declarator> <sub>               # my? sub xxx? { code... }
         {
             if ($$<sub>).name eq '' {
                 if ($$<opt_declarator>) eq '' {
-                    return $$<sub>;
+                    make $$<sub>;
                 } else {
                     print "Error: subroutines with declarators should have a name";
                     die "Error: subroutines with declarators should have a name";
@@ -190,14 +190,14 @@ token term {
                 arguments => $$<sub>
             );
             #COMPILER::begin_block( $bind );   # ::=   compile-time
-            return $bind;                         # :=    run-time
+            make $bind;                         # :=    run-time
         }
 
     | <opt_declarator> <macro>               # my? macro xxx? { code... }
         {
             if ($$<macro>).name eq '' {
                 if ($$<opt_declarator>) eq '' {
-                    return $$<macro>;
+                    make $$<macro>;
                 } else {
                     print "Error: macros with declarators should have a name";
                     die "Error: macros with declarators should have a name";
@@ -231,14 +231,14 @@ token term {
                 arguments => $$<macro>
             );
             #COMPILER::begin_block( $bind );   # ::=   compile-time
-            return $bind;                         # :=    run-time
+            make $bind;                         # :=    run-time
         }
 
     | <opt_declarator> <coro>               # my? coro xxx? { code... }
         {
             if ($$<coro>).name eq '' {
                 if ($$<opt_declarator>) eq '' {
-                    return $$<coro>;
+                    make $$<coro>;
                 } else {
                     print "Error: subroutines with declarators should have a name";
                     die "Error: subroutines with declarators should have a name";
@@ -272,7 +272,7 @@ token term {
                 arguments => $$<coro>
             );
             #COMPILER::begin_block( $bind );   # ::=   compile-time
-            return $bind;                         # :=    run-time
+            make $bind;                         # :=    run-time
         }
 
     | <declarator> <.ws> <opt_type> <.opt_ws> <undeclared_var>   # my Int $variable
@@ -281,7 +281,7 @@ token term {
                 ( COMPILER::current_pad() ).add_lexicals( [
                     ::Decl( 'decl' => $$<declarator>, 'type' => $$<opt_type>, 'var' => $$<undeclared_var> ),
                 ] );
-                return $$<undeclared_var>;
+                make $$<undeclared_var>;
             };
             if ($$<declarator>) eq 'our' {
                 # TODO - bind to namespace
@@ -289,15 +289,15 @@ token term {
                 ( COMPILER::current_pad() ).add_lexicals( [
                     ::Decl( 'decl' => $$<declarator>, 'type' => $$<opt_type>, 'var' => $$<undeclared_var> ),
                 ] );
-                return $$<undeclared_var>;
+                make $$<undeclared_var>;
             };
             # TODO - our, temp, state, has
-            return ::Decl( 'decl' => $$<declarator>, 'type' => $$<opt_type>, 'var' => $$<undeclared_var> );
+            make ::Decl( 'decl' => $$<declarator>, 'type' => $$<opt_type>, 'var' => $$<undeclared_var> );
         }
     | <begin_block>
-                { return $$<begin_block> }  # BEGIN { code... }
+                { make $$<begin_block> }  # BEGIN { code... }
     | <check_block>
-                { return $$<check_block> }  # CHECK { code... }
+                { make $$<check_block> }  # CHECK { code... }
     | gather <.ws> \{ <.opt_ws> <bare_block>      # gather { code... }
         { return
             ::Call(
@@ -317,13 +317,13 @@ token term {
     | does <.ws> <full_ident>
         { die "<does> not implemented" }
 
-    | <control> { return $$<control> } # Various control structures.  Does _not_ appear in binding LHS
+    | <control> { make $$<control> } # Various control structures.  Does _not_ appear in binding LHS
 #   | <index>     # $obj[1, 2, 3]
 #   | <lookup>    # $obj{'1', '2', '3'}
 
-    | <apply>   { return $$<apply>  }  # self; print 1,2,3
+    | <apply>   { make $$<apply>  }  # self; print 1,2,3
     | \<  <angle_quoted>  \>
-        { return ::Apply(
+        { make ::Apply(
             'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'qw', namespace => [ ] ),
             'arguments' => [ ::Val::Buf( buf => ~$<angle_quoted> ) ],
           ) }

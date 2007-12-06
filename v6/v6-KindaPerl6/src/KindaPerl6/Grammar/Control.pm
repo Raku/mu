@@ -5,15 +5,15 @@ grammar KindaPerl6::Grammar {
 
 
 token control {
-    | <ctrl_return> { return $$<ctrl_return> }   # return 123;
-    | <ctrl_leave>  { return $$<ctrl_leave>  }   # last; break;
-    | <if>     { return $$<if>     }   # 1 ?? 2 !! 3
-    | <unless> { return $$<unless> }   # !1 ?? 2 !! 3
-    | <when>   { return $$<when>   }   # when 3 { ... }
-    | <for>    { return $$<for>    }   # $x.map(-> $i {...})
-    | <while>  { return $$<while>  }   # while ... { ... }
-    | <apply>  { return $$<apply>  }   # $obj($arg1, $arg2)
- #  | <call>   { return $$<call>   }   # $obj.method($arg1, $arg2)
+    | <ctrl_return> { make $$<ctrl_return> }   # make 123;
+    | <ctrl_leave>  { make $$<ctrl_leave>  }   # last; break;
+    | <if>     { make $$<if>     }   # 1 ?? 2 !! 3
+    | <unless> { make $$<unless> }   # !1 ?? 2 !! 3
+    | <when>   { make $$<when>   }   # when 3 { ... }
+    | <for>    { make $$<for>    }   # $x.map(-> $i {...})
+    | <while>  { make $$<while>  }   # while ... { ... }
+    | <apply>  { make $$<apply>  }   # $obj($arg1, $arg2)
+ #  | <call>   { make $$<call>   }   # $obj.method($arg1, $arg2)
 };
 
 token block1 {
@@ -27,7 +27,7 @@ token block1 {
         {
             my $env := COMPILER::current_pad();
             COMPILER::drop_pad();
-            return ::Lit::Code(
+            make ::Lit::Code(
                     pad   => $env,
                     state => { },
                     sig   => ::Sig( 'invocant' => undef, 'positional' => [ ] ),
@@ -38,7 +38,7 @@ token block1 {
 
 token block2 {
     <block1>
-    { return $$<block1> }
+    { make $$<block1> }
 };
 
 token if {
@@ -49,7 +49,7 @@ token if {
         else <.opt_ws>
         <block2>
         {
-            return ::If(
+            make ::If(
                 'cond'      => $$<exp>,
                 'body'      => $$<block1>,
                 'otherwise' => $$<block2>,
@@ -57,7 +57,7 @@ token if {
         }
     |
         {
-            return ::If(
+            make ::If(
                 'cond' => $$<exp>,
                 'body' => $$<block1>,
                 'otherwise' => undef,
@@ -74,7 +74,7 @@ token unless {
         else <.opt_ws>
         <block2>
         {
-            return ::If(
+            make ::If(
                 'cond'      => $$<exp>,
                 'body'      => $$<block2>,
                 'otherwise' => $$<block1>,
@@ -82,7 +82,7 @@ token unless {
         }
     |
         {
-            return ::If(
+            make ::If(
                 'cond' => $$<exp>,
                 'body' => undef,
                 'otherwise' => $$<block1>,
@@ -94,7 +94,7 @@ token unless {
 token when {
     when <.ws> <exp_seq> <.opt_ws> <block1>
     {
-        return ::When(
+        make ::When(
             'parameters' => $$<exp_seq>,
             'body'       => $$<block1>,
             ) }
@@ -103,7 +103,7 @@ token when {
 token for {
     for <.ws> <exp> <.opt_ws> <arrow_sub>
     {
-            return ::Call(
+            make ::Call(
                 hyper     => '',
                 arguments => [ $$<arrow_sub> ],
                 method   => 'map',
@@ -115,7 +115,7 @@ token for {
 token while {
     while <.ws> <exp> <.ws> <block1>
     {
-        return ::While(
+        make ::While(
             'cond' => $$<exp>,
             'body' => $$<block1>,
             ) }
@@ -123,15 +123,15 @@ token while {
 
 token ctrl_leave {
     leave
-    { return ::Leave() }
+    { make ::Leave() }
 };
 
 token ctrl_return {
     return <.ws> <exp>
-    { return ::Return( 'result' => $$<exp> ) }
+    { make ::Return( 'result' => $$<exp> ) }
     |
     return
-    { return ::Return( 'result' => ::Val::Undef() ) }
+    { make ::Return( 'result' => ::Val::Undef() ) }
 };
 
 }

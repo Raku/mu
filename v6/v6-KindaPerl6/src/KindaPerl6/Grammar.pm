@@ -39,12 +39,12 @@ token namespace {
     |   <ident> '::'
         [
         |   <namespace> 
-            { return [ $$<ident>, @( $$<namespace> ) ] }
+            { make [ $$<ident>, @( $$<namespace> ) ] }
         |   
-            { return [ $$<ident> ] }
+            { make [ $$<ident> ] }
         ]
     |
-        { return [ ] }
+        { make [ ] }
 };
 
 token to_line_end {
@@ -92,10 +92,10 @@ token parse {
     | <comp_unit>
         [
         |   <parse>
-            { return [ $$<comp_unit>, @( $$<parse> ) ] }
-        |   { return [ $$<comp_unit> ] }
+            { make [ $$<comp_unit>, @( $$<parse> ) ] }
+        |   { make [ $$<comp_unit> ] }
         ]
-    | { return [] }
+    | { make [] }
 };
 
 token unit_type {
@@ -108,17 +108,17 @@ token trait_auxiliary {
 
 token class_trait {
     <trait_auxiliary> <.ws> <full_ident> 
-        { return [ $$<trait_auxiliary>, $$<full_ident> ] }
+        { make [ $$<trait_auxiliary>, $$<full_ident> ] }
 };
 
 token class_traits {
     | <class_trait>
         [
         |   <.ws> <class_traits>
-            { return [ $$<class_trait>, @( $$<class_traits> ) ] }
-        |   { return [ $$<class_trait> ] }
+            { make [ $$<class_trait>, @( $$<class_traits> ) ] }
+        |   { make [ $$<class_trait> ] }
         ]
-    | { return [] }
+    | { make [] }
 };
 
 token comp_unit {
@@ -141,7 +141,7 @@ token comp_unit {
     {
         my $env := COMPILER::current_pad();
         COMPILER::drop_pad();
-        return ::CompUnit(
+        make ::CompUnit(
             'unit_type'   => $$<unit_type>,
             'name'        => $$<full_ident>,
             'traits'      => $$<class_traits>,
@@ -165,7 +165,7 @@ token comp_unit {
     {
         my $env := COMPILER::current_pad();
         COMPILER::drop_pad();
-        return ::CompUnit(
+        make ::CompUnit(
             'unit_type'   => 'module',
             'name'        => 'Main',
             'traits'      => [],
@@ -208,10 +208,10 @@ token declarator {
      'my' | 'state' | 'has' | 'our'
 };
 token opt_declarator {
-    <declarator> <.ws> {return $$<declarator>;} | {return '';}
+    <declarator> <.ws> { make $$<declarator>;} | { make '';}
 };
 
-token exp2 { <exp> { return $$<exp> } };
+token exp2 { <exp> { make $$<exp> } };
 
 
 
@@ -242,7 +242,7 @@ token exp {
                 # say "# ternary macro = ", $sub.perl;
             }
             
-            return ::Apply(
+            make ::Apply(
                 'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'ternary:<?? !!>', namespace => [ ] ),
                 'arguments' => [ $$<term_meth>, $$<exp>, $$<exp2> ],
             ); 
@@ -254,7 +254,7 @@ token exp {
         <infix_op>
         <.opt_ws>
         <exp>
-          { return ::Apply(
+          { make ::Apply(
             'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'infix:<' ~ $<infix_op> ~ '>', namespace => [ ]  ),
             'arguments' => [ $$<term_meth>, $$<exp> ],
           ) }
@@ -262,19 +262,19 @@ token exp {
         { 
             my $bind := ::Bind( 'parameters' => $$<term_meth>, 'arguments' => $$<exp>);
             COMPILER::begin_block( $bind );   # ::=   compile-time
-            return $bind;                         # :=    run-time
+            make $bind;                         # :=    run-time
         }
     | <.opt_ws> ':=' <.opt_ws> <exp>
-        { return ::Bind( 'parameters' => $$<term_meth>, 'arguments' => $$<exp>) }
+        { make ::Bind( 'parameters' => $$<term_meth>, 'arguments' => $$<exp>) }
     | <.opt_ws> '=' <.opt_ws> <exp>
-        { return ::Assign( 'parameters' => $$<term_meth>, 'arguments' => $$<exp>) }
-    |   { return $$<term_meth> }
+        { make ::Assign( 'parameters' => $$<term_meth>, 'arguments' => $$<exp>) }
+    |   { make $$<term_meth> }
     ]
 };
 
 token opt_ident {  
-    | <ident>  { return $$<ident> }
-    | ''     { return 'postcircumfix:<( )>' }
+    | <ident>  { make $$<ident> }
+    | ''     { make 'postcircumfix:<( )>' }
 };
 
 token term_meth {
@@ -287,7 +287,7 @@ token term_meth {
             | \: <.ws> <exp_parameter_list> <.opt_ws>
             |
                 {
-                    return ::Call(
+                    make ::Call(
                         'invocant'  => ::Proto( 'name' => ~$<full_ident> ),
                         'method'    => $$<ident>,
                         'arguments' => undef,
@@ -296,7 +296,7 @@ token term_meth {
                 }
             ]
             {
-                return ::Call(
+                make ::Call(
                     'invocant'  => ::Proto( 'name' => ~$<full_ident> ),
                     'method'    => $$<ident>,
                     'arguments' => $$<exp_parameter_list>,
@@ -308,7 +308,7 @@ token term_meth {
     <term>
     [ 
     | [ '[' | '.[' ]  <.opt_ws> <exp> <.opt_ws> \]   # $a[exp]
-         { return ::Call(
+         { make ::Call(
                  'invocant' => $$<term>,
                  'arguments' => [$$<exp>],
                  'method' => 'INDEX',
@@ -316,7 +316,7 @@ token term_meth {
            )
          }
     | [ '{' | '.{' ] <.opt_ws> <exp> <.opt_ws> \}   # $a{exp}
-         { return ::Call(
+         { make ::Call(
                  'invocant' => $$<term>,
                  'arguments' => [$$<exp>],
                  'method' => 'LOOKUP',
@@ -333,7 +333,7 @@ token term_meth {
             | \: <.ws> <exp_parameter_list> <.opt_ws>
             |
                 {
-                    return ::Call(
+                    make ::Call(
                         'invocant'  => $$<term>,
                         'method'    => $$<opt_ident>,
                         'arguments' => undef,
@@ -342,7 +342,7 @@ token term_meth {
                 }
             ]
             {
-                return ::Call(
+                make ::Call(
                     'invocant'  => $$<term>,
                     'method'    => $$<opt_ident>,
                     'arguments' => $$<exp_parameter_list>,
@@ -350,14 +350,14 @@ token term_meth {
                 )
             }
     | \< <angle_quoted> \>   # $a{exp}
-         { return ::Call(
+         { make ::Call(
                  'invocant' => $$<term>,
                  'arguments' => [::Val::Buf( 'buf' => ~$<angle_quoted> )],
                  'method' => 'LOOKUP',
                  'hyper' => ''
            )
          }
-    |    { return $$<term> }
+    |    { make $$<term> }
     ]
 };
 
@@ -366,12 +366,12 @@ token sub_or_method_name {
 };
 
 token opt_type {
-    |   [ '::' | '' ]  <full_ident>   { return $$<full_ident> }
-    |   ''                              { return '' }
+    |   [ '::' | '' ]  <full_ident>   { make $$<full_ident> }
+    |   ''                            { make '' }
 };
 
 token use_from_perl5 {
-    ':from<perl5>' {return 1} | {return 0}
+    ':from<perl5>' { make 1 } | { make 0 }
 }
 
 #token index { XXX }
@@ -390,7 +390,7 @@ token undeclared_var {
     <sigil> <twigil> <namespace> <ident>
     {
         # no pre-declaration checks
-        return ::Var(
+        make ::Var(
             sigil     => ~$<sigil>,
             twigil    => ~$<twigil>,
             name      => ~$<ident>,
@@ -402,7 +402,7 @@ token undeclared_var {
 token var {
     <sigil> '/'
     {
-        return 
+        make 
             ::Var(
                     sigil     => ~$<sigil>,
                     twigil    => '',
@@ -414,7 +414,7 @@ token var {
     <sigil> <twigil> <namespace> <ident>
     {
         # check for pre-declaration
-        return COMPILER::get_var(
+        make COMPILER::get_var(
             ::Var(
                     sigil     => ~$<sigil>,
                     twigil    => ~$<twigil>,
@@ -426,17 +426,17 @@ token var {
 };
 
 token val {
-    | <val_undef>  { return $$<val_undef> }  # undef
+    | <val_undef>  { make $$<val_undef> }  # undef
     # | $<exp> := <val_object>   # (not exposed to the outside)
-    | <val_int>    { return $$<val_int>   }  # 123
-    | <val_bit>    { return $$<val_bit>   }  # True, False
-    | <val_num>    { return $$<val_num>   }  # 123.456
-    | <val_buf>    { return $$<val_buf>   }  # 'moose'
+    | <val_int>    { make $$<val_int>   }  # 123
+    | <val_bit>    { make $$<val_bit>   }  # True, False
+    | <val_num>    { make $$<val_num>   }  # 123.456
+    | <val_buf>    { make $$<val_buf>   }  # 'moose'
 };
 
 token val_bit {
-    | True  { return ::Val::Bit( 'bit' => 1 ) }
-    | False { return ::Val::Bit( 'bit' => 0 ) }
+    | True  { make ::Val::Bit( 'bit' => 1 ) }
+    | False { make ::Val::Bit( 'bit' => 0 ) }
 };
 
 
@@ -444,11 +444,11 @@ token val_bit {
 
 token val_undef {
     undef <!before \w >
-    { return ::Val::Undef( ) }
+    { make ::Val::Undef( ) }
 };
 
 token val_num {  
-    XXX { return 'TODO: val_num' } 
+    XXX { make 'TODO: val_num' } 
 };
 
 
@@ -457,7 +457,7 @@ token digits {  \d  [ <digits> | '' ]  };
 
 token val_int {
     <digits>
-    { return ::Val::Int( 'int' => ~$/ ) }
+    { make ::Val::Int( 'int' => ~$/ ) }
 };
 
 
@@ -468,28 +468,28 @@ token exp_seq {
         [
         |   <.opt_ws> \, <.opt_ws> <exp_seq> 
             <.opt_ws> [ \, <.opt_ws> | '' ]
-            { return [ $$<exp>, @( $$<exp_seq> ) ] }
+            { make [ $$<exp>, @( $$<exp_seq> ) ] }
         |   <.opt_ws> [ \, <.opt_ws> | '' ]
-            { return [ $$<exp> ] }
+            { make [ $$<exp> ] }
         ]
     | 
         # { say 'exp_seq: end of match' }
-        { return [] }
+        { make [] }
 };
 
 
 token lit {
-    #| <lit_seq>    { return $$<lit_seq>    }  # (a, b, c)
-    #| <lit_array>  { return $$<lit_array>  }  # [a, b, c]
-    #| <lit_hash>   { return $$<lit_hash>   }  # {a => x, b => y}
-    #| <lit_code>   { return $$<lit_code>   }  # sub $x {...}
-    | <lit_object> { return $$<lit_object> }  # ::Tree(a => x, b => y);
+    #| <lit_seq>    { make $$<lit_seq>    }  # (a, b, c)
+    #| <lit_array>  { make $$<lit_array>  }  # [a, b, c]
+    #| <lit_hash>   { make $$<lit_hash>   }  # {a => x, b => y}
+    #| <lit_code>   { make $$<lit_code>   }  # sub $x {...}
+    | <lit_object> { make $$<lit_object> }  # ::Tree(a => x, b => y);
 };
 
-token lit_seq   {  XXX { return 'TODO: lit_seq'    } };
-token lit_array {  XXX { return 'TODO: lit_array'  } };
-token lit_hash  {  XXX { return 'TODO: lit_hash'   } };
-token lit_code  {  XXX { return 'TODO - Lit::Code' } };
+token lit_seq   {  XXX { make 'TODO: lit_seq'    } };
+token lit_array {  XXX { make 'TODO: lit_array'  } };
+token lit_hash  {  XXX { make 'TODO: lit_hash'   } };
+token lit_code  {  XXX { make 'TODO - Lit::Code' } };
 
 token lit_object {
     '::'
@@ -499,7 +499,7 @@ token lit_object {
         <.opt_ws> <exp_mapping> <.opt_ws> \)
         {
             # say 'Parsing Lit::Object ', $$<full_ident>, ($$<exp_mapping>).perl;
-            return ::Lit::Object(
+            make ::Lit::Object(
                 'class'  => $$<full_ident>,
                 'fields' => $$<exp_mapping>
             )
@@ -511,7 +511,7 @@ token lit_object {
 #token bind {
 #    <exp>  <.opt_ws> ':=' <.opt_ws>  <exp2>
 #    {
-#        return ::Bind(
+#        make ::Bind(
 #            'parameters' => $$<exp>,
 #            'arguments'  => $$<exp2>,
 #        )
@@ -521,7 +521,7 @@ token lit_object {
 token call {
     <exp> <.dot> <ident> \( <.opt_ws> <exp_parameter_list> <.opt_ws> \)
     {
-        return ::Call(
+        make ::Call(
             'invocant'  => $$<exp>,
             'method'    => $$<ident>,
             'arguments' => $$<exp_parameter_list>,
@@ -536,7 +536,7 @@ token apply {
         | <.ws> <exp_parameter_list> <.opt_ws>
         ]
         {
-            return ::Apply(
+            make ::Apply(
                 'code'      => COMPILER::get_var( 
                     ::Var(
                             sigil     => '&',
@@ -549,7 +549,7 @@ token apply {
         }
     |
         {
-            return ::Apply(
+            make ::Apply(
                 'code'      => COMPILER::get_var( 
                     ::Var(
                             sigil     => '&',
@@ -567,16 +567,16 @@ token opt_name {  <ident> | ''  };
 
 
 token invocant {
-    |  <var> \:    { return $$<var> }
-    |  { return undef }
+    |  <var> \:    { make $$<var> }
+    |  { make undef }
 };
 
 token capture {
     # TODO - exp_seq / exp_mapping == positional / named 
     |  <exp>\:  <.opt_ws> <exp_parameter_list> 
-        { return ::Lit::Capture( 'invocant' => $$<exp>, 'array' => $$<exp_parameter_list>, 'hash' => [ ] ); }
+        { make ::Lit::Capture( 'invocant' => $$<exp>, 'array' => $$<exp_parameter_list>, 'hash' => [ ] ); }
     |  <exp_mapping> 
-        { return ::Lit::Capture( 'invocant' => undef, 'array' => [ ], 'hash' => $$<exp_mapping> ); }
+        { make ::Lit::Capture( 'invocant' => undef, 'array' => [ ], 'hash' => $$<exp_mapping> ); }
 };
 
 token base_class { <full_ident> }
@@ -600,7 +600,7 @@ token subset {
         # say ' block: ', ($$<exp_stmts>).perl;
         my $env := COMPILER::current_pad();
         COMPILER::drop_pad();
-        return ::Lit::Subset( 
+        make ::Lit::Subset( 
             'name'  => $$<full_ident>, 
             'base_class' => 
                 ::Proto( name => $$<base_class> ), 
@@ -636,7 +636,7 @@ token begin_block {
         COMPILER::drop_pad();
         #say "BEGIN block";
         #print "  grammar: entering begin block\n";
-        return COMPILER::begin_block( 
+        make COMPILER::begin_block( 
             # $env, 
             ::Lit::Code(
                 pad   => $env,
@@ -655,7 +655,7 @@ token check_block {
     [   \}     | { say '*** Syntax Error in CHECK block'; die 'error in Block'; } ]
     { 
         #say "CHECK block";
-        return COMPILER::check_block( $$<exp_stmts> );
+        make COMPILER::check_block( $$<exp_stmts> );
     }
 };
 
