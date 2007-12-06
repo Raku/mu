@@ -628,7 +628,7 @@
         ] }
          )
          )
-        }; if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { $GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $GLOBAL::_REGEX_RETURN_ ]; }
+        }; if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { $GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", ::DISPATCH( $GLOBAL::_REGEX_RETURN_, "FETCH" ) ]; }
      }))|(?:\:(?:(??{ $_rule_ident })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "ident" ]; }))\<(?:(??{ $_rule_angle_quoted })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "angle_quoted" ]; }))\>(?{ 
         local $GLOBAL::_M = [ $GLOBAL::_M, "to", pos() ]; 
         Match::from_global_data( $GLOBAL::_M ); 
@@ -649,7 +649,7 @@
         ] }
          )
          )
-        }; if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { $GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $GLOBAL::_REGEX_RETURN_ ]; }
+        }; if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { $GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", ::DISPATCH( $GLOBAL::_REGEX_RETURN_, "FETCH" ) ]; }
      }))|(?:\:(?:(??{ $_rule_ident })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "ident" ]; }))\((?:(??{ $_rule_opt_ws })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; }))(?:(??{ $_rule_exp })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "exp" ]; }))(?:(??{ $_rule_opt_ws })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; }))\)(?{ 
         local $GLOBAL::_M = [ $GLOBAL::_M, "to", pos() ]; 
         Match::from_global_data( $GLOBAL::_M ); 
@@ -668,7 +668,7 @@
         ] }
          )
          )
-        }; if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { $GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $GLOBAL::_REGEX_RETURN_ ]; }
+        }; if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { $GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", ::DISPATCH( $GLOBAL::_REGEX_RETURN_, "FETCH" ) ]; }
      }))|(?:\:(?:(??{ $_rule_ident })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "ident" ]; }))(?{ 
         local $GLOBAL::_M = [ $GLOBAL::_M, "to", pos() ]; 
         Match::from_global_data( $GLOBAL::_M ); 
@@ -686,7 +686,7 @@
         ] }
          )
          )
-        }; if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { $GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $GLOBAL::_REGEX_RETURN_ ]; }
+        }; if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { $GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", ::DISPATCH( $GLOBAL::_REGEX_RETURN_, "FETCH" ) ]; }
      }))|(?:\:(?:(??{ $_rule_sigil })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "sigil" ]; }))(?:(??{ $_rule_ident })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "ident" ]; }))(?{ 
         local $GLOBAL::_M = [ $GLOBAL::_M, "to", pos() ]; 
         Match::from_global_data( $GLOBAL::_M ); 
@@ -719,7 +719,7 @@
         ] }
          )
          )
-        }; if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { $GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $GLOBAL::_REGEX_RETURN_ ]; }
+        }; if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { $GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", ::DISPATCH( $GLOBAL::_REGEX_RETURN_, "FETCH" ) ]; }
      })))
     (?{ 
         local $GLOBAL::_M = [ $GLOBAL::_M, 'to', pos() ]; 
@@ -781,7 +781,7 @@
          )
         ,  } ),  )
          )
-        }; if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { $GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $GLOBAL::_REGEX_RETURN_ ]; }
+        }; if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { $GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", ::DISPATCH( $GLOBAL::_REGEX_RETURN_, "FETCH" ) ]; }
      }))|(?:(?:(??{ $_rule_pair })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "pair" ]; }))(?{ 
         local $GLOBAL::_M = [ $GLOBAL::_M, "to", pos() ]; 
         Match::from_global_data( $GLOBAL::_M ); 
@@ -803,7 +803,7 @@
          )
         ,  } ),  )
          )
-        }; if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { $GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $GLOBAL::_REGEX_RETURN_ ]; }
+        }; if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { $GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", ::DISPATCH( $GLOBAL::_REGEX_RETURN_, "FETCH" ) ]; }
      }))|(?:(?:(??{ $_rule_exp })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "exp" ]; }))(?{ 
         local $GLOBAL::_M = [ $GLOBAL::_M, "to", pos() ]; 
         Match::from_global_data( $GLOBAL::_M ); 
@@ -814,7 +814,7 @@
          )
          )
          )
-        }; if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { $GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $GLOBAL::_REGEX_RETURN_ ]; }
+        }; if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { $GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", ::DISPATCH( $GLOBAL::_REGEX_RETURN_, "FETCH" ) ]; }
      })))
     (?{ 
         local $GLOBAL::_M = [ $GLOBAL::_M, 'to', pos() ]; 
@@ -873,7 +873,7 @@
         ] }
          )
          )
-        }; if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { $GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $GLOBAL::_REGEX_RETURN_ ]; }
+        }; if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { $GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", ::DISPATCH( $GLOBAL::_REGEX_RETURN_, "FETCH" ) ]; }
      }))|(?:(?:(??{ $_rule_opt_ws })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; }))(?:(?:\,(?:(??{ $_rule_opt_ws })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; })))|(?:))(?{ 
         local $GLOBAL::_M = [ $GLOBAL::_M, "to", pos() ]; 
         Match::from_global_data( $GLOBAL::_M ); 
@@ -886,7 +886,7 @@
         ] }
          )
          )
-        }; if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { $GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $GLOBAL::_REGEX_RETURN_ ]; }
+        }; if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { $GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", ::DISPATCH( $GLOBAL::_REGEX_RETURN_, "FETCH" ) ]; }
      }))))|(?:(?{ 
         local $GLOBAL::_M = [ $GLOBAL::_M, "to", pos() ]; 
         Match::from_global_data( $GLOBAL::_M ); 
@@ -895,7 +895,7 @@
         do {::DISPATCH_VAR( $GLOBAL::_REGEX_RETURN_, "STORE", ::DISPATCH( $::Array, 'new', { _array => [] }
          )
          )
-        }; if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { $GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $GLOBAL::_REGEX_RETURN_ ]; }
+        }; if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { $GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", ::DISPATCH( $GLOBAL::_REGEX_RETURN_, "FETCH" ) ]; }
      })))
     (?{ 
         local $GLOBAL::_M = [ $GLOBAL::_M, 'to', pos() ]; 
