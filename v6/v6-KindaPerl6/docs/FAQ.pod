@@ -52,7 +52,7 @@ v6-MiniPerl6 is bootstrapped with perl5.
 
 v6-KindaPerl6 is a reimplementation of mp6 with a very flexible compiler
 workflow.  kp6 uses plugins in order to implement perl6 semantics over several
-backends.  kp6 is currently being bootstrapped - it is compiled with the mp6
+backends.  kp6 is currently being bootstrapped - kp6 is compiled with the mp6
 compiler.
 
 =item Onion
@@ -143,11 +143,11 @@ Only allow item context.
 
 =item
 
-No laziness; all List are Seq.
+No laziness; all List are Sequences.
 
 =item
 
-No subtyping (inheritance) or role mixins.
+No subtyping (inheritance) or role mixings.
 
 =item
 
@@ -171,8 +171,8 @@ never SomePossiblyTiedScalarContainerType that needs to have special FETCH magic
 associated with $x.
 
 Also it (WHAT IS "IT"?) is inevitable with eliminating list context, because:
- ($x, $y, $z) := (1, 2); # compile-time error
- ($x, $y, $z) = (1, 2);  # list-context-undef-fill that we don't want to deal with
+ ($x, $y, $z) := (1, 2); # compile-time error.
+ ($x, $y, $z) = (1, 2);  # list-context-undef-fill that we do not want to deal with.
 
 Because infix:<=> almost always imply slurpiness with LHS is not a simple
 scalar, eliminating it is consistent with eliminating list context.
@@ -281,7 +281,7 @@ The lib5/ directory needs to be included in order to run kp6 programs:
  ---
  42
 
-To execute a Perl 6 script directorly type
+To execute a Perl 6 script directly type
 
  perl script/kp6 source.p6
 
@@ -290,7 +290,7 @@ To execute a Perl 6 script directorly type
 As of this writing, kp6 is not bootstrapped.
 
 The kp6 source files can be compiled with mp6 (whith the exception of the
-KindaPerl6::Runtime::Perl6::* files, which are compiled wih kp6). There 
+KindaPerl6::Runtime::Perl6::* files, which are compiled wih kp6). There
 is a 'mp6.pl' script in kp6 directory:
 
 Please use the make file to compile these.
@@ -352,19 +352,19 @@ possibly adding an optimizer.
 =head2 Why is there not a makefile to regenerate v6-KindaPerl6/lib5/ ?
 
 The workflow for compiling kp6 is not fixed - you can add or take AST transformation steps
-kp6-1 will have a script
+kp6-1 will have a script.
 
 =head2  What is the plan for kp6?
 
 =over
 
-=item Provide a minimal bootstrapped language implementation for bootstrapping p6-on-p6
+=item Provide a minimal bootstrapped language implementation for bootstrapping p6-on-p6.
 
 Extra features over mp6 - allow the implementation of BEGIN blocks, flexible grammar.
 
-=item Implement a flexible/pluggable compiler engine
+=item Implement a flexible/pluggable compiler engine.
 
-This is currently done with a Visitor pattern for AST transforms
+This is currently done with a Visitor pattern for AST transforms.
 
 =item Lexical subs
 
@@ -372,9 +372,9 @@ Allows operator redefinition:
 
 my multi infix:<+> { ... }
 
-But note that 'multi' is not part of the kp6 spec
+But note that 'multi' is not part of the kp6 spec.
 
-=item Lexical classes / first-class classes
+=item Lexical classes / first-class classes.
 
 Better support for grammar mutability:
 
@@ -399,7 +399,7 @@ This is needed to implement assignment - MP6 only supported binding.
 
 =head2 Is kp6 needed for bootstrapping perl 6 on perl 6?
 
-No. perl 6 on  perl 6 can also be bootstrapped with:
+No. perl 6 on perl 6 can also be bootstrapped with:
 
  - Parrot
  - Pugs
@@ -408,6 +408,8 @@ No. perl 6 on  perl 6 can also be bootstrapped with:
  - Redsix L<http://dev.pugscode.org/browser/misc/pX/Common/redsix>
 
 =head2 Miscellaneous Notes
+
+L<http://irclog.perlgeek.de/perl6/2007-01-22#i_-60765>
 
 fglock: hmm - maybe for mp6; need to find a way to do eval() to
 
