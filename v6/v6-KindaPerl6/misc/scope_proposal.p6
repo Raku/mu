@@ -1,5 +1,7 @@
+
+my $a = 42;
+
 sub foo {
-    my $a = 42;
     return sub {
         $a++;
     };
