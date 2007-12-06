@@ -85,7 +85,71 @@ different perl6 implementations in progress.  PUGS is one of them.
 
 =head2 How can I help?
 
- (todo - the previous list was obsolete)
+=head3 Prerequisite reading
+
+Perl6 is implementing several features I have not heard of before.  Before
+you read the perl6 documentation, these documents are good to read.
+
+- Prototyped based programming: L<http://en.wikipedia.org/wiki/Prototype-based_programming>
+
+The perl5 code that implements Prototyped classes: L<http://search.cpan.org/dist/Class-Prototyped/lib/Class/Prototyped.pm>
+
+- Objects (Autoboxing is interesting): L<http://en.wikipedia.org/wiki/Autoboxing#Autoboxing>
+
+=head3 What do you need?
+
+ - Perl5 (Perl 5.10.RC2 worked with the kp6 test cases.)
+ - Coro.pm : L<http://search.cpan.org/~mlehmann/Coro-4.13/Coro.pm>
+   Required for t/kp6/internals/02-gather.t
+ - Subversion client.
+ - Commit bit: Ask on #perl6 irc.freenode.net.
+
+=head2 Customs and Traditions:
+
+- (new comers) When you get your commit bit, Update the AUTHORS file to make sure everything (SVN) is ok.
+
+- Commit code in doubt, revert if wrong.<br>
+
+L<http://irclog.perlgeek.de/perl6/2007-10-31#i_135203>
+
+- Please prefix your kp6 svn commits with [kp6]
+
+L<http://irclog.perlgeek.de/perl6/2007-11-01#i_136077>
+
+Example:
+
+ [kp6] I have refactored subroutine XXX for clarity and updated the documentation.
+
+=head2 Cannot see the forest for the trees.
+
+One of the problems I had when I started working on kp6 was I could not see
+how everything worked together.
+
+mp6.pl (miniperl6) is used to compile/translate some of the KP6 perl6 code into
+perl5 code.   The resulting perl5 code is used to provide a run time enviroment
+for code (a script or a one liner) translated by kp6 (script/kp6) into perl5
+code.
+
+Urk!.  That translates into this.
+
+1. Compile kp6 (written in perl6) libraries (src/KindaPerl6/???) using miniperl6
+to provide a run time foundation for code compiled by script/kp6.
+
+TODO: pmurias @tell dlocaus file in KindaPerl6::Runtime::Perl6 are compiled by kp6 (script/kp6) not mp6
+
+L<http://irclog.perlgeek.de/perl6/2007-12-06#i_157744>
+
+2. Use kp6 to compile src/KindaPerl6/Runtime/*
+These go into lib/compiled-kp6-mp6/KindaPerl6/Runtime/* ..
+These libraries provide an emulation of the perl6 enviroment.
+Miniperl6 converts only a small subset of perl6 into perl5 code.
+
+3. Compile a script script/kp6.  C<perl script/kp6 -o perl5code.pl source-perl6.pl>.
+
+4. Execute the resulting perl5code.pl using the lib/compiled-kp6-mp6/...
+libraries to emulate the perl6 enviroment, which is class creation, variable
+allocation, inheritance, etc...
+
 
 =head2 What subset of Perl 6 is covered by mp6?
   (from miniperl6-spec.pod)
@@ -406,6 +470,60 @@ No. perl 6 on perl 6 can also be bootstrapped with:
  - v6.pm
  - Plain mp6
  - Redsix L<http://dev.pugscode.org/browser/misc/pX/Common/redsix>
+
+=head2 How to use kp6 to compile everything.
+
+TODO: make KP6-BOOT
+
+=head2 How to: make / compile / test  -  kp6
+
+=over
+
+=item Download KindaPerl6.
+
+ svn co http://svn.pugscode.org/pugs/
+
+=item To compile KP6.
+
+ perl Makefile.PL
+ make -j 3 test
+
+I<-j 3 means do 3 jobs at once, great for systems with SMP>
+
+=item To re-compile KP6.
+
+ make clean
+ perl Makefile.PL
+ make -j 3 test
+
+=item Force re-compilation of everything.
+
+ make forcerecompile
+ setenv PERL5LIB "./inc/v6-MiniPerl6-lib5" (XXX can this step be removed?)
+ make
+
+I<WARNING: Do NOT use -j when forcing a recompile!, this will cause the Makefile
+to crash.  The make process will attempt to use code that has not yet been
+compiled.>
+
+=item To execute a script.
+
+ perl scripts/kp6 [perl6 file]
+
+
+=item To compile a perl6 script and view resulting source:
+
+ perl scripts/kp6 -o [outputfile.pl] [source perl6 file]
+
+=item To debug perl6 in perl5 code scripts.
+
+ setenv PERL5LIB compiled/perl5-kp6-mp6/lib
+ perl -d (some script)
+ DB> $DB::deep = 500;
+
+I<Do to the recurisve nature of the code, you're likely to hit 100 pertty fast.>
+
+=back
 
 =head2 Miscellaneous Notes
 
