@@ -268,7 +268,8 @@ kp6 adds:
 
 =item Running kp6 (FGLOCK: Where is this?)
 
-kp6 works by creating a parse tree, which is then submitted to a list of AST processors.
+kp6 works by creating a parse tree, which is then submitted to a list of AST
+processors called "Visitors" (namespace C<KindaPerl6::Visitor::*>).
 
 The 'kp6-perl5.pl' script is one of the possible compiler 'workflows' that can be built with kp6.
 
@@ -280,11 +281,17 @@ The lib5/ directory needs to be included in order to run kp6 programs:
  ---
  42
 
+To execute a Perl 6 script directorly type
+
+ perl script/kp6 source.p6
+
 =item Compiling kp6
 
-As of this writing, kp6 is not bootstrapped (just because there is no script to do it).
+As of this writing, kp6 is not bootstrapped.
 
-The kp6 source files can be compiled with mp6. There is a 'mp6.pl' script in kp6 directory:
+The kp6 source files can be compiled with mp6 (whith the exception of the
+KindaPerl6::Runtime::Perl6::* files, which are compiled wih kp6). There 
+is a 'mp6.pl' script in kp6 directory:
 
 Please use the make file to compile these.
 
