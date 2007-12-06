@@ -254,7 +254,14 @@ class Rule::Block {
                         ~  '; "974^213" '
                     )
             ~ '} )->();' ~ Main::newline()
-            ~ 'if ( $ret ne "974^213" ) {' 
+            
+            
+            ~ 'if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { '
+                ~   '$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $GLOBAL::_REGEX_RETURN_ ]; '
+            ~ '}' 
+            
+            # XXX old way: "return" instead of "make"
+            ~ 'elsif ( $ret ne "974^213" ) {' 
                 ~   '$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $ret ]; '
                 # TODO - (*ACCEPT) and exit
             ~ '};' 

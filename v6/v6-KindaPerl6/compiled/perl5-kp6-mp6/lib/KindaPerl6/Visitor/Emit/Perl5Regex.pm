@@ -401,7 +401,19 @@ sub emit_perl5 {
                                                                 Main::newline()
                                                                     . (
                                                                     Main::indent( ( $self->{closure}->emit_perl5() . '; "974^213" ' ) )
-                                                                        . ( '} )->();' . ( Main::newline() . ( 'if ( $ret ne "974^213" ) {' . ( '$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $ret ]; ' . '};' ) ) ) )
+                                                                        . (
+                                                                        '} )->();'
+                                                                            . (
+                                                                            Main::newline()
+                                                                                . (
+                                                                                'if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { '
+                                                                                    . (
+                                                                                    '$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $GLOBAL::_REGEX_RETURN_ ]; '
+                                                                                        . ( '}' . ( 'elsif ( $ret ne "974^213" ) {' . ( '$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $ret ]; ' . '};' ) ) )
+                                                                                    )
+                                                                                )
+                                                                            )
+                                                                        )
                                                                     )
                                                                 )
                                                             )
@@ -543,8 +555,8 @@ sub emit_perl5 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    my $meth = ( '\'$' . ( Main::mangle_perl5rx_metasyntax( $self->{metasyntax} ) . '\'' ) );
-    ( '(?:' . ( '(??{ eval ' . ( $meth . ( ' })' . ( '(?{ ' . ( 'local $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; ' . ( '})' . ')' ) ) ) ) ) ) );
+    my $meth = ( '$' . Main::mangle_perl5rx_metasyntax( $self->{metasyntax} ) );
+    ( '(?:' . ( '(??{ ' . ( $meth . ( ' })' . ( '(?{ ' . ( 'local $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; ' . ( '})' . ')' ) ) ) ) ) ) );
 }
 
 package Rule::Subrule;
@@ -554,10 +566,10 @@ sub emit_perl5 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    my $meth = ( '\'$' . ( Main::mangle_perl5rx_metasyntax( $self->{metasyntax} ) . '\'' ) );
+    my $meth = ( '$' . Main::mangle_perl5rx_metasyntax( $self->{metasyntax} ) );
     do {
-        if   ( $self->{capture_to_array} ) { ( '(?:' . ( '(??{ eval ' . ( $meth . ( ' })' . ( '(?{ ' . ( 'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture_to_array", "' . ( $self->{metasyntax} . ( '" ]; ' . ( '})' . ')' ) ) ) ) ) ) ) ) ) }
-        else                               { ( '(?:' . ( '(??{ eval ' . ( $meth . ( ' })' . ( '(?{ ' . ( 'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "' .          ( $self->{metasyntax} . ( '" ]; ' . ( '})' . ')' ) ) ) ) ) ) ) ) ) }
+        if   ( $self->{capture_to_array} ) { ( '(?:' . ( '(??{ ' . ( $meth . ( ' })' . ( '(?{ ' . ( 'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture_to_array", "' . ( $self->{metasyntax} . ( '" ]; ' . ( '})' . ')' ) ) ) ) ) ) ) ) ) }
+        else                               { ( '(?:' . ( '(??{ ' . ( $meth . ( ' })' . ( '(?{ ' . ( 'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "' .          ( $self->{metasyntax} . ( '" ]; ' . ( '})' . ')' ) ) ) ) ) ) ) ) ) }
         }
 }
 
