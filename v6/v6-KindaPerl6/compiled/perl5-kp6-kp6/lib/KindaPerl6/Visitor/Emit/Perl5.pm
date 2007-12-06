@@ -12498,6 +12498,146 @@
                             }
                             else { ::DISPATCH( $::Bit, "new", 0 ) }
                         };
+                        do {
+                            if (
+                                ::DISPATCH(
+                                    ::DISPATCH(
+                                        do {
+                                            my $_tmp1 = ::DISPATCH(
+                                                ::DISPATCH( $self, "code" ),
+                                                'isa',
+                                                ::DISPATCH(
+                                                    $::Str, 'new', 'Var'
+                                                )
+                                            );
+                                            ::DISPATCH( $_tmp1, "true" )
+                                              ->{_value}
+                                              ? ::DISPATCH(
+                                                (
+                                                    $GLOBAL::Code_infix_58__60_eq_62_
+                                                      = $GLOBAL::Code_infix_58__60_eq_62_
+                                                      || ::DISPATCH(
+                                                        $::Routine, "new",
+                                                      )
+                                                ),
+                                                'APPLY',
+                                                ::DISPATCH(
+                                                    ::DISPATCH( $self, "code" ),
+                                                    'name',
+                                                ),
+                                                ::DISPATCH(
+                                                    $::Str, 'new', 'make'
+                                                )
+                                              )
+                                              : ::DISPATCH( $::Bit, "new", 0 );
+                                        },
+                                        "true"
+                                    ),
+                                    "p5landish"
+                                )
+                              )
+                            {
+                                do {
+                                    return (
+                                        ::DISPATCH(
+                                            (
+                                                $GLOBAL::Code_infix_58__60__126__62_
+                                                  = $GLOBAL::Code_infix_58__60__126__62_
+                                                  || ::DISPATCH(
+                                                    $::Routine, "new",
+                                                  )
+                                            ),
+                                            'APPLY',
+                                            ::DISPATCH(
+                                                $::Str, 'new',
+                                                '::DISPATCH_VAR( '
+                                            ),
+                                            ::DISPATCH(
+                                                (
+                                                    $GLOBAL::Code_infix_58__60__126__62_
+                                                      = $GLOBAL::Code_infix_58__60__126__62_
+                                                      || ::DISPATCH(
+                                                        $::Routine, "new",
+                                                      )
+                                                ),
+                                                'APPLY',
+                                                ::DISPATCH(
+                                                    $::Str,
+                                                    'new',
+'$GLOBAL::_REGEX_RETURN_, "STORE", '
+                                                ),
+                                                ::DISPATCH(
+                                                    (
+                                                        $GLOBAL::Code_infix_58__60__126__62_
+                                                          = $GLOBAL::Code_infix_58__60__126__62_
+                                                          || ::DISPATCH(
+                                                            $::Routine, "new",
+                                                          )
+                                                    ),
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        ::DISPATCH(
+                                                            ::DISPATCH(
+                                                                $self,
+                                                                "arguments"
+                                                            ),
+                                                            'INDEX',
+                                                            ::DISPATCH(
+                                                                $::Int, 'new',
+                                                                0
+                                                            )
+                                                        ),
+                                                        'emit_perl5',
+                                                    ),
+                                                    ::DISPATCH(
+                                                        (
+                                                            $GLOBAL::Code_infix_58__60__126__62_
+                                                              = $GLOBAL::Code_infix_58__60__126__62_
+                                                              || ::DISPATCH(
+                                                                $::Routine,
+                                                                "new",
+                                                              )
+                                                        ),
+                                                        'APPLY',
+                                                        ::DISPATCH(
+                                                            $::Str, 'new',
+                                                            ''
+                                                        ),
+                                                        ::DISPATCH(
+                                                            (
+                                                                $GLOBAL::Code_infix_58__60__126__62_
+                                                                  = $GLOBAL::Code_infix_58__60__126__62_
+                                                                  || ::DISPATCH(
+                                                                    $::Routine,
+                                                                    "new",
+                                                                  )
+                                                            ),
+                                                            'APPLY',
+                                                            ::DISPATCH(
+                                                                $::Str, 'new',
+                                                                ' )'
+                                                            ),
+                                                            ::DISPATCH(
+                                                                (
+                                                                    $Main::Code_newline
+                                                                      = $Main::Code_newline
+                                                                      || ::DISPATCH(
+                                                                        $::Routine,
+                                                                        "new",
+                                                                      )
+                                                                ),
+                                                                'APPLY',
+                                                            )
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    );
+                                  }
+                            }
+                            else { ::DISPATCH( $::Bit, "new", 0 ) }
+                        };
                         return (
                             ::DISPATCH(
                                 (
@@ -16639,8 +16779,7 @@
                                                                 ::DISPATCH(
                                                                     $::Int,
                                                                     'new',
-                                                                    $_param_index
-                                                                      ++
+                                                                    $_param_index++
                                                                 )
                                                             );
                                                         }
@@ -16974,8 +17113,7 @@
                                                                 ::DISPATCH(
                                                                     $::Int,
                                                                     'new',
-                                                                    $_param_index
-                                                                      ++
+                                                                    $_param_index++
                                                                 )
                                                             );
                                                         }

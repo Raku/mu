@@ -610,131 +610,116 @@
         local $GLOBAL::_M = [ $GLOBAL::_M, 'create', pos(), \$_ ]; 
         $GLOBAL::_M2 = $GLOBAL::_M; 
     })
-    (?:(?:(?:(??{ eval '$_rule_ident' })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "ident" ]; }))(?:(??{ eval '$_rule_opt_ws' })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; }))=>(?:(??{ eval '$_rule_opt_ws' })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; }))(?:(??{ eval '$_rule_exp' })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "exp" ]; }))(?{ 
+    (?:(?:(?:(??{ $_rule_ident })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "ident" ]; }))(?:(??{ $_rule_opt_ws })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; }))=>(?:(??{ $_rule_opt_ws })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; }))(?:(??{ $_rule_exp })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "exp" ]; }))(?{ 
         local $GLOBAL::_M = [ $GLOBAL::_M, "to", pos() ]; 
         Match::from_global_data( $GLOBAL::_M ); 
         $MATCH = $GLOBAL::MATCH = pop @Match::Matches; 
         @Match::Matches = (); 
-        my $ret = ( sub {
-            do {return(::DISPATCH( $::Array, 'new', { _array => [::DISPATCH( $::Val::Buf, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'buf' )
-            , value           => ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__126__62_ = $GLOBAL::Code_prefix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", )  ) 
-            , 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'ident' )
-             )
-             )
-            ,  } ),  )
-            , ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__36__62_ = $GLOBAL::Code_prefix_58__60__36__62_ || ::DISPATCH( $::Routine, "new", )  ) 
-            , 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'exp' )
-             )
-             )
-            ] }
-             )
-            )
-            }; "974^213" 
-        } )->();
-        if ( $ret ne "974^213" ) {$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $ret ]; };
-     }))|(?:\:(?:(??{ eval '$_rule_ident' })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "ident" ]; }))\<(?:(??{ eval '$_rule_angle_quoted' })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "angle_quoted" ]; }))\>(?{ 
+        do {::DISPATCH_VAR( $GLOBAL::_REGEX_RETURN_, "STORE", ::DISPATCH( $::Array, 'new', { _array => [::DISPATCH( $::Val::Buf, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'buf' )
+        , value           => ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__126__62_ = $GLOBAL::Code_prefix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+        , 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'ident' )
+         )
+         )
+        ,  } ),  )
+        , ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__36__62_ = $GLOBAL::Code_prefix_58__60__36__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+        , 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'exp' )
+         )
+         )
+        ] }
+         )
+         )
+        }; if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { $GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $GLOBAL::_REGEX_RETURN_ ]; }
+     }))|(?:\:(?:(??{ $_rule_ident })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "ident" ]; }))\<(?:(??{ $_rule_angle_quoted })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "angle_quoted" ]; }))\>(?{ 
         local $GLOBAL::_M = [ $GLOBAL::_M, "to", pos() ]; 
         Match::from_global_data( $GLOBAL::_M ); 
         $MATCH = $GLOBAL::MATCH = pop @Match::Matches; 
         @Match::Matches = (); 
-        my $ret = ( sub {
-            do {return(::DISPATCH( $::Array, 'new', { _array => [::DISPATCH( $::Val::Buf, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'buf' )
-            , value           => ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__126__62_ = $GLOBAL::Code_prefix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", )  ) 
-            , 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'ident' )
-             )
-             )
-            ,  } ),  )
-            , ::DISPATCH( $::Val::Buf, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'buf' )
-            , value           => ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__126__62_ = $GLOBAL::Code_prefix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", )  ) 
-            , 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'angle_quoted' )
-             )
-             )
-            ,  } ),  )
-            ] }
-             )
-            )
-            }; "974^213" 
-        } )->();
-        if ( $ret ne "974^213" ) {$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $ret ]; };
-     }))|(?:\:(?:(??{ eval '$_rule_ident' })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "ident" ]; }))\((?:(??{ eval '$_rule_opt_ws' })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; }))(?:(??{ eval '$_rule_exp' })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "exp" ]; }))(?:(??{ eval '$_rule_opt_ws' })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; }))\)(?{ 
+        do {::DISPATCH_VAR( $GLOBAL::_REGEX_RETURN_, "STORE", ::DISPATCH( $::Array, 'new', { _array => [::DISPATCH( $::Val::Buf, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'buf' )
+        , value           => ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__126__62_ = $GLOBAL::Code_prefix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+        , 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'ident' )
+         )
+         )
+        ,  } ),  )
+        , ::DISPATCH( $::Val::Buf, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'buf' )
+        , value           => ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__126__62_ = $GLOBAL::Code_prefix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+        , 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'angle_quoted' )
+         )
+         )
+        ,  } ),  )
+        ] }
+         )
+         )
+        }; if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { $GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $GLOBAL::_REGEX_RETURN_ ]; }
+     }))|(?:\:(?:(??{ $_rule_ident })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "ident" ]; }))\((?:(??{ $_rule_opt_ws })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; }))(?:(??{ $_rule_exp })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "exp" ]; }))(?:(??{ $_rule_opt_ws })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; }))\)(?{ 
         local $GLOBAL::_M = [ $GLOBAL::_M, "to", pos() ]; 
         Match::from_global_data( $GLOBAL::_M ); 
         $MATCH = $GLOBAL::MATCH = pop @Match::Matches; 
         @Match::Matches = (); 
-        my $ret = ( sub {
-            do {return(::DISPATCH( $::Array, 'new', { _array => [::DISPATCH( $::Val::Buf, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'buf' )
-            , value           => ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__126__62_ = $GLOBAL::Code_prefix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", )  ) 
-            , 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'ident' )
-             )
-             )
-            ,  } ),  )
-            , ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__36__62_ = $GLOBAL::Code_prefix_58__60__36__62_ || ::DISPATCH( $::Routine, "new", )  ) 
-            , 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'exp' )
-             )
-             )
-            ] }
-             )
-            )
-            }; "974^213" 
-        } )->();
-        if ( $ret ne "974^213" ) {$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $ret ]; };
-     }))|(?:\:(?:(??{ eval '$_rule_ident' })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "ident" ]; }))(?{ 
+        do {::DISPATCH_VAR( $GLOBAL::_REGEX_RETURN_, "STORE", ::DISPATCH( $::Array, 'new', { _array => [::DISPATCH( $::Val::Buf, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'buf' )
+        , value           => ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__126__62_ = $GLOBAL::Code_prefix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+        , 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'ident' )
+         )
+         )
+        ,  } ),  )
+        , ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__36__62_ = $GLOBAL::Code_prefix_58__60__36__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+        , 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'exp' )
+         )
+         )
+        ] }
+         )
+         )
+        }; if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { $GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $GLOBAL::_REGEX_RETURN_ ]; }
+     }))|(?:\:(?:(??{ $_rule_ident })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "ident" ]; }))(?{ 
         local $GLOBAL::_M = [ $GLOBAL::_M, "to", pos() ]; 
         Match::from_global_data( $GLOBAL::_M ); 
         $MATCH = $GLOBAL::MATCH = pop @Match::Matches; 
         @Match::Matches = (); 
-        my $ret = ( sub {
-            do {return(::DISPATCH( $::Array, 'new', { _array => [::DISPATCH( $::Val::Buf, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'buf' )
-            , value           => ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__126__62_ = $GLOBAL::Code_prefix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", )  ) 
-            , 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'ident' )
-             )
-             )
-            ,  } ),  )
-            , ::DISPATCH( $::Val::Bit, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'bit' )
-            , value           => ::DISPATCH( $::Int, 'new', 1 )
-            ,  } ),  )
-            ] }
-             )
-            )
-            }; "974^213" 
-        } )->();
-        if ( $ret ne "974^213" ) {$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $ret ]; };
-     }))|(?:\:(?:(??{ eval '$_rule_sigil' })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "sigil" ]; }))(?:(??{ eval '$_rule_ident' })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "ident" ]; }))(?{ 
+        do {::DISPATCH_VAR( $GLOBAL::_REGEX_RETURN_, "STORE", ::DISPATCH( $::Array, 'new', { _array => [::DISPATCH( $::Val::Buf, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'buf' )
+        , value           => ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__126__62_ = $GLOBAL::Code_prefix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+        , 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'ident' )
+         )
+         )
+        ,  } ),  )
+        , ::DISPATCH( $::Val::Bit, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'bit' )
+        , value           => ::DISPATCH( $::Int, 'new', 1 )
+        ,  } ),  )
+        ] }
+         )
+         )
+        }; if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { $GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $GLOBAL::_REGEX_RETURN_ ]; }
+     }))|(?:\:(?:(??{ $_rule_sigil })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "sigil" ]; }))(?:(??{ $_rule_ident })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "ident" ]; }))(?{ 
         local $GLOBAL::_M = [ $GLOBAL::_M, "to", pos() ]; 
         Match::from_global_data( $GLOBAL::_M ); 
         $MATCH = $GLOBAL::MATCH = pop @Match::Matches; 
         @Match::Matches = (); 
-        my $ret = ( sub {
-            do {return(::DISPATCH( $::Array, 'new', { _array => [::DISPATCH( $::Val::Buf, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'buf' )
-            , value           => ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__126__62_ = $GLOBAL::Code_prefix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", )  ) 
-            , 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'ident' )
-             )
-             )
-            ,  } ),  )
-            , ::DISPATCH( $::Var, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'sigil' )
-            , value           => ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__126__62_ = $GLOBAL::Code_prefix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", )  ) 
-            , 'APPLY', ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__36__62_ = $GLOBAL::Code_prefix_58__60__36__62_ || ::DISPATCH( $::Routine, "new", )  ) 
-            , 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'sigil' )
-             )
-             )
-             )
-            ,  } ), ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'twigil' )
-            , value           => ::DISPATCH( $::Str, 'new', '' )
-            ,  } ), ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'name' )
-            , value           => ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__36__62_ = $GLOBAL::Code_prefix_58__60__36__62_ || ::DISPATCH( $::Routine, "new", )  ) 
-            , 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'ident' )
-             )
-             )
-            ,  } ), ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'namespace' )
-            , value           => ::DISPATCH( $::Array, 'new', { _array => [] }
-             )
-            ,  } ),  )
-            ] }
-             )
-            )
-            }; "974^213" 
-        } )->();
-        if ( $ret ne "974^213" ) {$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $ret ]; };
+        do {::DISPATCH_VAR( $GLOBAL::_REGEX_RETURN_, "STORE", ::DISPATCH( $::Array, 'new', { _array => [::DISPATCH( $::Val::Buf, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'buf' )
+        , value           => ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__126__62_ = $GLOBAL::Code_prefix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+        , 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'ident' )
+         )
+         )
+        ,  } ),  )
+        , ::DISPATCH( $::Var, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'sigil' )
+        , value           => ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__126__62_ = $GLOBAL::Code_prefix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+        , 'APPLY', ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__36__62_ = $GLOBAL::Code_prefix_58__60__36__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+        , 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'sigil' )
+         )
+         )
+         )
+        ,  } ), ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'twigil' )
+        , value           => ::DISPATCH( $::Str, 'new', '' )
+        ,  } ), ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'name' )
+        , value           => ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__36__62_ = $GLOBAL::Code_prefix_58__60__36__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+        , 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'ident' )
+         )
+         )
+        ,  } ), ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'namespace' )
+        , value           => ::DISPATCH( $::Array, 'new', { _array => [] }
+         )
+        ,  } ),  )
+        ] }
+         )
+         )
+        }; if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { $GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $GLOBAL::_REGEX_RETURN_ ]; }
      })))
     (?{ 
         local $GLOBAL::_M = [ $GLOBAL::_M, 'to', pos() ]; 
@@ -775,70 +760,61 @@
         local $GLOBAL::_M = [ $GLOBAL::_M, 'create', pos(), \$_ ]; 
         $GLOBAL::_M2 = $GLOBAL::_M; 
     })
-    (?:(?:(?:(??{ eval '$_rule_exp_parameter_named' })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "exp_parameter_named" ]; }))(?{ 
+    (?:(?:(?:(??{ $_rule_exp_parameter_named })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "exp_parameter_named" ]; }))(?{ 
         local $GLOBAL::_M = [ $GLOBAL::_M, "to", pos() ]; 
         Match::from_global_data( $GLOBAL::_M ); 
         $MATCH = $GLOBAL::MATCH = pop @Match::Matches; 
         @Match::Matches = (); 
-        my $ret = ( sub {
-            do {return(::DISPATCH( $::Lit::NamedArgument, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'key' )
-            , value           => ::DISPATCH( ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__36__62_ = $GLOBAL::Code_prefix_58__60__36__62_ || ::DISPATCH( $::Routine, "new", )  ) 
-            , 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'exp_parameter_named' )
-             )
-             )
-            , 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
-             )
-            ,  } ), ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'value' )
-            , value           => ::DISPATCH( ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__36__62_ = $GLOBAL::Code_prefix_58__60__36__62_ || ::DISPATCH( $::Routine, "new", )  ) 
-            , 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'exp_parameter_named' )
-             )
-             )
-            , 'INDEX', ::DISPATCH( $::Int, 'new', 1 )
-             )
-            ,  } ),  )
-            )
-            }; "974^213" 
-        } )->();
-        if ( $ret ne "974^213" ) {$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $ret ]; };
-     }))|(?:(?:(??{ eval '$_rule_pair' })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "pair" ]; }))(?{ 
+        do {::DISPATCH_VAR( $GLOBAL::_REGEX_RETURN_, "STORE", ::DISPATCH( $::Lit::NamedArgument, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'key' )
+        , value           => ::DISPATCH( ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__36__62_ = $GLOBAL::Code_prefix_58__60__36__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+        , 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'exp_parameter_named' )
+         )
+         )
+        , 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
+         )
+        ,  } ), ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'value' )
+        , value           => ::DISPATCH( ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__36__62_ = $GLOBAL::Code_prefix_58__60__36__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+        , 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'exp_parameter_named' )
+         )
+         )
+        , 'INDEX', ::DISPATCH( $::Int, 'new', 1 )
+         )
+        ,  } ),  )
+         )
+        }; if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { $GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $GLOBAL::_REGEX_RETURN_ ]; }
+     }))|(?:(?:(??{ $_rule_pair })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "pair" ]; }))(?{ 
         local $GLOBAL::_M = [ $GLOBAL::_M, "to", pos() ]; 
         Match::from_global_data( $GLOBAL::_M ); 
         $MATCH = $GLOBAL::MATCH = pop @Match::Matches; 
         @Match::Matches = (); 
-        my $ret = ( sub {
-            do {return(::DISPATCH( $::Lit::Pair, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'key' )
-            , value           => ::DISPATCH( ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__36__62_ = $GLOBAL::Code_prefix_58__60__36__62_ || ::DISPATCH( $::Routine, "new", )  ) 
-            , 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'pair' )
-             )
-             )
-            , 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
-             )
-            ,  } ), ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'value' )
-            , value           => ::DISPATCH( ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__36__62_ = $GLOBAL::Code_prefix_58__60__36__62_ || ::DISPATCH( $::Routine, "new", )  ) 
-            , 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'pair' )
-             )
-             )
-            , 'INDEX', ::DISPATCH( $::Int, 'new', 1 )
-             )
-            ,  } ),  )
-            )
-            }; "974^213" 
-        } )->();
-        if ( $ret ne "974^213" ) {$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $ret ]; };
-     }))|(?:(?:(??{ eval '$_rule_exp' })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "exp" ]; }))(?{ 
+        do {::DISPATCH_VAR( $GLOBAL::_REGEX_RETURN_, "STORE", ::DISPATCH( $::Lit::Pair, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'key' )
+        , value           => ::DISPATCH( ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__36__62_ = $GLOBAL::Code_prefix_58__60__36__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+        , 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'pair' )
+         )
+         )
+        , 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
+         )
+        ,  } ), ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'value' )
+        , value           => ::DISPATCH( ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__36__62_ = $GLOBAL::Code_prefix_58__60__36__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+        , 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'pair' )
+         )
+         )
+        , 'INDEX', ::DISPATCH( $::Int, 'new', 1 )
+         )
+        ,  } ),  )
+         )
+        }; if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { $GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $GLOBAL::_REGEX_RETURN_ ]; }
+     }))|(?:(?:(??{ $_rule_exp })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "exp" ]; }))(?{ 
         local $GLOBAL::_M = [ $GLOBAL::_M, "to", pos() ]; 
         Match::from_global_data( $GLOBAL::_M ); 
         $MATCH = $GLOBAL::MATCH = pop @Match::Matches; 
         @Match::Matches = (); 
-        my $ret = ( sub {
-            do {return(::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__36__62_ = $GLOBAL::Code_prefix_58__60__36__62_ || ::DISPATCH( $::Routine, "new", )  ) 
-            , 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'exp' )
-             )
-             )
-            )
-            }; "974^213" 
-        } )->();
-        if ( $ret ne "974^213" ) {$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $ret ]; };
+        do {::DISPATCH_VAR( $GLOBAL::_REGEX_RETURN_, "STORE", ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__36__62_ = $GLOBAL::Code_prefix_58__60__36__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+        , 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'exp' )
+         )
+         )
+         )
+        }; if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { $GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $GLOBAL::_REGEX_RETURN_ ]; }
      })))
     (?{ 
         local $GLOBAL::_M = [ $GLOBAL::_M, 'to', pos() ]; 
@@ -879,56 +855,47 @@
         local $GLOBAL::_M = [ $GLOBAL::_M, 'create', pos(), \$_ ]; 
         $GLOBAL::_M2 = $GLOBAL::_M; 
     })
-    (?:(?:(?:(??{ eval '$_rule_exp_parameter_item' })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "exp_parameter_item" ]; }))(?:(?:(?:(??{ eval '$_rule_opt_ws' })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; }))\,(?:(??{ eval '$_rule_opt_ws' })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; }))(?:(??{ eval '$_rule_exp_parameter_list' })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "exp_parameter_list" ]; }))(?{ 
+    (?:(?:(?:(??{ $_rule_exp_parameter_item })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "exp_parameter_item" ]; }))(?:(?:(?:(??{ $_rule_opt_ws })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; }))\,(?:(??{ $_rule_opt_ws })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; }))(?:(??{ $_rule_exp_parameter_list })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "exp_parameter_list" ]; }))(?{ 
         local $GLOBAL::_M = [ $GLOBAL::_M, "to", pos() ]; 
         Match::from_global_data( $GLOBAL::_M ); 
         $MATCH = $GLOBAL::MATCH = pop @Match::Matches; 
         @Match::Matches = (); 
-        my $ret = ( sub {
-            do {return(::DISPATCH( $::Array, 'new', { _array => [::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__36__62_ = $GLOBAL::Code_prefix_58__60__36__62_ || ::DISPATCH( $::Routine, "new", )  ) 
-            , 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'exp_parameter_item' )
-             )
-             )
-            , ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__64__62_ = $GLOBAL::Code_prefix_58__60__64__62_ || ::DISPATCH( $::Routine, "new", )  ) 
-            , 'APPLY', ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__36__62_ = $GLOBAL::Code_prefix_58__60__36__62_ || ::DISPATCH( $::Routine, "new", )  ) 
-            , 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'exp_parameter_list' )
-             )
-             )
-             )
-            ] }
-             )
-            )
-            }; "974^213" 
-        } )->();
-        if ( $ret ne "974^213" ) {$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $ret ]; };
-     }))|(?:(?:(??{ eval '$_rule_opt_ws' })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; }))(?:(?:\,(?:(??{ eval '$_rule_opt_ws' })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; })))|(?:))(?{ 
+        do {::DISPATCH_VAR( $GLOBAL::_REGEX_RETURN_, "STORE", ::DISPATCH( $::Array, 'new', { _array => [::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__36__62_ = $GLOBAL::Code_prefix_58__60__36__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+        , 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'exp_parameter_item' )
+         )
+         )
+        , ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__64__62_ = $GLOBAL::Code_prefix_58__60__64__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+        , 'APPLY', ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__36__62_ = $GLOBAL::Code_prefix_58__60__36__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+        , 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'exp_parameter_list' )
+         )
+         )
+         )
+        ] }
+         )
+         )
+        }; if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { $GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $GLOBAL::_REGEX_RETURN_ ]; }
+     }))|(?:(?:(??{ $_rule_opt_ws })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; }))(?:(?:\,(?:(??{ $_rule_opt_ws })(?{ local $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; })))|(?:))(?{ 
         local $GLOBAL::_M = [ $GLOBAL::_M, "to", pos() ]; 
         Match::from_global_data( $GLOBAL::_M ); 
         $MATCH = $GLOBAL::MATCH = pop @Match::Matches; 
         @Match::Matches = (); 
-        my $ret = ( sub {
-            do {return(::DISPATCH( $::Array, 'new', { _array => [::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__36__62_ = $GLOBAL::Code_prefix_58__60__36__62_ || ::DISPATCH( $::Routine, "new", )  ) 
-            , 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'exp_parameter_item' )
-             )
-             )
-            ] }
-             )
-            )
-            }; "974^213" 
-        } )->();
-        if ( $ret ne "974^213" ) {$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $ret ]; };
+        do {::DISPATCH_VAR( $GLOBAL::_REGEX_RETURN_, "STORE", ::DISPATCH( $::Array, 'new', { _array => [::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__36__62_ = $GLOBAL::Code_prefix_58__60__36__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+        , 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'exp_parameter_item' )
+         )
+         )
+        ] }
+         )
+         )
+        }; if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { $GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $GLOBAL::_REGEX_RETURN_ ]; }
      }))))|(?:(?{ 
         local $GLOBAL::_M = [ $GLOBAL::_M, "to", pos() ]; 
         Match::from_global_data( $GLOBAL::_M ); 
         $MATCH = $GLOBAL::MATCH = pop @Match::Matches; 
         @Match::Matches = (); 
-        my $ret = ( sub {
-            do {return(::DISPATCH( $::Array, 'new', { _array => [] }
-             )
-            )
-            }; "974^213" 
-        } )->();
-        if ( $ret ne "974^213" ) {$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $ret ]; };
+        do {::DISPATCH_VAR( $GLOBAL::_REGEX_RETURN_, "STORE", ::DISPATCH( $::Array, 'new', { _array => [] }
+         )
+         )
+        }; if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { $GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $GLOBAL::_REGEX_RETURN_ ]; }
      })))
     (?{ 
         local $GLOBAL::_M = [ $GLOBAL::_M, 'to', pos() ]; 

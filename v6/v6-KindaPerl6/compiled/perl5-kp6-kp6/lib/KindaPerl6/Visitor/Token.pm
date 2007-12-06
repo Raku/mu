@@ -3611,7 +3611,7 @@
                                             ),
                                             'APPLY',
                                             ::DISPATCH(
-                                                $::Str, 'new', '($MATCH);'
+                                                $::Str, 'new', '($MATCH); '
                                             ),
                                             ::DISPATCH(
                                                 (
@@ -3625,7 +3625,7 @@
                                                 ::DISPATCH(
                                                     $::Str,
                                                     'new',
-                                                    'if $ret ne "sTrNgE V4l" {'
+'if defined( $GLOBAL::_REGEX_RETURN_ ) { '
                                                 ),
                                                 ::DISPATCH(
                                                     (
@@ -3639,7 +3639,7 @@
                                                     ::DISPATCH(
                                                         $::Str,
                                                         'new',
-'if (%*ENV{"KP6_TOKEN_DEBUGGER"}) { say "<<< some closure returning... " }; '
+'$MATCH.result = $GLOBAL::_REGEX_RETURN_; '
                                                     ),
                                                     ::DISPATCH(
                                                         (
@@ -3654,7 +3654,7 @@
                                                         ::DISPATCH(
                                                             $::Str,
                                                             'new',
-'$MATCH.result = $ret; '
+                                                            '$MATCH.bool = 1; '
                                                         ),
                                                         ::DISPATCH(
                                                             (
@@ -3669,7 +3669,7 @@
                                                             ::DISPATCH(
                                                                 $::Str,
                                                                 'new',
-'$MATCH.bool = 1; '
+'$GLOBAL::_REGEX_RETURN_ = undef; '
                                                             ),
                                                             ::DISPATCH(
                                                                 (
@@ -3684,7 +3684,7 @@
                                                                 ::DISPATCH(
                                                                     $::Str,
                                                                     'new',
-'return $MATCH;'
+                                                                    '}; '
                                                                 ),
                                                                 ::DISPATCH(
                                                                     (
@@ -3699,7 +3699,7 @@
                                                                     ::DISPATCH(
                                                                         $::Str,
                                                                         'new',
-                                                                        '};'
+'if $ret ne "sTrNgE V4l" {'
                                                                     ),
                                                                     ::DISPATCH(
                                                                         (
@@ -3714,12 +3714,110 @@
                                                                         ::DISPATCH(
                                                                             $::Str,
 'new',
-                                                                            '1'
+'if (%*ENV{"KP6_TOKEN_DEBUGGER"}) { say "<<< some closure returning... " }; '
                                                                         ),
                                                                         ::DISPATCH(
-                                                                            $::Str,
+                                                                            (
+                                                                                $GLOBAL::Code_infix_58__60__126__62_
+                                                                                  =
+                                                                                  $GLOBAL::Code_infix_58__60__126__62_
+                                                                                  ||
+                                                                                  ::DISPATCH(
+                                                                                    $::Routine,
+"new",
+                                                                                  )
+                                                                            ),
+'APPLY',
+                                                                            ::DISPATCH(
+                                                                                $::Str,
 'new',
-                                                                            '}'
+'$MATCH.result = $ret; '
+                                                                            ),
+                                                                            ::DISPATCH(
+                                                                                (
+                                                                                    $GLOBAL::Code_infix_58__60__126__62_
+                                                                                      =
+                                                                                      $GLOBAL::Code_infix_58__60__126__62_
+                                                                                      ||
+                                                                                      ::DISPATCH(
+                                                                                        $::Routine,
+"new",
+                                                                                      )
+                                                                                )
+                                                                                ,
+'APPLY',
+                                                                                ::DISPATCH(
+                                                                                    $::Str,
+'new',
+'$MATCH.bool = 1; '
+                                                                                  )
+                                                                                ,
+                                                                                ::DISPATCH(
+                                                                                    (
+                                                                                        $GLOBAL::Code_infix_58__60__126__62_
+                                                                                          =
+                                                                                          $GLOBAL::Code_infix_58__60__126__62_
+                                                                                          ||
+                                                                                          ::DISPATCH(
+                                                                                            $::Routine,
+"new",
+                                                                                          )
+                                                                                    )
+                                                                                    ,
+'APPLY',
+                                                                                    ::DISPATCH(
+                                                                                        $::Str,
+'new',
+'return $MATCH;'
+                                                                                      )
+                                                                                    ,
+                                                                                    ::DISPATCH(
+                                                                                        (
+                                                                                            $GLOBAL::Code_infix_58__60__126__62_
+                                                                                              =
+                                                                                              $GLOBAL::Code_infix_58__60__126__62_
+                                                                                              ||
+                                                                                              ::DISPATCH(
+                                                                                                $::Routine,
+"new",
+                                                                                              )
+                                                                                        )
+                                                                                        ,
+'APPLY',
+                                                                                        ::DISPATCH(
+                                                                                            $::Str,
+'new',
+'};'
+                                                                                          )
+                                                                                        ,
+                                                                                        ::DISPATCH(
+                                                                                            (
+                                                                                                $GLOBAL::Code_infix_58__60__126__62_
+                                                                                                  =
+                                                                                                  $GLOBAL::Code_infix_58__60__126__62_
+                                                                                                  ||
+                                                                                                  ::DISPATCH(
+                                                                                                    $::Routine,
+"new",
+                                                                                                  )
+                                                                                            )
+                                                                                            ,
+'APPLY',
+                                                                                            ::DISPATCH(
+                                                                                                $::Str,
+'new',
+'1'
+                                                                                              )
+                                                                                            ,
+                                                                                            ::DISPATCH(
+                                                                                                $::Str,
+'new',
+'}'
+                                                                                            )
+                                                                                        )
+                                                                                    )
+                                                                                )
+                                                                            )
                                                                         )
                                                                     )
                                                                 )

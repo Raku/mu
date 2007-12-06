@@ -29,6 +29,8 @@ package Match;
                 }
                 if ( $method eq 'does' ) {
                     return ::DISPATCH( $::Bit, 'new', 0 )
+                        if $param[0] eq $::NamedArgument;   # XXX
+                    return ::DISPATCH( $::Bit, 'new', 0 )
                         if $param[0] eq $::List;   # XXX
                     my $what = ::DISPATCH( $param[0], 'Str' )->{_value};                    
                     return ::DISPATCH( $::Bit, 'new', 0 )
