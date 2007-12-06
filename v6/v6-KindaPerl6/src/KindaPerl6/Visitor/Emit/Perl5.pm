@@ -536,7 +536,7 @@ class Apply {
         if  ( $.code.isa('Var') ) && ( $.code.name eq 'make' )
         {
             # hack for "make" (S05)
-            return  '::DISPATCH( '
+            return  '::DISPATCH_VAR( '
                         ~ '$GLOBAL::_REGEX_RETURN_, "STORE", ' ~ ((@.arguments[0]).emit_perl5) ~ ''
                 ~ ' )' ~ Main::newline();
         }

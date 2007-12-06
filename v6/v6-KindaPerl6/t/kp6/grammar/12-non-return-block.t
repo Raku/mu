@@ -3,7 +3,7 @@ grammar MyGrammar {
         a
         { say "ok 1" }
         b
-        { return "ok 2" }
+        { make "ok 2" }
     };
 };
 module Main {

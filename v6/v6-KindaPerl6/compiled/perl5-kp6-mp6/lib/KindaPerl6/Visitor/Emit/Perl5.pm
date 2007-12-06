@@ -691,8 +691,10 @@ sub emit_perl5 {
         else { }
     };
     do {
-        if ( ( Main::isa( $self->{code}, 'Var' ) && ( $self->{code}->name() eq 'make' ) ) ) { return ( ( '::DISPATCH( ' . ( '$GLOBAL::_REGEX_RETURN_, "STORE", ' . ( $self->{arguments}->[0]->emit_perl5() . ( '' . ( ' )' . Main::newline() ) ) ) ) ) ) }
-        else                                                                                { }
+        if ( ( Main::isa( $self->{code}, 'Var' ) && ( $self->{code}->name() eq 'make' ) ) ) {
+            return ( ( '::DISPATCH_VAR( ' . ( '$GLOBAL::_REGEX_RETURN_, "STORE", ' . ( $self->{arguments}->[0]->emit_perl5() . ( '' . ( ' )' . Main::newline() ) ) ) ) ) );
+        }
+        else { }
     };
     return ( ( '::DISPATCH( ' . ( $self->{code}->emit_perl5() . ( ', \'APPLY\', ' . ( Main::join( [ map { $_->emit_perl5() } @{ $self->{arguments} } ], ', ' ) . ( ' )' . Main::newline() ) ) ) ) ) );
 }

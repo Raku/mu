@@ -1,7 +1,7 @@
 grammar MyGrammar {
     token myrule {
         '1abc'
-        { return ::Ok(a => 'ok 1') }
+        { make ::Ok(a => 'ok 1') }
     }
 };
 class Ok {

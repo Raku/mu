@@ -1,7 +1,7 @@
 grammar MyGrammar {
     token myrule {
         '1abc'
-        { return 'ok ' ~ (42 - 41) }
+        { make 'ok ' ~ (42 - 41) }
     }
 };
 module Main {
