@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 3 Dec 2007
+  Last Modified: 5 Dec 2007
   Number: 2
-  Version: 120
+  Version: 121
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -2136,9 +2136,42 @@ following table shows the correspondence to the "fatarrow" notation:
     a => $$a            :$$a
     a => @$$a           :@$$a (etc.)
     a => %foo<a>        %foo<a>:p
+    '' => $x            :($x)
+    '' => <x>           :<x>
+    '' => ($x,$y)       :($x,$y)
+    '' => [$x,$y]       :[$x,$y]
+    '' => {$x => $y}    :{$x => $y}
+
+The fatarrow construct may be used only where a term is expected
+because it's considered an expression in its own right, since the
+fatarrow is parsed as a normal infix operator (even when autoquoting an
+identifier on its left).  The adverbial forms are considered special
+tokens and are recognized in various positions in addition to term
+position.  In particular, when used where an infix would be expected
+they modify the previous operator, ignoring the intervening term or
+parenthesized argument.  The form is also used to rename parameter
+declarations and to modify the meaning of various quoting forms.
+When appended to an identifier, the adverbial syntax is used to
+generate variants of that identifier; this syntax is used for
+naming operators such as C<< infix:<+> >> and multiply dispatched
+grammatical rules such as statement_control:if.  When so used the
+adverb is considered part of the name, so C<< infix:<+> >> and C<<
+infix:<-> >> are two different operators.  Likewise C<< prefix:<+>
+>> is different from C<< infix:<+> >>.
+
+Either fatarrow or adverbial pair notation may be used to pass named arguments as
+terms to a function or method.  After a call with parenthesized arguments,
+only adverbial syntax may be used to pass additional arguments.  This is typically
+used to pass an extra block:
+
+    find($directory) :{ when not /^\./ }
+
+This actually falls out from the preceding rules because the adverbial block is in 
+operator position, so it modifies the "find operator".
 
 Note that as usual the C<{...}> form can indicate either a closure or a hash
-depending on the contents.  It does I<not> indicate a subscript.
+depending on the contents.  It does I<not> indicate a subscript despite being
+parsed as one.
 
 Note also that the C<< <a b> >> form is not a subscript and is therefore
 equivalent not to C<.{'a','b'}> but rather to C<('a','b')>.  Bare C<< <a> >>
