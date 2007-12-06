@@ -537,7 +537,7 @@ class Apply {
         {
             # hack for "make" (S05)
             return  '::DISPATCH( '
-                        ~ '$_regex_return_, "STORE", ' ~ ((@.arguments[0]).emit_perl5) ~ ''
+                        ~ '$GLOBAL::_REGEX_RETURN_, "STORE", ' ~ ((@.arguments[0]).emit_perl5) ~ ''
                 ~ ' )' ~ Main::newline();
         }
 

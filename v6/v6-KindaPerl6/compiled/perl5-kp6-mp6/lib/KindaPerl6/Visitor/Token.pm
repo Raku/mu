@@ -224,19 +224,19 @@ sub emit_token {
     return (
         (   'do { '
                 . (
-                'my $_regex_return_; '
+                'my $ret = self.'
                     . (
-                    'my $ret = self.'
+                    $self->{closure}
                         . (
-                        $self->{closure}
+                        '($MATCH); '
                             . (
-                            '($MATCH); '
+                            'if defined( $GLOBAL::_REGEX_RETURN_ ) { '
                                 . (
-                                'if defined( $_regex_return ) { '
+                                '$MATCH.result = $GLOBAL::_REGEX_RETURN_; '
                                     . (
-                                    '$MATCH.result = $_regex_return; '
+                                    '$MATCH.bool = 1; '
                                         . (
-                                        '$MATCH.bool = 1; '
+                                        '$GLOBAL::_REGEX_RETURN_ = undef; '
                                             . (
                                             '}; '
                                                 . (

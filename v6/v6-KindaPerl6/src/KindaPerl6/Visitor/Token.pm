@@ -217,11 +217,11 @@ class Rule::Block {
         #XXX - avoid code -> ast -> code 
         #warn $.closure.emit_perl6;
         return 'do { ' 
-             ~ 'my $_regex_return_; ' 
              ~ 'my $ret = self.'~ $.closure ~ '($MATCH); ' 
-             ~ 'if defined( $_regex_return ) { '
-                ~ '$MATCH.result = $_regex_return; ' 
+             ~ 'if defined( $GLOBAL::_REGEX_RETURN_ ) { '
+                ~ '$MATCH.result = $GLOBAL::_REGEX_RETURN_; ' 
                 ~ '$MATCH.bool = 1; ' 
+                ~ '$GLOBAL::_REGEX_RETURN_ = undef; '
              ~ '}; ' 
              ~
              'if $ret ne "sTrNgE V4l" {' ~

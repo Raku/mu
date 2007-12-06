@@ -93,6 +93,9 @@ $GLOBAL::Hash_ENV = ::DISPATCH( $::Hash, 'new', map { [ ::DISPATCH( $::Str, 'new
 # @*ARGS
 $GLOBAL::List_ARGS = ::DISPATCH( $::List, 'new', { _array => [ map { ::DISPATCH( $::Str, 'new', $_ ) } @ARGV ] } );
 
+# the "return value" in regexes - XXX this is a workaround for non-inlined code blocks
+$GLOBAL::_REGEX_RETURN_ = ::DISPATCH( $::Scalar, 'new', );
+
 # XXX - hash key autovivification is not rw! please fix in MOP.pm
 #
 #    # %*ENV
