@@ -61,7 +61,7 @@ Next iteration of the kp6 project
 
 =item Yet Another Perl6 aka yap6
 
-A pure C implementation of KindaPerl6
+A pure C implementation of KindaPerl6 runtime
 
 =item v6.pm
 
@@ -314,8 +314,8 @@ Example:
 No tests pass at all.
 
 In mp6, you can pass t/01-sanity/01-tap.t by preprocess by removing of
-"use v6-alpha;" and wrapping the input in "class Main {...}".  Something similar
-might be done for kp6.  See pugs/project_planning/TALK.
+"use v6-alpha;" and wrapping the input in "class Main {...}". See pugs/project_planning/TALK.
+Some tests pass for kp6. See end of file in v6/v6-KindaPerl6/scripts/run_test.pl
 
 =head2 How much of the test suite will eventually pass?
 
