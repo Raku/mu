@@ -57,18 +57,22 @@ perl Makefile.PL
 make -j 3 test
 </pre>
 
-<li>Force re-compilation of <i>everything</i> code.
+<li>Force re-compilation of <i>everything</i>.
 <pre>
 make forcerecompile
-setenv PERL5LIB "./inc/v6-MiniPerl6-lib5"
+setenv PERL5LIB "./inc/v6-MiniPerl6-lib5" (XXX can this step be removed?)
 make
 </pre>
 <i>WARNING: Do NOT use -j when forcing a recompile!, this will cause the Makefile
-to break as code will be used that has not yet been compiled.</i><br><br>
+to crash.  The make process will attempt to use code that has not yet been compiled.</i><br><br>
 
 <li>To execute a script
 <pre>
 perl scripts/kp6 [perl6 file]
+</pre>
+<li>To compile a perl6 script and view resulting source:
+<pre>
+perl scripts/kp6 -o [outputfile.pl] [source perl6 file]
 </pre>
 
 <li>To debug perl6 in perl5 code scripts
@@ -81,7 +85,7 @@ DB> $DB::deep = 500;  # do the recurisve nature of the code, you're likely to
 
 <li><a name="huh">Huh? ** 2</a>
 <p>Perl6 is implementing several features I have not heard of before.  These
-links make for good reading... before you read the perl6 documentation.
+documents are good to read.  Before you read the perl6 documentation.
 <ul>
 <li>Prototyped based programming: <a href="http://en.wikipedia.org/wiki/Prototype-based_programming">http://en.wikipedia.org/wiki/Prototype-based_programming</a>.<p>
 The perl5 code that pulls off this feature: <a href="http://search.cpan.org/dist/Class-Prototyped/lib/Class/Prototyped.pm">http://search.cpan.org/dist/Class-Prototyped/lib/Class/Prototyped.pm</a>.
@@ -99,8 +103,12 @@ kp6 (script/kp6) into perl5 code.
 <p>Urk!.  That translates into this.
 <ol>
 
-<li>Compile kp6 (written in perl6) libraries (src/KindaPerl6/Runtime/Perl6/*.pm)
+<li>Compile kp6 (written in perl6) libraries (src/KindaPerl6/???)
 using miniperl6 to provide a run time foundation for code compiled by script/kp6.
+<p>TODO: pmurias
+	@tell dlocaus file in KindaPerl6::Runtime::Perl6 are compiled by kp6 (script/kp6) not mp6
+	<a href="http://irclog.perlgeek.de/perl6/2007-12-06#i_157744">IRC</a>
+<li>Use kp6 to compile src/KindaPerl6/Runtime/*
 <i>These go into lib/compiled-kp6-mp6/KindaPerl6/Runtime/* ..</i>.
 <p>These libraries provide an emulation of the perl6 enviroment.
 <p>Miniperl6 converts only a small subset of perl6 into perl5 code.
