@@ -5287,7 +5287,7 @@
                                                                                             ::DISPATCH(
                                                                                                 $::Str,
 'new',
-'$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $GLOBAL::_REGEX_RETURN_ ]; '
+'$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", ::DISPATCH( $GLOBAL::_REGEX_RETURN_, "FETCH" ) ]; '
                                                                                               )
                                                                                             ,
                                                                                             ::DISPATCH(

@@ -251,7 +251,7 @@ class Rule::Block {
             ~    $.closure.emit_perl5 ~ '; '
             
             ~    'if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { '
-                 ~   '$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $GLOBAL::_REGEX_RETURN_ ]; '
+                 ~   '$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", ::DISPATCH( $GLOBAL::_REGEX_RETURN_, "FETCH" ) ]; '
             ~    '}'             
             ) 
         ~ ' })'
