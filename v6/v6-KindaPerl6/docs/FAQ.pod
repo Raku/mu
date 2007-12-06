@@ -85,7 +85,7 @@ different perl6 implementations in progress.  PUGS is one of them.
 
 =head2 How can I help?
 
-=head3 Prerequisite reading
+=head3 Prerequisite reading.
 
 Perl6 is implementing several features I have not heard of before.  Before
 you read the perl6 documentation, these documents are good to read.
@@ -104,7 +104,7 @@ The perl5 code that implements Prototyped classes: L<http://search.cpan.org/dist
  - Subversion client.
  - Commit bit: Ask on #perl6 irc.freenode.net.
 
-=head2 Customs and Traditions:
+=head3 Customs and Traditions.
 
 - (new comers) When you get your commit bit, Update the AUTHORS file to make sure everything (SVN) is ok.
 
@@ -120,7 +120,7 @@ Example:
 
  [kp6] I have refactored subroutine XXX for clarity and updated the documentation.
 
-=head2 Cannot see the forest for the trees.
+=head3 Cannot see the forest for the trees.
 
 One of the problems I had when I started working on kp6 was I could not see
 how everything worked together.
@@ -149,7 +149,6 @@ Miniperl6 converts only a small subset of perl6 into perl5 code.
 4. Execute the resulting perl5code.pl using the lib/compiled-kp6-mp6/...
 libraries to emulate the perl6 enviroment, which is class creation, variable
 allocation, inheritance, etc...
-
 
 =head2 What subset of Perl 6 is covered by mp6?
   (from miniperl6-spec.pod)
