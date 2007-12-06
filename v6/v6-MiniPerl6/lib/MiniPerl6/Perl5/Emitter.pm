@@ -285,6 +285,8 @@ class Apply {
 
         if $code eq 'self'       { return '$self' };
 
+        if $code eq 'make'       { return 'return('   ~ (@.arguments.>>emit).join(', ') ~ ')' };
+
         if $code eq 'say'        { return 'Main::say('   ~ (@.arguments.>>emit).join(', ') ~ ')' };
         if $code eq 'print'      { return 'Main::print(' ~ (@.arguments.>>emit).join(', ') ~ ')' };
         if $code eq 'warn'       { return 'warn('        ~ (@.arguments.>>emit).join(', ') ~ ')' };

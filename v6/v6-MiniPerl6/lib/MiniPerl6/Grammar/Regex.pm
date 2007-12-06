@@ -57,14 +57,14 @@ token parsed_code {
     # this subrule is overridden inside the perl6 compiler
     # XXX - call MiniPerl6 'Statement List'
     <.string_code>
-    { return ~$/ }
+    { make ~$/ }
 }
 
 token named_capture_body {
-    | \(  <rule>        \)  { return { 'capturing_group' => $$<rule> ,} } 
-    | \[  <rule>        \]  { return $$<rule> } 
+    | \(  <rule>        \)  { make { 'capturing_group' => $$<rule> ,} } 
+    | \[  <rule>        \]  { make $$<rule> } 
     | \<  <metasyntax>  \>  
-            { return ::Rul::Subrule( 'metasyntax' => $$<metasyntax> ) }
+            { make ::Rul::Subrule( 'metasyntax' => $$<metasyntax> ) }
     | { die 'invalid alias syntax' }
 }
 
@@ -72,18 +72,18 @@ token variables {
     |
         '$<'
         <ident> \> 
-        { return '$/{' ~ '\'' ~ $<ident> ~ '\'' ~ '}' }
+        { make '$/{' ~ '\'' ~ $<ident> ~ '\'' ~ '}' }
     |
         # TODO
         <MiniPerl6::Grammar.sigil> 
         <MiniPerl6::Grammar.digits>
-        { return $<MiniPerl6::Grammar.sigil> ~ '/[' ~ $<MiniPerl6::Grammar.digits> ~ ']' }
+        { make $<MiniPerl6::Grammar.sigil> ~ '/[' ~ $<MiniPerl6::Grammar.digits> ~ ']' }
     |
         <MiniPerl6::Grammar.sigil> 
         <MiniPerl6::Grammar.twigil> 
         <MiniPerl6::Grammar.full_ident> 
         {
-            return ::Rul::Var( 
+            make ::Rul::Var( 
                     'sigil'  => ~$<MiniPerl6::Grammar.sigil>,
                     'twigil' => ~$<MiniPerl6::Grammar.twigil>,
                     'name'   => ~$<MiniPerl6::Grammar.full_ident>
@@ -94,135 +94,135 @@ token variables {
 token rule_terms {
     |   '('
         <rule> \)
-        { return ::Rul::Capture( 'rule' => $$<rule> ) }
+        { make ::Rul::Capture( 'rule' => $$<rule> ) }
     |   '<('
         <rule>  ')>'
-        { return ::Rul::CaptureResult( 'rule' => $$<rule> ) }
+        { make ::Rul::CaptureResult( 'rule' => $$<rule> ) }
     |   '<after'
         <.ws> <rule> \> 
-        { return ::Rul::After( 'rule' => $$<rule> ) }
+        { make ::Rul::After( 'rule' => $$<rule> ) }
     |   '<before'
         <.ws> <rule> \> 
-        { return ::Rul::Before( 'rule' => $$<rule> ) }
+        { make ::Rul::Before( 'rule' => $$<rule> ) }
     |   '<!before'
         <.ws> <rule> \> 
-        { return ::Rul::NotBefore( 'rule' => $$<rule> ) }
+        { make ::Rul::NotBefore( 'rule' => $$<rule> ) }
     |   '<!'
         # TODO
         <metasyntax> \> 
-        { return { negate  => { 'metasyntax' => $$<metasyntax> } } }
+        { make { negate  => { 'metasyntax' => $$<metasyntax> } } }
     |   '<+'
         # TODO
         <char_class>  \> 
-        { return ::Rul::CharClass( 'chars' => ~$<char_class> ) }
+        { make ::Rul::CharClass( 'chars' => ~$<char_class> ) }
     |   '<-'
         # TODO
         <char_class> \>
-        { return ::Rul::NegateCharClass( 'chars' => ~$<char_class> ) }
+        { make ::Rul::NegateCharClass( 'chars' => ~$<char_class> ) }
     |   \'
         <literal> \'
-        { return ::Rul::Constant( 'constant' => $$<literal> ) }
+        { make ::Rul::Constant( 'constant' => $$<literal> ) }
     |   # XXX - obsolete syntax
         \< \'
         <literal> \' \>
-        { return ::Rul::Constant( 'constant' => $$<literal> ) }
+        { make ::Rul::Constant( 'constant' => $$<literal> ) }
     |   \< 
         [  
             <variables>   \>
             # { say 'matching < variables ...' }
             {
                 # say 'found < hash-variable >';
-                return ::Rul::InterpolateVar( 'var' => $$<variables> )
+                make ::Rul::InterpolateVar( 'var' => $$<variables> )
             }
         |
             \?
             # TODO 
             <metasyntax>  \>
-            { return ::Rul::SubruleNoCapture( 'metasyntax' => $$<metasyntax> ) }
+            { make ::Rul::SubruleNoCapture( 'metasyntax' => $$<metasyntax> ) }
         |
             \.
             <metasyntax>  \>
-            { return ::Rul::SubruleNoCapture( 'metasyntax' => $$<metasyntax> ) }
+            { make ::Rul::SubruleNoCapture( 'metasyntax' => $$<metasyntax> ) }
         |
             # TODO
             <metasyntax>  \>
-            { return ::Rul::Subrule( 'metasyntax' => $$<metasyntax> ) }
+            { make ::Rul::Subrule( 'metasyntax' => $$<metasyntax> ) }
         ]
     |   \{ 
         <parsed_code>  \}
-        { return ::Rul::Block( 'closure' => $$<parsed_code> ) }
+        { make ::Rul::Block( 'closure' => $$<parsed_code> ) }
     |   <MiniPerl6::Grammar.backslash>  
         [
 # TODO
 #        | [ x | X ] <[ 0..9 a..f A..F ]]>+
 #          #  \x0021    \X0021
-#          { return ::Rul::SpecialChar( char => '\\' ~ $/ ) }
+#          { make ::Rul::SpecialChar( char => '\\' ~ $/ ) }
 #        | [ o | O ] <[ 0..7 ]>+
 #          #  \x0021    \X0021
-#          { return ::Rul::SpecialChar( char => '\\' ~ $/ ) }
+#          { make ::Rul::SpecialChar( char => '\\' ~ $/ ) }
 #        | ( x | X | o | O ) \[ (<-[ \] ]>*) \]
 #          #  \x[0021]  \X[0021]
-#          { return ::Rul::SpecialChar( char => '\\' ~ $0 ~ $1 ) }
+#          { make ::Rul::SpecialChar( char => '\\' ~ $0 ~ $1 ) }
         | <any>
           #  \e  \E
-          { return ::Rul::SpecialChar( 'char' => $$<any> ) }
+          { make ::Rul::SpecialChar( 'char' => $$<any> ) }
         ]
     |   \. 
-        { return ::Rul::Dot( 'dot' => 1 ) }
+        { make ::Rul::Dot( 'dot' => 1 ) }
     |   '[' 
         <rule> ']' 
-        { return $$<rule> }
+        { make $$<rule> }
 
 }
 
 =for later
-    |   ':::' { return { 'colon' => ':::' ,} }
-    |   ':?'  { return { 'colon' => ':?' ,} }
-    |   ':+'  { return { 'colon' => ':+' ,} }
-    |   '::'  { return { 'colon' => '::' ,} }
-    |   ':'   { return { 'colon' => ':'  ,} }
-    |   '$$'  { return { 'colon' => '$$' ,} }
-    |   '$'   { return { 'colon' => '$'  ,} }
+    |   ':::' { make { 'colon' => ':::' ,} }
+    |   ':?'  { make { 'colon' => ':?' ,} }
+    |   ':+'  { make { 'colon' => ':+' ,} }
+    |   '::'  { make { 'colon' => '::' ,} }
+    |   ':'   { make { 'colon' => ':'  ,} }
+    |   '$$'  { make { 'colon' => '$$' ,} }
+    |   '$'   { make { 'colon' => '$'  ,} }
 
 
 # TODO - parser error ???
-#    |   '^^' { return { 'colon' => '^^' ,} }
-#    |   '^'  { return { 'colon' => '^'  ,} } }
-#    |   '»'  { return { 'colon' => '>>' ,} } }
-#    |   '«'  { return { 'colon' => '<<' ,} } }
+#    |   '^^' { make { 'colon' => '^^' ,} }
+#    |   '^'  { make { 'colon' => '^'  ,} } }
+#    |   '»'  { make { 'colon' => '>>' ,} } }
+#    |   '«'  { make { 'colon' => '<<' ,} } }
 
-    |   '<<'  { return { 'colon' => '<<' ,} }     
-    |   '>>'  { return { 'colon' => '>>' ,} }     
+    |   '<<'  { make { 'colon' => '<<' ,} }     
+    |   '>>'  { make { 'colon' => '>>' ,} }     
     |   ':i' 
         <.ws> <rule> 
-        { return { 'modifier' => 'ignorecase', 'rule' => $$<rule>, } }     
+        { make { 'modifier' => 'ignorecase', 'rule' => $$<rule>, } }     
     |   ':ignorecase' 
         <.ws> <rule> 
-        { return { 'modifier' => 'ignorecase', 'rule' => $$<rule>, } }     
+        { make { 'modifier' => 'ignorecase', 'rule' => $$<rule>, } }     
     |   ':s' 
         <.ws> <rule> 
-        { return { 'modifier' => 'sigspace',   'rule' => $$<rule>, } }     
+        { make { 'modifier' => 'sigspace',   'rule' => $$<rule>, } }     
     |   ':sigspace' 
         <.ws> <rule> 
-        { return { 'modifier' => 'sigspace',   'rule' => $$<rule>, } }     
+        { make { 'modifier' => 'sigspace',   'rule' => $$<rule>, } }     
     |   ':P5' 
         <.ws> <rule> 
-        { return { 'modifier' => 'Perl5',  'rule' => $$<rule>, } }     
+        { make { 'modifier' => 'Perl5',  'rule' => $$<rule>, } }     
     |   ':Perl5' 
         <.ws> <rule> 
-        { return { 'modifier' => 'Perl5',  'rule' => $$<rule>, } }     
+        { make { 'modifier' => 'Perl5',  'rule' => $$<rule>, } }     
     |   ':bytes' 
         <.ws> <rule> 
-        { return { 'modifier' => 'bytes',  'rule' => $$<rule>, } }     
+        { make { 'modifier' => 'bytes',  'rule' => $$<rule>, } }     
     |   ':codes' 
         <.ws> <rule> 
-        { return { 'modifier' => 'codes',  'rule' => $$<rule>, } }     
+        { make { 'modifier' => 'codes',  'rule' => $$<rule>, } }     
     |   ':graphs' 
         <.ws> <rule> 
-        { return { 'modifier' => 'graphs', 'rule' => $$<rule>, } }     
+        { make { 'modifier' => 'graphs', 'rule' => $$<rule>, } }     
     |   ':langs' 
         <.ws> <rule> 
-        { return { 'modifier' => 'langs',  'rule' => $$<rule>, } } }
+        { make { 'modifier' => 'langs',  'rule' => $$<rule>, } } }
 }
 =cut
 
@@ -232,14 +232,14 @@ token term {
        <variables>
        [  <.ws>? <':='> <.ws>? <named_capture_body>
           { 
-            return ::Rul::NamedCapture(
+            make ::Rul::NamedCapture(
                 'rule' =>  $$<named_capture_body>,
                 'ident' => $$<variables>
             ); 
           }
        |
           { 
-            return $$<variables>
+            make $$<variables>
           }
        ]
     | 
@@ -247,15 +247,15 @@ token term {
         <rule_terms>
         { 
             #print 'term: ', Dumper( $_[0]->data );
-            return $$<rule_terms> 
+            make $$<rule_terms> 
         }
     |  <!before \] | \} | \) | \> | \: | \? | \+ | \* | \| | \& | \/ > <any>   # TODO - <...>* - optimize!
-        { return ::Rul::Constant( 'constant' => $$<any> ) }
+        { make ::Rul::Constant( 'constant' => $$<any> ) }
 }
 
 token quant {
     |   <'**'> <.MiniPerl6::Grammar.opt_ws> \{  <parsed_code>  \}
-        { return { 'closure' => $$<parsed_code> } }
+        { make { 'closure' => $$<parsed_code> } }
     |   [  \? | \* | \+  ]
 }
 
@@ -272,7 +272,7 @@ token quantifier {
         [
             <quant> <greedy>
             <.MiniPerl6::Grammar.opt_ws3>
-            { return ::Rul::Quantifier(
+            { make ::Rul::Quantifier(
                     'term'    => $$<term>,
                     'quant'   => $$<quant>,
                     'greedy'  => $$<greedy>,
@@ -282,7 +282,7 @@ token quantifier {
                 )
             }
         |
-            { return $$<term> }
+            { make $$<term> }
         ]
 }
 
@@ -290,17 +290,17 @@ token concat_list {
     <quantifier>
     [
         <concat_list> 
-        { return [ $$<quantifier>, @($$<concat_list>) ] }
+        { make [ $$<quantifier>, @($$<concat_list>) ] }
     |
-        { return [ $$<quantifier> ] }
+        { make [ $$<quantifier> ] }
     ]
     |
-        { return [] }
+        { make [] }
 }
 
 token concat {
     <concat_list>
-    { return ::Rul::Concat( 'concat' => $$<concat_list> ) }
+    { make ::Rul::Concat( 'concat' => $$<concat_list> ) }
 }
 
 token or_list {
@@ -308,12 +308,12 @@ token or_list {
     [
         <'|'>
         <or_list> 
-        { return [ $$<concat>, @($$<or_list>) ] }
+        { make [ $$<concat>, @($$<or_list>) ] }
     |
-        { return [ $$<concat> ] }
+        { make [ $$<concat> ] }
     ]
     |
-        { return [] }
+        { make [] }
 }
 
 token rule {
@@ -322,7 +322,7 @@ token rule {
     <or_list>
     { 
         # say 'found Rule';
-        return ::Rul::Or( 'or' => $$<or_list> ) 
+        make ::Rul::Or( 'or' => $$<or_list> ) 
     }
 }
 
