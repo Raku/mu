@@ -8,6 +8,27 @@ Development of KindaPerl6 is coordinated almost via the #perl6 IRC channel on
 irc.freenode.net. If you want to contribute join the channel and ask for a
 commit bit (see L<http://dev.pugscode.org/wiki/>).
 
+=head2 Useful links
+
+These are perl6 links, that I believe would be useful for new people to the
+KindaPerl6 project.
+
+L<http://dev.pugscode.org/browser> Trac interface for Perl6 code
+
+L<http://svn.pugscode.org/pugs/> SVN Repository
+
+L<http://feather.perl6.nl/syn/> Official Perl6 Documentation
+
+L<http://sial.org/pbot/perl6> Paste Bot for #perl6
+
+L<http://irclog.perlgeek.de/perl6/today> IRC Chat history for #perl6
+
+L<http://www.cse.unsw.edu.au/~dons/lambdabot/COMMANDS> Commands for lambdabot in #perl6
+
+L<http://dev.pugscode.org/timeline> Recent Commits
+
+L<http://dev.pugscode.org/browser/v6/v6-KindaPerl6/TODO> KP6 TODO
+
 =head2 mp6/kp6 FAQ
 
 =head2 Overview - What is mp6/kp6/v6?
