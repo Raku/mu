@@ -31,6 +31,14 @@ use [file] for the perltidyrc file.  NOTE: this code will default to
 $ENV{ PERLTIDY } if available, and if not, it will default then to
 util/perltidyrc.
 
+You can set the environment variable PERLTIDY to /dev/null to quickly turn off
+perltidy-ification in script/kp6 and script/mp6.pl.  This will remove 1 minute
+and 13 seconds from the compile time, reducing compile time by approximately 20%.
+
+Unless you are doing a lot of debugging, I recommend that you do NOT use the
+/dev/null feature.  A warning will be issued that you are writting non
+prettified files to disk
+
 =item -o or --output=[file]
 
 use [file] to write to the output.  If the file exists, it will be overwritten
@@ -83,6 +91,13 @@ if ( $opt{ perltidy} && ! $opt{perltidyrc} ) {
         $opt{perltidyrc} = 'util/perltidyrc';
     }
     die "No perltidyrc file is available for use" unless -e $opt{perltidyrc};
+
+    if ( $opt{perltidyrc} eq '/dev/null' ) {
+        $opt{perltidy} = 0;
+        delete $opt{perltidyrc};
+
+        warn "You have turned off perltidy - please do not commit these files to the respository";
+    }
 }
 
 # We're done getting our parameters
