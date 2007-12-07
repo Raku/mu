@@ -152,6 +152,7 @@ $::Array = KindaPerl6::Runtime::Perl5::MOP::make_class(
             );
         },
     map =>sub {
+            local $_;
             my $sub = $_[1];
             # arity: http://en.wikipedia.org/wiki/Arity, the number of arguments a function takes
             my $arity = ::DISPATCH( ::DISPATCH( $sub, 'signature' ), 'arity' )->{_value};
