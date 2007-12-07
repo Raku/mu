@@ -3,6 +3,7 @@ package main;
 use lib 'inc/v6-MiniPerl6-lib5';
 use strict;
 use Getopt::Long;
+use IO::File;
 
 =head1 NAME
 

@@ -49,8 +49,8 @@ parse the file or -e, but do not run it.
 
 =item -e 'commandline'
 
-May be used to enter one line of program.  
-            
+May be used to enter one line of program.
+
 =item -B[backend]
 
 execute use the compiler backend.
@@ -346,12 +346,17 @@ for (@COMPILER::CHECK) {
     # Make kp6 -e 'say "foo"' and echo 'say "foo"' | kp6 run stuff
     # under the p5 backend
     if ( $opt{ output } ) {
+        if ( $opt{perltidy} ) {
             Perl::Tidy::perltidy(
                 source => \$out,
                 destination => $output,
                 perltidyrc => $opt{ perltidyrc },
                 argv => '',
              );
+        } else {
+            $output->print( $out );
+            $output->close();
+        }
     }
     elsif ( !grep {defined} @opt{qw( B C do )} ) {
         run_piped_command("$EXECUTABLE_NAME -I$lib - -- @ARGV");
