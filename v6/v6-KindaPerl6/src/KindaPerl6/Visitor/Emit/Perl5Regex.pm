@@ -87,7 +87,7 @@ class Rule::Or {
     method emit_perl5 {
           'do{ my $_pos = pos(); ( ' 
                 ~ (@.or.>>emit_perl5).join(
-                        ' ) || ( ( pos($_pos) || 1 ) && '
+                        ' ) || ( ( ( pos($_) = $_pos ) || 1 ) && '
                     ) 
         ~ ' ) }';
     }
@@ -295,11 +295,11 @@ class Rule::Before {
 
         if $.assertion_modifier eq '!' {
             # XXX - create a new lexical context and discard captures ?
-            return 'do { local $GLOBAL::_M; my $_pos = pos(); my $_res = ' ~ $.rule.emit_perl5 ~ '; pos($_pos); !$res } ';
+            return 'do { local $GLOBAL::_M; my $_pos = pos(); my $_res = ' ~ $.rule.emit_perl5 ~ '; ( pos($_) = $_pos ); !$res } ';
         }
         if $.assertion_modifier eq '?' {
             # XXX - create a new lexical context and discard captures ?
-            return 'do { local $GLOBAL::_M; my $_pos = pos(); my $_res = ' ~ $.rule.emit_perl5 ~ '; pos($_pos); $res } ';
+            return 'do { local $GLOBAL::_M; my $_pos = pos(); my $_res = ' ~ $.rule.emit_perl5 ~ '; ( pos($_) = $_pos ); $res } ';
         }
     
         if $.capture_to_array {
@@ -319,10 +319,10 @@ class Rule::Before {
                 ~   ' $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
                 ~ ' if (' ~ $.rule.emit_perl5 ~ ') {'
                 ~   ' $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
-                ~   ' $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "before" ]; pos($_pos);'
+                ~   ' $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "before" ]; ( pos($_) = $_pos );'
                 ~ ' }'
                 ~ ' else {'
-                ~   ' $GLOBAL::_M = $_bak; pos($_pos);'    # rollback
+                ~   ' $GLOBAL::_M = $_bak; ( pos($_) = $_pos );'    # rollback
                 ~ '   0 }'
                 ~ ' }'
             ~ ' }'
