@@ -120,21 +120,23 @@ Example:
 
  [kp6] I have refactored subroutine XXX for clarity and updated the documentation.
 
-=head3 Cannot see the forest for the trees.
+=head3 Cannot see the forest for the trees. / Boot strapping
 
 One of the problems I had when I started working on kp6 was I could not see
 how everything worked together.
 
-mp6.pl (miniperl6) is used to compile/translate some of the KP6 perl6 code into
-perl5 code.   The resulting perl5 code is used to provide a run time enviroment
-for code (a script or a one liner) translated by kp6 (script/kp6) into perl5
-code.
+mp6.pl (miniperl6) is used to compile/translate the AST/Grammar/Visitor perl6
+libraires/code into perl5 code that can be used by kp6 to parse new perl6 code.
 
-Urk!.  That translates into this.
+AST/Grammar/Visitor code is responsible for converting perl6 code into perl5
+code or some other backend (Parrot/Lisp/Perl5).
 
-1. Compile kp6 (written in perl6) libraries (src/KindaPerl6/???) using miniperl6
-to provide a mini-compiler to compile perl6 code into libraries for use by
-script/kp6.  The mp6.pl files are:
+Once the kp6 is on its own feet, you can use kp6 to compile the AST/Grammer/Visitor
+perl6 code to produce NEWER, better, libraries.  The new libraries replace the
+existing libraries/code produced by mp6.  Ergo, miniperl6 is no longer needed;
+kp6 has just bootstrapped itself.
+
+The mp6.pl files are:
 
  src/KindaPerl6/Ast.pm
                 Grammar.pm
@@ -144,16 +146,7 @@ script/kp6.  The mp6.pl files are:
 
  src/KindaPerl6/Visitor/*
 
-2. Use kp6 to compile src/KindaPerl6/Runtime/*
-These go into lib/compiled-kp6-mp6/KindaPerl6/Runtime/* ..
-These libraries provide an emulation of the perl6 enviroment.
-Miniperl6 converts only a small subset of perl6 into perl5 code.
-
-3. Compile a script script/kp6.  C<perl script/kp6 -o perl5code.pl source-perl6.pl>.
-
-4. Execute the resulting perl5code.pl using the lib/compiled-kp6-mp6/...
-libraries to emulate the perl6 enviroment, which is class creation, variable
-allocation, inheritance, etc...
+kp6 provides a Runtime enviroment for perl6 code with src/KindaPerl6/Runtime/*
 
 =head2 What subset of Perl 6 is covered by mp6?
 
