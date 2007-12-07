@@ -49,6 +49,8 @@ compiled/perl5-kp6-mp6/lib/KindaPerl6/Runtime/Perl5/%.pm: src/KindaPerl6/Runtime
 compiled/perl5-kp6-mp6/lib/KindaPerl6.pm: src/KindaPerl6.pm
 	$(CP) $< $@
 
+# note, the files compiled by script/mp6.pl are all the files not handled
+# or "claimed" by the above rules.
 compiled/perl5-kp6-mp6/lib/%.pm: src/%.pm
 	$(PERL) script/mp6.pl -o $@ $<
 
