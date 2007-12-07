@@ -97,6 +97,7 @@ $::List = KindaPerl6::Runtime::Perl5::MOP::make_class(
             ::DISPATCH( $::List, 'new', { _array => [ sort { ::DISPATCH( $sub, "APPLY", $a, $b )->{_value}; } @{ $_[0]{_value}{_array} } ], } );
         },
         map =>sub {
+            local $_;
             my $sub = $_[1];
             # arity: http://en.wikipedia.org/wiki/Arity, the number of arguments a function takes
             my $arity = ::DISPATCH( ::DISPATCH( $sub, 'signature' ), 'arity' )->{_value};

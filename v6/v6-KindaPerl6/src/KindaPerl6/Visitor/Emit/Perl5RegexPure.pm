@@ -20,11 +20,38 @@ class KindaPerl6::Visitor::Emit::Perl5Regex {
 
 class Token {    
     method emit_perl5 {
+        my $regex_source := ($.regex).emit_perl5;
+        my $source := 
+          'do { ' ~ Main::newline()
+            ~ 'use vars qw($_rule_' ~ $.name ~ '); ' ~ Main::newline()
+            ~ 'INIT { ' ~ Main::newline()
+                ~   Main::indent(
+                      '$_rule_' ~ $.name ~ ' = qr' ~ chr(0)  ~ Main::newline()
+                    
+                    ~ '(?{ ' ~ Main::newline()
+                    ~   Main::indent(
+                              'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; ' ~ Main::newline() 
+                            ~ '$GLOBAL::_M2 = $GLOBAL::_M; ' 
+                        )
+                    ~ '})' ~ Main::newline()
+
+                    ~ $regex_source ~ Main::newline()
+                    
+                    ~ '(?{ ' ~ Main::newline()
+                    ~   Main::indent(
+                              'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; ' ~ Main::newline() 
+                            ~ '$GLOBAL::_M2 = $GLOBAL::_M; '
+                        )
+                    ~ '})' ~ Main::newline()
+
+                    ~ chr(0) ~ 'x; '  
+                )
+            ~ '}' ~ Main::newline() 
 
             # create the method, using the OO metamodel
             # OUTER::<$_> := string to match
             # OUTER::<$/> := match result
-            '::DISPATCH(::DISPATCH($::' ~ $KindaPerl6::Visitor::Emit::Perl5::current_compunit ~ ',"HOW"),'         
+            ~ '::DISPATCH(::DISPATCH($::' ~ $KindaPerl6::Visitor::Emit::Perl5::current_compunit ~ ',"HOW"),'         
                 ~ '"add_method", '
                 ~ '::DISPATCH( $::Str, "new", "' ~ $.name ~ '" ), '
 
@@ -33,15 +60,8 @@ class Token {
                         ~ 'sub { '
                         ~    'local $GLOBAL::_Class = shift; '
                         ~    'undef $GLOBAL::_M2; '
-                        ~    'local $_ = ( ref($_) ? ::DISPATCH( $_, "Str" )->{_value} : $_ ); '
-
-                            ~ 'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; ' ~ Main::newline() 
-                            ~ '$GLOBAL::_M2 = $GLOBAL::_M; ' 
-
-                            ~ ($.regex).emit_perl5 
-                            ~ ' && do { '
-                            ~ '$GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; ' ~ Main::newline() 
-                            ~ '$GLOBAL::_M2 = $GLOBAL::_M }; '
+                        ~    '( ref($_) ? ::DISPATCH( $_, "Str" )->{_value} : $_ ) =~ '
+                        ~      '/$' ~ Main::mangle_perl5rx_metasyntax( $.name ) ~ '/; '
                         
                         ~    'if ( $GLOBAL::_M2->[1] eq \'to\' ) { '
                         ~        'Match::from_global_data( $GLOBAL::_M2 ); '
@@ -59,46 +79,43 @@ class Token {
                     ~ '} '
                 ~ '), '
 
-            ~ ')'
+            ~ '); '
+          ~ '} '
+          ~ Main::newline();  # /do
+                        
+        return $source;
     }
 }
 
 class P5Token {
-    sub rx ( $s ) {
-        '/\G' ~ $s ~ '/g'
-    }
     method emit_perl5 {
-        P5Token::rx( $.regex )
+        # XXX this should be parsed to detect captures !!!
+        $.regex
+        # 'do { my $m2 = match_p5rx("' ~ $.regex ~ '",$str,($pos+0)); if ($m2) { $MATCH.to = $m2.to + 0; 1 } else { 0 } }';
     }
 }
 
 class Rule::Quantifier {
     method emit_perl5 {
         # TODO
-        die "TODO";
         $.term.emit_perl5 ~ $.quant ~ $.greedy;
     }
 }
 
 class Rule::Or {
     method emit_perl5 {
-          'do{ my $_pos = pos(); ( ' 
-                ~ (@.or.>>emit_perl5).join(
-                        ' ) || ( ( pos($_pos) || 1 ) && '
-                    ) 
-        ~ ' ) }';
+          '(?:' ~ (@.or.>>emit_perl5).join('|') ~ ')';
     }
 }
 
 class Rule::Concat {
     method emit_perl5 {
-        '( ' ~ (@.concat.>>emit_perl5).join(' && ') ~ ' )';
+        '(?:' ~ (@.concat.>>emit_perl5).join('') ~ ')';
     }
 }
 
 class Rule::Var {
     method emit_perl5 {
-        die "TODO";
         # Normalize the sigil here into $
         # $x    => $x
         # @x    => $List_x
@@ -118,83 +135,83 @@ class Rule::Constant {
     method emit_perl5 {
         my $str := $.constant; 
         if $str eq ' ' {
-            return P5Token::rx( '\\ ' );
+            return '\\ ';
         };
         if $str eq '...' {
-            return P5Token::rx( '\\.\\.\\.' );
+            return '\\.\\.\\.';
         };
 
         if $str eq '#' {
-            return P5Token::rx( '\\#' );
+            return '\\#';
         };
         if $str eq '$' {
-            return P5Token::rx( '\\$' );
+            return '\\$';
         };
         if $str eq '$<' {
-            return P5Token::rx( '\\$<' );
+            return '\\$<';
         };
         if $str eq '@' {
-            return P5Token::rx( '\\@' );
+            return '\\@';
         };
         if $str eq '%' {
-            return P5Token::rx( '\\%' );
+            return '\\%';
         };
 
         if $str eq '?' {
-            return P5Token::rx( '\\?' );
+            return '\\?';
         };
         if $str eq '+' {
-            return P5Token::rx( '\\+' );
+            return '\\+';
         };
         if $str eq '*' {
-            return P5Token::rx( '\\*' );
+            return '\\*';
         };
 
         if $str eq '??' {
-            return P5Token::rx( '\\?\\?' );
+            return '\\?\\?';
         };
         if $str eq '++' {
-            return P5Token::rx( '\\+\\+' );
+            return '\\+\\+';
         };
         if $str eq '**' {
-            return P5Token::rx( '\\*\\*' );
+            return '\\*\\*';
         };
 
         if $str eq '(' {
-            return P5Token::rx( '\\(' );
+            return '\\(';
         };
         if $str eq ')' {
-            return P5Token::rx( '\\)' );
+            return '\\)';
         };
         if $str eq '[' {
-            return P5Token::rx( '\\[' );
+            return '\\[';
         };
         if $str eq ']' {
-            return P5Token::rx( '\\]' );
+            return '\\]';
         };
         if $str eq '{' {
-            return P5Token::rx( '\\{' );
+            return '\\{';
         };
         if $str eq '}' {
-            return P5Token::rx( '\\}' );
+            return '\\}';
         };
 
         if $str eq '/' {
-            return P5Token::rx( '\\/' );
+            return '\\/';
         };
         if $str eq '\\' {
-            return P5Token::rx( '\\\\' );
+            return '\\\\';
         };
         if $str eq '\'' {
-            return P5Token::rx( '\\\'' );
+            return '\\\'';
         };
-        P5Token::rx( $str );
+        $str;
     }
 }
 
 class Rule::Dot {
     method emit_perl5 {
-        P5Token::rx( '(?:\n\r?|\r\n?|\X)' );
+        '(?:\n\r?|\r\n?|\X)';
     }
 }
 
@@ -203,25 +220,26 @@ class Rule::SpecialChar {
         my $char := $.char;
         #say 'CHAR ',$char;
         if $char eq 'n' {
-            return P5Token::rx( '(?:\n\r?|\r\n?)' );
+            return '(?:\n\r?|\r\n?)';
         };
         if $char eq 'N' {
-            return P5Token::rx( '(?:(?!\n\r?|\r\n?)\X)' );
+            return '(?:(?!\n\r?|\r\n?)\X)';
         };
         if $char eq '\\' {
-            return P5Token::rx( '\\\\' );
+            return '\\\\';
         };
         if $char eq '\'' {
-            return P5Token::rx( '\\\'' );
+            return '\\\'';
         };
-        return P5Token::rx( '\\' ~ $char );  # ???
+        return '\\' ~ $char;  # ???
     }
 }
 
 class Rule::Block {
     method emit_perl5 {
-        'do { '
-            ~    'local $GLOBAL::_M = [ $GLOBAL::_M, "to", pos() ]; ' ~ Main::newline()  # "finish" & shallow copy
+        '(?{ ' ~ Main::newline()
+            ~ Main::indent(
+                 'local $GLOBAL::_M = [ $GLOBAL::_M, "to", pos() ]; ' ~ Main::newline()  # "finish" & shallow copy
 
             # construct a $/ view from what we already have
             ~    'Match::from_global_data( $GLOBAL::_M ); ' ~ Main::newline()
@@ -235,14 +253,16 @@ class Rule::Block {
             ~    'if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { '
                  ~   '$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", ::DISPATCH( $GLOBAL::_REGEX_RETURN_, "FETCH" ) ]; '
             ~    '}'             
-        ~ ' 1 }'
+            ) 
+        ~ ' })'
     }
 }
 
 # TODO
 class Rule::InterpolateVar {
     method emit_perl5 {
-        die '# TODO: interpolate var ' ~ $.var.emit_perl5 ~ '';
+        say '# TODO: interpolate var ' ~ $.var.emit_perl5 ~ '';
+        die();
     };
 }
 
@@ -354,10 +374,12 @@ class Rule::SubruleNoCapture {
 
         # XXX - param passing
         
-        'do { '
-            ~ '' ~ $meth ~ '(); '
+          '(?:'
+            ~ '(??{ ' ~ $meth ~ ' })'
+            ~ '(?{ '
             ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; '
-        ~ ' 1 }'
+            ~ '})'
+        ~ ')'
     }
 }
 
@@ -382,10 +404,12 @@ class Rule::Subrule {
             ~ ')'
         }
         else {    
-            'do { '
-                ~ '' ~ $meth ~ '(); '
+              '(?:'
+                ~ '(??{ ' ~ $meth ~ ' })'
+                ~ '(?{ '
                 ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "' ~ $.metasyntax ~ '" ]; '
-            ~ ' 1 }'
+                ~ '})'
+            ~ ')'
         }
     }
 }
@@ -406,12 +430,16 @@ class Rule::NamedCapture {
             ~ ')'
         }
         else {    
-            'do { '
+              '(?:'
+                ~ '(?{ '
                 ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
+                ~ '})'
                 ~ $.rule.emit_perl5 
+                ~ '(?{ '
                 ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
                 ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "' ~ $.ident ~ '" ]; '
-            ~ ' 1 }'
+                ~ '})'
+            ~ ')'
         }
     }
 }
@@ -432,12 +460,16 @@ class Rule::Capture {
             ~ ')'
         }
         else {    
-            'do { '
+              '(?:'
+                ~ '(?{ '
                 ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
+                ~ '})'
                 ~ $.rule.emit_perl5 
+                ~ '(?{ '
                 ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
                 ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "positional_capture", ' ~ $.position ~ ' ]; '
-            ~ ' 1 }'
+                ~ '})'
+            ~ ')'
         }
     }
 }
