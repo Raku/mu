@@ -302,13 +302,6 @@ sub emit_parrot {
     ( ( $self->{twigil} eq '.' ) ? ( '  $P0 = getattribute self, \'' . ( $self->{name} . ( '\'' . Main::newline() ) ) ) : ( '  $P0 = ' . ( $self->full_name() . ( ' ' . Main::newline() ) ) ) );
 }
 
-sub name {
-    my $self   = shift;
-    my $List__ = \@_;
-    do { [] };
-    $self->{name};
-}
-
 sub full_name {
     my $self   = shift;
     my $List__ = \@_;
@@ -1067,20 +1060,6 @@ sub emit_parrot {
     my $List__ = \@_;
     do { [] };
     ' print \'Signature - TODO\'; die \'Signature - TODO\'; ';
-}
-
-sub invocant {
-    my $self   = shift;
-    my $List__ = \@_;
-    do { [] };
-    $self->{invocant};
-}
-
-sub positional {
-    my $self   = shift;
-    my $List__ = \@_;
-    do { [] };
-    $self->{positional};
 }
 
 package Method;

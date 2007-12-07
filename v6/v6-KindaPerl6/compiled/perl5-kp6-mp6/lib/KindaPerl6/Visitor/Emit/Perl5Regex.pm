@@ -144,7 +144,7 @@ sub emit_perl5 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( 'do{ my $_pos = pos(); ( ' . ( Main::join( [ map { $_->emit_perl5() } @{ $self->{or} } ], ' ) || ( ( ( pos($_) = $_pos ) || 1 ) && ' ) . ' ) }' ) );
+    ( 'do{ my $_pos = pos(); ( ' . ( Main::join( [ map { $_->emit_perl5() } @{ $self->{or} } ], ' ) || ( ( ( pos() = $_pos ) || 1 ) && ' ) . ' ) }' ) );
 }
 
 package Rule::Concat;
@@ -412,11 +412,11 @@ sub emit_perl5 {
     my $List__ = \@_;
     do { [] };
     do {
-        if ( ( $self->{assertion_modifier} eq '!' ) ) { return ( ( 'do { local $GLOBAL::_M; my $_pos = pos(); my $_res = ' . ( $self->{rule}->emit_perl5() . '; ( pos($_) = $_pos ); !$res } ' ) ) ) }
+        if ( ( $self->{assertion_modifier} eq '!' ) ) { return ( ( 'do { local $GLOBAL::_M; my $_pos = pos(); my $_res = ' . ( $self->{rule}->emit_perl5() . '; ( pos() = $_pos ); !$res } ' ) ) ) }
         else                                          { }
     };
     do {
-        if ( ( $self->{assertion_modifier} eq '?' ) ) { return ( ( 'do { local $GLOBAL::_M; my $_pos = pos(); my $_res = ' . ( $self->{rule}->emit_perl5() . '; ( pos($_) = $_pos ); $res } ' ) ) ) }
+        if ( ( $self->{assertion_modifier} eq '?' ) ) { return ( ( 'do { local $GLOBAL::_M; my $_pos = pos(); my $_res = ' . ( $self->{rule}->emit_perl5() . '; ( pos() = $_pos ); $res } ' ) ) ) }
         else                                          { }
     };
     do {
@@ -443,7 +443,7 @@ sub emit_perl5 {
                                 ') {'
                                     . (
                                     ' $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
-                                        . ( ' $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "before" ]; ( pos($_) = $_pos ); 1' . ( ' }' . ( ' else {' . ( ' $GLOBAL::_M = $_bak; ( pos($_) = $_pos );' . ( '   0 ' . ( ' }' . ' }' ) ) ) ) ) )
+                                        . ( ' $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "before" ]; ( pos() = $_pos ); 1' . ( ' }' . ( ' else {' . ( ' $GLOBAL::_M = $_bak; ( pos() = $_pos );' . ( '   0 ' . ( ' }' . ' }' ) ) ) ) ) )
                                     )
                                 )
                             )

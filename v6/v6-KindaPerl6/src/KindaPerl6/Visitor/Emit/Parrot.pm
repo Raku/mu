@@ -15,7 +15,7 @@ class CompUnit {
     method emit_parrot {
 
         # --- SETUP NAMESPACE
-        my $s :=   
+        my $s :=
             '.namespace [ ' ~ Main::quote ~ $.name ~ Main::quote ~ ' ] ' ~ Main::newline() ~
             #'.sub "__onload" :load' ~ Main::newline() ~
             #'.end'                ~ Main::newline() ~ Main::newline() ~
@@ -26,7 +26,7 @@ class CompUnit {
         # --- SETUP CLASS VARIABLES
 
             '.sub ' ~ Main::quote ~ '_class_vars_' ~ Main::quote ~ Main::newline();
-        
+
         # unused - 'has' declarations instead
         # for %.attributes.keys -> $item {
         #    $s := $s ~ $item.emit_parrot;
@@ -44,12 +44,12 @@ class CompUnit {
 
         # --- IMMEDIATE STATEMENTS
 
-        #$s := $s ~ 
+        #$s := $s ~
         #    '.sub _ :anon :load :init :outer(' ~ Main::quote ~ '_class_vars_' ~ Main::quote ~ ')' ~ Main::newline() ~
         #    '  .local pmc self'   ~ Main::newline() ~
         #    '  newclass self, ' ~ Main::quote ~ $.name ~ Main::quote ~ Main::newline();
         #$s := $s ~ $.body.emit_parrot;
-        #$s := $s ~ 
+        #$s := $s ~
         #    '.end' ~ Main::newline() ~ Main::newline();
         #return $s;
     }
@@ -121,15 +121,15 @@ class Lit::Array {
     method emit_parrot {
         my $a := @.array;
         my $item;
-        my $s := 
+        my $s :=
             '  save $P1' ~ Main::newline() ~
             '  $P1 = new .ResizablePMCArray' ~ Main::newline();
         for @$a -> $item {
             $s := $s ~ $item.emit_parrot;
-            $s := $s ~ 
+            $s := $s ~
             '  push $P1, $P0' ~ Main.newline;
         };
-        my $s := $s ~ 
+        my $s := $s ~
             '  $P0 = $P1' ~ Main::newline() ~
             '  restore $P1' ~ Main::newline();
         return $s;
@@ -141,19 +141,19 @@ class Lit::Hash {
     method emit_parrot {
         my $a := @.hash;
         my $item;
-        my $s := 
+        my $s :=
             '  save $P1' ~ Main::newline() ~
             '  save $P2' ~ Main::newline() ~
             '  $P1 = new .Hash' ~ Main::newline();
         for @$a -> $item {
             $s := $s ~ ($item[0]).emit_parrot;
-            $s := $s ~ 
+            $s := $s ~
             '  $P2 = $P0' ~ Main.newline;
             $s := $s ~ ($item[1]).emit_parrot;
-            $s := $s ~ 
+            $s := $s ~
             '  set $P1[$P2], $P0' ~ Main.newline;
         };
-        my $s := $s ~ 
+        my $s := $s ~
             '  $P0 = $P1'   ~ Main::newline() ~
             '  restore $P2' ~ Main::newline() ~
             '  restore $P1' ~ Main::newline();
@@ -201,13 +201,13 @@ class Lit::Code {
         my $bind_ := ::Bind(parameters=>$array_,arguments=>::Call(invocant => $CAPTURE,method => 'array',arguments => []));
         $str := $str ~ $bind_.emit_parrot ~ ' ';
 
-        my $bind_hash := 
+        my $bind_hash :=
                      ::Bind(parameters=>$hash_, arguments=>::Call(invocant => $CAPTURE,method => 'hash', arguments => []));
         $str := $str ~ $bind_hash.emit_parrot ~ ' ';
 
         my $i := 0;
         my $field;
-        for @($.sig.positional) -> $field { 
+        for @($.sig.positional) -> $field {
             my $bind := ::Bind(parameters=>$field,arguments=>::Index(obj=> $array_ , 'index'=>::Val::Int(int=>$i)) );
             $str := $str ~ $bind.emit_parrot ~ ' ';
             $i := $i + 1;
@@ -223,19 +223,19 @@ class Lit::Object {
     method emit_parrot {
         # ::Type( 'value' => 42 )
         my $fields := @.fields;
-        my $str := '';        
-        $str := 
+        my $str := '';
+        $str :=
             '  save $P1' ~ Main::newline() ~
             '  save $S2' ~ Main::newline() ~
             '  $P1 = new ' ~ Main::quote ~ $.class ~ Main::quote ~ Main::newline();
         for @$fields -> $field {
-            $str := $str ~ 
-                ($field[0]).emit_parrot ~ 
+            $str := $str ~
+                ($field[0]).emit_parrot ~
                 '  $S2 = $P0'    ~ Main::newline() ~
-                ($field[1]).emit_parrot ~ 
+                ($field[1]).emit_parrot ~
                 '  setattribute $P1, $S2, $P0' ~ Main::newline();
         };
-        $str := $str ~ 
+        $str := $str ~
             '  $P0 = $P1'   ~ Main::newline() ~
             '  restore $S2' ~ Main::newline() ~
             '  restore $P1' ~ Main::newline();
@@ -247,15 +247,15 @@ class Index {
     has $.obj;
     has $.index;
     method emit_parrot {
-        my $s := 
+        my $s :=
             '  save $P1'  ~ Main::newline();
         $s := $s ~ $.obj.emit_parrot;
-        $s := $s ~ 
+        $s := $s ~
             '  $P1 = $P0' ~ Main.newline();
         $s := $s ~ $.index.emit_parrot;
-        $s := $s ~ 
+        $s := $s ~
             '  $P0 = $P1[$P0]' ~ Main.newline();
-        my $s := $s ~ 
+        my $s := $s ~
             '  restore $P1' ~ Main::newline();
         return $s;
     }
@@ -265,15 +265,15 @@ class Lookup {
     has $.obj;
     has $.index;
     method emit_parrot {
-        my $s := 
+        my $s :=
             '  save $P1'  ~ Main::newline();
         $s := $s ~ $.obj.emit_parrot;
-        $s := $s ~ 
+        $s := $s ~
             '  $P1 = $P0' ~ Main.newline;
         $s := $s ~ $.index.emit_parrot;
-        $s := $s ~ 
+        $s := $s ~
             '  $P0 = $P1[$P0]' ~ Main.newline;
-        my $s := $s ~ 
+        my $s := $s ~
             '  restore $P1' ~ Main::newline();
         return $s;
     }
@@ -282,7 +282,7 @@ class Lookup {
 # variables can be:
 # $.var   - inside a method - parrot 'attribute'
 # $.var   - inside a class  - parrot 'global' (does parrot have class attributes?)
-# my $var - inside a sub or method   - parrot 'lexical' 
+# my $var - inside a sub or method   - parrot 'lexical'
 # my $var - inside a class  - parrot 'global'
 # parameters - parrot subroutine parameters - fixed by storing into lexicals
 
@@ -292,17 +292,15 @@ class Var {
     has $.name;
     method emit_parrot {
            ( $.twigil eq '.' )
-        ?? ( 
-             '  $P0 = getattribute self, \'' ~ $.name ~ '\'' ~ Main::newline() 
+        ?? (
+             '  $P0 = getattribute self, \'' ~ $.name ~ '\'' ~ Main::newline()
            )
         !! (
-             '  $P0 = ' ~ self.full_name ~ ' ' ~ Main::newline() 
-             # '  $P0 = find_lex \'' ~ self.full_name ~ '\'' ~ Main::newline() 
+             '  $P0 = ' ~ self.full_name ~ ' ' ~ Main::newline()
+             # '  $P0 = find_lex \'' ~ self.full_name ~ '\'' ~ Main::newline()
            )
     };
-    method name {
-        $.name
-    };
+
     method full_name {
         # Normalize the sigil here into $
         # $x    => $x
@@ -316,8 +314,8 @@ class Var {
             '&' => 'code_',
         };
            ( $.twigil eq '.' )
-        ?? ( 
-             $.name 
+        ?? (
+             $.name
            )
         !!  (    ( $.name eq '/' )
             ??   ( $table{$.sigil} ~ 'MATCH' )
@@ -376,13 +374,13 @@ class Bind {
             my $b     := $.arguments;
             my $str   := '';
             for @$a -> $var {
-                my $bind := ::Bind( 
-                    'parameters' => $var[1], 
-                    'arguments'  => ::Call( 
-                        invocant  => $b, 
-                        method    => ($var[0]).buf, 
-                        arguments => [ ], 
-                        hyper     => 0 
+                my $bind := ::Bind(
+                    'parameters' => $var[1],
+                    'arguments'  => ::Call(
+                        invocant  => $b,
+                        method    => ($var[0]).buf,
+                        arguments => [ ],
+                        hyper     => 0
                     )
                 );
                 $str := $str ~ $bind.emit_parrot;
@@ -498,7 +496,7 @@ class Call {
             $i := $i + 1;
         };
         $str := $str ~ $.invocant.emit_parrot ~
-            '  $P0 = $P0.' ~ $meth ~ '('; 
+            '  $P0 = $P0.' ~ $meth ~ '(';
         #$str := $str ~ '  ' ~ $.code ~ '(';
         $i := 0;
         my @p;
@@ -539,45 +537,45 @@ class Apply {
         if $code eq 'print'      {
             return
                 (@.arguments.>>emit_parrot).join( '  print $P0' ~ Main::newline() ) ~
-                '  print $P0' ~ Main::newline() 
+                '  print $P0' ~ Main::newline()
         };
-        if $code eq 'array'      { 
+        if $code eq 'array'      {
             return '  # TODO - array() is no-op' ~ Main::newline();
         };
 
-        if $code eq 'prefix:<~>' { 
-            return 
+        if $code eq 'prefix:<~>' {
+            return
                 (@.arguments[0]).emit_parrot ~
                 '  $S0 = $P0'    ~ Main::newline() ~
                 '  $P0 = $S0'    ~ Main::newline();
         };
-        if $code eq 'prefix:<!>' {  
-            return 
+        if $code eq 'prefix:<!>' {
+            return
                 ( ::If( cond      => @.arguments[0],
                         body      => [ ::Val::Bit( bit => 0 ) ],
-                        otherwise => [ ::Val::Bit( bit => 1 ) ] 
+                        otherwise => [ ::Val::Bit( bit => 1 ) ]
                 ) ).emit_parrot;
         };
-        if $code eq 'prefix:<?>' {  
-            return 
+        if $code eq 'prefix:<?>' {
+            return
                 ( ::If( cond      => @.arguments[0],
                         body      => [ ::Val::Bit( bit => 1 ) ],
-                        otherwise => [ ::Val::Bit( bit => 0 ) ] 
+                        otherwise => [ ::Val::Bit( bit => 0 ) ]
                 ) ).emit_parrot;
         };
 
-        if $code eq 'prefix:<$>' { 
+        if $code eq 'prefix:<$>' {
             return '  # TODO - prefix:<$> is no-op' ~ Main::newline();
         };
-        if $code eq 'prefix:<@>' { 
+        if $code eq 'prefix:<@>' {
             return '  # TODO - prefix:<@> is no-op' ~ Main::newline();
         };
-        if $code eq 'prefix:<%>' { 
+        if $code eq 'prefix:<%>' {
             return '  # TODO - prefix:<%> is no-op' ~ Main::newline();
         };
-        
-        if $code eq 'infix:<~>'  { 
-            return 
+
+        if $code eq 'infix:<~>'  {
+            return
                 (@.arguments[0]).emit_parrot ~
                 '  $S0 = $P0'    ~ Main::newline() ~
                 '  save $S0'     ~ Main::newline() ~
@@ -587,8 +585,8 @@ class Apply {
                 '  $S0 = concat $S0, $S1' ~ Main::newline() ~
                 '  $P0 = $S0'    ~ Main::newline();
         };
-        if $code eq 'infix:<+>'  { 
-            return 
+        if $code eq 'infix:<+>'  {
+            return
                 '  save $P1'        ~ Main::newline() ~
                 (@.arguments[0]).emit_parrot ~
                 '  $P1 = $P0'       ~ Main::newline() ~
@@ -596,8 +594,8 @@ class Apply {
                 '  $P0 = $P1 + $P0' ~ Main::newline() ~
                 '  restore $P1'     ~ Main::newline()
         };
-        if $code eq 'infix:<->'  { 
-            return 
+        if $code eq 'infix:<->'  {
+            return
                 '  save $P1'        ~ Main::newline() ~
                 (@.arguments[0]).emit_parrot ~
                 '  $P1 = $P0'       ~ Main::newline() ~
@@ -606,23 +604,23 @@ class Apply {
                 '  restore $P1'     ~ Main::newline()
         };
 
-        if $code eq 'infix:<&&>' {  
-            return 
+        if $code eq 'infix:<&&>' {
+            return
                 ( ::If( cond => @.arguments[0],
                         body => [@.arguments[1]],
                         otherwise => [ ]
                 ) ).emit_parrot;
         };
 
-        if $code eq 'infix:<||>' {  
-            return 
+        if $code eq 'infix:<||>' {
+            return
                 ( ::If( cond => @.arguments[0],
                         body => [ ],
-                        otherwise => [@.arguments[1]] 
+                        otherwise => [@.arguments[1]]
                 ) ).emit_parrot;
         };
 
-        if $code eq 'infix:<eq>' { 
+        if $code eq 'infix:<eq>' {
             $label := $label + 1;
             my $id := $label;
             return
@@ -639,7 +637,7 @@ class Apply {
                 '  $P0 = 1'      ~ Main::newline() ~
                 'eq_end'  ~ $id ~ ':'  ~ Main::newline();
         };
-        if $code eq 'infix:<ne>' { 
+        if $code eq 'infix:<ne>' {
             $label := $label + 1;
             my $id := $label;
             return
@@ -656,7 +654,7 @@ class Apply {
                 '  $P0 = 0'      ~ Main::newline() ~
                 'eq_end'  ~ $id ~ ':'  ~ Main::newline();
         };
-        if $code eq 'infix:<==>' { 
+        if $code eq 'infix:<==>' {
             $label := $label + 1;
             my $id := $label;
             return
@@ -672,7 +670,7 @@ class Apply {
                 'eq_end'  ~ $id ~ ':'  ~ Main::newline() ~
                 '  restore $P1'  ~ Main::newline();
         };
-        if $code eq 'infix:<!=>' { 
+        if $code eq 'infix:<!=>' {
             $label := $label + 1;
             my $id := $label;
             return
@@ -689,23 +687,23 @@ class Apply {
                 '  restore $P1'  ~ Main::newline();
         };
 
-        if $code eq 'ternary:<?? !!>' { 
-            return 
+        if $code eq 'ternary:<?? !!>' {
+            return
                 ( ::If( cond => @.arguments[0],
                         body => [@.arguments[1]],
-                        otherwise => [@.arguments[2]] 
+                        otherwise => [@.arguments[2]]
                 ) ).emit_parrot;
         };
 
-        if $code eq 'defined'  { 
-            return 
+        if $code eq 'defined'  {
+            return
                 (@.arguments[0]).emit_parrot ~
                 '  $I0 = defined $P0' ~ Main::newline() ~
                 '  $P0 = $I0' ~ Main::newline();
         };
 
-        if $code eq 'substr'  { 
-            return 
+        if $code eq 'substr'  {
+            return
                 (@.arguments[0]).emit_parrot ~
                 '  $S0 = $P0'    ~ Main::newline() ~
                 '  save $S0'     ~ Main::newline() ~
@@ -722,7 +720,7 @@ class Apply {
 
         #(@.arguments.>>emit_parrot).join('') ~
         #'  ' ~ $.code ~ '( $P0 )' ~ Main::newline();
-        
+
         my @args := @.arguments;
         my $str := '';
         my $ii := 10;
@@ -756,7 +754,7 @@ class Apply {
 class Return {
     has $.result;
     method emit_parrot {
-        $.result.emit_parrot ~ 
+        $.result.emit_parrot ~
         '  .return( $P0 )' ~ Main::newline();
     }
 }
@@ -770,12 +768,12 @@ class If {
         $label := $label + 1;
         my $id := $label;
         return
-            $.cond.emit_parrot ~ 
+            $.cond.emit_parrot ~
             '  unless $P0 goto ifelse' ~ $id ~ Main::newline() ~
-                (@.body.>>emit_parrot).join('') ~ 
+                (@.body.>>emit_parrot).join('') ~
             '  goto ifend' ~ $id ~ Main::newline() ~
             'ifelse' ~ $id ~ ':' ~ Main::newline() ~
-                (@.otherwise.>>emit_parrot).join('') ~ 
+                (@.otherwise.>>emit_parrot).join('') ~
             'ifend'  ~ $id ~ ':'  ~ Main::newline();
     }
 }
@@ -791,7 +789,7 @@ class Decl {
         ?? ( '  addattribute self, ' ~ Main::quote ~ $name ~ Main::quote ~ Main::newline() )
         !! #$.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit_parrot;
            ( '  .local pmc ' ~ ($.var).full_name ~ ' ' ~ Main::newline() ~
-             '  .lex \'' ~ ($.var).full_name ~ '\', ' ~ ($.var).full_name ~ ' ' ~ Main::newline() 
+             '  .lex \'' ~ ($.var).full_name ~ '\', ' ~ ($.var).full_name ~ ' ' ~ Main::newline()
            );
     }
 }
@@ -803,12 +801,6 @@ class Sig {
     method emit_parrot {
         ' print \'Signature - TODO\'; die \'Signature - TODO\'; '
     };
-    method invocant {
-        $.invocant
-    };
-    method positional {
-        $.positional
-    }
 }
 
 class Method {
@@ -823,18 +815,18 @@ class Method {
         my $i := 0;
         my $field;
         for @$pos -> $field {
-            $str := $str ~ 
+            $str := $str ~
                 '  $P0 = params[' ~ $i ~ ']' ~ Main::newline() ~
                 '  .lex \'' ~ $field.full_name ~ '\', $P0' ~ Main::newline();
             $i := $i + 1;
         };
-        return          
-            '.sub ' ~ Main::quote ~ $.name ~ Main::quote ~ 
+        return
+            '.sub ' ~ Main::quote ~ $.name ~ Main::quote ~
                 ' :method :outer(' ~ Main::quote ~ '_class_vars_' ~ Main::quote ~ ')' ~ Main::newline() ~
             '  .param pmc params  :slurpy'  ~ Main::newline() ~
             '  .lex \'' ~ $invocant.full_name ~ '\', self' ~ Main::newline() ~
             $str ~
-            (@.block.>>emit_parrot).join('') ~ 
+            (@.block.>>emit_parrot).join('') ~
             '.end' ~ Main::newline() ~ Main::newline();
     }
 }
@@ -851,17 +843,17 @@ class Sub {
         my $i := 0;
         my $field;
         for @$pos -> $field {
-            $str := $str ~ 
+            $str := $str ~
                 '  $P0 = params[' ~ $i ~ ']' ~ Main::newline() ~
                 '  .lex \'' ~ $field.full_name ~ '\', $P0' ~ Main::newline();
             $i := $i + 1;
         };
-        return          
-            '.sub ' ~ Main::quote ~ $.name ~ Main::quote ~ 
+        return
+            '.sub ' ~ Main::quote ~ $.name ~ Main::quote ~
                 ' :outer(' ~ Main::quote ~ '_class_vars_' ~ Main::quote ~ ')' ~ Main::newline() ~
             '  .param pmc params  :slurpy'  ~ Main::newline() ~
             $str ~
-            (@.block.>>emit_parrot).join('') ~ 
+            (@.block.>>emit_parrot).join('') ~
             '.end' ~ Main::newline() ~ Main::newline();
     }
 }
@@ -870,7 +862,7 @@ class Do {
     has @.block;
     method emit_parrot {
         # TODO - create a new lexical pad
-        (@.block.>>emit_parrot).join('') 
+        (@.block.>>emit_parrot).join('')
     }
 }
 

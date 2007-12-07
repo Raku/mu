@@ -122,7 +122,8 @@
 
                         # emit_body
                         $v;
-                        ::DISPATCH_VAR( $s, 'STORE', ::DISPATCH( $::Str, 'new', '\\\\( ' ) );
+                        ::DISPATCH_VAR( $s, 'STORE',
+                            ::DISPATCH( ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", ) ), 'APPLY', ::DISPATCH( $::Str, 'new', chr(92) ), ::DISPATCH( $::Str, 'new', '( ' ) ) );
                         do {
                             if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( ::DISPATCH( $self, "invocant" ), 'defined', ), "true" ), "p5landish" ) ) {
                                 do {
