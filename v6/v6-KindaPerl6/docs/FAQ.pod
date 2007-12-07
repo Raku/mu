@@ -131,7 +131,7 @@ libraires/code into perl5 code that can be used by kp6 to parse new perl6 code.
 AST/Grammar/Visitor code is responsible for converting perl6 code into perl5
 code or some other backend (Parrot/Lisp/Perl5).
 
-Once the kp6 is on its own feet, you can use kp6 to compile the AST/Grammer/Visitor
+Once the kp6 is sufficently working, you can use kp6 to compile the AST/Grammer/Visitor
 perl6 code to produce NEWER, better, libraries.  The new libraries replace the
 existing libraries/code produced by mp6.  Ergo, miniperl6 is no longer needed;
 kp6 has just bootstrapped itself.
@@ -147,6 +147,7 @@ The mp6.pl files are:
  src/KindaPerl6/Visitor/*
 
 kp6 provides a Runtime enviroment for perl6 code with src/KindaPerl6/Runtime/*
+so that we can execute perl6 code that has been translated to perl5.
 
 =head2 What subset of Perl 6 is covered by mp6?
 
