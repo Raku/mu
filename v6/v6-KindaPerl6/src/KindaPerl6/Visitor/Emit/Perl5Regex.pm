@@ -297,11 +297,11 @@ class Rule::Before {
 
         if $.assertion_modifier eq '!' {
             # XXX - create a new lexical context and discard captures ?
-            return '(?!' ~ $.rule.emit_perl5 ~ ')';
+            return 'do { my $_pos = pos(); my $_res = ' ~ $.rule.emit_perl5 ~ '; pos($_pos); !$res } ';
         }
         if $.assertion_modifier eq '?' {
             # XXX - create a new lexical context and discard captures ?
-            return '(?=' ~ $.rule.emit_perl5 ~ ')';
+            return 'do { my $_pos = pos(); my $_res = ' ~ $.rule.emit_perl5 ~ '; pos($_pos); $res } ';
         }
     
         if $.capture_to_array {

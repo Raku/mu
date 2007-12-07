@@ -415,11 +415,11 @@ sub emit_perl5 {
     my $List__ = \@_;
     do { [] };
     do {
-        if ( ( $self->{assertion_modifier} eq '!' ) ) { return ( ( '(?!' . ( $self->{rule}->emit_perl5() . ')' ) ) ) }
+        if ( ( $self->{assertion_modifier} eq '!' ) ) { return ( ( 'do { my $_pos = pos(); my $_res = ' . ( $self->{rule}->emit_perl5() . '; pos($_pos); !$res } ' ) ) ) }
         else                                          { }
     };
     do {
-        if ( ( $self->{assertion_modifier} eq '?' ) ) { return ( ( '(?=' . ( $self->{rule}->emit_perl5() . ')' ) ) ) }
+        if ( ( $self->{assertion_modifier} eq '?' ) ) { return ( ( 'do { my $_pos = pos(); my $_res = ' . ( $self->{rule}->emit_perl5() . '; pos($_pos); $res } ' ) ) ) }
         else                                          { }
     };
     do {
