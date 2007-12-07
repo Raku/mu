@@ -133,11 +133,16 @@ code.
 Urk!.  That translates into this.
 
 1. Compile kp6 (written in perl6) libraries (src/KindaPerl6/???) using miniperl6
-to provide a run time foundation for code compiled by script/kp6.
+to provide a mini-compiler to compile perl6 code into libraries for use by
+script/kp6.  The mp6.pl files are:
 
-TODO: pmurias @tell dlocaus file in KindaPerl6::Runtime::Perl6 are compiled by kp6 (script/kp6) not mp6
+ src/KindaPerl6/Ast.pm
+                Grammar.pm
+                Traverse.pm
 
-L<http://irclog.perlgeek.de/perl6/2007-12-06#i_157744>
+ src/KindaPerl6/Grammer/*
+
+ src/KindaPerl6/Visitor/*
 
 2. Use kp6 to compile src/KindaPerl6/Runtime/*
 These go into lib/compiled-kp6-mp6/KindaPerl6/Runtime/* ..
@@ -151,6 +156,7 @@ libraries to emulate the perl6 enviroment, which is class creation, variable
 allocation, inheritance, etc...
 
 =head2 What subset of Perl 6 is covered by mp6?
+
   (from miniperl6-spec.pod)
 
 =over
@@ -309,10 +315,11 @@ Parrot-PAST:
 
 =over
 
-=item Bootstrapping mp6-perl5: (FGLOCK: Where is this?)
+=item Bootstrapping mp6-perl5:
 
 This script rebuilds the lib5 directory. It creates a directory named lib5-new:
 
+  cd pugs/v6/v6-MiniPerl6
   perl util/build-perl5.sh
   mv lib5 lib5-old
   mv lib5-new lib5
@@ -329,18 +336,20 @@ kp6 adds:
  - begin blocks
  - containers
 
-=item Running kp6 (FGLOCK: Where is this?)
+=item Running kp6
 
 kp6 works by creating a parse tree, which is then submitted to a list of AST
-processors called "Visitors" (namespace C<KindaPerl6::Visitor::*>).
+processors called "Visitors" (namespace C<KindaPerl6::Visitor::*>).  Which is
+then handed off to the KindaPerl6/Visitor/Emit/Perl5.pm to be translated into
+perl5.
 
-The 'kp6-perl5.pl' script is one of the possible compiler 'workflows' that can be built with kp6.
+script/kp6 is one of the possible compiler 'workflows' that can be built with
+kp6.  You can specify other workflows such as lisp by specifying a different
+backend with -B, perldoc script/kp6 for more info.
 
- perl kp6-perl5.pl < source.pm > dest.pm
+perl script/kp6 -o dest.pm source.pm
 
-The lib5/ directory needs to be included in order to run kp6 programs:
-
- echo ' class X { say 42; }  ' | perl kp6-perl5.pl | perl -Ilib5
+ perl script/kp6 -e 'say 42;'
  ---
  42
 
@@ -350,7 +359,7 @@ To execute a Perl 6 script directly type
 
 =item Compiling kp6
 
-As of this writing, kp6 is not bootstrapped.
+As of this writing, kp6 is not bootstrapped (in progress though).
 
 The kp6 source files can be compiled with mp6 (whith the exception of the
 KindaPerl6::Runtime::Perl6::* files, which are compiled wih kp6). There
