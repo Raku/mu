@@ -271,7 +271,7 @@ Categories and precedence levels
 
 =head2 Can mp6 be run in perl5?
 
-Yes.  mp6 is currently the only fully working implementation.
+Yes.  perl5 is currently the only fully working backend.
 
 =head2 Can mp6 be run in pugs?
 
