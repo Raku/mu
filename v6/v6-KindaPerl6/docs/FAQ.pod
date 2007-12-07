@@ -55,13 +55,14 @@ workflow.  kp6 uses plugins in order to implement perl6 semantics over several
 backends.  kp6 is currently being bootstrapped - kp6 is compiled with the mp6
 compiler.
 
-=item Onion
-
-Next iteration of the kp6 project
-
 =item Yet Another Perl6 aka yap6
 
 A pure C implementation of KindaPerl6 runtime
+
+=item Onion
+
+Next iteration of the kp6 project
+I<This project was a shortlived experiment.Work on the bootstap is now going inside kp6.The name is reserved for perl6 on parrot>
 
 =item v6.pm
 
@@ -74,7 +75,7 @@ I<This project has been removed.>
 v6-Compiler (full-p6) is meant as a more advanced compiler, but the process is
 more  difficult to bootstrap because v6-Compiler needs a more complete Perl 6
 compiler.
-I<This project has been removed?>
+I<This project has been removed.>
 
 =item pugs - the Haskell implementation
 
@@ -98,7 +99,7 @@ The perl5 code that implements Prototyped classes: L<http://search.cpan.org/dist
 
 =head3 What do you need?
 
- - Perl5 (Perl 5.10.RC2 worked with the kp6 test cases.)
+ - Perl5 (Perl 5.10.RC2 and Perl 5.8.8 worked with the kp6 test cases.)
  - Coro.pm : L<http://search.cpan.org/~mlehmann/Coro-4.13/Coro.pm>
    Required for t/kp6/internals/02-gather.t
  - Subversion client.
@@ -271,7 +272,7 @@ Categories and precedence levels
 
 =head2 Can mp6 be run in perl5?
 
-Yes.  perl5 is currently the only fully working backend.
+Yes.  Perl5 is currently the only fully working backend.
 
 =head2 Can mp6 be run in pugs?
 
@@ -283,7 +284,7 @@ tried.
 There is an implementation of a parrot emitter, but the emitter cannot run
 full-mp6 yet.
 
-The implementation of the PAST emitter is also under way.
+The implementation of the PAST emitter was also under way.
 
 =head2 Can mp6 be run in ruby/javascript/c#/c/d ?
 
@@ -377,7 +378,7 @@ Example:
 
 =head2 How much of the test suite passes?
 
-No tests pass at all.
+A few tests pass.
 
 In mp6, you can pass t/01-sanity/01-tap.t by preprocess by removing of
 "use v6-alpha;" and wrapping the input in "class Main {...}". See pugs/project_planning/TALK.
@@ -386,7 +387,8 @@ Some tests pass for kp6. See end of file in v6/v6-KindaPerl6/scripts/run_test.pl
 =head2 How much of the test suite will eventually pass?
 
 Passing tests depends on improving the grammar and the runtime.
-Instead, kp6 focus is on compiler architecture and on backend semantics.
+Instead, kp6 focus is now on bootstraping.
+
 
 =head2 Why does parsing take so much time?
 
@@ -412,13 +414,8 @@ A MiniPerl6::Perl5::Match is created for every character.
 
 =head2 Why isn't kp6 self-hosting?
 
-kp6 can now be self-hosting. The process depends on improving the runtime and
-possibly adding an optimizer.
-
-=head2 Why is there not a makefile to regenerate v6-KindaPerl6/lib5/ ?
-
-The workflow for compiling kp6 is not fixed - you can add or take AST transformation steps
-kp6-1 will have a script.
+kp6 will be self-hosting. The process depends on a fast enough parse engine and porting
+thing using the mp6 calling conventions.
 
 =head2  What is the plan for kp6?
 
