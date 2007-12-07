@@ -208,6 +208,15 @@ sub emit_perl6 {
         if ( ( $self->{name} eq '/' ) ) { return ( ( $table->{ $self->{sigil} } . 'MATCH' ) ) }
         else                            { }
     };
+    do {
+        if ( ( $self->{sigil} eq '&' ) ) {
+            do {
+                if   ( ( Main::join( $self->{namespace}, '::' ) eq '' ) ) { return ( $self->{name} ) }
+                else                                                      { return ( ( $self->{sigil} . ( $self->{twigil} . ( Main::join( $self->{namespace}, '::' ) . $self->{name} ) ) ) ) }
+                }
+        }
+        else { }
+    };
     return ( Main::mangle_name( $self->{sigil}, $self->{twigil}, $self->{name} ) );
 }
 

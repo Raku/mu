@@ -4,7 +4,7 @@ use v6-alpha;
 class KindaPerl6::Visitor::Emit::Perl6 {
 
     # This visitor is a perl6 emitter
-    
+
     method visit ( $node ) {
         $node.emit_perl6;
     };
@@ -13,7 +13,7 @@ class KindaPerl6::Visitor::Emit::Perl6 {
 
 class CompUnit {
     method emit_perl6 {
-          'module ' ~ $.name ~ " { " 
+          'module ' ~ $.name ~ " { "
         ~ Main::newline()
         ~ $.body.emit_perl6
         ~ Main::newline()
@@ -22,32 +22,32 @@ class CompUnit {
 }
 
 class Val::Int {
-    method emit_perl6 { 
-        $.int 
+    method emit_perl6 {
+        $.int
     }
 }
 
 class Val::Bit {
-    method emit_perl6 { 
-        $.bit 
+    method emit_perl6 {
+        $.bit
     }
 }
 
 class Val::Num {
-    method emit_perl6 { 
-        $.num 
+    method emit_perl6 {
+        $.num
     }
 }
 
 class Val::Buf {
-    method emit_perl6 { 
-        '\'' ~ $.buf ~ '\'' 
+    method emit_perl6 {
+        '\'' ~ $.buf ~ '\''
     }
 }
 
 class Val::Undef {
-    method emit_perl6 { 
-        '(undef)' 
+    method emit_perl6 {
+        '(undef)'
         #'GLOBAL::undef()'
     }
 }
@@ -59,7 +59,7 @@ class Val::Object {
 }
 
 class Native::Buf {
-    method emit_perl6 { 
+    method emit_perl6 {
         '\'' ~ $.buf ~ '\''
     }
 }
@@ -81,9 +81,9 @@ class Lit::Hash {
         my $fields := @.hash;
         my $str := '';
         my $field;
-        for @$fields -> $field { 
+        for @$fields -> $field {
             $str := $str ~ ($field[0]).emit_perl6 ~ ' => ' ~ ($field[1]).emit_perl6 ~ ',';
-        }; 
+        };
         '{ ' ~ $str ~ ' }';
     }
 }
@@ -105,7 +105,7 @@ class Lit::Code {
             $s := $s ~ $name.emit_perl6 ~ '; ';
             #$s := $s ~ 'my ' ~ $name ~ '; ';
         };
-        return 
+        return
             $s
             ~ (@.body.>>emit_perl6).join('; ');
     }
@@ -118,9 +118,9 @@ class Lit::Object {
         my $str := '';
         # say @fields.map(sub { $_[0].emit_perl6 ~ ' => ' ~ $_[1].emit_perl6}).join(', ') ~ ')';
         my $field;
-        for @$fields -> $field { 
+        for @$fields -> $field {
             $str := $str ~ ($field[0]).emit_perl6 ~ ' => ' ~ ($field[1]).emit_perl6 ~ ',';
-        }; 
+        };
         $.class ~ '.new( ' ~ $str ~ ' )';
     }
 }
@@ -157,16 +157,27 @@ class Var {
             '%' => '$Hash_',
             '&' => '$Code_',
         };
-        
+
         if $.twigil eq '.' {
-            return '$self->{' ~ $.name ~ '}' 
+            return '$self->{' ~ $.name ~ '}'
         };
-        
+
         if $.name eq '/' {
-            return $table{$.sigil} ~ 'MATCH' 
+            return $table{$.sigil} ~ 'MATCH'
         };
-        
-        return Main::mangle_name( $.sigil, $.twigil, $.name ); 
+
+        if $.sigil eq '&' {
+            # debugging
+            # return 'SIGIL(' ~ $.sigil ~ ') twigil(' ~ $.twigil ~ ') namespace(' ~ $.namespace.join( ':: ')  ~ ') name(' ~ $.name ~ ')'
+            if $.namespace.join( '::' ) eq '' {
+                # this is assumed to be a CORE:: routine, such as "say"
+                return $.name
+            } else {
+                return $.sigil ~ $.twigil ~ $.namespace.join( '::' ) ~ $.name
+            }
+        };
+
+        return Main::mangle_name( $.sigil, $.twigil, $.name );
     };
 }
 
@@ -178,7 +189,7 @@ class Bind {
 
 class Proto {
     method emit_perl6 {
-        ~$.name        
+        ~$.name
     }
 }
 
@@ -205,9 +216,9 @@ class Call {
             || ($.method eq 'join')
             || ($.method eq 'chars')
             || ($.method eq 'isa')
-        { 
+        {
             if ($.hyper) {
-                return 
+                return
                     '[ map { Main::' ~ $.method ~ '( $_, ' ~ ', ' ~ (@.arguments.>>emit_perl6).join(', ') ~ ')' ~ ' } @{ ' ~ $invocant ~ ' } ]';
             }
             else {
@@ -218,9 +229,9 @@ class Call {
 
         my $meth := $.method;
         if  $meth eq 'postcircumfix:<( )>'  {
-             $meth := '';  
+             $meth := '';
         };
-        
+
         my $call := (@.arguments.>>emit_perl6).join(', ');
         if ($.hyper) {
             # TODO - hyper + role
@@ -228,12 +239,12 @@ class Call {
         }
         else {
                '('  ~ $invocant ~ '->FETCH->{_role_methods}{' ~ $meth ~ '}'
-            ~ ' ?? ' ~ $invocant ~ '->FETCH->{_role_methods}{' ~ $meth ~ '}{code}' 
+            ~ ' ?? ' ~ $invocant ~ '->FETCH->{_role_methods}{' ~ $meth ~ '}{code}'
                 ~ '(' ~ $invocant ~ '->FETCH, ' ~ $call ~ ')'
             ~ ' !! ' ~ $invocant ~ '->FETCH->' ~ $meth ~ '(' ~ $call ~ ')'
             ~  ')';
         };
-        
+
     }
 }
 
@@ -253,9 +264,9 @@ class Return {
 class If {
     method emit_perl6 {
         'do { if ( ${' ~ $.cond.emit_perl6 ~ '->FETCH} ) { ' ~ $.body.emit_perl6 ~ ' } '
-        ~ ( $.otherwise 
-            ?? ' else { ' ~ $.otherwise.emit_perl6 ~ ' }' 
-            !! '' 
+        ~ ( $.otherwise
+            ?? ' else { ' ~ $.otherwise.emit_perl6 ~ ' }'
+            !! ''
           )
         ~ ' }';
     }
@@ -278,7 +289,7 @@ class Method {
         # TODO - signature binding
         my $sig := $.block.sig;
         # say "Sig: ", $sig.perl;
-        my $invocant := $sig.invocant; 
+        my $invocant := $sig.invocant;
         # say $invocant.emit_perl6;
 
         my $pos := $sig.positional;
@@ -287,20 +298,20 @@ class Method {
         # TODO - follow recursively
         my $pos := $sig.positional;
         my $field;
-        for @$pos -> $field { 
+        for @$pos -> $field {
             $str := $str ~ 'my ' ~ $field.emit_perl6 ~ '; ';
         };
 
-        my $bind := ::Bind( 
-            'parameters' => ::Lit::Array( array => $sig.positional ), 
+        my $bind := ::Bind(
+            'parameters' => ::Lit::Array( array => $sig.positional ),
             'arguments'  => ::Var( sigil => '@', twigil => '', name => '_' )
         );
         $str := $str ~ $bind.emit_perl6 ~ '; ';
 
-        'sub ' ~ $.name ~ ' { ' ~ 
+        'sub ' ~ $.name ~ ' { ' ~
           'my ' ~ $invocant.emit_perl6 ~ ' = shift; ' ~
           $str ~
-          $.block.emit_perl6 ~ 
+          $.block.emit_perl6 ~
         ' }'
     }
 }
@@ -318,20 +329,20 @@ class Sub {
         my $pos := $sig.positional;
         if @$pos {
                   my $field;
-            for @$pos -> $field { 
+            for @$pos -> $field {
                 $str := $str ~ 'my ' ~ $field.emit_perl6 ~ '; ';
             };
-    
-            my $bind := ::Bind( 
-                'parameters' => ::Lit::Array( array => $sig.positional ), 
+
+            my $bind := ::Bind(
+                'parameters' => ::Lit::Array( array => $sig.positional ),
                 'arguments'  => ::Var( sigil => '@', twigil => '', name => '_' )
             );
             $str := $str ~ $bind.emit_perl6 ~ '; ';
         };
         my $code :=
-            'sub { '  
-        ~      $str 
-        ~      $.block.emit_perl6  
+            'sub { '
+        ~      $str
+        ~      $.block.emit_perl6
         ~    ' }';
         if $.name {
             return '$Code_' ~ $.name ~ ' :=  ' ~ $code ~ '';
@@ -342,16 +353,16 @@ class Sub {
 
 class Do {
     method emit_perl6 {
-        'do { ' ~ 
-          $.block.emit_perl6 ~ 
+        'do { ' ~
+          $.block.emit_perl6 ~
         ' }'
     }
 }
 
 class BEGIN {
     method emit_perl6 {
-        'BEGIN { ' ~ 
-          $.block.emit_perl6 ~ 
+        'BEGIN { ' ~
+          $.block.emit_perl6 ~
         ' }'
     }
 }
@@ -364,7 +375,7 @@ class Use {
 
 =begin
 
-=head1 NAME 
+=head1 NAME
 
 KindaPerl6::Visitor::Emit::Perl6 - Code generator for KindaPerl6
 
