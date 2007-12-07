@@ -103,6 +103,7 @@ use MiniPerl6::Grammar::Regex;
 use MiniPerl6::Emitter::Token;
 
 my $source = load_source();
+
 my $pos = 0;
 
 my $code = ' ' x (10 * 1024); $code =''; # pre-expand $code buffer space;
@@ -215,5 +216,8 @@ sub load_source {
         $source = <>;
     }
 
+    # removing all the spaces that being a line knocks off about 3 seconds
+    # on parsing a 26k perl6 file.  Less spaces, means less stuff to parse.
+    $source =~ s/^ +//gm;
     return $source;
 }

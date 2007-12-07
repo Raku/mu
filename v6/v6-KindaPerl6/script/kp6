@@ -547,6 +547,10 @@ sub load_source {
         $source = <>;
     }
 
+    # this only removes a fraction in a second off of the parsing time
+    # I am leaving this here, so that when our perl6 scripts get larger
+    # or we parse the AST/Vistor/Grammar code, it will run faster.
+    $source =~ s/^ +//gm;
     return $source;
 }
 
