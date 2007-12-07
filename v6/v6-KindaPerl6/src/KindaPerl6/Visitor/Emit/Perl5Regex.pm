@@ -21,10 +21,21 @@ class KindaPerl6::Visitor::Emit::Perl5Regex {
 class Token {    
     method emit_perl5 {
 
+                Main::indent(
+                      'sub _rule_' ~ $.name ~ ' {' ~ Main::newline()
+                            ~ 'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; ' ~ Main::newline() 
+                            ~ '$GLOBAL::_M2 = $GLOBAL::_M; ' 
+                            ~ ($.regex).emit_perl5 
+                            ~ ' && do { '
+                            ~ '$GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; ' ~ Main::newline() 
+                            ~ '$GLOBAL::_M2 = $GLOBAL::_M }; '
+                    ~ '} '  
+                )
+
             # create the method, using the OO metamodel
             # OUTER::<$_> := string to match
             # OUTER::<$/> := match result
-            '::DISPATCH(::DISPATCH($::' ~ $KindaPerl6::Visitor::Emit::Perl5::current_compunit ~ ',"HOW"),'         
+            ~ '::DISPATCH(::DISPATCH($::' ~ $KindaPerl6::Visitor::Emit::Perl5::current_compunit ~ ',"HOW"),'         
                 ~ '"add_method", '
                 ~ '::DISPATCH( $::Str, "new", "' ~ $.name ~ '" ), '
 
@@ -35,13 +46,7 @@ class Token {
                         ~    'undef $GLOBAL::_M2; '
                         ~    'local $_ = ( ref($_) ? ::DISPATCH( $_, "Str" )->{_value} : $_ ); '
 
-                            ~ 'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; ' ~ Main::newline() 
-                            ~ '$GLOBAL::_M2 = $GLOBAL::_M; ' 
-
-                            ~ ($.regex).emit_perl5 
-                            ~ ' && do { '
-                            ~ '$GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; ' ~ Main::newline() 
-                            ~ '$GLOBAL::_M2 = $GLOBAL::_M }; '
+                        ~ '_rule_' ~ $.name ~ '(); '
                         
                         ~    'if ( $GLOBAL::_M2->[1] eq \'to\' ) { '
                         ~        'Match::from_global_data( $GLOBAL::_M2 ); '
@@ -350,7 +355,7 @@ class Rule::SubruleNoCapture {
         #    !! ( '\'$\'.$GLOBAL::_Class.\'::_rule_' ~ $.metasyntax ~ '\'' );
         
         # XXX - Temporary hack
-        my $meth := '$' ~ Main::mangle_perl5rx_metasyntax( $.metasyntax );
+        my $meth := Main::mangle_perl5rx_metasyntax( $.metasyntax );
 
         # XXX - param passing
         
@@ -369,7 +374,7 @@ class Rule::Subrule {
         #    !! ( '\'$\'.$GLOBAL::_Class.\'::_rule_' ~ $.metasyntax ~ '\'' );
         
         # XXX - Temporary hack
-        my $meth := '$' ~ Main::mangle_perl5rx_metasyntax( $.metasyntax );
+        my $meth := Main::mangle_perl5rx_metasyntax( $.metasyntax );
 
         # XXX - named capture; param passing
         

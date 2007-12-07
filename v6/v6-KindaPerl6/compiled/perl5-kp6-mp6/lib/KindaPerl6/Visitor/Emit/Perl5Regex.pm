@@ -23,65 +23,71 @@ sub emit_perl5 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    (   '::DISPATCH(::DISPATCH($::'
-            . (
-            $KindaPerl6::Visitor::Emit::Perl5::current_compunit
-                . (
-                ',"HOW"),'
+    (   Main::indent(
+            (   'sub _rule_'
                     . (
-                    '"add_method", '
+                    $self->{name}
                         . (
-                        '::DISPATCH( $::Str, "new", "'
+                        ' {'
                             . (
-                            $self->{name}
+                            Main::newline()
                                 . (
-                                '" ), '
+                                'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
                                     . (
-                                    '::DISPATCH( $::Method, "new", '
+                                    Main::newline()
                                         . (
-                                        '{ code => '
+                                        '$GLOBAL::_M2 = $GLOBAL::_M; ' . ( $self->{regex}->emit_perl5() . ( ' && do { ' . ( '$GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; ' . ( Main::newline() . ( '$GLOBAL::_M2 = $GLOBAL::_M }; ' . '} ' ) ) ) ) )
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
+            )
+            )
+            . (
+            '::DISPATCH(::DISPATCH($::'
+                . (
+                $KindaPerl6::Visitor::Emit::Perl5::current_compunit
+                    . (
+                    ',"HOW"),'
+                        . (
+                        '"add_method", '
+                            . (
+                            '::DISPATCH( $::Str, "new", "'
+                                . (
+                                $self->{name}
+                                    . (
+                                    '" ), '
+                                        . (
+                                        '::DISPATCH( $::Method, "new", '
                                             . (
-                                            'sub { '
+                                            '{ code => '
                                                 . (
-                                                'local $GLOBAL::_Class = shift; '
+                                                'sub { '
                                                     . (
-                                                    'undef $GLOBAL::_M2; '
+                                                    'local $GLOBAL::_Class = shift; '
                                                         . (
-                                                        'local $_ = ( ref($_) ? ::DISPATCH( $_, "Str" )->{_value} : $_ ); '
+                                                        'undef $GLOBAL::_M2; '
                                                             . (
-                                                            'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
+                                                            'local $_ = ( ref($_) ? ::DISPATCH( $_, "Str" )->{_value} : $_ ); '
                                                                 . (
-                                                                Main::newline()
+                                                                '_rule_'
                                                                     . (
-                                                                    '$GLOBAL::_M2 = $GLOBAL::_M; '
+                                                                    $self->{name}
                                                                         . (
-                                                                        $self->{regex}->emit_perl5()
+                                                                        '(); '
                                                                             . (
-                                                                            ' && do { '
+                                                                            'if ( $GLOBAL::_M2->[1] eq \'to\' ) { '
                                                                                 . (
-                                                                                '$GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
+                                                                                'Match::from_global_data( $GLOBAL::_M2 ); '
                                                                                     . (
-                                                                                    Main::newline()
+                                                                                    '$MATCH = $GLOBAL::MATCH = pop @Match::Matches; '
                                                                                         . (
-                                                                                        '$GLOBAL::_M2 = $GLOBAL::_M }; '
+                                                                                        '} '
                                                                                             . (
-                                                                                            'if ( $GLOBAL::_M2->[1] eq \'to\' ) { '
-                                                                                                . (
-                                                                                                'Match::from_global_data( $GLOBAL::_M2 ); '
-                                                                                                    . (
-                                                                                                    '$MATCH = $GLOBAL::MATCH = pop @Match::Matches; '
-                                                                                                        . (
-                                                                                                        '} '
-                                                                                                            . (
-                                                                                                            'else { '
-                                                                                                                . (
-                                                                                                                '$MATCH = $GLOBAL::MATCH = Match->new(); '
-                                                                                                                    . ( '} ' . ( '@Match::Matches = (); ' . ( 'return $MATCH; ' . ( '} ' . ( '} ' . ( '), ' . ')' ) ) ) ) ) )
-                                                                                                                )
-                                                                                                            )
-                                                                                                        )
-                                                                                                    )
-                                                                                                )
+                                                                                            'else { '
+                                                                                                . ( '$MATCH = $GLOBAL::MATCH = Match->new(); ' . ( '} ' . ( '@Match::Matches = (); ' . ( 'return $MATCH; ' . ( '} ' . ( '} ' . ( '), ' . ')' ) ) ) ) ) ) )
                                                                                             )
                                                                                         )
                                                                                     )
@@ -471,7 +477,7 @@ sub emit_perl5 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    my $meth = ( '$' . Main::mangle_perl5rx_metasyntax( $self->{metasyntax} ) );
+    my $meth = Main::mangle_perl5rx_metasyntax( $self->{metasyntax} );
     ( 'do { ' . ( '' . ( $meth . ( '(); ' . ( 'local $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; ' . ' 1 }' ) ) ) ) );
 }
 
@@ -482,7 +488,7 @@ sub emit_perl5 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    my $meth = ( '$' . Main::mangle_perl5rx_metasyntax( $self->{metasyntax} ) );
+    my $meth = Main::mangle_perl5rx_metasyntax( $self->{metasyntax} );
     do {
         if ( $self->{capture_to_array} ) { ( '(?:' . ( '(??{ ' . ( $meth . ( ' })' . ( '(?{ ' . ( 'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture_to_array", "' . ( $self->{metasyntax} . ( '" ]; ' . ( '})' . ')' ) ) ) ) ) ) ) ) ) }
         else                             { ( 'do { ' . ( '' . ( $meth . ( '(); ' . ( 'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "' . ( $self->{metasyntax} . ( '" ]; ' . ' 1 }' ) ) ) ) ) ) ) }
