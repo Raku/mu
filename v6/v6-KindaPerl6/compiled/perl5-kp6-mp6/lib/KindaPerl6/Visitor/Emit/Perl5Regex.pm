@@ -72,23 +72,20 @@ sub emit_perl5 {
                                                             . (
                                                             'local $_ = ( ref($_) ? ::DISPATCH( $_, "Str" )->{_value} : $_ ); '
                                                                 . (
-                                                                '_rule_'
+                                                                'if ( _rule_'
                                                                     . (
                                                                     $self->{name}
                                                                         . (
-                                                                        '(); '
+                                                                        '() ) { '
                                                                             . (
-                                                                            'if ( $GLOBAL::_M2->[1] eq \'to\' ) { '
+                                                                            'Match::from_global_data( $GLOBAL::_M2 ); '
                                                                                 . (
-                                                                                'Match::from_global_data( $GLOBAL::_M2 ); '
+                                                                                '$MATCH = $GLOBAL::MATCH = pop @Match::Matches; '
                                                                                     . (
-                                                                                    '$MATCH = $GLOBAL::MATCH = pop @Match::Matches; '
+                                                                                    '} '
                                                                                         . (
-                                                                                        '} '
-                                                                                            . (
-                                                                                            'else { '
-                                                                                                . ( '$MATCH = $GLOBAL::MATCH = Match->new(); ' . ( '} ' . ( '@Match::Matches = (); ' . ( 'return $MATCH; ' . ( '} ' . ( '} ' . ( '), ' . ')' ) ) ) ) ) ) )
-                                                                                            )
+                                                                                        'else { '
+                                                                                            . ( '$MATCH = $GLOBAL::MATCH = Match->new(); ' . ( '} ' . ( '@Match::Matches = (); ' . ( 'return $MATCH; ' . ( '} ' . ( '} ' . ( '), ' . ')' ) ) ) ) ) ) )
                                                                                         )
                                                                                     )
                                                                                 )
@@ -415,11 +412,11 @@ sub emit_perl5 {
     my $List__ = \@_;
     do { [] };
     do {
-        if ( ( $self->{assertion_modifier} eq '!' ) ) { return ( ( 'do { my $_pos = pos(); my $_res = ' . ( $self->{rule}->emit_perl5() . '; pos($_pos); !$res } ' ) ) ) }
+        if ( ( $self->{assertion_modifier} eq '!' ) ) { return ( ( 'do { local $GLOBAL::_M; my $_pos = pos(); my $_res = ' . ( $self->{rule}->emit_perl5() . '; pos($_pos); !$res } ' ) ) ) }
         else                                          { }
     };
     do {
-        if ( ( $self->{assertion_modifier} eq '?' ) ) { return ( ( 'do { my $_pos = pos(); my $_res = ' . ( $self->{rule}->emit_perl5() . '; pos($_pos); $res } ' ) ) ) }
+        if ( ( $self->{assertion_modifier} eq '?' ) ) { return ( ( 'do { local $GLOBAL::_M; my $_pos = pos(); my $_res = ' . ( $self->{rule}->emit_perl5() . '; pos($_pos); $res } ' ) ) ) }
         else                                          { }
     };
     do {
@@ -435,12 +432,21 @@ sub emit_perl5 {
             );
         }
         else {
-            (   '(?='
+            (   'do { my $_bak = $GLOBAL::_M; my $_pos = pos(); '
                     . (
-                    '(?{ '
+                    ' $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
                         . (
-                        'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
-                            . ( '})' . ( $self->{rule}->emit_perl5() . ( '(?{ ' . ( 'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; ' . ( 'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "before" ]; ' . ( '})' . ')' ) ) ) ) ) )
+                        ' if ('
+                            . (
+                            $self->{rule}->emit_perl5()
+                                . (
+                                ') {'
+                                    . (
+                                    ' $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
+                                        . ( ' $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "before" ]; pos($_pos);' . ( ' }' . ( ' else {' . ( ' $GLOBAL::_M = $_bak; pos($_pos);' . ( '   0 }' . ( ' }' . ' }' ) ) ) ) ) )
+                                    )
+                                )
+                            )
                         )
                     )
             );
@@ -478,7 +484,7 @@ sub emit_perl5 {
     my $List__ = \@_;
     do { [] };
     my $meth = Main::mangle_perl5rx_metasyntax( $self->{metasyntax} );
-    ( 'do { my $_bak = $GLOBAL::_M; ' . ( ' if (' . ( $meth . ( '() ) {' . ( ' $GLOBAL::_M = $_bak; ' . ( ' }' . ( ' else {' . ( ' $GLOBAL::_M = $_bak; ' . ( '   0 ' . ( ' }' . ' }' ) ) ) ) ) ) ) ) ) );
+    ( 'do { local $GLOBAL::_M; ' . ( $meth . ( '()' . ' }' ) ) );
 }
 
 package Rule::Subrule;

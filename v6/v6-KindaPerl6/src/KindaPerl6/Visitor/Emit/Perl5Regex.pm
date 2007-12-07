@@ -46,9 +46,7 @@ class Token {
                         ~    'undef $GLOBAL::_M2; '
                         ~    'local $_ = ( ref($_) ? ::DISPATCH( $_, "Str" )->{_value} : $_ ); '
 
-                        ~ '_rule_' ~ $.name ~ '(); '
-                        
-                        ~    'if ( $GLOBAL::_M2->[1] eq \'to\' ) { '
+                        ~    'if ( _rule_' ~ $.name ~ '() ) { '
                         ~        'Match::from_global_data( $GLOBAL::_M2 ); '
                         # XXX TODO - modify outer $/
                         ~        '$MATCH = $GLOBAL::MATCH = pop @Match::Matches; '
@@ -297,11 +295,11 @@ class Rule::Before {
 
         if $.assertion_modifier eq '!' {
             # XXX - create a new lexical context and discard captures ?
-            return 'do { my $_pos = pos(); my $_res = ' ~ $.rule.emit_perl5 ~ '; pos($_pos); !$res } ';
+            return 'do { local $GLOBAL::_M; my $_pos = pos(); my $_res = ' ~ $.rule.emit_perl5 ~ '; pos($_pos); !$res } ';
         }
         if $.assertion_modifier eq '?' {
             # XXX - create a new lexical context and discard captures ?
-            return 'do { my $_pos = pos(); my $_res = ' ~ $.rule.emit_perl5 ~ '; pos($_pos); $res } ';
+            return 'do { local $GLOBAL::_M; my $_pos = pos(); my $_res = ' ~ $.rule.emit_perl5 ~ '; pos($_pos); $res } ';
         }
     
         if $.capture_to_array {
@@ -317,16 +315,17 @@ class Rule::Before {
             ~ ')'
         }
         else {    
-              '(?='
-                ~ '(?{ '
-                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
-                ~ '})'
-                ~ $.rule.emit_perl5 
-                ~ '(?{ '
-                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
-                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "before" ]; '
-                ~ '})'
-            ~ ')'
+            'do { my $_bak = $GLOBAL::_M; my $_pos = pos(); '
+                ~   ' $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
+                ~ ' if (' ~ $.rule.emit_perl5 ~ ') {'
+                ~   ' $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
+                ~   ' $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "before" ]; pos($_pos);'
+                ~ ' }'
+                ~ ' else {'
+                ~   ' $GLOBAL::_M = $_bak; pos($_pos);'    # rollback
+                ~ '   0 }'
+                ~ ' }'
+            ~ ' }'
         }
     }
 }
@@ -359,15 +358,8 @@ class Rule::SubruleNoCapture {
 
         # XXX - param passing
         
-            'do { my $_bak = $GLOBAL::_M; '
-                ~ ' if (' ~ $meth ~ '() ) {'
-                #~   ' $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; '
-                ~   ' $GLOBAL::_M = $_bak; '    # rollback
-                ~ ' }'
-                ~ ' else {'
-                ~   ' $GLOBAL::_M = $_bak; '    # rollback too
-                ~ '   0 '
-                ~ ' }'
+            'do { local $GLOBAL::_M; '
+                ~ $meth ~ '()'
             ~ ' }'
     }
 }
