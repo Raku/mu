@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 7 Aug 2007
+  Last Modified: 7 Dec 2007
   Number: 4
-  Version: 60
+  Version: 61
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -260,6 +260,11 @@ is allowed to contain a single conditional statement modifier:
     @evens = ($_ * 2 if .odd for 0..100);
 
 Loop modifiers C<next>, C<last>, and C<redo> also work as in Perl 5.
+However, the labelled forms use method call syntax: C<LABEL.next>, etc.
+The C<.next> and C<.last> methods take an optional argument giving
+the final value of that loop iteration.  So the old C<next LINE>
+syntax is still allowed but is really short for C<next LINE:> using
+indirect object syntax.
 
 There is no longer a C<continue> block.  Instead, use a C<NEXT> block
 within the body of the loop.  See below.
@@ -636,7 +641,8 @@ the argument of the C<when>.  If the smart match succeeds, C<when>'s
 associated block is executed, and the innermost surrounding block
 that has C<$_> as one of its formal parameters (either explicit
 or implicit) is automatically broken out of.  (If that is not the
-block you wish to leave, you must use the C<LABEL.leave> method to
+block you wish to leave, you must use the C<LABEL.leave> method (or some
+other control exception such as C<return> or C<next>) to
 be more specific, since the compiler may find it difficult to guess
 which surrounding construct was intended as the actual topicalizer.)
 The value of the inner block is returned as the value of the outer
@@ -667,23 +673,33 @@ If you use a C<for> loop with a parameter named C<$_> (either
 explicitly or implicitly), that parameter can function as the topic
 of any C<when> statements within the loop.
 
-You can explicitly break out of a C<when> block (and its surrounding topicalizer
-block) early using the C<break> verb.  More precisely, it leaves the
-innermost block outside the C<when> that uses C<$_> as one of its formal
-parameters, either explicitly or implicitly.
+You can explicitly break out of a C<when> block (and its surrounding
+topicalizer block) early using the C<break> verb.  More precisely,
+it leaves the innermost block outside the C<when> that uses C<$_>
+as one of its formal parameters, either explicitly or implicitly.
+It does the essentially by simply going to the end of the block and
+returning normally from that block.  In other words, a break (either
+implicit or explicit) is assumed to indicate success, not failure.
 
-You can explicitly break out
-of a C<when> block and go to the next statement by using C<continue>.
-(Note that, unlike C's idea of falling through, subsequent C<when>
-conditions are evaluated.  To jump into the next C<when> block you
-must use a C<goto>.)
+You can explicitly leave a C<when> block and go to the next statement
+following the C<when> by using C<continue>.  (Note that, unlike C's
+idea of "falling through", subsequent C<when> conditions are evaluated.
+To jump into the next C<when> block without testing its condition,
+you must use a C<goto>.)
 
 If you have a switch that is the main block of a C<for> loop, and
-you break out of the switch either implicitly or explicitly, it merely
-goes to the next iteration of the loop.  You must use C<last> to break
-out of the entire loop early.  Of course, an explicit C<next> would
-be clearer than a C<break> if you really want to go to the next iteration.
-Possibly we'll outlaw C<break> in a loop topicalizer.
+you break out of the switch either implicitly or explicitly (that is,
+the switch "succeeds"), control merely goes to the end of that block,
+and thence on to the next iteration of the loop.  You must use C<last>
+(or some more violent control exception such as C<return>) to break
+out of the entire loop early.  Of course, an explicit C<next> might
+be clearer than a C<break> if you really want to go directly to the
+next iteration.  On the other hand, C<break> can take an optional
+argument giving the value for that iteration of the loop.  As with
+the C<.leave> method, there is also a C<.break> method to break from a
+labelled block functioning as a switch:
+
+    OUTER.break($retval)
 
 =head1 Exception handlers
 
