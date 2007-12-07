@@ -59,14 +59,14 @@ distro.
 C<Muldis::DB::Engine::Genezzo> etc
 
 A Muldis DB Engine built around Jeffrey Cohen's L<Genezzo> DBMS, or
-specifically the root module that provides the C<new_dbms> function, could
-conceivably have either of the above file or package names, depending on
-what its author prefers, or something else yet.  A strong name influence
+specifically the root module that provides the C<new_machine> function,
+could conceivably have either of the above file or package names, depending
+on what its author prefers, or something else yet.  A strong name influence
 could be whether Muldis DB forms the sole public interface for Genezzo
 after its conversion to use it, or whether Genezzo would retain alternate
 public APIs that work without Muldis DB being present on the system.  If
-Muldis DB is Genezzo's sole or primary interface, then simply C<Genezzo>
-is probably best for branding.
+Muldis DB is Genezzo's sole or primary interface, then simply C<Genezzo> is
+probably best for branding.
 
 =item C<Muldis::DB::PHMD::Refactor(|::\w+)>
 
@@ -173,9 +173,10 @@ for DBI or other DBMSs.
 =item C<Muldis::DB::Engine::(SQLite|Postgres|Oracle|\w+)>
 
 A default (but not mandatory) namespace for Muldis DB Engines to go, that
-provide the C<new_dbms> function and do the C<Muldis::DB::Interface::\w+>
-roles.  A lot of these would likely be implemented over existing DBMSs,
-which results in Muldis DB being an alternative API for them.
+provide the C<new_machine> function and do the
+C<Muldis::DB::Interface::\w+> roles.  A lot of these would likely be
+implemented over existing DBMSs, which results in Muldis DB being an
+alternative API for them.
 
 =item C<Muldis::DB::Engine::DBI>
 

@@ -107,23 +107,25 @@ your Perl application and in which the Muldis D code runs (it is analogous
 to the Perl interpreter itself, which provides a virtual machine in which
 Perl code runs).
 
-A Muldis::DB::Interface::DBMS object represents a single active Muldis DB
-virtual machine; it has a spartan DBI-inspired set of methods which you use
-to compile/prepare and/or invoke/execute Muldis D statements and routines
-within the virtual machine, input data to it, and output data from it.
+A Muldis::DB::Interface::Machine object represents a single active Muldis
+DB virtual machine; it has a spartan DBI-inspired set of methods which you
+use to compile/prepare and/or invoke/execute Muldis D statements and
+routines within the virtual machine, input data to it, and output data from
+it.
 
-You can create more than one DBMS object at a time, and they are
+You can create more than one Machine object at a time, and they are
 essentially all isolated from each other, even if more than one uses the
-same Engine class to implement it; that is, multiple DBMS objects will not
-have references to each other at a level visible in the Muldis DB Native
-Interface, if at all.  To account for situations where multiple DBMS
-objects want to use the same external resources, such as a repository file
-on disk, it is expected that the Engines will employ appropriate measures
-such as system-managed locks so that resource corruption or application
-failure is prevented.  I<Also, Muldis DB should be thread safe and/or
-savvy in the future, but for now it officially is not and you should not
-share Muldis DB objects between multiple threads, nor have objects in
-separate threads try to access the same external resources.>
+same Engine class to implement it; that is, multiple Machine objects will
+not have references to each other at a level visible in the Muldis DB
+Native Interface, if at all.  To account for situations where multiple
+Machine objects want to use the same external resources, such as a
+repository file on disk, it is expected that the Engines will employ
+appropriate measures such as system-managed locks so that resource
+corruption or application failure is prevented.  I<Also, Muldis DB should
+be thread safe and/or savvy in the future, but for now it officially is not
+and you should not share Muldis DB objects between multiple threads, nor
+have objects in separate threads try to access the same external
+resources.>
 
 Muldis DB does not use any dialect of SQL in its native API (unlike many
 other DBMS products) because SQL is more ambiguous and error-prone to use,

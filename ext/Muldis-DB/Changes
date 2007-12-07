@@ -1,14 +1,32 @@
                                 Muldis::DB
 ---------------------------------------------------------------------------
 
-2007-10-20   Darren Duncan <perl@DarrenDuncan.net>
+2007-12-xx   Darren Duncan <perl@DarrenDuncan.net>
 
-    * Muldis DB version 0.5.0 for Perl 5 is released on CPAN as
-    Muldis-DB-0.5.0.tar.gz.  Muldis DB version 0.5.0 for Perl 6 is not
+    * Muldis DB version 0.6.0 for Perl 5 is released on CPAN as
+    Muldis-DB-0.6.0.tar.gz.  Muldis DB version 0.6.0 for Perl 6 is not
     released at this time, if ever, since it is currently released only as
     part of the Perl6-Pugs project (in its ext/Muldis-DB/ subdirectory),
     which sets its own less frequent release schedule.  The rest of this
     Changes entry refers only to the Perl 5 version.
+
+    * New file versions are: DB.pm and Interface.pm and Validator.pm and
+    Example.pm 0.6.0 and SeeAlso.pm 0.4.2.
+
+    * (Interface.pm, Example.pm, Validator.pm, DB.pm, SeeAlso.pod,
+    MDB_50_Validate_Example.t)  Renamed all Perl packages named ::DBMS to
+    ::Machine (that is, under Interface:: and Example::Public::), and
+    similarly renamed all routines, attributes, parameters, variables,
+    config keys, and so on, to use 'machine' rather than 'dbms'.
+
+    * TODO: split all ::Machine pkgs each into itself and ::Process.
+
+2007-10-20   Darren Duncan <perl@DarrenDuncan.net>
+
+    * Muldis DB version 0.5.0 for Perl 5 is released on CPAN as
+    Muldis-DB-0.5.0.tar.gz.  Muldis DB version 0.5.0 for Perl 6 is not
+    released at all.  The rest of this Changes entry refers only to the
+    Perl 5 version.
 
     * Removed the files PhysType.pm and Operators.pm; these files were very
     out of date and will be replaced later (possibly under the same names).

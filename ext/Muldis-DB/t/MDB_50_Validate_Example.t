@@ -4,5 +4,5 @@ use Muldis::DB::Validator;
 
 Muldis::DB::Validator::main(
     :engine_name('Muldis::DB::Engine::Example'),
-    :dbms_config({}),
+    :machine_config({}),
 );

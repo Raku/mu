@@ -8,10 +8,10 @@ module Muldis::DB::Interface-0.5.0 {
 
 ###########################################################################
 
-sub new_dbms of Muldis::DB::Interface::DBMS
-        (Str :$engine_name!, Array :$exp_ast_lang!, Any :$dbms_config!) {
+sub new_machine of Muldis::DB::Interface::Machine (Str :$engine_name!,
+        Array :$exp_ast_lang!, Any :$machine_config!) {
 
-    die q{new_dbms(): Bad :$engine_name arg; it is not an object of a}
+    die q{new_machine(): Bad :$engine_name arg; it is not an object of a}
             ~ q{ Str-doing class, or it is the empty string.}
         if !$engine_name.defined or !$engine_name.does(Str)
             or $engine_name eq q{};
@@ -23,32 +23,34 @@ sub new_dbms of Muldis::DB::Interface::DBMS
         # will munge the module name into file system paths.
         eval "require $engine_name;";
         if (my $err = $!) {
-            die q{new_dbms(): Could not load Muldis DB Engine module}
-                ~ qq{ '$engine_name': $err};
+            die q{new_machine(): Could not load Muldis DB Engine}
+                ~ qq{ module '$engine_name': $err};
         }
-#        die qq{new_dbms(): Could not load Muldis DB Engine module}
+#        die qq{new_machine(): Could not load Muldis DB Engine module}
 #                ~ qq{ '$engine_name': while that file did compile without}
 #                ~ q{ errors, it did not declare the same-named module.}
 #            if !::($engine_name).does(Module);
     }
-#    die qq{new_dbms(): The Muldis DB Engine module '$engine_name' does}
-#            ~ q{ not provide the new_dbms() constructor function.}
-#        if !::($engine_name).HOW.can('new_dbms');
-    my $dbms = undef;
+#    die qq{new_machine(): The Muldis DB Engine module '$engine_name'}
+#            ~ q{ does not provide the new_machine() constructor function.}
+#        if !::($engine_name).HOW.can('new_machine');
+    my $machine = undef;
     try {
-        $dbms = &::($engine_name)::new_dbms(
-            :exp_ast_lang($exp_ast_lang), :dbms_config($dbms_config) );
+        $machine = &::($engine_name)::new_machine(
+            :exp_ast_lang($exp_ast_lang),
+            :machine_config($machine_config) );
     };
     if (my $err = $!) {
-        die qq{new_dbms(): The Muldis DB Engine module '$engine_name'}
-            ~ qq{ threw an exception during its new_dbms() exec: $err};
+        die qq{new_machine(): The Muldis DB Engine modu '$engine_name'}
+            ~ qq{ threw an exception during its new_machine() exec: $err};
     }
-    die q{new_dbms(): The new_dbms() constructor function of the}
+    die q{new_machine(): The new_machine() constructor function of the}
             ~ qq{ Muldis DB Engine module '$engine_name' did not return an}
-            ~ q{ object of a Muldis::DB::Interface::DBMS-doing class.}
-        if !$dbms.defined or !$dbms.does(::Muldis::DB::Interface::DBMS);
+            ~ q{ object of a Muldis::DB::Interface::Machine-doing class.}
+        if !$machine.defined
+            or !$machine.does(::Muldis::DB::Interface::Machine);
 
-    return $dbms;
+    return $machine;
 }
 
 ###########################################################################
@@ -58,7 +60,7 @@ sub new_dbms of Muldis::DB::Interface::DBMS
 ###########################################################################
 ###########################################################################
 
-role Muldis::DB::Interface::DBMS {
+role Muldis::DB::Interface::Machine {
 
     method fetch_exp_ast_lang {
         die q{not implemented by subclass } ~ self.WHAT;
@@ -116,14 +118,14 @@ role Muldis::DB::Interface::DBMS {
         die q{not implemented by subclass } ~ self.WHAT;
     }
 
-} # role Muldis::DB::Interface::DBMS
+} # role Muldis::DB::Interface::Machine
 
 ###########################################################################
 ###########################################################################
 
 role Muldis::DB::Interface::Var {
 
-    method assoc_dbms {
+    method assoc_machine {
         die q{not implemented by subclass } ~ self.WHAT;
     }
 
@@ -146,7 +148,7 @@ role Muldis::DB::Interface::Var {
 
 role Muldis::DB::Interface::FuncBinding {
 
-    method assoc_dbms {
+    method assoc_machine {
         die q{not implemented by subclass } ~ self.WHAT;
     }
 
@@ -185,7 +187,7 @@ role Muldis::DB::Interface::FuncBinding {
 
 role Muldis::DB::Interface::ProcBinding {
 
-    method assoc_dbms {
+    method assoc_machine {
         die q{not implemented by subclass } ~ self.WHAT;
     }
 
@@ -236,8 +238,8 @@ Common public API for Muldis DB Engines
 This document describes Muldis::DB::Interface version 0.5.0 for Perl 6.
 
 It also describes the same-number versions for Perl 6 of
-Muldis::DB::Interface::DBMS ("DBMS"), Muldis::DB::Interface::Var ("Var"),
-Muldis::DB::Interface::FuncBinding ("FuncBinding"), and
+Muldis::DB::Interface::Machine ("Machine"), Muldis::DB::Interface::Var
+("Var"), Muldis::DB::Interface::FuncBinding ("FuncBinding"), and
 Muldis::DB::Interface::ProcBinding ("ProcBinding").
 
 =head1 SYNOPSIS
@@ -248,14 +250,14 @@ a third Perl variable holding the relation data of the result.
 
     use Muldis::DB::Interface;
 
-    my $dbms = Muldis::DB::Interface::new_dbms(
+    my $machine = Muldis::DB::Interface::new_machine(
         :engine_name('Muldis::DB::Engine::Example'),
         :exp_ast_lang([ 'MuldisD', 'cpan:DUNCAND', '0.8.1' ]),
-        :dbms_config({}),
+        :machine_config({}),
     );
 
-    my $r1 = $dbms.new_var( :decl_type('sys.Core.Relation.Relation') );
-    my $r2 = $dbms.new_var( :decl_type('sys.Core.Relation.Relation') );
+    my $r1 = $machine.new_var( :decl_type('sys.Core.Relation.Relation') );
+    my $r2 = $machine.new_var( :decl_type('sys.Core.Relation.Relation') );
 
     $r1.store_ast( :ast([ 'Relation', 'sys.Core.Relation.Relation', [
         {
@@ -283,7 +285,7 @@ a third Perl variable holding the relation data of the result.
         },
     ] ]) );
 
-    my $r3 = $dbms.call_func(
+    my $r3 = $machine.call_func(
         :func_name('sys.Core.Relation.join'),
         :args({
             'topic' => [ 'QuasiSet', 'sys.Core.Spec.QuasiSetOfRelation', [
@@ -336,8 +338,8 @@ constructor-wrapping method of some other object that would provide context
 for it; since you generally don't have to directly invoke any package
 names, you don't need to change your code when the package names change due
 to switching the Engine.  You only refer to some Engine's root package name
-once, as a C<Muldis::DB::Interface::new_dbms> argument, and even that can
-be read from a config file rather than being hard-coded in your
+once, as a C<Muldis::DB::Interface::new_machine> argument, and even that
+can be read from a config file rather than being hard-coded in your
 application.
 
 The usual way that Muldis::DB::Interface indicates a failure is to throw an
@@ -354,35 +356,36 @@ Muldis DB API.
 
 =over
 
-=item C<new_dbms of Muldis::DB::Interface::DBMS (Str :$engine_name!, Array
-:$exp_ast_lang!, Any :$dbms_config!)>
+=item C<new_machine of Muldis::DB::Interface::Machine (Str :$engine_name!,
+Array :$exp_ast_lang!, Any :$machine_config!)>
 
-This constructor function creates and returns a C<DBMS> object that is
+This constructor function creates and returns a C<Machine> object that is
 implemented by the Muldis DB Engine named by its named argument
-C<$engine_name>; that object is initialized using the C<$dbms_config>
+C<$engine_name>; that object is initialized using the C<$machine_config>
 argument.  The named argument C<$engine_name> is the name of a Perl module
 that is expected to be the root package of a Muldis DB Engine, and which is
-expected to declare a C<new_dbms> subroutine with a single named argument
-C<$dbms_config>; invoking this subroutine is expected to return an object
-of some class of the same Engine which does the Muldis::DB::Interface::DBMS
-role.  This function will start by testing if the root package is already
-loaded (it may be declared by some already-loaded file of another name),
-and only if not, will it do a Perl 'require' of the C<$engine_name>.  The
-new C<DBMS> object's "expected AST language" attribute is initialized from
-the C<$exp_ast_lang> argument, which is a 3-element Array as described for
-the argument of the C<DBMS> method C<store_exp_ast_lang> (if applicable,
-the C<$dbms_config> argument is interpreted in light of C<$exp_ast_lang>).
+expected to declare a C<new_machine> subroutine with a single named
+argument C<$machine_config>; invoking this subroutine is expected to return
+an object of some class of the same Engine which does the
+Muldis::DB::Interface::Machine role.  This function will start by testing
+if the root package is already loaded (it may be declared by some
+already-loaded file of another name), and only if not, will it do a Perl
+'require' of the C<$engine_name>.  The new C<Machine> object's "expected
+AST language" attribute is initialized from the C<$exp_ast_lang> argument,
+which is a 3-element Array as described for the argument of the C<Machine>
+method C<store_exp_ast_lang> (if applicable, the C<$machine_config>
+argument is interpreted in light of C<$exp_ast_lang>).
 
 =back
 
-=head2 The Muldis::DB::Interface::DBMS Role
+=head2 The Muldis::DB::Interface::Machine Role
 
-A C<DBMS> object represents a single active Muldis DB virtual machine /
+A C<Machine> object represents a single active Muldis DB virtual machine /
 Muldis D environment, which is the widest scope stateful context in which
 any other database activities happen.  Other activities meaning the
 compilation and execution of Muldis D code, mounting or unmounting depots,
 performing queries, data manipulation, data definition, and transactions.
-If a C<DBMS> object is ever garbage collected by Perl while it has any
+If a C<Machine> object is ever garbage collected by Perl while it has any
 active transactions, then those will all be rolled back, and then an
 exception thrown.
 
@@ -391,9 +394,9 @@ exception thrown.
 =item C<fetch_exp_ast_lang of Array ()>
 
 This method returns, as a 3-element (ordered) Array, the long name of the
-Muldis D (or alternative) language version that its invocant C<DBMS> object
-and its associated/child objects expect their AST/code/value input to
-conform to, and that their AST/code/value output will conform to.  The 3
+Muldis D (or alternative) language version that its invocant C<Machine>
+object and its associated/child objects expect their AST/code/value input
+to conform to, and that their AST/code/value output will conform to.  The 3
 elements of the array (each a Str) are, in order, the language spec base
 name (typically C<MuldisD>), the language spec authority (typically
 C<cpan:DUNCAND> when the base name is C<MuldisD>), and the language spec
@@ -402,7 +405,7 @@ version number (looks like C<1.2.3> for C<MuldisD> plus C<cpan:DUNCAND>).
 =item C<store_exp_ast_lang (Array :$lang!)>
 
 This method assigns a new expected language long name to its invocant
-C<DBMS>, which is supplied in the C<$lang> argument; the argument is
+C<Machine>, which is supplied in the C<$lang> argument; the argument is
 expected to be a 3-element Array as described for C<fetch_exp_ast_lang>.
 This method dies if the specified language/version isn't one that the
 invocant's Engine knows how to or desires to handle.
@@ -410,7 +413,7 @@ invocant's Engine knows how to or desires to handle.
 =item C<new_var of Muldis::DB::Interface::Var (Str :$decl_type!)>
 
 This method creates and returns a new C<Var> object that is associated with
-the invocant C<DBMS>, and whose declared Muldis D type is named by the
+the invocant C<Machine>, and whose declared Muldis D type is named by the
 C<$decl_type> argument, and whose default Muldis D value is the default
 value of its declared type.
 
@@ -418,29 +421,29 @@ value of its declared type.
 
 This method returns, as elements of a new (unordered) Array, all the
 currently existing C<Var> objects that are associated with the invocant
-C<DBMS>.
+C<Machine>.
 
 =item C<new_func_binding of Muldis::DB::Interface::FuncBinding ()>
 
 This method creates and returns a new C<FuncBinding> object that is
-associated with the invocant C<DBMS>.
+associated with the invocant C<Machine>.
 
 =item C<assoc_func_bindings of Array ()>
 
 This method returns, as elements of a new (unordered) Array, all the
 currently existing C<FuncBinding> objects that are associated with the
-invocant C<DBMS>.
+invocant C<Machine>.
 
 =item C<new_proc_binding of Muldis::DB::Interface::ProcBinding ()>
 
 This method creates and returns a new C<ProcBinding> object that is
-associated with the invocant C<DBMS>.
+associated with the invocant C<Machine>.
 
 =item C<assoc_proc_bindings of Array ()>
 
 This method returns, as elements of a new (unordered) Array, all the
 currently existing C<ProcBinding> objects that are associated with the
-invocant C<DBMS>.
+invocant C<Machine>.
 
 =item C<call_func of Muldis::DB::Interface::Var (Str :$func_name!, Hash
 :$args!)>
@@ -464,7 +467,7 @@ object, setting up its bindings, and invoking its C<call> method.
 
 This method returns the current transaction nesting level of its invocant's
 virtual machine.  If no explicit transactions were started, then the
-nesting level is zero, in which case the DBMS is conceptually
+nesting level is zero, in which case the Machine is conceptually
 auto-committing every successful Muldis D statement.  Each call of
 C<start_trans> will increase the nesting level by one, and each
 C<commit_trans> or C<rollback_trans> will decrease it by one (it can't be
@@ -496,22 +499,22 @@ virtual machine; it dies if there isn't one.
 
 A C<Var> object is a Muldis D variable that is lexically scoped to the Perl
 environment (like an ordinary Perl variable).  It is associated with a
-specific C<DBMS> object, the one whose C<new_var> method created it, but it
-is considered anonymous and non-invokable within the virtual machine.  The
-only way for Muldis D code to work with these variables is if they bound to
-Perl invocations of Muldis D routines being C<call(|\w+)> by Perl; a Muldis
-D routine parameter one is bound to is the name it is referenced by in the
-virtual machine.  C<Var> objects are the normal way to directly share or
-move data between the Muldis D and Perl environments.  A C<Var> is strongly
-typed, and the declared Muldis D type of the variable (which affects what
-values it is allowed to hold) is set when the C<Var> object is created, and
-this declared type can't be changed afterwards.
+specific C<Machine> object, the one whose C<new_var> method created it, but
+it is considered anonymous and non-invokable within the virtual machine.
+The only way for Muldis D code to work with these variables is if they
+bound to Perl invocations of Muldis D routines being C<call(|\w+)> by Perl;
+a Muldis D routine parameter one is bound to is the name it is referenced
+by in the virtual machine.  C<Var> objects are the normal way to directly
+share or move data between the Muldis D and Perl environments.  A C<Var> is
+strongly typed, and the declared Muldis D type of the variable (which
+affects what values it is allowed to hold) is set when the C<Var> object is
+created, and this declared type can't be changed afterwards.
 
 =over
 
-=item C<assoc_dbms of Muldis::DB::Interface::DBMS ()>
+=item C<assoc_machine of Muldis::DB::Interface::Machine ()>
 
-This method returns the C<DBMS> object that the invocant C<Var> is
+This method returns the C<Machine> object that the invocant C<Var> is
 associated with.
 
 =item C<decl_type of Str ()>
@@ -536,22 +539,22 @@ Array).
 =head2 The Muldis::DB::Interface::FuncBinding Role
 
 A C<FuncBinding> represents a single Muldis D function that may be directly
-invoked by Perl code.  It is associated with a specific C<DBMS> object, the
-one whose C<new_func_binding> method created it, and the function it
+invoked by Perl code.  It is associated with a specific C<Machine> object,
+the one whose C<new_func_binding> method created it, and the function it
 represents lives in and has a global-public scoped name in the
 corresponding virtual machine.  This is specifically a lazy binding, so no
 validity checking of the object happens except while the FuncBinding's
 C<call> method is being executed, and a then-valid object can then become
 invalid afterwards.  A C<FuncBinding> is conceptually used behind the
-scenes to implement a C<DBMS> object's C<call_func> method, but you can use
-it directly instead, for possibly better performance.
+scenes to implement a C<Machine> object's C<call_func> method, but you can
+use it directly instead, for possibly better performance.
 
 =over
 
-=item C<assoc_dbms of Muldis::DB::Interface::DBMS ()>
+=item C<assoc_machine of Muldis::DB::Interface::Machine ()>
 
-This method returns the C<DBMS> object that the invocant C<FuncBinding> is
-associated with.
+This method returns the C<Machine> object that the invocant C<FuncBinding>
+is associated with.
 
 =item C<bind_func (Str :$func_name!)>
 
@@ -603,22 +606,22 @@ time that the current values of any bound C<Var> objects are taken.
 =head2 The Muldis::DB::Interface::ProcBinding Role
 
 A C<ProcBinding> represents a single Muldis D procedure that may be
-directly invoked by Perl code.  It is associated with a specific C<DBMS>
+directly invoked by Perl code.  It is associated with a specific C<Machine>
 object, the one whose C<new_proc_binding> method created it, and the
 procedure it represents lives in and has a global-public scoped name in the
 corresponding virtual machine.  This is specifically a lazy binding, so no
 validity checking of the object happens except while the ProcBinding's
 C<call> method is being executed, and a then-valid object can then become
 invalid afterwards.  A C<ProcBinding> is conceptually used behind the
-scenes to implement a C<DBMS> object's C<call_proc> method, but you can use
-it directly instead, for possibly better performance.
+scenes to implement a C<Machine> object's C<call_proc> method, but you can
+use it directly instead, for possibly better performance.
 
 =over
 
-=item C<assoc_dbms of Muldis::DB::Interface::DBMS ()>
+=item C<assoc_machine of Muldis::DB::Interface::Machine ()>
 
-This method returns the C<DBMS> object that the invocant C<ProcBinding> is
-associated with.
+This method returns the C<Machine> object that the invocant C<ProcBinding>
+is associated with.
 
 =item C<bind_proc (Str :$proc_name!)>
 
