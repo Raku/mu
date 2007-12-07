@@ -478,7 +478,7 @@ sub emit_perl5 {
     my $List__ = \@_;
     do { [] };
     my $meth = Main::mangle_perl5rx_metasyntax( $self->{metasyntax} );
-    ( 'do { ' . ( '' . ( $meth . ( '(); ' . ( 'local $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; ' . ' 1 }' ) ) ) ) );
+    ( 'do { my $_bak = $GLOBAL::_M; ' . ( ' if (' . ( $meth . ( '() ) {' . ( ' $GLOBAL::_M = $_bak; ' . ( ' }' . ( ' else {' . ( ' $GLOBAL::_M = $_bak; ' . ( '   0 ' . ( ' }' . ' }' ) ) ) ) ) ) ) ) ) );
 }
 
 package Rule::Subrule;
@@ -490,8 +490,8 @@ sub emit_perl5 {
     do { [] };
     my $meth = Main::mangle_perl5rx_metasyntax( $self->{metasyntax} );
     do {
-        if ( $self->{capture_to_array} ) { ( '(?:' . ( '(??{ ' . ( $meth . ( ' })' . ( '(?{ ' . ( 'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture_to_array", "' . ( $self->{metasyntax} . ( '" ]; ' . ( '})' . ')' ) ) ) ) ) ) ) ) ) }
-        else                             { ( 'do { ' . ( '' . ( $meth . ( '(); ' . ( 'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "' . ( $self->{metasyntax} . ( '" ]; ' . ' 1 }' ) ) ) ) ) ) ) }
+        if   ( $self->{capture_to_array} ) { ( '( ' . ( $meth . ( '() && ' . ( '( $GLOBAL::_M = [ $GLOBAL::_M, "named_capture_to_array", "' . ( $self->{metasyntax} . ( '" ] )' . ') ' ) ) ) ) ) ) }
+        else                               { ( '( ' . ( $meth . ( '() && ' . ( '( $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "' .          ( $self->{metasyntax} . ( '" ] )' . ') ' ) ) ) ) ) ) }
         }
 }
 
@@ -504,16 +504,19 @@ sub emit_perl5 {
     do { [] };
     do {
         if ( $self->{capture_to_array} ) {
-            (   '(?:'
+            (   'do { my $_bak = $GLOBAL::_M; '
                     . (
-                    '(?{ '
+                    ' $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
                         . (
-                        'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
+                        ' if ('
                             . (
-                            '})'
+                            $self->{rule}->emit_perl5()
                                 . (
-                                $self->{rule}->emit_perl5()
-                                    . ( '(?{ ' . ( 'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; ' . ( 'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture_to_array", "' . ( $self->{ident} . ( '" ]; ' . ( '})' . ')' ) ) ) ) ) )
+                                ') {'
+                                    . (
+                                    ' $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
+                                        . ( ' $GLOBAL::_M = [ $GLOBAL::_M, "named_capture_to_array", "' . ( $self->{ident} . ( '" ]; ' . ( ' }' . ( ' else {' . ( ' $GLOBAL::_M = $_bak; ' . ( '   0 }' . ( ' }' . ' }' ) ) ) ) ) ) ) )
+                                    )
                                 )
                             )
                         )
@@ -521,10 +524,22 @@ sub emit_perl5 {
             );
         }
         else {
-            (   'do { '
+            (   'do { my $_bak = $GLOBAL::_M; '
                     . (
-                    'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
-                        . ( $self->{rule}->emit_perl5() . ( 'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; ' . ( 'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "' . ( $self->{ident} . ( '" ]; ' . ' 1 }' ) ) ) ) )
+                    ' $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
+                        . (
+                        ' if ('
+                            . (
+                            $self->{rule}->emit_perl5()
+                                . (
+                                ') {'
+                                    . (
+                                    ' $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
+                                        . ( ' $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "' . ( $self->{ident} . ( '" ]; ' . ( ' }' . ( ' else {' . ( ' $GLOBAL::_M = $_bak; ' . ( '   0 }' . ( ' }' . ' }' ) ) ) ) ) ) ) )
+                                    )
+                                )
+                            )
+                        )
                     )
             );
         }
@@ -540,16 +555,19 @@ sub emit_perl5 {
     do { [] };
     do {
         if ( $self->{capture_to_array} ) {
-            (   '(?:'
+            (   'do { my $_bak = $GLOBAL::_M; '
                     . (
-                    '(?{ '
+                    ' $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
                         . (
-                        'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
+                        ' if ('
                             . (
-                            '})'
+                            $self->{rule}->emit_perl5()
                                 . (
-                                $self->{rule}->emit_perl5()
-                                    . ( '(?{ ' . ( 'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; ' . ( 'local $GLOBAL::_M = [ $GLOBAL::_M, "positional_capture_to_array", ' . ( $self->{position} . ( ' ]; ' . ( '})' . ')' ) ) ) ) ) )
+                                ') {'
+                                    . (
+                                    ' $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
+                                        . ( ' $GLOBAL::_M = [ $GLOBAL::_M, "positional_capture_to_array", ' . ( $self->{position} . ( ' ]; ' . ( ' }' . ( ' else {' . ( ' $GLOBAL::_M = $_bak; ' . ( '   0 }' . ( ' }' . ' }' ) ) ) ) ) ) ) )
+                                    )
                                 )
                             )
                         )
@@ -557,10 +575,22 @@ sub emit_perl5 {
             );
         }
         else {
-            (   'do { '
+            (   'do { my $_bak = $GLOBAL::_M; '
                     . (
-                    'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
-                        . ( $self->{rule}->emit_perl5() . ( 'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; ' . ( 'local $GLOBAL::_M = [ $GLOBAL::_M, "positional_capture", ' . ( $self->{position} . ( ' ]; ' . ' 1 }' ) ) ) ) )
+                    ' $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
+                        . (
+                        ' if ('
+                            . (
+                            $self->{rule}->emit_perl5()
+                                . (
+                                ') {'
+                                    . (
+                                    ' $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
+                                        . ( ' $GLOBAL::_M = [ $GLOBAL::_M, "positional_capture", ' . ( $self->{position} . ( ' ]; ' . ( ' }' . ( ' else {' . ( ' $GLOBAL::_M = $_bak; ' . ( '   0 }' . ( ' }' . ' }' ) ) ) ) ) ) ) )
+                                    )
+                                )
+                            )
+                        )
                     )
             );
         }

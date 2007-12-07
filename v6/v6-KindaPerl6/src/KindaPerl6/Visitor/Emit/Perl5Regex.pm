@@ -359,10 +359,16 @@ class Rule::SubruleNoCapture {
 
         # XXX - param passing
         
-        'do { '
-            ~ '' ~ $meth ~ '(); '
-            ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; '
-        ~ ' 1 }'
+            'do { my $_bak = $GLOBAL::_M; '
+                ~ ' if (' ~ $meth ~ '() ) {'
+                #~   ' $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; '
+                ~   ' $GLOBAL::_M = $_bak; '    # rollback
+                ~ ' }'
+                ~ ' else {'
+                ~   ' $GLOBAL::_M = $_bak; '    # rollback too
+                ~ '   0 '
+                ~ ' }'
+            ~ ' }'
     }
 }
 
@@ -379,18 +385,16 @@ class Rule::Subrule {
         # XXX - named capture; param passing
         
         if $.capture_to_array {
-              '(?:'
-                ~ '(??{ ' ~ $meth ~ ' })'
-                ~ '(?{ '
-                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture_to_array", "' ~ $.metasyntax ~ '" ]; '
-                ~ '})'
-            ~ ')'
+              '( '
+                ~ $meth ~ '() && '
+                ~ '( $GLOBAL::_M = [ $GLOBAL::_M, "named_capture_to_array", "' ~ $.metasyntax ~ '" ] )'
+            ~ ') '
         }
         else {    
-            'do { '
-                ~ '' ~ $meth ~ '(); '
-                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "' ~ $.metasyntax ~ '" ]; '
-            ~ ' 1 }'
+              '( '
+                ~ $meth ~ '() && '
+                ~ '( $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "' ~ $.metasyntax ~ '" ] )'
+            ~ ') '
         }
     }
 }
@@ -399,24 +403,30 @@ class Rule::NamedCapture {
     method emit_perl5 {
 
         if $.capture_to_array {
-              '(?:'
-                ~ '(?{ '
-                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
-                ~ '})'
-                ~ $.rule.emit_perl5 
-                ~ '(?{ '
-                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
-                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture_to_array", "' ~ $.ident ~ '" ]; '
-                ~ '})'
-            ~ ')'
+            'do { my $_bak = $GLOBAL::_M; '
+                ~   ' $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
+                ~ ' if (' ~ $.rule.emit_perl5 ~ ') {'
+                ~   ' $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
+                ~   ' $GLOBAL::_M = [ $GLOBAL::_M, "named_capture_to_array", "' ~ $.ident ~ '" ]; '
+                ~ ' }'
+                ~ ' else {'
+                ~   ' $GLOBAL::_M = $_bak; '    # rollback
+                ~ '   0 }'
+                ~ ' }'
+            ~ ' }'
         }
         else {    
-            'do { '
-                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
-                ~ $.rule.emit_perl5 
-                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
-                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "' ~ $.ident ~ '" ]; '
-            ~ ' 1 }'
+            'do { my $_bak = $GLOBAL::_M; '
+                ~   ' $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
+                ~ ' if (' ~ $.rule.emit_perl5 ~ ') {'
+                ~   ' $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
+                ~   ' $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "' ~ $.ident ~ '" ]; '
+                ~ ' }'
+                ~ ' else {'
+                ~   ' $GLOBAL::_M = $_bak; '    # rollback
+                ~ '   0 }'
+                ~ ' }'
+            ~ ' }'
         }
     }
 }
@@ -425,24 +435,30 @@ class Rule::Capture {
     method emit_perl5 {
     
         if $.capture_to_array {
-              '(?:'
-                ~ '(?{ '
-                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
-                ~ '})'
-                ~ $.rule.emit_perl5 
-                ~ '(?{ '
-                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
-                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "positional_capture_to_array", ' ~ $.position ~ ' ]; '
-                ~ '})'
-            ~ ')'
+            'do { my $_bak = $GLOBAL::_M; '
+                ~   ' $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
+                ~ ' if (' ~ $.rule.emit_perl5 ~ ') {'
+                ~   ' $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
+                ~   ' $GLOBAL::_M = [ $GLOBAL::_M, "positional_capture_to_array", ' ~ $.position ~ ' ]; '
+                ~ ' }'
+                ~ ' else {'
+                ~   ' $GLOBAL::_M = $_bak; '    # rollback
+                ~ '   0 }'
+                ~ ' }'
+            ~ ' }'
         }
         else {    
-            'do { '
-                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
-                ~ $.rule.emit_perl5 
-                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
-                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "positional_capture", ' ~ $.position ~ ' ]; '
-            ~ ' 1 }'
+            'do { my $_bak = $GLOBAL::_M; '
+                ~   ' $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
+                ~ ' if (' ~ $.rule.emit_perl5 ~ ') {'
+                ~   ' $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
+                ~   ' $GLOBAL::_M = [ $GLOBAL::_M, "positional_capture", ' ~ $.position ~ ' ]; '
+                ~ ' }'
+                ~ ' else {'
+                ~   ' $GLOBAL::_M = $_bak; '    # rollback
+                ~ '   0 }'
+                ~ ' }'
+            ~ ' }'
         }
     }
 }
