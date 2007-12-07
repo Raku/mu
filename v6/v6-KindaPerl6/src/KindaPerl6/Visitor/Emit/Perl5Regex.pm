@@ -319,11 +319,11 @@ class Rule::Before {
                 ~   ' $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
                 ~ ' if (' ~ $.rule.emit_perl5 ~ ') {'
                 ~   ' $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
-                ~   ' $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "before" ]; ( pos($_) = $_pos );'
+                ~   ' $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "before" ]; ( pos($_) = $_pos ); 1'
                 ~ ' }'
                 ~ ' else {'
                 ~   ' $GLOBAL::_M = $_bak; ( pos($_) = $_pos );'    # rollback
-                ~ '   0 }'
+                ~ '   0 '
                 ~ ' }'
             ~ ' }'
         }

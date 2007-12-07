@@ -443,7 +443,7 @@ sub emit_perl5 {
                                 ') {'
                                     . (
                                     ' $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
-                                        . ( ' $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "before" ]; ( pos($_) = $_pos );' . ( ' }' . ( ' else {' . ( ' $GLOBAL::_M = $_bak; ( pos($_) = $_pos );' . ( '   0 }' . ( ' }' . ' }' ) ) ) ) ) )
+                                        . ( ' $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "before" ]; ( pos($_) = $_pos ); 1' . ( ' }' . ( ' else {' . ( ' $GLOBAL::_M = $_bak; ( pos($_) = $_pos );' . ( '   0 ' . ( ' }' . ' }' ) ) ) ) ) )
                                     )
                                 )
                             )
