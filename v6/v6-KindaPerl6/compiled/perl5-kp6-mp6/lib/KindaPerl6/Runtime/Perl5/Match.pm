@@ -1,5 +1,24 @@
 package KindaPerl6::Perl5::Match;
-# Documentation in the __END__
+
+# Documentation is at the __END__
+
+=head1 NAME
+
+KindaPerl6::Perl5::Match - Match object created by rules
+
+=head1 VERSION
+
+Version 0.01
+
+=head1 SYNOPSIS
+
+This packages provides a bunch of functions to mimic perl6 most are exported
+into the callers package.
+
+WARNING: This $scalar is heavely overloaded.
+L<http://search.cpan.org/~nwclark/perl-5.8.8/lib/overload.pm>
+
+=cut
 
 use 5.006;
 use strict;
@@ -11,10 +30,33 @@ use Scalar::Util qw( refaddr );
 
 my %_data;
 
+=head1 OVERLOADS
+
+$MATCH also is available as an array, hash, true/false, code, scalar, and
+flat[en](able) though "" and "0+".
+
+* $match->()
+
+- return the capture object
+
+* $match->[$n]
+
+- return the positional matches
+
+* $match->{$n}
+
+- return the named matches
+
+* $match ? 1 : 0
+
+- return whether there was a match
+
+=cut
+
 use overload (
     '@{}'    => \&array,
     '%{}'    => \&hash,
-    'bool'   => sub { $_data{refaddr $_[0]}{bool} },
+    'bool'   => sub { $_data{ refaddr $_[0] }{bool} },
     '&{}'    => \&code,
     '${}'    => \&scalar,
     '""'     => \&flat,
@@ -22,114 +64,314 @@ use overload (
     fallback => 1,
 );
 
-# class method
-# ::fail can be called from inside closures
-# sub ::fail { $::_V6_SUCCEED = 0 }
+=head1 INSIDE OUT CLASS
+
+Internal to Match.pm is %_data which will store the information for the object.
+
+ $_data{ 1234 } -> {
+                        from => ?,
+                        to => ?,
+                        capture => ?,
+                        bool => ?,
+                        match => [],
+                        named => {},
+                        state => ?, # obsolete?
+                    }
+ $_data{ 2345 } -> { ... }
+
+The "key" for the object is the memory address for the object as returned by
+Scalar::Util::refaddr.
+
+=head1 FUNCTIONS
+
+=head2 new
+
+ ::fail can be called from inside closures
+ sub ::fail { $::_V6_SUCCEED = 0 }
+
+ KindaPerl6::Perl5::Match->new(
+     from => ?,
+     to => ?,
+     capture => ?,
+     bool => ?,
+     match => [],
+     named => {},
+ );
+
+=cut
 
 sub new {
     my $class = shift;
     my $obj = bless \$class, $class;
+
     #print "Match->new( @_ ) ",(refaddr $obj),"\n";
-    $_data{ refaddr $obj } = { @_ };
+
+    # assign $_data{ memory address } = { arguments }
+    $_data{ refaddr $obj } = {@_};
+
+    # refaddr $obj, will be the internal "name" of this object.
     return $obj;
 }
 
-sub DESTROY {  
+=head2 DESTROY
+
+Destory deletes a pair in %_data, it does not delete the object.
+
+=cut
+
+sub DESTROY {
     delete $_data{ refaddr $_[0] };
 }
 
-sub data  {    $_data{refaddr $_[0]}           }
+=head2 data
+
+Returns the contents of $_data{ refaddr $_[0] }
+
+- return the internal representation as a data structure.
+
+=cut
+
+sub data {
+    $_data{ refaddr $_[0] };
+}
+
+=head2 capture
+
+Accessor method for "capture"
+
+=cut
+
+sub capture {
+    @_ == 1 ? ( $_data{ refaddr $_[0] }{capture} ) : ( $_data{ refaddr $_[0] }{capture} = $_[1] );
+}
 
 #sub from  {    $_data{refaddr $_[0]}->{from}   }
 #sub to    {    $_data{refaddr $_[0]}->{to}     }
 #sub bool  {    $_data{refaddr $_[0]}->{bool}   }
 
-sub from { @_ == 1 ? ( $_data{refaddr $_[0]}{from} ) : ( $_data{refaddr $_[0]}{from} = $_[1] ) };
-sub to   { @_ == 1 ? ( $_data{refaddr $_[0]}{to}   ) : ( $_data{refaddr $_[0]}{to}   = $_[1] ) };
-sub bool { @_ == 1 ? ( $_data{refaddr $_[0]}{bool} ) : ( $_data{refaddr $_[0]}{bool} = $_[1] ) };
-sub capture
-         { @_ == 1 ? ( $_data{refaddr $_[0]}{capture} ) : ( $_data{refaddr $_[0]}{capture} = $_[1] ) };
+=head2 from
 
-sub array {    
-         $_data{refaddr $_[0]}->{match} 
-    || ( $_data{refaddr $_[0]}->{match} = [] )
+Accessor method for "from"
+
+- return the string position where the match started
+
+=cut
+
+sub from {
+    @_ == 1 ? ( $_data{ refaddr $_[0] }{from} ) : ( $_data{ refaddr $_[0] }{from} = $_[1] );
 }
 
-sub hash  {   
-         $_data{refaddr $_[0]}->{named} 
-    || ( $_data{refaddr $_[0]}->{named} = {} )
+=head2 to
 
-# XXX - doesn't work as lvalue
-#    my $array = 
-#             $_data{refaddr $_[0]}->{match} 
-#        || ( $_data{refaddr $_[0]}->{match} = [] );
-#    return {
-#        %{ $_data{refaddr $_[0]}->{named} || {} },
-#        (
-#        map { ( $_, $array->[$_] ) } 
-#            0 .. $#$array
-#        ),
-#    }
+Accessor method for "to"
+
+- return the string position immediately after where the match finished
+
+=cut
+
+sub to {
+    @_ == 1 ? ( $_data{ refaddr $_[0] }{to} ) : ( $_data{ refaddr $_[0] }{to} = $_[1] );
 }
 
-sub keys   { 
-    CORE::keys   %{$_data{refaddr $_[0]}->{named}},
-    0 .. $#{ $_[0]->array }
+=head2 bool
+
+Accessor method for "bool"
+
+- return whether there was a match
+
+=cut
+
+sub bool {
+    @_ == 1 ? ( $_data{ refaddr $_[0] }{bool} ) : ( $_data{ refaddr $_[0] }{bool} = $_[1] );
 }
-sub values { 
-    CORE::values %{$_data{refaddr $_[0]}->{named}},
-    @{ $_[0]->array }
+
+=head2 scalar
+
+- return the capture object
+
+If there is no capture, return the matched substring
+
+=cut
+
+sub scalar {
+    return \( $_[0]->flat );
 }
+
+=head2 array
+
+Return the positional matches in an array reference.
+
+=cut
+
+sub array {
+    $_data{ refaddr $_[0] }->{match}
+        || ( $_data{ refaddr $_[0] }->{match} = [] );
+}
+
+=head2 hash
+
+return an hash reference for named (somethings) (named matched arguments)
+
+(old documentation:
+
+* hash
+
+- return both the named and positional (numbered) matches
+
+)
+
+=cut
+
+sub hash {
+    $_data{ refaddr $_[0] }->{named}
+        || ( $_data{ refaddr $_[0] }->{named} = {} )
+
+        # XXX - doesn't work as lvalue
+        #    my $array =
+        #             $_data{refaddr $_[0]}->{match}
+        #        || ( $_data{refaddr $_[0]}->{match} = [] );
+        #    return {
+        #        %{ $_data{refaddr $_[0]}->{named} || {} },
+        #        (
+        #        map { ( $_, $array->[$_] ) }
+        #            0 .. $#$array
+        #        ),
+        #    }
+}
+
+=head1 "Hash" methods
+
+* kv
+
+* keys
+
+* values
+
+=cut
+
+=head2 elems
+
+Returns element count
+
+=cut
+
+sub elems {
+    scalar $_[0]->keys;
+}
+
+=head2 kv
+
+returns ($key1, $value1, $key2, $value2 ... $keyN, $valueN)
+
+=cut
+
 sub kv {
-    map { ( $_, $_[0]->{$_} ) } 
-        $_[0]->keys 
-}
-sub elems  { 
-    scalar $_[0]->keys
+    map { ( $_, $_[0]->{$_} ) } $_[0]->keys;
 }
 
-sub chars  { CORE::length $_[0]->Str }
+=head2 keys
+
+acts in place of CORE::keys
+
+=cut
+
+sub keys {
+    CORE::keys %{ $_data{ refaddr $_[0] }->{named} }, 0 .. $#{ $_[0]->array };
+}
+
+=head2 values
+
+acts in place of CORE::values
+
+=cut
+
+sub values {
+    CORE::values %{ $_data{ refaddr $_[0] }->{named} }, @{ $_[0]->array };
+}
+
+=head1 String functions
+
+=head2 chars
+
+returns the length (CORE::length) of a string.
+
+=cut
+
+sub chars {
+    CORE::length $_[0]->Str;
+}
+
+=head2 flat
+
+returns a flattened, something...
+
+=cut
 
 sub flat {
-    my $obj = $_data{refaddr $_[0]};
+    my $obj = $_data{ refaddr $_[0] };
     my $cap = $obj->{capture};
+
     #print ref $cap;
-    return $cap
-        if defined $cap;
+    return $cap if defined $cap;
     return '' unless $obj->{bool};
-    
     return '' if $_[0]->from > length( $obj->{str} );
-    
+
     return substr( $obj->{str}, $_[0]->from, $_[0]->to - $_[0]->from );
 }
 
-# deprecated
+=head2 str
+
+deprecated
+TODO: check to see if this can be removed.
+
+=cut
+
 sub str {
     "" . $_[0]->flat;
+
+    #TODO die "?->str called instead of ?->Str";
 }
+
+=head2 Str
+
+- return the stringified capture object.
+If there is no capture, return the matched substring
+
+=cut
 
 sub Str {
     "" . $_[0]->flat;
 }
 
+=head1 Dumper methods
+
+=head2 perl
+
+- return the internal representation as Perl source code.
+
+=cut
+
 sub perl {
     require Data::Dumper;
     local $Data::Dumper::Terse    = 1;
     local $Data::Dumper::Sortkeys = 1;
-    local $Data::Dumper::Pad = '  ';
+    local $Data::Dumper::Pad      = '  ';
     return __PACKAGE__ . "->new( " . Dumper( $_[0]->data ) . ")\n";
 }
 
+=head2 yaml
+
+- return the internal representation as YAML.
+Requires the C<YAML::Syck> module.
+
+=cut
+
 sub yaml {
     require YAML::Syck;
+
     # interoperability with other YAML/Syck bindings:
     $YAML::Syck::ImplicitTyping = 1;
     YAML::Syck::Dump( $_[0] );
-}
-
-# return the capture
-sub scalar {
-    return \( $_[0]->flat );
 }
 
 1;
@@ -157,93 +399,6 @@ sub code {
 
 __END__
 
-=head1 NAME 
-
-KindaPerl6::Perl5::Match - Match object created by rules
-
-=head1 METHODS
-
-* array
-
-- return the positional matches
-
-* hash
-
-- return both the named and positional (numbered) matches
-
-* Str
-
-- return the stringified capture object. 
-If there is no capture, return the matched substring
-
-* scalar
-
-- return the capture object
-If there is no capture, return the matched substring
-
-* bool
-
-- return whether there was a match
-
-* from
-
-- return the string position where the match started
-
-* to
-
-- return the string position immediately after where the match finished
-
-=head1 "Hash" methods
-
-* elems
-
-* kv
-
-* keys
-
-* values
-
-=head1 "Str" methods
-
-* chars
-
-=head1 OVERLOADS
-
-* $match->()
-
-- return the capture object
-
-* $match->[$n]
-
-- return the positional matches
-
-* $match->{$n}
-
-- return the named matches
-
-* $match ? 1 : 0
-
-- return whether there was a match
-
-=head1 Dumper methods
-
-* data
-
-- return the internal representation as a data structure.
-
-* perl
-
-- return the internal representation as Perl source code. 
-
-* yaml
-
-- return the internal representation as YAML. 
-Requires the C<YAML::Syck> module.
-
-* dump_hs
-
-- for Pugs interoperability
-
 =head1 SEE ALSO
 
 C<v6> on CPAN
@@ -262,4 +417,3 @@ under the same terms as Perl itself.
 See L<http://www.perl.com/perl/misc/Artistic.html>
 
 =cut
-

@@ -56,7 +56,7 @@ flat[en](able) though "" and "0+".
 use overload (
     '@{}'    => \&array,
     '%{}'    => \&hash,
-    'bool'   => sub { $_data{refaddr $_[0]}{bool} },
+    'bool'   => sub { $_data{ refaddr $_[0] }{bool} },
     '&{}'    => \&code,
     '${}'    => \&scalar,
     '""'     => \&flat,
@@ -103,10 +103,11 @@ Scalar::Util::refaddr.
 sub new {
     my $class = shift;
     my $obj = bless \$class, $class;
+
     #print "Match->new( @_ ) ",(refaddr $obj),"\n";
 
     # assign $_data{ memory address } = { arguments }
-    $_data{ refaddr $obj } = { @_ };
+    $_data{ refaddr $obj } = {@_};
 
     # refaddr $obj, will be the internal "name" of this object.
     return $obj;
@@ -130,8 +131,8 @@ Returns the contents of $_data{ refaddr $_[0] }
 
 =cut
 
-sub data  {
-    $_data{refaddr $_[0]}
+sub data {
+    $_data{ refaddr $_[0] };
 }
 
 =head2 capture
@@ -141,7 +142,7 @@ Accessor method for "capture"
 =cut
 
 sub capture {
-    @_ == 1 ? ( $_data{refaddr $_[0]}{capture} ) : ( $_data{refaddr $_[0]}{capture} = $_[1] )
+    @_ == 1 ? ( $_data{ refaddr $_[0] }{capture} ) : ( $_data{ refaddr $_[0] }{capture} = $_[1] );
 }
 
 #sub from  {    $_data{refaddr $_[0]}->{from}   }
@@ -157,8 +158,8 @@ Accessor method for "from"
 =cut
 
 sub from {
-    @_ == 1 ? ( $_data{refaddr $_[0]}{from} ) : ( $_data{refaddr $_[0]}{from} = $_[1] )
-};
+    @_ == 1 ? ( $_data{ refaddr $_[0] }{from} ) : ( $_data{ refaddr $_[0] }{from} = $_[1] );
+}
 
 =head2 to
 
@@ -169,7 +170,7 @@ Accessor method for "to"
 =cut
 
 sub to {
-    @_ == 1 ? ( $_data{refaddr $_[0]}{to}   ) : ( $_data{refaddr $_[0]}{to}   = $_[1] )
+    @_ == 1 ? ( $_data{ refaddr $_[0] }{to} ) : ( $_data{ refaddr $_[0] }{to} = $_[1] );
 }
 
 =head2 bool
@@ -181,7 +182,7 @@ Accessor method for "bool"
 =cut
 
 sub bool {
-    @_ == 1 ? ( $_data{refaddr $_[0]}{bool} ) : ( $_data{refaddr $_[0]}{bool} = $_[1] )
+    @_ == 1 ? ( $_data{ refaddr $_[0] }{bool} ) : ( $_data{ refaddr $_[0] }{bool} = $_[1] );
 }
 
 =head2 scalar
@@ -203,8 +204,8 @@ Return the positional matches in an array reference.
 =cut
 
 sub array {
-         $_data{refaddr $_[0]}->{match}
-    || ( $_data{refaddr $_[0]}->{match} = [] )
+    $_data{ refaddr $_[0] }->{match}
+        || ( $_data{ refaddr $_[0] }->{match} = [] );
 }
 
 =head2 hash
@@ -221,21 +222,21 @@ return an hash reference for named (somethings) (named matched arguments)
 
 =cut
 
-sub hash  {
-         $_data{refaddr $_[0]}->{named}
-    || ( $_data{refaddr $_[0]}->{named} = {} )
+sub hash {
+    $_data{ refaddr $_[0] }->{named}
+        || ( $_data{ refaddr $_[0] }->{named} = {} )
 
-# XXX - doesn't work as lvalue
-#    my $array =
-#             $_data{refaddr $_[0]}->{match}
-#        || ( $_data{refaddr $_[0]}->{match} = [] );
-#    return {
-#        %{ $_data{refaddr $_[0]}->{named} || {} },
-#        (
-#        map { ( $_, $array->[$_] ) }
-#            0 .. $#$array
-#        ),
-#    }
+        # XXX - doesn't work as lvalue
+        #    my $array =
+        #             $_data{refaddr $_[0]}->{match}
+        #        || ( $_data{refaddr $_[0]}->{match} = [] );
+        #    return {
+        #        %{ $_data{refaddr $_[0]}->{named} || {} },
+        #        (
+        #        map { ( $_, $array->[$_] ) }
+        #            0 .. $#$array
+        #        ),
+        #    }
 }
 
 =head1 "Hash" methods
@@ -254,8 +255,8 @@ Returns element count
 
 =cut
 
-sub elems  {
-    scalar $_[0]->keys
+sub elems {
+    scalar $_[0]->keys;
 }
 
 =head2 kv
@@ -265,8 +266,7 @@ returns ($key1, $value1, $key2, $value2 ... $keyN, $valueN)
 =cut
 
 sub kv {
-    map { ( $_, $_[0]->{$_} ) }
-        $_[0]->keys
+    map { ( $_, $_[0]->{$_} ) } $_[0]->keys;
 }
 
 =head2 keys
@@ -275,9 +275,8 @@ acts in place of CORE::keys
 
 =cut
 
-sub keys   {
-    CORE::keys   %{$_data{refaddr $_[0]}->{named}},
-    0 .. $#{ $_[0]->array }
+sub keys {
+    CORE::keys %{ $_data{ refaddr $_[0] }->{named} }, 0 .. $#{ $_[0]->array };
 }
 
 =head2 values
@@ -287,8 +286,7 @@ acts in place of CORE::values
 =cut
 
 sub values {
-    CORE::values %{$_data{refaddr $_[0]}->{named}},
-    @{ $_[0]->array }
+    CORE::values %{ $_data{ refaddr $_[0] }->{named} }, @{ $_[0]->array };
 }
 
 =head1 String functions
@@ -299,8 +297,8 @@ returns the length (CORE::length) of a string.
 
 =cut
 
-sub chars  {
-    CORE::length $_[0]->Str
+sub chars {
+    CORE::length $_[0]->Str;
 }
 
 =head2 flat
@@ -310,7 +308,7 @@ returns a flattened, something...
 =cut
 
 sub flat {
-    my $obj = $_data{refaddr $_[0]};
+    my $obj = $_data{ refaddr $_[0] };
     my $cap = $obj->{capture};
 
     #print ref $cap;
@@ -330,6 +328,7 @@ TODO: check to see if this can be removed.
 
 sub str {
     "" . $_[0]->flat;
+
     #TODO die "?->str called instead of ?->Str";
 }
 
@@ -356,7 +355,7 @@ sub perl {
     require Data::Dumper;
     local $Data::Dumper::Terse    = 1;
     local $Data::Dumper::Sortkeys = 1;
-    local $Data::Dumper::Pad = '  ';
+    local $Data::Dumper::Pad      = '  ';
     return __PACKAGE__ . "->new( " . Dumper( $_[0]->data ) . ")\n";
 }
 
@@ -369,6 +368,7 @@ Requires the C<YAML::Syck> module.
 
 sub yaml {
     require YAML::Syck;
+
     # interoperability with other YAML/Syck bindings:
     $YAML::Syck::ImplicitTyping = 1;
     YAML::Syck::Dump( $_[0] );
