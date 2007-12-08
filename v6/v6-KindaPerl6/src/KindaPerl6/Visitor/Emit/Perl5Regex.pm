@@ -379,13 +379,13 @@ class Rule::Subrule {
         if $.capture_to_array {
               '( '
                 ~ $meth ~ '() && '
-                ~ '( $GLOBAL::_M = [ $GLOBAL::_M, "named_capture_to_array", "' ~ $.metasyntax ~ '" ] )'
+                ~ '( $GLOBAL::_M = [ $GLOBAL::_M2, "named_capture_to_array", "' ~ $.metasyntax ~ '" ] )'
             ~ ') '
         }
         else {    
               '( '
                 ~ $meth ~ '() && '
-                ~ '( $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "' ~ $.metasyntax ~ '" ] )'
+                ~ '( $GLOBAL::_M = [ $GLOBAL::_M2, "named_capture", "' ~ $.metasyntax ~ '" ] )'
             ~ ') '
         }
     }

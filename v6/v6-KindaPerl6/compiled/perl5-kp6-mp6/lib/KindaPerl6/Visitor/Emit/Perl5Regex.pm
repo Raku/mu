@@ -496,8 +496,8 @@ sub emit_perl5 {
     do { [] };
     my $meth = Main::mangle_perl5rx_metasyntax( $self->{metasyntax} );
     do {
-        if   ( $self->{capture_to_array} ) { ( '( ' . ( $meth . ( '() && ' . ( '( $GLOBAL::_M = [ $GLOBAL::_M, "named_capture_to_array", "' . ( $self->{metasyntax} . ( '" ] )' . ') ' ) ) ) ) ) ) }
-        else                               { ( '( ' . ( $meth . ( '() && ' . ( '( $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "' .          ( $self->{metasyntax} . ( '" ] )' . ') ' ) ) ) ) ) ) }
+        if   ( $self->{capture_to_array} ) { ( '( ' . ( $meth . ( '() && ' . ( '( $GLOBAL::_M = [ $GLOBAL::_M2, "named_capture_to_array", "' . ( $self->{metasyntax} . ( '" ] )' . ') ' ) ) ) ) ) ) }
+        else                               { ( '( ' . ( $meth . ( '() && ' . ( '( $GLOBAL::_M = [ $GLOBAL::_M2, "named_capture", "' .          ( $self->{metasyntax} . ( '" ] )' . ') ' ) ) ) ) ) ) }
         }
 }
 
