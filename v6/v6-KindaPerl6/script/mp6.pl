@@ -231,7 +231,7 @@ sub load_source {
         $source = <>;
     }
 
-    # removing all the spaces that being a line knocks off about 3 seconds
+    # removing all the spaces that begining a line knocks off about 3 seconds
     # on parsing a 26k perl6 file.  Less spaces, means less stuff to parse.
     $source =~ s/^ +//gm;
     return $source;
