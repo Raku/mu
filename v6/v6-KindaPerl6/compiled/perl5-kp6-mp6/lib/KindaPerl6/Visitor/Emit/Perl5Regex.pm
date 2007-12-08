@@ -314,7 +314,7 @@ sub emit_perl5 {
     do { [] };
     (   'do { '
             . (
-            'local $GLOBAL::_M = [ $GLOBAL::_M, "to", pos() ]; '
+            '{local $GLOBAL::_M = [ $GLOBAL::_M, "to", pos() ]; '
                 . (
                 Main::newline()
                     . (
@@ -334,7 +334,7 @@ sub emit_perl5 {
                                                 . (
                                                 $self->{closure}->emit_perl5()
                                                     . (
-                                                    '; '
+                                                    ';} '
                                                         . (
                                                         'if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { '
                                                             . ( '$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", ::DISPATCH( $GLOBAL::_REGEX_RETURN_, "FETCH" ) ]; ' . ( '}' . ' 1 }' ) )

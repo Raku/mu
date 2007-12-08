@@ -224,7 +224,7 @@ class Rule::SpecialChar {
 class Rule::Block {
     method emit_perl5 {
         'do { '
-            ~    'local $GLOBAL::_M = [ $GLOBAL::_M, "to", pos() ]; ' ~ Main::newline()  # "finish" & shallow copy
+            ~    '{local $GLOBAL::_M = [ $GLOBAL::_M, "to", pos() ]; ' ~ Main::newline()  # "finish" & shallow copy
 
             # construct a $/ view from what we already have
             ~    'Match::from_global_data( $GLOBAL::_M ); ' ~ Main::newline()
@@ -233,7 +233,7 @@ class Rule::Block {
             ~    '@Match::Matches = (); ' ~ Main::newline()  # discard outer matches, if any
             # ~ ' use Data::Dumper; print "Rule::Block current match: ",Dumper($MATCH),"\n"; '
 
-            ~    $.closure.emit_perl5 ~ '; '
+            ~    $.closure.emit_perl5 ~ ';} '
             
             ~    'if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { '
                  ~   '$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", ::DISPATCH( $GLOBAL::_REGEX_RETURN_, "FETCH" ) ]; '
