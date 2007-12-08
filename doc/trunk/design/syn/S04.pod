@@ -14,7 +14,7 @@ Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
   Last Modified: 7 Dec 2007
   Number: 4
-  Version: 61
+  Version: 62
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -264,17 +264,34 @@ However, the labelled forms use method call syntax: C<LABEL.next>, etc.
 The C<.next> and C<.last> methods take an optional argument giving
 the final value of that loop iteration.  So the old C<next LINE>
 syntax is still allowed but is really short for C<next LINE:> using
-indirect object syntax.
+indirect object syntax.  Any block object can be used, not just labels,
+so to return a value from this iteration of the current block you can say:
+
+    &?BLOCK.next($retval);
+
+[Conjecuture: a bare C<next($retval)> function could be taught to do
+the same, as long as C<$retval> isn't a loop label.  Presumably multiple
+dispatch could sort this out.]
 
 There is no longer a C<continue> block.  Instead, use a C<NEXT> block
 within the body of the loop.  See below.
 
 The value of a loop statement is the list of values from each
-iteration that successfully completed without a C<next> or C<last>.
-(This list is actually a two-dimensional list of Captures (a "slice")
-with dimensional boundaries at each iteration.  List context
-ignores these boundaries and flattens the list.  Slice context turns
-the captures into subarrays)  If you do not wish
+iteration.  Iterations that return a null list (such as by calling
+C<next> with no extra return arguments) interpolate no values in the
+resulting list.  (This list is actually a two-dimensional list of
+Captures (a "slice") with dimensional boundaries at each iteration.
+Normal list context ignores these boundaries and flattens the list.
+Slice context turns the captures into subarrays, so an iteration
+returning a null list does show up as a null subarray when viewed as
+a slice.)
+
+For finer-grained control of which iterations return values, use
+C<gather> and C<take>.
+
+Since the final expression in a subroutine returns its value, it's
+possible to accidentally return a loop's return value when you were
+only evaluating the loop for its side effects.  If you do not wish
 to accidentally return a list from the final loop statement in a
 subroutine, place an explicit return statement after it, or declare
 a return type of C<Void>.
@@ -677,7 +694,7 @@ You can explicitly break out of a C<when> block (and its surrounding
 topicalizer block) early using the C<break> verb.  More precisely,
 it leaves the innermost block outside the C<when> that uses C<$_>
 as one of its formal parameters, either explicitly or implicitly.
-It does the essentially by simply going to the end of the block and
+It does this essentially by going to the end of the block and
 returning normally from that block.  In other words, a break (either
 implicit or explicit) is assumed to indicate success, not failure.
 
