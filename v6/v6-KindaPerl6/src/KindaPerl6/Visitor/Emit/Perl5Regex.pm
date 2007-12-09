@@ -44,7 +44,11 @@ class Token {
                         ~ 'sub { '
                         ~    'local $GLOBAL::_Class = shift; '
                         ~    'undef $GLOBAL::_M2; '
-                        ~    'local $_ = ( ref($_) ? ::DISPATCH( $_, "Str" )->{_value} : $_ ); '
+                        ~    'my ($str,$pos) = @_;' 
+                        ~    '$str = defined($str) ? $str : $_;'
+                        ~    'local $_ = ( ref($str) ? ::DISPATCH( $str, "Str" )->{_value} : $str ); '
+                        # XXX
+                        ~    'pos($_) = $pos->{_value} if ref $pos;'
 
                         ~    'if ( _rule_' ~ $.name ~ '() ) { '
                         ~        'Match::from_global_data( $GLOBAL::_M2 ); '
@@ -78,8 +82,8 @@ class P5Token {
 class Rule::Quantifier {
     method emit_perl5 {
         # TODO
-        die "TODO";
-        $.term.emit_perl5 ~ $.quant ~ $.greedy;
+        say "#TODO Rule::Quantifier";
+        $.term.emit_perl5;# ~ $.quant ~ $.greedy;
     }
 }
 
@@ -295,11 +299,11 @@ class Rule::Before {
 
         if $.assertion_modifier eq '!' {
             # XXX - create a new lexical context and discard captures ?
-            return 'do { local $GLOBAL::_M; my $_pos = pos(); my $_res = ' ~ $.rule.emit_perl5 ~ '; ( pos() = $_pos ); !$res } ';
+            return 'do { local $GLOBAL::_M; my $_pos = pos(); my $_res = ' ~ $.rule.emit_perl5 ~ '; ( pos() = $_pos ); !$_res } ';
         }
         if $.assertion_modifier eq '?' {
             # XXX - create a new lexical context and discard captures ?
-            return 'do { local $GLOBAL::_M; my $_pos = pos(); my $_res = ' ~ $.rule.emit_perl5 ~ '; ( pos() = $_pos ); $res } ';
+            return 'do { local $GLOBAL::_M; my $_pos = pos(); my $_res = ' ~ $.rule.emit_perl5 ~ '; ( pos() = $_pos ); $_res } ';
         }
     
         if $.capture_to_array {

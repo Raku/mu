@@ -70,22 +70,34 @@ sub emit_perl5 {
                                                         . (
                                                         'undef $GLOBAL::_M2; '
                                                             . (
-                                                            'local $_ = ( ref($_) ? ::DISPATCH( $_, "Str" )->{_value} : $_ ); '
+                                                            'my ($str,$pos) = @_;'
                                                                 . (
-                                                                'if ( _rule_'
+                                                                '$str = defined($str) ? $str : $_;'
                                                                     . (
-                                                                    $self->{name}
+                                                                    'local $_ = ( ref($str) ? ::DISPATCH( $str, "Str" )->{_value} : $str ); '
                                                                         . (
-                                                                        '() ) { '
+                                                                        'pos($_) = $pos->{_value} if ref $pos;'
                                                                             . (
-                                                                            'Match::from_global_data( $GLOBAL::_M2 ); '
+                                                                            'if ( _rule_'
                                                                                 . (
-                                                                                '$MATCH = $GLOBAL::MATCH = pop @Match::Matches; '
+                                                                                $self->{name}
                                                                                     . (
-                                                                                    '} '
+                                                                                    '() ) { '
                                                                                         . (
-                                                                                        'else { '
-                                                                                            . ( '$MATCH = $GLOBAL::MATCH = Match->new(); ' . ( '} ' . ( '@Match::Matches = (); ' . ( 'return $MATCH; ' . ( '} ' . ( '} ' . ( '), ' . ')' ) ) ) ) ) ) )
+                                                                                        'Match::from_global_data( $GLOBAL::_M2 ); '
+                                                                                            . (
+                                                                                            '$MATCH = $GLOBAL::MATCH = pop @Match::Matches; '
+                                                                                                . (
+                                                                                                '} '
+                                                                                                    . (
+                                                                                                    'else { '
+                                                                                                        . (
+                                                                                                        '$MATCH = $GLOBAL::MATCH = Match->new(); '
+                                                                                                            . ( '} ' . ( '@Match::Matches = (); ' . ( 'return $MATCH; ' . ( '} ' . ( '} ' . ( '), ' . ')' ) ) ) ) ) )
+                                                                                                        )
+                                                                                                    )
+                                                                                                )
+                                                                                            )
                                                                                         )
                                                                                     )
                                                                                 )
@@ -133,8 +145,8 @@ sub emit_perl5 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    die('TODO');
-    ( $self->{term}->emit_perl5() . ( $self->{quant} . $self->{greedy} ) );
+    Main::say('#TODO Rule::Quantifier');
+    $self->{term}->emit_perl5();
 }
 
 package Rule::Or;
@@ -412,11 +424,11 @@ sub emit_perl5 {
     my $List__ = \@_;
     do { [] };
     do {
-        if ( ( $self->{assertion_modifier} eq '!' ) ) { return ( ( 'do { local $GLOBAL::_M; my $_pos = pos(); my $_res = ' . ( $self->{rule}->emit_perl5() . '; ( pos() = $_pos ); !$res } ' ) ) ) }
+        if ( ( $self->{assertion_modifier} eq '!' ) ) { return ( ( 'do { local $GLOBAL::_M; my $_pos = pos(); my $_res = ' . ( $self->{rule}->emit_perl5() . '; ( pos() = $_pos ); !$_res } ' ) ) ) }
         else                                          { }
     };
     do {
-        if ( ( $self->{assertion_modifier} eq '?' ) ) { return ( ( 'do { local $GLOBAL::_M; my $_pos = pos(); my $_res = ' . ( $self->{rule}->emit_perl5() . '; ( pos() = $_pos ); $res } ' ) ) ) }
+        if ( ( $self->{assertion_modifier} eq '?' ) ) { return ( ( 'do { local $GLOBAL::_M; my $_pos = pos(); my $_res = ' . ( $self->{rule}->emit_perl5() . '; ( pos() = $_pos ); $_res } ' ) ) ) }
         else                                          { }
     };
     do {
