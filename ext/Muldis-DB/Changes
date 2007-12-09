@@ -10,6 +10,15 @@
     which sets its own less frequent release schedule.  The rest of this
     Changes entry refers only to the Perl 5 version.
 
+    * As of this release, the in-code $VERSION declarations of all Perl 5
+    packages in this distribution are changed to match the X.Y.Z format
+    that the same packages' own VERSION POD had all along (the old in-code
+    format was X.00Y00Z).  A consequence of this change is that this
+    distribution has gained an external dependency on the Perl 5 module
+    'version', which is not bundled with Perl 5.8.x; however, it *is*
+    bundled with Perl 5.10.x, so if you are using that newer Perl, you
+    won't have to install 'version' separately from CPAN.
+
     * New file versions are: DB.pm and Interface.pm and Validator.pm and
     Example.pm 0.6.0 and SeeAlso.pm 0.4.2.
 
