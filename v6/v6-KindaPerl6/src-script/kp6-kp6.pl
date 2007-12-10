@@ -41,10 +41,10 @@ module Main {
     my $pos = 0;
     my $len = chars $code;
 
-    while ($len > $pos) {
+    #while ($len > $pos) {
 
         $_ = $code;
-        my $match = KindaPerl6::Grammar.comp_unit( $pos );
+        my $match = KindaPerl6::Grammar.comp_unit();
         my $ast = $match.result;
         if (!($ast.isa('CompUnit'))) {
             die 'no match; AST is:(' ~ $ast ~ ')';
@@ -62,7 +62,7 @@ module Main {
         };
         print $res;
         $pos = $pos + $match.to;
-    }
+    #}
 
 }
 
