@@ -45,6 +45,12 @@ class Val::Buf {
     }
 }
 
+class Val::Char {
+    method emit_perl6 {
+        '\'' ~ $.buf ~ '\''
+    }
+}
+
 class Val::Undef {
     method emit_perl6 {
         '(undef)'

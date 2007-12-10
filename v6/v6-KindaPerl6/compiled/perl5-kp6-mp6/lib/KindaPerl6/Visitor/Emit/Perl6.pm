@@ -65,6 +65,16 @@ sub emit_perl6 {
     ( '\'' . ( $self->{buf} . '\'' ) );
 }
 
+package Val::Char;
+sub new { shift; bless {@_}, "Val::Char" }
+
+sub emit_perl6 {
+    my $self   = shift;
+    my $List__ = \@_;
+    do { [] };
+    ( '\'' . ( $self->{buf} . '\'' ) );
+}
+
 package Val::Undef;
 sub new { shift; bless {@_}, "Val::Undef" }
 
