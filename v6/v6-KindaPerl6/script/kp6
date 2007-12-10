@@ -163,6 +163,12 @@ Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through r
 
 ) or help();
 
+if ($opt{B} eq 'kp6-kp6') {
+    #HACK until kp6-kp6 supports proper options
+    system("perl script/kp6-kp6.pl < $ARGV[0] | perl");
+    exit;
+}
+
 #
 # Deal with --help, --version
 #
