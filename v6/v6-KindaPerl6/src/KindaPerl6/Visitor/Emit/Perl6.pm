@@ -291,10 +291,16 @@ class Decl {
     }
 }
 
+class Lit::SigArgument {
+    method emit_perl6 {
+        $.key.emit_perl6;
+    }
+}
+
 class Sig {
     method emit_perl6 {
-        ' print \'Signature - TODO\'; die \'Signature - TODO\'; '
-    };
+        (@.positional.>>emit_perl6).join(', ');
+    }
 }
 
 class Method {
@@ -331,36 +337,9 @@ class Method {
 
 class Sub {
     method emit_perl6 {
-        # TODO - signature binding
-        my $sig := $.block.sig;
-        # say "Sig: ", $sig.perl;
-        # say $invocant.emit_perl6;
-        my $pos := $sig.positional;
-        my $str := 'my $List__ = \@_; ';  # no strict "vars"; ;
-
-        # TODO - follow recursively
-        my $pos := $sig.positional;
-        if @$pos {
-                  my $field;
-            for @$pos -> $field {
-                $str := $str ~ 'my ' ~ $field.emit_perl6 ~ '; ' ~ Main::newline();
-            };
-
-            my $bind := ::Bind(
-                'parameters' => ::Lit::Array( array => $sig.positional ),
-                'arguments'  => ::Var( sigil => '@', twigil => '', name => '_' )
-            );
-            $str := $str ~ $bind.emit_perl6 ~ '; ' ~ Main::newline();
-        };
-        my $code :=
-            'sub { '
-        ~      $str
+            'sub ' ~ $.name ~ ($.block.sig ?? '(' ~ ($.block.sig).emit_perl6 ~ ')' !! '') ~'{ '
         ~      $.block.emit_perl6
         ~    ' }';
-        if $.name {
-            return '$Code_' ~ $.name ~ ' :=  ' ~ $code ~ '';
-        }
-        return $code;
     }
 }
 

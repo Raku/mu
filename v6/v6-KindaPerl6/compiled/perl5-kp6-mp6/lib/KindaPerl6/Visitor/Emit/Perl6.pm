@@ -369,6 +369,16 @@ sub emit_perl6 {
     return ( ( $self->{decl} . ( ' ' . ( $self->{type} . ( ' ' . $self->{var}->emit_perl6() ) ) ) ) );
 }
 
+package Lit::SigArgument;
+sub new { shift; bless {@_}, "Lit::SigArgument" }
+
+sub emit_perl6 {
+    my $self   = shift;
+    my $List__ = \@_;
+    do { [] };
+    $self->{key}->emit_perl6();
+}
+
 package Sig;
 sub new { shift; bless {@_}, "Sig" }
 
@@ -376,7 +386,7 @@ sub emit_perl6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ' print \'Signature - TODO\'; die \'Signature - TODO\'; ';
+    Main::join( [ map { $_->emit_perl6() } @{ $self->{positional} } ], ', ' );
 }
 
 package Method;
@@ -407,28 +417,7 @@ sub emit_perl6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    my $sig = $self->{block}->sig();
-    my $pos = $sig->positional();
-    my $str = 'my $List__ = \@_; ';
-    my $pos = $sig->positional();
-    do {
-
-        if ( @{$pos} ) {
-            my $field;
-            do {
-                for my $field ( @{$pos} ) { $str = ( $str . ( 'my ' . ( $field->emit_perl6() . ( '; ' . Main::newline() ) ) ) ) }
-            };
-            my $bind = Bind->new( 'parameters' => Lit::Array->new( 'array' => $sig->positional(), ), 'arguments' => Var->new( 'sigil' => '@', 'twigil' => '', 'name' => '_', ), );
-            $str = ( $str . ( $bind->emit_perl6() . ( '; ' . Main::newline() ) ) );
-        }
-        else { }
-    };
-    my $code = ( 'sub { ' . ( $str . ( $self->{block}->emit_perl6() . ' }' ) ) );
-    do {
-        if ( $self->{name} ) { return ( ( '$Code_' . ( $self->{name} . ( ' :=  ' . ( $code . '' ) ) ) ) ) }
-        else                 { }
-    };
-    return ($code);
+    ( 'sub ' . ( $self->{name} . ( ( $self->{block}->sig() ? ( '(' . ( $self->{block}->sig()->emit_perl6() . ')' ) ) : '' ) . ( '{ ' . ( $self->{block}->emit_perl6() . ' }' ) ) ) ) );
 }
 
 package Do;
