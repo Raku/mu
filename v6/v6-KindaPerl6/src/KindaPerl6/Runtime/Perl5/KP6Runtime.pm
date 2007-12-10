@@ -29,7 +29,12 @@ use strict;
     $Main::Code_get_compiler_target_runtime = ::DISPATCH( $::Code, 'new',
         { code => sub { ::DISPATCH( $::Str, 'new', 'KindaPerl6::Runtime::Perl5::KP6Runtime') }, src => '&Main::newline' } );
 
-    $Main::Code_V6_COMPILER_NAME = ::DISPATCH( $::Code, 'new', { code => sub { ::DISPATCH( $::Str, 'new', 'Bootstrapped KP6')}});
+    # this is a string constant
+    $Main::_V6_COMPILER_NAME = 
+        ::DISPATCH($::Scalar, "new", { modified => {}, name => "$Main::V6_COMPILER_NAME" } );
+    ::DISPATCH_VAR( $Main::_V6_COMPILER_NAME, 'STORE',
+            ::DISPATCH( $::Str, 'new', 'Bootstrapped KP6')
+        );
 
     $Main::Code_mangle_string = ::DISPATCH( $::Code, 'new',
         { 
