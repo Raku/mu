@@ -341,7 +341,22 @@ sub emit_perl6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( 'do { if ( ${' . ( $self->{cond}->emit_perl6() . ( '->FETCH} ) { ' . ( $self->{body}->emit_perl6() . ( ' } ' . ( ( $self->{otherwise} ? ( ' else { ' . ( $self->{otherwise}->emit_perl6() . ' }' ) ) : '' ) . ' }' ) ) ) ) ) );
+    (   'if ( '
+            . (
+            $self->{cond}->emit_perl6()
+                . (
+                ' ) '
+                    . (
+                    '{ '
+                        . (
+                        Main::newline()
+                            . (
+                            $self->{body}->emit_perl6() . ( Main::newline() . ( '} ' . ( $self->{otherwise} ? ( 'else { ' . ( Main::newline() . ( $self->{otherwise}->emit_perl6() . ( Main::newline() . ( '}' . Main::newline() ) ) ) ) ) : '' ) ) ) )
+                        )
+                    )
+                )
+            )
+    );
 }
 
 package Decl;

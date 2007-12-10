@@ -264,12 +264,23 @@ class Return {
 
 class If {
     method emit_perl6 {
-        'do { if ( ${' ~ $.cond.emit_perl6 ~ '->FETCH} ) { ' ~ $.body.emit_perl6 ~ ' } '
-        ~ ( $.otherwise
-            ?? ' else { ' ~ $.otherwise.emit_perl6 ~ ' }'
-            !! ''
+        # 'do { if ( ${' ~ $.cond.emit_perl6 ~ '} ) { ' ~ $.body.emit_perl6 ~ ' } '
+        # the old code line above specified a scalar output directly via ${ }
+        # I am not sure why the original author wanted that, but I believe it
+        # is wrong.  However, I am not sure, so I am leaving this comment here.
+
+        # if
+        'if ( ' ~ $.cond.emit_perl6 ~ ' ) '
+        # then
+        ~ '{ ' ~ Main::newline()
+        ~ $.body.emit_perl6 ~ Main::newline()
+        ~ '} '
+        # else, if $.otherwise ? " else " : '';
+        ~ ( $.otherwise ?? 'else { '
+            ~ Main::newline()
+            ~ $.otherwise.emit_perl6 ~ Main::newline()
+            ~ '}' ~ Main::newline() !! ''
           )
-        ~ ' }';
     }
 }
 
