@@ -28,7 +28,13 @@
     similarly renamed all routines, attributes, parameters, variables,
     config keys, and so on, to use 'machine' rather than 'dbms'.
 
-    * TODO: split all ::Machine pkgs each into itself and ::Process.
+    * (Interface.pm, Example.pm, Validator.pm)  Split the Machine
+    role|class into itself and the new Process role|class; a Machine now
+    has 0..N Process, and a Process now has 0..N
+    Var|FuncBinding|ProcBinding.  The Machine constructor retained all of
+    its parameters, and the Process constructor has no configuration
+    parameters; nearly all of the Machine methods went to Process.  As part
+    of the split, 2 methods were added to Machine, and 1 to Process.
 
 2007-10-20   Darren Duncan <perl@DarrenDuncan.net>
 

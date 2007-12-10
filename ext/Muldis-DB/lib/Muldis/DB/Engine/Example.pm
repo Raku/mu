@@ -27,9 +27,7 @@ class Muldis::DB::Engine::Example::Public::Machine {
     does Muldis::DB::Interface::Machine;
 
     # Allow objects of these to update Machine' "assoc" list re themselves.
-    trusts Muldis::DB::Engine::Example::Public::Var;
-    trusts Muldis::DB::Engine::Example::Public::FuncBinding;
-    trusts Muldis::DB::Engine::Example::Public::ProcBinding;
+    trusts Muldis::DB::Engine::Example::Public::Process;
 
     # User-supplied config data for this Machine object.
     # For the moment, the Example Engine doesn't actually have anything
@@ -40,13 +38,7 @@ class Muldis::DB::Engine::Example::Public::Machine {
     # Lists of user-held objects associated with parts of this Machine.
     # For each of these, Hash keys are obj .WHERE/addrs, vals the objs.
     # These should be weak obj-refs, so objs disappear from here
-    has Hash $!assoc_vars;
-    has Hash $!assoc_func_bindings;
-    has Hash $!assoc_proc_bindings;
-
-    # Maintain actual state of the this DBMS' virtual machine.
-    # TODO: the VM itself should be in another file, this attr with it.
-    has Int $!trans_nest_level;
+    has Hash $!assoc_processes;
 
 ###########################################################################
 
@@ -56,11 +48,7 @@ submethod BUILD (Array :$exp_ast_lang!, Any :$machine_config!) {
     $!exp_ast_lang   = [$exp_ast_lang.values];
     $!machine_config = $machine_config;
 
-    $!assoc_vars          = {};
-    $!assoc_func_bindings = {};
-    $!assoc_proc_bindings = {};
-
-    $!trans_nest_level = 0;
+    $!assoc_processes = {};
 
     return;
 }
@@ -85,10 +73,74 @@ method store_exp_ast_lang (Array :$lang!) {
 
 ###########################################################################
 
+method new_process of Muldis::DB::Engine::Example::Public::Process () {
+    return ::Muldis::DB::Engine::Example::Public::Process.new(
+        :machine(self) );
+}
+
+method assoc_processes of Array () {
+    return [$!assoc_processes.values];
+}
+
+###########################################################################
+
+} # class Muldis::DB::Engine::Example::Public::Machine
+
+###########################################################################
+###########################################################################
+
+class Muldis::DB::Engine::Example::Public::Process {
+    does Muldis::DB::Interface::Process;
+
+    # Allow objects of these to update Process' "assoc" list re themselves.
+    trusts Muldis::DB::Engine::Example::Public::Var;
+    trusts Muldis::DB::Engine::Example::Public::FuncBinding;
+    trusts Muldis::DB::Engine::Example::Public::ProcBinding;
+
+    has Muldis::DB::Engine::Example::Public::Machine $!machine;
+
+    # Lists of user-held objects associated with parts of this Process.
+    # For each of these, Hash keys are obj .WHERE/addrs, vals the objs.
+    # These should be weak obj-refs, so objs disappear from here
+    has Hash $!assoc_vars;
+    has Hash $!assoc_func_bindings;
+    has Hash $!assoc_proc_bindings;
+
+    # Maintain actual state of the this DBMS' virtual machine.
+    # TODO: the VM itself should be in another file, this attr with it.
+    has Int $!trans_nest_level;
+
+###########################################################################
+
+submethod BUILD (Muldis::DB::Engine::Example::Public::Machine :$machine!) {
+
+    # TODO: input checks.
+
+    $!machine = $machine;
+#    $machine!assoc_vars.{self.WHERE} = self;
+#    weaken $machine!assoc_vars.{self.WHERE};
+
+    $!assoc_vars          = {};
+    $!assoc_func_bindings = {};
+    $!assoc_proc_bindings = {};
+
+    $!trans_nest_level = 0;
+
+    return;
+}
+
+submethod DESTROY () {
+    # TODO: check for active trans and rollback ... or member VM does it.
+    # Likewise with closing open files or whatever.
+    return;
+}
+
+###########################################################################
+
 method new_var of Muldis::DB::Engine::Example::Public::Var
         (Str :$decl_type!) {
     return ::Muldis::DB::Engine::Example::Public::Var.new(
-        :machine(self), :decl_type($decl_type) );
+        :process(self), :decl_type($decl_type) );
 }
 
 method assoc_vars of Array () {
@@ -98,7 +150,7 @@ method assoc_vars of Array () {
 method new_func_binding of Muldis::DB::Engine::Example::Public::FuncBinding
         () {
     return ::Muldis::DB::Engine::Example::Public::FuncBinding.new(
-        :machine(self) );
+        :process(self) );
 }
 
 method assoc_func_bindings of Array () {
@@ -108,7 +160,7 @@ method assoc_func_bindings of Array () {
 method new_proc_binding of Muldis::DB::Engine::Example::Public::ProcBinding
         () {
     return ::Muldis::DB::Engine::Example::Public::ProcBinding.new(
-        :machine(self) );
+        :process(self) );
 }
 
 method assoc_proc_bindings of Array () {
@@ -121,10 +173,10 @@ method call_func of Muldis::DB::Interface::Var
         (Str :$func_name!, Hash :$args!) {
 
 #    my $f = ::Muldis::DB::Engine::Example::Public::FuncBinding.new(
-#        :machine(self) );
+#        :process(self) );
 
     my $result = ::Muldis::DB::Engine::Example::Public::Var.new(
-        :machine(self), :decl_type('sys.Core.Universal.Universal') );
+        :process(self), :decl_type('sys.Core.Universal.Universal') );
 
 #    $f.bind_func( :func_name($func_name) );
 #    $f.bind_result( :var($result) );
@@ -140,7 +192,7 @@ method call_func of Muldis::DB::Interface::Var
 method call_proc (Str :$proc_name!, Hash :$upd_args!, Hash :$ro_args!) {
 
 #    my $p = ::Muldis::DB::Engine::Example::Public::ProcBinding.new(
-#        :machine(self) );
+#        :process(self) );
 
 #    $p.bind_proc( :proc_name($proc_name) );
 #    $p.bind_upd_params( :args($upd_args) );
@@ -183,7 +235,7 @@ method rollback_trans () {
 
 ###########################################################################
 
-} # class Muldis::DB::Engine::Example::Public::Machine
+} # class Muldis::DB::Engine::Example::Public::Process
 
 ###########################################################################
 ###########################################################################
@@ -191,21 +243,21 @@ method rollback_trans () {
 class Muldis::DB::Engine::Example::Public::Var {
     does Muldis::DB::Interface::Var;
 
-    has Muldis::DB::Engine::Example::Public::Machine $!machine;
+    has Muldis::DB::Engine::Example::Public::Process $!process;
 
     has Muldis::DB::Engine::Example::VM::Var $!var;
     # TODO: cache Perl-Hosted Muldis D version of $!var.
 
 ###########################################################################
 
-submethod BUILD (Muldis::DB::Engine::Example::Public::Machine :$machine!,
+submethod BUILD (Muldis::DB::Engine::Example::Public::Process :$process!,
         Str :$decl_type!) {
 
     # TODO: input checks.
 
-    $!machine = $machine;
-#    $machine!assoc_vars.{self.WHERE} = self;
-#    weaken $machine!assoc_vars.{self.WHERE};
+    $!process = $process;
+#    $process!assoc_vars.{self.WHERE} = self;
+#    weaken $process!assoc_vars.{self.WHERE};
 
 #    $!var = ::Muldis::DB::Engine::Example::VM::Var.new(
 #        :decl_type($decl_type) ); # TODO; or some such
@@ -214,7 +266,7 @@ submethod BUILD (Muldis::DB::Engine::Example::Public::Machine :$machine!,
 }
 
 submethod DESTROY () {
-#    $!machine!assoc_vars.delete( self.WHERE );
+#    $!process!assoc_vars.delete( self.WHERE );
     return;
 }
 
@@ -281,6 +333,7 @@ This document describes Muldis::DB::Engine::Example version 0.5.0 for Perl
 
 It also describes the same-number versions for Perl 6 of
 Muldis::DB::Engine::Example::Public::Machine,
+Muldis::DB::Engine::Example::Public::Process,
 Muldis::DB::Engine::Example::Public::Var,
 Muldis::DB::Engine::Example::Public::FuncBinding, and
 Muldis::DB::Engine::Example::Public::ProcBinding.

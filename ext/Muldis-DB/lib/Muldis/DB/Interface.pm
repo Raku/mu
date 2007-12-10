@@ -70,6 +70,25 @@ role Muldis::DB::Interface::Machine {
         die q{not implemented by subclass } ~ self.WHAT;
     }
 
+    method new_process {
+        die q{not implemented by subclass } ~ self.WHAT;
+    }
+
+    method assoc_processes {
+        die q{not implemented by subclass } ~ self.WHAT;
+    }
+
+} # role Muldis::DB::Interface::Machine
+
+###########################################################################
+###########################################################################
+
+role Muldis::DB::Interface::Process {
+
+    method assoc_machine {
+        die q{not implemented by subclass } ~ self.WHAT;
+    }
+
     method new_var {
         die q{not implemented by subclass } ~ self.WHAT;
     }
@@ -118,14 +137,14 @@ role Muldis::DB::Interface::Machine {
         die q{not implemented by subclass } ~ self.WHAT;
     }
 
-} # role Muldis::DB::Interface::Machine
+} # role Muldis::DB::Interface::Process
 
 ###########################################################################
 ###########################################################################
 
 role Muldis::DB::Interface::Var {
 
-    method assoc_machine {
+    method assoc_process {
         die q{not implemented by subclass } ~ self.WHAT;
     }
 
@@ -148,7 +167,7 @@ role Muldis::DB::Interface::Var {
 
 role Muldis::DB::Interface::FuncBinding {
 
-    method assoc_machine {
+    method assoc_process {
         die q{not implemented by subclass } ~ self.WHAT;
     }
 
@@ -187,7 +206,7 @@ role Muldis::DB::Interface::FuncBinding {
 
 role Muldis::DB::Interface::ProcBinding {
 
-    method assoc_machine {
+    method assoc_process {
         die q{not implemented by subclass } ~ self.WHAT;
     }
 
@@ -238,8 +257,9 @@ Common public API for Muldis DB Engines
 This document describes Muldis::DB::Interface version 0.5.0 for Perl 6.
 
 It also describes the same-number versions for Perl 6 of
-Muldis::DB::Interface::Machine ("Machine"), Muldis::DB::Interface::Var
-("Var"), Muldis::DB::Interface::FuncBinding ("FuncBinding"), and
+Muldis::DB::Interface::Machine ("Machine"), Muldis::DB::Interface::Process
+("Process"), Muldis::DB::Interface::Var ("Var"),
+Muldis::DB::Interface::FuncBinding ("FuncBinding"), and
 Muldis::DB::Interface::ProcBinding ("ProcBinding").
 
 =head1 SYNOPSIS
@@ -255,9 +275,10 @@ a third Perl variable holding the relation data of the result.
         :exp_ast_lang([ 'MuldisD', 'cpan:DUNCAND', '0.8.1' ]),
         :machine_config({}),
     );
+    my $process = $machine.new_process();
 
-    my $r1 = $machine.new_var( :decl_type('sys.Core.Relation.Relation') );
-    my $r2 = $machine.new_var( :decl_type('sys.Core.Relation.Relation') );
+    my $r1 = $process.new_var( :decl_type('sys.Core.Relation.Relation') );
+    my $r2 = $process.new_var( :decl_type('sys.Core.Relation.Relation') );
 
     $r1.store_ast( :ast([ 'Relation', 'sys.Core.Relation.Relation', [
         {
@@ -285,7 +306,7 @@ a third Perl variable holding the relation data of the result.
         },
     ] ]) );
 
-    my $r3 = $machine.call_func(
+    my $r3 = $process.call_func(
         :func_name('sys.Core.Relation.join'),
         :args({
             'topic' => [ 'QuasiSet', 'sys.Core.Spec.QuasiSetOfRelation', [
@@ -410,10 +431,37 @@ expected to be a 3-element Array as described for C<fetch_exp_ast_lang>.
 This method dies if the specified language/version isn't one that the
 invocant's Engine knows how to or desires to handle.
 
+=item C<new_process of Muldis::DB::Interface::Process ()>
+
+This method creates and returns a new C<Process> object that is associated
+with the invocant C<Machine>.
+
+=item C<assoc_processes of Array ()>
+
+This method returns, as elements of a new (unordered) Array, all the
+currently existing C<Process> objects that are associated with the invocant
+C<Machine>.
+
+=back
+
+=head2 The Muldis::DB::Interface::Process Role
+
+A C<Process> object represents a single Muldis DB in-DBMS process, which
+has its own autonomous transactional context, and for the most part, its
+own isolated environment.  It is associated with a specific C<Machine>
+object, the one whose C<new_process> method created it.
+
+=over
+
+=item C<assoc_machine of Muldis::DB::Interface::Machine ()>
+
+This method returns the C<Machine> object that the invocant C<Process> is
+associated with.
+
 =item C<new_var of Muldis::DB::Interface::Var (Str :$decl_type!)>
 
 This method creates and returns a new C<Var> object that is associated with
-the invocant C<Machine>, and whose declared Muldis D type is named by the
+the invocant C<Process>, and whose declared Muldis D type is named by the
 C<$decl_type> argument, and whose default Muldis D value is the default
 value of its declared type.
 
@@ -421,29 +469,29 @@ value of its declared type.
 
 This method returns, as elements of a new (unordered) Array, all the
 currently existing C<Var> objects that are associated with the invocant
-C<Machine>.
+C<Process>.
 
 =item C<new_func_binding of Muldis::DB::Interface::FuncBinding ()>
 
 This method creates and returns a new C<FuncBinding> object that is
-associated with the invocant C<Machine>.
+associated with the invocant C<Process>.
 
 =item C<assoc_func_bindings of Array ()>
 
 This method returns, as elements of a new (unordered) Array, all the
 currently existing C<FuncBinding> objects that are associated with the
-invocant C<Machine>.
+invocant C<Process>.
 
 =item C<new_proc_binding of Muldis::DB::Interface::ProcBinding ()>
 
 This method creates and returns a new C<ProcBinding> object that is
-associated with the invocant C<Machine>.
+associated with the invocant C<Process>.
 
 =item C<assoc_proc_bindings of Array ()>
 
 This method returns, as elements of a new (unordered) Array, all the
 currently existing C<ProcBinding> objects that are associated with the
-invocant C<Machine>.
+invocant C<Process>.
 
 =item C<call_func of Muldis::DB::Interface::Var (Str :$func_name!, Hash
 :$args!)>
@@ -467,7 +515,7 @@ object, setting up its bindings, and invoking its C<call> method.
 
 This method returns the current transaction nesting level of its invocant's
 virtual machine.  If no explicit transactions were started, then the
-nesting level is zero, in which case the Machine is conceptually
+nesting level is zero, in which case the Process is conceptually
 auto-committing every successful Muldis D statement.  Each call of
 C<start_trans> will increase the nesting level by one, and each
 C<commit_trans> or C<rollback_trans> will decrease it by one (it can't be
@@ -499,7 +547,7 @@ virtual machine; it dies if there isn't one.
 
 A C<Var> object is a Muldis D variable that is lexically scoped to the Perl
 environment (like an ordinary Perl variable).  It is associated with a
-specific C<Machine> object, the one whose C<new_var> method created it, but
+specific C<Process> object, the one whose C<new_var> method created it, but
 it is considered anonymous and non-invokable within the virtual machine.
 The only way for Muldis D code to work with these variables is if they
 bound to Perl invocations of Muldis D routines being C<call(|\w+)> by Perl;
@@ -512,9 +560,9 @@ created, and this declared type can't be changed afterwards.
 
 =over
 
-=item C<assoc_machine of Muldis::DB::Interface::Machine ()>
+=item C<assoc_process of Muldis::DB::Interface::Process ()>
 
-This method returns the C<Machine> object that the invocant C<Var> is
+This method returns the C<Process> object that the invocant C<Var> is
 associated with.
 
 =item C<decl_type of Str ()>
@@ -539,21 +587,21 @@ Array).
 =head2 The Muldis::DB::Interface::FuncBinding Role
 
 A C<FuncBinding> represents a single Muldis D function that may be directly
-invoked by Perl code.  It is associated with a specific C<Machine> object,
+invoked by Perl code.  It is associated with a specific C<Process> object,
 the one whose C<new_func_binding> method created it, and the function it
 represents lives in and has a global-public scoped name in the
 corresponding virtual machine.  This is specifically a lazy binding, so no
 validity checking of the object happens except while the FuncBinding's
 C<call> method is being executed, and a then-valid object can then become
 invalid afterwards.  A C<FuncBinding> is conceptually used behind the
-scenes to implement a C<Machine> object's C<call_func> method, but you can
+scenes to implement a C<Process> object's C<call_func> method, but you can
 use it directly instead, for possibly better performance.
 
 =over
 
-=item C<assoc_machine of Muldis::DB::Interface::Machine ()>
+=item C<assoc_process of Muldis::DB::Interface::Process ()>
 
-This method returns the C<Machine> object that the invocant C<FuncBinding>
+This method returns the C<Process> object that the invocant C<FuncBinding>
 is associated with.
 
 =item C<bind_func (Str :$func_name!)>
@@ -606,21 +654,21 @@ time that the current values of any bound C<Var> objects are taken.
 =head2 The Muldis::DB::Interface::ProcBinding Role
 
 A C<ProcBinding> represents a single Muldis D procedure that may be
-directly invoked by Perl code.  It is associated with a specific C<Machine>
+directly invoked by Perl code.  It is associated with a specific C<Process>
 object, the one whose C<new_proc_binding> method created it, and the
 procedure it represents lives in and has a global-public scoped name in the
 corresponding virtual machine.  This is specifically a lazy binding, so no
 validity checking of the object happens except while the ProcBinding's
 C<call> method is being executed, and a then-valid object can then become
 invalid afterwards.  A C<ProcBinding> is conceptually used behind the
-scenes to implement a C<Machine> object's C<call_proc> method, but you can
+scenes to implement a C<Process> object's C<call_proc> method, but you can
 use it directly instead, for possibly better performance.
 
 =over
 
-=item C<assoc_machine of Muldis::DB::Interface::Machine ()>
+=item C<assoc_process of Muldis::DB::Interface::Process ()>
 
-This method returns the C<Machine> object that the invocant C<ProcBinding>
+This method returns the C<Process> object that the invocant C<ProcBinding>
 is associated with.
 
 =item C<bind_proc (Str :$proc_name!)>

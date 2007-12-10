@@ -13,7 +13,7 @@ module Muldis::DB::Validator-0.5.0 {
 
 sub main (Str :$engine_name!, Any :$machine_config!) {
 
-    plan( 12 );
+    plan( 13 );
 
     say "#### Muldis::DB::Validator starting test of $engine_name ####";
 
@@ -25,8 +25,10 @@ sub main (Str :$engine_name!, Any :$machine_config!) {
         :machine_config($machine_config),
     );
     does_ok( $machine, 'Muldis::DB::Interface::Machine' );
+    my Muldis::DB::Interface::Process $process = $machine.new_process();
+    does_ok( $process, 'Muldis::DB::Interface::Process' );
 
-    _scenario_foods_suppliers_shipments_v1( $machine );
+    _scenario_foods_suppliers_shipments_v1( $process );
 
     say "#### Muldis::DB::Validator finished test of $engine_name ####";
 
@@ -36,17 +38,17 @@ sub main (Str :$engine_name!, Any :$machine_config!) {
 ###########################################################################
 
 sub _scenario_foods_suppliers_shipments_v1
-        (Muldis::DB::Interface::Machine $machine!) {
+        (Muldis::DB::Interface::Process $process!) {
 
     # Declare our Perl-lexical variables to use for source data.
 
-    my $src_suppliers = $machine.new_var(
+    my $src_suppliers = $process.new_var(
         :decl_type('sys.Core.Relation.Relation') );
     does_ok( $src_suppliers, 'Muldis::DB::Interface::Var' );
-    my $src_foods = $machine.new_var(
+    my $src_foods = $process.new_var(
         :decl_type('sys.Core.Relation.Relation') );
     does_ok( $src_foods, 'Muldis::DB::Interface::Var' );
-    my $src_shipments = $machine.new_var(
+    my $src_shipments = $process.new_var(
         :decl_type('sys.Core.Relation.Relation') );
     does_ok( $src_shipments, 'Muldis::DB::Interface::Var' );
 
@@ -140,16 +142,16 @@ sub _scenario_foods_suppliers_shipments_v1
     # Execute a query against the virtual machine, to look at our sample
     # data and see what suppliers there are for foods coloured 'orange'.
 
-    my $desi_colour = $machine.new_var( :decl_type('sys.Core.Text.Text') );
+    my $desi_colour = $process.new_var( :decl_type('sys.Core.Text.Text') );
     does_ok( $desi_colour, 'Muldis::DB::Interface::Var' );
     $desi_colour.store_ast( :ast([ 'NEText', 'orange' ]) );
     pass( 'no death from loading desired colour into VM' );
 
-    my $matched_suppl = $machine.call_func(
+    my $matched_suppl = $process.call_func(
         :func_name('sys.Core.Relation.semijoin'),
         :args({
             'source' => $src_suppliers,
-            'filter' => $machine.call_func(
+            'filter' => $process.call_func(
                 :func_name('sys.Core.Relation.join'),
                 :args({
                     'topic' => [ 'QuasiSet',
