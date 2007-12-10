@@ -250,7 +250,7 @@ class Call {
 
 class Apply {
     method emit_perl6 {
-        return '(' ~ $.code.emit_perl6 ~ ')(' ~ (@.arguments.>>emit_perl6).join(', ') ~ ')';
+        return '(' ~ $.code.emit_perl6 ~ ' (' ~ (@.arguments.>>emit_perl6).join(', ') ~ '))';
     }
 }
 

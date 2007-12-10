@@ -27,7 +27,7 @@ use strict;
         } );
 
     $Main::Code_get_compiler_target_runtime = ::DISPATCH( $::Code, 'new',
-        { code => sub { ::DISPATCH( $::Str, 'new', 'KindaPerl6::Runtime::Perl5::KP6Runtime') }, src => '&Main::newline' } );
+        { code => sub { ::DISPATCH( $::Str, 'new', 'KindaPerl6::Runtime::Perl5::Runtime') }, src => '&Main::newline' } );
 
     # this is a string constant
     $Main::_V6_COMPILER_NAME = 
