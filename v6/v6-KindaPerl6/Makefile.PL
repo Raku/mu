@@ -112,6 +112,10 @@ elsif ( $KP6_TARGET eq "KP6-BOOT" ) {
         run_test    => "script/run_tests_kp6_kp6.pl",
         make        =>
 <<'END',
+script/%.pl: src-script/%.pl
+	@echo perl script/kp6 -Cperl5rx --noperltidy -o $@ $<
+	$(PERL) script/kp6 -Cperl5rx --noperltidy -o $@ $<
+
 compiled/perl5-kp6-kp6/lib/KindaPerl6/Runtime/Perl6/%.pm: src/KindaPerl6/Runtime/Perl6/%.pm
 	@echo perl script/kp6 -Cperl5rx --noperltidy -o $@ $<
 	$(PERL) script/kp6 -Cperl5rx --noperltidy -o $@ $<

@@ -40,8 +40,10 @@ module Main {
         my $match = KindaPerl6::Grammar.comp_unit( $pos );
         my $ast = $match.result;
         if (!($ast.isa('CompUnit'))) {
-            die 'AST IS:(' ~ $ast.result ~ ')';
+            die 'no match; AST is:(' ~ $ast ~ ')';
         };
+        say 'Matched';
+        say 'AST is:(   ' ~ $ast ~ '   )';
 
         say $ast.emit(KindaPerl6::Visitor::Emit::AstPerl.new());
         exit;

@@ -45,6 +45,19 @@ my $visitor_global      = ::DISPATCH( $::KindaPerl6::Visitor::Global,        'ne
                     #print "Pad.does $what ???\n";
                     return ::DISPATCH( $::Bit, 'new', 1 );  # it probably does
                 }
+                if ( $method eq 'isa' ) {
+                    return ::DISPATCH( $::Bit, 'new', 0 )
+                        if $param[0] eq $::List   # XXX
+                        || $param[0] eq $::NamedArgument
+                        ;
+                    my $what = ::DISPATCH( $param[0], 'Str' )->{_value};
+                    return ::DISPATCH( $::Bit, 'new', 0 )
+                        if $what eq 'Junction';
+                    return ::DISPATCH( $::Bit, 'new', 1 )
+                        if $what eq 'Pad';
+                    #print "Pad.isa $what ???\n";
+                    return ::DISPATCH( $::Bit, 'new', 0 );  # it probably isn't
+                }
                 if ( $method eq 'scalar' ) {
                     return $_[0]->result;
                 }

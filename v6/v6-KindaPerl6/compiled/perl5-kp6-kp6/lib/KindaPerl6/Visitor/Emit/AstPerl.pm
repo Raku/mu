@@ -181,13 +181,23 @@ $result = ::DISPATCH(  ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_in
  )
  )
  )
-}; do { if (::DISPATCH(::DISPATCH(do { my $_tmp1 = ::DISPATCH( ::DISPATCH( $data, 'LOOKUP', $item )
-, 'isa', ::DISPATCH( $::Str, 'new', 'Array' )
- )
-; ::DISPATCH( $_tmp1, "true" )->{_value} ? $_tmp1: ::DISPATCH( ::DISPATCH( $data, 'LOOKUP', $item )
-, 'isa', ::DISPATCH( $::Str, 'new', 'List' )
- )
- }
+}; do { 
+    if (::DISPATCH(::DISPATCH(do { 
+        my $_tmp1 = ::DISPATCH( ::DISPATCH( $data, 'LOOKUP', $item )
+                , 'isa', ::DISPATCH( $::Str, 'new', 'Array' )
+            )
+            ; 
+        #print "_tmp1 isa... $_tmp1 \n";
+        
+            #my $meta = ::DISPATCH( ::DISPATCH( $data, 'LOOKUP', $item ) , 'HOW' );
+            #print "obj isa ", ::DISPATCH( $meta, 'Str' ), "\n";
+
+        ::DISPATCH( $_tmp1, "true" )->{_value} 
+            ? $_tmp1
+            : ::DISPATCH( ::DISPATCH( $data, 'LOOKUP', $item )
+                , 'isa', ::DISPATCH( $::Str, 'new', 'List' )
+                )
+    }
 ,"true"),"p5landish") ) { do {do {::MODIFIED($result);
 $result = ::DISPATCH(  ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $result, ::DISPATCH(  ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", )  ) 
