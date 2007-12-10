@@ -76,7 +76,7 @@ sub emit_perl5 {
                                                                     . (
                                                                     'local $_ = ( ref($str) ? ::DISPATCH( $str, "Str" )->{_value} : $str ); '
                                                                         . (
-                                                                        'pos($_) = $pos->{_value} if ref $pos;'
+                                                                        'pos($_) = (ref $pos) ? ( $pos->{_value} ) : ( 0 + pos($_) );'
                                                                             . (
                                                                             'if ( _rule_'
                                                                                 . (

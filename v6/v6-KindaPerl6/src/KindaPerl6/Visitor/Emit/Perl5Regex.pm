@@ -48,7 +48,7 @@ class Token {
                         ~    '$str = defined($str) ? $str : $_;'
                         ~    'local $_ = ( ref($str) ? ::DISPATCH( $str, "Str" )->{_value} : $str ); '
                         # XXX
-                        ~    'pos($_) = $pos->{_value} if ref $pos;'
+                        ~    'pos($_) = (ref $pos) ? ( $pos->{_value} ) : ( 0 + pos($_) );'
 
                         ~    'if ( _rule_' ~ $.name ~ '() ) { '
                         ~        'Match::from_global_data( $GLOBAL::_M2 ); '

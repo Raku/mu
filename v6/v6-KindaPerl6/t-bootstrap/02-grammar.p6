@@ -159,6 +159,7 @@ $_ = '123; 456';
 my $MATCH = KindaPerl6::Grammar.exp_stmts();
 say "# ",($MATCH.perl);
 say "# ",($MATCH.Str);
+say "# scalar: ", $$MATCH;
 ok( $MATCH.Str eq "Val::Int.new(int => '123')",
     'exp_stmts');
 
