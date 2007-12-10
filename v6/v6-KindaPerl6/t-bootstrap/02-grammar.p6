@@ -154,6 +154,15 @@ ok( $MATCH.Str eq "Val::Int.new(int => '456')",
     'term');
 
 
+say "# ** does it work yet? <exp_stmts>";
+$_ = '123; 456';
+my $MATCH = KindaPerl6::Grammar.exp_stmts();
+say "# ",($MATCH.perl);
+say "# ",($MATCH.Str);
+ok( $MATCH.Str eq "Val::Int.new(int => '123')",
+    'exp_stmts');
+
+
 say "# ** does it work yet? <parse>";
 $_ = '123';
 my $MATCH = KindaPerl6::Grammar.parse();

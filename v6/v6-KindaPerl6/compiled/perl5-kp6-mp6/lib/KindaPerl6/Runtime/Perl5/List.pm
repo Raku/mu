@@ -51,20 +51,74 @@ $::List = KindaPerl6::Runtime::Perl5::MOP::make_class(
     methods => {
 
         new => sub {
-            my $v = {
-                %{ $_[0] },
-                _value        => $_[1],
-                _dispatch_VAR => $::dispatch_VAR,
+            my ( $proto, $param ) = @_;
+            my $self = {
+                %{ $proto },
+                _value => { _array => [ ] },
             };
-            $v->{_value}{_array} = []
-                unless defined $v->{_value}{_array};
-            $v;
+            if ($param) {
+
+                my $index = 0;
+
+                my $add_parameter;
+                $add_parameter = sub {
+                    my $p = $_[0];
+                    if ( exists $p->{_roles}{array_container} ) {
+                        #warn "STORE \@Array to \@Array:   ", ::DISPATCH( $p, "perl" )->{_value};
+                        my $list = $p->{_value}{cell};   # ::DISPATCH( $p, 'FETCH' );
+                        #warn "List:   ", ::DISPATCH( $list, "perl" )->{_value};
+                        $add_parameter->( $_ )
+                            for @{ $list->{_value}{_array} };
+                    }
+                    elsif ( ::DISPATCH( $p, 'does', $::List )->{_value} ) {
+                        #warn "List:   ", ::DISPATCH( $p, "perl" )->{_value};
+                        my $list = ::DISPATCH( $p, 'eager' );
+                        #warn "List:   ", ::DISPATCH( $list, "perl" )->{_value};
+                        $add_parameter->( $_ )
+                            for @{ $list->{_value}{_array} };
+                    }
+                    else {
+                        #warn "  Push: ", ::DISPATCH( $p, "perl" )->{_value};
+                        #::DISPATCH( $array, 'push', $p );
+                        ::DISPATCH_VAR(
+                                ::DISPATCH( $self, 'INDEX', $index ),
+                                'STORE',
+                                $p,
+                            );
+                        $index++;
+                    }
+                };
+                $add_parameter->( $_ )
+                    for @{ $param->{_array} };
+
+            }
+            return $self;
         },
         INDEX => sub {
-            my $key = ::DISPATCH( ::DISPATCH( $_[1], 'Int' ), 'p5landish' );
-            return ::DISPATCH( $::Undef, 'new' )
-                unless exists $_[0]{_value}{_array}[$key];
-            return $_[0]{_value}{_array}[$key];
+            my $self = shift;
+            return $self
+                unless @_;
+            my $key
+                = ref( $_[0] )
+                ? ::DISPATCH( ::DISPATCH( $_[0], "Int" ), "p5landish" )
+                : $_[0];
+            return $self->{_value}{_array}[$key]
+                if exists $self->{_value}{_array}[$key];
+            return ::DISPATCH(
+                $::ContainerProxy,
+                "new",
+                sub {
+                        if ( ! exists $self->{_value}{_array}[$key] ) {
+                            $self->{_value}{_array}[$key] = ::DISPATCH( $::Container, 'new' );
+                        }
+                        $self->{_value}{_array}[$key];
+                    },
+            );
+        },
+        values => sub {
+                ::DISPATCH( $::List, 'new',
+                        { _array => [  @{$_[0]{_value}{_array}}  ], }
+                );
         },
         FETCH => sub {
             $_[0];

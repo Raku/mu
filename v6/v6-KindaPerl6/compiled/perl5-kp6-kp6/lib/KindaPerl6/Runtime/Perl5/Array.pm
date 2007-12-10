@@ -85,6 +85,11 @@ $::Array = KindaPerl6::Runtime::Perl5::MOP::make_class(
             }
             return $self;
         },
+    values => sub {
+            ::DISPATCH( $::List, 'new',
+                    { _array => [  @{$_[0]{_value}{_array}}  ], }
+            );
+    },
     FETCH => sub { @_ },
     eager => sub { @_ },
     INDEX=>sub {

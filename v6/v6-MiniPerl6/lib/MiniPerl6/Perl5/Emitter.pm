@@ -238,6 +238,17 @@ class Call {
         if $invocant eq 'self' {
             $invocant := '$self';
         };
+
+        if     ($.method eq 'values')
+        { 
+            if ($.hyper) {
+                die "not implemented";
+            }
+            else {
+                return '@{' ~ $invocant ~ '}';
+            }
+        };
+
         if     ($.method eq 'perl')
             || ($.method eq 'yaml')
             || ($.method eq 'say' )

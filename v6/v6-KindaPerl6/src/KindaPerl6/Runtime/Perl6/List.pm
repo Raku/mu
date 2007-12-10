@@ -9,6 +9,7 @@ class List is Value {
     method true { self.elems != 0 };
     method Int  { self.elems };
     method array { self };
+    method scalar { self };
 
     method grep(&test) {
         my @result;

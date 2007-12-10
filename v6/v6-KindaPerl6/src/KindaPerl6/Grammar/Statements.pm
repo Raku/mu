@@ -11,7 +11,7 @@ grammar KindaPerl6::Grammar {
             [
             |   <.stmt_sep> <exp_stmts>
                 [<.stmt_sep> | <.opt_ws>]
-                { make [ $$<exp>, @( $$<exp_stmts> ) ] }
+                { make [ $$<exp>, ( $$<exp_stmts> ).values ] }
             |   [<.stmt_sep> | <.opt_ws>]
                 { make [ $$<exp> ] }
             ]
@@ -22,7 +22,7 @@ grammar KindaPerl6::Grammar {
             [
             |   <.stmt_sep> <exp_stmts>
                 [<.stmt_sep> | <.opt_ws>]
-                { make [ $$<exp>, @( $$<exp_stmts> ) ] }
+                { make [ $$<exp>, ( $$<exp_stmts> ).values ] }
             |   [<.stmt_sep> | <.opt_ws>]
                 { make [ $$<exp> ] }
             ]
