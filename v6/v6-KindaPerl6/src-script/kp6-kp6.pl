@@ -38,20 +38,12 @@ module Main {
     # Digest::MD5::md5_hex from perl5;
     $COMPILER::source_md5 = 'temporary_value';
 
-    my $pos = 0;
-    my $len = chars $code;
-
-    #while ($len > $pos) {
-
-        $_ = $code;
-        my $match = KindaPerl6::Grammar.comp_unit();
-        my $ast = $match.result;
-        if (!($ast.isa('CompUnit'))) {
-            die 'no match; AST is:(' ~ $ast ~ ')';
-        };
-        #say 'Matched';
-        #say 'AST is:';
-        say $ast.emit(KindaPerl6::Visitor::Emit::AstPerl.new());
+    $_ = $code;
+    my $match = KindaPerl6::Grammar.parse();
+    my $parsed = $match.result;
+    for $parsed.values -> $ast {
+        
+        say $ast.perl;  # emit(KindaPerl6::Visitor::Emit::AstPerl.new());
         #say "running visitors";
 
         my $res = $ast;
@@ -61,9 +53,8 @@ module Main {
             #say "Result: $res";
         };
         print $res;
-        $pos = $pos + $match.to;
-    #}
-
+        
+    }
 }
 
 =begin
