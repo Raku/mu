@@ -140,8 +140,10 @@ Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through r
     # Use the mp6 or kp6 backend? This'll go away in the future
     'r|runtime=s' => \( $opt{runtime} = 'mp6' ),    # or 'kp6'
 
-    # Compile or execute
+    # Compile
     'C=s' => \$opt{C},
+
+    # Execute
     'B=s' => \$opt{B},
 
     # Prettify the code
@@ -361,7 +363,7 @@ for (@COMPILER::CHECK) {
     # Make kp6 -e 'say "foo"' and echo 'say "foo"' | kp6 run stuff
     # under the p5 backend
     if ( $opt{ output } ) {
-        if ( $opt{perltidy} ) {
+        if ( $opt{perltidy} && ( $opt{B} eq 'perl5' || $opt{C} eq 'perl5' ) ) {
             Perl::Tidy::perltidy(
                 source => \$out,
                 destination => $output,
