@@ -4,7 +4,7 @@
 # $ perl script/kp6 -Cperl5rx t-bootstrap/02-grammar.p6 | perl -I compiled/perl5-kp6-kp6/lib
 #
 
-say "1..4";
+say "1..14";
 my $count=0;
 sub ok($ok,$desc) {
     $count = $count + 1;
@@ -79,7 +79,7 @@ ok( $MATCH.Str eq "Var.new(namespace => [  ], name => '/', twigil => '', sigil =
 say "# ** now testing: <var>";
 $_ = '$var';
 my $MATCH = KindaPerl6::Grammar.var();
-say "# ",($MATCH.perl);
+# say "# ",($MATCH.perl);
 say "# ",($MATCH.Str);
 ok( $MATCH.Str eq "Var.new(namespace => [  ], name => 'var', twigil => '', sigil => '$')",'$var');
 
@@ -89,7 +89,7 @@ ok( $MATCH.Str eq "Var.new(namespace => [  ], name => 'var', twigil => '', sigil
 say "# ** now testing: <term> with \$var";
 $_ = '$var';
 my $MATCH = KindaPerl6::Grammar.term();
-say "# ",($MATCH.perl);
+# say "# ",($MATCH.perl);
 say "# ",($MATCH.Str);
 ok( $MATCH.Str eq "Var.new(namespace => [  ], name => 'var', twigil => '', sigil => '$')",'$var term');
 
@@ -99,7 +99,7 @@ ok( $MATCH.Str eq "Var.new(namespace => [  ], name => 'var', twigil => '', sigil
 say "# ** now testing: <term>";
 $_ = '123';
 my $MATCH = KindaPerl6::Grammar.term();
-say "# ",($MATCH.perl);
+# say "# ",($MATCH.perl);
 say "# ",($MATCH.Str);
 ok( $MATCH.Str eq "Val::Int.new(int => '123')",'term');
 
@@ -109,7 +109,7 @@ ok( $MATCH.Str eq "Val::Int.new(int => '123')",'term');
 say "# ** now testing: <exp>";
 $_ = '123';
 my $MATCH = KindaPerl6::Grammar.exp();
-say "# ",($MATCH.perl);
+# say "# ",($MATCH.perl);
 say "# ",($MATCH.Str);
 ok( $MATCH.Str eq "Val::Int.new(int => '123')",'term');
 
@@ -119,7 +119,7 @@ ok( $MATCH.Str eq "Val::Int.new(int => '123')",'term');
 say "# ** now testing: bigger <exp>";
 $_ = '123+456';
 my $MATCH = KindaPerl6::Grammar.exp();
-say "# ",($MATCH.perl);
+# say "# ",($MATCH.perl);
 say "# ",($MATCH.Str);
 ok( $MATCH.Str eq "Apply.new(arguments => [ Val::Int.new(int => '123'), Val::Int.new(int => '456') ], code => Var.new(namespace => [  ], name => 'infix:<+>', twigil => '', sigil => '&'))",
     'term');
@@ -129,9 +129,9 @@ ok( $MATCH.Str eq "Apply.new(arguments => [ Val::Int.new(int => '123'), Val::Int
 say "# ** now testing: -> \$param { Inf } <term>";
 $_ = '-> $param { Inf }';
 my $MATCH = KindaPerl6::Grammar.term();
-say "# ",($MATCH.perl);
+# say "# ",($MATCH.perl);
 say "# ",($MATCH.Str);
-ok( $MATCH.Str eq "Apply.new(arguments => [ Val::Int.new(int => '123'), Val::Int.new(int => '456') ], code => Var.new(namespace => [  ], name => 'infix:<+>', twigil => '', sigil => '&'))",
+ok( $MATCH.Str eq "Sub.new(name => undef, block => Lit::Code.new(body => [ Apply.new(arguments => [  ], code => Var.new(namespace => [  ], name => 'Inf', twigil => '', sigil => '&')) ], sig => Sig.new(invocant => Val::Undef.new(), positional => [ Lit::SigArgument.new(is_multidimensional => Val::Bit.new(bit => 0), has_default => Val::Bit.new(bit => undef), value => undef, is_slurpy => Val::Bit.new(bit => 0), is_optional => Val::Bit.new(bit => 0), key => Var.new(namespace => [  ], name => 'param', twigil => '', sigil => '$'), is_copy => Val::Bit.new(bit => 0), is_named_only => Val::Bit.new(bit => 0), type => '', is_rw => Val::Bit.new(bit => 0)) ]), pad => Pad.new( ... ), CATCH => undef, state => {  }))",
     'term');
 
 
@@ -139,18 +139,18 @@ ok( $MATCH.Str eq "Apply.new(arguments => [ Val::Int.new(int => '123'), Val::Int
 say "# ** now testing: -123 <term>";
 $_ = '-(123)';
 my $MATCH = KindaPerl6::Grammar.term();
-say "# ",($MATCH.perl);
+#say "# ",($MATCH.perl);
 say "# ",($MATCH.Str);
-ok( $MATCH.Str eq "Apply.new(arguments => [ Val::Int.new(int => '123'), Val::Int.new(int => '456') ], code => Var.new(namespace => [  ], name => 'infix:<+>', twigil => '', sigil => '&'))",
+ok( $MATCH.Str eq "Apply.new(arguments => [ Val::Int.new(int => '123') ], code => Var.new(namespace => [  ], name => 'prefix:<->', twigil => '', sigil => '&'))",
     'term');
 
 
 say "# ** now testing: list <term>";
 $_ = '(456)';
 my $MATCH = KindaPerl6::Grammar.term();
-say "# ",($MATCH.perl);
+#say "# ",($MATCH.perl);
 say "# ",($MATCH.Str);
-ok( $MATCH.Str eq "Apply.new(arguments => [ Val::Int.new(int => '123'), Val::Int.new(int => '456') ], code => Var.new(namespace => [  ], name => 'infix:<+>', twigil => '', sigil => '&'))",
+ok( $MATCH.Str eq "Val::Int.new(int => '456')",
     'term');
 
 
