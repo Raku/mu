@@ -410,18 +410,20 @@ my $method_new = {
                     && grep { $_ == ::DISPATCH( $::NamedArgument, 'HOW' ) } @{ $arg->{_isa} } )
                 {
                     my $key = GLOBAL::_str( ::DISPATCH( $arg, '_argument_name_' ) );
+                    #print "new: $key ...\n";
                     my $value = ::DISPATCH( $arg, 'value' );
-                    $v->{_value} = {} unless ref $v->{_value} eq 'HASH';
+                    # my $value = ::DISPATCH( ::DISPATCH( $arg, 'value' ), 'FETCH' );
+                    #$v->{_value} = {} unless ref $v->{_value} eq 'HASH';
                     #$v->{_value}{$key} = $value;
-                    
-                    $_[0]{_value}{$key} = ::DISPATCH(
+                    #print "new: $key ", ::DISPATCH($value, "perl")->{_value}, "\n";
+                    $v->{_value}{$key} = ::DISPATCH(
                         $::Scalar,
                         'new',
                         {   modified => {},  # $_MODIFIED,
                             name     => '...',        # XXX name??? - get name from 'self'
                         }
                     );
-                    ::DISPATCH_VAR( $_[0]{_value}{$key}, 'STORE', $value );
+                    ::DISPATCH_VAR( $v->{_value}{$key}, 'STORE', $value );
 
                 }
             }

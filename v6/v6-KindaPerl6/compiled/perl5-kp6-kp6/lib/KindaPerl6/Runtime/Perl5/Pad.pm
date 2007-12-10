@@ -71,6 +71,12 @@ my $visitor_global      = ::DISPATCH( $::KindaPerl6::Visitor::Global,        'ne
                 if ( $method eq 'declaration' ) {
                     return $self->declaration( @param );
                 }
+                if ( $method eq 'add_lexicals' ) {
+                    return $self->add_lexicals( @param );
+                }
+                if ( $method eq 'FETCH' ) {
+                    return $self;
+                }
 
                 if ( $method eq 'variable_names' ) {
                     return ::DISPATCH( $::Array, "new", { 
