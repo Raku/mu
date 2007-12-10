@@ -96,7 +96,10 @@ package Match;
                         . ' )' );
                 }
                 if ( $method eq 'Str' ) {
-                    return ::DISPATCH($::Str,'new',$self->Str);
+                    my $res = $self->result;
+                    return ::DISPATCH($::Str,'new',$self->Str)
+                        unless defined $res;
+                    return $res;
                 }
                 
                 $self->$method( @param );
