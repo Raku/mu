@@ -43,7 +43,7 @@ token exp_mapping {
     |   <pair>
         [
         |   <.opt_ws> \, <.opt_ws> <exp_mapping>
-            { make [ $$<pair>, @( $$<exp_mapping> ) ] }
+            { make [ $$<pair>, ( $$<exp_mapping> ).values ] }
         |   <.opt_ws> [ \, <.opt_ws> | '' ]
             { make [ $$<pair> ] }
         ]

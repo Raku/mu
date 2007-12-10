@@ -57,7 +57,7 @@ grammar KindaPerl6::Grammar {
         |   <exp_sig_item>
             [
             |   <.opt_ws> \, <.opt_ws> <exp_sig_list>
-                { make [ $$<exp_sig_item>, @( $$<exp_sig_list> ) ] }
+                { make [ $$<exp_sig_item>, ( $$<exp_sig_list> ).values ] }
             |   <.opt_ws> [ \, <.opt_ws> | '' ]
                 { make [ $$<exp_sig_item> ] }
             ]

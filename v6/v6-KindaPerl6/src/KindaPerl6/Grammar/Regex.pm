@@ -248,7 +248,7 @@ token concat_list {
     <quantifier>
     [
         <concat_list> 
-        { make [ $$<quantifier>, @($$<concat_list>) ] }
+        { make [ $$<quantifier>, ($$<concat_list>).values ] }
     |
         { make [ $$<quantifier> ] }
     ]
@@ -266,7 +266,7 @@ token or_list {
     [
         '|'
         <or_list> 
-        { make [ $$<concat>, @($$<or_list>) ] }
+        { make [ $$<concat>, ($$<or_list>).values ] }
     |
         { make [ $$<concat> ] }
     ]

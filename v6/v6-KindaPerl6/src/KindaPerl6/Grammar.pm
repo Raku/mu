@@ -39,7 +39,7 @@ token namespace {
     |   <ident> '::'
         [
         |   <namespace> 
-            { make [ $$<ident>, @( $$<namespace> ) ] }
+            { make [ $$<ident>, ( $$<namespace> ).values ] }
         |   
             { make [ $$<ident> ] }
         ]
@@ -92,7 +92,7 @@ token parse {
     | <comp_unit>
         [
         |   <parse>
-            { make [ $$<comp_unit>, @( $$<parse> ) ] }
+            { make [ $$<comp_unit>, ( $$<parse> ).values ] }
         |   { make [ $$<comp_unit> ] }
         ]
     | { make [] }
@@ -115,7 +115,7 @@ token class_traits {
     | <class_trait>
         [
         |   <.ws> <class_traits>
-            { make [ $$<class_trait>, @( $$<class_traits> ) ] }
+            { make [ $$<class_trait>, ( $$<class_traits> ).values ] }
         |   { make [ $$<class_trait> ] }
         ]
     | { make [] }
@@ -468,7 +468,7 @@ token exp_seq {
         [
         |   <.opt_ws> \, <.opt_ws> <exp_seq> 
             <.opt_ws> [ \, <.opt_ws> | '' ]
-            { make [ $$<exp>, @( $$<exp_seq> ) ] }
+            { make [ $$<exp>, ( $$<exp_seq> ).values ] }
         |   <.opt_ws> [ \, <.opt_ws> | '' ]
             { make [ $$<exp> ] }
         ]
