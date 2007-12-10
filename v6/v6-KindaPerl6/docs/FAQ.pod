@@ -121,6 +121,13 @@ Example:
 
  [kp6] I have refactored subroutine XXX for clarity and updated the documentation.
 
+=head3 Seeing an intermediate step.
+
+Sometimes you want to see how kp6 "saw" the code.  This is seen by running the
+code though AST backend.
+
+ perl script/kp6 -Cast -e ' "a" eq "b" '
+
 =head3 Cannot see the forest for the trees. / Boot strapping
 
 One of the problems I had when I started working on kp6 was I could not see

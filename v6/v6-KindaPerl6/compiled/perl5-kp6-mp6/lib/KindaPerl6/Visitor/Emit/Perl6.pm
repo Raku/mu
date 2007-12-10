@@ -318,7 +318,7 @@ sub emit_perl6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    return ( ( '(' . ( $self->{code}->emit_perl6() . ( ' (' . ( Main::join( [ map { $_->emit_perl6() } @{ $self->{arguments} } ], ', ' ) . '))' ) ) ) ) );
+    return ( ( '(' . ( $self->{code}->emit_perl6() . ( '(' . ( Main::join( [ map { $_->emit_perl6() } @{ $self->{arguments} } ], ', ' ) . '))' ) ) ) ) );
 }
 
 package Return;

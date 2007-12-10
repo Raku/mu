@@ -250,7 +250,8 @@ class Call {
 
 class Apply {
     method emit_perl6 {
-        return '(' ~ $.code.emit_perl6 ~ ' (' ~ (@.arguments.>>emit_perl6).join(', ') ~ '))';
+        # WARNING: Putting white spaces in here, will mess up the subroutine calls
+        return '(' ~ $.code.emit_perl6 ~ '(' ~ (@.arguments.>>emit_perl6).join(', ') ~ '))';
     }
 }
 
