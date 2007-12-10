@@ -247,7 +247,7 @@ sub declaration { # Var
 
     for my $decl ( @{$self->{variable_names}} ) {
         return $decl
-            if ( _var_eq( $decl->var, $var ) );
+            if ( _var_eq( ::DISPATCH( $decl, 'var' ), $var ) );
     }
     if ( $self->{parent} ) {
         return $self->{parent}->declaration( $var );
