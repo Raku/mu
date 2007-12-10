@@ -102,12 +102,12 @@ class Lit::Code {
                     name => $name,
                 ),
             );
-            $s := $s ~ $name.emit_perl6 ~ '; ';
+            $s := $s ~ $name.emit_perl6 ~ '; ' ~ Main::newline();
             #$s := $s ~ 'my ' ~ $name ~ '; ';
         };
         return
             $s
-            ~ (@.body.>>emit_perl6).join('; ');
+            ~ (@.body.>>emit_perl6).join('; ' ~ Main::newline() );
     }
 }
 
@@ -300,14 +300,14 @@ class Method {
         my $pos := $sig.positional;
         my $field;
         for @$pos -> $field {
-            $str := $str ~ 'my ' ~ $field.emit_perl6 ~ '; ';
+            $str := $str ~ 'my ' ~ $field.emit_perl6 ~ '; ' ~ Main::newline();
         };
 
         my $bind := ::Bind(
             'parameters' => ::Lit::Array( array => $sig.positional ),
             'arguments'  => ::Var( sigil => '@', twigil => '', name => '_' )
         );
-        $str := $str ~ $bind.emit_perl6 ~ '; ';
+        $str := $str ~ $bind.emit_perl6 ~ '; ' ~ Main::newline();
 
         'sub ' ~ $.name ~ ' { ' ~
           'my ' ~ $invocant.emit_perl6 ~ ' = shift; ' ~
@@ -331,14 +331,14 @@ class Sub {
         if @$pos {
                   my $field;
             for @$pos -> $field {
-                $str := $str ~ 'my ' ~ $field.emit_perl6 ~ '; ';
+                $str := $str ~ 'my ' ~ $field.emit_perl6 ~ '; ' ~ Main::newline();
             };
 
             my $bind := ::Bind(
                 'parameters' => ::Lit::Array( array => $sig.positional ),
                 'arguments'  => ::Var( sigil => '@', twigil => '', name => '_' )
             );
-            $str := $str ~ $bind.emit_perl6 ~ '; ';
+            $str := $str ~ $bind.emit_perl6 ~ '; ' ~ Main::newline();
         };
         my $code :=
             'sub { '

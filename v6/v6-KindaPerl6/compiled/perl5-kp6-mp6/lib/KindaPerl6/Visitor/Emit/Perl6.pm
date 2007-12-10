@@ -141,9 +141,12 @@ sub emit_perl6 {
     my $s;
     my $name;
     do {
-        for my $name ( @{ $self->{pad}->variable_names() } ) { my $decl = Decl->new( 'decl' => 'my', 'type' => '', 'var' => Var->new( 'sigil' => '', 'twigil' => '', 'name' => $name, ), ); $s = ( $s . ( $name->emit_perl6() . '; ' ) ) }
+        for my $name ( @{ $self->{pad}->variable_names() } ) {
+            my $decl = Decl->new( 'decl' => 'my', 'type' => '', 'var' => Var->new( 'sigil' => '', 'twigil' => '', 'name' => $name, ), );
+            $s = ( $s . ( $name->emit_perl6() . ( '; ' . Main::newline() ) ) );
+        }
     };
-    return ( ( $s . Main::join( [ map { $_->emit_perl6() } @{ $self->{body} } ], '; ' ) ) );
+    return ( ( $s . Main::join( [ map { $_->emit_perl6() } @{ $self->{body} } ], ( '; ' . Main::newline() ) ) ) );
 }
 
 package Lit::Object;
@@ -375,10 +378,10 @@ sub emit_perl6 {
     my $pos      = $sig->positional();
     my $field;
     do {
-        for my $field ( @{$pos} ) { $str = ( $str . ( 'my ' . ( $field->emit_perl6() . '; ' ) ) ) }
+        for my $field ( @{$pos} ) { $str = ( $str . ( 'my ' . ( $field->emit_perl6() . ( '; ' . Main::newline() ) ) ) ) }
     };
     my $bind = Bind->new( 'parameters' => Lit::Array->new( 'array' => $sig->positional(), ), 'arguments' => Var->new( 'sigil' => '@', 'twigil' => '', 'name' => '_', ), );
-    $str = ( $str . ( $bind->emit_perl6() . '; ' ) );
+    $str = ( $str . ( $bind->emit_perl6() . ( '; ' . Main::newline() ) ) );
     ( 'sub ' . ( $self->{name} . ( ' { ' . ( 'my ' . ( $invocant->emit_perl6() . ( ' = shift; ' . ( $str . ( $self->{block}->emit_perl6() . ' }' ) ) ) ) ) ) ) );
 }
 
@@ -398,10 +401,10 @@ sub emit_perl6 {
         if ( @{$pos} ) {
             my $field;
             do {
-                for my $field ( @{$pos} ) { $str = ( $str . ( 'my ' . ( $field->emit_perl6() . '; ' ) ) ) }
+                for my $field ( @{$pos} ) { $str = ( $str . ( 'my ' . ( $field->emit_perl6() . ( '; ' . Main::newline() ) ) ) ) }
             };
             my $bind = Bind->new( 'parameters' => Lit::Array->new( 'array' => $sig->positional(), ), 'arguments' => Var->new( 'sigil' => '@', 'twigil' => '', 'name' => '_', ), );
-            $str = ( $str . ( $bind->emit_perl6() . '; ' ) );
+            $str = ( $str . ( $bind->emit_perl6() . ( '; ' . Main::newline() ) ) );
         }
         else { }
     };
