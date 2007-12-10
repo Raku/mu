@@ -132,11 +132,22 @@ $stmt = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'stmt' )
  }
  }
  }
-,"true"),"p5landish") ) { do {} }  else { do {::DISPATCH( $node, 'namespace', ::DISPATCH( $::Array, 'new', { _array => [::DISPATCH( $::Str, 'new', 'GLOBAL' )
-] }
- )
- )
-} } }
+,"true"),"p5landish") ) { do {} }  else { 
+
+do {
+    print "set namespace to GLOBAL\n";
+    print "on node: ",::DISPATCH( 
+        $node, 
+        'perl', )->{_value},"\n";
+    ::DISPATCH( 
+        $node, 
+        'namespace', 
+        ::DISPATCH( $::Array, 'new', { _array => [::DISPATCH( $::Str, 'new', 'GLOBAL' ) ] } )
+    );
+    print "done: set namespace to GLOBAL\n";
+} 
+
+} }
 } } }
 ; return($node)
 } }  else { ::DISPATCH($::Bit, "new", 0) } }

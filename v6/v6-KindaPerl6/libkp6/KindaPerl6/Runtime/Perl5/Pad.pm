@@ -72,6 +72,15 @@ my $visitor_global      = ::DISPATCH( $::KindaPerl6::Visitor::Global,        'ne
                     return $self->declaration( @param );
                 }
 
+                if ( $method eq 'variable_names' ) {
+                    return ::DISPATCH( $::Array, "new", { 
+                            _array => [
+                                    # map { $_ }
+                                        @{ $self->variable_names( @param ) }
+                                ],
+                        } );
+                }
+
                 die "Method Pad.$method() not implemented";
                 # $self->$method( @param );
         };

@@ -49,16 +49,16 @@ module Main {
         if (!($ast.isa('CompUnit'))) {
             die 'no match; AST is:(' ~ $ast ~ ')';
         };
-        say 'Matched';
-        say 'AST is:';
-        say $ast.emit(KindaPerl6::Visitor::Emit::AstPerl.new());
-        say "running visitors";
+        #say 'Matched';
+        #say 'AST is:';
+        #say $ast.emit(KindaPerl6::Visitor::Emit::AstPerl.new());
+        #say "running visitors";
 
         my $res = $ast;
         for @visitors -> $visitor {
-            say "Visitor: $visitor";
+            #say "Visitor: $visitor";
             $res = $res.emit($visitor);
-            say "Result: $res";
+            #say "Result: $res";
         };
         print $res;
         $pos = $pos + $match.to;

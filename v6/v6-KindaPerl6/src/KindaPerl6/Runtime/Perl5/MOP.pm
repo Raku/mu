@@ -412,7 +412,17 @@ my $method_new = {
                     my $key = GLOBAL::_str( ::DISPATCH( $arg, '_argument_name_' ) );
                     my $value = ::DISPATCH( $arg, 'value' );
                     $v->{_value} = {} unless ref $v->{_value} eq 'HASH';
-                    $v->{_value}{$key} = $value;
+                    #$v->{_value}{$key} = $value;
+                    
+                    $_[0]{_value}{$key} = ::DISPATCH(
+                        $::Scalar,
+                        'new',
+                        {   modified => {},  # $_MODIFIED,
+                            name     => '...',        # XXX name??? - get name from 'self'
+                        }
+                    );
+                    ::DISPATCH_VAR( $_[0]{_value}{$key}, 'STORE', $value );
+
                 }
             }
             $v;
@@ -670,7 +680,7 @@ $meta_Class->{_value}{methods}{add_method} = ::DISPATCH(
                     ::DISPATCH(
                         $::Method,
                         'new',
-                        {   code => sub  : lvalue {
+                        {   code => sub {
 
                                 # : lvalue is not needed, because we use .STORE() instead
 
@@ -681,13 +691,15 @@ $meta_Class->{_value}{methods}{add_method} = ::DISPATCH(
 
                                 # XXX - when is the right time to initialize attributes?
 
+                                #print "Attribute: $meth_name\n";
                                 $_[0]{_value}{$meth_name} = ::DISPATCH(
                                     $::Scalar,
                                     'new',
                                     {   modified => $_MODIFIED,
                                         name     => '...',        # XXX name??? - get name from 'self'
                                     }
-                                ) unless defined $_[0]{_value}{$meth_name};
+                                ) unless ref $_[0]{_value}{$meth_name};
+                                # ) unless defined $_[0]{_value}{$meth_name};
 
                                 # do we have more parameters? we should store it as the value.
                                 if ( $_[1] ) {
