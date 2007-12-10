@@ -48,8 +48,7 @@ do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_infix_58__60_eq_62_ 
  )
 ,"true"),"p5landish") ) { do {do { if (::DISPATCH(::DISPATCH(::DISPATCH( $node, 'body',  )
 ,"true"),"p5landish") ) { do {::DISPATCH( ::DISPATCH( $node, 'body',  )
-, 'emit',  ( $GLOBAL::self = $GLOBAL::self || ::DISPATCH( $::Scalar, "new", )  ) 
- )
+, 'emit', $self )
 ; return($node)
 } }  else { ::DISPATCH($::Bit, "new", 0) } }
 } }  else { ::DISPATCH($::Bit, "new", 0) } }
@@ -77,8 +76,7 @@ $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
 };{ my $_param_index = 0;  if ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $Hash__, 'LOOKUP',  ::DISPATCH( $::Str, 'new', 'stmt' )  ) )->{_value}  )  { do {::MODIFIED($stmt);
 $stmt = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'stmt' )
  )
-} }  elsif ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index )  ) )->{_value}  )  { $stmt = ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index++ )  );  } } ::DISPATCH( $stmt, 'emit',  ( $GLOBAL::self = $GLOBAL::self || ::DISPATCH( $::Scalar, "new", )  ) 
- )
+} }  elsif ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index )  ) )->{_value}  )  { $stmt = ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index++ )  );  } } ::DISPATCH( $stmt, 'emit', $self )
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::List, "new", { _array => [ ::DISPATCH( $::Signature::Item, 'new', { sigil  => '$', twigil => '', name   => 'stmt', value  => $::Undef, has_default    => ::DISPATCH( $::Bit, 'new', 0 )
 , is_named_only  => ::DISPATCH( $::Bit, 'new', 0 )
 , is_optional    => ::DISPATCH( $::Bit, 'new', 0 )
@@ -112,7 +110,7 @@ $stmt = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'stmt' )
 , 'APPLY', ::DISPATCH( $node, 'twigil',  )
 , ::DISPATCH( $::Str, 'new', '.' )
  )
-; ::DISPATCH( $_tmp1, "true" )->{_value} ? $_tmp1: do { my $_tmp1 = ::DISPATCH(  ( $GLOBAL::Code_infix_58__60_eq_62_ = $GLOBAL::Code_infix_58__60_eq_62_ || ::DISPATCH( $::Routine, "new", )  ) 
+; ::DISPATCH( $_tmp1, "true" )->{_value} ? $_tmp1: do { my $_tmp1 = do { my $_tmp1 = ::DISPATCH(  ( $GLOBAL::Code_infix_58__60_eq_62_ = $GLOBAL::Code_infix_58__60_eq_62_ || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', ::DISPATCH( $node, 'sigil',  )
 , ::DISPATCH( $::Str, 'new', '&' )
  )
@@ -121,6 +119,16 @@ $stmt = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'stmt' )
 , ::DISPATCH( $::Str, 'new', 'self' )
  )
 : ::DISPATCH( $::Bit, "new", 0 ) }
+; ::DISPATCH( $_tmp1, "true" )->{_value} ? $_tmp1: do { my $_tmp1 = ::DISPATCH(  ( $GLOBAL::Code_infix_58__60_eq_62_ = $GLOBAL::Code_infix_58__60_eq_62_ || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', ::DISPATCH( $node, 'sigil',  )
+, ::DISPATCH( $::Str, 'new', '$' )
+ )
+; ::DISPATCH( $_tmp1, "true" )->{_value} ? ::DISPATCH(  ( $GLOBAL::Code_infix_58__60_eq_62_ = $GLOBAL::Code_infix_58__60_eq_62_ || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', ::DISPATCH( $node, 'name',  )
+, ::DISPATCH( $::Str, 'new', 'self' )
+ )
+: ::DISPATCH( $::Bit, "new", 0 ) }
+ }
  }
  }
  }

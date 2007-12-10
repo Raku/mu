@@ -45,6 +45,7 @@ class KindaPerl6::Visitor::Global {
                     || ($node.name eq '_')         # @_ $_ %_
                     || ($node.twigil eq '.')       # attribute
                     || ( ( $node.sigil eq '&') && ( $node.name eq 'self' ) )  # ???
+                    || ( ( $node.sigil eq '$') && ( $node.name eq 'self' ) )  # ???
                 {
                     # don't modify special vars (yet?)
                     #warn "special variable: ", $node.sigil, ':', $node.twigil, ':', $node.name;

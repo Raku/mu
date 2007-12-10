@@ -40,8 +40,13 @@ sub visit {
                 if ( COMPILER::current_pad()->declaration($node) ) { }
                 else {
                     do {
-                        if   ( ( ( $node->name() eq '/' ) || ( ( $node->name() eq '_' ) || ( ( $node->twigil() eq '.' ) || ( ( $node->sigil() eq '&' ) && ( $node->name() eq 'self' ) ) ) ) ) ) { }
-                        else                                                                                                                                                                    { $node->namespace( ['GLOBAL'] ) }
+                        if ((      ( $node->name() eq '/' )
+                                || ( ( $node->name() eq '_' ) || ( ( $node->twigil() eq '.' ) || ( ( ( $node->sigil() eq '&' ) && ( $node->name() eq 'self' ) ) || ( ( $node->sigil() eq '$' ) && ( $node->name() eq 'self' ) ) ) ) )
+                            )
+                            )
+                        {
+                        }
+                        else { $node->namespace( ['GLOBAL'] ) }
                         }
                 }
             };
