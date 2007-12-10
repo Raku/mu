@@ -55,7 +55,7 @@ May be used to enter one line of program.
 
 execute use the compiler backend.
 
-(valid backends are: ast, perl5, cl (add -sbcl, -clisp, -ecl under -B)
+(valid backends are: ast, perl5, perl6, cl (add -sbcl, -clisp, -ecl under -B)
 
 =item -C[backend]
 
@@ -141,10 +141,10 @@ Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through r
     'r|runtime=s' => \( $opt{runtime} = 'mp6' ),    # or 'kp6'
 
     # Compile
-    'C=s' => \$opt{C},
+    'C|compile=s' => \$opt{C},
 
     # Execute
-    'B=s' => \$opt{B},
+    'B|backend=s' => \$opt{B},
 
     # Prettify the code
     'perltidy!' => \$opt{perltidy},
@@ -159,11 +159,12 @@ Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through r
     'secure' => \my $secure,
 
     # Send output to this file, usually parsed perl5 code
-    'output|o=s' => \$opt{ output },
+    'output|o=s' => \$opt{output},
 
 ) or help();
 
-if ($opt{B} eq 'kp6-kp6') {
+if ( $opt{B} eq 'kp6-kp6' ) {
+
     #HACK until kp6-kp6 supports proper options
     system("perl script/kp6-kp6.pl < $ARGV[0] | perl");
     exit;
@@ -182,17 +183,20 @@ version( exitval => 0 )
 
 # turn on or off perltidy if it is available
 eval { require Perl::Tidy };
-if ( $@ ) {
+if ($@) {
     $opt{perltidy} = 0;
-} else {
-    $^W = 0; # perltidy globally turns on warnings, do NOT turn this on
-             # unless you want to see a lot of complaints.
+}
+else {
+    $^W = 0;    # perltidy globally turns on warnings, do NOT turn this on
+                # unless you want to see a lot of complaints.
 
-    if ( $opt{perltidy}  && ! $opt{perltidyrc} ) {
+    if ( $opt{perltidy} && !$opt{perltidyrc} ) {
+
         # Perl::Tidy's documentation is being updated to note that it has a ENV option
-        if ( $ENV{ PERLTIDY } ) { # I recommend you use YOUR full path
-            $opt{perltidyrc} = $ENV{ PERLTIDY };
-        } else {
+        if ( $ENV{PERLTIDY} ) {    # I recommend you use YOUR full path
+            $opt{perltidyrc} = $ENV{PERLTIDY};
+        }
+        else {
             $opt{perltidyrc} = 'util/perltidyrc';
         }
 
@@ -281,7 +285,7 @@ my @visitors;
             unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::AstPerl';
     }
     elsif ( grep { $_ eq 'perl5' } @opt{qw(C B)} ) {
-        push @visitor_sequence, qw( ExtractRuleBlock Token MetaClass  Global Emit::Perl5 )  # ShortCircuit
+        push @visitor_sequence, qw( ExtractRuleBlock Token MetaClass  Global Emit::Perl5 )    # ShortCircuit
             unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Perl5';
     }
     elsif ( grep { $_ eq 'parrot' } @opt{qw(C B)} ) {
@@ -293,13 +297,13 @@ my @visitors;
             unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Lisp';
     }
     elsif ( grep { $_ eq 'perl5rx' } @opt{qw(C B)} ) {
-        push @visitor_sequence, qw(  MetaClass  Global Emit::Perl5Regex )  # RegexCapture ShortCircuit
+        push @visitor_sequence, qw(  MetaClass  Global Emit::Perl5Regex )                     # RegexCapture ShortCircuit
             unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Perl5Regex';
     }
     elsif ( !@visitor_sequence ) {
 
         # this is the default sequence
-        push @visitor_sequence, qw( ExtractRuleBlock Token MetaClass  Global Emit::Perl5 );  # ShortCircuit
+        push @visitor_sequence, qw( ExtractRuleBlock Token MetaClass  Global Emit::Perl5 );    # ShortCircuit
     }
 
     push @visitor_sequence, 'Emit::AstPerl'
@@ -359,25 +363,27 @@ for (@COMPILER::CHECK) {
 
     # did the user want us to output the file?
     my $output;
-    if ( $opt{ output } ) {
-    	$output = IO::File->new( $opt{ output }, 'w');
-    } else {
-     	$output = IO::Handle->new();
-        $output->fdopen(fileno(STDOUT),'w');
+    if ( $opt{output} ) {
+        $output = IO::File->new( $opt{output}, 'w' );
+    }
+    else {
+        $output = IO::Handle->new();
+        $output->fdopen( fileno(STDOUT), 'w' );
     }
 
     # Make kp6 -e 'say "foo"' and echo 'say "foo"' | kp6 run stuff
     # under the p5 backend
-    if ( $opt{ output } ) {
+    if ( $opt{output} ) {
         if ( $opt{perltidy} && ( $opt{B} eq 'perl5' || $opt{C} eq 'perl5' ) ) {
             Perl::Tidy::perltidy(
-                source => \$out,
+                source      => \$out,
                 destination => $output,
-                perltidyrc => $opt{ perltidyrc },
-                argv => '',
-             );
-        } else {
-            $output->print( $out );
+                perltidyrc  => $opt{perltidyrc},
+                argv        => '',
+            );
+        }
+        else {
+            $output->print($out);
             $output->close();
         }
     }
@@ -391,31 +397,34 @@ for (@COMPILER::CHECK) {
         elsif ( $opt{C} ) {
             if ( $opt{perltidy} ) {
                 Perl::Tidy::perltidy(
-                    source => \$out,
+                    source      => \$out,
                     destination => $output,
-                    perltidyrc => $opt{ perltidyrc },
-                    argv => '',
-                 );
-            } else {
-                print $output $out
+                    perltidyrc  => $opt{perltidyrc},
+                    argv        => '',
+                );
+            }
+            else {
+                print $output $out;
             }
         }
     }
     elsif ( grep { $_ eq 'perl5' } @opt{qw(C B)} ) {
         if ( $opt{B} ) {
+
             # Execute!
             run_piped_command("$EXECUTABLE_NAME -I$lib - -- @ARGV");
         }
         elsif ( $opt{C} ) {
             if ( $opt{perltidy} ) {
                 Perl::Tidy::perltidy(
-                    source => \$out,
+                    source      => \$out,
                     destination => $output,
-                    perltidyrc => $opt{ perltidyrc },
-                    argv => '',
-                 );
-            } else {
-                print $output $out
+                    perltidyrc  => $opt{perltidyrc},
+                    argv        => '',
+                );
+            }
+            else {
+                print $output $out;
             }
         }
     }
@@ -426,12 +435,13 @@ for (@COMPILER::CHECK) {
         elsif ( $opt{C} ) {
             if ( $opt{perltidy} ) {
                 Perl::Tidy::perltidy(
-                    source => \$out,
+                    source      => \$out,
                     destination => $output,
-                    perltidyrc => $opt{ perltidyrc },
-                    argv => '',
-                 );
-            } else {
+                    perltidyrc  => $opt{perltidyrc},
+                    argv        => '',
+                );
+            }
+            else {
                 print $output $out;
             }
         }

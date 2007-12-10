@@ -28,15 +28,35 @@ available.
 Section name may be "io", "grammar", "math".  Not specifying a [Section Name]
 will cause all sections to run.
 
-=item --backend=[backend]
+=item --include=[Directory] or -I[Directory]
+
+Specify libraries to include. You can specifiy multiple libraries to include
+
+--include=Dir1 --include=Dir2
+
+--backend=perl5rx automatically implies --include=lib5regex
+
+=item --backend=[backend]  or -B[backend]
 
 Available backends are
 
  perl5    = Perl 5 (using the MiniPerl6 regex engine)     <= default
  perl5rx  = Perl 5 (using the Perl 5 regex engine)
+ perl6    = Perl 6
  cl-sbcl  = lisp_sbcl
  cl-ecl   = lisp ecl
  cl-clisp = lisp clisp
+
+B<Note>: if you use the perl6 backend, then the code will be run though the
+perl6 backend twice.
+
+Ex:
+
+ script/kp6 --backend=perl6 myTestCase.pl | script/kp6
+
+The purpose of this is to make sure the perl6 emiter works.
+
+See: perldoc script/perl6_to_perl6.pl
 
 =back
 
@@ -67,19 +87,18 @@ use English;
 use Test::Harness;
 use Getopt::Long;
 
+# Not all people have TAP::Harness yet.
 # use TAP::Harness
-
-use constant DEFAULT_BACKEND => 'perl5';
 
 #$Test::Harness::Debug = 1;
 $Test::Harness::Verbose = 1 if $ENV{TEST_VERBOSE};
 
-my $extra_libs = '';
-
 my %opt = (
     section => undef,
-    backend => undef,
-    verbose => '0', # TAP::Harness - normal
+    backend => 'perl5',            # <=== DEFAULT BACKEND
+    include => [],
+    verbose => '0',                # TAP::Harness - normal
+    exec    => $EXECUTABLE_NAME,
 );
 
 GetOptions(
@@ -87,10 +106,17 @@ GetOptions(
     # section is a string that specifies a of code to test in
     # $section is defined in Makefile.PL
     # grep -- '--section' ../Makefile.PL
-    "section:s" => \$opt{section},
+    "section|s=s" => \$opt{section},
 
     # specify a backend
-    "backend:s" => \$opt{backend},
+    "backend|B=s" => \$opt{backend},
+
+    # specify libraries to include
+    # =s@ means, strings, can have more than 1
+    "include|I=s@" => \$opt{include},
+
+    # use this execution string
+    "exec=s" => \$opt{exec},
 
     # TAP::Harness uses 'verbosity'
     "verbose|verbosity|v=i" => \$opt{verbose},    # --verbose or -v
@@ -100,21 +126,32 @@ if ( $ENV{TEST_VERBOSE} && $ENV{TEST_VERBOSE} ) {
     $opt{verbose} ||= $ENV{TEST_VERBOSE};
 }
 
-unless ( $opt{backend} ) {
-    my $message = <<EOT;
-No backend specified defaulting to: "perl5"
-EOT
-
-    warn $message;
-    $opt{backend} = DEFAULT_BACKEND;
+if ( $opt{backend} eq 'perl6' ) {
+    die "You cannot have --backend=perl6 and --exec=something\n-because --backend will set --exec=script/perl6_to_perl6.pl"
+        if defined $opt{exec} && $opt{exec} ne $EXECUTABLE_NAME;
+    $opt{exec} = 'script/perl6_to_perl6.pl';
 }
 
-if ( $opt{backend} eq "perl5rx" ) {
-    $extra_libs = '-Ilib5regex';
+if ( $opt{backend} eq 'perl5rx' ) {
+    push @{ $opt{include} }, 'lib5regex';
 }
 
-{    # main
-    # get our tests
+# reduce perl include options to just a single string
+# or set to undef if there is none
+if ( scalar @{ $opt{include} } ) {
+
+    # put the -I back into $opt{include}'s
+    my @libs = @{ $opt{include} };
+    @libs = map { '-I' . $_ } @libs;
+    $opt{include} = join ' ', @libs;
+}
+else {
+    $opt{include} = undef;
+}
+
+######################################################################
+# main
+{    # get our tests
     my @tests = get_tests( \%opt );
     die "No tests!" unless @tests;
 
@@ -125,41 +162,47 @@ if ( $opt{backend} eq "perl5rx" ) {
 
     my $ok;
     if ($@) {
+
         # print STDERR "running with Test::Harness < 3.0\n";
         $ok = run_test_harness(
             {   tests   => \@tests,
                 backend => $opt{backend},
+                include => $opt{include},
+                exec    => $opt{exec},
             }
         );
     }
     else {
+
         # print STDERR "running with Test::Harness 3.0+\n";
         $ok = run_tap_harness(
             {   tests   => \@tests,
                 backend => $opt{backend},
+                include => $opt{include},
                 tap_new => {
+
                     # in 3.03, the verbose is properly stated as verbosity
                     # See: vi +66 /usr/local/share/perl/5.8.8/TAP/Harness.pm
                     verbosity => $opt{verbose},
+                    exec      => $opt{exec},
                 },
             }
         );
     }
 
-    if ($ok) {
-        exit 0;
-    }
-    else {
-        print STDERR "some tests failed\n";
-        exit 1;
-    }
+    exit 0 if $ok;
+
+    print STDERR "Some tests failed\n";
+    exit 1;
 }
 
 sub run_test_harness {
     my $args = shift;
 
+    my $libs = defined $args->{include} ? $args->{include} : '';
+
     # PRE Test::Harness 3.0
-    local $ENV{HARNESS_PERL} = "$EXECUTABLE_NAME $extra_libs script/kp6 -B$args->{ backend }";
+    local $ENV{HARNESS_PERL} = "$args->{exec} $libs script/kp6 -backend=$args->{ backend }";
 
     my $ok = eval { runtests( @{ $args->{tests} } ); };
     warn $@ if $@;
@@ -172,24 +215,30 @@ sub run_tap_harness {
 
     my $tap = { %{ $args->{tap_new} } };    # clone
     if ( defined $tap->{verbosity} ) {
-        my $t = $tap->{verbosity}; # I am lazy
+        my $t = $tap->{verbosity};          # I am lazy
+
         # make sure this is the right value
         die "verbosity must be a number: '$t' is invalid" unless $t =~ /^[+-]?\d+$/;
-        die "verbosity has an invalid value: $t ( 1, 0, -1, or -2 )\nDid you set \$ENV{TEST_VERBOSE} to a bad value?" unless
-            $t == 1 or $t == 0 or $t == -1 or $t == -2;
+        die "verbosity has an invalid value: $t ( 1, 0, -1, or -2 )\nDid you set \$ENV{TEST_VERBOSE} to a bad value?"
+            unless $t == 1
+                or $t == 0
+                or $t == -1
+                or $t == -2;
         delete $tap->{verbosity} unless $tap->{verbosity};
     }
 
     # TAP::Harness 3.00 documentation is wrong
     # the correct invocation is { exec => [ $prog,$arg1,$arg2 ] }
-    my @exec = ( $EXECUTABLE_NAME );
+    my @exec = ( $tap->{exec} );
 
     # perl takes the code from STDIN if there is a blank argument IE
     # perl '' test.pl
-    push @exec, $extra_libs if $extra_libs; # do not put in an "empty" argument
+    push @exec, $args->{include} if defined $args->{include};
     push @exec, 'script/kp6';
-    push @exec, '-B' . $args->{backend};
+    push @exec, '--backend=' . $args->{backend};
     $tap->{exec} = \@exec;
+
+    # print STDERR "Exec = ", (join " ", @exec ), "\n";
 
     my $test       = TAP::Harness->new($tap);
     my $aggregator = $test->runtests( @{ $args->{tests} } );
@@ -207,8 +256,7 @@ sub get_tests {
     my @tests;
 
     if ( defined $args->{section}
-        && $args->{section} =~ /^todo/
-       )
+        && $args->{section} =~ /^todo/ )
     {
         die "$args->{ section } does not exist" unless -d "t/$args->{ section }";
         @tests = glob "t/$args->{ section }/*.t";
@@ -224,14 +272,14 @@ sub get_tests {
         push @tests, glob("t/kp6/*/*.t");
     }
 
-    test_existance(@tests); # will die if there is a problem.
+    test_existance(@tests);    # will die if there is a problem.
 
     return @tests;
 }
 
 sub test_existance {
-    for my $test ( @_ ) {
-        die "$test: does not exist" unless -e $test;
+    for my $test (@_) {
+        die "$test: does not exist"                unless -e $test;
         die "$test: does not have read permission" unless -r _;
     }
 }
