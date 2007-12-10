@@ -1,3 +1,9 @@
+
+# running kp6-kp6.pl:
+#
+#  $ KP6_TARGET=KP6-BOOT perl Makefile.PL ; make
+#  $ perl -I compiled/perl5-kp6-kp6/lib/ script/kp6-kp6.pl <<< 123
+
 module Main {
     use KindaPerl6::Runtime::Perl5::KP6Runtime;
     use KindaPerl6::Grammar;
