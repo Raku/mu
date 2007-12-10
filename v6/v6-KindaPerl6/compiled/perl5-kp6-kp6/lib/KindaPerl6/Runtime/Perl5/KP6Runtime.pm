@@ -58,6 +58,13 @@ use strict;
                     $name = ::DISPATCH( $name, 'Str' )->{_value};
                     $namespace = ::DISPATCH( $namespace, 'INDEX' )->{_value}{_array};
                     
+                    $namespace = [ 
+                        map { 
+                                ::DISPATCH( $_, 'Str' )->{_value}
+                            } 
+                            @$namespace 
+                        ];
+                    
                     #print "mangle: ($sigil, $twigil, $name, [ @$namespace ] )\n" if $namespace;
                     $name = CORE::join( '::', @$namespace, $name ) if $namespace;
                     $name =~ s/ ([^a-zA-Z0-9_:] | (?<!:):(?!:)) / '_'.ord($1).'_' /xge;
