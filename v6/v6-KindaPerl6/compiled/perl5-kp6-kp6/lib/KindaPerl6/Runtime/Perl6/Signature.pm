@@ -10,7 +10,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Signature::Item )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Signature::Item);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::Signature::Item);
 $::Signature::Item = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Signature::Item' )
  )
 , 'PROTOTYPE',  )
@@ -150,7 +150,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Signature )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Signature);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::Signature);
 $::Signature = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Signature' )
  )
 , 'PROTOTYPE',  )

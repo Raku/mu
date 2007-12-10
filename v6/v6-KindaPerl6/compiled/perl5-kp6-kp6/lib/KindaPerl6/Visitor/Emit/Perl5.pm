@@ -10,7 +10,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::KindaPerl6::Visitor::Emit::Perl5 )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::KindaPerl6::Visitor::Emit::Perl5);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::KindaPerl6::Visitor::Emit::Perl5);
 $::KindaPerl6::Visitor::Emit::Perl5 = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'KindaPerl6::Visitor::Emit::Perl5' )
  )
 , 'PROTOTYPE',  )
@@ -72,7 +72,9 @@ do {our $Code_set_secure_mode = ::DISPATCH( $::Routine, 'new', { modified => $_M
 ;
 do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::CompUnit )
-,"true"),"p5landish") ) { }  else { do {our $Code_set_secure_mode = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_set_secure_mode' } ) ;
+,"true"),"p5landish") ) { do {our $Code_set_secure_mode = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_set_secure_mode' } ) ;
+;
+} }  else { do {our $Code_set_secure_mode = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_set_secure_mode' } ) ;
 ;
 do {::MODIFIED($::CompUnit);
 $::CompUnit = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'CompUnit' )
@@ -281,7 +283,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Val::Int )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Val::Int);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::Val::Int);
 $::Val::Int = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Val::Int' )
  )
 , 'PROTOTYPE',  )
@@ -352,7 +354,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Val::Bit )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Val::Bit);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::Val::Bit);
 $::Val::Bit = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Val::Bit' )
  )
 , 'PROTOTYPE',  )
@@ -423,7 +425,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Val::Num )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Val::Num);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::Val::Num);
 $::Val::Num = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Val::Num' )
  )
 , 'PROTOTYPE',  )
@@ -494,7 +496,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Val::Buf )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Val::Buf);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::Val::Buf);
 $::Val::Buf = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Val::Buf' )
  )
 , 'PROTOTYPE',  )
@@ -575,7 +577,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Val::Char )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Val::Char);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::Val::Char);
 $::Val::Char = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Val::Char' )
  )
 , 'PROTOTYPE',  )
@@ -646,7 +648,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Val::Undef )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Val::Undef);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::Val::Undef);
 $::Val::Undef = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Val::Undef' )
  )
 , 'PROTOTYPE',  )
@@ -695,7 +697,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Val::Object )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Val::Object);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::Val::Object);
 $::Val::Object = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Val::Object' )
  )
 , 'PROTOTYPE',  )
@@ -746,7 +748,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Native::Buf )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Native::Buf);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::Native::Buf);
 $::Native::Buf = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Native::Buf' )
  )
 , 'PROTOTYPE',  )
@@ -797,7 +799,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Lit::Seq )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Lit::Seq);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::Lit::Seq);
 $::Lit::Seq = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Lit::Seq' )
  )
 , 'PROTOTYPE',  )
@@ -855,7 +857,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Lit::Array )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Lit::Array);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::Lit::Array);
 $::Lit::Array = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Lit::Array' )
  )
 , 'PROTOTYPE',  )
@@ -917,7 +919,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Lit::Hash )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Lit::Hash);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::Lit::Hash);
 $::Lit::Hash = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Lit::Hash' )
  )
 , 'PROTOTYPE',  )
@@ -1025,7 +1027,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Lit::Pair )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Lit::Pair);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::Lit::Pair);
 $::Lit::Pair = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Lit::Pair' )
  )
 , 'PROTOTYPE',  )
@@ -1107,7 +1109,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Lit::NamedArgument )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Lit::NamedArgument);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::Lit::NamedArgument);
 $::Lit::NamedArgument = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Lit::NamedArgument' )
  )
 , 'PROTOTYPE',  )
@@ -1195,7 +1197,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Lit::SigArgument )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Lit::SigArgument);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::Lit::SigArgument);
 $::Lit::SigArgument = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Lit::SigArgument' )
  )
 , 'PROTOTYPE',  )
@@ -1400,7 +1402,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Lit::Code )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Lit::Code);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::Lit::Code);
 $::Lit::Code = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Lit::Code' )
  )
 , 'PROTOTYPE',  )
@@ -2046,7 +2048,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Lit::Object )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Lit::Object);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::Lit::Object);
 $::Lit::Object = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Lit::Object' )
  )
 , 'PROTOTYPE',  )
@@ -2190,7 +2192,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Assign )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Assign);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::Assign);
 $::Assign = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Assign' )
  )
 , 'PROTOTYPE',  )
@@ -2331,7 +2333,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Var )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Var);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::Var);
 $::Var = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Var' )
  )
 , 'PROTOTYPE',  )
@@ -2511,7 +2513,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Bind )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Bind);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::Bind);
 $::Bind = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Bind' )
  )
 , 'PROTOTYPE',  )
@@ -2623,7 +2625,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Proto )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Proto);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::Proto);
 $::Proto = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Proto' )
  )
 , 'PROTOTYPE',  )
@@ -2676,7 +2678,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Call )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Call);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::Call);
 $::Call = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Call' )
  )
 , 'PROTOTYPE',  )
@@ -2855,7 +2857,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Apply )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Apply);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::Apply);
 $::Apply = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Apply' )
  )
 , 'PROTOTYPE',  )
@@ -3072,7 +3074,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Return )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Return);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::Return);
 $::Return = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Return' )
  )
 , 'PROTOTYPE',  )
@@ -3132,7 +3134,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::If )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::If);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::If);
 $::If = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'If' )
  )
 , 'PROTOTYPE',  )
@@ -3223,7 +3225,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::While )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::While);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::While);
 $::While = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'While' )
  )
 , 'PROTOTYPE',  )
@@ -3322,7 +3324,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Decl )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Decl);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::Decl);
 $::Decl = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Decl' )
  )
 , 'PROTOTYPE',  )
@@ -3763,7 +3765,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Sig )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Sig);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::Sig);
 $::Sig = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Sig' )
  )
 , 'PROTOTYPE',  )
@@ -3891,7 +3893,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Lit::Capture )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Lit::Capture);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::Lit::Capture);
 $::Lit::Capture = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Lit::Capture' )
  )
 , 'PROTOTYPE',  )
@@ -4075,7 +4077,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Lit::Subset )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Lit::Subset);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::Lit::Subset);
 $::Lit::Subset = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Lit::Subset' )
  )
 , 'PROTOTYPE',  )
@@ -4155,7 +4157,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Method )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Method);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::Method);
 $::Method = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Method' )
  )
 , 'PROTOTYPE',  )
@@ -4298,7 +4300,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Sub )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Sub);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::Sub);
 $::Sub = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Sub' )
  )
 , 'PROTOTYPE',  )
@@ -4394,7 +4396,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Macro )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Macro);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::Macro);
 $::Macro = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Macro' )
  )
 , 'PROTOTYPE',  )
@@ -4490,7 +4492,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Do )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Do);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::Do);
 $::Do = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Do' )
  )
 , 'PROTOTYPE',  )
@@ -4550,7 +4552,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::BEGIN )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::BEGIN);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::BEGIN);
 $::BEGIN = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'BEGIN' )
  )
 , 'PROTOTYPE',  )
@@ -4606,7 +4608,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Use )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Use);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::Use);
 $::Use = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Use' )
  )
 , 'PROTOTYPE',  )

@@ -10,7 +10,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Array )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Array);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::Array);
 $::Array = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Array' )
  )
 , 'PROTOTYPE',  )
@@ -198,7 +198,7 @@ my  $List_result = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIE
 ;
 my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
-my $Code_test; $Code_test = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_test' } )  unless defined $Code_test; INIT { $Code_test = ::DISPATCH( $::Routine, 'new', { modified => $_MODIFIED, name => '$Code_test' } ) }
+my $Code_test; 
 ;
 
 # get $self

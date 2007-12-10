@@ -10,7 +10,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Junction )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Junction);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::Junction);
 $::Junction = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Junction' )
  )
 , 'PROTOTYPE',  )

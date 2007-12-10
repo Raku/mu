@@ -10,7 +10,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Multi )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::Multi);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::Multi);
 $::Multi = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Multi' )
  )
 , 'PROTOTYPE',  )
@@ -227,7 +227,7 @@ my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
 do {do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::MultiToken )
-,"true"),"p5landish") ) { }  else { do {do {::MODIFIED($::MultiToken);
+,"true"),"p5landish") ) { do {} }  else { do {do {::MODIFIED($::MultiToken);
 $::MultiToken = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'MultiToken' )
  )
 , 'PROTOTYPE',  )
