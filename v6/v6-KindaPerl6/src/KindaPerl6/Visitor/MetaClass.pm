@@ -64,7 +64,14 @@ class KindaPerl6::Visitor::MetaClass {
                                 arguments => [ ::Proto( name => $node.name ) ],
                                 code => ::Var( name => 'VAR_defined', twigil => '', sigil => '&', namespace => [ ] ),
                             ),
-                        body      => '',
+                        body      =>
+                            ::Lit::Code(
+                                body => [ ],
+                                sig   =>
+                                  ::Sig( invocant => '', positional => [], ),
+                                pad   => $pad,
+                                state => { },
+                            ),
                         otherwise =>
                             ::Lit::Code(
                                 body => [

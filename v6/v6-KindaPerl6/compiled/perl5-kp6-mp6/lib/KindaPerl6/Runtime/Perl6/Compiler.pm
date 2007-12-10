@@ -25,7 +25,22 @@
         our $Code_check_block = ::DISPATCH( $::Routine,        'new', { modified => $_MODIFIED, name => '$Code_check_block' } );
         our $Code_get_var     = ::DISPATCH( $::Routine,        'new', { modified => $_MODIFIED, name => '$Code_get_var' } );
         do {
-            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", ) ), 'APPLY', $::COMPILER ), "true" ), "p5landish" ) ) { }
+
+            if ( ::DISPATCH( ::DISPATCH( ::DISPATCH( ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", ) ), 'APPLY', $::COMPILER ), "true" ), "p5landish" ) ) {
+                do {
+                    our $List_PAD         = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List_PAD' } );
+                    our $List_CHECK       = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List_CHECK' } );
+                    our $Code_emit_perl6  = ::DISPATCH( $::Routine,        'new', { modified => $_MODIFIED, name => '$Code_emit_perl6' } );
+                    our $Code_env_init    = ::DISPATCH( $::Routine,        'new', { modified => $_MODIFIED, name => '$Code_env_init' } );
+                    our $Code_add_pad     = ::DISPATCH( $::Routine,        'new', { modified => $_MODIFIED, name => '$Code_add_pad' } );
+                    our $Code_drop_pad    = ::DISPATCH( $::Routine,        'new', { modified => $_MODIFIED, name => '$Code_drop_pad' } );
+                    our $Code_put_pad     = ::DISPATCH( $::Routine,        'new', { modified => $_MODIFIED, name => '$Code_put_pad' } );
+                    our $Code_current_pad = ::DISPATCH( $::Routine,        'new', { modified => $_MODIFIED, name => '$Code_current_pad' } );
+                    our $Code_begin_block = ::DISPATCH( $::Routine,        'new', { modified => $_MODIFIED, name => '$Code_begin_block' } );
+                    our $Code_check_block = ::DISPATCH( $::Routine,        'new', { modified => $_MODIFIED, name => '$Code_check_block' } );
+                    our $Code_get_var     = ::DISPATCH( $::Routine,        'new', { modified => $_MODIFIED, name => '$Code_get_var' } );
+                    }
+            }
             else {
                 do {
                     our $List_PAD         = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List_PAD' } );
