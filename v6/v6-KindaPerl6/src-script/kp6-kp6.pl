@@ -43,7 +43,7 @@ module Main {
     my $parsed = $match.result;
     for $parsed.values -> $ast {
         
-        say $ast.perl;  # emit(KindaPerl6::Visitor::Emit::AstPerl.new());
+        #say $ast.perl;  # emit(KindaPerl6::Visitor::Emit::AstPerl.new());
         #say "running visitors";
 
         my $res = $ast;

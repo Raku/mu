@@ -39,15 +39,13 @@ package Match;
                     return ::DISPATCH( $::Bit, 'new', 1 );  # it probably does
                 }
                 if ( $method eq 'scalar' ) {
-                    return ::DISPATCH( $self, 'result' );
+                    my $res = $self->result;
+                    return ::DISPATCH($::Str,'new',$self->Str)
+                        unless defined $res;
+                    return $res;
                 }
                 if ( $method eq 'result' ) {
                     my $res = $self->result;
-                    #if ( ! defined $res ) {
-                    #    my $s = $self->Str;
-                    #    return ::DISPATCH( $::Str, 'new', $s)
-                    #        if defined $s;
-                    #}
                     return ::DISPATCH( $::Undef, 'new', )
                         unless defined $res;
                     return $res;
