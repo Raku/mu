@@ -8,9 +8,9 @@ use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; INIT { $_MODIFIED = {} }
 INIT { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
-do {my  $List_visitors = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List_visitors' } ) ; 
+do {my $emit_p5; $emit_p5 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$emit_p5' } )  unless defined $emit_p5; INIT { $emit_p5 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$emit_p5' } ) }
 ;
-my $emit_p5; $emit_p5 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$emit_p5' } )  unless defined $emit_p5; INIT { $emit_p5 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$emit_p5' } ) }
+my  $List_visitors = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List_visitors' } ) ; 
 ;
 my $code; $code = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$code' } )  unless defined $code; INIT { $code = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$code' } ) }
 ;
@@ -20,9 +20,9 @@ my $len; $len = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => 
 ;
 do { if (::DISPATCH(::DISPATCH(::DISPATCH(  ( $GLOBAL::Code_VAR_defined = $GLOBAL::Code_VAR_defined || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', $::Main )
-,"true"),"p5landish") ) { }  else { do {my  $List_visitors = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List_visitors' } ) ; 
+,"true"),"p5landish") ) { }  else { do {my $emit_p5; $emit_p5 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$emit_p5' } )  unless defined $emit_p5; INIT { $emit_p5 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$emit_p5' } ) }
 ;
-my $emit_p5; $emit_p5 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$emit_p5' } )  unless defined $emit_p5; INIT { $emit_p5 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$emit_p5' } ) }
+my  $List_visitors = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List_visitors' } ) ; 
 ;
 my $code; $code = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$code' } )  unless defined $code; INIT { $code = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$code' } ) }
 ;
@@ -35,20 +35,12 @@ $::Main = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'M
  )
 , 'PROTOTYPE',  )
 }} } }
-; use KindaPerl6::Runtime::Perl5::KP6Runtime; use KindaPerl6::Grammar; use KindaPerl6::Traverse; use KindaPerl6::Ast; use KindaPerl6::Grammar::Regex; use KindaPerl6::Runtime::Perl6::Grammar; use KindaPerl6::Visitor::ExtractRuleBlock; use KindaPerl6::Visitor::Token; use KindaPerl6::Visitor::MetaClass; use KindaPerl6::Visitor::Global; use KindaPerl6::Visitor::Emit::Perl5; use KindaPerl6::Visitor::Emit::AstPerl; $List_visitors; ::DISPATCH( $List_visitors, 'push', ::DISPATCH( $::KindaPerl6::Visitor::ExtractRuleBlock, 'new',  )
- )
-; ::DISPATCH( $List_visitors, 'push', ::DISPATCH( $::KindaPerl6::Visitor::Token, 'new',  )
- )
-; ::DISPATCH( $List_visitors, 'push', ::DISPATCH( $::KindaPerl6::Visitor::MetaClass, 'new',  )
- )
-; ::DISPATCH( $List_visitors, 'push', ::DISPATCH( $::KindaPerl6::Visitor::Global, 'new',  )
- )
-; ::DISPATCH_VAR( $emit_p5, 'STORE', ::DISPATCH( $::KindaPerl6::Visitor::Emit::Perl5, 'new',  )
+; use KindaPerl6::Runtime::Perl5::KP6Runtime; use KindaPerl6::Grammar; use KindaPerl6::Traverse; use KindaPerl6::Ast; use KindaPerl6::Grammar::Regex; use KindaPerl6::Runtime::Perl6::Grammar; use KindaPerl6::Visitor::ExtractRuleBlock; use KindaPerl6::Visitor::Token; use KindaPerl6::Visitor::MetaClass; use KindaPerl6::Visitor::Global; use KindaPerl6::Visitor::Emit::Perl5; use KindaPerl6::Visitor::Emit::Perl5Regex; use KindaPerl6::Visitor::Emit::AstPerl; ::DISPATCH_VAR( $emit_p5, 'STORE', ::DISPATCH( $::KindaPerl6::Visitor::Emit::Perl5, 'new',  )
  )
 ; ::DISPATCH_VAR( ::DISPATCH( $emit_p5, 'visitor_args',  )
-, 'STORE', do {my  $List_visitors = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List_visitors' } ) ; 
+, 'STORE', do {my $emit_p5; $emit_p5 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$emit_p5' } )  unless defined $emit_p5; INIT { $emit_p5 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$emit_p5' } ) }
 ;
-my $emit_p5; $emit_p5 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$emit_p5' } )  unless defined $emit_p5; INIT { $emit_p5 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$emit_p5' } ) }
+my  $List_visitors = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List_visitors' } ) ; 
 ;
 my $code; $code = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$code' } )  unless defined $code; INIT { $code = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$code' } ) }
 ;
@@ -60,7 +52,12 @@ my $len; $len = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => 
 , value => ::DISPATCH( $::Int, 'new', 1 )
  } )
 } )
-; ::DISPATCH( $List_visitors, 'push', $emit_p5 )
+; $List_visitors; ::DISPATCH( $List_visitors, 'push', ::DISPATCH( $::KindaPerl6::Visitor::MetaClass, 'new',  )
+ )
+; ::DISPATCH( $List_visitors, 'push', ::DISPATCH( $::KindaPerl6::Visitor::Global, 'new',  )
+ )
+; ::DISPATCH( $List_visitors, 'push', ::DISPATCH( $::KindaPerl6::Visitor::Emit::Perl5Regex, 'new',  )
+ )
 ; ::DISPATCH_VAR( $code, 'STORE', ::DISPATCH(  ( $GLOBAL::Code_slurp = $GLOBAL::Code_slurp || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY',  )
  )
@@ -113,20 +110,17 @@ my $res; $res = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => 
 , 'APPLY', ::DISPATCH( $::Str, 'new', 'Matched' )
  )
 ; ::DISPATCH(  ( $GLOBAL::Code_say = $GLOBAL::Code_say || ::DISPATCH( $::Routine, "new", )  ) 
-, 'APPLY', ::DISPATCH(  ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", )  ) 
-, 'APPLY', ::DISPATCH( $::Str, 'new', 'AST is:(   ' )
-, ::DISPATCH(  ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", )  ) 
-, 'APPLY', $ast, ::DISPATCH( $::Str, 'new', '   )' )
- )
- )
+, 'APPLY', ::DISPATCH( $::Str, 'new', 'AST is:' )
  )
 ; ::DISPATCH(  ( $GLOBAL::Code_say = $GLOBAL::Code_say || ::DISPATCH( $::Routine, "new", )  ) 
 , 'APPLY', ::DISPATCH( $ast, 'emit', ::DISPATCH( $::KindaPerl6::Visitor::Emit::AstPerl, 'new',  )
  )
  )
-; ::DISPATCH(  ( $GLOBAL::Code_exit = $GLOBAL::Code_exit || ::DISPATCH( $::Routine, "new", )  ) 
-, 'APPLY',  )
-; $res; ::DISPATCH( $List_visitors, 'map', ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
+; ::DISPATCH(  ( $GLOBAL::Code_say = $GLOBAL::Code_say || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', ::DISPATCH( $::Str, 'new', 'running visitors' )
+ )
+; ::DISPATCH_VAR( $res, 'STORE', $ast )
+; ::DISPATCH( $List_visitors, 'map', ::DISPATCH( $::Code, 'new', { code => sub { my  $List__ = ::DISPATCH( $::ArrayContainer, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
 my $visitor; $visitor = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$visitor' } )  unless defined $visitor; INIT { $visitor = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$visitor' } ) }
 ;
@@ -139,7 +133,21 @@ $Hash__ = ::DISPATCH( $CAPTURE, 'hash',  )
 };{ my $_param_index = 0;  if ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $Hash__, 'LOOKUP',  ::DISPATCH( $::Str, 'new', 'visitor' )  ) )->{_value}  )  { do {::MODIFIED($visitor);
 $visitor = ::DISPATCH( $Hash__, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'visitor' )
  )
-} }  elsif ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index )  ) )->{_value}  )  { $visitor = ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index++ )  );  } } ::DISPATCH_VAR( $res, 'STORE', ::DISPATCH( $ast, 'emit', $visitor )
+} }  elsif ( ::DISPATCH( $GLOBAL::Code_exists,  'APPLY',  ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index )  ) )->{_value}  )  { $visitor = ::DISPATCH(  $List__, 'INDEX',  ::DISPATCH( $::Int, 'new', $_param_index++ )  );  } } ::DISPATCH(  ( $GLOBAL::Code_say = $GLOBAL::Code_say || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', ::DISPATCH(  ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', ::DISPATCH( $::Str, 'new', 'Visitor: ' )
+, ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__126__62_ = $GLOBAL::Code_prefix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', $visitor )
+ )
+ )
+; ::DISPATCH_VAR( $res, 'STORE', ::DISPATCH( $res, 'emit', $visitor )
+ )
+; ::DISPATCH(  ( $GLOBAL::Code_say = $GLOBAL::Code_say || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', ::DISPATCH(  ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', ::DISPATCH( $::Str, 'new', 'Result: ' )
+, ::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__126__62_ = $GLOBAL::Code_prefix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+, 'APPLY', $res )
+ )
  )
  }, signature => ::DISPATCH( $::Signature, "new", { invocant => $::Undef, array    => ::DISPATCH( $::List, "new", { _array => [ ::DISPATCH( $::Signature::Item, 'new', { sigil  => '$', twigil => '', name   => 'visitor', value  => $::Undef, has_default    => ::DISPATCH( $::Bit, 'new', 0 )
 , is_named_only  => ::DISPATCH( $::Bit, 'new', 0 )

@@ -12,16 +12,17 @@ module Main {
     use KindaPerl6::Visitor::MetaClass;
     use KindaPerl6::Visitor::Global;
     use KindaPerl6::Visitor::Emit::Perl5;
+    use KindaPerl6::Visitor::Emit::Perl5Regex;
     use KindaPerl6::Visitor::Emit::AstPerl;
 
-    my @visitors;
-    @visitors.push(KindaPerl6::Visitor::ExtractRuleBlock.new());
-    @visitors.push(KindaPerl6::Visitor::Token.new());
-    @visitors.push(KindaPerl6::Visitor::MetaClass.new());
-    @visitors.push(KindaPerl6::Visitor::Global.new())
     my $emit_p5 = KindaPerl6::Visitor::Emit::Perl5.new();
     $emit_p5.visitor_args = { secure => 1 };
-    @visitors.push($emit_p5);
+
+    # "kp6-boot" uses: MetaClass Global Emit::Perl5Regex
+    my @visitors;
+    @visitors.push(KindaPerl6::Visitor::MetaClass.new());
+    @visitors.push(KindaPerl6::Visitor::Global.new())
+    @visitors.push(KindaPerl6::Visitor::Emit::Perl5Regex.new())
 
     my $code = slurp;
 
@@ -43,14 +44,15 @@ module Main {
             die 'no match; AST is:(' ~ $ast ~ ')';
         };
         say 'Matched';
-        say 'AST is:(   ' ~ $ast ~ '   )';
-
+        say 'AST is:';
         say $ast.emit(KindaPerl6::Visitor::Emit::AstPerl.new());
-        exit;
+        say "running visitors";
 
-        my $res;
+        my $res = $ast;
         for @visitors -> $visitor {
-            $res = $ast.emit($visitor);
+            say "Visitor: $visitor";
+            $res = $res.emit($visitor);
+            say "Result: $res";
         };
         print $res;
         $pos = $pos + $match.to;

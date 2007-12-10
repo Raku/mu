@@ -64,6 +64,9 @@ my $visitor_global      = ::DISPATCH( $::KindaPerl6::Visitor::Global,        'ne
                 if ( $method eq 'perl' ) {
                     return ::DISPATCH( $::Str, 'new', 'Pad.new( ... )' )
                 }
+                if ( $method eq 'defined' ) {
+                    return ::DISPATCH( $::Bit, 'new', 1 )
+                }
 
                 $self->$method( @param );
         };
