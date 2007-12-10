@@ -270,6 +270,7 @@ class If {
         # is wrong.  However, I am not sure, so I am leaving this comment here.
 
         # if
+        # WARNING: kp6 (not perl6) requires ( ) around the if conditionial
         'if ( ' ~ $.cond.emit_perl6 ~ ' ) '
         # then
         ~ '{ ' ~ Main::newline()
