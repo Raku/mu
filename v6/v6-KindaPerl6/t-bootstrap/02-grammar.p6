@@ -4,7 +4,7 @@
 # $ perl script/kp6 -Cperl5rx t-bootstrap/02-grammar.p6 | perl -I compiled/perl5-kp6-kp6/lib
 #
 
-say "1..14";
+say "1..15";
 my $count=0;
 sub ok($ok,$desc) {
     $count = $count + 1;
@@ -152,6 +152,15 @@ my $MATCH = KindaPerl6::Grammar.term();
 say "# ",($MATCH.Str);
 ok( $MATCH.Str eq "Val::Int.new(int => '456')",
     'term');
+
+
+say "# ** does it work yet? <parse>";
+$_ = '123';
+my $MATCH = KindaPerl6::Grammar.parse();
+say "# ",($MATCH.perl);
+say "# ",($MATCH.Str);
+ok( $MATCH.Str eq "Val::Int.new(int => '123')",
+    'parse');
 
 
 =begin
