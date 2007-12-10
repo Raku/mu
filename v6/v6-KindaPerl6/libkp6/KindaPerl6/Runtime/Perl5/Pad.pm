@@ -74,7 +74,10 @@ sub new {
                 parent         => undef,
             }, $class;
     my $namespace =
-            $data{namespace}
+            ( ref( $data{namespace} )
+              ?  $data{namespace}{_value}
+              :  $data{namespace}
+            )
         ||  $parent->namespace;
 
     my @declarations = map {
