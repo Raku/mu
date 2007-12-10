@@ -68,7 +68,12 @@ my $visitor_global      = ::DISPATCH( $::KindaPerl6::Visitor::Global,        'ne
                     return ::DISPATCH( $::Bit, 'new', 1 )
                 }
 
-                $self->$method( @param );
+                if ( $method eq 'declaration' ) {
+                    return $self->declaration( @param );
+                }
+
+                die "Method Pad.$method() not implemented";
+                # $self->$method( @param );
         };
 
 
@@ -233,7 +238,7 @@ sub declaration { # Var
         return $self->{parent}->declaration( $var );
     }
     else {
-        return undef
+        return $::Undef
     }
 }
 
