@@ -424,7 +424,7 @@ sub emit_perl6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( 'sub ' . ( $self->{name} . ( ( $self->{block}->sig() ? ( '(' . ( $self->{block}->sig()->emit_perl6() . ')' ) ) : '' ) . ( ' { ' . ( Main::newline() . ( $self->{block}->emit_perl6() . ( Main::newline() . ( ' }' . Main::newline() ) ) ) ) ) ) ) );
+    ( 'sub ' . ( ( $self->{block}->sig() ? ( '(' . ( $self->{block}->sig()->emit_perl6() . ')' ) ) : '' ) . ( ' { ' . ( Main::newline() . ( $self->{block}->emit_perl6() . ( Main::newline() . ( ' }' . Main::newline() ) ) ) ) ) ) );
 }
 
 package Do;
