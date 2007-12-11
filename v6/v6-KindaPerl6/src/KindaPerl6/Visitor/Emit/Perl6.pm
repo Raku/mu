@@ -152,30 +152,45 @@ class Assign {
 
 class Var {
     method emit_perl6 {
+        # Normalize the sigil here into $
+        # $x    => $x
+        # @x    => $List_x
+        # %x    => $Hash_x
+        # &x    => $Code_x
+        my $table := {
+            '$' => '$',
+            '@' => '$List_',
+            '%' => '$Hash_',
+            '&' => '$Code_',
+        };
+
         if $.twigil eq '.' {
-            return 'self.' ~ $.name ~ ''
+            return '$self->{' ~ $.name ~ '}'
         };
 
         if $.name eq '/' {
-            return $.sigil ~ 'MATCH'
+            return $table{$.sigil} ~ 'MATCH'
         };
 
-        return $.sigil ~ Main::mangle_name( '', $.twigil, $.name );
+        if $.sigil eq '&' {
+            # debugging
+            # return 'SIGIL(' ~ $.sigil ~ ') twigil(' ~ $.twigil ~ ') namespace(' ~ $.namespace.join( ':: ')  ~ ') name(' ~ $.name ~ ')'
+            if $.namespace.join( '::' ) eq '' {
+                # this is assumed to be a CORE:: routine, such as "say"
+                return $.sigil ~ $.name
+            } else {
+                return $.sigil ~ $.twigil ~ $.namespace.join( '::' ) ~ $.name
+            }
+        };
+
+        return Main::mangle_name( $.sigil, $.twigil, $.name );
     };
 }
 
 class Bind {
     method emit_perl6 {
-        if ($.parameters).sigil eq '&' {
-            # This is a subroutine
-
-            # we do not want the ' [subname] := '  so drop the $.parameters.emit_perl6
-
-            # now return the bulk of the subroutine
-            return $.arguments.emit_perl6;
-        } else {
-            return $.parameters.emit_perl6 ~ ' := ' ~ $.arguments.emit_perl6 ~ '';
-        }
+        $.parameters.emit_perl6 ~ ' := ' ~ $.arguments.emit_perl6 ~ '';
+        # $.arguments.emit_perl6;
     }
 }
 
@@ -329,9 +344,7 @@ class Method {
 
 class Sub {
     method emit_perl6 {
-        'sub ' 
-            # ~ $.name 
-            ~ ($.block.sig ?? '(' ~ ($.block.sig).emit_perl6 ~ ')' !! '') ~ ' { ' ~ Main::newline()
+        'sub ' ~ $.name ~ ($.block.sig ?? '(' ~ ($.block.sig).emit_perl6 ~ ')' !! '') ~ ' { ' ~ Main::newline()
             ~ $.block.emit_perl6 ~ Main::newline()
             ~ ' }' ~ Main::newline();
     }

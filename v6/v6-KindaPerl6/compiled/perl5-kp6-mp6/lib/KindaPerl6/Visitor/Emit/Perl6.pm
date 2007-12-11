@@ -209,15 +209,25 @@ sub emit_perl6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
+    my $table = { '$' => '$', '@' => '$List_', '%' => '$Hash_', '&' => '$Code_', };
     do {
-        if ( ( $self->{twigil} eq '.' ) ) { return ( ( 'self.' . ( $self->{name} . '' ) ) ) }
+        if ( ( $self->{twigil} eq '.' ) ) { return ( ( '$self->{' . ( $self->{name} . '}' ) ) ) }
         else                              { }
     };
     do {
-        if ( ( $self->{name} eq '/' ) ) { return ( ( $self->{sigil} . 'MATCH' ) ) }
+        if ( ( $self->{name} eq '/' ) ) { return ( ( $table->{ $self->{sigil} } . 'MATCH' ) ) }
         else                            { }
     };
-    return ( ( $self->{sigil} . Main::mangle_name( '', $self->{twigil}, $self->{name} ) ) );
+    do {
+        if ( ( $self->{sigil} eq '&' ) ) {
+            do {
+                if   ( ( Main::join( $self->{namespace}, '::' ) eq '' ) ) { return ( ( $self->{sigil} . $self->{name} ) ) }
+                else                                                      { return ( ( $self->{sigil} . ( $self->{twigil} . ( Main::join( $self->{namespace}, '::' ) . $self->{name} ) ) ) ) }
+                }
+        }
+        else { }
+    };
+    return ( Main::mangle_name( $self->{sigil}, $self->{twigil}, $self->{name} ) );
 }
 
 package Bind;
@@ -227,10 +237,7 @@ sub emit_perl6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    do {
-        if   ( ( $self->{parameters}->sigil() eq '&' ) ) { return ( $self->{arguments}->emit_perl6() ) }
-        else                                             { return ( ( $self->{parameters}->emit_perl6() . ( ' := ' . ( $self->{arguments}->emit_perl6() . '' ) ) ) ) }
-        }
+    ( $self->{parameters}->emit_perl6() . ( ' := ' . ( $self->{arguments}->emit_perl6() . '' ) ) );
 }
 
 package Proto;
@@ -417,7 +424,7 @@ sub emit_perl6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( 'sub ' . ( ( $self->{block}->sig() ? ( '(' . ( $self->{block}->sig()->emit_perl6() . ')' ) ) : '' ) . ( ' { ' . ( Main::newline() . ( $self->{block}->emit_perl6() . ( Main::newline() . ( ' }' . Main::newline() ) ) ) ) ) ) );
+    ( 'sub ' . ( $self->{name} . ( ( $self->{block}->sig() ? ( '(' . ( $self->{block}->sig()->emit_perl6() . ')' ) ) : '' ) . ( ' { ' . ( Main::newline() . ( $self->{block}->emit_perl6() . ( Main::newline() . ( ' }' . Main::newline() ) ) ) ) ) ) ) );
 }
 
 package Do;
