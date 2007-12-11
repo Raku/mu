@@ -36,7 +36,9 @@ Specify libraries to include. You can specifiy multiple libraries to include
 
 --backend=perl5rx automatically implies --include=lib5regex
 
-# XXX - broken, but not necessary to fix.
+B<Note>: Getopt::Long < 2.37 will not support multiple --include properly
+for Getopt::Long < 2.37 only 1 --include will be supported.
+
 Note, that --backend=perl5rx will automatically still include.
 
 =item --backend=[backend]  or -B[backend]
@@ -104,6 +106,15 @@ my %opt = (
     exec    => $EXECUTABLE_NAME,
 );
 
+my @bugfix;
+if ($Getopt::Long::VERSION < 2.37 ) {
+    warn("Getopt::Long 2.37 or less does not support \@s properly, multiple --include is not supported");
+    @bugfix = ( 'include|I=s', \$opt{include});
+    $opt{include}='';
+} else {
+    @bugfix = ('include|I=s@', \$opt{include});
+}
+
 Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through require_order)], )->getoptions(
     # section is a string that specifies a of code to test in
     # $section is defined in Makefile.PL
@@ -115,16 +126,7 @@ Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through r
 
     # specify libraries to include
     # =s@ means, strings, can have more than 1
-
-    # XXX - broken, but not necessary to fix.
-    # This breaks for some people, someone who has a perl that fails on this
-    # will have to debug it.  But at this time, it is a feature that is not
-    # in use.  So, I will leave it broken.
-    # When some people run "perl script/run_tests.pl --backend=perl5"
-    # the below option will report as an error.
-
-    # http://irclog.perlgeek.de/perl6/2007-12-11#i_160445
-    # "include|I=s@" => \$opt{include},
+    @bugfix,
 
     # use this execution string
     "exec=s" => \$opt{exec},
@@ -132,6 +134,11 @@ Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through r
     # TAP::Harness uses 'verbosity'
     "verbose|verbosity|v=i" => \$opt{verbose},    # --verbose or -v
 );
+
+if ( $Getopt::Long::VERSION < 2.37 ) {
+    # put it to what we want it to be
+    $opt{include}=[ $opt{include} ];
+}
 
 if ( $ENV{TEST_VERBOSE} && $ENV{TEST_VERBOSE} ) {
     $opt{verbose} ||= $ENV{TEST_VERBOSE};
