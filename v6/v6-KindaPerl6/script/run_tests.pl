@@ -36,6 +36,9 @@ Specify libraries to include. You can specifiy multiple libraries to include
 
 --backend=perl5rx automatically implies --include=lib5regex
 
+# XXX - broken, but not necessary to fix.
+Note, that --backend=perl5rx will automatically still include.
+
 =item --backend=[backend]  or -B[backend]
 
 Available backends are
@@ -112,7 +115,16 @@ Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through r
 
     # specify libraries to include
     # =s@ means, strings, can have more than 1
-    # "include|I=s@" => $opt{include},
+
+    # XXX - broken, but not necessary to fix.
+    # This breaks for some people, someone who has a perl that fails on this
+    # will have to debug it.  But at this time, it is a feature that is not
+    # in use.  So, I will leave it broken.
+    # When some people run "perl script/run_tests.pl --backend=perl5"
+    # the below option will report as an error.
+
+    # http://irclog.perlgeek.de/perl6/2007-12-11#i_160445
+    # "include|I=s@" => \$opt{include},
 
     # use this execution string
     "exec=s" => \$opt{exec},
