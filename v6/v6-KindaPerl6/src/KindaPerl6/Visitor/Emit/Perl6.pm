@@ -343,9 +343,9 @@ class Method {
 
 class Sub {
     method emit_perl6 {
-            'sub ' ~ $.name ~ ($.block.sig ?? '(' ~ ($.block.sig).emit_perl6 ~ ')' !! '') ~'{ '
-        ~      $.block.emit_perl6
-        ~    ' }';
+        'sub ' ~ $.name ~ ($.block.sig ?? '(' ~ ($.block.sig).emit_perl6 ~ ')' !! '') ~ ' { ' ~ Main::newline()
+            ~ $.block.emit_perl6 ~ Main::newline()
+            ~ ' }' ~ Main::newline();
     }
 }
 
