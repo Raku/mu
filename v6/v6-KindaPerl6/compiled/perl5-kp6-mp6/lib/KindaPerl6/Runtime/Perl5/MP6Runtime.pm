@@ -204,7 +204,7 @@ sub mangle_name {
     {
         unshift @name, 'GLOBAL';
     }
-    return '$' . CORE::join( '::', @name );    # XXX - no twigil
+    return ($sigil ? '$' : '') . CORE::join( '::', @name );    # XXX - no twigil
 }
 
 sub mangle_name_lisp {
