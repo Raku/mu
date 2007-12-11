@@ -3,7 +3,7 @@ do a simple
 # if configure doesn't exist yet, call:
 make -f Makefile.cvs
 
-configure
+./configure
 
 make
 
