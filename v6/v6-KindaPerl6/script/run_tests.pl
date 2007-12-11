@@ -112,7 +112,7 @@ Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through r
 
     # specify libraries to include
     # =s@ means, strings, can have more than 1
-    "include|I=s@" => \$opt{include},
+    # "include|I=s@" => $opt{include},
 
     # use this execution string
     "exec=s" => \$opt{exec},
