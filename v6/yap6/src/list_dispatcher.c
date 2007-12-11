@@ -13,7 +13,7 @@ YAP6__CORE__List__ProxyScalar* yap6_list_proxyscalar_create() {
 
 static YAP6__CORE__Value* list_dispatcher_APPLY(YAP6__CORE__Dispatcher* self,
                                           YAP6__CORE__Value* value,
-                                          YAP6__CORE__Capture* arguments,
+                                          YAP6__CORE__List* arguments,
                                           YAP6__CORE__Value* wants) {
   // TODO
   return NULL;
@@ -98,7 +98,7 @@ static YAP6__CORE__Scalar* list_dispatcher_DELET(YAP6__CORE__Dispatcher* self,
 
 static YAP6__CORE__Value* list_proxyscalar_dispatcher_APPLY(YAP6__CORE__Dispatcher* self,
                                           YAP6__CORE__Value* value,
-                                          YAP6__CORE__Capture* arguments,
+                                          YAP6__CORE__List* arguments,
                                           YAP6__CORE__Value* wants) {
   // TODO
   return NULL;

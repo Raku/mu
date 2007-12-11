@@ -14,8 +14,6 @@ struct YAP6__CORE__Value; typedef struct YAP6__CORE__Value YAP6__CORE__Value;
 struct YAP6__CORE__Scalar; typedef struct YAP6__CORE__Scalar YAP6__CORE__Scalar;
 struct YAP6__CORE__Dispatcher; typedef struct YAP6__CORE__Dispatcher YAP6__CORE__Dispatcher;
 struct YAP6__CORE__ScalarDispatcher; typedef struct YAP6__CORE__ScalarDispatcher YAP6__CORE__ScalarDispatcher;
-struct YAP6__CORE__Capture; typedef struct YAP6__CORE__Capture YAP6__CORE__Capture;
-struct YAP6__CORE__CaptureDispatcher; typedef struct YAP6__CORE__CaptureDispatcher YAP6__CORE__CaptureDispatcher;
 struct YAP6__CORE__string; typedef struct YAP6__CORE__string YAP6__CORE__string;
 struct YAP6__CORE__int; typedef struct YAP6__CORE__int YAP6__CORE__int;
 struct YAP6__CORE__bytes; typedef struct YAP6__CORE__bytes YAP6__CORE__bytes;
@@ -46,7 +44,7 @@ struct YAP6__CORE__Dispatcher {
   YAP6__CORE__Dispatcher* dispatcher;
   YAP6__CORE__Value* (*APPLY)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
-                               YAP6__CORE__Capture* arguments,
+                               YAP6__CORE__List* arguments,
                                YAP6__CORE__Value* wants);
   void               (*DESTR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
@@ -135,7 +133,7 @@ struct YAP6__CORE__ScalarDispatcher {
   YAP6__CORE__Dispatcher* dispatcher;
   YAP6__CORE__Value* (*APPLY)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
-                               YAP6__CORE__Capture* arguments,
+                               YAP6__CORE__List* arguments,
                                YAP6__CORE__Value* wants);
   void               (*DESTR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
@@ -168,7 +166,7 @@ typedef struct YAP6__CORE__ListDispatcher {
   YAP6__CORE__Dispatcher* dispatcher;
   YAP6__CORE__Value* (*APPLY)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
-                               YAP6__CORE__Capture* arguments,
+                               YAP6__CORE__List* arguments,
                                YAP6__CORE__Value* wants);
   void               (*DESTR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
@@ -229,7 +227,7 @@ typedef struct YAP6__CORE__PairDispatcher {
   YAP6__CORE__Dispatcher* dispatcher;
   YAP6__CORE__Value* (*APPLY)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
-                               YAP6__CORE__Capture* arguments,
+                               YAP6__CORE__List* arguments,
                                YAP6__CORE__Value* wants);
   void               (*DESTR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
@@ -271,7 +269,7 @@ typedef struct YAP6__CORE__HashDispatcher {
   YAP6__CORE__Dispatcher* dispatcher;
   YAP6__CORE__Value* (*APPLY)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
-                               YAP6__CORE__Capture* arguments,
+                               YAP6__CORE__List* arguments,
                                YAP6__CORE__Value* wants);
   void               (*DESTR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
@@ -307,52 +305,6 @@ typedef struct YAP6__CORE__Hash {
   int length;
   YAP6__CORE__Pair** pairs;
 } YAP6__CORE__Hash;
-
-/* CaptureDispatcher is the low-level implementation of arguments
- * capture.
- */
-struct YAP6__CORE__CaptureDispatcher {
-  pthread_rwlock_t* rwlock; int ref_cnt;
-  YAP6__CORE__Dispatcher* dispatcher;
-  YAP6__CORE__Value* (*APPLY)(YAP6__CORE__Dispatcher* self,
-                               YAP6__CORE__Value* value, 
-                               YAP6__CORE__Capture* arguments,
-                               YAP6__CORE__Value* wants);
-  void               (*DESTR)(YAP6__CORE__Dispatcher* self,
-                               YAP6__CORE__Value* value);
-  YAP6__CORE__string* (*STRNG)(YAP6__CORE__Dispatcher* self,
-                               YAP6__CORE__Value* value);
-  YAP6__CORE__int*   (*INTGR)(YAP6__CORE__Dispatcher* self,
-                               YAP6__CORE__Value* value);
-  YAP6__CORE__bool*  (*BOOLN)(YAP6__CORE__Dispatcher* self,
-                               YAP6__CORE__Value* value);
-  YAP6__CORE__bytes* (*WHICH)(YAP6__CORE__Dispatcher* self,
-                               YAP6__CORE__Value* value);
-  // REFCOUNT: the return of this method is counted as a refcount
-  // Gets a positional value
-  YAP6__CORE__Scalar* (*LOOKP)(YAP6__CORE__Dispatcher* self,
-                               YAP6__CORE__Value* value, 
-                               YAP6__CORE__int* index,
-                               YAP6__CORE__Value* wants);
-  // REFCOUNT: the return of this method is counted as a refcount
-  // Gets a named value
-  YAP6__CORE__Scalar* (*LOOKN)(YAP6__CORE__Dispatcher* self,
-                               YAP6__CORE__Value* value, 
-                               YAP6__CORE__Value* key,
-                               YAP6__CORE__Value* wants);
-};
-
-/* Capture is the format for the arguments, for now it'll remain
- * low-level. It contains the invocant, and the arguments, both
- * positional and named.
- */
-struct YAP6__CORE__Capture {
-  pthread_rwlock_t* rwlock; int ref_cnt;
-  YAP6__CORE__CaptureDispatcher* dispatcher;
-  YAP6__CORE__Value* invocant;
-  YAP6__CORE__List* positional;
-  YAP6__CORE__Hash* named;
-};
 
 // ident_dispatcher
 extern YAP6__CORE__Dispatcher* yap6_const_ident_dispatcher;
@@ -394,13 +346,13 @@ extern void yap6_value_unlock(YAP6__CORE__Value* value);
                                            value->dispatcher->APPLY(\
                                               value->dispatcher,\
                                               (YAP6__CORE__Value*)value,\
-                                              (YAP6__CORE__Capture*)arguments,\
+                                              (YAP6__CORE__List*)arguments,\
                                               (YAP6__CORE__Value*)wants\
                                            ):\
                                            ((YAP6__CORE__ListDispatcher*)value)->APPLY(\
                                               (YAP6__CORE__Dispatcher*)value,\
                                               (YAP6__CORE__Value*)value,\
-                                              (YAP6__CORE__Capture*)arguments,\
+                                              (YAP6__CORE__List*)arguments,\
                                               (YAP6__CORE__Value*)wants))
 
 /* Dispatching mechanism... This can be rewritten in the future,

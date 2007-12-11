@@ -4,7 +4,7 @@
 
 static YAP6__CORE__Value* pair_dispatcher_APPLY(YAP6__CORE__Dispatcher* self,
                                           YAP6__CORE__Value* value,
-                                          YAP6__CORE__Capture* arguments,
+                                          YAP6__CORE__List* arguments,
                                           YAP6__CORE__Value* wants) {
   // TODO
   return value;
