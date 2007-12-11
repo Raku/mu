@@ -36,7 +36,15 @@ refcount garbage collection is implemented.
 
 0.0.1.14 - bytes dispatcher - a value that holds an array of bytes
 
+0.0.1.14.1 - int WHICH.
+
 ROADMAP
+
+0.0.1.14.2 - bytes WHICH.
+
+0.0.1.14.3 - scalar WHICH.
+
+0.0.1.14.4 - list WHICH.
 
 0.0.1.15 - WHICH implementation in every native type, the WHICH will return a "bytes" value.
 

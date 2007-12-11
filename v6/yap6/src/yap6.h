@@ -69,6 +69,7 @@ struct YAP6__CORE__int {
 /* int support */
 extern YAP6__CORE__Dispatcher* yap6_const_int_dispatcher;
 extern void yap6_int_dispatcher_init();
+extern void yap6_int_dispatcher_which_init();
 extern YAP6__CORE__int* yap6_int_create(int initialvalue);
 extern int yap6_int_lowlevel(YAP6__CORE__int* value);
 extern void yap6_int_dispatcher_destr();
@@ -411,6 +412,17 @@ extern void yap6_value_unlock(YAP6__CORE__Value* value);
                                            ((YAP6__CORE__Dispatcher*)value)->DESTR(\
                                               (YAP6__CORE__Dispatcher*)value,\
                                               (YAP6__CORE__Value*)value))
+
+/* Dispatching mechanism... This can be rewritten in the future,
+   but for now, it's as simple as it gets */
+#define YAP6_WHICH(value)                (value->dispatcher?\
+                                           value->dispatcher->WHICH(\
+                                              value->dispatcher,\
+                                              (YAP6__CORE__Value*)value):\
+                                           ((YAP6__CORE__Dispatcher*)value)->WHICH(\
+                                              (YAP6__CORE__Dispatcher*)value,\
+                                              (YAP6__CORE__Value*)value))
+
 
 /* Dispatching mechanism... This can be rewritten in the future,
    but for now, it's as simple as it gets */

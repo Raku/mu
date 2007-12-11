@@ -4,6 +4,7 @@
 
 void yap6_init() {
 
+  // basic dispatch
   yap6_ident_dispatcher_init();
   yap6_const_init();
   yap6_int_dispatcher_init();
@@ -11,6 +12,9 @@ void yap6_init() {
   yap6_list_dispatcher_init();
   yap6_pair_dispatcher_init();
   yap6_bytes_dispatcher_init();
+
+  // which implementation
+  yap6_int_dispatcher_which_init();
 }
 
 void yap6_destr() {

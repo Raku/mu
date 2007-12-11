@@ -1,6 +1,8 @@
 #include "yap6.h"
 #include <assert.h>
 #include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
 
 static YAP6__CORE__Value* int_dispatcher_APPLY(YAP6__CORE__Dispatcher* self,
                                           YAP6__CORE__Value* value,
@@ -15,6 +17,16 @@ static void int_dispatcher_DESTR(YAP6__CORE__Dispatcher* self,
   // does nothing
 }
 
+static YAP6__CORE__bytes* int_dispatcher_WHICH(YAP6__CORE__Dispatcher* self,
+                                               YAP6__CORE__Value* value) {
+  char res[16];
+  yap6_value_rdlock(value);
+  sprintf(res, "%d", ((YAP6__CORE__int*)value)->value);
+  yap6_value_unlock(value);
+  int size = strlen(res);
+  return yap6_bytes_create(res, size);
+  
+}
 
 YAP6__CORE__Dispatcher* yap6_const_int_dispatcher;
 
@@ -41,4 +53,8 @@ int yap6_int_lowlevel(YAP6__CORE__int* val) {
 
 void yap6_int_dispatcher_destr() {
   yap6_value_refcnt_dec((YAP6__CORE__Value*)yap6_const_int_dispatcher);
+}
+
+void yap6_int_dispatcher_which_init() {
+  yap6_const_int_dispatcher->WHICH = &int_dispatcher_WHICH;
 }
