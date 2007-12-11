@@ -172,11 +172,10 @@ static YAP6__CORE__Value* list_proxyscalar_dispatcher_STORE(YAP6__CORE__Dispatch
 
 static YAP6__CORE__bytes* list_proxyscalar_dispatcher_WHICH(YAP6__CORE__Dispatcher* self,
                                    YAP6__CORE__Value* value) {
-  char str[32];
-  sprintf(str, "list_ps:%p", value);
-  int len = strlen(str);
-  return yap6_bytes_create(str, len);
-
+  yap6_value_wrlock(value);
+  YAP6__CORE__Value* val = ((YAP6__CORE__Scalar*)value)->cell;
+  yap6_value_unlock(value);
+  return YAP6_WHICH(val);
 }
 
 

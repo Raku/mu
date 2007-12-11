@@ -47,10 +47,10 @@ static YAP6__CORE__Value* scalar_dispatcher_STORE(YAP6__CORE__Dispatcher* self,
 
 static YAP6__CORE__bytes* scalar_dispatcher_WHICH(YAP6__CORE__Dispatcher* self,
                                    YAP6__CORE__Value* value) {
-  char str[32];
-  sprintf(str, "scalar:%p", value);
-  int len = strlen(str);
-  return yap6_bytes_create(str, len);
+  yap6_value_wrlock(value);
+  YAP6__CORE__Value* val = ((YAP6__CORE__Scalar*)value)->cell;
+  yap6_value_unlock(value);
+  return YAP6_WHICH(val);
 
 }
 
