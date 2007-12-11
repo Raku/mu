@@ -189,13 +189,8 @@ class Var {
 
 class Bind {
     method emit_perl6 {
-        # dlocaus @ #perl6 irc.freenode.net
-        # I have removed $.parameters.emit_perl6 because it was not helping
-        # while "ok = sub ($num){...};" maybe valid perl6, I did not want
-        # to use that.  I prefer the traditional method of "sub ok($num) {"
-        #
-        # $.parameters.emit_perl6 ~ ' := ' ~ $.arguments.emit_perl6 ~ '';
-        $.arguments.emit_perl6;
+        $.parameters.emit_perl6 ~ ' := ' ~ $.arguments.emit_perl6 ~ '';
+        # $.arguments.emit_perl6;
     }
 }
 
