@@ -40,13 +40,9 @@ refcount garbage collection is implemented.
 
 0.0.1.14.2 - bytes WHICH.
 
-ROADMAP
-
-0.0.1.14.3 - scalar WHICH.
-
-0.0.1.14.4 - list WHICH.
-
 0.0.1.15 - WHICH implementation in every native type, the WHICH will return a "bytes" value.
+
+ROADMAP
 
 0.0.1.16 - Hash Dispatcher - Using WHICH to make the hash.
 

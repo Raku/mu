@@ -15,6 +15,7 @@ void yap6_init() {
 
   // which implementation
   yap6_int_dispatcher_which_init();
+  yap6_ident_dispatcher_which_init();
 }
 
 void yap6_destr() {

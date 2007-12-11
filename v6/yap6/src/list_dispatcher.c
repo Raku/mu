@@ -19,6 +19,7 @@ static YAP6__CORE__Value* list_dispatcher_APPLY(YAP6__CORE__Dispatcher* self,
   return NULL;
 }
 
+
 static void list_dispatcher_DESTR(YAP6__CORE__Dispatcher* self,
                                           YAP6__CORE__Value* value) {
   // TODO
@@ -95,6 +96,14 @@ static YAP6__CORE__Scalar* list_dispatcher_DELET(YAP6__CORE__Dispatcher* self,
   return ret;
 }
 
+static YAP6__CORE__bytes* list_dispatcher_WHICH(YAP6__CORE__Dispatcher* self,
+                                   YAP6__CORE__Value* value) {
+  char str[32];
+  sprintf(str, "list:%p", value);
+  int len = strlen(str);
+  return yap6_bytes_create(str, len);
+
+}
 
 static YAP6__CORE__Value* list_proxyscalar_dispatcher_APPLY(YAP6__CORE__Dispatcher* self,
                                           YAP6__CORE__Value* value,
@@ -161,6 +170,14 @@ static YAP6__CORE__Value* list_proxyscalar_dispatcher_STORE(YAP6__CORE__Dispatch
   return oldval;
 }
 
+static YAP6__CORE__bytes* list_proxyscalar_dispatcher_WHICH(YAP6__CORE__Dispatcher* self,
+                                   YAP6__CORE__Value* value) {
+  char str[32];
+  sprintf(str, "list_ps:%p", value);
+  int len = strlen(str);
+  return yap6_bytes_create(str, len);
+
+}
 
 
 YAP6__CORE__ListDispatcher* yap6_const_list_dispatcher;
@@ -175,6 +192,7 @@ void yap6_list_dispatcher_init() {
   yap6_const_list_dispatcher->LOOKP = &list_dispatcher_LOOKP;
   yap6_const_list_dispatcher->EXIST = &list_dispatcher_EXIST;
   yap6_const_list_dispatcher->DELET = &list_dispatcher_DELET;
+  yap6_const_list_dispatcher->WHICH = &list_dispatcher_WHICH;
 
   yap6_const_list_proxyscalar_dispatcher = (YAP6__CORE__ScalarDispatcher*)yap6_value_alloc(sizeof(YAP6__CORE__ScalarDispatcher));
   yap6_const_list_proxyscalar_dispatcher->dispatcher = yap6_const_ident_dispatcher;
@@ -183,6 +201,7 @@ void yap6_list_dispatcher_init() {
   yap6_const_list_proxyscalar_dispatcher->DESTR = &list_proxyscalar_dispatcher_DESTR;
   yap6_const_list_proxyscalar_dispatcher->FETCH = &list_proxyscalar_dispatcher_FETCH;
   yap6_const_list_proxyscalar_dispatcher->STORE = &list_proxyscalar_dispatcher_STORE;
+  yap6_const_list_proxyscalar_dispatcher->WHICH = &list_proxyscalar_dispatcher_WHICH;
 
 }
 

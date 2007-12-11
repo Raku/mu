@@ -45,6 +45,15 @@ static YAP6__CORE__Value* scalar_dispatcher_STORE(YAP6__CORE__Dispatcher* self,
   return oldval;
 }
 
+static YAP6__CORE__bytes* scalar_dispatcher_WHICH(YAP6__CORE__Dispatcher* self,
+                                   YAP6__CORE__Value* value) {
+  char str[32];
+  sprintf(str, "scalar:%p", value);
+  int len = strlen(str);
+  return yap6_bytes_create(str, len);
+
+}
+
 
 YAP6__CORE__ScalarDispatcher* yap6_const_scalar_dispatcher;
 
@@ -58,6 +67,7 @@ void yap6_scalar_dispatcher_init() {
   yap6_const_scalar_dispatcher->DESTR = &scalar_dispatcher_DESTR;
   yap6_const_scalar_dispatcher->FETCH = &scalar_dispatcher_FETCH;
   yap6_const_scalar_dispatcher->STORE = &scalar_dispatcher_STORE;
+  yap6_const_scalar_dispatcher->WHICH = &scalar_dispatcher_WHICH;
 
 }
 

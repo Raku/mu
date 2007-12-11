@@ -310,6 +310,7 @@ typedef struct YAP6__CORE__Hash {
 // ident_dispatcher
 extern YAP6__CORE__Dispatcher* yap6_const_ident_dispatcher;
 extern void yap6_ident_dispatcher_init();
+extern void yap6_ident_dispatcher_which_init();
 extern void yap6_ident_dispatcher_destr();
 
 // const values

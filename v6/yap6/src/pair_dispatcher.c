@@ -50,6 +50,15 @@ static YAP6__CORE__Value* pair_dispatcher_STVAL(YAP6__CORE__Dispatcher* self,
   return oldvalue;
 }
 
+static YAP6__CORE__bytes* pair_dispatcher_WHICH(YAP6__CORE__Dispatcher* self,
+                                   YAP6__CORE__Value* value) {
+  yap6_value_rdlock(value);
+  YAP6__CORE__Value* key = ((YAP6__CORE__Value*))value->key;
+  yap6_value_unlock(value);
+  return YAP6_WHICH(key);
+}
+
+
 YAP6__CORE__PairDispatcher* yap6_const_pair_dispatcher;
 
 void yap6_pair_dispatcher_init() {
