@@ -12,6 +12,7 @@ extern void yap6_destr();
 // forward declarations
 struct YAP6__CORE__Value; typedef struct YAP6__CORE__Value YAP6__CORE__Value;
 struct YAP6__CORE__Scalar; typedef struct YAP6__CORE__Scalar YAP6__CORE__Scalar;
+struct YAP6__CORE__List; typedef struct YAP6__CORE__List YAP6__CORE__List;
 struct YAP6__CORE__Dispatcher; typedef struct YAP6__CORE__Dispatcher YAP6__CORE__Dispatcher;
 struct YAP6__CORE__ScalarDispatcher; typedef struct YAP6__CORE__ScalarDispatcher YAP6__CORE__ScalarDispatcher;
 struct YAP6__CORE__string; typedef struct YAP6__CORE__string YAP6__CORE__string;
@@ -196,12 +197,12 @@ typedef struct YAP6__CORE__ListDispatcher {
                                YAP6__CORE__int* index);
 } YAP6__CORE__ListDispatcher;
 
-typedef struct YAP6__CORE__List {
+struct YAP6__CORE__List {
   pthread_rwlock_t* rwlock; int ref_cnt;
   YAP6__CORE__ListDispatcher* dispatcher;
   int length;
   YAP6__CORE__Value** items;
-} YAP6__CORE__List;
+};
 
 typedef struct YAP6__CORE__List__ProxyScalar {
   pthread_rwlock_t* rwlock; int ref_cnt;
