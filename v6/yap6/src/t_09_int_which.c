@@ -39,6 +39,7 @@ int main(int argc, char** argv) {
   printf(" 3 - WHICH returns the sprintf representation of the int...\n");
 
 
+  yap6_value_refcnt_dec((YAP6__CORE__Value*)which);
   yap6_value_refcnt_dec((YAP6__CORE__Value*)myint);
 
   printf("ok 4 - destroying the int...\n");
