@@ -34,17 +34,21 @@ refcount garbage collection is implemented.
 
 0.0.1.13 - Pair Dispatcher.
 
+0.0.1.14 - bytes dispatcher - a value that holds an array of bytes
+
 ROADMAP
 
-0.0.1.14 - Hash Dispatcher - probably include a hashcode mechanism or something like that.
+0.0.1.15 - WHICH implementation in every native type, the WHICH will return a "bytes" value.
 
-0.0.1.15 - Capture Dispatcher.
+0.0.1.16 - Hash Dispatcher - Using WHICH to make the hash.
 
-0.0.1.16 - Last native types...
+0.0.1.17 - Capture Dispatcher.
 
-0.0.1.17 - All the native types implement the mandatory methods.
+0.0.1.18 - Last native types (double, float, string, ...)
 
-0.0.1.18 - The native types implement the APPLY method.
+0.0.1.19 - All the native types implement the mandatory methods.
+
+0.0.1.20 - The native types implement the APPLY method.
 
 0.0.2 - YAP6 is a shared library with a minimal but stable API.
 
