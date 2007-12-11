@@ -98,7 +98,7 @@ class Lit::Code {
     method emit_perl6 {
         my $s;
         my $name;
-        for @($.pad.variable_names) -> $name {
+        for @($.pad.lexicals) -> $name {
             my $decl := ::Decl(
                 decl => 'my',
                 type => '',
@@ -189,8 +189,16 @@ class Var {
 
 class Bind {
     method emit_perl6 {
-        $.parameters.emit_perl6 ~ ' := ' ~ $.arguments.emit_perl6 ~ '';
-        # $.arguments.emit_perl6;
+        if ($.parameters).sigil eq '&' {
+            # This is a subroutine
+
+            # we do not want the ' [subname] := '  so drop the $.parameters.emit_perl6
+
+            # now return the bulk of the subroutine
+            return $.arguments.emit_perl6;
+        } else {
+            return $.parameters.emit_perl6 ~ ' := ' ~ $.arguments.emit_perl6 ~ '';
+        }
     }
 }
 

@@ -151,10 +151,7 @@ sub emit_perl6 {
     my $s;
     my $name;
     do {
-        for my $name ( @{ $self->{pad}->variable_names() } ) {
-            my $decl = Decl->new( 'decl' => 'my', 'type' => '', 'var' => Var->new( 'sigil' => '', 'twigil' => '', 'name' => $name, ), );
-            $s = ( $s . ( $name->emit_perl6() . ( '; ' . Main::newline() ) ) );
-        }
+        for my $name ( @{ $self->{pad}->lexicals() } ) { my $decl = Decl->new( 'decl' => 'my', 'type' => '', 'var' => Var->new( 'sigil' => '', 'twigil' => '', 'name' => $name, ), ); $s = ( $s . ( $name->emit_perl6() . ( '; ' . Main::newline() ) ) ) }
     };
     return ( ( $s . Main::join( [ map { $_->emit_perl6() } @{ $self->{body} } ], ( '; ' . Main::newline() ) ) ) );
 }
@@ -240,7 +237,10 @@ sub emit_perl6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( $self->{parameters}->emit_perl6() . ( ' := ' . ( $self->{arguments}->emit_perl6() . '' ) ) );
+    do {
+        if   ( ( $self->{parameters}->sigil() eq '&' ) ) { return ( $self->{arguments}->emit_perl6() ) }
+        else                                             { return ( ( $self->{parameters}->emit_perl6() . ( ' := ' . ( $self->{arguments}->emit_perl6() . '' ) ) ) ) }
+        }
 }
 
 package Proto;

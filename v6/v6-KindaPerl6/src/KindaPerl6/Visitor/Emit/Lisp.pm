@@ -4,7 +4,7 @@ class KindaPerl6::Visitor::Emit::Lisp {
 
     # This visitor is a list emitter
     # TODO !!!
-    
+
     method visit ( $node ) {
         $node.emit_lisp($.visitor_args{'secure'});
     };
@@ -37,37 +37,37 @@ class CompUnit {
 }
 
 class Val::Int {
-    method emit_lisp ($interpreter, $indent) { 
+    method emit_lisp ($interpreter, $indent) {
         "(make-instance \'kp6-Int :value " ~ $.int ~ ")";
     }
 }
 
 class Val::Bit {
-    method emit_lisp ($interpreter, $indent) { 
+    method emit_lisp ($interpreter, $indent) {
         "(make-instance \'kp6-Bit :value " ~ $.bit ~ ")";
     }
 }
 
 class Val::Num {
-    method emit_lisp ($interpreter, $indent) { 
+    method emit_lisp ($interpreter, $indent) {
         "(make-instance \'kp6-Num :value " ~ $.num ~ ")";
     }
 }
 
 class Val::Buf {
-    method emit_lisp ($interpreter, $indent) { 
+    method emit_lisp ($interpreter, $indent) {
         "(make-instance \'kp6-Str :value " ~ '"' ~ Main::mangle_string( $.buf ) ~ '"' ~ ")";
     }
 }
 
 class Val::Char {
-    method emit_lisp ($interpreter, $indent) { 
+    method emit_lisp ($interpreter, $indent) {
         '(make-instance \'kp6-Char :value (code-char ' ~ $.char ~ '))'
     }
 }
 
 class Val::Undef {
-    method emit_lisp ($interpreter, $indent) { 
+    method emit_lisp ($interpreter, $indent) {
         "(make-instance \'kp6-Undef)";
     }
 }
@@ -79,7 +79,7 @@ class Val::Object {
 }
 
 class Native::Buf {
-    method emit_lisp ($interpreter, $indent) { 
+    method emit_lisp ($interpreter, $indent) {
 	'(kp6-error ' ~ $interpreter ~ ' \'kp6-not-implemented :feature "Native::Buf objects")';
     }
 }
@@ -101,10 +101,10 @@ class Lit::Hash {
         my $fields := @.hash;
         my $str := ''; # XXX (' ' x ($indent + 1))
         my $field;
-        for @$fields -> $field { 
+        for @$fields -> $field {
             $str := $str ~ '(kp6-dispatch hash ' ~ $interpreter ~ ' :store ' ~ ($field[0]).emit_lisp($interpreter, $indent) ~ ' ' ~ ($field[1]).emit_lisp($interpreter, $indent) ~ ')' ~ Main::newline(); # XXX (' ' x ($indent + 1))
-        }; 
-  
+        };
+
 	'(let ((hash (make-instance \'kp6-Hash)))' ~ Main::newline() ~ $str ~ ' hash)';
     }
 }
@@ -148,7 +148,7 @@ class Lit::Code {
     method emit_declarations ($interpreter, $indent) {
         my $s := '';
         my $name;
-        for @($.pad.variable_names) -> $name {
+        for @($.pad.lexicals) -> $name {
             my $decl := ::Decl(
                 decl => 'my',
                 type => '',
@@ -191,7 +191,7 @@ class Lookup {
 class Assign {
     method emit_lisp ($interpreter, $indent) {
         my $node := $.parameters;
-        
+
 	if $node.isa('Var') {
 	    return $node.emit_lisp_assignment($.arguments.emit_lisp($interpreter, $indent));
 	}
@@ -211,7 +211,7 @@ class Assign {
 		~ $.arguments.emit_lisp($interpreter, $indent)
 		~ ')';
 	}
-	
+
 	'(kp6-error ' ~ $interpreter ~ ' \'kp6-not-implemented :feature "assigning to anything other than variables")';
     }
 }
@@ -242,13 +242,13 @@ class Var {
     method emit_lisp_assignment ($value, $cell, $constant) {
 	my $maybe_boxed_value;
 	my $variant := $cell ?? '/c' !! '';
-	
+
 	#if $constant {
 	#    $maybe_boxed_value := '(make-kp6-cell ' ~ $value ~ ')';
 	#} else {
 	    $maybe_boxed_value := $value;
 	#}
-	
+
 	if @($.namespace) {
 	    return '(set-package-variable' ~ $variant ~ ' ' ~ self.emit_lisp_name ~ ' ' ~ $maybe_boxed_value ~ ' ' ~ self.emit_lisp_namespace ~ ')';
 	} else {
@@ -292,7 +292,7 @@ class Call {
             else {
                 $invocant := $.invocant.emit_lisp($interpreter, $indent);
             }
-            
+
         }
         else {
             $invocant := $.invocant.emit_lisp($interpreter, $indent);
@@ -303,11 +303,11 @@ class Call {
 
         my $meth := $.method;
         if  $meth eq 'postcircumfix:<( )>'  {
-             $meth := '';  
+             $meth := '';
         };
-	
+
         my $call := (@.arguments.>>emit_lisp($interpreter, $indent)).join(' ');
-	
+
         if ($.hyper) {
             return 'XXX: Hyper';
         }
@@ -369,7 +369,7 @@ class Apply {
         my $op := $.code.emit_lisp($interpreter, $indent);
 
         my $str := '(kp6-apply-function ' ~ $interpreter ~ ' (perl->cl ' ~ $op ~ ') (list';
-    
+
         for @.arguments -> $arg {
             $str := $str ~ ' (make-instance \'kp6-positional-parameter :value ';
 
@@ -420,7 +420,7 @@ class If {
 #class For {
 #    method emit_lisp ($interpreter, $indent) {
 #        my $cond := $.cond;
-#        if   $cond.isa( 'Var' ) 
+#        if   $cond.isa( 'Var' )
 #          && ($cond.sigil eq '@')
 #        {
 #        } else {
@@ -431,7 +431,7 @@ class If {
 #        ~ ' ' ~ $.topic.emit_lisp_name()
 #        ~ ' ' ~ $cond.emit_lisp($interpreter, $indent)
 #        ~ ')' ~ Main::newline()
-#        ~ ' ' ~ $.body.emit_lisp($interpreter, $indent) 
+#        ~ ' ' ~ $.body.emit_lisp($interpreter, $indent)
 #        ~ ')';
 #    }
 #}
@@ -439,8 +439,8 @@ class If {
 class While {
     method emit_lisp ($interpreter, $indent) {
         my $cond := $.cond;
-        if   $cond.isa( 'Var' ) 
-          && $cond.sigil eq '@' 
+        if   $cond.isa( 'Var' )
+          && $cond.sigil eq '@'
         {
         } else {
             $cond := ::Apply( code => ::Var(sigil=>'&',twigil=>'',name=>'prefix:<@>',namespace => [ 'GLOBAL' ],), arguments => [$cond] );
@@ -485,15 +485,15 @@ class Sig {
 	}
 
 	$str := $str ~ ' :positional (list';
-	
+
 	for @($.positional) -> $decl {
 	    $str := $str ~ ' (make-instance \'kp6-named-parameter :name ' ~ $decl.emit_lisp_name($interpreter, $indent) ~ ')';
 	}
-	
+
 	$str := $str ~ ')';
-	
+
 #	$str := $str ~ ' :slurpy-array (make-instance \'kp6-named-parameter :name (kp6-generate-variable "@" "_"))';
-	
+
 	$str := $str ~ ')';
 
 	return $str;
@@ -512,7 +512,7 @@ class Lit::Capture {
         if defined $.array {
            $s := $s ~ 'array: ::DISPATCH( $::Array, "new", { _array => [ ';
                             my $item;
-           for @.array -> $item { 
+           for @.array -> $item {
                 $s := $s ~ $item.emit_lisp($interpreter, $indent) ~ ', ';
             }
             $s := $s ~ ' ] } ),';
@@ -520,7 +520,7 @@ class Lit::Capture {
         if defined $.hash {
            $s := $s ~ 'hash: ::DISPATCH( $::Hash, "new", { _hash => { ';
                            my $item;
-           for @.hash -> $item { 
+           for @.hash -> $item {
                 $s := $s ~ ($item[0]).emit_lisp($interpreter, $indent) ~ '->{_value} => ' ~ ($item[1]).emit_lisp($interpreter) ~ ', ';
             }
             $s := $s ~ ' } } ),';
@@ -572,7 +572,7 @@ class Use {
 
 =begin
 
-=head1 NAME 
+=head1 NAME
 
 KindaPerl6::Perl5::Lisp - Code generator for KindaPerl6-in-Lisp
 

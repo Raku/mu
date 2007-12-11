@@ -174,7 +174,7 @@ class Lit::Code {
     method emit_declarations {
         my $s;
         my $name;
-        for @($.pad.variable_names) -> $name {
+        for @($.pad.lexicals) -> $name {
             my $decl := ::Decl(
                 decl => 'my',
                 type => '',

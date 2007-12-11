@@ -188,7 +188,7 @@ class Lit::Code {
     method emit_declarations {
         my $s;
         my $name;
-        for @($.pad.variable_names) -> $name {
+        for @($.pad.lexicals) -> $name {
             my $decl := ::Decl(
                 decl => 'my',
                 type => '',
@@ -214,7 +214,7 @@ class Lit::Code {
         $str := $str ~ '::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));';
 
         # XXX s/assign/bind/ ?
-        my $bind_array := 
+        my $bind_array :=
                     ::Assign(parameters=>$array_,arguments=>::Call(invocant => $CAPTURE,method => 'array',arguments => []));
         $str := $str ~ $bind_array.emit_perl5 ~ ';';
 
@@ -383,10 +383,10 @@ class Var {
             if $.sigil eq '@' {
                 $s := '$::ArrayContainer';
             };
-            
+
             #return $var;
             # XXX doesn't work???
-            return ' ( '   
+            return ' ( '
                 ~ $var ~ ' = ' ~ $var ~ ' || ::DISPATCH( ' ~ $s ~ ', "new", ) '
                 ~ ' ) ' ~ Main::newline();
         }
@@ -414,7 +414,7 @@ class Bind {
                 &&  ( ($.parameters).sigil eq '@' )
                 )
         {
-            return 
+            return
                   '::DISPATCH_VAR( '
                 ~   $.parameters.emit_perl5
                 ~   ', "BIND", '
@@ -516,8 +516,8 @@ class Apply {
             return  'do { '
                         ~ 'my $_tmp1 = ' ~ ((@.arguments[0]).emit_perl5) ~ '; '
                         ~ '::DISPATCH( $_tmp1, "true" )->{_value} '
-                        ~ '? ' ~ ((@.arguments[1]).emit_perl5) 
-                        ~ ': ::DISPATCH( $::Bit, "new", 0 )' 
+                        ~ '? ' ~ ((@.arguments[1]).emit_perl5)
+                        ~ ': ::DISPATCH( $::Bit, "new", 0 )'
                 ~ ' }' ~ Main::newline();
         }
 
@@ -528,8 +528,8 @@ class Apply {
             return  'do { '
                         ~ 'my $_tmp1 = ' ~ ((@.arguments[0]).emit_perl5) ~ '; '
                         ~ '::DISPATCH( $_tmp1, "true" )->{_value} '
-                        ~ '? $_tmp1' 
-                        ~ ': ' ~ ((@.arguments[1]).emit_perl5) 
+                        ~ '? $_tmp1'
+                        ~ ': ' ~ ((@.arguments[1]).emit_perl5)
                 ~ ' }' ~ Main::newline();
         }
 

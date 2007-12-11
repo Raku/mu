@@ -141,18 +141,6 @@ sub eval {
     $_[0]{evaluator}( $_[1] )
 }
 
-=head2 variable_names
-
-XXX -  this needs to be removed.
-
-variable_names is the same as lexicals (below)
-
-=cut
-
-sub variable_names {
-    $_[0]{variable_names}
-}
-
 =head2 lexicals
 
 =cut

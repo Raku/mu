@@ -165,7 +165,7 @@ sub emit_html {
     do { [] };
     my $s;
     do {
-        for my $name ( @{ $self->{pad}->variable_names() } ) {
+        for my $name ( @{ $self->{pad}->lexicals() } ) {
             my $decl = Decl->new( 'decl' => 'my', 'type' => '', 'var' => Var->new( 'sigil' => '', 'twigil' => '', 'name' => $name, ), );
             $s = ( $s . ( $name->emit_html() . ( '; <br />' . Main::newline() ) ) );
         }

@@ -198,7 +198,7 @@ sub emit_declarations {
     my $s;
     my $name;
     do {
-        for my $name ( @{ $self->{pad}->variable_names() } ) {
+        for my $name ( @{ $self->{pad}->lexicals() } ) {
             my $decl = Decl->new( 'decl' => 'my', 'type' => '', 'var' => Var->new( 'sigil' => '', 'twigil' => '', 'name' => $name, 'namespace' => [], ), );
             $s = ( $s . ( $name->emit_parrot() . ( ' ' . Main::newline() ) ) );
         }

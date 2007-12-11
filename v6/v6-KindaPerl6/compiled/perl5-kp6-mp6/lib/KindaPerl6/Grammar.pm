@@ -1735,7 +1735,7 @@ sub exp {
                                                                                         };
                                                                                         return (
                                                                                             Apply->new(
-                                                                                                'code'      => Var->new( 'sigil'             => '&',               'twigil' => '', 'name' => 'ternary:<?? !!>', 'namespace' => [], ),
+                                                                                                'code' => Var->new( 'sigil' => '&', 'twigil' => '', 'name' => 'ternary:<?? !!>', 'namespace' => [], ),
                                                                                                 'arguments' => [ ${ $MATCH->{'term_meth'} }, ${ $MATCH->{'exp'} }, ${ $MATCH->{'exp2'} } ],
                                                                                             )
                                                                                         );

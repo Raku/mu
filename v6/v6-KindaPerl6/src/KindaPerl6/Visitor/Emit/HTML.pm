@@ -4,7 +4,7 @@ use v6-alpha;
 class KindaPerl6::Visitor::Emit::HTML {
 
     # This visitor is a perl6 emitter
-    
+
     method visit ( $node ) {
         html_header() ~ $node.emit_html ~ '</body></html>';
     };
@@ -35,7 +35,7 @@ class KindaPerl6::Visitor::Emit::HTML {
 
 class CompUnit {
     method emit_html {
-          '{ <span class="keyword">module</span> ' ~ $.name ~ ';<br />' 
+          '{ <span class="keyword">module</span> ' ~ $.name ~ ';<br />'
         ~ Main::newline()
         ~ $.body.emit_html
         ~ ' }</span><br />';
@@ -43,35 +43,35 @@ class CompUnit {
 }
 
 class Val::Int {
-    method emit_html { 
-        '<span class="integer">' 
-        ~ $.int 
+    method emit_html {
+        '<span class="integer">'
+        ~ $.int
         ~ '</span>'
     }
 }
 
 class Val::Bit {
-    method emit_html { 
-        $.bit 
+    method emit_html {
+        $.bit
     }
 }
 
 class Val::Num {
-    method emit_html { 
-        $.num 
+    method emit_html {
+        $.num
     }
 }
 
 class Val::Buf {
-    method emit_html { 
-        '<span class="buffer">' 
-        ~ '\'' ~ $.buf ~ '\'' 
+    method emit_html {
+        '<span class="buffer">'
+        ~ '\'' ~ $.buf ~ '\''
         ~ '</span>'
     }
 }
 
 class Val::Undef {
-    method emit_html { 
+    method emit_html {
         '<span class="keyword">undef</span>'
         #'GLOBAL::undef()'
     }
@@ -84,7 +84,7 @@ class Val::Object {
 }
 
 class Native::Buf {
-    method emit_html { 
+    method emit_html {
         '\'' ~ $.buf ~ '\''
     }
 }
@@ -105,11 +105,11 @@ class Lit::Hash {
     method emit_html {
         my $fields := @.hash;
         my $str := '';
-        for @$fields -> $field { 
-            $str := $str ~ ($field[0]).emit_html 
-                ~ ' <span class="operator>=&gt;</span> ' 
+        for @$fields -> $field {
+            $str := $str ~ ($field[0]).emit_html
+                ~ ' <span class="operator>=&gt;</span> '
                 ~ ($field[1]).emit_html ~ ',';
-        }; 
+        };
         '{ ' ~ $str ~ ' }';
     }
 }
@@ -117,7 +117,7 @@ class Lit::Hash {
 class Lit::Code {
     method emit_html {
         my $s;
-        for @($.pad.variable_names) -> $name {
+        for @($.pad.lexicals) -> $name {
             my $decl := ::Decl(
                 decl => 'my',
                 type => '',
@@ -130,7 +130,7 @@ class Lit::Code {
             $s := $s ~ $name.emit_html ~ '; <br />' ~ Main::newline();
             #$s := $s ~ 'my ' ~ $name ~ '; ';
         };
-        return 
+        return
             $s
             ~ (@.body.>>emit_html).join('; <br />' ~ Main::newline());
     }
@@ -142,9 +142,9 @@ class Lit::Object {
         my $fields := @.fields;
         my $str := '';
         # say @fields.map(sub { $_[0].emit_html ~ ' => ' ~ $_[1].emit_html}).join(', ') ~ ')';
-        for @$fields -> $field { 
+        for @$fields -> $field {
             $str := $str ~ ($field[0]).emit_html ~ ' => ' ~ ($field[1]).emit_html ~ ',';
-        }; 
+        };
         $.class ~ '.new( ' ~ $str ~ ' )';
     }
 }
@@ -181,19 +181,19 @@ class Var {
             '%' => '$Hash_',
             '&' => '$Code_',
         };
-        
+
         if $.twigil eq '.' {
             # XXX is the arrow in $self->{...} right?
-            return '<span class="variable">$self->{' ~ $.name ~ '}</span>' 
+            return '<span class="variable">$self->{' ~ $.name ~ '}</span>'
         };
-        
+
         if $.name eq '/' {
-            return $table{$.sigil} ~ 'MATCH' 
+            return $table{$.sigil} ~ 'MATCH'
         };
-        
+
         return '<span class="variable">'
                ~ Main::mangle_name( $.sigil, $.twigil, $.name )
-               ~ '</span>'; 
+               ~ '</span>';
     };
 }
 
@@ -205,7 +205,7 @@ class Bind {
 
 class Proto {
     method emit_html {
-        ~$.name        
+        ~$.name
     }
 }
 
@@ -232,9 +232,9 @@ class Call {
             || ($.method eq 'join')
             || ($.method eq 'chars')
             || ($.method eq 'isa')
-        { 
+        {
             if ($.hyper) {
-                return 
+                return
                     '[ <span class="keyword">map</span> { Main::' ~ $.method ~ '( $_, ' ~ ', ' ~ (@.arguments.>>emit_html).join(', ') ~ ')' ~ ' } @{ ' ~ $invocant ~ ' } ]';
             }
             else {
@@ -245,9 +245,9 @@ class Call {
 
         my $meth := $.method;
         if  $meth eq 'postcircumfix:<( )>'  {
-             $meth := '';  
+             $meth := '';
         };
-        
+
         my $call := (@.arguments.>>emit_html).join(', ');
         if ($.hyper) {
             # TODO - hyper + role
@@ -255,12 +255,12 @@ class Call {
         }
         else {
                '('  ~ $invocant ~ '->FETCH->{_role_methods}{' ~ $meth ~ '}'
-            ~ ' ?? ' ~ $invocant ~ '->FETCH->{_role_methods}{' ~ $meth ~ '}{code}' 
+            ~ ' ?? ' ~ $invocant ~ '->FETCH->{_role_methods}{' ~ $meth ~ '}{code}'
                 ~ '(' ~ $invocant ~ '->FETCH, ' ~ $call ~ ')'
             ~ ' !! ' ~ $invocant ~ '->FETCH->' ~ $meth ~ '(' ~ $call ~ ')'
             ~  ')';
         };
-        
+
     }
 }
 
@@ -273,8 +273,8 @@ class Apply {
 class Return {
     method emit_html {
         return
-            '<span class="keyword">return (' 
-            ~ $.result.emit_html 
+            '<span class="keyword">return ('
+            ~ $.result.emit_html
             ~ ")<br />"
             ~ Main::newline() ;
     }
@@ -283,9 +283,9 @@ class Return {
 class If {
     method emit_html {
         '<span class="keyword">do</span> { <span class="keyword">if</span> ( ${' ~ $.cond.emit_html ~ '->FETCH} ) { ' ~ $.body.emit_html ~ ' } '
-        ~ ( $.otherwise 
-            ?? ' else { ' ~ $.otherwise.emit_html ~ ' }' 
-            !! '' 
+        ~ ( $.otherwise
+            ?? ' else { ' ~ $.otherwise.emit_html ~ ' }'
+            !! ''
           )
         ~ ' }';
     }
@@ -308,7 +308,7 @@ class Method {
         # TODO - signature binding
         my $sig := $.block.sig;
         # say "Sig: ", $sig.perl;
-        my $invocant := $sig.invocant; 
+        my $invocant := $sig.invocant;
         # say $invocant.emit_html;
 
         my $pos := $sig.positional;
@@ -316,22 +316,22 @@ class Method {
 
         # TODO - follow recursively
         my $pos := $sig.positional;
-        for @$pos -> $field { 
+        for @$pos -> $field {
             $str := $str ~ 'my ' ~ $field.emit_html ~ '; ';
         };
 
-        my $bind := ::Bind( 
-            'parameters' => ::Lit::Array( array => $sig.positional ), 
+        my $bind := ::Bind(
+            'parameters' => ::Lit::Array( array => $sig.positional ),
             'arguments'  => ::Var( sigil => '@', twigil => '', name => '_' )
         );
         $str := $str ~ $bind.emit_html ~ '; ';
 
-        '<span class="keyword">sub</span> ' ~ $.name ~ ' { ' 
-            ~ '<span class="keyword">my</span> ' 
-            ~ $invocant.emit_html ~ ' = <span class="builtin">shift</span>; ' 
-            ~ '<br />' ~ Main::newline() 
-            ~ $str 
-            ~ $.block.emit_html 
+        '<span class="keyword">sub</span> ' ~ $.name ~ ' { '
+            ~ '<span class="keyword">my</span> '
+            ~ $invocant.emit_html ~ ' = <span class="builtin">shift</span>; '
+            ~ '<br />' ~ Main::newline()
+            ~ $str
+            ~ $.block.emit_html
             ~ ' }'
     }
 }
@@ -348,20 +348,20 @@ class Sub {
         # TODO - follow recursively
         my $pos := $sig.positional;
         if @$pos {
-            for @$pos -> $field { 
+            for @$pos -> $field {
                 $str := $str ~ 'my ' ~ $field.emit_html ~ '; ';
             };
-    
-            my $bind := ::Bind( 
-                'parameters' => ::Lit::Array( array => $sig.positional ), 
+
+            my $bind := ::Bind(
+                'parameters' => ::Lit::Array( array => $sig.positional ),
                 'arguments'  => ::Var( sigil => '@', twigil => '', name => '_' )
             );
             $str := $str ~ $bind.emit_html ~ '; ';
         };
         my $code :=
-            'sub { '  
-        ~      $str 
-        ~      $.block.emit_html  
+            'sub { '
+        ~      $str
+        ~      $.block.emit_html
         ~    ' }';
         if $.name {
             return '$Code_' ~ $.name ~ ' :=  ' ~ $code ~ '';
@@ -372,7 +372,7 @@ class Sub {
 
 class Do {
     method emit_html {
-        '<span class="keyword">do</span> { <br />' ~ Main::newline() 
+        '<span class="keyword">do</span> { <br />' ~ Main::newline()
           ~ $.block.emit_html
           ~  "}<br />" ~ Main::newline();
     }
@@ -380,8 +380,8 @@ class Do {
 
 class BEGIN {
     method emit_html {
-        '<span class="comp_unit">BEGIN</span> { <br />' ~ Main::newline() ~ 
-          $.block.emit_html ~ 
+        '<span class="comp_unit">BEGIN</span> { <br />' ~ Main::newline() ~
+          $.block.emit_html ~
         ' }<br />' ~ Main::newline();
     }
 }
@@ -394,7 +394,7 @@ class Use {
 
 =begin
 
-=head1 NAME 
+=head1 NAME
 
 KindaPerl6::Visitor::Emit::Perl6 - Code generator for KindaPerl6
 
