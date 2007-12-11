@@ -151,7 +151,10 @@ sub emit_perl6 {
     my $s;
     my $name;
     do {
-        for my $name ( @{ $self->{pad}->variable_names() } ) { my $decl = Decl->new( 'decl' => 'my', 'type' => '', 'var' => Var->new( 'sigil' => '', 'twigil' => '', 'name' => $name, ), ) }
+        for my $name ( @{ $self->{pad}->variable_names() } ) {
+            my $decl = Decl->new( 'decl' => 'my', 'type' => '', 'var' => Var->new( 'sigil' => '', 'twigil' => '', 'name' => $name, ), );
+            $s = ( $s . ( $name->emit_perl6() . ( '; ' . Main::newline() ) ) );
+        }
     };
     return ( ( $s . Main::join( [ map { $_->emit_perl6() } @{ $self->{body} } ], ( '; ' . Main::newline() ) ) ) );
 }

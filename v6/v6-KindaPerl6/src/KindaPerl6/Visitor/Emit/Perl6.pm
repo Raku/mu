@@ -108,10 +108,7 @@ class Lit::Code {
                     name => $name,
                 ),
             );
-            # dlocaus @ #perl6 irc.freenode.net
-            # In making subroutines work, I've had to disable the
-            # creation of the Pad.
-            #$s := $s ~ $name.emit_perl6 ~ '; ' ~ Main::newline();
+            $s := $s ~ $name.emit_perl6 ~ '; ' ~ Main::newline();
             #$s := $s ~ 'my ' ~ $name ~ '; ';
         };
         return
