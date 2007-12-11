@@ -101,8 +101,7 @@ my %opt = (
     exec    => $EXECUTABLE_NAME,
 );
 
-GetOptions(
-
+Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through require_order)], )->getoptions(
     # section is a string that specifies a of code to test in
     # $section is defined in Makefile.PL
     # grep -- '--section' ../Makefile.PL
