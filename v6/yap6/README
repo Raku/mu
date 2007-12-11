@@ -46,13 +46,11 @@ ROADMAP
 
 0.0.1.16 - Hash Dispatcher - Using WHICH to make the hash.
 
-0.0.1.17 - Capture Dispatcher.
+0.0.1.17 - Last native types (double, float, string, ...)
 
-0.0.1.18 - Last native types (double, float, string, ...)
+0.0.1.18 - All the native types implement the mandatory methods.
 
-0.0.1.19 - All the native types implement the mandatory methods.
-
-0.0.1.20 - The native types implement the APPLY method.
+0.0.1.19 - The native types implement the APPLY method.
 
 0.0.2 - YAP6 is a shared library with a minimal but stable API.
 
