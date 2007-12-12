@@ -2,23 +2,26 @@ use v6-alpha;
 
 use Test;
 
-plan 34;
+plan 36;
 
 { # L<S03/"Operator renaming" /imposes a boolean context/>
-  ok  ?1,     "? context forcer works (1)";
-  ok !?0,     "? context forcer works (2)";
-  ok  ?(?1),  "? context forcer works (3)";
-  ok !?(?0),  "? context forcer works (4)";
+  is ?True,    True,  "? context forcer works (1)";
+  is ?False,   False, "? context forcer works (2)";
 
-  ok  ?"hi",     "? context forcer works (5)";
-  ok !?"",       "? context forcer works (6)";
-  ok  ?(?"hi"),  "? context forcer works (7)";
-  ok !?(?""),    "? context forcer works (8)";
+  is ?1,       True,  "? context forcer works (3)";
+  is ?0,       False, "? context forcer works (4)";
+  is ?(?1),    True,  "? context forcer works (5)";
+  is ?(?0),    False, "? context forcer works (6)";
 
-  ok  ?"3",     "? context forcer works (9)";
-  ok !?"0",     "? context forcer works (10)";
-  ok  ?(?"3"),  "? context forcer works (11)";
-  ok !?(?"0"),  "? context forcer works (12)";
+  is ?"hi",    True,  "? context forcer works (7)";
+  is ?"",      False, "? context forcer works (8)";
+  is ?(?"hi"), True,  "? context forcer works (9)";
+  is ?(?""),   False, "? context forcer works (10)";
+
+  is ?"3",     True,  "? context forcer works (11)";
+  is ?"0",     False, "? context forcer works (12)";
+  is ?(?"3"),  True,  "? context forcer works (13)";
+  is ?(?"0"),  False, "? context forcer works (14)";
 }
 
 { # L<S03/"Operator renaming" /imposes a numeric context/>
