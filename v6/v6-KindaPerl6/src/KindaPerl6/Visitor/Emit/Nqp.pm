@@ -17,7 +17,7 @@ class CompUnit {
         ~ Main::newline()
         ~ $.body.emit_nqp
         ~ Main::newline()
-        ~ '};' ~ Main::newline();
+        ~ '}' ~ Main::newline();
     }
 }
 
@@ -257,6 +257,14 @@ class Call {
 
 class Apply {
     method emit_nqp {
+
+        if ($.code).isa('Var') && (($.code.sigil) eq '&') {
+            # remove the sigil
+            return '(' 
+                ~ $.code.twigil ~ ($.code.namespace).join( '::' ) ~ $.code.name
+                ~ '(' ~ (@.arguments.>>emit_nqp).join(', ') ~ '))';
+        }
+
         # WARNING: Putting white spaces in here, will mess up the subroutine calls
         return '(' ~ $.code.emit_nqp ~ '(' ~ (@.arguments.>>emit_nqp).join(', ') ~ '))';
     }

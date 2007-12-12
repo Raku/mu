@@ -22,7 +22,7 @@ sub emit_nqp {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( 'module ' . ( $self->{name} . ( ' { ' . ( Main::newline() . ( $self->{body}->emit_nqp() . ( Main::newline() . ( '};' . Main::newline() ) ) ) ) ) ) );
+    ( 'module ' . ( $self->{name} . ( ' { ' . ( Main::newline() . ( $self->{body}->emit_nqp() . ( Main::newline() . ( '}' . Main::newline() ) ) ) ) ) ) );
 }
 
 package Val::Int;
@@ -328,6 +328,12 @@ sub emit_nqp {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
+    do {
+        if ( ( Main::isa( $self->{code}, 'Var' ) && ( $self->{code}->sigil() eq '&' ) ) ) {
+            return ( ( '(' . ( $self->{code}->twigil() . ( Main::join( $self->{code}->namespace(), '::' ) . ( $self->{code}->name() . ( '(' . ( Main::join( [ map { $_->emit_nqp() } @{ $self->{arguments} } ], ', ' ) . '))' ) ) ) ) ) ) );
+        }
+        else { }
+    };
     return ( ( '(' . ( $self->{code}->emit_nqp() . ( '(' . ( Main::join( [ map { $_->emit_nqp() } @{ $self->{arguments} } ], ', ' ) . '))' ) ) ) ) );
 }
 
