@@ -1,101 +1,101 @@
 
 use v6-alpha;
 
-class KindaPerl6::Visitor::Emit::Perl6 {
+class KindaPerl6::Visitor::Emit::Nqp {
 
     # This visitor is a perl6 emitter
 
     method visit ( $node ) {
-        $node.emit_perl6;
+        $node.emit_nqp;
     };
 
 }
 
 class CompUnit {
-    method emit_perl6 {
+    method emit_nqp {
           'module ' ~ $.name ~ " { "
         ~ Main::newline()
-        ~ $.body.emit_perl6
+        ~ $.body.emit_nqp
         ~ Main::newline()
         ~ '};' ~ Main::newline();
     }
 }
 
 class Val::Int {
-    method emit_perl6 {
+    method emit_nqp {
         $.int
     }
 }
 
 class Val::Bit {
-    method emit_perl6 {
+    method emit_nqp {
         $.bit
     }
 }
 
 class Val::Num {
-    method emit_perl6 {
+    method emit_nqp {
         $.num
     }
 }
 
 class Val::Buf {
-    method emit_perl6 {
+    method emit_nqp {
         '\'' ~ $.buf ~ '\''
     }
 }
 
 class Val::Char {
-    method emit_perl6 {
+    method emit_nqp {
         '\'' ~ $.buf ~ '\''
     }
 }
 
 class Val::Undef {
-    method emit_perl6 {
+    method emit_nqp {
         '(undef)'
         #'GLOBAL::undef()'
     }
 }
 
 class Val::Object {
-    method emit_perl6 {
+    method emit_nqp {
         '::' ~ $.class.perl ~ '(' ~ %.fields.perl ~ ')';
     }
 }
 
 class Native::Buf {
-    method emit_perl6 {
+    method emit_nqp {
         '\'' ~ $.buf ~ '\''
     }
 }
 
 class Lit::Seq {
-    method emit_perl6 {
-        '(' ~ (@.seq.>>emit_perl6).join(', ') ~ ')';
+    method emit_nqp {
+        '(' ~ (@.seq.>>emit_nqp).join(', ') ~ ')';
     }
 }
 
 class Lit::Array {
-    method emit_perl6 {
-        '[' ~ (@.array.>>emit_perl6).join(', ') ~ ']';
+    method emit_nqp {
+        '[' ~ (@.array.>>emit_nqp).join(', ') ~ ']';
     }
 }
 
 class Lit::Hash {
-    method emit_perl6 {
+    method emit_nqp {
         my $fields := @.hash;
         my $str := '';
         my $field;
         for @$fields -> $field {
-            $str := $str ~ ($field[0]).emit_perl6 ~ ' => ' ~ ($field[1]).emit_perl6 ~ ',';
+            $str := $str ~ ($field[0]).emit_nqp ~ ' => ' ~ ($field[1]).emit_nqp ~ ',';
         };
         '{ ' ~ $str ~ ' }';
     }
 }
 
 class Lit::Code {
-    method emit_perl6 {
+    method emit_nqp {
         my $s;
         my $name;
         for @($.pad.lexicals) -> $name {
@@ -108,50 +108,50 @@ class Lit::Code {
                     name => $name,
                 ),
             );
-            $s := $s ~ $name.emit_perl6 ~ '; ' ~ Main::newline();
+            $s := $s ~ $name.emit_nqp ~ '; ' ~ Main::newline();
             #$s := $s ~ 'my ' ~ $name ~ '; ';
         };
         return
             $s
-            ~ (@.body.>>emit_perl6).join('; ' ~ Main::newline() );
+            ~ (@.body.>>emit_nqp).join('; ' ~ Main::newline() );
     }
 }
 
 class Lit::Object {
-    method emit_perl6 {
-        # $.class ~ '->new( ' ~ @.fields.>>emit_perl6.join(', ') ~ ' )';
+    method emit_nqp {
+        # $.class ~ '->new( ' ~ @.fields.>>emit_nqp.join(', ') ~ ' )';
         my $fields := @.fields;
         my $str := '';
-        # say @fields.map(sub { $_[0].emit_perl6 ~ ' => ' ~ $_[1].emit_perl6}).join(', ') ~ ')';
+        # say @fields.map(sub { $_[0].emit_nqp ~ ' => ' ~ $_[1].emit_nqp}).join(', ') ~ ')';
         my $field;
         for @$fields -> $field {
-            $str := $str ~ ($field[0]).emit_perl6 ~ ' => ' ~ ($field[1]).emit_perl6 ~ ',';
+            $str := $str ~ ($field[0]).emit_nqp ~ ' => ' ~ ($field[1]).emit_nqp ~ ',';
         };
         $.class ~ '.new( ' ~ $str ~ ' )';
     }
 }
 
 class Index {
-    method emit_perl6 {
-        $.obj.emit_perl6 ~ '[' ~ $.index.emit_perl6 ~ ']';
+    method emit_nqp {
+        $.obj.emit_nqp ~ '[' ~ $.index.emit_nqp ~ ']';
     }
 }
 
 class Lookup {
-    method emit_perl6 {
-        $.obj.emit_perl6 ~ '{' ~ $.index.emit_perl6 ~ '}';
+    method emit_nqp {
+        $.obj.emit_nqp ~ '{' ~ $.index.emit_nqp ~ '}';
     }
 }
 
 class Assign {
-    method emit_perl6 {
+    method emit_nqp {
         # TODO - same as ::Bind
-        $.parameters.emit_perl6 ~ ' = ' ~ $.arguments.emit_perl6 ~ '';
+        $.parameters.emit_nqp ~ ' = ' ~ $.arguments.emit_nqp ~ '';
     }
 }
 
 class Var {
-    method emit_perl6 {
+    method emit_nqp {
         # Normalize the sigil here into $
         # $x    => $x
         # @x    => $List_x
@@ -188,20 +188,20 @@ class Var {
 }
 
 class Bind {
-    method emit_perl6 {
-        $.parameters.emit_perl6 ~ ' := ' ~ $.arguments.emit_perl6 ~ '';
-        # $.arguments.emit_perl6;
+    method emit_nqp {
+        $.parameters.emit_nqp ~ ' := ' ~ $.arguments.emit_nqp ~ '';
+        # $.arguments.emit_nqp;
     }
 }
 
 class Proto {
-    method emit_perl6 {
+    method emit_nqp {
         ~$.name
     }
 }
 
 class Call {
-    method emit_perl6 {
+    method emit_nqp {
         my $invocant;
         if $.invocant.isa( 'Str' ) {
             $invocant := '$::Class_' ~ $.invocant;
@@ -211,7 +211,7 @@ class Call {
             $invocant := '$::Class_' ~ $.invocant.buf;
         }
         else {
-            $invocant := $.invocant.emit_perl6;
+            $invocant := $.invocant.emit_nqp;
         };
         };
         if $invocant eq 'self' {
@@ -226,11 +226,11 @@ class Call {
         {
             if ($.hyper) {
                 return
-                    '[ map { Main::' ~ $.method ~ '( $_, ' ~ ', ' ~ (@.arguments.>>emit_perl6).join(', ') ~ ')' ~ ' } @{ ' ~ $invocant ~ ' } ]';
+                    '[ map { Main::' ~ $.method ~ '( $_, ' ~ ', ' ~ (@.arguments.>>emit_nqp).join(', ') ~ ')' ~ ' } @{ ' ~ $invocant ~ ' } ]';
             }
             else {
                 return
-                    'Main::' ~ $.method ~ '(' ~ $invocant ~ ', ' ~ (@.arguments.>>emit_perl6).join(', ') ~ ')';
+                    'Main::' ~ $.method ~ '(' ~ $invocant ~ ', ' ~ (@.arguments.>>emit_nqp).join(', ') ~ ')';
             }
         };
 
@@ -239,7 +239,7 @@ class Call {
              $meth := '';
         };
 
-        my $call := (@.arguments.>>emit_perl6).join(', ');
+        my $call := (@.arguments.>>emit_nqp).join(', ');
         if ($.hyper) {
             # TODO - hyper + role
             '[ map { $_' ~ '->' ~ $meth ~ '(' ~ $call ~ ') } @{ ' ~ $invocant ~ ' } ]';
@@ -256,67 +256,67 @@ class Call {
 }
 
 class Apply {
-    method emit_perl6 {
+    method emit_nqp {
         # WARNING: Putting white spaces in here, will mess up the subroutine calls
-        return '(' ~ $.code.emit_perl6 ~ '(' ~ (@.arguments.>>emit_perl6).join(', ') ~ '))';
+        return '(' ~ $.code.emit_nqp ~ '(' ~ (@.arguments.>>emit_nqp).join(', ') ~ '))';
     }
 }
 
 class Return {
-    method emit_perl6 {
+    method emit_nqp {
         return
-        'return (' ~ $.result.emit_perl6 ~ ')';
+        'return (' ~ $.result.emit_nqp ~ ')';
     }
 }
 
 class If {
-    method emit_perl6 {
-        # 'do { if ( ${' ~ $.cond.emit_perl6 ~ '} ) { ' ~ $.body.emit_perl6 ~ ' } '
+    method emit_nqp {
+        # 'do { if ( ${' ~ $.cond.emit_nqp ~ '} ) { ' ~ $.body.emit_nqp ~ ' } '
         # the old code line above specified a scalar output directly via ${ }
         # I am not sure why the original author wanted that, but I believe it
         # is wrong.  However, I am not sure, so I am leaving this comment here.
 
         # if
         # WARNING: kp6 (not perl6) requires ( ) around the if conditionial
-        'if ( ' ~ $.cond.emit_perl6 ~ ' ) '
+        'if ( ' ~ $.cond.emit_nqp ~ ' ) '
         # then
         ~ '{ ' ~ Main::newline()
-        ~ $.body.emit_perl6 ~ Main::newline()
+        ~ $.body.emit_nqp ~ Main::newline()
         ~ '} '
         # else, if $.otherwise ? " else " : '';
         ~ ( $.otherwise ?? 'else { '
             ~ Main::newline()
-            ~ $.otherwise.emit_perl6 ~ Main::newline()
+            ~ $.otherwise.emit_nqp ~ Main::newline()
             ~ '}' ~ Main::newline() !! ''
           )
     }
 }
 
 class Decl {
-    method emit_perl6 {
-        return $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit_perl6;
+    method emit_nqp {
+        return $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit_nqp;
     }
 }
 
 class Lit::SigArgument {
-    method emit_perl6 {
-        $.key.emit_perl6;
+    method emit_nqp {
+        $.key.emit_nqp;
     }
 }
 
 class Sig {
-    method emit_perl6 {
-        (@.positional.>>emit_perl6).join(', ');
+    method emit_nqp {
+        (@.positional.>>emit_nqp).join(', ');
     }
 }
 
 class Method {
-    method emit_perl6 {
+    method emit_nqp {
         # TODO - signature binding
         my $sig := $.block.sig;
         # say "Sig: ", $sig.perl;
         my $invocant := $sig.invocant;
-        # say $invocant.emit_perl6;
+        # say $invocant.emit_nqp;
 
         my $pos := $sig.positional;
         my $str := 'my $List__ = \@_; ';   # no strict "vars"; ';
@@ -325,51 +325,51 @@ class Method {
         my $pos := $sig.positional;
         my $field;
         for @$pos -> $field {
-            $str := $str ~ 'my ' ~ $field.emit_perl6 ~ '; ' ~ Main::newline();
+            $str := $str ~ 'my ' ~ $field.emit_nqp ~ '; ' ~ Main::newline();
         };
 
         my $bind := ::Bind(
             'parameters' => ::Lit::Array( array => $sig.positional ),
             'arguments'  => ::Var( sigil => '@', twigil => '', name => '_' )
         );
-        $str := $str ~ $bind.emit_perl6 ~ '; ' ~ Main::newline();
+        $str := $str ~ $bind.emit_nqp ~ '; ' ~ Main::newline();
 
         'sub ' ~ $.name ~ ' { ' ~
-          'my ' ~ $invocant.emit_perl6 ~ ' = shift; ' ~
+          'my ' ~ $invocant.emit_nqp ~ ' = shift; ' ~
           $str ~
-          $.block.emit_perl6 ~
+          $.block.emit_nqp ~
         ' }'
     }
 }
 
 class Sub {
-    method emit_perl6 {
+    method emit_nqp {
         'sub ' 
             #~ $.name 
-            ~ ($.block.sig ?? '(' ~ ($.block.sig).emit_perl6 ~ ')' !! '') ~ ' { ' ~ Main::newline()
-            ~ $.block.emit_perl6 ~ Main::newline()
+            ~ ($.block.sig ?? '(' ~ ($.block.sig).emit_nqp ~ ')' !! '') ~ ' { ' ~ Main::newline()
+            ~ $.block.emit_nqp ~ Main::newline()
             ~ ' }' ~ Main::newline();
     }
 }
 
 class Do {
-    method emit_perl6 {
+    method emit_nqp {
         'do { ' ~
-          $.block.emit_perl6 ~
+          $.block.emit_nqp ~
         ' }'
     }
 }
 
 class BEGIN {
-    method emit_perl6 {
+    method emit_nqp {
         'BEGIN { ' ~
-          $.block.emit_perl6 ~
+          $.block.emit_nqp ~
         ' }'
     }
 }
 
 class Use {
-    method emit_perl6 {
+    method emit_nqp {
         'use ' ~ $.mod
     }
 }

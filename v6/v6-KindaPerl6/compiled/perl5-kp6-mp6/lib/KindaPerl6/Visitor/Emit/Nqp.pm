@@ -4,31 +4,31 @@ use strict;
 use MiniPerl6::Perl5::Runtime;
 use MiniPerl6::Perl5::Match;
 
-package KindaPerl6::Visitor::Emit::Perl6;
-sub new { shift; bless {@_}, "KindaPerl6::Visitor::Emit::Perl6" }
+package KindaPerl6::Visitor::Emit::Nqp;
+sub new { shift; bless {@_}, "KindaPerl6::Visitor::Emit::Nqp" }
 
 sub visit {
     my $self   = shift;
     my $List__ = \@_;
     my $node;
     do { $node = $List__->[0]; [$node] };
-    $node->emit_perl6();
+    $node->emit_nqp();
 }
 
 package CompUnit;
 sub new { shift; bless {@_}, "CompUnit" }
 
-sub emit_perl6 {
+sub emit_nqp {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( 'module ' . ( $self->{name} . ( ' { ' . ( Main::newline() . ( $self->{body}->emit_perl6() . ( Main::newline() . ( '};' . Main::newline() ) ) ) ) ) ) );
+    ( 'module ' . ( $self->{name} . ( ' { ' . ( Main::newline() . ( $self->{body}->emit_nqp() . ( Main::newline() . ( '};' . Main::newline() ) ) ) ) ) ) );
 }
 
 package Val::Int;
 sub new { shift; bless {@_}, "Val::Int" }
 
-sub emit_perl6 {
+sub emit_nqp {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -38,7 +38,7 @@ sub emit_perl6 {
 package Val::Bit;
 sub new { shift; bless {@_}, "Val::Bit" }
 
-sub emit_perl6 {
+sub emit_nqp {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -48,7 +48,7 @@ sub emit_perl6 {
 package Val::Num;
 sub new { shift; bless {@_}, "Val::Num" }
 
-sub emit_perl6 {
+sub emit_nqp {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -58,7 +58,7 @@ sub emit_perl6 {
 package Val::Buf;
 sub new { shift; bless {@_}, "Val::Buf" }
 
-sub emit_perl6 {
+sub emit_nqp {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -68,7 +68,7 @@ sub emit_perl6 {
 package Val::Char;
 sub new { shift; bless {@_}, "Val::Char" }
 
-sub emit_perl6 {
+sub emit_nqp {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -78,7 +78,7 @@ sub emit_perl6 {
 package Val::Undef;
 sub new { shift; bless {@_}, "Val::Undef" }
 
-sub emit_perl6 {
+sub emit_nqp {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -88,7 +88,7 @@ sub emit_perl6 {
 package Val::Object;
 sub new { shift; bless {@_}, "Val::Object" }
 
-sub emit_perl6 {
+sub emit_nqp {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -98,7 +98,7 @@ sub emit_perl6 {
 package Native::Buf;
 sub new { shift; bless {@_}, "Native::Buf" }
 
-sub emit_perl6 {
+sub emit_nqp {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -108,27 +108,27 @@ sub emit_perl6 {
 package Lit::Seq;
 sub new { shift; bless {@_}, "Lit::Seq" }
 
-sub emit_perl6 {
+sub emit_nqp {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( '(' . ( Main::join( [ map { $_->emit_perl6() } @{ $self->{seq} } ], ', ' ) . ')' ) );
+    ( '(' . ( Main::join( [ map { $_->emit_nqp() } @{ $self->{seq} } ], ', ' ) . ')' ) );
 }
 
 package Lit::Array;
 sub new { shift; bless {@_}, "Lit::Array" }
 
-sub emit_perl6 {
+sub emit_nqp {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( '[' . ( Main::join( [ map { $_->emit_perl6() } @{ $self->{array} } ], ', ' ) . ']' ) );
+    ( '[' . ( Main::join( [ map { $_->emit_nqp() } @{ $self->{array} } ], ', ' ) . ']' ) );
 }
 
 package Lit::Hash;
 sub new { shift; bless {@_}, "Lit::Hash" }
 
-sub emit_perl6 {
+sub emit_nqp {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -136,7 +136,7 @@ sub emit_perl6 {
     my $str    = '';
     my $field;
     do {
-        for my $field ( @{$fields} ) { $str = ( $str . ( $field->[0]->emit_perl6() . ( ' => ' . ( $field->[1]->emit_perl6() . ',' ) ) ) ) }
+        for my $field ( @{$fields} ) { $str = ( $str . ( $field->[0]->emit_nqp() . ( ' => ' . ( $field->[1]->emit_nqp() . ',' ) ) ) ) }
     };
     ( '{ ' . ( $str . ' }' ) );
 }
@@ -144,22 +144,22 @@ sub emit_perl6 {
 package Lit::Code;
 sub new { shift; bless {@_}, "Lit::Code" }
 
-sub emit_perl6 {
+sub emit_nqp {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
     my $s;
     my $name;
     do {
-        for my $name ( @{ $self->{pad}->lexicals() } ) { my $decl = Decl->new( 'decl' => 'my', 'type' => '', 'var' => Var->new( 'sigil' => '', 'twigil' => '', 'name' => $name, ), ); $s = ( $s . ( $name->emit_perl6() . ( '; ' . Main::newline() ) ) ) }
+        for my $name ( @{ $self->{pad}->lexicals() } ) { my $decl = Decl->new( 'decl' => 'my', 'type' => '', 'var' => Var->new( 'sigil' => '', 'twigil' => '', 'name' => $name, ), ); $s = ( $s . ( $name->emit_nqp() . ( '; ' . Main::newline() ) ) ) }
     };
-    return ( ( $s . Main::join( [ map { $_->emit_perl6() } @{ $self->{body} } ], ( '; ' . Main::newline() ) ) ) );
+    return ( ( $s . Main::join( [ map { $_->emit_nqp() } @{ $self->{body} } ], ( '; ' . Main::newline() ) ) ) );
 }
 
 package Lit::Object;
 sub new { shift; bless {@_}, "Lit::Object" }
 
-sub emit_perl6 {
+sub emit_nqp {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -167,7 +167,7 @@ sub emit_perl6 {
     my $str    = '';
     my $field;
     do {
-        for my $field ( @{$fields} ) { $str = ( $str . ( $field->[0]->emit_perl6() . ( ' => ' . ( $field->[1]->emit_perl6() . ',' ) ) ) ) }
+        for my $field ( @{$fields} ) { $str = ( $str . ( $field->[0]->emit_nqp() . ( ' => ' . ( $field->[1]->emit_nqp() . ',' ) ) ) ) }
     };
     ( $self->{class} . ( '.new( ' . ( $str . ' )' ) ) );
 }
@@ -175,37 +175,37 @@ sub emit_perl6 {
 package Index;
 sub new { shift; bless {@_}, "Index" }
 
-sub emit_perl6 {
+sub emit_nqp {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( $self->{obj}->emit_perl6() . ( '[' . ( $self->{index}->emit_perl6() . ']' ) ) );
+    ( $self->{obj}->emit_nqp() . ( '[' . ( $self->{index}->emit_nqp() . ']' ) ) );
 }
 
 package Lookup;
 sub new { shift; bless {@_}, "Lookup" }
 
-sub emit_perl6 {
+sub emit_nqp {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( $self->{obj}->emit_perl6() . ( '{' . ( $self->{index}->emit_perl6() . '}' ) ) );
+    ( $self->{obj}->emit_nqp() . ( '{' . ( $self->{index}->emit_nqp() . '}' ) ) );
 }
 
 package Assign;
 sub new { shift; bless {@_}, "Assign" }
 
-sub emit_perl6 {
+sub emit_nqp {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( $self->{parameters}->emit_perl6() . ( ' = ' . ( $self->{arguments}->emit_perl6() . '' ) ) );
+    ( $self->{parameters}->emit_nqp() . ( ' = ' . ( $self->{arguments}->emit_nqp() . '' ) ) );
 }
 
 package Var;
 sub new { shift; bless {@_}, "Var" }
 
-sub emit_perl6 {
+sub emit_nqp {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -233,17 +233,17 @@ sub emit_perl6 {
 package Bind;
 sub new { shift; bless {@_}, "Bind" }
 
-sub emit_perl6 {
+sub emit_nqp {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( $self->{parameters}->emit_perl6() . ( ' := ' . ( $self->{arguments}->emit_perl6() . '' ) ) );
+    ( $self->{parameters}->emit_nqp() . ( ' := ' . ( $self->{arguments}->emit_nqp() . '' ) ) );
 }
 
 package Proto;
 sub new { shift; bless {@_}, "Proto" }
 
-sub emit_perl6 {
+sub emit_nqp {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -253,7 +253,7 @@ sub emit_perl6 {
 package Call;
 sub new { shift; bless {@_}, "Call" }
 
-sub emit_perl6 {
+sub emit_nqp {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -263,7 +263,7 @@ sub emit_perl6 {
         else {
             do {
                 if   ( Main::isa( $self->{invocant}, 'Val::Buf' ) ) { $invocant = ( '$::Class_' . $self->{invocant}->buf() ) }
-                else                                                { $invocant = $self->{invocant}->emit_perl6() }
+                else                                                { $invocant = $self->{invocant}->emit_nqp() }
                 }
         }
     };
@@ -275,10 +275,10 @@ sub emit_perl6 {
         if ( ( ( $self->{method} eq 'perl' ) || ( ( $self->{method} eq 'yaml' ) || ( ( $self->{method} eq 'say' ) || ( ( $self->{method} eq 'join' ) || ( ( $self->{method} eq 'chars' ) || ( $self->{method} eq 'isa' ) ) ) ) ) ) ) {
             do {
                 if ( $self->{hyper} ) {
-                    return ( ( '[ map { Main::' . ( $self->{method} . ( '( $_, ' . ( ', ' . ( Main::join( [ map { $_->emit_perl6() } @{ $self->{arguments} } ], ', ' ) . ( ')' . ( ' } @{ ' . ( $invocant . ' } ]' ) ) ) ) ) ) ) ) );
+                    return ( ( '[ map { Main::' . ( $self->{method} . ( '( $_, ' . ( ', ' . ( Main::join( [ map { $_->emit_nqp() } @{ $self->{arguments} } ], ', ' ) . ( ')' . ( ' } @{ ' . ( $invocant . ' } ]' ) ) ) ) ) ) ) ) );
                 }
                 else {
-                    return ( ( 'Main::' . ( $self->{method} . ( '(' . ( $invocant . ( ', ' . ( Main::join( [ map { $_->emit_perl6() } @{ $self->{arguments} } ], ', ' ) . ')' ) ) ) ) ) ) );
+                    return ( ( 'Main::' . ( $self->{method} . ( '(' . ( $invocant . ( ', ' . ( Main::join( [ map { $_->emit_nqp() } @{ $self->{arguments} } ], ', ' ) . ')' ) ) ) ) ) ) );
                 }
                 }
         }
@@ -289,7 +289,7 @@ sub emit_perl6 {
         if ( ( $meth eq 'postcircumfix:<( )>' ) ) { $meth = '' }
         else                                      { }
     };
-    my $call = Main::join( [ map { $_->emit_perl6() } @{ $self->{arguments} } ], ', ' );
+    my $call = Main::join( [ map { $_->emit_nqp() } @{ $self->{arguments} } ], ', ' );
     do {
         if ( $self->{hyper} ) { ( '[ map { $_' . ( '->' . ( $meth . ( '(' . ( $call . ( ') } @{ ' . ( $invocant . ' } ]' ) ) ) ) ) ) ) }
         else {
@@ -324,41 +324,40 @@ sub emit_perl6 {
 package Apply;
 sub new { shift; bless {@_}, "Apply" }
 
-sub emit_perl6 {
+sub emit_nqp {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    return ( ( '(' . ( $self->{code}->emit_perl6() . ( '(' . ( Main::join( [ map { $_->emit_perl6() } @{ $self->{arguments} } ], ', ' ) . '))' ) ) ) ) );
+    return ( ( '(' . ( $self->{code}->emit_nqp() . ( '(' . ( Main::join( [ map { $_->emit_nqp() } @{ $self->{arguments} } ], ', ' ) . '))' ) ) ) ) );
 }
 
 package Return;
 sub new { shift; bless {@_}, "Return" }
 
-sub emit_perl6 {
+sub emit_nqp {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    return ( ( 'return (' . ( $self->{result}->emit_perl6() . ')' ) ) );
+    return ( ( 'return (' . ( $self->{result}->emit_nqp() . ')' ) ) );
 }
 
 package If;
 sub new { shift; bless {@_}, "If" }
 
-sub emit_perl6 {
+sub emit_nqp {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
     (   'if ( '
             . (
-            $self->{cond}->emit_perl6()
+            $self->{cond}->emit_nqp()
                 . (
                 ' ) '
                     . (
                     '{ '
                         . (
                         Main::newline()
-                            . (
-                            $self->{body}->emit_perl6() . ( Main::newline() . ( '} ' . ( $self->{otherwise} ? ( 'else { ' . ( Main::newline() . ( $self->{otherwise}->emit_perl6() . ( Main::newline() . ( '}' . Main::newline() ) ) ) ) ) : '' ) ) ) )
+                            . ( $self->{body}->emit_nqp() . ( Main::newline() . ( '} ' . ( $self->{otherwise} ? ( 'else { ' . ( Main::newline() . ( $self->{otherwise}->emit_nqp() . ( Main::newline() . ( '}' . Main::newline() ) ) ) ) ) : '' ) ) ) )
                         )
                     )
                 )
@@ -369,37 +368,37 @@ sub emit_perl6 {
 package Decl;
 sub new { shift; bless {@_}, "Decl" }
 
-sub emit_perl6 {
+sub emit_nqp {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    return ( ( $self->{decl} . ( ' ' . ( $self->{type} . ( ' ' . $self->{var}->emit_perl6() ) ) ) ) );
+    return ( ( $self->{decl} . ( ' ' . ( $self->{type} . ( ' ' . $self->{var}->emit_nqp() ) ) ) ) );
 }
 
 package Lit::SigArgument;
 sub new { shift; bless {@_}, "Lit::SigArgument" }
 
-sub emit_perl6 {
+sub emit_nqp {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    $self->{key}->emit_perl6();
+    $self->{key}->emit_nqp();
 }
 
 package Sig;
 sub new { shift; bless {@_}, "Sig" }
 
-sub emit_perl6 {
+sub emit_nqp {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    Main::join( [ map { $_->emit_perl6() } @{ $self->{positional} } ], ', ' );
+    Main::join( [ map { $_->emit_nqp() } @{ $self->{positional} } ], ', ' );
 }
 
 package Method;
 sub new { shift; bless {@_}, "Method" }
 
-sub emit_perl6 {
+sub emit_nqp {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -410,47 +409,47 @@ sub emit_perl6 {
     my $pos      = $sig->positional();
     my $field;
     do {
-        for my $field ( @{$pos} ) { $str = ( $str . ( 'my ' . ( $field->emit_perl6() . ( '; ' . Main::newline() ) ) ) ) }
+        for my $field ( @{$pos} ) { $str = ( $str . ( 'my ' . ( $field->emit_nqp() . ( '; ' . Main::newline() ) ) ) ) }
     };
     my $bind = Bind->new( 'parameters' => Lit::Array->new( 'array' => $sig->positional(), ), 'arguments' => Var->new( 'sigil' => '@', 'twigil' => '', 'name' => '_', ), );
-    $str = ( $str . ( $bind->emit_perl6() . ( '; ' . Main::newline() ) ) );
-    ( 'sub ' . ( $self->{name} . ( ' { ' . ( 'my ' . ( $invocant->emit_perl6() . ( ' = shift; ' . ( $str . ( $self->{block}->emit_perl6() . ' }' ) ) ) ) ) ) ) );
+    $str = ( $str . ( $bind->emit_nqp() . ( '; ' . Main::newline() ) ) );
+    ( 'sub ' . ( $self->{name} . ( ' { ' . ( 'my ' . ( $invocant->emit_nqp() . ( ' = shift; ' . ( $str . ( $self->{block}->emit_nqp() . ' }' ) ) ) ) ) ) ) );
 }
 
 package Sub;
 sub new { shift; bless {@_}, "Sub" }
 
-sub emit_perl6 {
+sub emit_nqp {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( 'sub ' . ( ( $self->{block}->sig() ? ( '(' . ( $self->{block}->sig()->emit_perl6() . ')' ) ) : '' ) . ( ' { ' . ( Main::newline() . ( $self->{block}->emit_perl6() . ( Main::newline() . ( ' }' . Main::newline() ) ) ) ) ) ) );
+    ( 'sub ' . ( ( $self->{block}->sig() ? ( '(' . ( $self->{block}->sig()->emit_nqp() . ')' ) ) : '' ) . ( ' { ' . ( Main::newline() . ( $self->{block}->emit_nqp() . ( Main::newline() . ( ' }' . Main::newline() ) ) ) ) ) ) );
 }
 
 package Do;
 sub new { shift; bless {@_}, "Do" }
 
-sub emit_perl6 {
+sub emit_nqp {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( 'do { ' . ( $self->{block}->emit_perl6() . ' }' ) );
+    ( 'do { ' . ( $self->{block}->emit_nqp() . ' }' ) );
 }
 
 package BEGIN;
 sub new { shift; bless {@_}, "BEGIN" }
 
-sub emit_perl6 {
+sub emit_nqp {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( 'BEGIN { ' . ( $self->{block}->emit_perl6() . ' }' ) );
+    ( 'BEGIN { ' . ( $self->{block}->emit_nqp() . ' }' ) );
 }
 
 package Use;
 sub new { shift; bless {@_}, "Use" }
 
-sub emit_perl6 {
+sub emit_nqp {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
