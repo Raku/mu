@@ -53,9 +53,10 @@ is("text " ~ "stitching", "text stitching", 'concatenation with ~ operator');
 
 # L<S03/Tight or precedence/short-circuiting inclusive-or>
 is(2 || 3, 2, "|| returns first true value");
-is(2 ?| 3, 1, "boolean or (?|) returns 0 or 1");
 ok(!(defined( 0 || undef)), "|| returns last false value of list?");
-is(0 ?| undef, 0, "boolean or (?|) returns 0 or 1", :todo);
+
+is(2 ?| 3, True, "boolean or (?|) returns True or False"); 
+is(0 ?| undef, False, "boolean or (?|) returns True or False");
 
 # L<S03/Junctive operators/They thread through operations>
 ok((all((4|5|6) + 3) == one(7|8|9)), "all elements in junction are incremented");
@@ -84,3 +85,4 @@ ok(42 > 12 & 20 & 32, "test the all infix operator");
 my @rv;
 @rv = (1,2,3,4) >>+<< (1,2,3,4);
 is("@rv[]", "2 4 6 8", 'hyper-add');
+
