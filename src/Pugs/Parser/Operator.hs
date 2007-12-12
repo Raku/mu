@@ -74,7 +74,7 @@ incrLevel = postOps incrOpsPost ++ preOps incrOpsPre
 expoLevel = rightOps (opWords " ** ")
 symbLevel = preSyn (Set.singleton (MkOpName (cast "|"))) ++ preOps symbPreops
 multLevel = leftOps (opWords " * / % +& +< +> ~& ~< ~> ?& ")
-addiLevel = leftOps (opWords " + - +| +^ ~| ~^ ?| ")
+addiLevel = leftOps (opWords " + - +| +^ ~| ~^ ?| ?^ ")
 replLevel = leftOps (opWords " x xx ")
 concLevel = leftOps (opWords " ~ ")
 junaLevel = listOps (opWords " & ")
@@ -712,7 +712,7 @@ ruleInfixAssignment = choice $ ops (try . string) infixAssignmentOps
 defaultInfixOps :: Set OpName
 defaultInfixOps = opWords $ concat
     [ " ** * / % x xx +& +< +> ~& ~< ~> "
-    , " + - ~ +| +^ ~| ~^ ?| , Z X minmax "
+    , " + - ~ +| +^ ~| ~^ ?| ?^ , Z X minmax "
     , " & ^ | "
     , " => = "
     , " != == < <= > >= ~~ "

@@ -957,6 +957,10 @@ op1Chomp str
 perlReplicate :: VInt -> a -> [a]
 perlReplicate = genericReplicate . max 0
 
+-- XXX only used at    op2 "?^"   because my Haskell is too poor - ferreira 
+neBool :: VBool -> VBool -> VBool
+neBool = (==) . not
+
 -- |Implementation of 2-arity primitive operators and functions
 op2 :: String -> Val -> Val -> Eval Val
 op2 "rename" = guardedIO2 rename
@@ -984,6 +988,7 @@ op2 "~|" = op2Str $ mapStr2Fill (.|.)
 op2 "?|" = op2Bool (||)
 op2 "?&" = op2Bool (&&)
 op2 "~^" = op2Str $ mapStr2Fill xor
+op2 "?^" = op2Bool neBool -- for bools, 'xor' is the same as '!=='
 op2 "=>" = \x y -> return $ castV (x, y)
 op2 "="  = \x y -> evalExp (Syn "=" [Val x, Val y])
 op2 "cmp"= op2OrdNumStr
@@ -2121,6 +2126,7 @@ initSyms = seq (length syms) $ do
 \\n   Str       left    ~|      safe   (Str, Str)\
 \\n   Str       left    ~^      safe   (Str, Str)\
 \\n   Bool      left    ?|      safe   (Bool, Bool)\
+\\n   Bool      left    ?^      safe   (Bool, Bool)\
 \\n   Bool      left    ?&      safe   (Bool, Bool)\
 \\n   Pair      right   =>      safe   (Any, Any)\
 \\n   Int       non     cmp     safe   (Any, Any)\
