@@ -4,7 +4,7 @@ use Test;
 
 plan 41;
 
-{ # L<S03/"Operator renaming" /imposes a boolean context/>
+{ # L<S03/"Changes to Perl 5 operators"/imposes boolean context/>
   is ?True,    True,  "? context forcer works (1)";
   is ?False,   False, "? context forcer works (2)";
 
@@ -34,7 +34,7 @@ plan 41;
   is ?{:a},    True,   "? context forcer: non-empty hash is true";
 }
 
-{ # L<S03/"Operator renaming" /imposes a numeric context/>
+{ # L<S03/"Changes to Perl 5 operators" /imposes a numeric context/>
   is +1,           1, "+ context forcer works (1)";
   is +0,           0, "+ context forcer works (2)";
   is +"1",         1, "+ context forcer works (3)";
@@ -49,7 +49,7 @@ plan 41;
   is +(?3),        1, "+ context forcer works (11)";
 }
 
-{ # L<S03/"Operator renaming" /imposes a string context/>
+{ # L<S03/"Changes to Perl 5 operators" /imposes a string context/>
   is ~1,         "1", "~ context forcer works (1)";
   is ~0,         "0", "~ context forcer works (2)";
   is ~"1",       "1", "~ context forcer works (3)";
