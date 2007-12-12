@@ -55,7 +55,7 @@ May be used to enter one line of program.
 
 execute use the compiler backend.
 
-(valid backends are: ast, perl5, perl6, cl (add -sbcl, -clisp, -ecl under -B)
+(valid backends are: ast, perl5, perl6, nqp, cl (add -sbcl, -clisp, -ecl under -B)
 
 =item -C[backend]
 
@@ -279,6 +279,10 @@ my @visitors;
     if ( grep { $_ eq 'perl6' } @opt{qw(C B)} ) {
         push @visitor_sequence, qw( Emit::Perl6 )
             unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Perl6';
+    }
+    elsif ( grep { $_ eq 'nqp' } @opt{qw(C B)} ) {
+        push @visitor_sequence, qw( Emit::Nqp )
+            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Nqp';
     }
     elsif ( grep { $_ eq 'ast' } @opt{qw(C B)} ) {
         push @visitor_sequence, qw( Emit::AstPerl )
@@ -630,6 +634,10 @@ Use the L<KindaPerl6::Visitor::Emit::Perl5Regex> Perl 6 to Perl 5 regex emitter.
 =item --perl6
 
 Emit Perl 6 via L<KindaPerl6::Visitor::Emit::Perl6>.
+
+=item --nqp
+
+Emit "nqp" Perl 6 via L<KindaPerl6::Visitor::Emit::Nqp>.
 
 =item --parrot
 
