@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 36;
+plan 41;
 
 { # L<S03/"Operator renaming" /imposes a boolean context/>
   is ?True,    True,  "? context forcer works (1)";
@@ -22,6 +22,16 @@ plan 36;
   is ?"0",     False, "? context forcer works (12)";
   is ?(?"3"),  True,  "? context forcer works (13)";
   is ?(?"0"),  False, "? context forcer works (14)";
+
+  is ?undef,   False, "? context forcer works (15)";
+}
+{ # L<S02/"Names and Variables" /In boolean contexts/>
+  is ?[],      False,  "? context forcer: empty container is false";
+  is ?[1],     True,   "? context forcer: non-empty container is true";
+}
+{ # L<SO2/"Names and Variables" /In a boolean context, a Hash/>
+  is ?{},      False,  "? context forcer: empty hash is false";
+  is ?{:a},    True,   "? context forcer: non-empty hash is true";
 }
 
 { # L<S03/"Operator renaming" /imposes a numeric context/>
