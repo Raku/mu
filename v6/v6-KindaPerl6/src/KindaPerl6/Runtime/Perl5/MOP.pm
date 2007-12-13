@@ -746,6 +746,18 @@ $meta_Class->{_value}{methods}{add_method} = ::DISPATCH(
 ::DISPATCH(
     $meta_Class,
     'add_method',
+    'Str',
+    ::DISPATCH(
+        $::Method,
+        'new',
+        {   code => sub { ::DISPATCH( $::Str, 'new', $_[0]{_value}{class_name} ) }
+        }
+    )
+);
+
+::DISPATCH(
+    $meta_Class,
+    'add_method',
     'add_parent',
     ::DISPATCH(
         $::Method,
