@@ -13,9 +13,11 @@ class KindaPerl6::Visitor::Emit::Nqp {
 
 class CompUnit {
     method emit_nqp {
-          'module ' ~ $.name ~ ";"
+          'module ' ~ $.name ~ ' {'
         ~ Main::newline()
         ~ $.body.emit_nqp
+        ~ Main::newline()
+        ~ '}'
 	~ Main::newline();
     }
 }
@@ -411,3 +413,4 @@ under the same terms as Perl itself.
 See L<http://www.perl.com/perl/misc/Artistic.html>
 
 =end
+# vim: sw=4 ts=4 expandtab syntax=perl6
