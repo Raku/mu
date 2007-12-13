@@ -48,7 +48,7 @@ Available backends are
  perl5    = Perl 5 (using the MiniPerl6 regex engine)     <= default
  perl5rx  = Perl 5 (using the Perl 5 regex engine)
  perl6    = Perl 6
- cl-sbcl  = lisp_sbcl
+ cl-sbcl  = lisp sbcl
  cl-ecl   = lisp ecl
  cl-clisp = lisp clisp
 
@@ -162,6 +162,7 @@ if ( scalar @{ $opt{include} } ) {
     my @libs = @{ $opt{include} };
     @libs = map { '-I' . $_ } @libs;
     $opt{include} = join ' ', @libs;
+    $opt{include} = undef if $opt{include} eq '-I';
 }
 else {
     $opt{include} = undef;
@@ -220,7 +221,7 @@ sub run_test_harness {
     my $libs = defined $args->{include} ? $args->{include} : '';
 
     # PRE Test::Harness 3.0
-    local $ENV{HARNESS_PERL} = "$args->{exec} $libs script/kp6 -backend=$args->{ backend }";
+    local $ENV{HARNESS_PERL} = "$args->{exec} $libs script/kp6 -B$args->{ backend }";
 
     my $ok = eval { runtests( @{ $args->{tests} } ); };
     warn $@ if $@;
