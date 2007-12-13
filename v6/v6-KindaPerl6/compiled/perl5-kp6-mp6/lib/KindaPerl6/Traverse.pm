@@ -16,7 +16,7 @@ sub visit {
     do { $visitor = $List__->[0]; $node = $List__->[1]; $node_name = $List__->[2]; $path = $List__->[3]; [ $visitor, $node, $node_name, $path ] };
     do {
         if ( ( defined($path) ? 0 : 1 ) ) { $path = [] }
-        else                              { }
+        else { }
     };
     do {
         if ( ( Main::isa( $node, 'Array' ) || Main::isa( $node, 'List' ) ) ) {
@@ -41,18 +41,18 @@ sub visit {
         else { }
     };
     do {
-        if   ( Main::isa( $node, 'Str' ) ) { return ($node) }
-        else                               { }
+        if ( Main::isa( $node, 'Str' ) ) { return ($node) }
+        else { }
     };
     do {
-        if   ( Main::isa( $node, 'Pad' ) ) { return ($node) }
-        else                               { }
+        if ( Main::isa( $node, 'Pad' ) ) { return ($node) }
+        else { }
     };
     $path = [ $node, @{$path} ];
     my $result = $visitor->visit( $node, $node_name, $path );
     do {
-        if   ($result) { return ($result) }
-        else           { }
+        if ($result) { return ($result) }
+        else { }
     };
     my $result = {};
     my $data   = $node->attribs();
@@ -71,11 +71,11 @@ sub visit_subnode {
     do { $visitor = $List__->[0]; $subnode = $List__->[1]; $path = $List__->[2]; [ $visitor, $subnode, $path ] };
     do {
         if ( ( defined($subnode) ? 0 : 1 ) ) { return ( (undef) ) }
-        else                                 { }
+        else { }
     };
     do {
         if ( ( Main::isa( $subnode, 'Array' ) || ( Main::isa( $subnode, 'List' ) || ( Main::isa( $subnode, 'Hash' ) || ( Main::isa( $subnode, 'Str' ) || Main::isa( $subnode, 'Pad' ) ) ) ) ) ) { return ( visit( $visitor, $subnode, (undef), $path ) ) }
-        else                                                                                                                                                                                    { return ( $subnode->emit( $visitor, $path ) ) }
+        else { return ( $subnode->emit( $visitor, $path ) ) }
         }
 }
 

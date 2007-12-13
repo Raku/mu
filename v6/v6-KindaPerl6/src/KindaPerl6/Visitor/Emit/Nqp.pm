@@ -13,11 +13,10 @@ class KindaPerl6::Visitor::Emit::Nqp {
 
 class CompUnit {
     method emit_nqp {
-          'module ' ~ $.name ~ " { "
+          'module ' ~ $.name ~ ";"
         ~ Main::newline()
         ~ $.body.emit_nqp
-        ~ Main::newline()
-        ~ '}' ~ Main::newline();
+	~ Main::newline();
     }
 }
 

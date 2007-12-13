@@ -32,7 +32,7 @@ sub visit {
     };
     do {
         if ( ( $node_name eq 'Lit::Code' ) ) { $KindaPerl6::Visitor::ShortCircuit::last_pad = $node->pad() }
-        else                                 { }
+        else { }
     };
     return ( (undef) );
 }

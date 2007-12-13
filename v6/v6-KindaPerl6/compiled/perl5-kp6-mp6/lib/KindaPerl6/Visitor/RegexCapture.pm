@@ -15,7 +15,7 @@ sub visit {
     do { $node = $List__->[0]; $node_name = $List__->[1]; [ $node, $node_name ] };
     do {
         if ( ( $node_name eq 'Token' ) ) { $node->regex()->capture_count( 0, 0, {} ); return ($node) }
-        else                             { }
+        else { }
     };
     return ( (undef) );
 }
@@ -64,7 +64,7 @@ sub capture_count {
             my $last = $regex->capture_count( $count, $quantified, $seen );
             do {
                 if ( ( $last > $max ) ) { $max = $last }
-                else                    { }
+                else { }
                 }
         }
     };
@@ -189,13 +189,13 @@ sub capture_count {
     my $seen;
     do { $count = $List__->[0]; $quantified = $List__->[1]; $seen = $List__->[2]; [ $count, $quantified, $seen ] };
     do {
-        if   ( ( $self->{assertion_modifier} ne '' ) ) { return ($count) }
-        else                                           { }
+        if ( ( $self->{assertion_modifier} ne '' ) ) { return ($count) }
+        else { }
     };
     $self->{capture_to_array} = ( $quantified || ( $seen->{'before'} && 1 ) );
     do {
-        if   ( $seen->{'before'} ) { $seen->{'before'}->capture_to_array(1) }
-        else                       { }
+        if ( $seen->{'before'} ) { $seen->{'before'}->capture_to_array(1) }
+        else { }
     };
     $seen->{'before'} = $self;
     $self->{rule}->capture_count( 0, 0, {} );
@@ -213,13 +213,13 @@ sub capture_count {
     my $seen;
     do { $count = $List__->[0]; $quantified = $List__->[1]; $seen = $List__->[2]; [ $count, $quantified, $seen ] };
     do {
-        if   ( ( $self->{assertion_modifier} ne '' ) ) { return ($count) }
-        else                                           { }
+        if ( ( $self->{assertion_modifier} ne '' ) ) { return ($count) }
+        else { }
     };
     $self->{capture_to_array} = ( $quantified || ( $seen->{'after'} && 1 ) );
     do {
-        if   ( $seen->{'after'} ) { $seen->{'after'}->capture_to_array(1) }
-        else                      { }
+        if ( $seen->{'after'} ) { $seen->{'after'}->capture_to_array(1) }
+        else { }
     };
     $seen->{'after'} = $self;
     $self->{rule}->capture_count( 0, 0, {} );
@@ -266,8 +266,8 @@ sub capture_count {
     $self->{ident} = $self->{metasyntax};
     $self->{capture_to_array} = ( $quantified || ( $seen->{ $self->{ident} } && 1 ) );
     do {
-        if   ( $seen->{ $self->{ident} } ) { $seen->{ $self->{ident} }->capture_to_array(1) }
-        else                               { }
+        if ( $seen->{ $self->{ident} } ) { $seen->{ $self->{ident} }->capture_to_array(1) }
+        else { }
     };
     $seen->{ $self->{ident} } = $self;
     $count;
@@ -286,8 +286,8 @@ sub capture_count {
     $self->{capture_to_array} = ( $quantified || ( $seen->{ $self->{ident} } && 1 ) );
     $self->{rule}->capture_count( 0, 0, {} );
     do {
-        if   ( $seen->{ $self->{ident} } ) { $seen->{ $self->{ident} }->capture_to_array(1) }
-        else                               { }
+        if ( $seen->{ $self->{ident} } ) { $seen->{ $self->{ident} }->capture_to_array(1) }
+        else { }
     };
     $seen->{ $self->{ident} } = $self;
     $count;
@@ -306,8 +306,8 @@ sub capture_count {
     $self->{position} = $count;
     $self->{capture_to_array} = ( $quantified || ( $seen->{ $self->{ident} } && 1 ) );
     do {
-        if   ( $seen->{ $self->{ident} } ) { $seen->{ $self->{ident} }->capture_to_array(1) }
-        else                               { }
+        if ( $seen->{ $self->{ident} } ) { $seen->{ $self->{ident} }->capture_to_array(1) }
+        else { }
     };
     $seen->{$count} = $self;
     $self->{rule}->capture_count( 0, 0, {} );
