@@ -1012,6 +1012,18 @@ $meta_isa = sub {
     )
 );
 
+::DISPATCH(
+    $meta_Object,
+    'add_method',
+    'DISPATCH',
+    ::DISPATCH($::Method,'new',sub {
+        my $self=shift;my $meth_name=shift;
+        ::DISPATCH($self,GLOBAL::_str($meth_name),@_)
+    }
+    ),
+);
+
+
 # add .Int
 ::DISPATCH(
     $meta_Object,

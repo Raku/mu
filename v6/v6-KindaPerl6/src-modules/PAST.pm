@@ -6,7 +6,7 @@ class PCT::Node {
         }
         my $attrs = '';
         for (self.HOW).attributes -> $attr {
-            $attrs = $attrs ~ ',:'~$attr~'('~')';
+            $attrs = $attrs ~ ',:'~$attr~'('~(self.DISPATCH($attr)).perl~')';
         }
         my $str = self.WHAT ~ '.new('
         ~ ((self.children).>>perl).join(",")
