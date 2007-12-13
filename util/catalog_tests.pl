@@ -66,7 +66,7 @@ $0 - Build html test catalog and synopses with hyperlinks to corresponding tests
    See also:
      util/yaml_harness.pl  - produce the data for this tool
      util/testgraph.pl     - Generates an HTML summary of a YAML test run
-     util/run-smome.pl     - automate the smoke process
+     util/run-smoke.pl     - automate the smoke process
 
 __HELP__
 
@@ -90,13 +90,14 @@ my @syn;
 
 my $help;
 my $no_designdocs;
-GetOptions('test_dirs=s@' => \@t_dirs,
+GetOptions('test_dirs=s' => \@t_dirs,
        'output_dir=s' => \$output_dir,
        'p6design_dir=s' => \$syn_src_dir,
        'no_designdocs' => \$no_designdocs,
         'help' => \&usage) || usage(1);
-@t_dirs = split(/,/,join(',',@t_dirs||()));
-
+print "t_dirs: @t_dirs\n";
+@t_dirs = split(/,/,join(',',@t_dirs));
+print "t_dirs: @t_dirs\n";
 
 # Find design doc directory, check
 unless($no_designdocs) {
@@ -127,7 +128,7 @@ if($no_designdocs) {
 if($#t_dirs >= 0) {
     print "Tests                 : @t_dirs\n";
 } else {
-    print "Tests                 : Processing tests from tests.yaml\n";
+    print "Tests                 : Processing tests from tests.yml\n";
 }
 print "Output directory      : $output_dir\n";
 print "\n";
@@ -144,7 +145,7 @@ my $link     = qr{(.*?)                                     # Leading bit
                       >+)                                       # End of link
                       (.*)                                      # rest of thing
                 }sx;
-           
+
 
 my $index = {};
 my (@unresolved, @bad_regex, @bad_heading);

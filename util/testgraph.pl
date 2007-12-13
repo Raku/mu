@@ -63,7 +63,7 @@ Generates an HTML summary of a YAML test run. Options:
 See also:
    util/yaml_harness.pl  - produce the data for this tool
    util/catalog_tests.pl - produce cross-linkable tests
-   util/run-smome.pl     - automate the smoke process
+   util/run-smoke.pl     - automate the smoke process
 
 USAGE
   exit 0;
