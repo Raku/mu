@@ -4,7 +4,9 @@ use Test;
 
 plan 76;
 
-# L<S02/"Whitespace and Comments"/"long dot">
+# L<S02/"Whitespace and Comments"/This is known as the "unspace">
+# FIXME: this test should be rethought/renamed - the long dot
+#        concept was absorbed into the more general "unspace" thing
 
 is(4\       .sqrt, 2, 'long dot with numbers');
 is(4\#(quux).sqrt, 2, 'long dot with comments');

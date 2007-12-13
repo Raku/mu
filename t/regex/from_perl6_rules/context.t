@@ -14,7 +14,7 @@ if !eval('("a" ~~ /a/)') {
   skip_rest "skipped tests - rules support appears to be missing";
 } else {
 
-# L<S05/The C<:p> (or C<:pos>) modifier/
+# L<< S05/The C<:p> (or C<:pos>) modifier >>
 
 force_todo(1..7);
 

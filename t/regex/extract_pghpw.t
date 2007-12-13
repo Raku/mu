@@ -108,7 +108,7 @@ ok($presentation);
 is(~$presentation<presentation><title>, 'Making Perl Work for You', 'match presentation.title');
 is(~$presentation<presentation><presenter>, 'brian d foy', 'match presentation.presenter');
 
-# L<S05/Match objects/"you can override that by calling return inside a regex">
+# L<< S05/Match objects/"you can override that by calling C<make> inside a regex" >>
 my $talk = ($content ~~ m/<talk>/);
 ok($talk);
 my $title_value; eval('$title_value = $talk.title');

@@ -16,7 +16,7 @@ if !eval('("a" ~~ /a/)') {
 
 force_todo(1,4,9,10);
 
-# L<S05/Extensible metasyntax (C<< <...> >>)/The special named assertions include:/
+# L<S05/Extensible metasyntax (C<< <...> >>)/The special named assertions include:>
 
 regex bc { b?c }
 

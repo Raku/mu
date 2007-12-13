@@ -14,7 +14,7 @@ my $str2 = "bar";
 my $str3 = "foobar";
 my $str4 = $str1~$str2;
 
-# L<S03/Additive precedence/string concatenation>
+# L<S03/Concatenation>
 is($str3, $str4, "~");
 
 # L<S03/Conditional operator precedence/Also known as the ternary or trinary operator>
@@ -46,7 +46,7 @@ is(2 + 3, $five, "== (sum on lhs)");
 ok((2 + 3) == 5, "== (sum on lhs)");
 ok(!((2 + 3) != $five), "== (sum on lhs)");
 
-# L<S03/Additive precedence/string concatenation>
+# L<S03/Concatenation>
 is("text " ~ "stitching", "text stitching", 'concatenation with ~ operator');
 
 # Bit Stitching

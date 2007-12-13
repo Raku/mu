@@ -6,8 +6,7 @@ plan 2;
 
 =pod
 
-# L<S05/Return values from matches/"The array elements of a Match object are 
-referred to"
+# L<< S05/Return values from matches/"The array elements of a C<Match> object are referred to" >>
 
 Testing capture rollback when an alternation fails.
 
