@@ -50,7 +50,7 @@ ROADMAP
 
 0.0.1.18 - All the native types implement the mandatory methods.
 
-0.0.1.19 - The native types implement the APPLY method.
+0.0.1.19 - A calling convention is defined. The native types implement the APPLY method.
 
 0.0.2 - YAP6 is a shared library with a minimal but stable API.
 

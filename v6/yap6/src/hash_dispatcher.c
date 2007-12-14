@@ -96,6 +96,11 @@ static void hash_proxyscalar_dispatcher_DESTR(YAP6__CORE__Dispatcher* self,
 static YAP6__CORE__Value* hash_proxyscalar_dispatcher_FETCH(YAP6__CORE__Dispatcher* self,
                                           YAP6__CORE__Value* value,
                                           YAP6__CORE__Value* wants) {
+  yap6_value_wrlock(value);
+  YAP6__CORE__Value* val = ((YAP6__CORE__Scalar*)value)->cell;
+  yap6_value_unlock(value);
+  yap6_value_refcnt_inc(val);
+  return val;
 }
 
 static YAP6__CORE__Value* hash_proxyscalar_dispatcher_STORE(YAP6__CORE__Dispatcher* self,
