@@ -22,7 +22,7 @@ static void bytes_dispatcher_DESTR(YAP6__CORE__Dispatcher* self,
 
 static YAP6__CORE__bytes* bytes_dispatcher_WHICH(YAP6__CORE__Dispatcher* self,
                                                YAP6__CORE__Value* value) {
-  return value;
+  return (YAP6__CORE__bytes*)value;
 }
 
 YAP6__CORE__Dispatcher* yap6_const_bytes_dispatcher;

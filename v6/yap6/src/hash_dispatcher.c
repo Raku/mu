@@ -62,6 +62,17 @@ static YAP6__CORE__bytes* hash_dispatcher_WHICH(YAP6__CORE__Dispatcher* self,
 
 }
 
+
+static YAP6__CORE__int* hash_dispatcher_ELEMS(YAP6__CORE__Dispatcher* self,
+                                   YAP6__CORE__Value* value) {
+  yap6_value_rdlock(value);
+  int length = ((YAP6__CORE__Hash*)value)->length;
+  yap6_value_unlock(value);
+  return yap6_int_crate(length);
+
+}
+
+
 static YAP6__CORE__Value* hash_proxyscalar_dispatcher_APPLY(YAP6__CORE__Dispatcher* self,
                                           YAP6__CORE__Value* value,
                                           YAP6__CORE__List* arguments,

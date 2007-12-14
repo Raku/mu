@@ -106,6 +106,15 @@ static YAP6__CORE__bytes* list_dispatcher_WHICH(YAP6__CORE__Dispatcher* self,
 
 }
 
+static YAP6__CORE__int* list_dispatcher_ELEMS(YAP6__CORE__Dispatcher* self,
+                                   YAP6__CORE__Value* value) {
+  yap6_value_rdlock(value);
+  int length = ((YAP6__CORE__List*)value)->length;
+  yap6_value_unlock(value);
+  return yap6_int_create(length);
+
+}
+
 static YAP6__CORE__Value* list_proxyscalar_dispatcher_APPLY(YAP6__CORE__Dispatcher* self,
                                           YAP6__CORE__Value* value,
                                           YAP6__CORE__List* arguments,
@@ -198,6 +207,7 @@ void yap6_list_dispatcher_init() {
   yap6_const_list_dispatcher->EXIST = &list_dispatcher_EXIST;
   yap6_const_list_dispatcher->DELET = &list_dispatcher_DELET;
   yap6_const_list_dispatcher->WHICH = &list_dispatcher_WHICH;
+  yap6_const_list_dispatcher->ELEMS = &list_dispatcher_ELEMS;
 
   yap6_const_list_proxyscalar_dispatcher = (YAP6__CORE__ScalarDispatcher*)yap6_value_alloc(sizeof(YAP6__CORE__ScalarDispatcher));
   yap6_const_list_proxyscalar_dispatcher->dispatcher = yap6_const_ident_dispatcher;

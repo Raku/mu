@@ -70,6 +70,7 @@ void yap6_pair_dispatcher_init() {
   yap6_const_pair_dispatcher->GTKEY = &pair_dispatcher_GTKEY;
   yap6_const_pair_dispatcher->GTVAL = &pair_dispatcher_GTVAL;
   yap6_const_pair_dispatcher->STVAL = &pair_dispatcher_STVAL;
+  yap6_const_pair_dispatcher->WHICH = &pair_dispatcher_WHICH;
 }
 
 YAP6__CORE__Pair* yap6_pair_create(YAP6__CORE__Value* key, YAP6__CORE__Value* value) {

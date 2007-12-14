@@ -197,6 +197,10 @@ typedef struct YAP6__CORE__ListDispatcher {
   YAP6__CORE__Scalar* (*DELET)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__int* index);
+  // returns the number of elements
+  // REFCOUNT: the return of this method is counted as a refcount
+  YAP6__CORE__int*    (*ELEMS)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
 } YAP6__CORE__ListDispatcher;
 
 struct YAP6__CORE__List {
@@ -300,6 +304,11 @@ typedef struct YAP6__CORE__HashDispatcher {
   YAP6__CORE__Scalar* (*DELET)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__Value* key);
+  // returns the number of elements
+  // REFCOUNT: the return of this method is counted as a refcount
+  YAP6__CORE__int*    (*ELEMS)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
+
 } YAP6__CORE__HashDispatcher;
 
 typedef struct YAP6__CORE__Hash {
@@ -406,6 +415,33 @@ extern void yap6_value_unlock(YAP6__CORE__Value* value);
                                               (YAP6__CORE__Value*)value,\
                                               (YAP6__CORE__int*)index))
 
+
+/* Dispatching mechanism... This can be rewritten in the future,
+   but for now, it's as simple as it gets */
+#define YAP6_LIST_DELET(value,index) (value->dispatcher?\
+                                           value->dispatcher->DELET(\
+                                              ((YAP6__CORE__ListDispatcher*)value)->dispatcher,\
+                                              (YAP6__CORE__Value*)value,\
+                                              (YAP6__CORE__int*)index\
+                                           ):\
+                                           ((YAP6__CORE__ListDispatcher*)value)->DELET(\
+                                              (YAP6__CORE__Dispatcher*)value,\
+                                              (YAP6__CORE__Value*)value,\
+                                              (YAP6__CORE__int*)index))
+
+/* Dispatching mechanism... This can be rewritten in the future,
+   but for now, it's as simple as it gets */
+#define YAP6_LIST_ELEMS(value,index) (value->dispatcher?\
+                                           value->dispatcher->ELEMS(\
+                                              ((YAP6__CORE__ListDispatcher*)value)->dispatcher,\
+                                              (YAP6__CORE__Value*)value,\
+                                              (YAP6__CORE__int*)index\
+                                           ):\
+                                           ((YAP6__CORE__ListDispatcher*)value)->ELEMS(\
+                                              (YAP6__CORE__Dispatcher*)value,\
+                                              (YAP6__CORE__Value*)value,\
+                                              (YAP6__CORE__int*)index))
+
 /* Dispatching mechanism... This can be rewritten in the future,
    but for now, it's as simple as it gets */
 #define YAP6_SCALAR_FETCH(value,wants) (value->dispatcher?\
@@ -466,5 +502,59 @@ extern void yap6_value_unlock(YAP6__CORE__Value* value);
                                               (YAP6__CORE__Dispatcher*)value,\
                                               (YAP6__CORE__Value*)value,\
                                               (YAP6__CORE__Value*)newval))
+
+
+/* Dispatching mechanism... This can be rewritten in the future,
+   but for now, it's as simple as it gets */
+#define YAP6_HASH_LOOKP(value,key) (value->dispatcher?\
+                                           value->dispatcher->LOOKP(\
+                                              ((YAP6__CORE__HashDispatcher*)value)->dispatcher,\
+                                              (YAP6__CORE__Value*)value,\
+                                              (YAP6__CORE__Value*)key\
+                                           ):\
+                                           ((YAP6__CORE__HashDispatcher*)value)->LOOKP(\
+                                              (YAP6__CORE__Dispatcher*)value,\
+                                              (YAP6__CORE__Value*)value,\
+                                              (YAP6__CORE__Value*)key))
+
+/* Dispatching mechanism... This can be rewritten in the future,
+   but for now, it's as simple as it gets */
+#define YAP6_HASH_EXIST(value,key) (value->dispatcher?\
+                                           value->dispatcher->EXIST(\
+                                              ((YAP6__CORE__HashDispatcher*)value)->dispatcher,\
+                                              (YAP6__CORE__Value*)value,\
+                                              (YAP6__CORE__Value*)key\
+                                           ):\
+                                           ((YAP6__CORE__HashDispatcher*)value)->EXIST(\
+                                              (YAP6__CORE__Dispatcher*)value,\
+                                              (YAP6__CORE__Value*)value,\
+                                              (YAP6__CORE__Value*)key))
+
+
+/* Dispatching mechanism... This can be rewritten in the future,
+   but for now, it's as simple as it gets */
+#define YAP6_HASH_DELET(value,key) (value->dispatcher?\
+                                           value->dispatcher->DELET(\
+                                              ((YAP6__CORE__HashDispatcher*)value)->dispatcher,\
+                                              (YAP6__CORE__Value*)value,\
+                                              (YAP6__CORE__Value*)key\
+                                           ):\
+                                           ((YAP6__CORE__HashDispatcher*)value)->DELET(\
+                                              (YAP6__CORE__Dispatcher*)value,\
+                                              (YAP6__CORE__Value*)value,\
+                                              (YAP6__CORE__Value*)key))
+
+/* Dispatching mechanism... This can be rewritten in the future,
+   but for now, it's as simple as it gets */
+#define YAP6_HASH_ELEMS(value,key) (value->dispatcher?\
+                                           value->dispatcher->ELEMS(\
+                                              ((YAP6__CORE__HashDispatcher*)value)->dispatcher,\
+                                              (YAP6__CORE__Value*)value,\
+                                              (YAP6__CORE__Value*)key\
+                                           ):\
+                                           ((YAP6__CORE__HashDispatcher*)value)->ELEMS(\
+                                              (YAP6__CORE__Dispatcher*)value,\
+                                              (YAP6__CORE__Value*)value,\
+                                              (YAP6__CORE__Value*)key))
 
 #endif
