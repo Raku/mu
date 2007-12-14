@@ -340,12 +340,12 @@ extern YAP6__CORE__Value* yap6_value_alloc(int size);
 /* This function increments the reference count of a value, it
    should be called whenever the value is referenced by another
    value */
-extern void yap6_value_refcnt_inc(YAP6__CORE__Value* value);
+extern YAP6__CORE__Value* yap6_value_refcnt_inc(YAP6__CORE__Value* value);
 /* This functions decrements the reference count of a value, it should
    be called whenever one reference to this value is destroied. It
    will call DESTR in the dispatcher and free() the pointer when
    appropriate. */
-extern void yap6_value_refcnt_dec(YAP6__CORE__Value* value);
+extern YAP6__CORE__Value* yap6_value_refcnt_dec(YAP6__CORE__Value* value);
 /* This functions synchronizes the access to this value. It should be
    called whenever some pointer in the low-level details (some
    non-core-value member of the struct) will be accessed. */
@@ -388,6 +388,10 @@ extern void yap6_value_unlock(YAP6__CORE__Value* value);
                                               (YAP6__CORE__Dispatcher*)value,\
                                               (YAP6__CORE__Value*)value))
 
+/* WHAT returns the dispatcher */
+#define YAP6_WHAT(value)                 (value->dispatcher?\
+                                           yap6_value_refcnt_inc(value->dispatcher):\
+                                           yap6_value_refcnt_inc(value))
 
 /* Dispatching mechanism... This can be rewritten in the future,
    but for now, it's as simple as it gets */

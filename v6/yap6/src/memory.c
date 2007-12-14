@@ -96,13 +96,14 @@ YAP6__CORE__Value* yap6_value_alloc(int size) {
   return y;
 }
 
-void yap6_value_refcnt_inc(YAP6__CORE__Value* value) {
+YAP6__CORE__Value* yap6_value_refcnt_inc(YAP6__CORE__Value* value) {
   yap6_value_wrlock(value);
   value->ref_cnt++;
   yap6_value_unlock(value);
+  return value;
 }
 
-void yap6_value_refcnt_dec(YAP6__CORE__Value* value) {
+YAP6__CORE__Value* yap6_value_refcnt_dec(YAP6__CORE__Value* value) {
   yap6_value_wrlock(value);
   value->ref_cnt--;
   if (value->ref_cnt <= 0) {
@@ -118,8 +119,10 @@ void yap6_value_refcnt_dec(YAP6__CORE__Value* value) {
     pthread_rwlock_destroy(value->rwlock);
     free(value->rwlock);
     free(value);
+    return NULL;
   } else {
     yap6_value_unlock(value);
+    return value;
   }
 }
 
