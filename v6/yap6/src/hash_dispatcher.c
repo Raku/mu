@@ -15,11 +15,27 @@ static YAP6__CORE__Value* hash_dispatcher_APPLY(YAP6__CORE__Dispatcher* self,
                                           YAP6__CORE__Value* value,
                                           YAP6__CORE__List* arguments,
                                           YAP6__CORE__Value* wants) {
+  // TODO
+  return value;
 }
 
 
 static void hash_dispatcher_DESTR(YAP6__CORE__Dispatcher* self,
                                           YAP6__CORE__Value* value) {
+  yap6_value_wrlock(value);
+  YAP6__CORE__Hash* hash = (YAP6__CORE__Hash*)value;
+  int length = hash->length;
+  YAP6__CORE__Pair** pairs = hash->pairs;
+  hash->length = 0;
+  hash->pairs = NULL;
+  yap6_value_unlock(value);
+  int i;
+  for (i = 0; i < length; i++) {
+    if (pairs[i]) {
+      yap6_value_refcnt_dec(pairs[i]);
+      pairs[i] = NULL;
+    }
+  }
 }
 
 static YAP6__CORE__Scalar* hash_dispatcher_LOOKP(YAP6__CORE__Dispatcher* self,
@@ -50,10 +66,19 @@ static YAP6__CORE__Value* hash_proxyscalar_dispatcher_APPLY(YAP6__CORE__Dispatch
                                           YAP6__CORE__Value* value,
                                           YAP6__CORE__List* arguments,
                                           YAP6__CORE__Value* wants) {
+  // TODO
+  return value;
 }
 
 static void hash_proxyscalar_dispatcher_DESTR(YAP6__CORE__Dispatcher* self,
                                           YAP6__CORE__Value* value) {
+  yap6_value_wrlock(value);
+  YAP6__CORE__Value* cell = ((YAP6__CORE__Scalar*)value)->cell;
+  ((YAP6__CORE__Scalar*)value)->cell = NULL;
+  yap6_value_unlock(value);
+  if (cell) {
+    yap6_value_refcnt_dec(cell);
+  }
 }
 
 
@@ -69,7 +94,7 @@ static YAP6__CORE__Value* hash_proxyscalar_dispatcher_STORE(YAP6__CORE__Dispatch
 
 static YAP6__CORE__bytes* hash_proxyscalar_dispatcher_WHICH(YAP6__CORE__Dispatcher* self,
                                    YAP6__CORE__Value* value) {
-  yap6_value_wrlock(value);
+  yap6_value_rdlock(value);
   YAP6__CORE__Value* val = ((YAP6__CORE__Scalar*)value)->cell;
   yap6_value_unlock(value);
   return YAP6_WHICH(val);

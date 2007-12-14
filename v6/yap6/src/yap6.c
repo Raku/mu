@@ -4,6 +4,8 @@
 
 void yap6_init() {
 
+  yap6_memory_init();
+
   // basic dispatch
   yap6_ident_dispatcher_init();
   yap6_const_init();
@@ -27,5 +29,7 @@ void yap6_destr() {
   yap6_int_dispatcher_destr();
   yap6_const_destr();
   yap6_ident_dispatcher_destr();
+
+  yap6_memory_destr();
 
 }

@@ -8,6 +8,8 @@
 // initialize all constants and low-level dispatchers...
 extern void yap6_init();
 extern void yap6_destr();
+extern void yap6_memory_init();
+extern void yap6_memory_destr();
 
 // forward declarations
 struct YAP6__CORE__Value; typedef struct YAP6__CORE__Value YAP6__CORE__Value;

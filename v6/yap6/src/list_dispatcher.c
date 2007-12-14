@@ -1,6 +1,7 @@
 #include "yap6.h"
 #include <assert.h>
 #include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 YAP6__CORE__List__ProxyScalar* yap6_list_proxyscalar_create() {
@@ -22,7 +23,6 @@ static YAP6__CORE__Value* list_dispatcher_APPLY(YAP6__CORE__Dispatcher* self,
 
 static void list_dispatcher_DESTR(YAP6__CORE__Dispatcher* self,
                                           YAP6__CORE__Value* value) {
-  // TODO
   yap6_value_wrlock(value);
   YAP6__CORE__List* list = (YAP6__CORE__List*)value;
   int length = list->length;
@@ -37,6 +37,7 @@ static void list_dispatcher_DESTR(YAP6__CORE__Dispatcher* self,
       items[i] = NULL;
     }
   }
+  free(items);
 }
 
 static YAP6__CORE__Scalar* list_dispatcher_LOOKP(YAP6__CORE__Dispatcher* self,
@@ -117,10 +118,15 @@ static void list_proxyscalar_dispatcher_DESTR(YAP6__CORE__Dispatcher* self,
                                           YAP6__CORE__Value* value) {
   yap6_value_wrlock(value);
   YAP6__CORE__Value* cell = ((YAP6__CORE__Scalar*)value)->cell;
+  YAP6__CORE__List* owner = ((YAP6__CORE__List__ProxyScalar*)value)->owner;
   ((YAP6__CORE__Scalar*)value)->cell = NULL;
+  ((YAP6__CORE__List__ProxyScalar*)value)->owner = NULL;
   yap6_value_unlock(value);
   if (cell) {
     yap6_value_refcnt_dec(cell);
+  }
+  if (owner) {
+    yap6_value_refcnt_dec((YAP6__CORE__Value*)owner);
   }
 }
 
