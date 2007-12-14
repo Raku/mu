@@ -390,8 +390,8 @@ extern void yap6_value_unlock(YAP6__CORE__Value* value);
 
 /* WHAT returns the dispatcher */
 #define YAP6_WHAT(value)                 (value->dispatcher?\
-                                           yap6_value_refcnt_inc(value->dispatcher):\
-                                           yap6_value_refcnt_inc(value))
+                                           yap6_value_refcnt_inc((YAP6__CORE__Value*)(value->dispatcher)):\
+                                           yap6_value_refcnt_inc((YAP6__CORE__Value*)value))
 
 /* Dispatching mechanism... This can be rewritten in the future,
    but for now, it's as simple as it gets */
