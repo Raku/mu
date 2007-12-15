@@ -28,10 +28,10 @@ class Scope is Value {
 
     method exists ( $key ) {
         if exists((self.vars){$key}) {
-            return (self.vars){$key};
+            return True;
         };
         if defined( self.outer ) {
-            return (self.outer).exists( $key );
+            return True;
         };
         return False;
     };
