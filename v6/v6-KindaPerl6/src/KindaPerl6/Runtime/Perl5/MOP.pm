@@ -359,6 +359,62 @@ my $dispatch = sub {
     return $meth->{_value}->( $self, @_ );
 };
 
+{
+no strict 'refs';
+package Cached;
+sub AUTOLOAD {
+    my $method_name = our $AUTOLOAD;
+    my ($self,@args) = @_;
+    if ($self->{_dispatch} eq $dispatch) {
+        my $cacheid = Cache::get_cacheid($self);
+        bless($self,"Cache::$cacheid");
+        print "setting Cache::${cacheid}::AUTOLOAD\n";
+        *{"Cache::${cacheid}::AUTOLOAD"} = \&Cache::autoload;
+        $method_name =~ s/^.*::(\w+)$/$1/;
+        $self->$method_name(@args);
+    } else {
+        $self->{_dispatch}($self,$method_name,@args);
+    }
+}
+package Cache;
+sub autoload {
+    our $AUTOLOAD;
+    my $self=shift;
+    if ( $self->{_roles}{auto_deref} ) {
+        $self = $self->FETCH;
+    }
+    my $method_name=$AUTOLOAD;
+    return if $AUTOLOAD eq ref($self) . '::DESTROY';
+    $method_name =~ s/^.*::(\w+)$/$1/;
+    print "#AUTOLOAD $AUTOLOAD\n";
+    my $method = KindaPerl6::Runtime::Perl5::MOP::get_method_from_object($self,$method_name);
+    if (ref $method eq 'CODE') {
+    } elsif ( ref( $method->{_value} ) eq 'HASH' && exists $method->{_value}{code} ) {
+        # XXX
+        # a properly boxed Method
+        #return ::DISPATCH( $meth, 'APPLY', $self, @_ );
+        my $boxed_method = $method;
+        $method = sub {
+            ::DISPATCH( $boxed_method, 'APPLY', $self, @_ );
+        };
+    } elsif (ref $method eq 'HASH') {
+
+        die ::DISPATCH(::DISPATCH($method,'perl'),'p5landish');
+    } else {
+        die $method;
+    }
+    print "#getting method $method_name $method\n";
+    *{$AUTOLOAD} = $method;
+    $method->(@_);
+}
+sub get_cacheid {
+    my $object = shift;
+    my $cacheid=$object->{_isa};
+    #$cacheid =~ tr/()//;
+    return $cacheid; 
+}
+}
+
 =head2 %::PROTO
 
 Basic (private) methods for all objects.

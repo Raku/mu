@@ -282,7 +282,6 @@ TODO: Should this "return;" intead of returning undef explicitly?
 
 =cut
 
-$::CACHE = {};
 sub get_method_from_object {
     my ( $self, $method_name ) = ( shift, shift );
 
@@ -290,20 +289,13 @@ sub get_method_from_object {
     return $self->{_methods}{$method_name}
         if exists $self->{_methods}{$method_name};
 
-        #if ($::CACHE->{$self->{_isa}}{$method_name}) {
-        #warn "#CACHE hit $method_name\n";
-        #return $::CACHE->{$self->{_isa}}{$method_name}
-        #}
     # lookup method in the metaclass
     for my $parent ( @{ $self->{_isa} }, $meta_Object ) {
         my $m = get_method_from_metaclass( $parent, $method_name );
 
         #print "found\n" if $m;
-
-        if ($m) {
-            #         $::CACHE->{$self->{_isa}}{$method_name} = $m;
-            return $m;
-        }
+        return $m
+            if $m;
     }
     return undef;
 }
@@ -315,7 +307,7 @@ is also used in various places to well, dispatch calls.
 
 =cut
 
-sub dispatch {
+my $dispatch = sub {
 
     # $method_name is unboxed
     my ( $self, $method_name ) = ( shift, shift );
@@ -365,8 +357,63 @@ sub dispatch {
     # warn 'LOW-LEVEL APPLY '.$method_name."\n".join("\n", map { join ",", caller($_) } 1..6)."\n";
     #local $::ROUTINE = $meth;  # XXX
     return $meth->{_value}->( $self, @_ );
+};
+
+{
+no strict 'refs';
+package Cached;
+sub AUTOLOAD {
+    my $method_name = our $AUTOLOAD;
+    my ($self,@args) = @_;
+    if ($self->{_dispatch} eq $dispatch) {
+        my $cacheid = Cache::get_cacheid($self);
+        bless($self,"Cache::$cacheid");
+        print "setting Cache::${cacheid}::AUTOLOAD\n";
+        *{"Cache::${cacheid}::AUTOLOAD"} = \&Cache::autoload;
+        $method_name =~ s/^.*::(\w+)$/$1/;
+        $self->$method_name(@args);
+    } else {
+        $self->{_dispatch}($self,$method_name,@args);
+    }
 }
-my $dispatch = \&dispatch;
+package Cache;
+sub autoload {
+    our $AUTOLOAD;
+    my $self=shift;
+    if ( $self->{_roles}{auto_deref} ) {
+        $self = $self->FETCH;
+    }
+    my $method_name=$AUTOLOAD;
+    return if $AUTOLOAD eq ref($self) . '::DESTROY';
+    $method_name =~ s/^.*::(\w+)$/$1/;
+    print "#AUTOLOAD $AUTOLOAD\n";
+    my $method = KindaPerl6::Runtime::Perl5::MOP::get_method_from_object($self,$method_name);
+    if (ref $method eq 'CODE') {
+    } elsif ( ref( $method->{_value} ) eq 'HASH' && exists $method->{_value}{code} ) {
+        # XXX
+        # a properly boxed Method
+        #return ::DISPATCH( $meth, 'APPLY', $self, @_ );
+        my $boxed_method = $method;
+        $method = sub {
+            ::DISPATCH( $boxed_method, 'APPLY', $self, @_ );
+        };
+    } elsif (ref $method eq 'HASH') {
+
+        die ::DISPATCH(::DISPATCH($method,'perl'),'p5landish');
+    } else {
+        die $method;
+    }
+    print "#getting method $method_name $method\n";
+    *{$AUTOLOAD} = $method;
+    $method->(@_);
+}
+sub get_cacheid {
+    my $object = shift;
+    my $cacheid=$object->{_isa};
+    #$cacheid =~ tr/()//;
+    return $cacheid; 
+}
+}
 
 =head2 %::PROTO
 
@@ -633,7 +680,6 @@ $meta_Class->{_value}{methods}{add_method} = ::DISPATCH(
     $::Method,
     'new',
     {   code => sub {
-            $::CACHE = {};
             my $meth_name = ref( $_[1] ) ? $_[1]{_value} : $_[1];
             warn "redefining method $_[0]{_value}{class_name}.$meth_name"
                 if exists $_[0]{_value}{methods}{$meth_name};
@@ -650,7 +696,6 @@ $meta_Class->{_value}{methods}{add_method} = ::DISPATCH(
         $::Method,
         'new',
         {   code => sub {
-                $::CACHE = {};
                 my $meth_name = ref( $_[1] ) ? $_[1]{_value} : $_[1];
                 $_[0]{_value}{methods}{$meth_name} = $_[2];
                 }
@@ -666,7 +711,6 @@ $meta_Class->{_value}{methods}{add_method} = ::DISPATCH(
         $::Method,
         'new',
         {   code => sub {
-                $::CACHE = {};
                 my $meth_name = ref( $_[1] ) ? $_[1]{_value} : $_[1];
                 warn "redefining role $_[0]{_value}{class_name}.$meth_name"
                     if exists $_[0]{_value}{roles}{$meth_name};
@@ -684,7 +728,6 @@ $meta_Class->{_value}{methods}{add_method} = ::DISPATCH(
         $::Method,
         'new',
         {   code => sub {
-                $::CACHE = {};
                 my $meth_name = ref( $_[1] ) ? $_[1]{_value} : $_[1];
                 $_[0]{_value}{attributes}{$meth_name} = sub {1};    # TODO ???
                                                                     #$_[0]{_value}{methods}{$meth_name} = sub : lvalue { $_[0]{_value}{$meth_name} };
@@ -775,7 +818,7 @@ $meta_Class->{_value}{methods}{add_method} = ::DISPATCH(
     ::DISPATCH(
         $::Method,
         'new',
-        {   code => sub {$::CACHE = {}; push @{ $_[0]{_value}{isa} }, $_[1] }
+        {   code => sub { push @{ $_[0]{_value}{isa} }, $_[1] }
         }
     )
 );
