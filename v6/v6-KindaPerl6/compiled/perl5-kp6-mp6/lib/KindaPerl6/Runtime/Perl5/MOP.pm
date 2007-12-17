@@ -314,13 +314,13 @@ my $dispatch = sub {
 
     #print "lookup $method_name in $self\n";
 
-    unless ( ref($self) eq 'HASH'
-        or ref($self) eq DISPATCH )
-    {
-        warn "internal error: wrong object format";
-        print Dumper($self);
-        return ::DISPATCH( $::Str, 'new', 'Error' );
-    }
+    #unless ( ref($self) eq 'HASH'
+    #    or ref($self) eq DISPATCH )
+    #{
+    #    warn "internal error: wrong object format";
+    #    print Dumper($self);
+    #    return ::DISPATCH( $::Str, 'new', 'Error' );
+    #}
 
     if ( $self->{_roles}{auto_deref} ) {
 
@@ -380,12 +380,14 @@ package Cache;
 sub autoload {
     our $AUTOLOAD;
     my $self=shift;
-    if ( $self->{_roles}{auto_deref} ) {
-        $self = $self->FETCH;
-    }
     my $method_name=$AUTOLOAD;
     return if $AUTOLOAD eq ref($self) . '::DESTROY';
     $method_name =~ s/^.*::(\w+)$/$1/;
+
+    if ( $self->{_roles}{auto_deref} ) {
+        $self = ::DISPATCH_VAR($self,"FETCH");
+        return ::DISPATCH($self,$method_name,@_);
+    }
     print "#AUTOLOAD $AUTOLOAD\n";
     my $method = KindaPerl6::Runtime::Perl5::MOP::get_method_from_object($self,$method_name);
     if (ref $method eq 'CODE') {
@@ -394,6 +396,7 @@ sub autoload {
         # a properly boxed Method
         #return ::DISPATCH( $meth, 'APPLY', $self, @_ );
         my $boxed_method = $method;
+        print "#wrapping up\n";
         $method = sub {
             ::DISPATCH( $boxed_method, 'APPLY', $self, @_ );
         };
