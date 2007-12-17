@@ -368,7 +368,7 @@ sub AUTOLOAD {
     if ($self->{_dispatch} eq $dispatch) {
         my $cacheid = Cache::get_cacheid($self);
         bless($self,"Cache::$cacheid");
-        print "setting Cache::${cacheid}::AUTOLOAD\n";
+        print "#setting Cache::${cacheid}::AUTOLOAD\n";
         *{"Cache::${cacheid}::AUTOLOAD"} = \&Cache::autoload;
         $method_name =~ s/^.*::(\w+)$/$1/;
         $self->$method_name(@args);
@@ -391,15 +391,15 @@ sub autoload {
     print "#AUTOLOAD $AUTOLOAD\n";
     my $method = KindaPerl6::Runtime::Perl5::MOP::get_method_from_object($self,$method_name);
     if (ref $method eq 'CODE') {
-    } elsif ( ref( $method->{_value} ) eq 'HASH' && exists $method->{_value}{code} ) {
+    } elsif (::DISPATCH($method,"isa",$::Code)) {
         # XXX
         # a properly boxed Method
-        #return ::DISPATCH( $meth, 'APPLY', $self, @_ );
         my $boxed_method = $method;
         print "#wrapping up\n";
         $method = sub {
             ::DISPATCH( $boxed_method, 'APPLY', $self, @_ );
         };
+        #return $method->{_value}{code};
     } elsif (ref $method eq 'HASH') {
 
         die ::DISPATCH(::DISPATCH($method,'perl'),'p5landish');
