@@ -377,6 +377,7 @@ sub AUTOLOAD {
     }
 }
 package Cache;
+# TODO cache clearing
 sub autoload {
     our $AUTOLOAD;
     my $self=shift;
@@ -386,6 +387,7 @@ sub autoload {
 
     if ( $self->{_roles}{auto_deref} ) {
         $self = ::DISPATCH_VAR($self,"FETCH");
+        # XXX -> could be used here
         return ::DISPATCH($self,$method_name,@_);
     }
     print "#AUTOLOAD $AUTOLOAD\n";
@@ -394,12 +396,14 @@ sub autoload {
     } elsif (::DISPATCH($method,"isa",$::Code)) {
         # XXX
         # a properly boxed Method
+        # this would break junctions but be faster:
+        #return $method->{_value}{code};
+
         my $boxed_method = $method;
         print "#wrapping up\n";
         $method = sub {
             ::DISPATCH( $boxed_method, 'APPLY', $self, @_ );
         };
-        #return $method->{_value}{code};
     } elsif (ref $method eq 'HASH') {
 
         die ::DISPATCH(::DISPATCH($method,'perl'),'p5landish');
