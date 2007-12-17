@@ -40,15 +40,15 @@ module Main {
 
     $_ = $code;
     my $match = KindaPerl6::Grammar.parse();
+    #say "#parsed";
     my $parsed = $match.result;
     for $parsed.values -> $ast {
         
-        #say $ast.perl;  # emit(KindaPerl6::Visitor::Emit::AstPerl.new());
         #say "running visitors";
 
         my $res = $ast;
         for @visitors -> $visitor {
-            #say "Visitor: $visitor";
+            #say "#visitor "~$visitor.WHAT~"...";
             $res = $res.emit($visitor);
             #say "Result: $res";
         };

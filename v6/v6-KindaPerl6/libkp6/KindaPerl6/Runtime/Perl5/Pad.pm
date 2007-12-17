@@ -78,7 +78,7 @@ my $visitor_global      = ::DISPATCH( $::KindaPerl6::Visitor::Global,        'ne
                     return $self;
                 }
 
-                if ( $method eq 'variable_names' ) {
+                if ( $method eq 'lexicals' ) {
                     return ::DISPATCH( $::Array, "new", { 
                             _array => [
                                     # map { $_ }

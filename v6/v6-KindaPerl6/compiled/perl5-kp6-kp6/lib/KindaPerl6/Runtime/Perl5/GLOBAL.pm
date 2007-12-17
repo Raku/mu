@@ -553,15 +553,16 @@ sub infix_58__60_but_62_ {
     #die "don't know how to implement 'but' with $class"
     #    unless $meth;
 
-    $value = { %{$value} };
+    my $ret = { %{$value} };
+    $ret->{_methods} = { %{ $value->{_methods} } };   # more deep-ish clone
 
     # XXX
-    $value->{_methods}{$meth} = ::DISPATCH( $::Method, 'new', sub {$but} )
+    $ret->{_methods}{$meth} = ::DISPATCH( $::Method, 'new', sub {$but} )
         if $meth;
 
-    $value->{_methods}{$class} = ::DISPATCH( $::Method, 'new', sub {$but} );
+    $ret->{_methods}{$class} = ::DISPATCH( $::Method, 'new', sub {$but} );
 
-    return $value;
+    return $ret;
 }
 
 =head2 infix_58__60_x_62_
