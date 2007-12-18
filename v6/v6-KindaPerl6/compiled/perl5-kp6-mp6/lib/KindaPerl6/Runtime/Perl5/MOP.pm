@@ -125,7 +125,7 @@ my $_dispatch_recursion = 0;
 sub ::DISPATCH {
     my $invocant = shift;
 
-    unless ( $invocant->{_dispatch} ) {
+    unless (ref $invocant && $invocant->{_dispatch} ) {
         confess "DISPATCH: calling @_ on invalid object:", Dumper($invocant), "\n";
     }
 
@@ -393,19 +393,24 @@ sub autoload {
     print "#AUTOLOAD $AUTOLOAD\n";
     my $method = KindaPerl6::Runtime::Perl5::MOP::get_method_from_object($self,$method_name);
     if (ref $method eq 'CODE') {
-    } elsif (::DISPATCH($method,"isa",$::Code)) {
+    } elsif (::DISPATCH(::DISPATCH($method,"isa",$::Code),"p5landish")) {
         # XXX
         # a properly boxed Method
         # this would break junctions but be faster:
-        #return $method->{_value}{code};
-
+        #$method = $method->{_value}{code};
         my $boxed_method = $method;
         print "#wrapping up\n";
         $method = sub {
             ::DISPATCH( $boxed_method, 'APPLY', $self, @_ );
         };
+    } elsif (::DISPATCH(::DISPATCH($method,"isa",$::Method),"p5landish")) {
+        my $boxed_method = $method;
+        print "#wrapping up\n";
+        $method = sub {
+            ::DISPATCH( $boxed_method, 'APPLY', $self, @_ );
+        };
+        #$method = $method->{_value}{code};
     } elsif (ref $method eq 'HASH') {
-
         die ::DISPATCH(::DISPATCH($method,'perl'),'p5landish');
     } else {
         die $method;
