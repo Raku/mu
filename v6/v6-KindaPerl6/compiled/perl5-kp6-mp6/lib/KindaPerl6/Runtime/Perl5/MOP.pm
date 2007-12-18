@@ -368,7 +368,7 @@ sub AUTOLOAD {
     if ($self->{_dispatch} eq $dispatch) {
         my $cacheid = Cache::get_cacheid($self);
         bless($self,"Cache::$cacheid");
-        print "#setting Cache::${cacheid}::AUTOLOAD\n";
+        #print "#setting Cache::${cacheid}::AUTOLOAD\n";
         *{"Cache::${cacheid}::AUTOLOAD"} = \&Cache::autoload;
         $method_name =~ s/^.*::(\w+)$/$1/;
         $self->$method_name(@args);
@@ -390,7 +390,7 @@ sub autoload {
         # XXX -> could be used here
         return ::DISPATCH($self,$method_name,@_);
     }
-    print "#AUTOLOAD $AUTOLOAD\n";
+    #print "#AUTOLOAD $AUTOLOAD\n";
     my $method = KindaPerl6::Runtime::Perl5::MOP::get_method_from_object($self,$method_name);
     if (ref $method eq 'CODE') {
     } elsif (::DISPATCH(::DISPATCH($method,"isa",$::Code),"p5landish")) {
@@ -399,23 +399,27 @@ sub autoload {
         # this would break junctions but be faster:
         #$method = $method->{_value}{code};
         my $boxed_method = $method;
-        print "#wrapping up\n";
+        #print "#wrapping up\n";
         $method = sub {
             ::DISPATCH( $boxed_method, 'APPLY', @_ );
         };
+    } elsif (ref $method->{_value} eq 'CODE') {
+        $method = $method->{_value};
     } elsif (::DISPATCH(::DISPATCH($method,"isa",$::Method),"p5landish")) {
         my $boxed_method = $method;
-        print "#wrapping up\n";
+        #print "#wrapping up\n";
         $method = sub {
             ::DISPATCH( $boxed_method, 'APPLY', @_ );
         };
-        $method = $method->{_value}{code};
+        #$method = $method->{_value}{code};
     } elsif (ref $method eq 'HASH') {
+        #XXX
         die ::DISPATCH(::DISPATCH($method,'perl'),'p5landish');
     } else {
+        #XXX
         die $method;
     }
-    print "#getting method $method_name $method\n";
+    #print "#getting method $method_name $method\n";
     *{$AUTOLOAD} = $method;
     $method->($self,@_);
 }

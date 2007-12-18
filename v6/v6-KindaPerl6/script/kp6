@@ -304,6 +304,9 @@ my @visitors;
         push @visitor_sequence, qw(  MetaClass  Global Emit::Perl5Regex )                     # RegexCapture ShortCircuit
             unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Perl5Regex';
     }
+    elsif ( grep { $_ eq 'perl5cached' } @opt{qw(C B)} ) {
+        push @visitor_sequence, qw(  MetaClass  Global Emit::Perl5Cached );
+    }
     elsif ( !@visitor_sequence ) {
 
         # this is the default sequence
@@ -412,7 +415,7 @@ for (@COMPILER::CHECK) {
             }
         }
     }
-    elsif ( grep { $_ eq 'perl5' } @opt{qw(C B)} ) {
+    elsif ( grep { $_ eq 'perl5' || $_ eq 'perl5cached' } @opt{qw(C B)} ) {
         if ( $opt{B} ) {
 
             # Execute!
