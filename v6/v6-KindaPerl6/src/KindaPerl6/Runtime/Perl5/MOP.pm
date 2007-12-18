@@ -401,15 +401,15 @@ sub autoload {
         my $boxed_method = $method;
         print "#wrapping up\n";
         $method = sub {
-            ::DISPATCH( $boxed_method, 'APPLY', $self, @_ );
+            ::DISPATCH( $boxed_method, 'APPLY', @_ );
         };
     } elsif (::DISPATCH(::DISPATCH($method,"isa",$::Method),"p5landish")) {
         my $boxed_method = $method;
         print "#wrapping up\n";
         $method = sub {
-            ::DISPATCH( $boxed_method, 'APPLY', $self, @_ );
+            ::DISPATCH( $boxed_method, 'APPLY', @_ );
         };
-        #$method = $method->{_value}{code};
+        $method = $method->{_value}{code};
     } elsif (ref $method eq 'HASH') {
         die ::DISPATCH(::DISPATCH($method,'perl'),'p5landish');
     } else {
@@ -417,7 +417,7 @@ sub autoload {
     }
     print "#getting method $method_name $method\n";
     *{$AUTOLOAD} = $method;
-    $method->(@_);
+    $method->($self,@_);
 }
 sub get_cacheid {
     my $object = shift;
