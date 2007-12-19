@@ -412,7 +412,7 @@ sub emit_arguments {
     my $str = '';
     $str = ( $str . $CAPTURE_decl->emit_perl5() );
     $str = ( $str . Decl->new( 'decl' => 'my', 'type' => '', 'var' => $array_, )->emit_perl5() );
-    $str = ( $str . '::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));' );
+    $str = ( $str . '$CAPTURE->STORE(::CAPTURIZE(\@_));' );
     my $bind_array = Assign->new( 'parameters' => $array_, 'arguments' => Call->new( 'invocant' => $CAPTURE, 'method' => 'array', 'arguments' => [], ), );
     $str = ( $str . ( $bind_array->emit_perl5() . ';' ) );
     my $bind_hash = Bind->new( 'parameters' => $hash_, 'arguments' => Call->new( 'invocant' => $CAPTURE, 'method' => 'hash', 'arguments' => [], ), );
@@ -541,7 +541,7 @@ sub emit_perl5 {
         }
         else { }
     };
-    ( '::DISPATCH_VAR( ' . ( $node->emit_perl5() . ( ', \'STORE\', ' . ( $self->{arguments}->emit_perl5() . ( ' )' . Main::newline() ) ) ) ) );
+    ( $node->emit_perl5() . ( '->STORE(' . ( $self->{arguments}->emit_perl5() . ( ' )' . Main::newline() ) ) ) );
 }
 
 package Var;
@@ -600,7 +600,7 @@ sub emit_perl5 {
     do { [] };
     do {
         if ( ( Main::isa( $self->{parameters}, 'Call' ) || ( Main::isa( $self->{parameters}, 'Var' ) && ( $self->{parameters}->sigil() eq '@' ) ) ) ) {
-            return ( ( '::DISPATCH_VAR( ' . ( $self->{parameters}->emit_perl5() . ( ', "BIND", ' . ( $self->{arguments}->emit_perl5() . ' )' ) ) ) ) );
+            ( return ( (undef) ) . ( $self->{parameters}->emit_perl5() . ( '->BIND(' . ( $self->{arguments}->emit_perl5() . ' )' ) ) ) );
         }
         else { }
     };
@@ -654,7 +654,7 @@ sub emit_perl5 {
         else {
             do {
                 if ( ( $meth eq '' ) ) { ( '::DISPATCH( ' . ( $invocant . ( ', \'APPLY\', ' . ( $call . ( ' )' . Main::newline() ) ) ) ) ) }
-                else                   { ( $invocant . ( '->' . ( $meth . ( '(' . ( $call . ( ' )' . Main::newline() ) ) ) ) ) ) }
+                else                   { ( $invocant . ( '->FETCH->' . ( $meth . ( '(' . ( $call . ( ' )' . Main::newline() ) ) ) ) ) ) }
                 }
         }
         }
@@ -697,12 +697,10 @@ sub emit_perl5 {
         else { }
     };
     do {
-        if ( ( Main::isa( $self->{code}, 'Var' ) && ( $self->{code}->name() eq 'make' ) ) ) {
-            return ( ( '::DISPATCH_VAR( ' . ( '$GLOBAL::_REGEX_RETURN_, "STORE", ' . ( $self->{arguments}->[0]->emit_perl5() . ( '' . ( ' )' . Main::newline() ) ) ) ) ) );
-        }
-        else { }
+        if ( ( Main::isa( $self->{code}, 'Var' ) && ( $self->{code}->name() eq 'make' ) ) ) { return ( ( '$GLOBAL::_REGEX_RETURN_->STORE(' . ( $self->{arguments}->[0]->emit_perl5() . ( '' . ( ' )' . Main::newline() ) ) ) ) ) }
+        else                                                                                { }
     };
-    return ( ( '::DISPATCH( ' . ( $self->{code}->emit_perl5() . ( ', \'APPLY\', ' . ( Main::join( [ map { $_->emit_perl5() } @{ $self->{arguments} } ], ', ' ) . ( ' )' . Main::newline() ) ) ) ) ) );
+    return ( ( $self->{code}->emit_perl5() . ( '->FETCH->APPLY(' . ( Main::join( [ map { $_->emit_perl5() } @{ $self->{arguments} } ], ', ' ) . ( ' )' . Main::newline() ) ) ) ) );
 }
 
 package Return;

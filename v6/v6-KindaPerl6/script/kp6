@@ -305,7 +305,7 @@ my @visitors;
             unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Perl5Regex';
     }
     elsif ( grep { $_ eq 'perl5cached' } @opt{qw(C B)} ) {
-        push @visitor_sequence, qw(  MetaClass  Global Emit::Perl5Cached );
+        push @visitor_sequence, qw( ExtractRuleBlock Token MetaClass Global Emit::Perl5Cached );
     }
     elsif ( !@visitor_sequence ) {
 

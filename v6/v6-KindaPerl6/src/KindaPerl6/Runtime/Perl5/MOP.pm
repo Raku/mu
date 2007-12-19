@@ -385,11 +385,11 @@ sub autoload {
     return if $AUTOLOAD eq ref($self) . '::DESTROY';
     $method_name =~ s/^.*::(\w+)$/$1/;
 
-    if ( $self->{_roles}{auto_deref} ) {
-        $self = ::DISPATCH_VAR($self,"FETCH");
+    #if ( $self->{_roles}{auto_deref} ) {
+    #    $self = ::DISPATCH_VAR($self,"FETCH");
         # XXX -> could be used here
-        return ::DISPATCH($self,$method_name,@_);
-    }
+        #    return ::DISPATCH($self,$method_name,@_);
+        #}
     #print "#AUTOLOAD $AUTOLOAD\n";
     my $method = KindaPerl6::Runtime::Perl5::MOP::get_method_from_object($self,$method_name);
     if (ref $method eq 'CODE') {
@@ -397,21 +397,21 @@ sub autoload {
         # XXX
         # a properly boxed Method
         # this would break junctions but be faster:
-        #$method = $method->{_value}{code};
-        my $boxed_method = $method;
+        $method = $method->{_value}{code};
+        #my $boxed_method = $method;
         #print "#wrapping up\n";
-        $method = sub {
-            ::DISPATCH( $boxed_method, 'APPLY', @_ );
-        };
+        #$method = sub {
+        #    ::DISPATCH( $boxed_method, 'APPLY', @_ );
+        #};
     } elsif (ref $method->{_value} eq 'CODE') {
         $method = $method->{_value};
     } elsif (::DISPATCH(::DISPATCH($method,"isa",$::Method),"p5landish")) {
-        my $boxed_method = $method;
+        #my $boxed_method = $method;
         #print "#wrapping up\n";
-        $method = sub {
-            ::DISPATCH( $boxed_method, 'APPLY', @_ );
-        };
-        #$method = $method->{_value}{code};
+        #$method = sub {
+        #::DISPATCH( $boxed_method, 'APPLY', @_ );
+        #};
+        $method = $method->{_value}{code};
     } elsif (ref $method eq 'HASH') {
         #XXX
         die ::DISPATCH(::DISPATCH($method,'perl'),'p5landish');

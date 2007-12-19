@@ -212,7 +212,7 @@ class Lit::Code {
         my $str := '';
         $str := $str ~ $CAPTURE_decl.emit_perl5;
         $str := $str ~ ::Decl(decl=>'my',type=>'',var=>$array_).emit_perl5;
-        $str := $str ~ '::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));';
+        $str := $str ~ '$CAPTURE->STORE(::CAPTURIZE(\@_));';
 
         # XXX s/assign/bind/ ?
         my $bind_array :=
@@ -339,7 +339,7 @@ class Assign {
 
         };
 
-        '::DISPATCH_VAR( ' ~ $node.emit_perl5 ~ ', \'STORE\', ' ~ $.arguments.emit_perl5 ~ ' )' ~ Main::newline();
+        $node.emit_perl5 ~ '->STORE(' ~ $.arguments.emit_perl5 ~ ' )' ~ Main::newline();
     }
 }
 
@@ -416,9 +416,8 @@ class Bind {
                 )
         {
             return
-                  '::DISPATCH_VAR( '
                 ~   $.parameters.emit_perl5
-                ~   ', "BIND", '
+                ~   '->BIND('
                 ~   $.arguments.emit_perl5
                 ~ ' )'
         };
@@ -480,7 +479,7 @@ class Call {
                 '::DISPATCH( ' ~ $invocant ~ ', \'APPLY\', ' ~ $call ~ ' )' ~ Main::newline()
             }
             else {
-                 $invocant ~ '->' ~ $meth ~ '(' ~ $call ~ ' )' ~ Main::newline()
+                 $invocant ~ '->FETCH->' ~ $meth ~ '(' ~ $call ~ ' )' ~ Main::newline()
             };
         };
 
@@ -532,12 +531,11 @@ class Apply {
         if  ( $.code.isa('Var') ) && ( $.code.name eq 'make' )
         {
             # hack for "make" (S05)
-            return  '::DISPATCH_VAR( '
-                        ~ '$GLOBAL::_REGEX_RETURN_, "STORE", ' ~ ((@.arguments[0]).emit_perl5) ~ ''
+            return  '$GLOBAL::_REGEX_RETURN_->STORE(' ~ ((@.arguments[0]).emit_perl5) ~ ''
                 ~ ' )' ~ Main::newline();
         }
 
-        return  '::DISPATCH( ' ~ $.code.emit_perl5 ~ ', \'APPLY\', ' ~ (@.arguments.>>emit_perl5).join(', ') ~ ' )' ~ Main::newline();
+        return  $.code.emit_perl5 ~ '->FETCH->APPLY(' ~ (@.arguments.>>emit_perl5).join(', ') ~ ' )' ~ Main::newline();
     }
 }
 
