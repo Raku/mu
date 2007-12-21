@@ -1,6 +1,6 @@
 use v6-alpha;
 use Test;
-plan 6;
+plan 8;
 
 # L<S29/Context/"=item eval">
 
@@ -30,4 +30,9 @@ ok(!eval('die; 1'), "eval can trap die");
 ok(!eval('my @a = (1); @a<0>'), "eval returns undef on syntax error");
 
 ok(!eval('use Poison; 1'), "eval can trap a fatal use statement");
+
+sub v { 123 }
+ok(v() == 123, "a plain subroutine");
+eval 'sub v { 456 }';
+ok(v() == 456, "eval can overwrite a subroutine");
 
