@@ -12,6 +12,15 @@ our Utable %is;
 for <Lu Ll Lt Lm Lo LC L>, <Mn Mc Me M>, <Nd Nl No N>,
     <Pc Pd Ps Pe Pi Pf Po P>, <Sm Sc Sk So S>,
     <Zs Zl Zp Z>, <Cc Cf Cs Co Cn C>,
+    # Proplist.txt
+    <ASCII_Hex_Digit Bidi_Control Dash Deprecated Diacritic Extender Grapheme_Link>,
+    <Hex_Digit Hyphen Ideographic IDS_Binary_Operator IDS_Trinary_Operator Join_Control>,
+    <Logical_Order_Exception Noncharacter_Code_Point Other_Alphabetic>,
+    <Other_Default_Ignorable_Code_Point Other_Grapheme_Extend Other_ID_Continue>,
+    <Other_ID_Start Other_Lowercase Other_Math Other_Uppercase Pattern_Syntax>,
+    <Pattern_White_Space Quotation_Mark Radical Soft_Dotted STerm Terminal_Punctuation>,
+    <Unified_Ideograph Variation_Selector White_Space>,
+    # Perlish stuff
     <alnum alpha ascii blank cntrl digit graph lower print>,
     <punct space title upper xdigit word vspace hspace>
     -> my Str $cat { %is{$cat} = Utable.new; }
@@ -45,28 +54,108 @@ our Str %lower;
 our Str %title;
 
 # ArabicShaping.txt
+#     post-6.0?
+
 # BidiMirroring.txt
+# 0 code
+# 1 mirrored code
+our Str %bidi_mirror;
+
 # Blocks.txt
+# 0 code range
+# 1 block name
+our Utable $blockname;
+
 # CompositionExclusions.txt
+# 0 code
+our Bool %compex;
+
 # CaseFolding.txt
+# 0 code
+# 1 status
+# 2 mapping
+our Str %casefold_stat;
+our Str %casefold_map;
+
 # DerivedAge.txt
+#     post-6.0?
+
 # EastAsianWidth.txt
+#     post-6.0?
+
 # HangulSyllableType.txt
+#     post-6.0?
+
 # Jamo.txt
+#     post-6.0?
+
 # LineBreak.txt
+#     post-6.0?
+
 # NameAliases.txt
+# 0 code
+# 1 name
+#     see note about names in UnicodeData.txt
+
 # NormalizationCorrections.txt
+# 0 code
+# 1 Original (erroneous) decomposition
+# 2 Corrected decomposition
+# 3 version corrected
+
 # PropertyAliases.txt
+# 0 abbrev
+# 1 full name
+# 2... more aliases
+our Str %propalias;
+
 # PropertyValueAliases.txt
+# 0 prop
+# 1 abbrev
+# 2 full name
+# -- for ccc ---
+# 0 ccc
+# 1 ccc num
+# 2 abbrev
+# 3 full name
+our Hash of Str %pva;
+...;
+
 # Scripts.txt
+# 0 code range
+# 1 script name
+our Utable $script;
+
 # SpecialCasing.txt
+# 0 code
+# 1 lower
+# 2 title
+# 3 upper
+# 4 conditionals
+our Str %upper_cond;
+our Str %lower_cond;
+our Str %title_cond;
+our Str %case_cond;
+
 # Unihan.txt
+#     post-6.0?
+
 # DerivedCoreProperties.txt
 # DerivedNormalizationProps.txt
+
 # Proplist.txt
+# 0 code range
+# 1 prop name
+
 # GraphemeBreakProperty.txt
+#     post-6.0?
+
 # SentenceBreakProperty.txt
+#     post-6.0?
+
 # WordBreakProperty.txt
+#     post-6.0?
+
 
 class Utable {
     # An efficient data structure for unicode property data
@@ -81,7 +170,7 @@ class Utable {
     multi submethod BUILD(Range @@r, Any :@val) {
         @@.table = @@r;
         @.val = @val;
-        $.preen if defined @val;
+        $.preen;
     }
     multi submethod BUILD(Str $str) {
         # parse the output of $.print
@@ -132,7 +221,7 @@ class Utable {
         return False;
     }
 
-    method lookup(Int $x --> Any) {
+    method get(Int $x --> Any) {
         return undef if !+@@.table;
         return undef if $x < @@.table[0].min;
         return undef if $x > @@.table[*-1].max;
@@ -224,7 +313,8 @@ class Utable {
             my Range $m := @@.table[$mid];
             if ( $r.max >= $m.min and $r.min <= $m.min ) or ( $r.max >= $m.max and $r.min <= $m.max ) {
                 # $r and $m overlap
-                die "Utable::add: can't add overlapping ranges with a values" if defined $val;
+                die "Utable::add: can't add overlapping ranges with different values"
+                    if $val !eqv @.val[$mid];
                 $m = min($r.min, $m.min) .. max($r.max, $m.max);
                 $.preen if $preen;
                 return;
@@ -246,8 +336,7 @@ class Utable {
                 @.val[$i].delete;
             }
             last if $i == @@.table.elems-1;
-            # don't coalesce if we're storing values
-            if !+@.val and @@.table[$i].max >= @@.table[$i+1].min {
+            if @@.table[$i].max >= @@.table[$i+1].min and @.val[$i] eqv @.val[$i+1]  {
                 @@.table.=splice: $i, 2, @@.table[$i].min .. @@.table[$i+1].max;
             }
         }
