@@ -1,37 +1,41 @@
 module Unicode;
 
+constant Int $unicode_max = 0x10ffff;
+
 class Utable {
     # An efficient data structure for unicode property data
     # The basic data structure is an array of Range objects
     # e.g. <alpha> would use ( 0x41..0x5a ; 0x61..0x7a ; ... )
-    # lookup and insertion are done via binary search
+    # lookup is O(log n), where n is the number of ranges, not total codepoints
+    # insertion is O(n) in general, but appending a non-contuguous range is O(1)
     has Range @@.table;
 
     multi submethod BUILD(Range @@r) {
         @@.table = @@r;
+        $.preen;
     }
     multi submethod BUILD(Str $str) {
         # parse the output of $.print
-        my @s = split $str, ' ; ';
-        for @s {
+        for $str.split(';') {
             if mm/^ ( <xdigit>+ ) $/ {
-                $.add(hex $0);
-            } elsif mm/^ ( <xdigit>+ ) '-' ( <xdigit>+ ) $/ {
-                $.addrange(hex($0) .. hex($1));
+                $.add(hex $0, :!preen);
+            } elsif mm/^ ( <xdigit>+ ) '..' ( <xdigit>+ ) $/ {
+                $.add(hex($0) .. hex($1), :!preen);
             } else {
                 die "Utable::BUILD: can't parse '$_'";
             }
         }
+        $.preen;
     }
 
     method print(-->) {
         # not needed if @@.table.perl DTRT...
         for @@.table -> $r {
-            print ' ; ' if my $n++;
+            print ';' if my Int $n++;
             if $r.min == $r.max {
                 printf '%x', $r.min;
             } else {
-                printf '%x-%x', $r.min, $r.max;
+                printf '%x..%x', $r.min, $r.max;
             }
         }
     }
@@ -42,47 +46,63 @@ class Utable {
         return False if !+@@.table;
         return False if $x < @@.table[0].min;
         return False if $x > @@.table[*-1].max;
-        return $.contains($x, 0, @@.table.elems-1);
-    }
-
-    method contains(Int $x, Int $min, Int $max --> Bool) {
-        my $mid = ($max + $min) / 2;
-        return True if $x ~~ @@.table[$mid];
-        return False if $min == $max;
-        if $x < @@.table[$mid].min  {
-            return $.contains($x, $min, $mid-1);
-        } else {
-            return $.contains($x, $mid+1, $max);
+        my Int $min = 0;
+        my Int $max = @@.table.elems-1;
+        while $min <= $max {
+            my Int $mid = ($max + $min) / 2;
+            return True if $x ~~ @@.table[$mid];
+            if $x < @@.table[$mid].min  {
+                $max = $mid - 1;
+            } else {
+                $min = $mid + 1;
+            }
         }
+        return False;
     }
 
-    method add(Int $x -->) {
-        return if $.contains($x);
+    method inverse(--> Utable) {
+        my Utable $u.=new;
         if !+@@.table {
-            @@.table[0] = $x .. $x;
+            $u.add(0 .. $unicode_max);
+            return $u;
+        }
+        $u.add(0 ..^ @@.table[0].min);
+        # $i < @@.table.elems-1 is intended
+        loop my Int $i = 0; $i < @@.table.elems-1; $i++ {
+            $u.add(@@.table[$i].max ^..^ @@.table[$i+1].min, :!preen);
+        }
+        $u.add(@@.table[*-1].max ^.. $unicode_max);
+        return $u;
+    }
+
+    multi method add(Int $x, Bool :$preen = True -->) {
+        return if $.contains($x);
+        my Range $r = $x .. $x;
+        if !+@@.table {
+            @@.table[0] = $r;
             return;
         }
-        my $min = 0;
-        my $max = @@.table.elems-1;
+        my Int $min = 0;
+        my Int $max = @@.table.elems-1;
         while $min <= $max {
             if $x < @@.table[$min].min {
-                @@.table.=splice: $min, 0, $x .. $x;
-                $.connect;
+                @@.table.=splice: $min, 0, $r;
+                $.preen if $preen;
                 return;
             }
             if $x > @@.table[$max].max {
-                @@.table.=splice: $max+1, 0, $x .. $x;
-                $.connect;
+                @@.table.=splice: $max+1, 0, $r;
+                $.preen if $preen;
                 return;
             }
-            my $mid = ($max + $min) / 2;
+            my Int $mid = ($max + $min) / 2;
             if $x+1 == @@.table[$mid].min {
                 @@.table[$mid].min = $x;
-                $.connect;
+                $.preen if $preen;
                 return;
             } elsif $x-1 == @@.table[$mid].max {
                 @@.table[$mid].max = $x;
-                $.connect;
+                $.preen if $preen;
                 return;
             } else {
                 if $x < @@.table[$mid].min {
@@ -95,30 +115,31 @@ class Utable {
         die "Utable::add got lost somehow";
     }
 
-    method addrange(Range $r -->) {
+    multi method add(Range $r, Bool :$preen = True -->) {
         if !+@@.table {
             @@.table[0] = $r;
+            $.preen if $preen;
             return;
         }
-        my $min = 0;
-        my $max = @@.table.elems-1;
+        my Int $min = 0;
+        my Int $max = @@.table.elems-1;
         while $min <= $max {
             if $r.max < @@.table[$min].min {
                 @@.table.=splice: $min, 0, $r;
-                $.connect;
+                $.preen if $preen;
                 return;
             }
             if $r.min > @@.table[$max].max {
                 @@.table.=splice: $max+1, 0, $r;
-                $.connect;
+                $.preen if $preen;
                 return;
             }
-            my $mid = ($max + $min) / 2;
-            my $m := @@.table[$mid];
+            my Int $mid = ($max + $min) / 2;
+            my Range $m := @@.table[$mid];
             if ( $r.max >= $m.min and $r.min <= $m.min ) or ( $r.max >= $m.max and $r.min <= $m.max ) {
                 # $r and $m overlap
                 $m = min($r.min, $m.min) .. max($r.max, $m.max);
-                $.connect;
+                $.preen if $preen;
                 return;
             } else {
                 if $r.max < @@.table[$mid].min {
@@ -128,13 +149,14 @@ class Utable {
                 }
             }
         }
-        die "Utable::addrange got lost somehow";
+        die "Utable::add got lost somehow";
     }
 
-    method connect(-->) {
-        # fix up range overlaps
+    method preen(-->) {
+        # delete null ranges, fix up range overlaps and contiguities
         # $i < @@.table.elems-1 is intended
-        loop my $i = 0; $i < @@.table.elems-1; $i++ {
+        loop my Int $i = 0; $i < @@.table.elems-1; $i++ {
+            @@.table[$i].delete if @@.table[$i].max < @@.table[$i].min;
             if @@.table[$i].max >= @@.table[$i+1].min {
                 @@.table.=splice: $i, 2, @@.table[$i].min .. @@.table[$i+1].max;
             }
