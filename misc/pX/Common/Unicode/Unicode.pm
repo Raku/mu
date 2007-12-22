@@ -267,13 +267,13 @@ class Utable {
         while $min <= $max {
             if $x < @@.table[$min].min {
                 @@.table.=splice: $min, 0, $r;
-                @.val.=splice: $min, 0, $val if defined $val;
+                @.val.=splice: $min, 0, $val if @.val;
                 $.preen if $preen;
                 return;
             }
             if $x > @@.table[$max].max {
                 @@.table.=splice: $max+1, 0, $r;
-                @.val.=splice: $max+1, 0, $val if defined $val;
+                @.val.=splice: $max+1, 0, $val if @.val;
                 $.preen if $preen;
                 return;
             }
@@ -299,13 +299,13 @@ class Utable {
         while $min <= $max {
             if $r.max < @@.table[$min].min {
                 @@.table.=splice: $min, 0, $r;
-                @.val.=splice: $min, 0, $val if defined $val;
+                @.val.=splice: $min, 0, $val if @.val;
                 $.preen if $preen;
                 return;
             }
             if $r.min > @@.table[$max].max {
                 @@.table.=splice: $max+1, 0, $r;
-                @.val.=splice: $max+1, 0, $val if defined $val;
+                @.val.=splice: $max+1, 0, $val if @.val;
                 $.preen if $preen;
                 return;
             }
