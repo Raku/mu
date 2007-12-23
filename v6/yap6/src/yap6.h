@@ -49,6 +49,8 @@ struct YAP6__CORE__Dispatcher {
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__List* arguments,
                                YAP6__CORE__Value* wants);
+  YAP6__CORE__Value* (*NEW)  (YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__List* arguments);
   void               (*DESTR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
   YAP6__CORE__string* (*STRNG)(YAP6__CORE__Dispatcher* self,
@@ -138,6 +140,8 @@ struct YAP6__CORE__ScalarDispatcher {
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__List* arguments,
                                YAP6__CORE__Value* wants);
+  YAP6__CORE__Value* (*NEW)  (YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__List* arguments);
   void               (*DESTR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
   YAP6__CORE__string* (*STRNG)(YAP6__CORE__Dispatcher* self,
@@ -171,6 +175,8 @@ typedef struct YAP6__CORE__ListDispatcher {
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__List* arguments,
                                YAP6__CORE__Value* wants);
+  YAP6__CORE__Value* (*NEW)  (YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__List* arguments);
   void               (*DESTR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
   YAP6__CORE__string* (*STRNG)(YAP6__CORE__Dispatcher* self,
@@ -236,6 +242,8 @@ typedef struct YAP6__CORE__PairDispatcher {
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__List* arguments,
                                YAP6__CORE__Value* wants);
+  YAP6__CORE__Value* (*NEW)  (YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__List* arguments);
   void               (*DESTR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
   YAP6__CORE__string* (*STRNG)(YAP6__CORE__Dispatcher* self,
@@ -278,6 +286,8 @@ typedef struct YAP6__CORE__HashDispatcher {
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__List* arguments,
                                YAP6__CORE__Value* wants);
+  YAP6__CORE__Value* (*NEW)  (YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__List* arguments);
   void               (*DESTR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
   YAP6__CORE__string* (*STRNG)(YAP6__CORE__Dispatcher* self,
@@ -367,6 +377,11 @@ extern void yap6_value_unlock(YAP6__CORE__Value* value);
                                               (YAP6__CORE__Value*)value,\
                                               (YAP6__CORE__List*)arguments,\
                                               (YAP6__CORE__Value*)wants))
+
+/* Dispatching mechanism... This can be rewritten in the future,
+   but for now, it's as simple as it gets */
+#define YAP6_NEW(proto,args) (proto->NEW(proto,args))
+
 
 /* Dispatching mechanism... This can be rewritten in the future,
    but for now, it's as simple as it gets */
