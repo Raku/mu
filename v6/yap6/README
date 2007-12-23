@@ -32,7 +32,7 @@ But isn't Perl 6 about language interoperability?
 
 Kind of. This is one of the nice requirements set for the
 language. But when you stop and try to figure out how to actually
-interoperate in the high-level, you'll see that doesn't matter how the
+interoperate in the high-level, you'll see that no matter how the
 virtual machine tries to make it easier, you'll end up with some
 typemapping which won't be that different from what you can see in
 perl 5 XS mechanism. You can argue that it would be doable in a higher
@@ -51,7 +51,7 @@ It depends on how you define a vm. It's probably more accurate to call
 it a runtime library, like Glib or Apache Portable Runtime
 Library. But the most precise answer would certainly be: If you call
 perl 5 a virtual machine, than yap6 is a vm also. The yap6 structure
-is pretty much inspired in P5.
+is pretty much inspired by P5.
 
 How far is YAP6 going?
 
@@ -74,7 +74,7 @@ code.
 
 How does the "stage 1" compiled code should look like?
 
-At first, it will be C code. It will basically look like a set of
+Firstly, it will be C code. It will basically look like a set of
 YAP6_* calls, using the native types created by yap6, like:
 
 YAP6__CORE__Value* foo = YAP6_NEW(yap6_const_list_dispatcher);
