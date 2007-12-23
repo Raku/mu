@@ -98,4 +98,8 @@ What will be implemented in this "stage 1" language?
 Almost everything. The Meta-Object-Protocol, the basic objects
 (including the Code object), and finally, the interpreter in itself,
 which will implement the stack management, and all the interpreter
-operators.
+operators. This means that the interpreter would work just like p5, as
+it would manage all the aspects of the execution, like exception
+model, closures, scopes etc. This means that we can't tell right now
+if the stage 2 code will be compiled down to C or not. But we do know
+that the basis of its working will be very lookalike p5.
