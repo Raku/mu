@@ -14,7 +14,7 @@ fact, the same effort focused on Haskell. KP6 started using the perl 5
 interpreter as the so-called "virtual machine" for it. The problem is
 that, implementing a runtime on top of other runtime creates a severe
 performance penalty, making KP6 useless in the practical sense, as it
-runs severely slow. This way, yap6 is written in C as to avoid
+runs severely slow. That is why yap6 is written in C as to avoid
 layering different runtimes and get a Perl 6 compatible runtime from
 bottom-up.
 
@@ -102,4 +102,4 @@ operators. This means that the interpreter would work just like p5, as
 it would manage all the aspects of the execution, like exception
 model, closures, scopes etc. This means that we can't tell right now
 if the stage 2 code will be compiled down to C or not. But we do know
-that the basis of its working will be very lookalike p5.
+that the basis of its working will be very like p5.
