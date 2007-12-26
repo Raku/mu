@@ -77,7 +77,7 @@ How does the "stage 1" compiled code should look like?
 Firstly, it will be C code. It will basically look like a set of
 YAP6_* calls, using the native types created by yap6, like:
 
-YAP6__CORE__Value* foo = YAP6_NEW(yap6_const_list_dispatcher);
+YAP6__CORE__Value* foo = yap6_list_create();
 YAP6__CORE__Value* bar = yap6_int_create(0);
 YAP6__CORE__Scalar* place = YAP6_LIST_LOOKP(foo, bar);
 YAP6__CORE__Value* baz = yap6_int_create(1);

@@ -380,11 +380,6 @@ extern void yap6_value_unlock(YAP6__CORE__Value* value);
 
 /* Dispatching mechanism... This can be rewritten in the future,
    but for now, it's as simple as it gets */
-#define YAP6_NEW(proto,args) (proto->NEW(proto,args))
-
-
-/* Dispatching mechanism... This can be rewritten in the future,
-   but for now, it's as simple as it gets */
 #define YAP6_DESTR(value)                (value->dispatcher?\
                                            value->dispatcher->DESTR(\
                                               value->dispatcher,\
