@@ -14,3 +14,5 @@ sub inner1 {
 outer1();
 inner1();
 
+&inner1.set_outer( &outer1 );
+
