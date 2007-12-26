@@ -7,5 +7,6 @@ diff -u -r --unidirectional-new-file --exclude=merge.pl --exclude=perl6.diff $EN
 
 # in the $ENV{PARROT_PERL6} directory:
 patch -p0 < kp6.diff
+# you may need to re-run Parrot's Makefile.PL first 
 make
 EOT
