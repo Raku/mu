@@ -15,9 +15,11 @@ extern void yap6_memory_destr();
 struct YAP6__CORE__Value; typedef struct YAP6__CORE__Value YAP6__CORE__Value;
 struct YAP6__CORE__Scalar; typedef struct YAP6__CORE__Scalar YAP6__CORE__Scalar;
 struct YAP6__CORE__List; typedef struct YAP6__CORE__List YAP6__CORE__List;
+struct YAP6__CORE__Hash; typedef struct YAP6__CORE__Hash YAP6__CORE__Hash;
 struct YAP6__CORE__Dispatcher; typedef struct YAP6__CORE__Dispatcher YAP6__CORE__Dispatcher;
 struct YAP6__CORE__ScalarDispatcher; typedef struct YAP6__CORE__ScalarDispatcher YAP6__CORE__ScalarDispatcher;
 struct YAP6__CORE__string; typedef struct YAP6__CORE__string YAP6__CORE__string;
+struct YAP6__CORE__num; typedef struct YAP6__CORE__num YAP6__CORE__num;
 struct YAP6__CORE__int; typedef struct YAP6__CORE__int YAP6__CORE__int;
 struct YAP6__CORE__bytes; typedef struct YAP6__CORE__bytes YAP6__CORE__bytes;
 struct YAP6__CORE__bool; typedef struct YAP6__CORE__bool YAP6__CORE__bool;
@@ -55,11 +57,11 @@ struct YAP6__CORE__Dispatcher {
                                YAP6__CORE__Value* value);
   YAP6__CORE__string* (*STRNG)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
-  YAP6__CORE__int*   (*INTGR)(YAP6__CORE__Dispatcher* self,
+  YAP6__CORE__num*   (*NUMBR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
   YAP6__CORE__bool*  (*BOOLN)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
-  YAP6__CORE__Scalar* (*SCALR)(YAP6__CORE__Dispatcher* self,
+  YAP6__CORE__Scalar* (*SCALAR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
   YAP6__CORE__List*  (*LIST) (YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
@@ -97,7 +99,6 @@ extern YAP6__CORE__bytes* yap6_bytes_create(const char* initialvalue, int size);
 extern char* yap6_bytes_lowlevel(YAP6__CORE__bytes* value, int* sizeret);
 extern void yap6_bytes_dispatcher_destr();
 
-
 /** booleans are two constants, be it true or false */
 struct YAP6__CORE__bool {
   pthread_rwlock_t* rwlock; int ref_cnt;
@@ -110,6 +111,16 @@ typedef struct YAP6__CORE__double {
   double value;  
 } YAP6__CORE__double;
 
+struct YAP6__CORE__num {
+  pthread_rwlock_t* rwlock; int ref_cnt;
+  YAP6__CORE__Dispatcher* dispatcher;
+  enum { YAP6__CORE__num__INT, YAP6__CORE__num__DOUBLE,
+         YAP6__CORE__num__BIGNUM } precision;
+  int int_value;
+  double double_value;
+  char** bignum_value;
+};
+
 struct YAP6__CORE__string {
   pthread_rwlock_t* rwlock; int ref_cnt;
   YAP6__CORE__Dispatcher* dispatcher;
@@ -117,13 +128,6 @@ struct YAP6__CORE__string {
   int byte_length;
   char content[];
 };
-
-typedef struct YAP6__CORE__blob {
-  pthread_rwlock_t* rwlock; int ref_cnt;
-  YAP6__CORE__Dispatcher* dispatcher;
-  int byte_length;
-  char content[];
-} YAP6__CORE__Blob;
 
 /*
  * The YAP6__CORE__Container is a type of object that contains other object inside 
@@ -152,11 +156,11 @@ struct YAP6__CORE__ScalarDispatcher {
                                YAP6__CORE__Value* value);
   YAP6__CORE__string* (*STRNG)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
-  YAP6__CORE__int*   (*INTGR)(YAP6__CORE__Dispatcher* self,
+  YAP6__CORE__num*   (*NUMBR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
   YAP6__CORE__bool*  (*BOOLN)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
-  YAP6__CORE__Scalar* (*SCALR)(YAP6__CORE__Dispatcher* self,
+  YAP6__CORE__Scalar* (*SCALAR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
   YAP6__CORE__List*  (*LIST) (YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
@@ -193,11 +197,11 @@ typedef struct YAP6__CORE__ListDispatcher {
                                YAP6__CORE__Value* value);
   YAP6__CORE__string* (*STRNG)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
-  YAP6__CORE__int*   (*INTGR)(YAP6__CORE__Dispatcher* self,
+  YAP6__CORE__num*   (*NUMBR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
   YAP6__CORE__bool*  (*BOOLN)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
-  YAP6__CORE__Scalar* (*SCALR)(YAP6__CORE__Dispatcher* self,
+  YAP6__CORE__Scalar* (*SCALAR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
   YAP6__CORE__List*  (*LIST) (YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
@@ -266,11 +270,11 @@ typedef struct YAP6__CORE__PairDispatcher {
                                YAP6__CORE__Value* value);
   YAP6__CORE__string* (*STRNG)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
-  YAP6__CORE__int*   (*INTGR)(YAP6__CORE__Dispatcher* self,
+  YAP6__CORE__num*   (*NUMBR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
   YAP6__CORE__bool*  (*BOOLN)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
-  YAP6__CORE__Scalar* (*SCALR)(YAP6__CORE__Dispatcher* self,
+  YAP6__CORE__Scalar* (*SCALAR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
   YAP6__CORE__List*  (*LIST) (YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
@@ -316,11 +320,11 @@ typedef struct YAP6__CORE__HashDispatcher {
                                YAP6__CORE__Value* value);
   YAP6__CORE__string* (*STRNG)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
-  YAP6__CORE__int*   (*INTGR)(YAP6__CORE__Dispatcher* self,
+  YAP6__CORE__num*   (*NUMBR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
   YAP6__CORE__bool*  (*BOOLN)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
-  YAP6__CORE__Scalar* (*SCALR)(YAP6__CORE__Dispatcher* self,
+  YAP6__CORE__Scalar* (*SCALAR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
   YAP6__CORE__List*  (*LIST) (YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
@@ -351,12 +355,12 @@ typedef struct YAP6__CORE__HashDispatcher {
 
 } YAP6__CORE__HashDispatcher;
 
-typedef struct YAP6__CORE__Hash {
+struct YAP6__CORE__Hash {
   pthread_rwlock_t* rwlock; int ref_cnt;
   YAP6__CORE__HashDispatcher* dispatcher;
   int length;
   YAP6__CORE__Pair** pairs;
-} YAP6__CORE__Hash;
+};
 
 // ident_dispatcher
 extern YAP6__CORE__Dispatcher* yap6_const_ident_dispatcher;
@@ -415,6 +419,70 @@ extern void yap6_value_unlock(YAP6__CORE__Value* value);
                                               value->dispatcher,\
                                               (YAP6__CORE__Value*)value):\
                                            ((YAP6__CORE__Dispatcher*)value)->DESTR(\
+                                              (YAP6__CORE__Dispatcher*)value,\
+                                              (YAP6__CORE__Value*)value))
+
+/* Dispatching mechanism... This can be rewritten in the future,
+   but for now, it's as simple as it gets */
+#define YAP6_NEW(prototype,arguments) (prototype->NEW(prototype,arguments))
+
+/* Dispatching mechanism... This can be rewritten in the future,
+   but for now, it's as simple as it gets */
+#define YAP6_STRNG(value)                (value->dispatcher?\
+                                           value->dispatcher->STRNG(\
+                                              value->dispatcher,\
+                                              (YAP6__CORE__Value*)value):\
+                                           ((YAP6__CORE__Dispatcher*)value)->STRNG(\
+                                              (YAP6__CORE__Dispatcher*)value,\
+                                              (YAP6__CORE__Value*)value))
+
+/* Dispatching mechanism... This can be rewritten in the future,
+   but for now, it's as simple as it gets */
+#define YAP6_NUMBR(value)                (value->dispatcher?\
+                                           value->dispatcher->NUMBR(\
+                                              value->dispatcher,\
+                                              (YAP6__CORE__Value*)value):\
+                                           ((YAP6__CORE__Dispatcher*)value)->NUMBR(\
+                                              (YAP6__CORE__Dispatcher*)value,\
+                                              (YAP6__CORE__Value*)value))
+
+/* Dispatching mechanism... This can be rewritten in the future,
+   but for now, it's as simple as it gets */
+#define YAP6_BOOLN(value)                (value->dispatcher?\
+                                           value->dispatcher->BOOLN(\
+                                              value->dispatcher,\
+                                              (YAP6__CORE__Value*)value):\
+                                           ((YAP6__CORE__Dispatcher*)value)->BOOLN(\
+                                              (YAP6__CORE__Dispatcher*)value,\
+                                              (YAP6__CORE__Value*)value))
+
+/* Dispatching mechanism... This can be rewritten in the future,
+   but for now, it's as simple as it gets */
+#define YAP6_SCALAR(value)                (value->dispatcher?\
+                                           value->dispatcher->SCALAR(\
+                                              value->dispatcher,\
+                                              (YAP6__CORE__Value*)value):\
+                                           ((YAP6__CORE__Dispatcher*)value)->SCALAR(\
+                                              (YAP6__CORE__Dispatcher*)value,\
+                                              (YAP6__CORE__Value*)value))
+
+/* Dispatching mechanism... This can be rewritten in the future,
+   but for now, it's as simple as it gets */
+#define YAP6_LIST(value)                (value->dispatcher?\
+                                           value->dispatcher->LIST(\
+                                              value->dispatcher,\
+                                              (YAP6__CORE__Value*)value):\
+                                           ((YAP6__CORE__Dispatcher*)value)->LIST(\
+                                              (YAP6__CORE__Dispatcher*)value,\
+                                              (YAP6__CORE__Value*)value))
+
+/* Dispatching mechanism... This can be rewritten in the future,
+   but for now, it's as simple as it gets */
+#define YAP6_HASH(value)                (value->dispatcher?\
+                                           value->dispatcher->HASH(\
+                                              value->dispatcher,\
+                                              (YAP6__CORE__Value*)value):\
+                                           ((YAP6__CORE__Dispatcher*)value)->HASH(\
                                               (YAP6__CORE__Dispatcher*)value,\
                                               (YAP6__CORE__Value*)value))
 
