@@ -20,6 +20,7 @@ struct YAP6__CORE__bytes; typedef struct YAP6__CORE__bytes YAP6__CORE__bytes;
 struct YAP6__CORE__bool; typedef struct YAP6__CORE__bool YAP6__CORE__bool;
 struct YAP6__CORE__Scalar; typedef struct YAP6__CORE__Scalar YAP6__CORE__Scalar;
 struct YAP6__CORE__List; typedef struct YAP6__CORE__List YAP6__CORE__List;
+struct YAP6__CORE__Pair; typedef struct YAP6__CORE__Pair YAP6__CORE__Pair;
 struct YAP6__CORE__Hash; typedef struct YAP6__CORE__Hash YAP6__CORE__Hash;
 struct YAP6__CORE__Dispatcher; typedef struct YAP6__CORE__Dispatcher YAP6__CORE__Dispatcher;
 struct YAP6__CORE__ScalarDispatcher; typedef struct YAP6__CORE__ScalarDispatcher YAP6__CORE__ScalarDispatcher;
@@ -333,12 +334,12 @@ struct YAP6__CORE__PairDispatcher {
                               YAP6__CORE__Value* newval);
 };
 
-typedef struct YAP6__CORE__Pair {
+struct YAP6__CORE__Pair {
   pthread_rwlock_t* rwlock; int ref_cnt;
   YAP6__CORE__PairDispatcher* dispatcher;
   YAP6__CORE__Value* key;
   YAP6__CORE__Value* value;
-} YAP6__CORE__Pair;
+};
 
 extern YAP6__CORE__PairDispatcher* yap6_const_pair_dispatcher;
 extern void yap6_pair_dispatcher_init();
