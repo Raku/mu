@@ -1,0 +1,3 @@
+# running from the Parrot directory
+$ perl tools/build/pmc2c.pl --dump ~/pugs-svn-2/trunk/v6/v6-KindaPerl6/misc/nqp/outer.pmc
+$ perl tools/build/pmc2c.pl --c ~/pugs-svn-2/trunk/v6/v6-KindaPerl6/misc/nqp/outer.pmc
