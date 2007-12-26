@@ -1,0 +1,55 @@
+/*
+$Id: ...  $
+Copyright (C) 2001-2008, The Perl Foundation.
+
+=head1 NAME
+
+.../Perl6Sub.pmc - Perl 6 Subroutine
+
+=head1 DESCRIPTION
+
+C<Perl6Sub> extends C<Sub> to provide Perl6-specific
+eval behavior.
+
+=head2 Methods
+
+=over 4
+
+=cut
+
+*/
+
+#include "parrot/parrot.h"
+#include <ctype.h>
+#include <math.h>
+
+pmclass Perl6Sub
+    extends Sub
+    dynpmc
+    #group perl6_group
+    hll Perl6
+    maps Sub {
+
+    METHOD PMC *set_outer() {
+        const Parrot_sub * const sub = PMC_sub(SELF);
+        return sub->outer_sub ? sub->outer_sub : PMCNULL;
+    }
+
+}
+
+
+/*
+
+=back
+
+=cut
+
+*/
+
+
+/*
+ * Local variables:
+ *   c-file-style: "parrot"
+ * End:
+ * vim: expandtab shiftwidth=4:
+ */
