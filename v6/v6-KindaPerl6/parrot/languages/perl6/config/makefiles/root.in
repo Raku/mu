@@ -64,8 +64,12 @@ BUILTINS_PIR = \
   src/builtins/range.pir \
   src/builtins/string.pir \
 
-PMCS = perl6str
-PMC_SOURCES = $(PMC_DIR)/perl6str.pmc
+PMCS = \
+  perl6str \
+  perl6closure
+PMC_SOURCES = \
+  $(PMC_DIR)/perl6str.pmc \
+  $(PMC_DIR)/perl6closure.pmc
 
 # the default target
 perl6.pbc: $(PARROT) $(SOURCES)
