@@ -36,7 +36,7 @@ pmclass Perl6Sub
     METHOD PMC *set_outer(PMC *outer) {
         Parrot_sub * sub = PMC_sub(SELF);
         sub->outer_sub = outer;
-        return sub;
+        return outer;
     }
 
 }
