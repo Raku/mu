@@ -59,6 +59,12 @@ struct YAP6__CORE__Dispatcher {
                                YAP6__CORE__Value* value);
   YAP6__CORE__bool*  (*BOOLN)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
+  YAP6__CORE__Scalar* (*SCALR)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
+  YAP6__CORE__List*  (*LIST) (YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
+  YAP6__CORE__Hash*  (*HASH) (YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
   YAP6__CORE__bytes* (*WHICH)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
 };
@@ -150,6 +156,12 @@ struct YAP6__CORE__ScalarDispatcher {
                                YAP6__CORE__Value* value);
   YAP6__CORE__bool*  (*BOOLN)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
+  YAP6__CORE__Scalar* (*SCALR)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
+  YAP6__CORE__List*  (*LIST) (YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
+  YAP6__CORE__Hash*  (*HASH) (YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
   YAP6__CORE__bytes* (*WHICH)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
   // REFCOUNT: the return of this method is counted as a refcount
@@ -184,6 +196,12 @@ typedef struct YAP6__CORE__ListDispatcher {
   YAP6__CORE__int*   (*INTGR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
   YAP6__CORE__bool*  (*BOOLN)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
+  YAP6__CORE__Scalar* (*SCALR)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
+  YAP6__CORE__List*  (*LIST) (YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
+  YAP6__CORE__Hash*  (*HASH) (YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
   YAP6__CORE__bytes* (*WHICH)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
@@ -252,6 +270,12 @@ typedef struct YAP6__CORE__PairDispatcher {
                                YAP6__CORE__Value* value);
   YAP6__CORE__bool*  (*BOOLN)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
+  YAP6__CORE__Scalar* (*SCALR)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
+  YAP6__CORE__List*  (*LIST) (YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
+  YAP6__CORE__Hash*  (*HASH) (YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
   YAP6__CORE__bytes* (*WHICH)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
   // REFCOUNT: the return of this method is counted as a refcount
@@ -295,6 +319,12 @@ typedef struct YAP6__CORE__HashDispatcher {
   YAP6__CORE__int*   (*INTGR)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
   YAP6__CORE__bool*  (*BOOLN)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
+  YAP6__CORE__Scalar* (*SCALR)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
+  YAP6__CORE__List*  (*LIST) (YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value);
+  YAP6__CORE__Hash*  (*HASH) (YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
   YAP6__CORE__bytes* (*WHICH)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value);
