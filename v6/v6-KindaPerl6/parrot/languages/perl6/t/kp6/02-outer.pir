@@ -30,6 +30,8 @@
     sub2()
 
     sub3()
+    .const .Sub sub2 = "sub2"
+    .const .Sub sub3 = "sub3"
     sub2.set_outer(sub3)
     sub2()
 .end
