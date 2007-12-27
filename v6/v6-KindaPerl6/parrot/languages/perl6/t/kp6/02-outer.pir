@@ -33,5 +33,6 @@
     .const .Sub sub2 = "sub2"
     .const .Sub sub3 = "sub3"
     sub2.set_outer(sub3)
-    sub2()
+    $P1 = newclosure sub2
+    $P1()
 .end
