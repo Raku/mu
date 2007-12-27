@@ -3,22 +3,25 @@ use v6-alpha;
 
 say "1..3";
 
-my $x = 2;
+my $x = 42;
 
 sub outer1 {
     my $x = 123;
     say "ok 1 - outer";
 }
 
-sub inner1($v) {
-    print "not " if $v != $x;
-    say "ok ",$v," - inner - ", $x;
+my $sub = do {
+    my $x = 2;
+    return sub ($v) {
+        print "not " if $v != $x;
+        say "ok ",$v," - inner - ", $x;
+    }
 }
 
 outer1();
-inner1(2);
+$sub(2);
 
-&inner1.set_outer( &outer1 );
+$sub.set_outer( &outer1 );
 
-inner1(3);
+$sub(3);
 
