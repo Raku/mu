@@ -225,6 +225,13 @@ struct YAP6__CORE__ListDispatcher {
   YAP6__CORE__Scalar* (*EXIST)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__int* index);
+  // Store without lookup returns the old value only if it exists,
+  // else return NULL
+  // REFCOUNT: the return of this method is counted as a refcount
+  YAP6__CORE__Value*  (*STORE)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value, 
+                               YAP6__CORE__int* index,
+                               YAP6__CORE__Value* newvalue);
   // Delete removes the key and returns it.
   // REFCOUNT: the return of this method is counted as a refcount
   YAP6__CORE__Scalar* (*DELET)(YAP6__CORE__Dispatcher* self,
@@ -297,6 +304,13 @@ struct YAP6__CORE__HashDispatcher {
   YAP6__CORE__Scalar* (*EXIST)(YAP6__CORE__Dispatcher* self,
                                YAP6__CORE__Value* value, 
                                YAP6__CORE__Value* key);
+  // Store without lookup returns the old value only if it exists,
+  // else return NULL
+  // REFCOUNT: the return of this method is counted as a refcount
+  YAP6__CORE__Value*  (*STORE)(YAP6__CORE__Dispatcher* self,
+                               YAP6__CORE__Value* value, 
+                               YAP6__CORE__Value* key,
+                               YAP6__CORE__Value* newvalue);
   // Delete removes the key and returns it.
   // REFCOUNT: the return of this method is counted as a refcount
   YAP6__CORE__Scalar* (*DELET)(YAP6__CORE__Dispatcher* self,

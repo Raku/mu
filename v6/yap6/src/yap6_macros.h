@@ -107,6 +107,19 @@
                                               (YAP6__CORE__Value*)value,\
                                               (YAP6__CORE__int*)index))
 
+#define YAP6_LIST_STORE(value,index,new) (value->dispatcher?\
+                                           value->dispatcher->STORE(\
+                                              ((YAP6__CORE__ListDispatcher*)value)->dispatcher,\
+                                              (YAP6__CORE__Value*)value,\
+                                              (YAP6__CORE__int*)index,\
+                                              (YAP6__CORE__Value*)new\
+                                           ):\
+                                           ((YAP6__CORE__ListDispatcher*)value)->STORE(\
+                                              (YAP6__CORE__Dispatcher*)value,\
+                                              (YAP6__CORE__Value*)value,\
+                                              (YAP6__CORE__int*)index,\
+                                              (YAP6__CORE__Value*)new))
+
 #define YAP6_LIST_DELET(value,index) (value->dispatcher?\
                                            value->dispatcher->DELET(\
                                               ((YAP6__CORE__ListDispatcher*)value)->dispatcher,\
@@ -201,6 +214,19 @@
                                               (YAP6__CORE__Dispatcher*)value,\
                                               (YAP6__CORE__Value*)value,\
                                               (YAP6__CORE__Value*)key))
+
+#define YAP6_HASH_STORE(value,key,new) (value->dispatcher?\
+                                           value->dispatcher->STORE(\
+                                              ((YAP6__CORE__HashDispatcher*)value)->dispatcher,\
+                                              (YAP6__CORE__Value*)value,\
+                                              (YAP6__CORE__Value*)key,\
+                                              (YAP6__CORE__Value*)new\
+                                           ):\
+                                           ((YAP6__CORE__HashDispatcher*)value)->STORE(\
+                                              (YAP6__CORE__Dispatcher*)value,\
+                                              (YAP6__CORE__Value*)value,\
+                                              (YAP6__CORE__Value*)key,\
+                                              (YAP6__CORE__Value*)new))
 
 #define YAP6_HASH_DELET(value,key) (value->dispatcher?\
                                            value->dispatcher->DELET(\
