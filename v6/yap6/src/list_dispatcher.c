@@ -4,6 +4,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+typedef struct YAP6__CORE__List__ProxyScalar {
+  YAP6__BASE__Value
+  YAP6__CORE__ScalarDispatcher* dispatcher;
+  YAP6__CORE__Value* cell;
+  YAP6__CORE__List* owner;
+  YAP6__CORE__int* index;
+} YAP6__CORE__List__ProxyScalar;
+
+YAP6__CORE__ScalarDispatcher* yap6_const_list_proxyscalar_dispatcher;
+
 YAP6__CORE__List__ProxyScalar* yap6_list_proxyscalar_create() {
   YAP6__CORE__List__ProxyScalar* foo = (YAP6__CORE__List__ProxyScalar*)yap6_value_alloc(sizeof(YAP6__CORE__List__ProxyScalar));
   yap6_value_refcnt_inc((YAP6__CORE__Value*)yap6_const_list_proxyscalar_dispatcher);
@@ -195,7 +205,6 @@ static YAP6__CORE__bytes* list_proxyscalar_dispatcher_WHICH(YAP6__CORE__Dispatch
 
 
 YAP6__CORE__ListDispatcher* yap6_const_list_dispatcher;
-YAP6__CORE__ScalarDispatcher* yap6_const_list_proxyscalar_dispatcher;
 
 void yap6_list_dispatcher_init() {
   yap6_const_list_dispatcher = (YAP6__CORE__ListDispatcher*)yap6_value_alloc(sizeof(YAP6__CORE__ListDispatcher));
