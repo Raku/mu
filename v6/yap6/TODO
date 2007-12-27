@@ -1,0 +1,21 @@
+This is intended to be a table that can be a guidance on what to work
+on. Basically, in YAP6, we have types that must implement a standard
+API. Here follows the list of types versus the methods.
+
+
+Type / Method  Anything?   NEW   DESTR   STRNG   NUMBR  BOOLN  SCALAR  LIST  HASH  WHICH  CUSTOM
+string         0           0     0       0       0      0      0       0     0     0      N/A
+num            0           0     0       0       0      0      0       0     0     0      N/A
+int            1           0     1       0       0      0      0       0     0     1      N/A
+bytes          1           0     1       0       0      0      0       0     0     1      N/A
+bool           1           0     0       0       0      0      0       0     0     1      N/A
+Scalar         1           0     1       0       0      0      0       0     0     1      Ok.
+List           1           0     1       0       0      0      0       0     0     1      Needs some changes.
+Pair           1           0     1       0       0      0      0       0     0     1      Ok.
+Hash           1           0     1       0       0      0      0       0     0     1      Incomplete.
+
+
+If you want to help, just take a look at one of the 1 and look how to
+implement it in some of the zeroes, always creating a test,
+please. When you implement it, just mark it as 1 or if you're not
+sure, just put a question mark and explain below.
