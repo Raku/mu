@@ -25,14 +25,26 @@
     say "# in sub3"
 .end
 
+.sub sub4 :lex :outer(sub3)
+    .local pmc x
+    find_lex x, "$x"
+    say "# in sub4"
+    $P1 = x
+    say $P1
+.end
+
 .sub main :main
     sub1()
     sub2()
 
-    sub3()
     .const .Sub sub2 = "sub2"
     .const .Sub sub3 = "sub3"
-    sub2.set_outer(sub3)
+    .const .Sub sub4 = "sub4"
+    sub2.set_same_outer(sub4)
+    sub3()
+    sub4()
+    say "new closure"
     $P1 = newclosure sub2
+    say "call it"
     $P1()
 .end
