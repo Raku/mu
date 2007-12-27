@@ -28,7 +28,7 @@ pmclass Perl6Closure
     dynpmc
     group perl6_group
     hll Perl6
-    maps Sub {
+    maps Closure {
 
     METHOD PMC *set_outer(PMC *outer) {
         Parrot_sub * sub = PMC_sub(SELF);
@@ -37,7 +37,6 @@ pmclass Perl6Closure
     }
 
 }
-
 
 /*
 
