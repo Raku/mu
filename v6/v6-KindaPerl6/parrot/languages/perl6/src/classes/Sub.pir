@@ -14,7 +14,8 @@ src/classes/Sub.pir - methods for the Sub class
 
 .sub 'onload' :anon :load :init
     $P1 = get_hll_global ['Perl6Object'], 'make_proto'
-    $P1('Perl6Sub', 'Sub')
+    #$P1('Perl6Sub', 'Sub')
+    $P1('Sub', 'Sub')
 .end
 
 =item ACCEPTS(topic)

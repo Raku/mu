@@ -14,7 +14,7 @@ src/classes/Closure.pir - methods for the Closure class
 
 .sub 'onload' :anon :load :init
     $P1 = get_hll_global ['Perl6Object'], 'make_proto'
-    $P1('Perl6Closure', 'Closure')
+    $P1('Closure', 'Closure')
 .end
 
 #.sub 'set_outer' :method

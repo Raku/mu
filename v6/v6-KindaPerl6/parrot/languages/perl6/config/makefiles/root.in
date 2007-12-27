@@ -48,7 +48,6 @@ BUILTINS_PIR = \
   src/classes/Code.pir \
   src/classes/Sub.pir \
   src/classes/Junction.pir \
-  src/classes/Closure.pir \
   src/builtins/assign.pir \
   src/builtins/cmp.pir \
   src/builtins/control.pir \
@@ -66,13 +65,9 @@ BUILTINS_PIR = \
   src/builtins/string.pir \
 
 PMCS = \
-  perl6str \
-  perl6closure \
-  perl6sub
+  perl6str 
 PMC_SOURCES = \
-  $(PMC_DIR)/perl6str.pmc \
-  $(PMC_DIR)/perl6closure.pmc \
-  $(PMC_DIR)/perl6sub.pmc
+  $(PMC_DIR)/perl6str.pmc 
 
 # the default target
 perl6.pbc: $(PARROT) $(SOURCES)
