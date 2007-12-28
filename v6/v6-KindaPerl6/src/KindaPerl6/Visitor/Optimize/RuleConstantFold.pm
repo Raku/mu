@@ -33,20 +33,15 @@ class KindaPerl6::Visitor::Optimize::RuleConstantFold {
                 }
             }
 
-            if (($constant ne '') && !$nodes)
+            if ($constant ne '')
             {
-                return ::Rule::Concat(
-                    concat => ::Rule::Constant(
-                        constant => $constant,
-                    ),
+                push @$nodes, ::Rule::Constant(
+                    constant => $constant,
                 );
             }
-            else
-            {
-                return ::Rule::Concat(
-                    concat => $nodes,
-                );
-            }
+            return ::Rule::Concat(
+                concat => $nodes,
+            );
         }
     };
 

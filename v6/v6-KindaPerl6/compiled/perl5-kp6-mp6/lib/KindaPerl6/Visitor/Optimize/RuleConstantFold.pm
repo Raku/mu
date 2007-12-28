@@ -32,9 +32,10 @@ sub visit {
                 }
             };
             do {
-                if ( ( ( $constant ne '' ) && ( $nodes ? 0 : 1 ) ) ) { return ( Rule::Concat->new( 'concat' => Rule::Constant->new( 'constant' => $constant, ), ) ) }
-                else                                                 { return ( Rule::Concat->new( 'concat' => $nodes, ) ) }
-                }
+                if ( ( $constant ne '' ) ) { push( @{$nodes}, Rule::Constant->new( 'constant' => $constant, ) ) }
+                else                       { }
+            };
+            return ( Rule::Concat->new( 'concat' => $nodes, ) );
         }
         else { }
         }
