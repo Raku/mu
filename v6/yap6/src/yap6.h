@@ -17,7 +17,6 @@ struct YAP6__CORE__string; typedef struct YAP6__CORE__string YAP6__CORE__string;
 struct YAP6__CORE__num; typedef struct YAP6__CORE__num YAP6__CORE__num;
 struct YAP6__CORE__int; typedef struct YAP6__CORE__int YAP6__CORE__int;
 struct YAP6__CORE__bytes; typedef struct YAP6__CORE__bytes YAP6__CORE__bytes;
-struct YAP6__CORE__bool; typedef struct YAP6__CORE__bool YAP6__CORE__bool;
 struct YAP6__CORE__Scalar; typedef struct YAP6__CORE__Scalar YAP6__CORE__Scalar;
 struct YAP6__CORE__List; typedef struct YAP6__CORE__List YAP6__CORE__List;
 struct YAP6__CORE__Pair; typedef struct YAP6__CORE__Pair YAP6__CORE__Pair;
@@ -36,8 +35,7 @@ extern void yap6_ident_dispatcher_destr();
 
 // const values
 extern YAP6__CORE__Value* yap6_const_undef;
-extern YAP6__CORE__bool* yap6_bool_true;
-extern YAP6__CORE__bool* yap6_bool_false;
+extern YAP6__CORE__Value* yap6_bool_false;
 extern void yap6_const_init();
 extern void yap6_const_destr();
 
@@ -92,7 +90,7 @@ extern void yap6_value_unlock(YAP6__CORE__Value* value);
                                YAP6__CORE__Value* value);             \
   YAP6__CORE__num*   (*NUMBR)(YAP6__CORE__Dispatcher* self,           \
                                YAP6__CORE__Value* value);             \
-  YAP6__CORE__bool*  (*BOOLN)(YAP6__CORE__Dispatcher* self,           \
+  YAP6__CORE__Value* (*BOOLN)(YAP6__CORE__Dispatcher* self,           \
                                YAP6__CORE__Value* value);             \
   YAP6__CORE__Scalar* (*SCALAR)(YAP6__CORE__Dispatcher* self,         \
                                YAP6__CORE__Value* value);             \
@@ -145,12 +143,6 @@ extern void yap6_bytes_dispatcher_init();
 extern YAP6__CORE__bytes* yap6_bytes_create(const char* initialvalue, int size);
 extern char* yap6_bytes_lowlevel(YAP6__CORE__bytes* value, int* sizeret);
 extern void yap6_bytes_dispatcher_destr();
-
-/** booleans are two constants, be it true or false */
-struct YAP6__CORE__bool {
-  YAP6__BASE__Value
-  YAP6__CORE__Dispatcher* dispatcher;
-};
 
 struct YAP6__CORE__double {
   YAP6__BASE__Value

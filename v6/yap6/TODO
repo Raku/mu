@@ -4,6 +4,7 @@ API. Here follows the list of types versus the methods.
 
 
 Type / Method  Anything?   NEW   DESTR   STRNG   NUMBR  BOOLN  SCALAR  LIST  HASH  WHICH  CUSTOM
+false          0           0     0       0       0      0      0       0     0     0      N/A
 undef          0           0     0       0       0      0      0       0     0     0      N/A
 string         0           0     0       0       0      0      0       0     0     0      See below.
 num            0           0     0       0       0      0      0       0     0     0      See below.
@@ -32,6 +33,14 @@ undef
 
 Undef must implement the coercion for the other types so that the
 array and hash auto-vivification may work.
+
+=========================================
+false
+=========================================
+
+This is a constant value. When in boolean context, this object means
+false. Everything else means true. When implementing the BOOLN method,
+the types simply have to return false or themselves.
 
 =========================================
 string
