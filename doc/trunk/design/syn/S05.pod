@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 29 Nov 2007
+   Last Modified: 28 Dec 2007
    Number: 5
-   Version: 68
+   Version: 69
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -361,7 +361,7 @@ which is the same as:
 
 Lists and junctions are allowed: C<:nth(1|2|3|5|8|13|21|34|55|89)>.
 
-So are closures: C<:nth{.is_fibonacci}>
+So are closures: C<:nth({.is_fibonacci})>
 
 =item *
 
