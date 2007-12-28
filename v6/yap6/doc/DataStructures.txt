@@ -40,8 +40,8 @@ user. The idea here is:
   * lock when accessing any other member.
 
 This means that if two threads are manipulating the same value, it is
-likely that one do not try to destroy the object while the other is
-using. If you want to do that, well, do the locking
+likely that one does not try to destroy the object while the other is
+using it. If you want to do that, well, do the locking
 yourself. Optionally, you can just increment the refcount when you
 want to make sure this value will not vanish (like, creating a local
 reference to the object) and decrement the refcount later. If we avoid
