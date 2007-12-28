@@ -14,7 +14,7 @@ sub visit {
     my $node_name;
     do { $node = $List__->[0]; $node_name = $List__->[1]; [ $node, $node_name ] };
     do {
-        if ( ( $node_name eq 'Rule::Concat' ) ) {
+        if ( Main::isa( $node, 'Rule::Concat' ) ) {
             my $nodes;
             my $constant = '';
             do {
@@ -24,8 +24,9 @@ sub visit {
                         else {
                             do {
                                 if ( ( $constant ne '' ) ) { push( @{$nodes}, Rule::Constant->new( 'constant' => $constant, ) ); $constant = '' }
-                                else                       { push( @{$nodes}, $stmt ) }
-                                }
+                                else                       { }
+                            };
+                            push( @{$nodes}, $stmt->emit($self) );
                         }
                         }
                 }
