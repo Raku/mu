@@ -26,9 +26,7 @@ class CompUnit {
         ~ 'use strict;' ~ Main::newline()
         ~ 'no strict "vars";' ~ Main::newline()
         ~ 'use Data::Bind;' ~ Main::newline()
-        ~ 'sub say {print @_,"\n"}' ~ Main::newline()
-        ~ 'sub infix_58__60__126__62_ {return $_[0] . $_[1]}' ~ Main::newline()
-        #~ 'use '~ Main::get_compiler_target_runtime() ~';' ~ Main::newline()
+        ~ 'use KindaPerl6::Runtime::Perl5V6::Runtime;' ~ Main::newline()
         ~ $source ~ Main::newline()
         ~ '; 1 }' ~ Main::newline();
     }
