@@ -124,6 +124,12 @@ BEGIN {
         precedence => 'equal',
         other => 'Z',
     );
+    __PACKAGE__->add_rule( 
+        name => ';',
+        assoc => 'list',
+        precedence => 'equal',
+        other => 'Z',
+    );
     
     __PACKAGE__->add_rule( 
         name => 'and',
