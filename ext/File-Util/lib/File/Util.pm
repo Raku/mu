@@ -159,8 +159,7 @@ method load_dir (Str $dirname) {
     }
 }
 
-method list_dir (Str $dirname, %options?){
-    
+method list_dir (Str $dirname, *@options){
     # my $maxd = $.maxdives;
     my $maxd = 12;
     my $path = $dirname;
@@ -196,24 +195,52 @@ method list_dir (Str $dirname, %options?){
 
     my @shadow = @dirs;
     @dirs = ();
+    my @files = ();
+    my @others = ();
     while @shadow {
         my $f = @shadow.shift;
+        if(@options.grep:{$_ eqv '--no-fsdots'}) {
         next if $f eq '.';
         next if $f eq '..';
-        next if $f ~~ /^\./;
-
-        my $pathname = $path ~ "/" ~ $f;
-        if $pathname ~~ :d {
-            @dirs.push($path ~ "/" ~ $f);
         }
+
+        my $fullpath = $path ~ "/" ~ $f;
+        my $pathname;
+
+        if(@options.grep:{$_ eqv '--with-paths'}) {
+          $pathname = $fullpath;
+        } else {
+          $pathname = $f;
+        }
+
+        given $fullpath {
+                         when :d {
+                           @dirs.push($pathname);
+        }
+                         when :f {
+                           @files.push($pathname);
     }
+                         default {
+                           @others.push($pathname);
+                         }
+                        };
+      };
+
+    my @ret;
     
-    for @dirs -> $dir {
-        self.list_dir($dir);
+    if(@options.grep:{$_ eqv '--files-only'}) {
+      @ret.push(@files);
     }
+    elsif(@options.grep:{$_ eqv '--dirs-only'}) {
+      @ret.push(@dirs);
+    }
+    else {
+      @ret.push(@dirs, @files, @others);
+    }
+
     # for @options -> $option {
     # }
-    return @dirs.sort;
+    return @ret.sort;
 }
 
 method size (Str $filename) {
