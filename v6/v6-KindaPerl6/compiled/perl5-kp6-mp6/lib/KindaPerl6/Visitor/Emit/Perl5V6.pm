@@ -13,20 +13,20 @@ sub visit {
     my $List__ = \@_;
     my $node;
     do { $node = $List__->[0]; [$node] };
-    $node->emit_perl5( $self->{visitor_args}->{'secure'} );
+    $node->emit_perl5v6( $self->{visitor_args}->{'secure'} );
 }
 
 package CompUnit;
 sub new { shift; bless {@_}, "CompUnit" }
 
-sub emit_perl5 {
+sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
     $KindaPerl6::Visitor::Emit::Perl5::current_compunit = $self->{name};
     my $source = '';
     do {
-        if ( $self->{body} ) { $source = $self->{body}->emit_perl5() }
+        if ( $self->{body} ) { $source = $self->{body}->emit_perl5v6() }
         else                 { }
     };
     (   '{ package '
@@ -81,7 +81,7 @@ sub emit_perl5 {
 package Val::Int;
 sub new { shift; bless {@_}, "Val::Int" }
 
-sub emit_perl5 {
+sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -91,7 +91,7 @@ sub emit_perl5 {
 package Val::Bit;
 sub new { shift; bless {@_}, "Val::Bit" }
 
-sub emit_perl5 {
+sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -101,7 +101,7 @@ sub emit_perl5 {
 package Val::Num;
 sub new { shift; bless {@_}, "Val::Num" }
 
-sub emit_perl5 {
+sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -111,7 +111,7 @@ sub emit_perl5 {
 package Val::Buf;
 sub new { shift; bless {@_}, "Val::Buf" }
 
-sub emit_perl5 {
+sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -121,7 +121,7 @@ sub emit_perl5 {
 package Val::Char;
 sub new { shift; bless {@_}, "Val::Char" }
 
-sub emit_perl5 {
+sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -131,7 +131,7 @@ sub emit_perl5 {
 package Val::Undef;
 sub new { shift; bless {@_}, "Val::Undef" }
 
-sub emit_perl5 {
+sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -141,7 +141,7 @@ sub emit_perl5 {
 package Val::Object;
 sub new { shift; bless {@_}, "Val::Object" }
 
-sub emit_perl5 {
+sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -151,7 +151,7 @@ sub emit_perl5 {
 package Native::Buf;
 sub new { shift; bless {@_}, "Native::Buf" }
 
-sub emit_perl5 {
+sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -161,27 +161,27 @@ sub emit_perl5 {
 package Lit::Seq;
 sub new { shift; bless {@_}, "Lit::Seq" }
 
-sub emit_perl5 {
+sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( '(' . ( Main::join( [ map { $_->emit_perl5() } @{ $self->{seq} } ], ', ' ) . ')' ) );
+    ( '(' . ( Main::join( [ map { $_->emit_perl5v6() } @{ $self->{seq} } ], ', ' ) . ')' ) );
 }
 
 package Lit::Array;
 sub new { shift; bless {@_}, "Lit::Array" }
 
-sub emit_perl5 {
+sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( '{ _array => [' . ( Main::join( [ map { $_->emit_perl5() } @{ $self->{array} } ], ', ' ) . ( '] }' . Main::newline() ) ) );
+    ( '{ _array => [' . ( Main::join( [ map { $_->emit_perl5v6() } @{ $self->{array} } ], ', ' ) . ( '] }' . Main::newline() ) ) );
 }
 
 package Lit::Hash;
 sub new { shift; bless {@_}, "Lit::Hash" }
 
-sub emit_perl5 {
+sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -189,7 +189,7 @@ sub emit_perl5 {
     my $str    = '';
     my $field;
     do {
-        for my $field ( @{$fields} ) { $str = ( $str . ( '[ ' . ( $field->[0]->emit_perl5() . ( ', ' . ( $field->[1]->emit_perl5() . ' ],' ) ) ) ) ) }
+        for my $field ( @{$fields} ) { $str = ( $str . ( '[ ' . ( $field->[0]->emit_perl5v6() . ( ', ' . ( $field->[1]->emit_perl5v6() . ' ],' ) ) ) ) ) }
     };
     ( $str . Main::newline() );
 }
@@ -197,27 +197,27 @@ sub emit_perl5 {
 package Lit::Pair;
 sub new { shift; bless {@_}, "Lit::Pair" }
 
-sub emit_perl5 {
+sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( '::DISPATCH( $::Pair, \'new\', ' . ( '{ key => ' . ( $self->{key}->emit_perl5() . ( ', value => ' . ( $self->{value}->emit_perl5() . ( ' } )' . Main::newline() ) ) ) ) ) );
+    ( '::DISPATCH( $::Pair, \'new\', ' . ( '{ key => ' . ( $self->{key}->emit_perl5v6() . ( ', value => ' . ( $self->{value}->emit_perl5v6() . ( ' } )' . Main::newline() ) ) ) ) ) );
 }
 
 package Lit::NamedArgument;
 sub new { shift; bless {@_}, "Lit::NamedArgument" }
 
-sub emit_perl5 {
+sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( '::DISPATCH( $::NamedArgument, \'new\', ' . ( '{ _argument_name_ => ' . ( $self->{key}->emit_perl5() . ( ', value => ' . ( ( defined( $self->{value} ) ? $self->{value}->emit_perl5() : 'undef' ) . ( ' } )' . Main::newline() ) ) ) ) ) );
+    ( '::DISPATCH( $::NamedArgument, \'new\', ' . ( '{ _argument_name_ => ' . ( $self->{key}->emit_perl5v6() . ( ', value => ' . ( ( defined( $self->{value} ) ? $self->{value}->emit_perl5v6() : 'undef' ) . ( ' } )' . Main::newline() ) ) ) ) ) );
 }
 
 package Lit::SigArgument;
 sub new { shift; bless {@_}, "Lit::SigArgument" }
 
-sub emit_perl5 {
+sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -245,43 +245,43 @@ sub emit_perl5 {
                                                     . (
                                                     'value  => '
                                                         . (
-                                                        ( defined( $self->{value} ) ? $self->{value}->emit_perl5() : 'undef' )
+                                                        ( defined( $self->{value} ) ? $self->{value}->emit_perl5v6() : 'undef' )
                                                         . ( ', '
                                                                 . (
                                                                 'has_default    => '
                                                                     . (
-                                                                    $self->{has_default}->emit_perl5()
+                                                                    $self->{has_default}->emit_perl5v6()
                                                                         . (
                                                                         ', '
                                                                             . (
                                                                             'is_named_only  => '
                                                                                 . (
-                                                                                $self->{is_named_only}->emit_perl5()
+                                                                                $self->{is_named_only}->emit_perl5v6()
                                                                                     . (
                                                                                     ', '
                                                                                         . (
                                                                                         'is_optional    => '
                                                                                             . (
-                                                                                            $self->{is_optional}->emit_perl5()
+                                                                                            $self->{is_optional}->emit_perl5v6()
                                                                                                 . (
                                                                                                 ', '
                                                                                                     . (
                                                                                                     'is_slurpy      => '
                                                                                                         . (
-                                                                                                        $self->{is_slurpy}->emit_perl5()
+                                                                                                        $self->{is_slurpy}->emit_perl5v6()
                                                                                                             . (
                                                                                                             ', '
                                                                                                                 . (
                                                                                                                 'is_multidimensional  => '
                                                                                                                     . (
-                                                                                                                    $self->{is_multidimensional}->emit_perl5()
+                                                                                                                    $self->{is_multidimensional}->emit_perl5v6()
                                                                                                                         . (
                                                                                                                         ', '
                                                                                                                             . (
                                                                                                                             'is_rw          => '
                                                                                                                                 . (
-                                                                                                                                $self->{is_rw}->emit_perl5()
-                                                                                                                                    . ( ', ' . ( 'is_copy        => ' . ( $self->{is_copy}->emit_perl5() . ( ', ' . ( ' } )' . Main::newline() ) ) ) ) )
+                                                                                                                                $self->{is_rw}->emit_perl5v6()
+                                                                                                                                    . ( ', ' . ( 'is_copy        => ' . ( $self->{is_copy}->emit_perl5v6() . ( ', ' . ( ' } )' . Main::newline() ) ) ) ) )
                                                                                                                                 )
                                                                                                                             )
                                                                                                                         )
@@ -318,12 +318,12 @@ sub emit_perl5 {
 package Lit::Code;
 sub new { shift; bless {@_}, "Lit::Code" }
 
-sub emit_perl5 {
+sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
     do {
-        if ( $self->{CATCH} ) { ( 'do { eval {' . ( $self->emit_declarations() . ( $self->emit_body() . ( '};if ($@) {' . ( $self->{CATCH}->emit_perl5() . '}}' ) ) ) ) ) }
+        if ( $self->{CATCH} ) { ( 'do { eval {' . ( $self->emit_declarations() . ( $self->emit_body() . ( '};if ($@) {' . ( $self->{CATCH}->emit_perl5v6() . '}}' ) ) ) ) ) }
         else                  { ( 'do {' . ( $self->emit_declarations() . ( $self->emit_body() . '}' ) ) ) }
         }
 }
@@ -332,14 +332,14 @@ sub emit_body {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    Main::join( [ map { $_->emit_perl5() } @{ $self->{body} } ], '; ' );
+    Main::join( [ map { $_->emit_perl5v6() } @{ $self->{body} } ], '; ' );
 }
 
 sub emit_signature {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    $self->{sig}->emit_perl5();
+    $self->{sig}->emit_perl5v6();
 }
 
 sub emit_declarations {
@@ -351,7 +351,7 @@ sub emit_declarations {
     do {
         for my $name ( @{ $self->{pad}->lexicals() } ) {
             my $decl = Decl->new( 'decl' => 'my', 'type' => '', 'var' => Var->new( 'sigil' => '', 'twigil' => '', 'name' => $name, 'namespace' => [], ), );
-            $s = ( $s . ( $name->emit_perl5() . ( ';' . Main::newline() ) ) );
+            $s = ( $s . ( $name->emit_perl5v6() . ( ';' . Main::newline() ) ) );
         }
     };
     return ($s);
@@ -366,13 +366,13 @@ sub emit_arguments {
     my $CAPTURE = Var->new( 'sigil' => '$', 'twigil' => '', 'name' => 'CAPTURE', 'namespace' => [], );
     my $CAPTURE_decl = Decl->new( 'decl' => 'my', 'type' => '', 'var' => $CAPTURE, );
     my $str = '';
-    $str = ( $str . $CAPTURE_decl->emit_perl5() );
-    $str = ( $str . Decl->new( 'decl' => 'my', 'type' => '', 'var' => $array_, )->emit_perl5() );
+    $str = ( $str . $CAPTURE_decl->emit_perl5v6() );
+    $str = ( $str . Decl->new( 'decl' => 'my', 'type' => '', 'var' => $array_, )->emit_perl5v6() );
     $str = ( $str . '::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));' );
     my $bind_array = Assign->new( 'parameters' => $array_, 'arguments' => Call->new( 'invocant' => $CAPTURE, 'method' => 'array', 'arguments' => [], ), );
-    $str = ( $str . ( $bind_array->emit_perl5() . ';' ) );
+    $str = ( $str . ( $bind_array->emit_perl5v6() . ';' ) );
     my $bind_hash = Bind->new( 'parameters' => $hash_, 'arguments' => Call->new( 'invocant' => $CAPTURE, 'method' => 'hash', 'arguments' => [], ), );
-    $str = ( $str . ( $bind_hash->emit_perl5() . ';' ) );
+    $str = ( $str . ( $bind_hash->emit_perl5v6() . ';' ) );
     my $i = 0;
     my $field;
     $str = ( $str . '{ my $_param_index = 0; ' );
@@ -404,7 +404,7 @@ sub emit_arguments {
                                                         . (
                                                         ' { '
                                                             . (
-                                                            $bind_named->emit_perl5()
+                                                            $bind_named->emit_perl5v6()
                                                                 . (
                                                                 ' } '
                                                                     . (
@@ -424,7 +424,7 @@ sub emit_arguments {
                                                                                                 . (
                                                                                                 ' { '
                                                                                                     . (
-                                                                                                    $field->key()->emit_perl5()
+                                                                                                    $field->key()->emit_perl5v6()
                                                                                                         . ( ' = ::DISPATCH( ' . ( ' $List__, \'INDEX\', ' . ( ' ::DISPATCH( $::Int, \'new\', $_param_index++ ) ' . ( ' ); ' . ' } ' ) ) ) )
                                                                                                     )
                                                                                                 )
@@ -449,7 +449,7 @@ sub emit_arguments {
                     )
             );
             do {
-                if ( $field->has_default()->bit() ) { $str = ( $str . ( ' else { ' . ( $bind_default->emit_perl5() . ' } ' ) ) ) }
+                if ( $field->has_default()->bit() ) { $str = ( $str . ( ' else { ' . ( $bind_default->emit_perl5v6() . ' } ' ) ) ) }
                 else                                { }
             };
             $i = ( $i + 1 );
@@ -462,7 +462,7 @@ sub emit_arguments {
 package Lit::Object;
 sub new { shift; bless {@_}, "Lit::Object" }
 
-sub emit_perl5 {
+sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -471,7 +471,7 @@ sub emit_perl5 {
     my $field;
     do {
         for my $field ( @{$fields} ) {
-            $str = ( $str . ( '::DISPATCH( $::NamedArgument, "new", ' . ( '{ ' . ( '_argument_name_ => ' . ( $field->[0]->emit_perl5() . ( ', ' . ( 'value           => ' . ( $field->[1]->emit_perl5() . ( ', ' . ' } ), ' ) ) ) ) ) ) ) ) );
+            $str = ( $str . ( '::DISPATCH( $::NamedArgument, "new", ' . ( '{ ' . ( '_argument_name_ => ' . ( $field->[0]->emit_perl5v6() . ( ', ' . ( 'value           => ' . ( $field->[1]->emit_perl5v6() . ( ', ' . ' } ), ' ) ) ) ) ) ) ) ) );
         }
     };
     ( '::DISPATCH( $::' . ( $self->{class} . ( ', \'new\', ' . ( $str . ( ' )' . Main::newline() ) ) ) ) );
@@ -480,30 +480,17 @@ sub emit_perl5 {
 package Assign;
 sub new { shift; bless {@_}, "Assign" }
 
-sub emit_perl5 {
+sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    my $node = $self->{parameters};
-    do {
-        if ( ( Main::isa( $node, 'Var' ) && @{ $node->namespace() } ) ) {
-            $node = Apply->new(
-                'code'      => Var->new( 'name' => 'ternary:<?? !!>', 'twigil' => '', 'sigil' => '&', 'namespace' => ['GLOBAL'], ),
-                'arguments' => [
-                    Apply->new( 'arguments' => [$node], 'code' => Var->new( 'name' => 'VAR_defined', 'twigil' => '', 'sigil' => '&', 'namespace' => ['GLOBAL'], ), ),
-                    $node, Bind->new( 'parameters' => $node, 'arguments' => Call->new( 'invocant' => Var->new( 'name' => '::Scalar', 'twigil' => '', 'sigil' => '$', 'namespace' => [], ), 'method' => 'new', 'hyper' => '', ), )
-                ],
-            );
-        }
-        else { }
-    };
-    ( '::DISPATCH_VAR( ' . ( $node->emit_perl5() . ( ', \'STORE\', ' . ( $self->{arguments}->emit_perl5() . ( ' )' . Main::newline() ) ) ) ) );
+    ( $self->{parameters}->emit_perl5v6() . ( ' = ' . ( $self->{arguments}->emit_perl5v6() . Main::newline() ) ) );
 }
 
 package Var;
 sub new { shift; bless {@_}, "Var" }
 
-sub emit_perl5 {
+sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -526,25 +513,24 @@ sub emit_perl5 {
 package Bind;
 sub new { shift; bless {@_}, "Bind" }
 
-sub emit_perl5 {
+sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
     do {
         if ( ( Main::isa( $self->{parameters}, 'Call' ) || ( Main::isa( $self->{parameters}, 'Var' ) && ( $self->{parameters}->sigil() eq '@' ) ) ) ) {
-            return ( ( '::DISPATCH_VAR( ' . ( $self->{parameters}->emit_perl5() . ( ', "BIND", ' . ( $self->{arguments}->emit_perl5() . ' )' ) ) ) ) );
+            return ( ( '::DISPATCH_VAR( ' . ( $self->{parameters}->emit_perl5v6() . ( ', "BIND", ' . ( $self->{arguments}->emit_perl5v6() . ' )' ) ) ) ) );
         }
         else { }
     };
-    my $str = ( '::MODIFIED(' . ( $self->{parameters}->emit_perl5() . ( ');' . Main::newline() ) ) );
-    $str = ( $str . ( $self->{parameters}->emit_perl5() . ( ' = ' . $self->{arguments}->emit_perl5() ) ) );
+    my $str = ( 'bind_op(' . ( Main::singlequote() . ( $self->{parameters}->emit_perl5v6() . ( Main::singlequote() . ( ' =>\\' . ( $self->{arguments}->emit_perl5v6() . ')' ) ) ) ) ) );
     return ( ( 'do {' . ( $str . '}' ) ) );
 }
 
 package Proto;
 sub new { shift; bless {@_}, "Proto" }
 
-sub emit_perl5 {
+sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -554,7 +540,7 @@ sub emit_perl5 {
 package Call;
 sub new { shift; bless {@_}, "Call" }
 
-sub emit_perl5 {
+sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -563,10 +549,10 @@ sub emit_perl5 {
         if ( Main::isa( $self->{invocant}, 'Proto' ) ) {
             do {
                 if   ( ( $self->{invocant}->name() eq 'self' ) ) { $invocant = '$self' }
-                else                                             { $invocant = $self->{invocant}->emit_perl5() }
+                else                                             { $invocant = $self->{invocant}->emit_perl5v6() }
                 }
         }
-        else { $invocant = $self->{invocant}->emit_perl5() }
+        else { $invocant = $self->{invocant}->emit_perl5v6() }
     };
     do {
         if ( ( $invocant eq 'self' ) ) { $invocant = '$self' }
@@ -577,7 +563,7 @@ sub emit_perl5 {
         if ( ( $meth eq 'postcircumfix:<( )>' ) ) { $meth = '' }
         else                                      { }
     };
-    my $call = Main::join( [ map { $_->emit_perl5() } @{ $self->{arguments} } ], ', ' );
+    my $call = Main::join( [ map { $_->emit_perl5v6() } @{ $self->{arguments} } ], ', ' );
     do {
         if ( $self->{hyper} ) {
             ( '::DISPATCH( $::List, "new", { _array => [ '
@@ -595,7 +581,7 @@ sub emit_perl5 {
 package Apply;
 sub new { shift; bless {@_}, "Apply" }
 
-sub emit_perl5 {
+sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -610,7 +596,8 @@ sub emit_perl5 {
                         . (
                         'my $_tmp1 = '
                             . (
-                            $self->{arguments}->[0]->emit_perl5() . ( '; ' . ( '::DISPATCH( $_tmp1, "true" )->{_value} ' . ( '? ' . ( $self->{arguments}->[1]->emit_perl5() . ( ': ::DISPATCH( $::Bit, "new", 0 )' . ( ' }' . Main::newline() ) ) ) ) ) )
+                            $self->{arguments}->[0]->emit_perl5v6()
+                                . ( '; ' . ( '::DISPATCH( $_tmp1, "true" )->{_value} ' . ( '? ' . ( $self->{arguments}->[1]->emit_perl5v6() . ( ': ::DISPATCH( $::Bit, "new", 0 )' . ( ' }' . Main::newline() ) ) ) ) ) )
                             )
                         )
                 )
@@ -622,7 +609,9 @@ sub emit_perl5 {
         if ( ( Main::isa( $self->{code}, 'Var' ) && ( $self->{code}->name() eq 'infix:<||>' ) ) ) {
             return (
                 (   'do { '
-                        . ( 'my $_tmp1 = ' . ( $self->{arguments}->[0]->emit_perl5() . ( '; ' . ( '::DISPATCH( $_tmp1, "true" )->{_value} ' . ( '? $_tmp1' . ( ': ' . ( $self->{arguments}->[1]->emit_perl5() . ( ' }' . Main::newline() ) ) ) ) ) ) ) )
+                        . (
+                        'my $_tmp1 = ' . ( $self->{arguments}->[0]->emit_perl5v6() . ( '; ' . ( '::DISPATCH( $_tmp1, "true" )->{_value} ' . ( '? $_tmp1' . ( ': ' . ( $self->{arguments}->[1]->emit_perl5v6() . ( ' }' . Main::newline() ) ) ) ) ) ) )
+                        )
                 )
             );
         }
@@ -630,34 +619,43 @@ sub emit_perl5 {
     };
     do {
         if ( ( Main::isa( $self->{code}, 'Var' ) && ( $self->{code}->name() eq 'make' ) ) ) {
-            return ( ( '::DISPATCH_VAR( ' . ( '$GLOBAL::_REGEX_RETURN_, "STORE", ' . ( $self->{arguments}->[0]->emit_perl5() . ( '' . ( ' )' . Main::newline() ) ) ) ) ) );
+            return ( ( '::DISPATCH_VAR( ' . ( '$GLOBAL::_REGEX_RETURN_, "STORE", ' . ( $self->{arguments}->[0]->emit_perl5v6() . ( '' . ( ' )' . Main::newline() ) ) ) ) ) );
         }
         else { }
     };
-    return ( ( '(' . ( $self->{code}->emit_perl5() . ( ')->(' . ( Main::join( [ map { $_->emit_perl5() } @{ $self->{arguments} } ], ', ' ) . ( ' )' . Main::newline() ) ) ) ) ) );
+    my $infix_ops = { 'infix:<~>' => '.', 'infix:<+>' => '+', 'infix:<==>' => '==', };
+    do {
+        if ( ( Main::isa( $self->{code}, 'Var' ) && $infix_ops->{ $self->{code}->name() } ) ) {
+            return ( ( '(' . ( $self->{arguments}->[0]->emit_perl5v6() . ( $infix_ops->{ $self->{code}->name() } . ( $self->{arguments}->[1]->emit_perl5v6() . ')' ) ) ) ) );
+        }
+        else { }
+    };
+    return ( ( '(' . ( $self->{code}->emit_perl5v6() . ( ')->(' . ( Main::join( [ map { $_->emit_perl5v6() } @{ $self->{arguments} } ], ', ' ) . ( ' )' . Main::newline() ) ) ) ) ) );
 }
 
 package Return;
 sub new { shift; bless {@_}, "Return" }
 
-sub emit_perl5 {
+sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( 'return(' . ( $self->{result}->emit_perl5() . ( ')' . Main::newline() ) ) );
+    ( 'return(' . ( $self->{result}->emit_perl5v6() . ( ')' . Main::newline() ) ) );
 }
 
 package If;
 sub new { shift; bless {@_}, "If" }
 
-sub emit_perl5 {
+sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
     (   'do { if ('
             . (
-            $self->{cond}->emit_perl5()
-                . ( ') ' . ( ( $self->{body} ? ( '{ ' . ( $self->{body}->emit_perl5() . ' } ' ) ) : '{ } ' ) . ( ( $self->{otherwise} ? ( ' else { ' . ( $self->{otherwise}->emit_perl5() . ' }' ) ) : ' else { 0 }' ) . ( ' }' . Main::newline() ) ) ) )
+            $self->{cond}->emit_perl5v6()
+                . (
+                ') ' . ( ( $self->{body} ? ( '{ ' . ( $self->{body}->emit_perl5v6() . ' } ' ) ) : '{ } ' ) . ( ( $self->{otherwise} ? ( ' else { ' . ( $self->{otherwise}->emit_perl5v6() . ' }' ) ) : ' else { 0 }' ) . ( ' }' . Main::newline() ) ) )
+                )
             )
     );
 }
@@ -665,7 +663,7 @@ sub emit_perl5 {
 package While;
 sub new { shift; bless {@_}, "While" }
 
-sub emit_perl5 {
+sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -674,13 +672,13 @@ sub emit_perl5 {
         if   ( ( Main::isa( $cond, 'Var' ) && ( $cond->sigil() eq '@' ) ) ) { }
         else                                                                { $cond = Apply->new( 'code' => Var->new( 'sigil' => '&', 'twigil' => '', 'name' => 'prefix:<@>', 'namespace' => ['GLOBAL'], ), 'arguments' => [$cond], ) }
     };
-    ( 'do { while (::DISPATCH(::DISPATCH(' . ( $self->{cond}->emit_perl5() . ( ',"true"),"p5landish") ) ' . ( ' { ' . ( $self->{body}->emit_perl5() . ( ' } }' . Main::newline() ) ) ) ) ) );
+    ( 'do { while (::DISPATCH(::DISPATCH(' . ( $self->{cond}->emit_perl5v6() . ( ',"true"),"p5landish") ) ' . ( ' { ' . ( $self->{body}->emit_perl5v6() . ( ' } }' . Main::newline() ) ) ) ) ) );
 }
 
 package Decl;
 sub new { shift; bless {@_}, "Decl" }
 
-sub emit_perl5 {
+sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -690,120 +688,13 @@ sub emit_perl5 {
         if ( ( $decl eq 'has' ) ) { return ( ( 'sub ' . ( $name . ( ' { ' . ( '@_ == 1 ' . ( '? ( $_[0]->{' . ( $name . ( '} ) ' . ( ': ( $_[0]->{' . ( $name . ( '} = $_[1] ) ' . '}' ) ) ) ) ) ) ) ) ) ) ) }
         else                      { }
     };
-    my $create = ( ', \'new\', { modified => $_MODIFIED, name => \'' . ( $self->{var}->emit_perl5() . '\' } ) ' ) );
-    do {
-        if ( ( $decl eq 'our' ) ) {
-            my $s;
-            $s = 'our ';
-            do {
-                if ( ( $self->{var}->sigil() eq '$' ) ) {
-                    return (
-                        (   $s
-                                . (
-                                $self->{var}->emit_perl5()
-                                    . (
-                                    ' = ::DISPATCH( $::Scalar'
-                                        . (
-                                        $create
-                                            . (
-                                            ' unless defined '
-                                                . (
-                                                $self->{var}->emit_perl5()
-                                                    . (
-                                                    '; ' . ( 'INIT { ' . ( $self->{var}->emit_perl5() . ( ' = ::DISPATCH( $::Scalar' . ( $create . ( ' unless defined ' . ( $self->{var}->emit_perl5() . ( '; ' . ( '}' . Main::newline() ) ) ) ) ) ) ) )
-                                                    )
-                                                )
-                                            )
-                                        )
-                                    )
-                                )
-                        )
-                    );
-                }
-                else { }
-            };
-            do {
-                if ( ( $self->{var}->sigil() eq '&' ) ) { return ( ( $s . ( $self->{var}->emit_perl5() . ( ' = ::DISPATCH( $::Routine' . ( $create . ( ';' . Main::newline() ) ) ) ) ) ) }
-                else                                    { }
-            };
-            do {
-                if ( ( $self->{var}->sigil() eq '%' ) ) { return ( ( $s . ( $self->{var}->emit_perl5() . ( ' = ::DISPATCH( $::HashContainer' . ( $create . ( ';' . Main::newline() ) ) ) ) ) ) }
-                else                                    { }
-            };
-            do {
-                if ( ( $self->{var}->sigil() eq '@' ) ) { return ( ( $s . ( $self->{var}->emit_perl5() . ( ' = ::DISPATCH( $::ArrayContainer' . ( $create . ( ';' . Main::newline() ) ) ) ) ) ) }
-                else                                    { }
-            };
-            return ( ( $s . ( $self->{var}->emit_perl5() . Main::newline() ) ) );
-        }
-        else { }
-    };
-    do {
-        if ( ( $self->{var}->sigil() eq '$' ) ) {
-            return (
-                (   $self->{decl}
-                        . (
-                        ' '
-                            . (
-                            $self->{var}->emit_perl5()
-                                . (
-                                '; '
-                                    . (
-                                    $self->{var}->emit_perl5()
-                                        . (
-                                        ' = ::DISPATCH( $::Scalar'
-                                            . ( $create . ( ' unless defined ' . ( $self->{var}->emit_perl5() . ( '; ' . ( 'INIT { ' . ( $self->{var}->emit_perl5() . ( ' = ::DISPATCH( $::Scalar' . ( $create . ( '}' . Main::newline() ) ) ) ) ) ) ) ) )
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                )
-            );
-        }
-        else { }
-    };
-    do {
-        if ( ( $self->{var}->sigil() eq '&' ) ) {
-            return (
-                (   $self->{decl}
-                        . (
-                        ' '
-                            . (
-                            $self->{var}->emit_perl5()
-                                . (
-                                '; '
-                                    . (
-                                    $self->{var}->emit_perl5()
-                                        . (
-                                        ' = ::DISPATCH( $::Routine'
-                                            . (
-                                            $create . ( ' unless defined ' . ( $self->{var}->emit_perl5() . ( '; ' . ( 'INIT { ' . ( $self->{var}->emit_perl5() . ( ' = ::DISPATCH( $::Routine' . ( $create . ( '}' . Main::newline() ) ) ) ) ) ) ) ) )
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                )
-            );
-        }
-        else { }
-    };
-    do {
-        if ( ( $self->{var}->sigil() eq '%' ) ) { return ( ( $self->{decl} . ( ' ' . ( ' ' . ( $self->{var}->emit_perl5() . ( ' = ::DISPATCH( $::HashContainer' . ( $create . ( '; ' . Main::newline() ) ) ) ) ) ) ) ) }
-        else                                    { }
-    };
-    do {
-        if ( ( $self->{var}->sigil() eq '@' ) ) { return ( ( $self->{decl} . ( ' ' . ( ' ' . ( $self->{var}->emit_perl5() . ( ' = ::DISPATCH( $::ArrayContainer' . ( $create . ( '; ' . Main::newline() ) ) ) ) ) ) ) ) }
-        else                                    { }
-    };
-    return ( ( $self->{decl} . ( ' ' . $self->{var}->emit_perl5() ) ) );
+    return ( ( $self->{decl} . ( ' ' . $self->{var}->emit_perl5v6() ) ) );
 }
 
 package Sig;
 sub new { shift; bless {@_}, "Sig" }
 
-sub emit_perl5 {
+sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -815,7 +706,7 @@ sub emit_perl5 {
     my $pos;
     my $decl;
     do {
-        for my $decl ( @{ $self->{positional} } ) { $pos = ( $pos . ( $decl->emit_perl5() . ', ' ) ) }
+        for my $decl ( @{ $self->{positional} } ) { $pos = ( $pos . ( $decl->emit_perl5v6() . ', ' ) ) }
     };
     my $named = '';
     ( '::DISPATCH( $::Signature, "new", { ' . ( 'invocant => ' . ( $inv . ( ', ' . ( 'array    => ::DISPATCH( $::List, "new", { _array => [ ' . ( $pos . ( ' ] } ), ' . ( 'return   => $::Undef, ' . ( '} )' . Main::newline() ) ) ) ) ) ) ) ) );
@@ -824,13 +715,13 @@ sub emit_perl5 {
 package Lit::Capture;
 sub new { shift; bless {@_}, "Lit::Capture" }
 
-sub emit_perl5 {
+sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
     my $s = '::DISPATCH( $::Capture, "new", { ';
     do {
-        if ( defined( $self->{invocant} ) ) { $s = ( $s . ( 'invocant => ' . ( $self->{invocant}->emit_perl5() . ', ' ) ) ) }
+        if ( defined( $self->{invocant} ) ) { $s = ( $s . ( 'invocant => ' . ( $self->{invocant}->emit_perl5v6() . ', ' ) ) ) }
         else                                { $s = ( $s . 'invocant => $::Undef, ' ) }
     };
     do {
@@ -838,7 +729,7 @@ sub emit_perl5 {
             $s = ( $s . 'array => ::DISPATCH( $::List, "new", { _array => [ ' );
             my $item;
             do {
-                for my $item ( @{ $self->{array} } ) { $s = ( $s . ( $item->emit_perl5() . ', ' ) ) }
+                for my $item ( @{ $self->{array} } ) { $s = ( $s . ( $item->emit_perl5v6() . ', ' ) ) }
             };
             $s = ( $s . ' ] } ),' );
         }
@@ -849,7 +740,7 @@ sub emit_perl5 {
             $s = ( $s . 'hash => ::DISPATCH( $::Hash, "new", ' );
             my $item;
             do {
-                for my $item ( @{ $self->{hash} } ) { $s = ( $s . ( '[ ' . ( $item->[0]->emit_perl5() . ( ', ' . ( $item->[1]->emit_perl5() . ' ], ' ) ) ) ) ) }
+                for my $item ( @{ $self->{hash} } ) { $s = ( $s . ( '[ ' . ( $item->[0]->emit_perl5v6() . ( ', ' . ( $item->[1]->emit_perl5v6() . ' ], ' ) ) ) ) ) }
             };
             $s = ( $s . ' ),' );
         }
@@ -861,18 +752,18 @@ sub emit_perl5 {
 package Lit::Subset;
 sub new { shift; bless {@_}, "Lit::Subset" }
 
-sub emit_perl5 {
+sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
     ( '::DISPATCH( $::Subset, "new", { '
-            . ( 'base_class => ' . ( $self->{base_class}->emit_perl5() . ( ', ' . ( 'block => ' . ( 'sub { local $_ = shift; ' . ( $self->{block}->block()->emit_perl5() . ( ' } ' . ( ' } )' . Main::newline() ) ) ) ) ) ) ) ) );
+            . ( 'base_class => ' . ( $self->{base_class}->emit_perl5v6() . ( ', ' . ( 'block => ' . ( 'sub { local $_ = shift; ' . ( $self->{block}->block()->emit_perl5v6() . ( ' } ' . ( ' } )' . Main::newline() ) ) ) ) ) ) ) ) );
 }
 
 package Method;
 sub new { shift; bless {@_}, "Method" }
 
-sub emit_perl5 {
+sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -929,7 +820,7 @@ sub emit_perl5 {
 package Sub;
 sub new { shift; bless {@_}, "Sub" }
 
-sub emit_perl5 {
+sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -944,7 +835,7 @@ sub emit_perl5 {
 package Macro;
 sub new { shift; bless {@_}, "Macro" }
 
-sub emit_perl5 {
+sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -959,27 +850,27 @@ sub emit_perl5 {
 package Do;
 sub new { shift; bless {@_}, "Do" }
 
-sub emit_perl5 {
+sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( 'do { ' . ( $self->{block}->emit_perl5() . ( ' }' . Main::newline() ) ) );
+    ( 'do { ' . ( $self->{block}->emit_perl5v6() . ( ' }' . Main::newline() ) ) );
 }
 
 package BEGIN;
 sub new { shift; bless {@_}, "BEGIN" }
 
-sub emit_perl5 {
+sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( 'INIT { ' . ( $self->{block}->emit_perl5() . ' }' ) );
+    ( 'INIT { ' . ( $self->{block}->emit_perl5v6() . ' }' ) );
 }
 
 package Use;
 sub new { shift; bless {@_}, "Use" }
 
-sub emit_perl5 {
+sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };

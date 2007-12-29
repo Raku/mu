@@ -304,6 +304,9 @@ my @visitors;
         push @visitor_sequence, qw(  MetaClass  Global Emit::Perl5Regex )                     # RegexCapture ShortCircuit
             unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Perl5Regex';
     }
+    elsif ( grep { $_ eq 'perl5v6' } @opt{qw(C B)} ) {
+        push @visitor_sequence, qw( Emit::Perl5V6 );
+    }
     elsif ( grep { $_ eq 'perl5cached' } @opt{qw(C B)} ) {
         push @visitor_sequence, qw( ExtractRuleBlock Token MetaClass Global Emit::Perl5Cached );
     }
@@ -381,7 +384,7 @@ for (@COMPILER::CHECK) {
     # Make kp6 -e 'say "foo"' and echo 'say "foo"' | kp6 run stuff
     # under the p5 backend
     if ( $opt{output} ) {
-        if ( $opt{perltidy} && ( $opt{B} eq 'perl5' || $opt{C} eq 'perl5' ) ) {
+        if ( $opt{perltidy} && ( $opt{B} eq 'perl5' || $opt{C} eq 'perl5' || $opt{B} eq 'perl5v6' || $opt{C} eq 'perl5v6') ) {
             Perl::Tidy::perltidy(
                 source      => \$out,
                 destination => $output,
@@ -415,7 +418,7 @@ for (@COMPILER::CHECK) {
             }
         }
     }
-    elsif ( grep { $_ eq 'perl5' || $_ eq 'perl5cached' } @opt{qw(C B)} ) {
+    elsif ( grep { $_ eq 'perl5' || $_ eq 'perl5cached' || $_ eq 'perl5v6' } @opt{qw(C B)} ) {
         if ( $opt{B} ) {
 
             # Execute!
