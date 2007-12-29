@@ -20,9 +20,21 @@ static void bytes_dispatcher_DESTR(YAP6__CORE__Dispatcher* self,
   yap6_value_unlock(value);
 }
 
+static YAP6__CORE__Value* bytes_dispatcher_BOOLN(YAP6__CORE__Dispatcher* self,
+                                                 YAP6__CORE__Value* value) {
+  yap6_value_rdlock(value);
+  int l = ((YAP6__CORE__bytes*)value)->size;
+  yap6_value_unlock(value);
+  if (l) {
+    return yap6_value_refcnt_inc(value);
+  } else {
+    return yap6_value_refcnt_inc(yap6_bool_false);
+  }
+}
+
 static YAP6__CORE__bytes* bytes_dispatcher_WHICH(YAP6__CORE__Dispatcher* self,
                                                YAP6__CORE__Value* value) {
-  return (YAP6__CORE__bytes*)value;
+  return (YAP6__CORE__bytes*)yap6_value_refcnt_inc(value);
 }
 
 YAP6__CORE__Dispatcher* yap6_const_bytes_dispatcher;
@@ -34,6 +46,7 @@ void yap6_bytes_dispatcher_init() {
   yap6_const_bytes_dispatcher->APPLY = &bytes_dispatcher_APPLY;
   yap6_const_bytes_dispatcher->DESTR = &bytes_dispatcher_DESTR;
   yap6_const_bytes_dispatcher->WHICH = &bytes_dispatcher_WHICH;
+  yap6_const_bytes_dispatcher->BOOLN = &bytes_dispatcher_BOOLN;
 }
 
 YAP6__CORE__bytes* yap6_bytes_create(const char* lowl, int size) {

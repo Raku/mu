@@ -42,6 +42,8 @@ refcount garbage collection is implemented.
 
 0.0.1.15 - WHICH implementation in every native type, the WHICH will return a "bytes" value.
 
+0.0.1.15.1 - bytes BOOLN
+
 ROADMAP
 
 0.0.1.16 - Hash Dispatcher - Using WHICH to make the hash.
