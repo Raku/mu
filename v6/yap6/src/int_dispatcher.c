@@ -28,12 +28,25 @@ static YAP6__CORE__bytes* int_dispatcher_WHICH(YAP6__CORE__Dispatcher* self,
   
 }
 
+static YAP6__CORE__Value* int_dispatcher_BOOLN(YAP6__CORE__Dispatcher* self,
+                                               YAP6__CORE__Value* value) {
+  yap6_value_rdlock(value);
+  int v = ((YAP6__CORE__int*)value)->value;
+  yap6_value_unlock(value);
+  if (v) {
+    return yap6_value_refcnt_inc(value);
+  } else {
+    return yap6_value_refcnt_inc(yap6_bool_false);
+  }
+}
+
 YAP6__CORE__Dispatcher* yap6_const_int_dispatcher;
 
 void yap6_int_dispatcher_init() {
   yap6_const_int_dispatcher = (YAP6__CORE__Dispatcher*)yap6_value_alloc(sizeof(YAP6__CORE__Dispatcher));
   yap6_const_int_dispatcher->APPLY = &int_dispatcher_APPLY;
   yap6_const_int_dispatcher->DESTR = &int_dispatcher_DESTR;
+  yap6_const_int_dispatcher->BOOLN = &int_dispatcher_BOOLN;
 }
 
 YAP6__CORE__int* yap6_int_create(int lowl) {

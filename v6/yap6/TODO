@@ -8,7 +8,7 @@ false          0           0     0       0       0      0      0       0     0  
 undef          0           0     0       0       0      0      0       0     0     0      N/A
 string         0           0     0       0       0      0      0       0     0     0      See below.
 num            0           0     0       0       0      0      0       0     0     0      See below.
-int            1           0     1       0       0      0      0       0     0     1      See below.
+int            1           0     1       0       0      1      0       0     0     1      See below.
 bytes          1           0     1       0       0      1      0       0     0     1      See below.
 bool           1           0     0       0       0      0      0       0     0     1      N/A
 Scalar         1           0     1       0       0      0      0       0     0     1      Ok.

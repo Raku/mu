@@ -44,6 +44,8 @@ refcount garbage collection is implemented.
 
 0.0.1.15.1 - bytes BOOLN
 
+0.0.1.15.2 - int BOOLN
+
 ROADMAP
 
 0.0.1.16 - Hash Dispatcher - Using WHICH to make the hash.
