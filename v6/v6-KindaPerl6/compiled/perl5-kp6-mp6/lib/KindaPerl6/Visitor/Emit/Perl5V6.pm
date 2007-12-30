@@ -59,7 +59,11 @@ sub emit_perl5v6 {
                                                                 . (
                                                                 Main::newline()
                                                                     . (
-                                                                    'use Data::Bind;' . ( Main::newline() . ( 'use KindaPerl6::Runtime::Perl5V6::Runtime;' . ( Main::newline() . ( $source . ( Main::newline() . ( '; 1 }' . Main::newline() ) ) ) ) ) )
+                                                                    'use Data::Bind;'
+                                                                        . (
+                                                                        Main::newline()
+                                                                            . ( 'use KindaPerl6::Runtime::Perl5V6::Runtime;' . ( Main::newline() . ( 'sub {' . ( $source . ( '}->()' . ( Main::newline() . ( '; 1 }' . Main::newline() ) ) ) ) ) ) )
+                                                                        )
                                                                     )
                                                                 )
                                                             )
@@ -590,43 +594,15 @@ sub emit_perl5v6 {
         else                                                                                  { }
     };
     do {
-        if ( ( Main::isa( $self->{code}, 'Var' ) && ( $self->{code}->name() eq 'infix:<&&>' ) ) ) {
-            return (
-                (   'do { '
-                        . (
-                        'my $_tmp1 = '
-                            . (
-                            $self->{arguments}->[0]->emit_perl5v6()
-                                . ( '; ' . ( '::DISPATCH( $_tmp1, "true" )->{_value} ' . ( '? ' . ( $self->{arguments}->[1]->emit_perl5v6() . ( ': ::DISPATCH( $::Bit, "new", 0 )' . ( ' }' . Main::newline() ) ) ) ) ) )
-                            )
-                        )
-                )
-            );
-        }
-        else { }
-    };
-    do {
-        if ( ( Main::isa( $self->{code}, 'Var' ) && ( $self->{code}->name() eq 'infix:<||>' ) ) ) {
-            return (
-                (   'do { '
-                        . (
-                        'my $_tmp1 = ' . ( $self->{arguments}->[0]->emit_perl5v6() . ( '; ' . ( '::DISPATCH( $_tmp1, "true" )->{_value} ' . ( '? $_tmp1' . ( ': ' . ( $self->{arguments}->[1]->emit_perl5v6() . ( ' }' . Main::newline() ) ) ) ) ) ) )
-                        )
-                )
-            );
-        }
-        else { }
-    };
-    do {
         if ( ( Main::isa( $self->{code}, 'Var' ) && ( $self->{code}->name() eq 'make' ) ) ) {
             return ( ( '::DISPATCH_VAR( ' . ( '$GLOBAL::_REGEX_RETURN_, "STORE", ' . ( $self->{arguments}->[0]->emit_perl5v6() . ( '' . ( ' )' . Main::newline() ) ) ) ) ) );
         }
         else { }
     };
-    my $infix_ops = { 'infix:<~>' => '.', 'infix:<+>' => '+', 'infix:<==>' => '==', };
+    my $ops = { 'infix:<~>' => '.', 'infix:<+>' => '+', 'infix:<==>' => '==', 'infix:<!=>' => 'ne', 'infix:<eq>' => 'eq', 'infix:<ne>' => 'ne', 'infix:<&&>' => '&&', 'infix:<||>' => '||', };
     do {
-        if ( ( Main::isa( $self->{code}, 'Var' ) && $infix_ops->{ $self->{code}->name() } ) ) {
-            return ( ( '(' . ( $self->{arguments}->[0]->emit_perl5v6() . ( $infix_ops->{ $self->{code}->name() } . ( $self->{arguments}->[1]->emit_perl5v6() . ')' ) ) ) ) );
+        if ( ( Main::isa( $self->{code}, 'Var' ) && $ops->{ $self->{code}->name() } ) ) {
+            return ( ( '(' . ( $self->{arguments}->[0]->emit_perl5v6() . ( ' ' . ( $ops->{ $self->{code}->name() } . ( ' ' . ( $self->{arguments}->[1]->emit_perl5v6() . ')' ) ) ) ) ) ) );
         }
         else { }
     };

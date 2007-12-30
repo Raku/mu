@@ -27,7 +27,7 @@ class CompUnit {
         ~ 'no strict "vars";' ~ Main::newline()
         ~ 'use Data::Bind;' ~ Main::newline()
         ~ 'use KindaPerl6::Runtime::Perl5V6::Runtime;' ~ Main::newline()
-        ~ $source ~ Main::newline()
+        ~ 'sub {' ~ $source ~ '}->()' ~ Main::newline()
         ~ '; 1 }' ~ Main::newline();
     }
 }
@@ -448,29 +448,6 @@ class Apply {
             return '$self';
         }
 
-        if  ( $.code.isa('Var') ) && ( $.code.name eq 'infix:<&&>' )
-        {
-            # hack for shortcircuiting "&&"
-            # as an alternative hack, see Visitor::ShortCircuit
-            return  'do { '
-                        ~ 'my $_tmp1 = ' ~ ((@.arguments[0]).emit_perl5v6) ~ '; '
-                        ~ '::DISPATCH( $_tmp1, "true" )->{_value} '
-                        ~ '? ' ~ ((@.arguments[1]).emit_perl5v6)
-                        ~ ': ::DISPATCH( $::Bit, "new", 0 )'
-                ~ ' }' ~ Main::newline();
-        }
-
-        if  ( $.code.isa('Var') ) && ( $.code.name eq 'infix:<||>' )
-        {
-            # hack for shortcircuiting "||"
-            # as an alternative hack, see Visitor::ShortCircuit
-            return  'do { '
-                        ~ 'my $_tmp1 = ' ~ ((@.arguments[0]).emit_perl5v6) ~ '; '
-                        ~ '::DISPATCH( $_tmp1, "true" )->{_value} '
-                        ~ '? $_tmp1'
-                        ~ ': ' ~ ((@.arguments[1]).emit_perl5v6)
-                ~ ' }' ~ Main::newline();
-        }
 
         if  ( $.code.isa('Var') ) && ( $.code.name eq 'make' )
         {
@@ -480,15 +457,20 @@ class Apply {
                 ~ ' )' ~ Main::newline();
         }
 
-        my $infix_ops := {
+        my $ops := {
             'infix:<~>' => '.',
             'infix:<+>' => '+',
-            'infix:<==>' => '=='
+            'infix:<==>' => '==',
+            'infix:<!=>' => 'ne',
+            'infix:<eq>' => 'eq',
+            'infix:<ne>' => 'ne',
+            'infix:<&&>' => '&&',
+            'infix:<||>' => '||',
         };
-        if  ($.code.isa('Var') && ($infix_ops{$.code.name})) {
+        if  ($.code.isa('Var') && ($ops{$.code.name})) {
             return  '(' 
                 ~ (@.arguments[0]).emit_perl5v6
-                ~ $infix_ops{$.code.name}
+                ~ ' ' ~ $ops{$.code.name} ~ ' '
                 ~ (@.arguments[1]).emit_perl5v6
                 ~ ')';
         }
