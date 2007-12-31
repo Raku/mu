@@ -286,7 +286,7 @@ sub get_tests {
         @tests = glob "t/kp6/$args->{ section }/*.t";
     }
     else {
-        @tests = map { chomp; $_ } <DATA>;
+        @tests = grep { -e } map { chomp; $_ } <DATA>;
         push @tests, glob("t/kp6/*.t");
         push @tests, glob("t/kp6/*/*.t");
     }
