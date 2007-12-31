@@ -125,7 +125,7 @@ my $_dispatch_recursion = 0;
 sub ::DISPATCH {
     my $invocant = shift;
 
-    unless ( $invocant->{_dispatch} ) {
+    unless (ref $invocant && $invocant->{_dispatch} ) {
         confess "DISPATCH: calling @_ on invalid object:", Dumper($invocant), "\n";
     }
 
@@ -314,13 +314,13 @@ my $dispatch = sub {
 
     #print "lookup $method_name in $self\n";
 
-    unless ( ref($self) eq 'HASH'
-        or ref($self) eq DISPATCH )
-    {
-        warn "internal error: wrong object format";
-        print Dumper($self);
-        return ::DISPATCH( $::Str, 'new', 'Error' );
-    }
+    #unless ( ref($self) eq 'HASH'
+    #    or ref($self) eq DISPATCH )
+    #{
+    #    warn "internal error: wrong object format";
+    #    print Dumper($self);
+    #    return ::DISPATCH( $::Str, 'new', 'Error' );
+    #}
 
     if ( $self->{_roles}{auto_deref} ) {
 
@@ -365,26 +365,69 @@ package Cached;
 sub AUTOLOAD {
     my $method_name = our $AUTOLOAD;
     my ($self,@args) = @_;
-    my $cachid = Cache::get_cacheid($self);
-    bless($self,"Cache::$cacheid");
-    *{"Cache::Foo::AUTOLOAD"} = \&Cache::autoload;
-    $method_name =~ s/^.*::(\w+)$/$1/;
-    $self->$method_name(@args);
+    if ($self->{_dispatch} eq $dispatch) {
+        my $cacheid = Cache::get_cacheid($self);
+        bless($self,"Cache::$cacheid");
+        #print "#setting Cache::${cacheid}::AUTOLOAD\n";
+        *{"Cache::${cacheid}::AUTOLOAD"} = \&Cache::autoload;
+        $method_name =~ s/^.*::(\w+)$/$1/;
+        $self->$method_name(@args);
+    } else {
+        $self->{_dispatch}($self,$method_name,@args);
+    }
 }
 package Cache;
+# TODO cache clearing
 sub autoload {
     our $AUTOLOAD;
     my $self=shift;
     my $method_name=$AUTOLOAD;
     return if $AUTOLOAD eq ref($self) . '::DESTROY';
     $method_name =~ s/^.*::(\w+)$/$1/;
-    print "#AUTOLOAD $AUTOLOAD\n";
+
+    #if ( $self->{_roles}{auto_deref} ) {
+    #    $self = ::DISPATCH_VAR($self,"FETCH");
+        # XXX -> could be used here
+        #    return ::DISPATCH($self,$method_name,@_);
+        #}
+    #print "#AUTOLOAD $AUTOLOAD\n";
     my $method = KindaPerl6::Runtime::Perl5::MOP::get_method_from_object($self,$method_name);
+    if (ref $method eq 'CODE') {
+    } elsif (::DISPATCH(::DISPATCH($method,"isa",$::Code),"p5landish")) {
+        # XXX
+        # a properly boxed Method
+        # this would break junctions but be faster:
+        $method = $method->{_value}{code};
+        #my $boxed_method = $method;
+        #print "#wrapping up\n";
+        #$method = sub {
+        #    ::DISPATCH( $boxed_method, 'APPLY', @_ );
+        #};
+    } elsif (ref $method->{_value} eq 'CODE') {
+        $method = $method->{_value};
+    } elsif (::DISPATCH(::DISPATCH($method,"isa",$::Method),"p5landish")) {
+        #my $boxed_method = $method;
+        #print "#wrapping up\n";
+        #$method = sub {
+        #::DISPATCH( $boxed_method, 'APPLY', @_ );
+        #};
+        $method = $method->{_value}{code};
+    } elsif (ref $method eq 'HASH') {
+        #XXX
+        die ::DISPATCH(::DISPATCH($method,'perl'),'p5landish');
+    } else {
+        #XXX
+        die $method;
+    }
+    #print "#getting method $method_name $method\n";
     *{$AUTOLOAD} = $method;
-    $method->(@_);
+    $method->($self,@_);
 }
 sub get_cacheid {
-    return 'Foo';
+    my $object = shift;
+    my $cacheid=$object->{_isa};
+    #$cacheid =~ tr/()//;
+    return $cacheid; 
 }
 }
 
