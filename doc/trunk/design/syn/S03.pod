@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 26 Oct 2007
+  Last Modified: 31 Dec 2007
   Number: 3
-  Version: 124
+  Version: 125
 
 =head1 Overview
 
@@ -1700,7 +1700,7 @@ is equivalent to
 
     test1() orelse -> $! { test2() }
 
-(The low-precedence C<//> operator is similar, but does not set C<$!> or
+(The high-precedence C<//> operator is similar, but does not set C<$!> or
 treat blocks specially.)
 
 =back
