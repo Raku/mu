@@ -16,7 +16,7 @@ sub visit {
     do {
         if ( Main::isa( $node, 'Rule::Concat' ) ) {
             my $nodes;
-            my $constant = '';
+            my $constant;
             do {
                 for my $stmt ( @{ $node->concat() } ) {
                     do {
@@ -32,8 +32,8 @@ sub visit {
                 }
             };
             do {
-                if ( ( $constant ne '' ) ) { push( @{$nodes}, Rule::Constant->new( 'constant' => $constant, ) ) }
-                else                       { }
+                if ( defined($constant) ) { push( @{$nodes}, Rule::Constant->new( 'constant' => $constant, ) ) }
+                else                      { }
             };
             return ( Rule::Concat->new( 'concat' => $nodes, ) );
         }

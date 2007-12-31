@@ -10,7 +10,7 @@ class KindaPerl6::Visitor::Optimize::RuleConstantFold {
             my $nodes;
 
             # Save constants if we're looping through them.
-            my $constant := '';
+            my $constant;
 
             for @($node.concat) -> $stmt {
 
@@ -33,7 +33,7 @@ class KindaPerl6::Visitor::Optimize::RuleConstantFold {
                 }
             }
 
-            if ($constant ne '')
+            if (defined($constant))
             {
                 push @$nodes, ::Rule::Constant(
                     constant => $constant,
