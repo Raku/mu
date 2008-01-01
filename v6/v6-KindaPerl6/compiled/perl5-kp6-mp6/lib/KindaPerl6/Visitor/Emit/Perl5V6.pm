@@ -55,16 +55,9 @@ sub emit_perl5v6 {
                                                         . (
                                                         Main::newline()
                                                             . (
-                                                            'no strict "vars";'
+                                                            'use Data::Bind;'
                                                                 . (
-                                                                Main::newline()
-                                                                    . (
-                                                                    'use Data::Bind;'
-                                                                        . (
-                                                                        Main::newline()
-                                                                            . ( 'use KindaPerl6::Runtime::Perl5V6::Runtime;' . ( Main::newline() . ( 'sub {' . ( $source . ( '}->()' . ( Main::newline() . ( '; 1 }' . Main::newline() ) ) ) ) ) ) )
-                                                                        )
-                                                                    )
+                                                                Main::newline() . ( 'use KindaPerl6::Runtime::Perl5V6::Runtime;' . ( Main::newline() . ( 'sub {' . ( $source . ( '}->()' . ( Main::newline() . ( '; 1 }' . Main::newline() ) ) ) ) ) ) )
                                                                 )
                                                             )
                                                         )
@@ -498,7 +491,7 @@ sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    my $table = { '$' => '$', '@' => '$List_', '%' => '$Hash_', '&' => '\&', };
+    my $table = { '$' => '$', '@' => '$List_', '%' => '$Hash_', '&' => '$Code_', };
     do {
         if ( ( $self->{twigil} eq '.' ) ) { return ( ( '::DISPATCH( $self, "' . ( $self->{name} . ( '" )' . Main::newline() ) ) ) ) }
         else                              { }
@@ -522,13 +515,16 @@ sub emit_perl5v6 {
     my $List__ = \@_;
     do { [] };
     do {
-        if ( ( Main::isa( $self->{parameters}, 'Call' ) || ( Main::isa( $self->{parameters}, 'Var' ) && ( $self->{parameters}->sigil() eq '@' ) ) ) ) {
-            return ( ( '::DISPATCH_VAR( ' . ( $self->{parameters}->emit_perl5v6() . ( ', "BIND", ' . ( $self->{arguments}->emit_perl5v6() . ' )' ) ) ) ) );
+        if ( Main::isa( $self->{parameters}, 'Var' ) ) {
+            do {
+                if ( ( $self->{parameters}->sigil() eq '$' ) ) { return ( ( 'bind_op(' . ( Main::singlequote() . ( $self->{parameters}->emit_perl5v6() . ( Main::singlequote() . ( ' => \\' . ( $self->{arguments}->emit_perl5v6() . ')' ) ) ) ) ) ) ) }
+                else                                           { }
+            };
+            return ( ( '(' . ( $self->{parameters}->emit_perl5v6() . ( ' = ' . ( $self->{arguments}->emit_perl5v6() . ' )' ) ) ) ) );
         }
         else { }
     };
-    my $str = ( 'bind_op(' . ( Main::singlequote() . ( $self->{parameters}->emit_perl5v6() . ( Main::singlequote() . ( ' =>\\' . ( $self->{arguments}->emit_perl5v6() . ')' ) ) ) ) ) );
-    return ( ( 'do {' . ( $str . '}' ) ) );
+    die('TODO');
 }
 
 package Proto;
@@ -743,6 +739,7 @@ sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
+    die('TODO methods');
     (   '::DISPATCH( $::Code, \'new\', { '
             . (
             'code => sub { '
@@ -800,12 +797,7 @@ sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    (   '::DISPATCH( $::Code, \'new\', { '
-            . (
-            'code => sub { '
-                . ( $self->{block}->emit_declarations() . ( $self->{block}->emit_arguments() . ( $self->{block}->emit_body() . ( ' }, ' . ( 'signature => ' . ( $self->{block}->emit_signature() . ( ', ' . ( ' } )' . Main::newline() ) ) ) ) ) ) ) )
-            )
-    );
+    ( 'sub {' . ( $self->{block}->emit_declarations() . ( $self->{block}->emit_body() . ( ' }' . Main::newline() ) ) ) );
 }
 
 package Macro;

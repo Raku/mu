@@ -24,7 +24,6 @@ class CompUnit {
         ~ '# AUTHORS, COPYRIGHT: Please look at the source file.' ~ Main::newline()
         ~ 'use v5;' ~ Main::newline()
         ~ 'use strict;' ~ Main::newline()
-        ~ 'no strict "vars";' ~ Main::newline()
         ~ 'use Data::Bind;' ~ Main::newline()
         ~ 'use KindaPerl6::Runtime::Perl5V6::Runtime;' ~ Main::newline()
         ~ 'sub {' ~ $source ~ '}->()' ~ Main::newline()
@@ -306,7 +305,7 @@ class Var {
             '$' => '$',
             '@' => '$List_',
             '%' => '$Hash_',
-            '&' => '\&',
+            '&' => '$Code_',
         };
 
         if $.twigil eq '.' {
@@ -337,39 +336,19 @@ class Var {
 
 class Bind {
     method emit_perl5v6 {
-
-        # XXX - replace Bind with .BIND
-        if      $.parameters.isa('Call')
-            ||  (   $.parameters.isa('Var')
-                &&  ( ($.parameters).sigil eq '@' )
-                )
-        {
-            return
-                  '::DISPATCH_VAR( '
-                ~   $.parameters.emit_perl5v6
-                ~   ', "BIND", '
-                ~   $.arguments.emit_perl5v6
-                ~ ' )'
+        if ($.parameters.isa('Var')) {
+            if ( $.parameters.sigil eq '$') {
+                return 'bind_op('
+                    ~ Main::singlequote
+                    ~ $.parameters.emit_perl5v6
+                    ~ Main::singlequote 
+                    ~ ' => \\'
+                    ~ $.arguments.emit_perl5v6
+                    ~ ')';
+           };
+          return '(' ~ $.parameters.emit_perl5v6 ~ ' = ' ~ $.arguments.emit_perl5v6 ~ ' )';
         };
-
-        # XXX - replace Bind with Assign
-        #if $.parameters.isa('Call')
-        #{
-        #    return ::Assign(parameters=>$.parameters,arguments=>$.arguments).emit_perl5v6;
-        #};
-
-
-        my $str :=
-            'bind_op('
-            ~ Main::singlequote
-            ~ $.parameters.emit_perl5v6
-            ~ Main::singlequote 
-            ~ ' =>\\'
-            ~ $.arguments.emit_perl5v6
-            ~ ')';
-
-        #XXX - proper return value
-        return 'do {'~$str~'}';
+        die 'TODO';
     }
 }
 
@@ -607,6 +586,7 @@ class Lit::Subset {
 
 class Method {
     method emit_perl5v6 {
+        die "TODO methods";
           '::DISPATCH( $::Code, \'new\', { '
         ~   'code => sub { '                 ~ Main::newline()
         ~     '# emit_declarations'          ~ Main::newline()
@@ -628,17 +608,23 @@ class Method {
 
 class Sub {
     method emit_perl5v6 {
-          '::DISPATCH( $::Code, \'new\', { '
-        ~   'code => sub { '
+        'sub {' 
         ~       $.block.emit_declarations
-        ~       $.block.emit_arguments
         ~       $.block.emit_body
-        ~    ' }, '
-        ~   'signature => '
-        ~       $.block.emit_signature
-        ~    ', '
-        ~ ' } )'
+        ~ ' }'
         ~ Main::newline();
+
+#          '::DISPATCH( $::Code, \'new\', { '
+#        ~   'code => sub { '
+#        ~       $.block.emit_declarations
+#        ~       $.block.emit_arguments
+#        ~       $.block.emit_body
+#        ~    ' }, '
+#        ~   'signature => '
+#        ~       $.block.emit_signature
+#        ~    ', '
+#        ~ ' } )'
+#        ~ Main::newline();
     }
 }
 
