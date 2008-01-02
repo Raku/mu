@@ -158,20 +158,20 @@ class Lit::Code {
     method emit_perl5v6 {
         if ($.CATCH) {
           'do { eval {'
-        ~ self.emit_declarations ~ self.emit_body
+        ~ self.emit_declarations_v6 ~ self.emit_body_v6
         ~ '};if ($@) {' ~ $.CATCH.emit_perl5v6 ~ '}}';
         }
         else {
-            'do {' ~ self.emit_declarations ~ self.emit_body ~ '}'
+            'do {' ~ self.emit_declarations_v6 ~ self.emit_body_v6 ~ '}'
         }
     };
-    method emit_body {
+    method emit_body_v6 {
         (@.body.>>emit_perl5v6).join('; ');
     };
-    method emit_signature {
+    method emit_signature_v6 {
         $.sig.emit_perl5v6
     };
-    method emit_declarations {
+    method emit_declarations_v6 {
         my $s;
         my $name;
         for @($.pad.lexicals) -> $name {
@@ -189,7 +189,7 @@ class Lit::Code {
         };
         return $s;
     };
-    method emit_arguments {
+    method emit_arguments_v6 {
         my $array_  := ::Var( sigil => '@', twigil => '', name => '_',       namespace => [ ], );
         my $hash_   := ::Var( sigil => '%', twigil => '', name => '_',       namespace => [ ], );
         my $CAPTURE := ::Var( sigil => '$', twigil => '', name => 'CAPTURE', namespace => [ ],);
@@ -590,16 +590,16 @@ class Method {
           '::DISPATCH( $::Code, \'new\', { '
         ~   'code => sub { '                 ~ Main::newline()
         ~     '# emit_declarations'          ~ Main::newline()
-        ~     $.block.emit_declarations      ~ Main::newline()
+        ~     $.block.emit_declarations_v6   ~ Main::newline()
         ~     '# get $self'                  ~ Main::newline()
         ~     '$self = shift; '              ~ Main::newline()
         ~     '# emit_arguments'             ~ Main::newline()
-        ~     $.block.emit_arguments         ~ Main::newline()
+        ~     $.block.emit_arguments_v6      ~ Main::newline()
         ~     '# emit_body'                  ~ Main::newline()
-        ~     $.block.emit_body
+        ~     $.block.emit_body_v6
         ~    ' }, '
         ~   'signature => '
-        ~       $.block.emit_signature
+        ~       $.block.emit_signature_v6
         ~    ', '
         ~ ' } )'
         ~ Main::newline();
@@ -609,8 +609,8 @@ class Method {
 class Sub {
     method emit_perl5v6 {
         'sub {' 
-        ~       $.block.emit_declarations
-        ~       $.block.emit_body
+        ~       $.block.emit_declarations_v6
+        ~       $.block.emit_body_v6
         ~ ' }'
         ~ Main::newline();
 
@@ -632,12 +632,12 @@ class Macro {
     method emit_perl5v6 {
           '::DISPATCH( $::Macro, \'new\', { '
         ~   'code => sub { '
-        ~       $.block.emit_declarations
-        ~       $.block.emit_arguments
-        ~       $.block.emit_body
+        ~       $.block.emit_declarations_v6
+        ~       $.block.emit_arguments_v6
+        ~       $.block.emit_body_v6
         ~    ' }, '
         ~   'signature => '
-        ~       $.block.emit_signature
+        ~       $.block.emit_signature_v6
         ~    ', '
         ~ ' } )'
         ~ Main::newline();

@@ -320,26 +320,26 @@ sub emit_perl5v6 {
     my $List__ = \@_;
     do { [] };
     do {
-        if ( $self->{CATCH} ) { ( 'do { eval {' . ( $self->emit_declarations() . ( $self->emit_body() . ( '};if ($@) {' . ( $self->{CATCH}->emit_perl5v6() . '}}' ) ) ) ) ) }
-        else                  { ( 'do {' . ( $self->emit_declarations() . ( $self->emit_body() . '}' ) ) ) }
+        if ( $self->{CATCH} ) { ( 'do { eval {' . ( $self->emit_declarations_v6() . ( $self->emit_body_v6() . ( '};if ($@) {' . ( $self->{CATCH}->emit_perl5v6() . '}}' ) ) ) ) ) }
+        else                  { ( 'do {' . ( $self->emit_declarations_v6() . ( $self->emit_body_v6() . '}' ) ) ) }
         }
 }
 
-sub emit_body {
+sub emit_body_v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
     Main::join( [ map { $_->emit_perl5v6() } @{ $self->{body} } ], '; ' );
 }
 
-sub emit_signature {
+sub emit_signature_v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
     $self->{sig}->emit_perl5v6();
 }
 
-sub emit_declarations {
+sub emit_declarations_v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -354,7 +354,7 @@ sub emit_declarations {
     return ($s);
 }
 
-sub emit_arguments {
+sub emit_arguments_v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -750,7 +750,7 @@ sub emit_perl5v6 {
                         . (
                         Main::newline()
                             . (
-                            $self->{block}->emit_declarations()
+                            $self->{block}->emit_declarations_v6()
                                 . (
                                 Main::newline()
                                     . (
@@ -766,12 +766,12 @@ sub emit_perl5v6 {
                                                         . (
                                                         Main::newline()
                                                             . (
-                                                            $self->{block}->emit_arguments()
+                                                            $self->{block}->emit_arguments_v6()
                                                                 . (
                                                                 Main::newline()
                                                                     . (
                                                                     '# emit_body'
-                                                                        . ( Main::newline() . ( $self->{block}->emit_body() . ( ' }, ' . ( 'signature => ' . ( $self->{block}->emit_signature() . ( ', ' . ( ' } )' . Main::newline() ) ) ) ) ) ) )
+                                                                        . ( Main::newline() . ( $self->{block}->emit_body_v6() . ( ' }, ' . ( 'signature => ' . ( $self->{block}->emit_signature_v6() . ( ', ' . ( ' } )' . Main::newline() ) ) ) ) ) ) )
                                                                     )
                                                                 )
                                                             )
@@ -797,7 +797,7 @@ sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( 'sub {' . ( $self->{block}->emit_declarations() . ( $self->{block}->emit_body() . ( ' }' . Main::newline() ) ) ) );
+    ( 'sub {' . ( $self->{block}->emit_declarations_v6() . ( $self->{block}->emit_body_v6() . ( ' }' . Main::newline() ) ) ) );
 }
 
 package Macro;
@@ -810,7 +810,10 @@ sub emit_perl5v6 {
     (   '::DISPATCH( $::Macro, \'new\', { '
             . (
             'code => sub { '
-                . ( $self->{block}->emit_declarations() . ( $self->{block}->emit_arguments() . ( $self->{block}->emit_body() . ( ' }, ' . ( 'signature => ' . ( $self->{block}->emit_signature() . ( ', ' . ( ' } )' . Main::newline() ) ) ) ) ) ) ) )
+                . (
+                $self->{block}->emit_declarations_v6()
+                    . ( $self->{block}->emit_arguments_v6() . ( $self->{block}->emit_body_v6() . ( ' }, ' . ( 'signature => ' . ( $self->{block}->emit_signature_v6() . ( ', ' . ( ' } )' . Main::newline() ) ) ) ) ) ) )
+                )
             )
     );
 }
