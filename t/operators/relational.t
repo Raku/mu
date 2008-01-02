@@ -9,6 +9,7 @@ use Test;
 plan 42;
 
 ## For Numbers: <, <=, <=>, >=, >
+### refactored to t/spec/S03-operators/relational.t
 
 # less than
 
@@ -33,7 +34,7 @@ ok(2 >= 2, '2 is greater than or equal to 2');
 ok(!(2 >= 3), '2 is ~not~ greater than or equal to 3');
 
 # spaceship
-
+###  spaceship refactored to t/spec/S03-operators/comparison.t
 is(1 <=> 1, 0,  '1 is equal to 1');
 is(1 <=> 2, -1, '1 is less than 2');
 is(2 <=> 1, 1,  '2 is greater than 1');
@@ -84,6 +85,7 @@ ok('b' ge 'b', 'b is greater than or equal to b');
 ok(!('b' ge 'c'), 'b is ~not~ greater than or equal to c');
 
 # cmp
+### cmp refactored to t/spec/S03-operators/comparison.t
 
 # L<S29/Any/"=item cmp">
 is('a' cmp 'a', 0,  'a is equal to a');

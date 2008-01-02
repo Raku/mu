@@ -5,6 +5,7 @@ use Test;
 plan 10;
 
 #L<S03/Comparison semantics/eq always coerces to string>
+### refactored to t/spec/S03-operators/equality.t
 
 ok("a" eq "a");
 ok(!("a" eq "ab"));

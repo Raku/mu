@@ -12,6 +12,7 @@ Tests some basic comparison operators
 plan 6;
 
 #L<S03/Comparison semantics>
+### refactored to t/spec/S03-operators/equality.t
 
 my $x = '1';
 my $y = 'a';
