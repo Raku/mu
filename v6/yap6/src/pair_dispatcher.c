@@ -2,13 +2,6 @@
 #include <assert.h>
 #include <stdlib.h>
 
-static YAP6__CORE__Value* pair_dispatcher_APPLY(YAP6__CORE__Dispatcher* self,
-                                          YAP6__CORE__Value* value,
-                                          YAP6__CORE__List* arguments,
-                                          YAP6__CORE__Value* wants) {
-  // TODO
-  return value;
-}
 
 static void pair_dispatcher_DESTR(YAP6__CORE__Dispatcher* self,
                                           YAP6__CORE__Value* v) {
@@ -65,7 +58,6 @@ void yap6_pair_dispatcher_init() {
   yap6_const_pair_dispatcher = (YAP6__CORE__PairDispatcher*)yap6_value_alloc(sizeof(YAP6__CORE__PairDispatcher));
   yap6_const_pair_dispatcher->dispatcher = yap6_const_ident_dispatcher;
   yap6_value_refcnt_inc((YAP6__CORE__Value*)yap6_const_ident_dispatcher);
-  yap6_const_pair_dispatcher->APPLY = &pair_dispatcher_APPLY;
   yap6_const_pair_dispatcher->DESTR = &pair_dispatcher_DESTR;
   yap6_const_pair_dispatcher->GTKEY = &pair_dispatcher_GTKEY;
   yap6_const_pair_dispatcher->GTVAL = &pair_dispatcher_GTVAL;

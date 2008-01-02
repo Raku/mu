@@ -1,0 +1,39 @@
+
+
+__a_b = YAP6_HASH_LOOKP(%a, 'b');
+// here it would return a ProxyScalar that references %a and 'b'
+
+_hash__a_b = YAP6_HASH(__a_b);
+// the same object with a coercion to hash, at this time, 
+
+__a_b_c = YAP6_HASH_LOOKP(_hash__a_b, 'c');
+// here it would return another ProxyScalar that references _hash__a_b and 'c'
+
+// until now, nothing happened yet, just the proxy objects were
+// created but no actual lookup was made yet.
+// this is the %a<b><c> part.
+
+// In this case, we are binding it to something. Before enforcing the context,
+// the bind code will call FETCH on the proxyscalar which will then act like a
+// lookup and eventually return the Uninitialized value. The bind code itself
+// will check if the value is uninitialized and, if in that case, call
+// Autovivify, which is a method of the that type. If the type doesn't support
+// autovivification, a failure is then bound to the variable, else the
+// proxyscalar will be bounded to the scalar variable. The thing here is that
+// what is bound is a proxyscalar that references the path to the value, and 
+// not the value itself
+YAP6_BIND(signature(positional => ($b)), capture(positional => (__a_b_c)));
+
+// In this case we are creating a capture to this value. The same
+// should occour. This operation is the creation of an explicit of a capture
+// object using prefix:<\>.
+YAP6_ARGUMENT(capture(positional => (__a_b_c)));
+
+// Storing into a proxy scalar should obviously autovivify...
+YAP6_SCALAR_STORE(__a_b_c, 1)
+
+// but checking if exists doesn't
+YAP6_HASH_EXISTS(_hash__a_b, 'c');
+
+// also not fetching.
+YAP6_SCALAR_FETCH(__a_b_c);

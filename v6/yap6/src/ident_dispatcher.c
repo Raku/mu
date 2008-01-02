@@ -4,12 +4,6 @@
 #include <stdio.h>
 #include <string.h>
 
-static YAP6__CORE__Value* ident_dispatcher_APPLY(YAP6__CORE__Dispatcher* self,
-                                          YAP6__CORE__Value* value,
-                                          YAP6__CORE__List* arguments,
-                                          YAP6__CORE__Value* wants) {
-  return value;
-}
 
 static void ident_dispatcher_DESTR(YAP6__CORE__Dispatcher* self,
                                           YAP6__CORE__Value* value) {
@@ -28,7 +22,6 @@ YAP6__CORE__Dispatcher* yap6_const_ident_dispatcher;
 
 void yap6_ident_dispatcher_init() {
   yap6_const_ident_dispatcher = (YAP6__CORE__Dispatcher*)yap6_value_alloc(sizeof(YAP6__CORE__Dispatcher));
-  yap6_const_ident_dispatcher->APPLY = &ident_dispatcher_APPLY;
   yap6_const_ident_dispatcher->DESTR = &ident_dispatcher_DESTR;
 }
 

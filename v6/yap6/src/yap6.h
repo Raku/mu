@@ -21,11 +21,13 @@ struct YAP6__CORE__Scalar; typedef struct YAP6__CORE__Scalar YAP6__CORE__Scalar;
 struct YAP6__CORE__List; typedef struct YAP6__CORE__List YAP6__CORE__List;
 struct YAP6__CORE__Pair; typedef struct YAP6__CORE__Pair YAP6__CORE__Pair;
 struct YAP6__CORE__Hash; typedef struct YAP6__CORE__Hash YAP6__CORE__Hash;
+struct YAP6__CORE__Capture; typedef struct YAP6__CORE__Capture YAP6__CORE__Capture;
 struct YAP6__CORE__Dispatcher; typedef struct YAP6__CORE__Dispatcher YAP6__CORE__Dispatcher;
 struct YAP6__CORE__ScalarDispatcher; typedef struct YAP6__CORE__ScalarDispatcher YAP6__CORE__ScalarDispatcher;
 struct YAP6__CORE__ListDispatcher; typedef struct YAP6__CORE__ListDispatcher YAP6__CORE__ListDispatcher;
-struct YAP6__CORE__HashDispatcher; typedef struct YAP6__CORE__HashDispatcher YAP6__CORE__HashDispatcher;
 struct YAP6__CORE__PairDispatcher; typedef struct YAP6__CORE__PairDispatcher YAP6__CORE__PairDispatcher;
+struct YAP6__CORE__HashDispatcher; typedef struct YAP6__CORE__HashDispatcher YAP6__CORE__HashDispatcher;
+struct YAP6__CORE__CaptureDispatcher; typedef struct YAP6__CORE__CaptureDispatcher YAP6__CORE__CaptureDispatcher;
 
 // ident_dispatcher
 extern YAP6__CORE__Dispatcher* yap6_const_ident_dispatcher;
@@ -80,8 +82,8 @@ extern void yap6_value_unlock(YAP6__CORE__Value* value);
 #define YAP6__BASE__Dispacher                                         \
   YAP6__CORE__Value* (*APPLY)(YAP6__CORE__Dispatcher* self,           \
                                YAP6__CORE__Value* value,              \
-                               YAP6__CORE__List* arguments,           \
-                               YAP6__CORE__Value* wants);             \
+                               YAP6__CORE__string* name,              \
+                               YAP6__CORE__Capture* arguments);       \
   YAP6__CORE__Value* (*NEW)  (YAP6__CORE__Dispatcher* self,           \
                                YAP6__CORE__List* arguments);          \
   void               (*DESTR)(YAP6__CORE__Dispatcher* self,           \
@@ -320,6 +322,18 @@ struct YAP6__CORE__Hash {
   YAP6__CORE__HashDispatcher* dispatcher;
   int length;
   YAP6__CORE__Pair** pairs;
+};
+
+
+// the capture object doesn't need any custom methods, as scalar it
+// returns the invocant, as list the positional and as hash the named
+// arguments.
+struct YAP6__CORE__Capture {
+  YAP6__BASE__Value
+  YAP6__CORE__Dispatcher* dispatcher;
+  YAP6__CORE__Value* invocant;
+  YAP6__CORE__Hash* named;
+  YAP6__CORE__List* positional;
 };
 
 #include "yap6_macros.h"

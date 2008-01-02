@@ -22,13 +22,6 @@ YAP6__CORE__List__ProxyScalar* yap6_list_proxyscalar_create() {
 }
 
 
-static YAP6__CORE__Value* list_dispatcher_APPLY(YAP6__CORE__Dispatcher* self,
-                                          YAP6__CORE__Value* value,
-                                          YAP6__CORE__List* arguments,
-                                          YAP6__CORE__Value* wants) {
-  // TODO
-  return NULL;
-}
 
 
 static void list_dispatcher_DESTR(YAP6__CORE__Dispatcher* self,
@@ -125,13 +118,6 @@ static YAP6__CORE__int* list_dispatcher_ELEMS(YAP6__CORE__Dispatcher* self,
 
 }
 
-static YAP6__CORE__Value* list_proxyscalar_dispatcher_APPLY(YAP6__CORE__Dispatcher* self,
-                                          YAP6__CORE__Value* value,
-                                          YAP6__CORE__List* arguments,
-                                          YAP6__CORE__Value* wants) {
-  // TODO
-  return NULL;
-}
 
 static void list_proxyscalar_dispatcher_DESTR(YAP6__CORE__Dispatcher* self,
                                           YAP6__CORE__Value* value) {
@@ -210,7 +196,6 @@ void yap6_list_dispatcher_init() {
   yap6_const_list_dispatcher = (YAP6__CORE__ListDispatcher*)yap6_value_alloc(sizeof(YAP6__CORE__ListDispatcher));
   yap6_const_list_dispatcher->dispatcher = yap6_const_ident_dispatcher;
   yap6_value_refcnt_inc((YAP6__CORE__Value*)yap6_const_ident_dispatcher);
-  yap6_const_list_dispatcher->APPLY = &list_dispatcher_APPLY;
   yap6_const_list_dispatcher->DESTR = &list_dispatcher_DESTR;
   yap6_const_list_dispatcher->LOOKP = &list_dispatcher_LOOKP;
   yap6_const_list_dispatcher->EXIST = &list_dispatcher_EXIST;
@@ -221,7 +206,6 @@ void yap6_list_dispatcher_init() {
   yap6_const_list_proxyscalar_dispatcher = (YAP6__CORE__ScalarDispatcher*)yap6_value_alloc(sizeof(YAP6__CORE__ScalarDispatcher));
   yap6_const_list_proxyscalar_dispatcher->dispatcher = yap6_const_ident_dispatcher;
   yap6_value_refcnt_inc((YAP6__CORE__Value*)yap6_const_ident_dispatcher);
-  yap6_const_list_proxyscalar_dispatcher->APPLY = &list_proxyscalar_dispatcher_APPLY;
   yap6_const_list_proxyscalar_dispatcher->DESTR = &list_proxyscalar_dispatcher_DESTR;
   yap6_const_list_proxyscalar_dispatcher->FETCH = &list_proxyscalar_dispatcher_FETCH;
   yap6_const_list_proxyscalar_dispatcher->STORE = &list_proxyscalar_dispatcher_STORE;

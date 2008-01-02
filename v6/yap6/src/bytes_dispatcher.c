@@ -3,14 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-static YAP6__CORE__Value* bytes_dispatcher_APPLY(YAP6__CORE__Dispatcher* self,
-                                          YAP6__CORE__Value* value,
-                                          YAP6__CORE__List* arguments,
-                                          YAP6__CORE__Value* wants) {
-  // TODO
-  return value;
-}
-
 static void bytes_dispatcher_DESTR(YAP6__CORE__Dispatcher* self,
                                           YAP6__CORE__Value* value) {
   yap6_value_wrlock(value);
@@ -43,7 +35,6 @@ void yap6_bytes_dispatcher_init() {
   yap6_const_bytes_dispatcher = (YAP6__CORE__Dispatcher*)yap6_value_alloc(sizeof(YAP6__CORE__Dispatcher));
   yap6_const_bytes_dispatcher->dispatcher = yap6_const_ident_dispatcher;
   yap6_value_refcnt_inc((YAP6__CORE__Value*)yap6_const_ident_dispatcher);
-  yap6_const_bytes_dispatcher->APPLY = &bytes_dispatcher_APPLY;
   yap6_const_bytes_dispatcher->DESTR = &bytes_dispatcher_DESTR;
   yap6_const_bytes_dispatcher->WHICH = &bytes_dispatcher_WHICH;
   yap6_const_bytes_dispatcher->BOOLN = &bytes_dispatcher_BOOLN;

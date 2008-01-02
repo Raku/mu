@@ -4,18 +4,17 @@ API. Here follows the list of types versus the methods.
 
 
 Type / Method  Anything?   NEW   DESTR   STRNG   NUMBR  BOOLN  SCALAR  LIST  HASH  WHICH  CUSTOM
-false          0           0     0       0       0      0      0       0     0     0      N/A
-undef          0           0     0       0       0      0      0       0     0     0      N/A
+false          0           0     0       0       0      0      0       0     0     1      N/A
+undef          0           0     0       0       0      0      0       0     0     1      N/A
 string         0           0     0       0       0      0      0       0     0     0      See below.
 num            0           0     0       0       0      0      0       0     0     0      See below.
 int            1           0     1       0       0      1      0       0     0     1      See below.
 bytes          1           0     1       0       0      1      0       0     0     1      See below.
-bool           1           0     0       0       0      0      0       0     0     1      N/A
 Scalar         1           0     1       0       0      0      0       0     0     1      Ok.
 List           1           0     1       0       0      0      0       0     0     1      Needs some changes.
 Pair           1           0     1       0       0      0      0       0     0     1      Ok.
 Hash           1           0     1       0       0      0      0       0     0     1      Incomplete.
-
+Capture        0           0     0       0       0      0      0       0     0     0      Nothing yet.
 
 If you want to help, just take a look at one of the 1 and look how to
 implement it in some of the zeroes, always creating a test,
@@ -126,9 +125,9 @@ appropriated.
 List
 =========================================
 
-the current implementation must be changed to make the proxying
-recursive. This may be made simply by moving the code from the STORE
-method in the proxy scalar to the list STORE.
+The current implementation is just plain wrong. The list methods must
+return a value, and not a scalar. This value, when non-existing,
+coerced to Scalar and target to anything but FETCH
 
 =========================================
 Pair
@@ -142,3 +141,11 @@ Hash
 
 This is for now absolutely incomplete. A hashtable library would be
 very helpfull.
+
+=========================================
+Capture
+=========================================
+
+Capture is a type that have the members: invocant, positional and
+named. Capture is a special container that doesn't imply any
+context. The context resolution is left to the binding.

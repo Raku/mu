@@ -11,14 +11,6 @@ YAP6__CORE__Hash__ProxyScalar* yap6_hash_proxyscalar_create() {
 }
 
 
-static YAP6__CORE__Value* hash_dispatcher_APPLY(YAP6__CORE__Dispatcher* self,
-                                          YAP6__CORE__Value* value,
-                                          YAP6__CORE__List* arguments,
-                                          YAP6__CORE__Value* wants) {
-  // TODO
-  return value;
-}
-
 
 static void hash_dispatcher_DESTR(YAP6__CORE__Dispatcher* self,
                                           YAP6__CORE__Value* value) {
@@ -73,13 +65,6 @@ static YAP6__CORE__int* hash_dispatcher_ELEMS(YAP6__CORE__Dispatcher* self,
 }
 
 
-static YAP6__CORE__Value* hash_proxyscalar_dispatcher_APPLY(YAP6__CORE__Dispatcher* self,
-                                          YAP6__CORE__Value* value,
-                                          YAP6__CORE__List* arguments,
-                                          YAP6__CORE__Value* wants) {
-  // TODO
-  return value;
-}
 
 static void hash_proxyscalar_dispatcher_DESTR(YAP6__CORE__Dispatcher* self,
                                           YAP6__CORE__Value* value) {

@@ -3,13 +3,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-static YAP6__CORE__Value* scalar_dispatcher_APPLY(YAP6__CORE__Dispatcher* self,
-                                          YAP6__CORE__Value* value,
-                                          YAP6__CORE__List* arguments,
-                                          YAP6__CORE__Value* wants) {
-  // TODO
-  return NULL;
-}
 
 static void scalar_dispatcher_DESTR(YAP6__CORE__Dispatcher* self,
                                           YAP6__CORE__Value* value) {
@@ -63,7 +56,6 @@ void yap6_scalar_dispatcher_init() {
   yap6_const_scalar_dispatcher->dispatcher = yap6_const_ident_dispatcher;
   yap6_value_refcnt_inc((YAP6__CORE__Value*)yap6_const_ident_dispatcher);
 
-  yap6_const_scalar_dispatcher->APPLY = &scalar_dispatcher_APPLY;
   yap6_const_scalar_dispatcher->DESTR = &scalar_dispatcher_DESTR;
   yap6_const_scalar_dispatcher->FETCH = &scalar_dispatcher_FETCH;
   yap6_const_scalar_dispatcher->STORE = &scalar_dispatcher_STORE;
