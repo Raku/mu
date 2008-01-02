@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 31 Dec 2007
+  Last Modified: 2 Jan 2008
   Number: 3
-  Version: 125
+  Version: 126
 
 =head1 Overview
 
@@ -48,7 +48,7 @@ each level:
     Conditional         ?? !! ff fff
     Item assignment     = := ::= => += -= **= xx= .=
     Loose unary         true not
-    Comma operator      ,
+    Comma operator      , p5=>
     List infix          Z minmax X X~X X*X XeqvX
     List prefix         = : print push say die map substr ... [+] [*] any $ @
     Loose and           and andthen
@@ -1345,6 +1345,28 @@ C<< infix:<,> >>, the argument separator
 
 Unlike in Perl 5, comma operator never returns the last value.  (In item
 context it returns a list instead.)
+
+=item *
+
+C<< infix:«p5=>» >>, the Perl 5 fatarrow
+
+This operator, which behaves exactly like the Perl 5 fatarrow in being
+equivalent to a comma, is purely for easier migration from Perl 5
+to Perl 6.  It is not intended for use by programmers in fresh code;
+it is for use by the p5-to-p6 translator to preserve Perl 5 argument
+passing semantics without losing the intent of the notation.
+
+This operator is purposefully ugly and easy to search for.  Note that,
+since the operator is equivalent to a comma, arguments come in as
+positional pairs rather than named arguments.  Hence, if you have
+a Perl 5 sub that manually handles named argument processing by
+assigning to a hash, it will continue to work.  If, however, you edit
+the C<< p5=> >> operator in an argument list to Perl 6's C<< => >>
+operator, it becomes a real named argument, so you must also change
+the called sub to handle real named args, since the named pair will no
+longer come in via C<@_>.  You can either name your formal parameters
+explicitly if there is an explicit signature, or pull them out of C<%_>
+rather than C<@_> if there is no explicit signature.
 
 =back
 

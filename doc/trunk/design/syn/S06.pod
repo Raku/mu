@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 26 Oct 2007
+  Last Modified: 2 Jan 2008
   Number: 6
-  Version: 90
+  Version: 91
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -124,18 +124,37 @@ You can declare a sub without parameter list, as in Perl 5:
 
     sub foo {...}
 
-Arguments implicitly come in via the C<@_> array, but they are C<readonly>
-aliases to actual arguments:
+This is equivalent to 
+
+    sub foo (*@_, *%_) {...}
+
+Positional arguments implicitly come in via the C<@_> array, but
+unlike in Perl 5 they are C<readonly> aliases to actual arguments:
 
     sub say { print qq{"@_[]"\n}; }   # args appear in @_
 
     sub cap { $_ = uc $_ for @_ }   # Error: elements of @_ are read-only
 
-If you need to modify the elements of C<@_>, declare the array explicitly
-with the C<is rw> trait:
+Also unlike in Perl 5, Perl 6 has true named arguments, which come in
+via C<%_> instead of C<@_>.  (To construct pseudo-named arguments that
+come in via C<@_> as in Perl 5, the p5-to-p6 translator will use the ugly
+C<< p5=> >> operator instead of Perl 6's C<< => >> Pair constructor.)
 
-    sub swap (*@_ is rw) { @_[0,1] = @_[1,0] }
+If you need to modify the elements of C<@_> or C<%_>, declare the
+array or hash explicitly with the C<is rw> trait:
 
+    sub swap (*@_ is rw, *%_ is rw) { @_[0,1] = @_[1,0]; %_<status> = "Q:S"; }
+
+Note: the "rw" container trait is automatically distributed to the
+individual elements by the the slurpy star even though there's no
+actual array or hash passed in.  More precisely, the slurpy star
+means the declared formal parameter is I<not> considered readonly; only
+its elements are.  See L</Parameters and arguments> below.
+
+Note also that if the sub's block contains placeholder variables (such
+as C<$^foo>), it is considered to have a formal signature already, so
+no implicit bindings to C<@_> or C<%_> are assumed (nor is an explicit
+signature allowed.)  So in that case, this section does not apply.
 
 =head2 Blocks
 
