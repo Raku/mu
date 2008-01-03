@@ -5,229 +5,16 @@
 
 use strict;
 use ExtUtils::MakeMaker;
+use YAML;
+
+die "targets.yml does not exist" unless -e 'targets.yml';
+
 
 my $perltidyrc = 'util/perltidyrc';
 
 # Makefile.PL needs to be rerun with a different KP6_TARGET in order to build kp6-mp6, kp6-kp6, or kp6-lisp
-my $KP6_TARGET = $ENV{KP6_TARGET} || 'KP6-MP6';
-my %Kp6Build;
-if ( $KP6_TARGET eq 'KP6-MP6' ) {
-    %Kp6Build = (
-        lib         => 'compiled/perl5-kp6-mp6/lib',
-        module_lib  => 'compiled/perl5-kp6-mp6/lib',
-        run_test    => 'script/run_tests.pl --backend=perl5',
-        make        =>
-<<'END',
 
-compiled/perl5-kp6-mp6/lib/KindaPerl6/Runtime/Perl6/%.pm: src/KindaPerl6/Runtime/Perl6/%.pm
-	@echo perl script/kp6 -Cperl5 -o $@.temp $<
-	@$(PERL) script/kp6 -Cperl5 -o $@.temp $< ; \
-		res=$$? ; \
-		if [ $$res = 0 -a -s $@.temp ] ; then \
-			mv $@.temp $@ ; \
-		else \
-			rm $@.temp ; \
-			echo "*** Compilation failed with exit code: $$res!" ; \
-			exit; \
-		fi
-
-compiled/perl5-kp6-mp6/lib/%.pm: src-modules/%.pm
-	# @echo perl script/kp6 -Cperl5 -o $@.temp $<
-	@$(PERL) script/kp6 -Cperl5 -o $@.temp $<  ; \
-		res=$$? ; \
-		if [ $$res = 0 -a -s $@.temp ] ; then \
-			mv $@.temp $@ ; \
-		else \
-			rm $@.temp ; \
-			echo "*** Compilation failed with exit code: $$res!" ; \
-			exit; \
-		fi
-
-compiled/perl5-kp6-mp6/lib/KindaPerl6/Runtime/Perl5/%.pm: src/KindaPerl6/Runtime/Perl5/%.pm
-	$(CP) $< $@
-
-compiled/perl5-kp6-mp6/lib/KindaPerl6/Runtime/Perl5V6/%.pm: src/KindaPerl6/Runtime/Perl5V6/%.pm
-	$(CP) $< $@
-
-compiled/perl5-kp6-mp6/lib/KindaPerl6.pm: src/KindaPerl6.pm
-	$(CP) $< $@
-
-# note, the files compiled by script/mp6.pl are all the files not handled
-# or "claimed" by the above rules.
-compiled/perl5-kp6-mp6/lib/%.pm: src/%.pm
-	$(PERL) script/mp6.pl -o $@ $<
-
-END
-
-    );
-}
-elsif ( $KP6_TARGET eq "KP6-KP6" ) {
-    %Kp6Build = (
-        lib         => "compiled/perl5-kp6-kp6/lib",
-        module_lib  => "compiled/perl5-kp6-kp6/lib",
-        run_test    => "script/run_tests_kp6_kp6.pl",
-        make        =>
-<<'END',
-compiled/perl5-kp6-kp6/lib/KindaPerl6/Runtime/Perl6/%.pm: src/KindaPerl6/Runtime/Perl6/%.pm
-	$(PERL) script/kp6-kp6.pl -Cperl5rx < $< | perltidy -pro=$perltidyrc -o $@
-
-compiled/perl5-kp6-kp6/lib/%.pm: src-modules/%.pm
-	@echo perl script/kp6-kp6.pl -Cperl5rx $< $@
-	@$(PERL) script/kp6-kp6.pl -Cperl5rx < $< | perltidy -pro=$perltidyrc -o $@.temp ; \
-		res=$$? ; \
-		if [ $$res = 0 -a -s $@.temp ] ; then \
-			mv $@.temp $@ ; \
-		else \
-			rm $@.temp ; \
-			echo "*** Compilation failed with exit code: $$res!" ; \
-			exit; \
-		fi
-
-compiled/perl5-kp6-kp6/lib/KindaPerl6/Runtime/Perl5/%.pm: src/KindaPerl6/Runtime/Perl5/%.pm
-	$(CP) $< $@
-
-compiled/perl5-kp6-kp6/lib/KindaPerl6.pm: src/KindaPerl6.pm
-	$(CP) $< $@
-
-compiled/perl5-kp6-kp6/lib/%.pm: src/%.pm
-	$(PERL) script/kp6-kp6.pl -Cperl5rx < $< | perltidy -pro=$perltidyrc -o $@
-
-script/kp6-kp6.pl: src-script/kp6-kp6.pl
-	@echo perl script/kp6-kp6.pl -Cperl5rx $< $@
-	@$(PERL) script/kp6-kp6.pl -Cperl5rx < $< | perltidy -pro=$perltidyrc -o $@.temp ; \
-		res=$$? ; \
-		if [ $$res = 0 -a -s $@.temp ] ; then \
-			mv $@.temp $@ ; \
-		else \
-			rm $@.temp ; \
-			echo "*** Compilation failed with exit code: $$res!" ; \
-			exit; \
-		fi
-
-END
-
-    );
-}
-elsif ( $KP6_TARGET eq "KP6-BOOT" ) {
-    %Kp6Build = (
-        lib         => "compiled/perl5-kp6-kp6/lib",
-        module_lib  => "compiled/perl5-kp6-kp6/lib",
-        run_test    => "script/run_tests_kp6_kp6.pl",
-        make        =>
-<<'END',
-script/%.pl: src-script/%.pl
-	@echo perl script/kp6 -Cperl5rx --noperltidy -o $@ $<
-	$(PERL) script/kp6 -Cperl5rx --noperltidy -o $@ $<
-
-compiled/perl5-kp6-kp6/lib/KindaPerl6/Runtime/Perl6/%.pm: src/KindaPerl6/Runtime/Perl6/%.pm
-	@echo perl script/kp6 -Cperl5rx --noperltidy -o $@ $<
-	$(PERL) script/kp6 -Cperl5rx --noperltidy -o $@ $<
-
-compiled/perl5-kp6-kp6/lib/%.pm: src-modules/%.pm
-	@echo perl script/kp6 -Cperl5rx --noperltidy -o $@.temp $<
-	@$(PERL) script/kp6 -Cperl5rx --noperltidy -o $@.temp $<  ; \
-		res=$$? ; \
-		if [ $$res = 0 -a -s $@.temp ] ; then \
-			mv $@.temp $@ ; \
-		else \
-			echo "*** Compilation failed with exit code: $$res!" ; \
-			exit; \
-		fi
-
-compiled/perl5-kp6-kp6/lib/KindaPerl6/Runtime/Perl5/Pad.pm: libkp6/KindaPerl6/Runtime/Perl5/Pad.pm
-	$(CP) $< $@
-
-compiled/perl5-kp6-kp6/lib/KindaPerl6/Runtime/Perl5/Match.pm: lib5regex/KindaPerl6/Runtime/Perl5/Match.pm
-	$(CP) $< $@
-
-compiled/perl5-kp6-kp6/lib/KindaPerl6/Runtime/Perl5/%.pm: src/KindaPerl6/Runtime/Perl5/%.pm
-	$(CP) $< $@
-compiled/perl5-kp6-kp6/lib/KindaPerl6/Runtime/Perl5V6/%.pm: src/KindaPerl6/Runtime/Perl5V6/%.pm
-	$(CP) $< $@
-
-compiled/perl5-kp6-kp6/lib/KindaPerl6.pm: src/KindaPerl6.pm
-	$(CP) $< $@
-
-compiled/perl5-kp6-kp6/lib/%.pm: src/%.pm
-	@echo perl script/kp6 -Cperl5rx --noperltidy -o $@ $<
-	$(PERL) script/kp6 -Cperl5rx --noperltidy -o $@ $<
-
-script/kp6-kp6.pl: src-script/kp6-kp6.pl
-	@echo perl script/kp6 -Cperl5rx --noperltidy -o $@ $<
-	$(PERL) script/kp6 -Cperl5rx --noperltidy -o $@ $<
-
-END
-
-    );
-}
-elsif ( $KP6_TARGET eq "KP6-BOOT-NOREGEX" ) {
-    %Kp6Build = (
-        lib         => "compiled/perl5-kp6-kp6-noregex/lib",
-        module_lib  => "compiled/perl5-kp6-kp6-noregex/lib",
-        run_test    => "script/run_tests_kp6_kp6.pl",  # TODO
-        make        =>
-<<'END',
-compiled/perl5-kp6-kp6-noregex/lib/KindaPerl6/Runtime/Perl6/%.pm: src/KindaPerl6/Runtime/Perl6/%.pm
-	@echo perl script/kp6 -Cperl5 --noperltidy -o $@ $<
-	$(PERL) script/kp6 -Cperl5 --noperltidy -o $@ $<
-
-compiled/perl5-kp6-kp6-noregex/lib/%.pm: src-modules/%.pm
-	@echo perl script/kp6 -Cperl5 --noperltidy -o $@.temp $<
-	@$(PERL) script/kp6 -Cperl5 --noperltidy -o $@.temp $<  ; \
-		res=$$? ; \
-		if [ $$res = 0 -a -s $@.temp ] ; then \
-			mv $@.temp $@ ; \
-		else \
-			echo "*** Compilation failed with exit code: $$res!" ; \
-			exit; \
-		fi
-
-compiled/perl5-kp6-kp6-noregex/lib/KindaPerl6/Runtime/Perl5/Pad.pm: libkp6/KindaPerl6/Runtime/Perl5/Pad.pm
-	$(CP) $< $@
-
-compiled/perl5-kp6-kp6-noregex/lib/KindaPerl6/Runtime/Perl5/%.pm: src/KindaPerl6/Runtime/Perl5/%.pm
-	$(CP) $< $@
-
-compiled/perl5-kp6-kp6-noregex/lib/KindaPerl6.pm: src/KindaPerl6.pm
-	$(CP) $< $@
-
-compiled/perl5-kp6-kp6-noregex/lib/%.pm: src/%.pm
-	@echo perl script/kp6 -Cperl5 --noperltidy -o $@ $<
-	$(PERL) script/kp6 -Cperl5 --noperltidy -o $@ $<
-
-# TODO
-# script/kp6-kp6.pl: src-script/kp6-kp6.pl
-#	@echo perl script/kp6 -Cperl5rx --noperltidy -o $@ $<
-#	$(PERL) script/kp6 -Cperl5rx --noperltidy -o $@ $<
-
-END
-
-    );
-}
-elsif ( $KP6_TARGET =~ /^KP6-LISP(?:-([A-Za-z]+))?$/ ) {
-    #die "not yet implemented KP6_TARGET '$KP6_TARGET', can't continue";
-    my $runtime = lc($1) || 'sbcl';
-    die "Unknown runtime $runtime" unless $runtime =~ /^(?:sbcl|clisp|ecl)$/;
-    %Kp6Build = (
-        # We don't use this and not defining this makes things break,
-        # just use the same things as kp6-mp6
-        lib         => 'compiled/cl/lib',
-        module_lib  => 'compiled/cl/lib',
-
-        run_test    => "script/run_tests.pl --backend=cl-$runtime",
-        make        =>
-<<'END',
-# Hack to get the .lisp files copied under perl Makefile.PL && make
-compiled/cl/lib/KindaPerl6/Runtime/Lisp/%.lisp: src/KindaPerl6/Runtime/Lisp/%.lisp
-	$(CP) $< $@
-END
-
-    );
-}
-else {
-    die "unknown KP6_TARGET '$KP6_TARGET', can't continue";
-}
-
+my %Kp6Build = load_configuration( $ENV{KP6_TARGET} || 'KP6-MP6' );
 
 my %PM;
 
@@ -304,6 +91,24 @@ WriteMakefile(
         )
     },
 );
+
+=head2 load_configuration
+
+Loads the configuration for each target from targets.yml
+
+use util/make_targets_yml.pl to write the targets.yml file.
+
+=cut
+
+sub load_configuration { # load target configuration
+    my $targets = YAML::LoadFile('targets.yml');
+    my $KP6_TARGET = $ENV{KP6_TARGET} || 'KP6-MP6';
+    if ( exists $targets->{ $KP6_TARGET } ) {
+        %Kp6Build = %{ $targets->{ $KP6_TARGET } };
+    } else {
+        die "unknown KP6_TARGET '$KP6_TARGET', can't continue";
+    }
+}
 
 # Voodoo magic specific to building KindaPerl6:
 package MY;
@@ -479,73 +284,3 @@ END
 
 __END__
 
-=head1 NAME
-
-Makefile.PL - v6::KindaPerl6 build system
-
-=head1 SYNOPSIS
-
-    perl Makefile.PL
-
-=head1 TARGETS
-
-The following targets are supported in addition to the usual
-ExtUtils::MakeMaker targets.
-
-=over
-
-=item forcerecompile
-
-touches all the .pm files in src/KindaPerl6, this forces recompilation
-on the next I<make all>.
-
-WARNING: You cannot use 'make -j' to rebuild after this.  As the make
-program will attempt to use files that have not yet been built.
-
-=item kp6_mp6
-
-Compile only kp6-mp6 stuff, leave out kp6-kp6, much faster for development
-
-UPDATE: set $ENV{KP6_TARGET}=KP6-KP6 before running Makefile.PL, in order to build kp6-kp6
-
-=item test_grammar
-
-Run grammar tests
-
-=item test_io
-
-Run IO tests
-
-=item test_math
-
-Run math tests
-
-=item test_base
-
-Run base tests
-
-=back
-
-=head2 WARNING
-
-MSWin32 Platforms:
-
-WARNING: You will have to rebuild Makefile when ever you add a file to
-this list.  This is due to Microsofts nmake not supporting features that
-gnu make supports.
-
-The specific problem that will arise is that if you add a file to a directory
-however, make will not "add" that file to the list of files to be compiled.
-To fix this you will have to rebuild the Makefile.  "perl Makefile.PL"
-this is specific ONLY to MS Windows.
-
-=head2 COPYRIGHT
-
-Copyright 2007 by Flavio Soibelmann Glock and others.
-
-This program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
-
-See L<http://www.perl.com/perl/misc/Artistic.html>
-
-=cut
