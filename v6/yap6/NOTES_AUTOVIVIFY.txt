@@ -1,4 +1,4 @@
-
+How should autovivification work?
 
 here it would return a ProxyScalar that references %a and 'b'
 
