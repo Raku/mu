@@ -5,21 +5,73 @@
 
 use strict;
 use ExtUtils::MakeMaker;
+
+# target.yml contains the various build parameters for each build.
 use YAML;
 
-die "targets.yml does not exist" unless -e 'targets.yml';
+# use Getopt::Long;??
+my %options;
 
+# I do not think anyone reads these, and the listing of man pages in the make
+# files is very long and makes the Makefile hard to read.
+# Further more, no one on #perl6 admitted to reading them more than once. :)
+$options{manual}     = 0;
+$options{perltidyrc} = 'util/perltidyrc';
 
-my $perltidyrc = 'util/perltidyrc';
+# default target is in ENV{KP6_TARGET} or will default to 'KP6-MP6'.
+$options{target} = $ENV{KP6_TARGET} || 'KP6-MP6';
 
 # Makefile.PL needs to be rerun with a different KP6_TARGET in order to build kp6-mp6, kp6-kp6, or kp6-lisp
 
-my %Kp6Build = load_configuration( $ENV{KP6_TARGET} || 'KP6-MP6' );
+my %Kp6Build = load_configuration( $options{target} );
+my %PM       = load_pm();
+my %MAN3POD  = find_pods();
 
-my %PM;
+my %params = (
+    NAME         => 'KindaPerl6',
+    AUTHOR       => 'The Pugs Team <perl6-compiler@perl.org>',
+    ABSTRACT     => 'A bootstrapping Perl 6 compiler with multiple emitter backends',
+    VERSION_FROM => 'src/KindaPerl6.pm',
+    EXE_FILES    => ["script/kp6"],
+    PM           => \%PM,
+    MAN3PODS     => \%MAN3POD,
+    LICENSE      => 'perl',
 
-#for my $lib (qw(mp6 kp6))
-{
+    PREREQ_FATAL => 0,
+    PREREQ_PM    => {
+
+        # src/
+        qw(
+            Carp                  0
+            Exporter              0
+            Data::Dumper          0
+            Perl::Tidy            0
+            ),
+
+        # script/kp6
+        qw(
+            Getopt::Long   0
+            Pod::Usage     0
+            Digest         0
+            Digest::MD5    0
+            )
+    },
+);
+
+if ( !$options{manual} ) {
+    delete $params{MAN3PODS};
+}
+
+WriteMakefile(%params);
+
+=head2 load_pm
+
+=cut
+
+sub load_pm {
+
+    #for my $lib (qw(mp6 kp6)) {
+    my %PM = ( 'src/KindaPerl6.pm' => '$(INST_LIBDIR)/KindaPerl6.pm' );
     my @lib_pm = glob "$Kp6Build{lib}/KindaPerl6/*.pm $Kp6Build{lib}/KindaPerl6/*/*.pm $Kp6Build{lib}/KindaPerl6/*/*/*.pm";
     push @lib_pm, glob "compiled/cl/lib/KindaPerl6/Runtime/Lisp/*lisp";
 
@@ -41,58 +93,41 @@ my %PM;
 
         $PM{$key} = $value;
     }
+
+    # for
+
+    return %PM;
 }
 
-$PM{"src/KindaPerl6.pm"} = '$(INST_LIBDIR)/KindaPerl6.pm';
+=head2 find_pods
 
-my %MAN3POD;
+Return a list of the pod files.  Return them in a hash
+key= path/filename
+value = '$(INST_MAN3DIR)/[path/filename from key]'
 
-{
-    my $str = join(' ', map @$_, map { [ "src/*.$_", "src/*/*.$_", "src/*/*/*.$_", "src/*/*/*/*.$_" ] } qw(pm));
+=cut
+
+sub find_pods {
+    my $str = join( ' ', map @$_, map { [ "src/*.$_", "src/*/*.$_", "src/*/*/*.$_", "src/*/*/*/*.$_" ] } qw(pm) );
     my @man = glob $str;
+    my %MAN3POD;
 
     for my $key (@man) {
-        my $value = $key;
-
         my ($value) = $key =~ m[^src/(.*)];
         my $name = join '::', split m[/], $value;
+
         #$value =~ s[^src/][\$\(INST_MAN3DIR\)];
         $name =~ s/\.pm/\.3pm/;
 
         $MAN3POD{$key} = '$(INST_MAN3DIR)/' . $name;
     }
+
+    return %MAN3POD;
 }
 
-WriteMakefile(
-    NAME          => 'KindaPerl6',
-    AUTHOR        => 'The Pugs Team <perl6-compiler@perl.org>',
-    ABSTRACT      => 'A bootstrapping Perl 6 compiler with multiple emitter backends',
-    VERSION_FROM  => 'src/KindaPerl6.pm',
-    EXE_FILES     => [ "script/kp6" ],
-    PM            => \%PM,
-    MAN3PODS      => \%MAN3POD,
-    LICENSE       => 'perl',
-
-    PREREQ_FATAL => 0,
-    PREREQ_PM    => {
-        # src/
-        qw(
-              Carp                  0
-              Exporter              0
-              Data::Dumper          0
-              Perl::Tidy            0
-        ),
-        # script/kp6
-        qw(
-            Getopt::Long   0
-            Pod::Usage     0
-            Digest         0
-            Digest::MD5    0
-        )
-    },
-);
-
 =head2 load_configuration
+
+Args: Pass the target that you want to build for.
 
 Loads the configuration for each target from targets.yml
 
@@ -100,25 +135,33 @@ use util/make_targets_yml.pl to write the targets.yml file.
 
 =cut
 
-sub load_configuration { # load target configuration
+sub load_configuration {    # load target configuration
+    my $target  = shift;
     my $targets = YAML::LoadFile('targets.yml');
-    my $KP6_TARGET = $ENV{KP6_TARGET} || 'KP6-MP6';
-    if ( exists $targets->{ $KP6_TARGET } ) {
-        %Kp6Build = %{ $targets->{ $KP6_TARGET } };
-    } else {
-        die "unknown KP6_TARGET '$KP6_TARGET', can't continue";
+    my %Kp6Build;
+
+    if ( exists $targets->{$target} ) {
+        %Kp6Build = %{ $targets->{$target} };
     }
+    else {
+        die "Unknown KP6_TARGET '$target'; cannot continue.";
+    }
+
+    # opps, YAML files do not allow for substitution.
+    $Kp6Build{make} =~ s/\$perltidyrc/$options{perltidyrc}/g;
+
+    return %Kp6Build;
 }
 
 # Voodoo magic specific to building KindaPerl6:
 package MY;
 
-sub test
-{
+sub test {
+
     #my $self = shift;
     #my $inherited = $self->SUPER::test(@_);
 
-<<"END";
+    <<"END";
 test: all
 	\$(PERL) $Kp6Build{run_test}
 
@@ -150,13 +193,12 @@ END
 #  $(patsub search, replace, $(wildcard globs))
 #
 
-sub _patsubst_wildcard
-{
+sub _patsubst_wildcard {
     my ( $search, $replace, @globs ) = @_;
     my @files;
 
-    for my $glob ( @globs ) {
-        for my $file ( < $glob > ) {
+    for my $glob (@globs) {
+        for my $file (< $glob >) {
             $file =~ s!^$search!$replace!o;
             push @files, $file;
         }
@@ -165,11 +207,10 @@ sub _patsubst_wildcard
     return join ' ', @files;
 }
 
-sub constants
-{
+sub constants {
     my $self      = shift;
     my $inherited = $self->SUPER::constants(@_);
-    $inherited    .= "\n";
+    $inherited .= "\n";
 
     # FIXME: There needs to be a better way to make "nmake" include code
     # dynamically.  nmake supports an inline file (microsoft specific) however,
@@ -185,6 +226,7 @@ sub constants
     # if you have a make program that supports gnuism's you can just force
     # the below line to false.
     if ( $^O eq 'MSWin32' ) {
+
         # nmake (Microsoft nmake doesn't support the gnuism's
         # $(patsubst search, replace, text)
         # $(wildcard glob, glob, ..)
@@ -203,29 +245,32 @@ END
 
         $inherited .= "# Custom v6-KindaPerl6 constants:\n";
 
-        $inherited .= 'kp6_mp6_OBJ = ' . _patsubst_wildcard( qw |
-                        src/
-                        compiled/perl5-kp6-mp6/lib/
-                        src/*.pm
-                        src/KindaPerl6/Grammar/*.pm
-                        src/KindaPerl6/Grammar.pm
-                        src/KindaPerl6/Traverse.pm
-                        src/KindaPerl6/Ast.pm
-                        src/KindaPerl6/Visitor/*.pm
-                        src/KindaPerl6/Visitor/Emit/*.pm
-                        src/KindaPerl6/Runtime/Perl5/*.pm
-                        src/KindaPerl6/Runtime/Perl6/*.pm
-                        src/KindaPerl6/Test/*.pm |
+        $inherited .= 'kp6_mp6_OBJ = ' . _patsubst_wildcard(
+            qw |
+                src/
+                compiled/perl5-kp6-mp6/lib/
+                src/*.pm
+                src/KindaPerl6/Grammar/*.pm
+                src/KindaPerl6/Grammar.pm
+                src/KindaPerl6/Traverse.pm
+                src/KindaPerl6/Ast.pm
+                src/KindaPerl6/Visitor/*.pm
+                src/KindaPerl6/Visitor/Emit/*.pm
+                src/KindaPerl6/Runtime/Perl5/*.pm
+                src/KindaPerl6/Runtime/Perl6/*.pm
+                src/KindaPerl6/Test/*.pm |
         ) . "\n";
 
-        $inherited .= 'kp6_mp6_OBJ = ' . _patsubst_wildcard( qw |
-                        src/
-                        compiled/cl/lib/
-                        src/KindaPerl6/Runtime/Lisp/*.lisp |
+        $inherited .= 'kp6_mp6_OBJ = ' . _patsubst_wildcard(
+            qw |
+                src/
+                compiled/cl/lib/
+                src/KindaPerl6/Runtime/Lisp/*.lisp |
         ) . "\n";
 
         $inherited .= "# End custom v6-KindaPerl6 constants\n";
-    } else {
+    }
+    else {
         $inherited .= <<"END"
 # Custom v6-KindaPerl6 constants:
 kp6_mp6_OBJ = \$(patsubst src/%,$Kp6Build{lib}/%,\$(wildcard src/*.pm src/KindaPerl6/Grammar/*.pm src/KindaPerl6/Grammar.pm src/KindaPerl6/Traverse.pm src/KindaPerl6/Ast.pm src/KindaPerl6/Visitor/*.pm src/KindaPerl6/Visitor/Emit/*.pm src/KindaPerl6/Runtime/Perl5V6/*.pm src/KindaPerl6/Runtime/Perl5/*.pm src/KindaPerl6/Runtime/Perl6/*.pm src/KindaPerl6/Test/*.pm ))
@@ -241,9 +286,8 @@ END
 
 # FIXME: top_targets should rightly just contain `all', putting all
 # this other stuff here is a nasty hack!
-sub top_targets
-{
-    my $self = shift;
+sub top_targets {
+    my $self      = shift;
     my $inherited = $self->SUPER::top_targets(@_);
 
     # Show relevant help on `make help'
@@ -255,8 +299,7 @@ sub top_targets
     # Add kp6_mp6 only targets, not pure_all or manifypods
     $inherited .= "\nkp6_mp6 :: \$(kp6_mp6_OBJ) \$(kp6_mp6_modules_OBJ)\n\t\$(NOECHO) \$(NOOP)\n";
 
-    $inherited .=
-<<'END';
+    $inherited .= <<'END';
 
 # Touch all the .pm files in src/KindaPerl6 to force recompilation
 forcerecompile:
@@ -278,6 +321,7 @@ forcerecompile:
 
 END
     $inherited .= $Kp6Build{make};
+
     #print $inherited;
     return $inherited;
 }
