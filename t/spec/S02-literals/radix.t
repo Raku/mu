@@ -1,17 +1,13 @@
 use v6-alpha;
-
 use Test;
 
 plan 20;
 
-=pod
+# L<S02/Literals>
 
-Tests for the :8() built-in
 
-=cut
-
-# L<S29/Conversions/"prefix:<:8>">
 # L<S02/Literals/":8<177777>">
+# L<S29/Conversions/"prefix:<:8>">
 
 # 0 - 7 is the same int
 is(:8(0), 0, 'got the correct int value from oct 0');
@@ -40,7 +36,10 @@ is(:8<177777>, 65535, 'got the correct int value from oct 177777');
 # L<S02/Literals/"Think of these as setting the default radix">
 # setting the default radix
 
-is(:8<0b1110>,  0d14, ':8<0b1110> converts from binary',    :todo<feature> );
-is(:8<0x20>,    0d32, ':8<0x20> converts from hexadecimal', :todo<feature> );
-is(:8<0o377>,  0d255, ':8<0o255> stays octal',              :todo<feature> );
-is(:8<0d37>,    0d37, ':8<0d37> converts from decimal',     :todo<feature> );
+#?pugs: todo('feature', 4);
+{
+    is(:8(0b1110),  0d14, ':8(0b1110) converts from binary');
+    is(:8(0x20),    0d32, ':8(0x20) converts from hexadecimal');
+    is(:8(0o377),  0d255, ':8(0o255) stays octal');
+    is(:8(0d37),    0d37, ':8(0d37) converts from decimal');
+}
