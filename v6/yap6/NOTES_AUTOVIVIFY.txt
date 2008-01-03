@@ -1,33 +1,54 @@
 
 
-__a_b = YAP6_HASH_LOOKP(%a, 'b');
 // here it would return a ProxyScalar that references %a and 'b'
+__a_b = YAP6_HASH_LOOKP(%a, 'b'); // variable resolution not detailed here.
 
-_hash__a_b = YAP6_HASH(__a_b);
 // the same object with a coercion to hash, at this time, 
+_hash__a_b = YAP6_HASH(__a_b);
 
-__a_b_c = YAP6_HASH_LOOKP(_hash__a_b, 'c');
 // here it would return another ProxyScalar that references _hash__a_b and 'c'
+__a_b_c = YAP6_HASH_LOOKP(_hash__a_b, 'c');
 
 // until now, nothing happened yet, just the proxy objects were
 // created but no actual lookup was made yet.
-// this is the %a<b><c> part.
+// we have a lazy path to the container.
 
-// In this case, we are binding it to something. Before enforcing the context,
-// the bind code will call FETCH on the proxyscalar which will then act like a
-// lookup and eventually return the Uninitialized value. The bind code itself
-// will check if the value is uninitialized and, if in that case, call
-// Autovivify, which is a method of the that type. If the type doesn't support
-// autovivification, a failure is then bound to the variable, else the
-// proxyscalar will be bounded to the scalar variable. The thing here is that
-// what is bound is a proxyscalar that references the path to the value, and 
-// not the value itself
-YAP6_BIND(signature(positional => ($b)), capture(positional => (__a_b_c)));
+// my $b := %a<b><c>;
+// The bind case, is at first, a capture creation, just like when using it into
+// an argument list. So we have a two phase thing which is.
+capture = YAP6_CAPTURE(/*invocant*/ NULL, /*positional*/ YAP6_LIST_CREATE(__a_b_c), /*named*/ NULL);
+YAP6_BIND(/* this should be a signature, not detailed here*/ $b, capture);
 
-// In this case we are creating a capture to this value. The same
-// should occour. This operation is the creation of an explicit of a capture
-// object using prefix:<\>.
-YAP6_ARGUMENT(capture(positional => (__a_b_c)));
+// at some point above, the hash should autovivify and the lazy path
+// should be resolved to the actual container. At one hand, it seems that
+// it should be in the binding code, where the value would be tested if
+// uninitialized and a explicit call to autovivify would be made. On the
+// other hand, this leaves us without autovivifying in the \%a<b><c>
+// case, which would make us think about calling autoviviy in the CAPTURE
+// code.
+
+// should the autovivify code change the ProxyScalar behaviour so that
+// it stop being lazy and start to point to the container itself instead
+// of its path?
+
+// the code that answer this question is:
+// $b := %a<b><c>; %a = { b => { c => 1 } };
+// should $b be 1?
+// and
+// $b = \%a<b><c>; %a = { b => { c => 1 } };
+// should $b[0] be 1?
+
+// if so for both cases, autovivify changes the ProxyScalar behaviour
+// from the lazy path to the real container and it will happen in the
+// CAPTURE time.
+
+// But this also means that
+// foo(%a<b><c>);
+// should autovivify, independently of what it's being bound to.
+
+
+// the following operations would operate on the ProxyScalar object
+// returned from the lookup, still lazy.
 
 // Storing into a proxy scalar should obviously autovivify...
 YAP6_SCALAR_STORE(__a_b_c, 1)
