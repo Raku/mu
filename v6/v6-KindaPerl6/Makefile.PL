@@ -25,21 +25,20 @@ $options{target} = $ENV{KP6_TARGET} || 'KP6-MP6';
 
 my %Kp6Build = load_configuration( $options{target} );
 my %PM       = load_pm();
-my %MAN3POD  = find_pods();
 
-my %params = (
+my %extra_params;
+$extra_params{MAN3PODS} = find_pods() if $options{manual};
+
+WriteMakefile(
     NAME         => 'KindaPerl6',
     AUTHOR       => 'The Pugs Team <perl6-compiler@perl.org>',
     ABSTRACT     => 'A bootstrapping Perl 6 compiler with multiple emitter backends',
     VERSION_FROM => 'src/KindaPerl6.pm',
-    EXE_FILES    => ["script/kp6"],
+    EXE_FILES    => ['script/kp6'],
     PM           => \%PM,
-    MAN3PODS     => \%MAN3POD,
     LICENSE      => 'perl',
-
     PREREQ_FATAL => 0,
     PREREQ_PM    => {
-
         # src/
         qw(
             Carp                  0
@@ -56,13 +55,8 @@ my %params = (
             Digest::MD5    0
             )
     },
+    %extra_params,
 );
-
-if ( !$options{manual} ) {
-    delete $params{MAN3PODS};
-}
-
-WriteMakefile(%params);
 
 =head2 load_pm
 
