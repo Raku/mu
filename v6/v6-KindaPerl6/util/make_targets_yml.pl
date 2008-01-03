@@ -1,8 +1,10 @@
 use YAML;
 
-my $config;
+my $targets;
 
-$config->{'KP6-MP6'} = {
+###############################################################################
+# KP6-MP6
+$targets->{'KP6-MP6'} = {
         lib         => 'compiled/perl5-kp6-mp6/lib',
         module_lib  => 'compiled/perl5-kp6-mp6/lib',
         run_test    => 'script/run_tests.pl --backend=perl5',
@@ -49,7 +51,10 @@ compiled/perl5-kp6-mp6/lib/%.pm: src/%.pm
 
 END
 };
-$config->{'KP6-KP6'} = {
+
+###############################################################################
+# KP6-KP6
+$targets->{'KP6-KP6'} = {
         lib         => "compiled/perl5-kp6-kp6/lib",
         module_lib  => "compiled/perl5-kp6-kp6/lib",
         run_test    => "script/run_tests_kp6_kp6.pl",
@@ -94,7 +99,9 @@ script/kp6-kp6.pl: src-script/kp6-kp6.pl
 END
 };
 
-$config->{'KP6-BOOT'} = {
+###############################################################################
+# KP6-BOOT
+$targets->{'KP6-BOOT'} = {
         lib         => "compiled/perl5-kp6-kp6/lib",
         module_lib  => "compiled/perl5-kp6-kp6/lib",
         run_test    => "script/run_tests_kp6_kp6.pl",
@@ -143,7 +150,10 @@ script/kp6-kp6.pl: src-script/kp6-kp6.pl
 
 END
 };
-$config->{"KP6-BOOT-NOREGEX"} = {
+
+###############################################################################
+# KP6-BOOT-NOREGEX
+$targets->{"KP6-BOOT-NOREGEX"} = {
         lib         => "compiled/perl5-kp6-kp6-noregex/lib",
         module_lib  => "compiled/perl5-kp6-kp6-noregex/lib",
         run_test    => "script/run_tests_kp6_kp6.pl",  # TODO
@@ -185,12 +195,14 @@ compiled/perl5-kp6-kp6-noregex/lib/%.pm: src/%.pm
 END
 };
 
+###############################################################################
+# KP6-LISP(*)
 # there are several lisp targets
 for my $lisp ( qw | sbcl clisp ecl | ) {
     # note usage of lisp in 'run_test'
     my $target = 'KP6-LISP' . (uc $lisp);
 
-    $config->{$target} = {
+    $targets->{$target} = {
         lib         => 'compiled/cl/lib',
         module_lib  => 'compiled/cl/lib',
         run_test    => "script/run_tests.pl --backend=cl-$lisp",
@@ -203,11 +215,12 @@ END
     };
 }
 
-# the default lisp target
+###############################################################################
+# KP6-LISP  # the default lisp target
 {
     my $target = 'KP6-LISP';
 
-    $config->{$target} = {
+    $targets->{$target} = {
         lib         => 'compiled/cl/lib',
         module_lib  => 'compiled/cl/lib',
         run_test    => "script/run_tests.pl --backend=cl-sbcl",
@@ -220,10 +233,33 @@ END
     };
 }
 
-
+###############################################################################
+# Write the file out.
 print STDERR "targets.yml has been written.\n";
 
 open my $out, '>', 'targets.yml' || die "Cannot write to targets.yml :$!";
-print $out YAML::Dump( $config );
+print $out YAML::Dump( $targets );
 close $out;
 
+__END__
+
+=head1 AUTHORS
+
+The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
+
+=head1 SEE ALSO
+
+The Perl 6 homepage at L<http://dev.perl.org/perl6>.
+
+The Pugs homepage at L<http://pugscode.org/>.
+
+=head1 COPYRIGHT
+
+Copyright 2007 by Flavio Soibelmann Glock and others.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
+
+=cut
