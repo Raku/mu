@@ -23,8 +23,8 @@ $options{target} = $ENV{KP6_TARGET} || 'KP6-MP6';
 
 # Makefile.PL needs to be rerun with a different KP6_TARGET in order to build kp6-mp6, kp6-kp6, or kp6-lisp
 
-my %Kp6Build = load_configuration( $options{target} );
-my %PM       = load_pm();
+our %Kp6Build = load_configuration( $options{target} );
+my %PM       = find_pm( \%Kp6Build );
 
 my %extra_params;
 $extra_params{MAN3PODS} = find_pods() if $options{manual};
@@ -58,37 +58,55 @@ WriteMakefile(
     %extra_params,
 );
 
-=head2 load_pm
+=head2 load_configuration
+
+Args: Pass the target that you want to build for.
+
+Loads the configuration for each target from targets.yml, the $Kp6Build{make}
+file has the $perltidyrc file replaced with $options{perltidyrc}.
+
+Use util/make_targets_yml.pl to write the targets.yml file.
 
 =cut
 
-sub load_pm {
+sub load_configuration {    # load target configuration
+    my $target  = shift;
+    my $targets = YAML::LoadFile('targets.yml');
+    my %Kp6Build;
 
-    #for my $lib (qw(mp6 kp6)) {
+    die "Unknown KP6_TARGET '$target'; cannot continue."
+        unless exists $targets->{$target};
+
+    %Kp6Build = %{ $targets->{$target} };
+    # opps, YAML files do not allow for substitution.
+    $Kp6Build{make} =~ s/\$perltidyrc/$options{perltidyrc}/g;
+
+    return %Kp6Build;
+}
+
+=head2 find_pm
+
+Return a list of all *.pm and *.lisp files.
+
+=cut
+
+sub find_pm {
+    my %Kp6Build = %{ $_[0] };
     my %PM = ( 'src/KindaPerl6.pm' => '$(INST_LIBDIR)/KindaPerl6.pm' );
+
     my @lib_pm = glob "$Kp6Build{lib}/KindaPerl6/*.pm $Kp6Build{lib}/KindaPerl6/*/*.pm $Kp6Build{lib}/KindaPerl6/*/*/*.pm";
     push @lib_pm, glob "compiled/cl/lib/KindaPerl6/Runtime/Lisp/*lisp";
-
     for my $key (@lib_pm) {
-        my $value = $key;
-
-        $value =~ s[^$Kp6Build{lib}/KindaPerl6/][\$\(INST_LIBDIR\)/KindaPerl6/$Kp6Build{lib}/KindaPerl6/];
-        $value =~ s[^compiled/cl/lib/KindaPerl6/][\$\(INST_LIBDIR\)/KindaPerl6/compiled/cl/lib/KindaPerl6/];
-
-        $PM{$key} = $value;
+        $PM{$key} = $key;
+        $PM{$key} =~ s[^$Kp6Build{lib}/KindaPerl6/][\$\(INST_LIBDIR\)/KindaPerl6/$Kp6Build{lib}/KindaPerl6/];
+        $PM{$key} =~ s[^compiled/cl/lib/KindaPerl6/][\$\(INST_LIBDIR\)/KindaPerl6/compiled/cl/lib/KindaPerl6/];
     }
 
     my @mod_pm = glob "$Kp6Build{module_lib}/*.pm $Kp6Build{module_lib}/*/*.pm $Kp6Build{module_lib}/*/*/*.pm";
-
     for my $key (@mod_pm) {
-        my $value = $key;
-
-        $value =~ s[^$Kp6Build{module_lib}/][\$\(INST_LIBDIR\)/KindaPerl6/$Kp6Build{module_lib}/];
-
-        $PM{$key} = $value;
+        $PM{$key} = $key;
+        $PM{$key} =~ s[^$Kp6Build{module_lib}/][\$\(INST_LIBDIR\)/KindaPerl6/$Kp6Build{module_lib}/];
     }
-
-    # for
 
     return %PM;
 }
@@ -103,48 +121,19 @@ value = '$(INST_MAN3DIR)/[path/filename from key]'
 
 sub find_pods {
     my $str = join( ' ', map @$_, map { [ "src/*.$_", "src/*/*.$_", "src/*/*/*.$_", "src/*/*/*/*.$_" ] } qw(pm) );
-    my @man = glob $str;
     my %MAN3POD;
 
-    for my $key (@man) {
+    for my $key (glob $str) {
+        # for each perl package
+        # convert src/My/Perl/Package.pm into
+        # $(INST_MAN3DIR)/My::Perl::Package.3pm
         my ($value) = $key =~ m[^src/(.*)];
-        my $name = join '::', split m[/], $value;
-
-        #$value =~ s[^src/][\$\(INST_MAN3DIR\)];
-        $name =~ s/\.pm/\.3pm/;
-
+        (my $name = $value) =~ s[/][::];
+        $name=~s!\.pm$!\.3pm!; # replace .pm with .3pm
         $MAN3POD{$key} = '$(INST_MAN3DIR)/' . $name;
     }
 
     return %MAN3POD;
-}
-
-=head2 load_configuration
-
-Args: Pass the target that you want to build for.
-
-Loads the configuration for each target from targets.yml
-
-use util/make_targets_yml.pl to write the targets.yml file.
-
-=cut
-
-sub load_configuration {    # load target configuration
-    my $target  = shift;
-    my $targets = YAML::LoadFile('targets.yml');
-    my %Kp6Build;
-
-    if ( exists $targets->{$target} ) {
-        %Kp6Build = %{ $targets->{$target} };
-    }
-    else {
-        die "Unknown KP6_TARGET '$target'; cannot continue.";
-    }
-
-    # opps, YAML files do not allow for substitution.
-    $Kp6Build{make} =~ s/\$perltidyrc/$options{perltidyrc}/g;
-
-    return %Kp6Build;
 }
 
 # Voodoo magic specific to building KindaPerl6:
