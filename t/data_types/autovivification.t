@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 6;
+plan 7;
 
 {
     # L<S09/Autovivification/In Perl 6 these read-only operations are indeed non-destructive:>
@@ -18,6 +18,12 @@ plan 6;
     is %a.keys.elems, 0, 'exists doesn't autovivify.';
 }
 
+{
+    # L<S09/Autovivification/But these ones do autovivify:>
+    my %a;
+    bar(%a<b><c>);
+    is %a.keys.elems, 0, 'in ro arguments doesn't autovivify.';
+}
 
 {
     # L<S09/Autovivification/But these ones do autovivify:>
@@ -37,7 +43,7 @@ plan 6;
     # L<S09/Autovivification/But these ones do autovivify:>
     my %a;
     foo(%a<b><c>);
-    is %a.keys.elems, 1, 'in arguments autovivifies.';
+    is %a.keys.elems, 1, 'in rw arguments autovivifies.';
 }
 
 {
@@ -48,6 +54,10 @@ plan 6;
 }
 
 
-sub foo {
+sub foo ($baz is rw) {
     # just some random subroutine.
+}
+
+sub bar ($baz is readonly) {
+    # readonly signature, should it autovivify?
 }
