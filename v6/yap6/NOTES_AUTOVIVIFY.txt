@@ -38,7 +38,7 @@ YAP6_BIND(/* this should be a signature, not detailed here*/ $b, capture);
 // $b = \%a<b><c>; %a = { b => { c => 1 } };
 // should $b[0] be 1?
 
-// if so for both cases, autovivify changes the ProxyScalar behaviour
+// if not for both cases, autovivify changes the ProxyScalar behaviour
 // from the lazy path to the real container and it will happen in the
 // CAPTURE time.
 
