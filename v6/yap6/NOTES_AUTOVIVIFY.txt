@@ -1,60 +1,64 @@
 
 
-// here it would return a ProxyScalar that references %a and 'b'
+here it would return a ProxyScalar that references %a and 'b'
+
 __a_b = YAP6_HASH_LOOKP(%a, 'b'); // variable resolution not detailed here.
 
-// the same object with a coercion to hash, at this time, 
+the same object with a coercion to hash, at this time, 
+
 _hash__a_b = YAP6_HASH(__a_b);
 
-// here it would return another ProxyScalar that references _hash__a_b and 'c'
+here it would return another ProxyScalar that references _hash__a_b and 'c'
+
 __a_b_c = YAP6_HASH_LOOKP(_hash__a_b, 'c');
 
-// until now, nothing happened yet, just the proxy objects were
-// created but no actual lookup was made yet.
-// we have a lazy path to the container.
+until now, nothing happened yet, just the proxy objects were
+created but no actual lookup was made yet.
+we have a lazy path to the container.
 
-// my $b := %a<b><c>;
-// The bind case, is at first, a capture creation, just like when using it into
-// an argument list. So we have a two phase thing which is.
+my $b := %a<b><c>;
+The bind case, is at first, a capture creation, just like when using it into
+an argument list. So we have a two phase thing which is.
+
 capture = YAP6_CAPTURE(/*invocant*/ NULL, /*positional*/ YAP6_LIST_CREATE(__a_b_c), /*named*/ NULL);
 YAP6_BIND(/* this should be a signature, not detailed here*/ $b, capture);
 
-// at some point above, the hash should autovivify and the lazy path
-// should be resolved to the actual container. At one hand, it seems that
-// it should be in the binding code, where the value would be tested if
-// uninitialized and a explicit call to autovivify would be made. On the
-// other hand, this leaves us without autovivifying in the \%a<b><c>
-// case, which would make us think about calling autoviviy in the CAPTURE
-// code.
+at some point above, the hash should autovivify and the lazy path
+should be resolved to the actual container. At one hand, it seems that
+it should be in the binding code, where the value would be tested if
+uninitialized and a explicit call to autovivify would be made. On the
+other hand, this leaves us without autovivifying in the \%a<b><c>
+case, which would make us think about calling autoviviy in the CAPTURE
+code.
 
-// should the autovivify code change the ProxyScalar behaviour so that
-// it stop being lazy and start to point to the container itself instead
-// of its path?
+the key to this answer seems to be in:
+foo(%a<b><c>);
+if Capture autovivifies, this would autovivify also. Which may be a very
+bad idea, considering "exists" is a method call also, and this way you would
+need to circumvent it to avoid the autovivification.
 
-// the code that answer this question is:
-// $b := %a<b><c>; %a = { b => { c => 1 } };
-// should $b be 1?
-// and
-// $b = \%a<b><c>; %a = { b => { c => 1 } };
-// should $b[0] be 1?
+one possible solution is to understand the prefix:<\> operator as the
+special case. If this operator besides creating the capture (which is already
+what it receives as parameter) autovivifies, we can leave the bind to autovivify
+in the general case.
 
-// if not for both cases, autovivify changes the ProxyScalar behaviour
-// from the lazy path to the real container and it will happen in the
-// CAPTURE time.
+this also allows us to implement conditional autovivification depending on
+the signature it's binding to. like:
 
-// But this also means that
-// foo(%a<b><c>);
-// should autovivify, independently of what it's being bound to.
+sub foo ($data is readonly) { ... }
+sub bar ($data is rw) { ... }
 
+foo(%a<b><c>); # would not autovivify, while
+bar(%a<b><c>); # would.
 
-// the following operations would operate on the ProxyScalar object
-// returned from the lookup, still lazy.
+The same as
 
-// Storing into a proxy scalar should obviously autovivify...
-YAP6_SCALAR_STORE(__a_b_c, 1)
+my $b is readonly := %a<b><c>; # would not autovivify, while
+my $b is rw := %a<b><c>;       # would
 
-// but checking if exists doesn't
-YAP6_HASH_EXISTS(_hash__a_b, 'c');
+But it's important to realize, however, that:
 
-// also not fetching.
-YAP6_SCALAR_FETCH(__a_b_c);
+my $b is readonly := %a<b><c>;
+%a<b><c> = 1;
+say $b; # would say "1", but
+$b = 2; # is invalid.
