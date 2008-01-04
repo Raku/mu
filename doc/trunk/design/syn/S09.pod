@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 13 Sep 2004
-  Last Modified: 10 Jul 2007
+  Last Modified: 3 Jan 2008
   Number: 9
-  Version: 22
+  Version: 23
 
 =head1 Overview
 
@@ -1160,9 +1160,12 @@ value.  Perhaps the associated value can also be bundled in somehow.]
 
 =head1 Autovivification
 
-Autovivification will only happen if the vivifiable path is used as a
-container, by binding, assigning, or capturing into an argument list.
-On the other hand, value extraction does not autovivify.
+Autovivification will only happen if the vivifiable path is bound to
+a read-write container.  Value extraction (that is, binding to a readonly
+or copy container) does not autovivify.  (Note that assignment
+implicitly binds a copy, so it does not autovivify.)  Any mention of
+an expression within a C<Capture> delays the autovivification decision
+to binding time.  (Binding to a "ref" parameter also defers the decision.)
 
 This is as opposed to Perl 5, where autovivification could happen
 unintentionally, even when the code looks like a non-destructive test:
@@ -1176,17 +1179,62 @@ In Perl 6 these read-only operations are indeed non-destructive:
     my %hash;
     exists %hash<foo><bar>; # %hash is still empty
 
-But these ones I<do> autovivify:
+But these bindings I<do> autovivify:
 
     my %hash;
     my $val := %hash<foo><bar>;
 
     my @array;
-    my $obj = \@array[0][0]; # $obj is a Capture object - see S02
+    my $cap = \@array[0][0]; # $obj is a Capture object - see S02
+    my :($obj) := $cap;   # @array[0][0] created here
+
+    my @array;
+    foo(@array[0][0]);
+    sub foo ($obj is rw) {...}  # same thing, basically
 
     my %hash;
     %hash<foo><bar> = "foo"; # duh
 
-This rule applies to C<Array>, C<Hash>, and C<Scalar> container objects.
+This rule applies to C<Array>, C<Hash>, and any other container type that
+chooses to return an autovivifiable protoobject (see S12) rather than simply
+returning C<Failure> when a lookup fails.  Note in particular that, since
+autovivification is defined in terms of protoobjects rather than failure,
+it still works under "use fatal".
+
+The type of the protoobject returned by a non-successful lookup should 
+be identical to the type that would be returned for a successful lookup.
+
+Binding of an autovivifiable protoobject to a non-writeable container
+translates the protoobject into a similar protoobject without
+its autovivifying closure and puts that new protoobject into the
+container instead (with any pertinent historical diagnostic information
+carried over).  There is therefore no magical method you can call on
+the readonly parameter that can magically autovivify the protoobject
+after the binding.  The newly bound variable merely appears to be a
+simple uninitialized value.  (The original protoobject retains its
+closure in case it is rebound elsewhere to a read-write container.)
+
+Some implementation notes:  Nested autovivifications work by making
+nested protoobjects that depend on each other.  In the general case
+the containers must produce protoobjects any time they do not know
+how the container will be bound.  This includes when interpolated into
+any capture that has delayed binding:
+
+    \( 1, 2, %hash<foo><bar> )          # must defer
+    \%hash<foo><bar>                    # must defer
+
+In specific situations however, the compiler can know that a value
+can only be bound readonly.  For instance, C<< infix:<+> >> is
+prototyped such that this can never autovivify:
+
+    %hash<foo><bar> + 42
+
+In such a case, the container object need not go through the agony
+of calculating an autovivifying closure that will never be called.
+On the other hand:
+
+    %hash<foo><bar> += 42
+
+binds the left side to a mutable container, so it autovivifies.
 
 =for vim:set expandtab sw=4:
