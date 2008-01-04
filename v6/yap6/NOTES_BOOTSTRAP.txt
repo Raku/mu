@@ -14,7 +14,7 @@ So, the basic structure is:
         ____________________________             _____________________________  
        |                            |           |                             | 
        V                            |           V                             | 
-  YAP6__CORE__Value*         YAP6__CORE__Dispatcher*            YAP6__CORE__MetaClass*
+  YAP6__Object*              YAP6__Prototype*                           YAP6__MetaClass*
        |                            ^          |                               ^ 
        |                            |          |                               | 
         ----------------------------            -------------------------------  
@@ -27,16 +27,16 @@ the YAP6 runtime, and they implement the features that Perl 6 needs.
 Basic Idea
 ===================================================================
 
-The Value is the Object, it is completely dependant on its prototype,
-the object is only a storage and the only ones that knows its internal
-structure are its prototype, and, by extension, its metaclass.
+The Object is completely dependant on its prototype, is only a storage
+and the only ones that knows its internal structure are its prototype,
+and, by extension, its metaclass.
 
-The Dispatcher is the prototype object. It is an Object in itself and
-is the return of the WHAT call. The important thing in the low-level
-here, is that if a object doesn't have a dispatcher, it is a
-prototype, and a prototype is its own prototype.
+The prototype object is an Object in itself and is the return of the
+WHAT call. The important thing in the low-level here, is that if a
+object doesn't have a prototype, it is a prototype, and a prototype
+is its own prototype.
 
-The MetaClass is the one who understand the "Object Layout" it knows
+The MetaClass is the one who understands the "Object Layout" it knows
 how to know which members the object have by looking at the prototype,
 but the values for the members are stored in the object itself. The
 prototype never hold instance values, only prototype values.
@@ -59,8 +59,7 @@ metaclass.
 The only fixed thing here is that these three types must be presented
 as types in the low-level also, which means that implementing a perl5
 extension to YAP6 means writing a metaclass object that have the same
-C structure that the other metaclasses, in other words, it's slightly
-better than XS.
+C structure that the other metaclasses.
 
 Concept testing
 ===================================================================
@@ -72,7 +71,7 @@ a YAP6__CORE__List (which probably will be the default YAP6 Array).
 /* we won't discuss namespaces here, only object references, in theory
 we can work with completely anonymous objects all the time. The
 namespace thing is just a high level helper for it */
-YAP6__CORE__Dispatcher* list_prototype = get_list_prototype();
+YAP6__Prototype* list_prototype = get_list_prototype();
 
 /* Now that we have the prototype, we want to construct a new list,
 and we do that by calling new, which is the default Perl 6
@@ -82,32 +81,24 @@ the method new we must first get the metaclass */
 existing list. As said before, every object have a prototype, so
 calling new in an already existing list would look just exactly the
 same */
-YAP6__CORE__MetaClass* list_metaclass = YAP6_HOW(list_prototype);
+YAP6__MetaClass* list_metaclass = YAP6_HOW(list_prototype);
 
 /* The method resolution is something that depends entirely on the
 metaclass, and the only way to resolve it is to ask the metaclass for
 the method giving the Capture of the arguments */
-YAP6__CORE__Capture* arguments =
-  YAP6_CAPTURE(list_prototype /* invocant */,
+YAP6__Object* arguments =
+  YAP6_LOWL_CAPTURE(list_prototype /* invocant */,
                NULL /* no positional arguments */,
                NULL /* no named arguments */);
 
-/* Now that we have the capture for the "new" call, we can ask the
-metaclass for the code. Notice that no binding happened yet, only the
-signature matching to the correct method or sub in case of multi. But
-again, the only one who needs to know about it is the metaclass */
-/* Note that the return may be a Failure object, which would need to
-be identified by a smart match */
-YAP6__CORE__Code* method = 
-  YAP6_META_RESOLVE(
-        list_metaclass,
-        list_prototype,
-        YAP6_STRING_CREATE("new"),
-        arguments);
-
-/* The method could then be called, and the binding would happen
-inside it, as the argument processing depends on the metaclass */
-YAP6__CORE__Value* object = YAP6_CODE_CALL(method, arguments);
+/* Now that we have the capture for the "new" call, we can send a
+message to the metaclass. Notice that the binding and the actual call
+will happen inside the metaclass */
+YAP6__Object* result =
+  YAP6_DISPATCH(
+       list_metaclass,
+       YAP6_STRING_CREATE("new"),
+       arguments);
 
 /* The method new, in this case would probably be the new method for
 lowlevel prototype. which looks just like:

@@ -5,337 +5,100 @@
 #include <pthread.h>
 #include <sys/types.h>
 
-// initialize all constants and low-level dispatchers...
-extern void yap6_init();
-extern void yap6_destr();
-extern void yap6_memory_init();
-extern void yap6_memory_destr();
 
 // forward declarations
-struct YAP6__CORE__Value; typedef struct YAP6__CORE__Value YAP6__CORE__Value;
-struct YAP6__CORE__string; typedef struct YAP6__CORE__string YAP6__CORE__string;
-struct YAP6__CORE__num; typedef struct YAP6__CORE__num YAP6__CORE__num;
-struct YAP6__CORE__int; typedef struct YAP6__CORE__int YAP6__CORE__int;
-struct YAP6__CORE__bytes; typedef struct YAP6__CORE__bytes YAP6__CORE__bytes;
-struct YAP6__CORE__Scalar; typedef struct YAP6__CORE__Scalar YAP6__CORE__Scalar;
-struct YAP6__CORE__List; typedef struct YAP6__CORE__List YAP6__CORE__List;
-struct YAP6__CORE__Pair; typedef struct YAP6__CORE__Pair YAP6__CORE__Pair;
-struct YAP6__CORE__Hash; typedef struct YAP6__CORE__Hash YAP6__CORE__Hash;
-struct YAP6__CORE__Capture; typedef struct YAP6__CORE__Capture YAP6__CORE__Capture;
-struct YAP6__CORE__Dispatcher; typedef struct YAP6__CORE__Dispatcher YAP6__CORE__Dispatcher;
-struct YAP6__CORE__ScalarDispatcher; typedef struct YAP6__CORE__ScalarDispatcher YAP6__CORE__ScalarDispatcher;
-struct YAP6__CORE__ListDispatcher; typedef struct YAP6__CORE__ListDispatcher YAP6__CORE__ListDispatcher;
-struct YAP6__CORE__PairDispatcher; typedef struct YAP6__CORE__PairDispatcher YAP6__CORE__PairDispatcher;
-struct YAP6__CORE__HashDispatcher; typedef struct YAP6__CORE__HashDispatcher YAP6__CORE__HashDispatcher;
-struct YAP6__CORE__CaptureDispatcher; typedef struct YAP6__CORE__CaptureDispatcher YAP6__CORE__CaptureDispatcher;
-
-// ident_dispatcher
-extern YAP6__CORE__Dispatcher* yap6_const_ident_dispatcher;
-extern void yap6_ident_dispatcher_init();
-extern void yap6_ident_dispatcher_which_init();
-extern void yap6_ident_dispatcher_destr();
-
-// const values
-extern YAP6__CORE__Value* yap6_const_undef;
-extern YAP6__CORE__Value* yap6_bool_false;
-extern void yap6_const_init();
-extern void yap6_const_destr();
-
-#define YAP6__BASE__Value                                             \
-  pthread_rwlock_t* rwlock; int ref_cnt;
+struct YAP6__Object; typedef struct YAP6__Object YAP6__Object;
+struct YAP6__Prototype; typedef struct YAP6__Prototype YAP6__Prototype;
+struct YAP6__MetaClass; typedef struct YAP6__MetaClass YAP6__MetaClass;
 
 /*
- * The YAP6__CORE__Oject struct represents any object in the YAP6 runtime.
+ * The YAP6__Object struct represents any object in the YAP6 runtime.
  * The data of this object should be opaque for the users, the only
- * one that should know about it is the dispatcher. Every object must
- * have a dispatcher. If it doesn't, it is considered itself as one.
+ * ones that should know about it are the prototype and the
+ * metaclass. Every object must have a prototype. If it doesn't, it
+ * is considered itself as one.
  */
-struct YAP6__CORE__Value {
-  YAP6__BASE__Value
-  YAP6__CORE__Dispatcher* dispatcher;
-};
-
-// basic object management
-/* This function is the place from where every allocation should
-   happen. For now, it just mallocs with zeros, set refcnt to 1 and
-   initialize the rwlock. But it is subject to change, so, keep
-   calling it. */
-extern YAP6__CORE__Value* yap6_value_alloc(int size);
-/* This function increments the reference count of a value, it
-   should be called whenever the value is referenced by another
-   value */
-extern YAP6__CORE__Value* yap6_value_refcnt_inc(YAP6__CORE__Value* value);
-/* This functions decrements the reference count of a value, it should
-   be called whenever one reference to this value is destroied. It
-   will call DESTR in the dispatcher and free() the pointer when
-   appropriate. */
-extern YAP6__CORE__Value* yap6_value_refcnt_dec(YAP6__CORE__Value* value);
-/* This functions synchronizes the access to this value. It should be
-   called whenever some pointer in the low-level details (some
-   non-core-value member of the struct) will be accessed. */
-extern void yap6_value_rdlock(YAP6__CORE__Value* value);
-extern void yap6_value_wrlock(YAP6__CORE__Value* value);
-extern void yap6_value_unlock(YAP6__CORE__Value* value);
-
-
-
-#define YAP6__BASE__Dispacher                                         \
-  YAP6__CORE__Value* (*APPLY)(YAP6__CORE__Dispatcher* self,           \
-                               YAP6__CORE__Value* value,              \
-                               YAP6__CORE__string* name,              \
-                               YAP6__CORE__Capture* arguments);       \
-  YAP6__CORE__Value* (*NEW)  (YAP6__CORE__Dispatcher* self,           \
-                               YAP6__CORE__List* arguments);          \
-  void               (*DESTR)(YAP6__CORE__Dispatcher* self,           \
-                               YAP6__CORE__Value* value);             \
-  YAP6__CORE__string* (*STRNG)(YAP6__CORE__Dispatcher* self,          \
-                               YAP6__CORE__Value* value);             \
-  YAP6__CORE__num*   (*NUMBR)(YAP6__CORE__Dispatcher* self,           \
-                               YAP6__CORE__Value* value);             \
-  YAP6__CORE__Value* (*BOOLN)(YAP6__CORE__Dispatcher* self,           \
-                               YAP6__CORE__Value* value);             \
-  YAP6__CORE__Scalar* (*SCALAR)(YAP6__CORE__Dispatcher* self,         \
-                               YAP6__CORE__Value* value);             \
-  YAP6__CORE__List*  (*LIST) (YAP6__CORE__Dispatcher* self,           \
-                               YAP6__CORE__Value* value);             \
-  YAP6__CORE__Hash*  (*HASH) (YAP6__CORE__Dispatcher* self,           \
-                               YAP6__CORE__Value* value);             \
-  YAP6__CORE__bytes* (*WHICH)(YAP6__CORE__Dispatcher* self,           \
-                               YAP6__CORE__Value* value);
-
-/*
- * The YAP6__CORE__Dispatcher struct is the superclass of all
- * dispatchers implemented. As a dispatcher, it should have the member
- * "dispatcher" as null, and should have the member APPLY just after
- * it which is itself a pointer to the APPLY function of the
- * dispatcher.  Every object returned by this methods leave the
- * refcount counting the reference returned, so you must always
- * decrement de refcount for the values returned.
- */
-struct YAP6__CORE__Dispatcher {
-  YAP6__BASE__Value
-  YAP6__CORE__Dispatcher* dispatcher;
-  YAP6__BASE__Dispacher
-};
-
-/* int support */
-struct YAP6__CORE__int {
-  YAP6__BASE__Value
-  YAP6__CORE__Dispatcher* dispatcher;
-  int value;  
-};
-
-extern YAP6__CORE__Dispatcher* yap6_const_int_dispatcher;
-extern void yap6_int_dispatcher_init();
-extern void yap6_int_dispatcher_which_init();
-extern YAP6__CORE__int* yap6_int_create(int initialvalue);
-extern int yap6_int_lowlevel(YAP6__CORE__int* value);
-extern void yap6_int_dispatcher_destr();
-
-/* bytes support */
-struct YAP6__CORE__bytes {
-  YAP6__BASE__Value
-  YAP6__CORE__Dispatcher* dispatcher;
-  char* value;
-  int size;
-};
-
-extern YAP6__CORE__Dispatcher* yap6_const_bytes_dispatcher;
-extern void yap6_bytes_dispatcher_init();
-extern YAP6__CORE__bytes* yap6_bytes_create(const char* initialvalue, int size);
-extern char* yap6_bytes_lowlevel(YAP6__CORE__bytes* value, int* sizeret);
-extern void yap6_bytes_dispatcher_destr();
-
-struct YAP6__CORE__double {
-  YAP6__BASE__Value
-  YAP6__CORE__Dispatcher* dispatcher;
-  double value;  
-} YAP6__CORE__double;
-
-struct YAP6__CORE__num {
-  YAP6__BASE__Value
-  YAP6__CORE__Dispatcher* dispatcher;
-  enum { YAP6__CORE__num__INT, YAP6__CORE__num__DOUBLE,
-         YAP6__CORE__num__BIGNUM } precision;
-  int int_value;
-  double double_value;
-  char** bignum_value;
-};
-
-struct YAP6__CORE__string {
-  YAP6__BASE__Value
-  YAP6__CORE__Dispatcher* dispatcher;
-  char encoding[16];
-  int byte_length;
-  char content[];
+struct YAP6__Object {
+  YAP6__Prototype* WHAT;
 };
 
 /*
- * The YAP6__CORE__Scalar is a type of object that contains other
- * object inside it.
+ * The YAP6__Prototype struct represents a prototype object. Every
+ * object have a prototype unless it is itself one.  The prototype
+ * have the object implementation, but only the metaclass knows HOW it
+ * is laid out. And the metaclass is the way to fetch it.  A prototype
+ * without a metaclass is a metaclass.
  */
-struct YAP6__CORE__Scalar {
-  YAP6__BASE__Value
-  YAP6__CORE__ScalarDispatcher* dispatcher;
-  YAP6__CORE__Value* cell;
+struct YAP6__Prototype {
+  YAP6__Prototype* WHAT;
+  YAP6__MetaClass* HOW;
 };
 
-/* scalar support */
 /*
- * The YAP6__CORE__ScalarDispatcher also implements the FETCH and
- * STORE methods.
+ * The YAP6__MetaClass represents the HOW of any object. It
+ * understands the object layout to know how to access the methods
+ * defined in the prototype, dispatching the methods.  This finish the
+ * basic triade, as the interpreter delegates to the metaclass the
+ * message.  REFERENCE is called every time an object is referenced in
+ * some other place. RELEASE is called every time an reference is
+ * released. This doesn't mean that every object need to be
+ * refcounted, but without it it would be impossible to implement a
+ * refcount gc. Both methods return the input pointer.
  */
-struct YAP6__CORE__ScalarDispatcher {
-  YAP6__BASE__Value
-  YAP6__CORE__Dispatcher* dispatcher;
-  YAP6__BASE__Dispacher
-  // REFCOUNT: the return of this method is counted as a refcount
-  YAP6__CORE__Value* (*FETCH)(YAP6__CORE__Dispatcher* self,
-                               YAP6__CORE__Value* value, 
-                               YAP6__CORE__Value* wants);
-  // REFCOUNT: the return of this method is counted as a refcount
-  YAP6__CORE__Value* (*STORE)(YAP6__CORE__Dispatcher* self,
-                               YAP6__CORE__Value* value, 
-                               YAP6__CORE__Value* newvalue);
-};
+struct YAP6__MetaClass {
+  YAP6__Prototype* WHAT;
+  YAP6__MetaClass* HOW;
+  YAP6__Object* (*MESSAGE)   (YAP6__MetaClass* self,
+                              YAP6__Object* identifier,
+                              YAP6__Object* capture);
+  YAP6__Object* (*REFERENCE) (YAP6__MetaClass* self,
+                              YAP6__Object* object)
+  YAP6__Object* (*RELEASE)   (YAP6__MetaClass* self,
+                              YAP6__Object* object)
+}
 
-extern YAP6__CORE__ScalarDispatcher* yap6_const_scalar_dispatcher;
-extern void yap6_scalar_dispatcher_init();
-extern YAP6__CORE__Scalar* yap6_scalar_create(YAP6__CORE__Value* initialValue);
-extern void yap6_scalar_dispatcher_destr();
-
-struct YAP6__CORE__ListDispatcher {
-  YAP6__BASE__Value
-  YAP6__CORE__Dispatcher* dispatcher;
-  YAP6__BASE__Dispacher
-  // Lookup returns the value or the proxy value
-  // REFCOUNT: the return of this method is counted as a refcount
-  YAP6__CORE__Scalar* (*LOOKP)(YAP6__CORE__Dispatcher* self,
-                               YAP6__CORE__Value* value, 
-                               YAP6__CORE__int* index);
-  // Exists doesn't vivifies and returns only if it exists,
-  // else return NULL
-  // REFCOUNT: the return of this method is counted as a refcount
-  YAP6__CORE__Scalar* (*EXIST)(YAP6__CORE__Dispatcher* self,
-                               YAP6__CORE__Value* value, 
-                               YAP6__CORE__int* index);
-  // Store without lookup returns the old value only if it exists,
-  // else return NULL
-  // REFCOUNT: the return of this method is counted as a refcount
-  YAP6__CORE__Value*  (*STORE)(YAP6__CORE__Dispatcher* self,
-                               YAP6__CORE__Value* value, 
-                               YAP6__CORE__int* index,
-                               YAP6__CORE__Value* newvalue);
-  // Delete removes the key and returns it.
-  // REFCOUNT: the return of this method is counted as a refcount
-  YAP6__CORE__Scalar* (*DELET)(YAP6__CORE__Dispatcher* self,
-                               YAP6__CORE__Value* value, 
-                               YAP6__CORE__int* index);
-  // returns the number of elements
-  // REFCOUNT: the return of this method is counted as a refcount
-  YAP6__CORE__int*    (*ELEMS)(YAP6__CORE__Dispatcher* self,
-                               YAP6__CORE__Value* value);
-};
-
-/* list support */
-struct YAP6__CORE__List {
-  YAP6__BASE__Value
-  YAP6__CORE__ListDispatcher* dispatcher;
-  int length;
-  YAP6__CORE__Value** items;
-};
-
-extern YAP6__CORE__ListDispatcher* yap6_const_list_dispatcher;
-extern void yap6_list_dispatcher_init();
-extern YAP6__CORE__List* yap6_list_create();
-extern void yap6_list_dispatcher_destr();
-
-/* pair support */
-/*
- * The YAP6__CORE__PairDispatcher is a type of container that
- * also implements the GTKEY GTVAL STVAL methods.
+/* Every object in YAP6 must be binary compatible with one of these
+ * three. Given that, not necessarly needs to be created by yap6
+ * itself, they don't even need to be managed by YAP6. Each MetaClass
+ * implementation can decide how to deal with issues like garbage
+ * collection and so on, as every object interaction is intermediated
+ * by a MetaClass MESSAGE. But to support basic refcounting, two other
+ * metaclass methods must exist. They can be no-ops for some
+ * metaclasses, but the interpreter will always call them.
  */
-struct YAP6__CORE__PairDispatcher {
-  YAP6__BASE__Value
-  YAP6__CORE__Dispatcher* dispatcher;
-  YAP6__BASE__Dispacher
-  // REFCOUNT: the return of this method is counted as a refcount
-  YAP6__CORE__Value* (*GTKEY)(YAP6__CORE__Dispatcher* self,
-                               YAP6__CORE__Value* value);
-  // REFCOUNT: the return of this method is counted as a refcount
-  YAP6__CORE__Value* (*GTVAL)(YAP6__CORE__Dispatcher* self,
-                               YAP6__CORE__Value* value);
-  // REFCOUNT: the return of this method is counted as a refcount
-  YAP6__CORE__Value* (*STVAL)(YAP6__CORE__Dispatcher* self,
-                              YAP6__CORE__Value* value,
-                              YAP6__CORE__Value* newval);
-};
 
-struct YAP6__CORE__Pair {
-  YAP6__BASE__Value
-  YAP6__CORE__PairDispatcher* dispatcher;
-  YAP6__CORE__Value* key;
-  YAP6__CORE__Value* value;
-};
+/* 
+ * Here follows the basic macros for that triade.
+ */
+#define YAP6_WHAT(object) ((YAP6__Prototype*)((((YAP6__Object*)object)->WHAT)?(((YAP6__Object*)object)->WHAT):(object)))
 
-extern YAP6__CORE__PairDispatcher* yap6_const_pair_dispatcher;
-extern void yap6_pair_dispatcher_init();
-extern YAP6__CORE__Pair* yap6_pair_create(YAP6__CORE__Value* key, YAP6__CORE__Value* value);
-extern void yap6_pair_dispatcher_destr();
+#define YAP6_HOW(object) ((YAP6__MetaClass*)( \
+                          (((YAP6__Prototype*)((((YAP6__Object*)object)->WHAT)?(((YAP6__Object*)object)->WHAT):(object)))->HOW) ? \
+                          (((YAP6__Prototype*)((((YAP6__Object*)object)->WHAT)?(((YAP6__Object*)object)->WHAT):(object)))->HOW) : \
+                          (object)\
+                         ))
 
-struct YAP6__CORE__HashDispatcher {
-  YAP6__BASE__Value
-  YAP6__CORE__Dispatcher* dispatcher;
-  YAP6__BASE__Dispacher
-  // REFCOUNT: the return of this method is counted as a refcount
-  // Lookup returns the value or the proxy value
-  YAP6__CORE__Scalar* (*LOOKP)(YAP6__CORE__Dispatcher* self,
-                               YAP6__CORE__Value* value, 
-                               YAP6__CORE__Value* key);
-  // Exists doesn't vivifies and returns only if it exists,
-  // else return NULL
-  // REFCOUNT: the return of this method is counted as a refcount
-  YAP6__CORE__Scalar* (*EXIST)(YAP6__CORE__Dispatcher* self,
-                               YAP6__CORE__Value* value, 
-                               YAP6__CORE__Value* key);
-  // Store without lookup returns the old value only if it exists,
-  // else return NULL
-  // REFCOUNT: the return of this method is counted as a refcount
-  YAP6__CORE__Value*  (*STORE)(YAP6__CORE__Dispatcher* self,
-                               YAP6__CORE__Value* value, 
-                               YAP6__CORE__Value* key,
-                               YAP6__CORE__Value* newvalue);
-  // Delete removes the key and returns it.
-  // REFCOUNT: the return of this method is counted as a refcount
-  YAP6__CORE__Scalar* (*DELET)(YAP6__CORE__Dispatcher* self,
-                               YAP6__CORE__Value* value, 
-                               YAP6__CORE__Value* key);
-  // returns the number of elements
-  // REFCOUNT: the return of this method is counted as a refcount
-  YAP6__CORE__int*    (*ELEMS)(YAP6__CORE__Dispatcher* self,
-                               YAP6__CORE__Value* value);
+#define YAP6_DISPATCH(metaclass, identifier, capture) ((YAP6__MetaClass*)metaclass)->MESSAGE((YAP6__MetaClass*)metaclass,\
+                                                                                             (YAP6__Object*)identifier,\
+                                                                                             (YAP6__Object*)capture)
 
-};
+#define YAP6_REFERENCE(object) (((YAP6__MetaClass*)( \
+                          (((YAP6__Prototype*)((((YAP6__Object*)object)->WHAT)?(((YAP6__Object*)object)->WHAT):(object)))->HOW) ? \
+                          (((YAP6__Prototype*)((((YAP6__Object*)object)->WHAT)?(((YAP6__Object*)object)->WHAT):(object)))->HOW) : \
+                          (object)\
+                         ))->REFERENCE(((YAP6__MetaClass*)( \
+                          (((YAP6__Prototype*)((((YAP6__Object*)object)->WHAT)?(((YAP6__Object*)object)->WHAT):(object)))->HOW) ? \
+                          (((YAP6__Prototype*)((((YAP6__Object*)object)->WHAT)?(((YAP6__Object*)object)->WHAT):(object)))->HOW) : \
+                          (object)\
+                         )),object))
 
-struct YAP6__CORE__Hash {
-  YAP6__BASE__Value
-  YAP6__CORE__HashDispatcher* dispatcher;
-  int length;
-  YAP6__CORE__Pair** pairs;
-};
-
-
-// the capture object doesn't need any custom methods, as scalar it
-// returns the invocant, as list the positional and as hash the named
-// arguments.
-struct YAP6__CORE__Capture {
-  YAP6__BASE__Value
-  YAP6__CORE__Dispatcher* dispatcher;
-  YAP6__CORE__Value* invocant;
-  YAP6__CORE__Hash* named;
-  YAP6__CORE__List* positional;
-};
-
-#include "yap6_macros.h"
-
+#define YAP6_RELEASE(object) (((YAP6__MetaClass*)( \
+                          (((YAP6__Prototype*)((((YAP6__Object*)object)->WHAT)?(((YAP6__Object*)object)->WHAT):(object)))->HOW) ? \
+                          (((YAP6__Prototype*)((((YAP6__Object*)object)->WHAT)?(((YAP6__Object*)object)->WHAT):(object)))->HOW) : \
+                          (object)\
+                         ))->RELEASE(((YAP6__MetaClass*)( \
+                          (((YAP6__Prototype*)((((YAP6__Object*)object)->WHAT)?(((YAP6__Object*)object)->WHAT):(object)))->HOW) ? \
+                          (((YAP6__Prototype*)((((YAP6__Object*)object)->WHAT)?(((YAP6__Object*)object)->WHAT):(object)))->HOW) : \
+                          (object)\
+                         )),object))
 #endif
