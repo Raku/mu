@@ -1,0 +1,134 @@
+YAP6 Bootstrap
+===================================================================
+
+At first, it's important to understand that all C typedef structs in
+YAP6 are meant to support Perl 6 features from bottom-up. This means
+that the exact same instances of the low-level YAP6 will be naturally
+available to the high-level implementation that uses YAP6 (probably
+KP6).
+
+So, the basic structure is:
+
+
+         any dispatcher is a value               any metaclass is a dispatcher           
+        ____________________________             _____________________________  
+       |                            |           |                             | 
+       V                            |           V                             | 
+  YAP6__CORE__Value*         YAP6__CORE__Dispatcher*            YAP6__CORE__MetaClass*
+       |                            ^          |                               ^ 
+       |                            |          |                               | 
+        ----------------------------            -------------------------------  
+        any value have a dispatcher             any dispatcher have a metaclass   
+
+
+These three C types (typedef struct) are the three basic elements of
+the YAP6 runtime, and they implement the features that Perl 6 needs.
+
+Basic Idea
+===================================================================
+
+The Value is the Object, it is completely dependant on its prototype,
+the object is only a storage and the only ones that knows its internal
+structure are its prototype, and, by extension, its metaclass.
+
+The Dispatcher is the prototype object. It is an Object in itself and
+is the return of the WHAT call. The important thing in the low-level
+here, is that if a object doesn't have a dispatcher, it is a
+prototype, and a prototype is its own prototype.
+
+The MetaClass is the one who understand the "Object Layout" it knows
+how to know which members the object have by looking at the prototype,
+but the values for the members are stored in the object itself. The
+prototype never hold instance values, only prototype values.
+
+These three together implement a very extensible mechanism that
+supports different object layouts and different prototypes for each
+object layout, which basically means that the metaclass implements the
+layout, the prototype implements the code, and the value holds the
+instance data.
+
+This means that, as the prototype object is the one holding the
+metaclass, you can have different objects with different metaclasses,
+and this metaclasses will behave the same in terms of API, but deal
+with different object layouts. And this is the key for bootstrapping
+YAP6, as we can implement a yap6_lowlevel_metaclass that handle the
+YAP6 lowlevel types using the same API that the higher level objects
+which would use, for instance, the KP6 metaclass, or even a perl5
+metaclass.
+
+The only fixed thing here is that these three types must be presented
+as types in the low-level also, which means that implementing a perl5
+extension to YAP6 means writing a metaclass object that have the same
+C structure that the other metaclasses, in other words, it's slightly
+better than XS.
+
+Concept testing
+===================================================================
+
+Let's consider we have the yap6_lowlevel_metaclass that support the
+YAP6 lowlevel objects, and that we want to create a new instance of
+a YAP6__CORE__List (which probably will be the default YAP6 Array).
+
+/* we won't discuss namespaces here, only object references, in theory
+we can work with completely anonymous objects all the time. The
+namespace thing is just a high level helper for it */
+YAP6__CORE__Dispatcher* list_prototype = get_list_prototype();
+
+/* Now that we have the prototype, we want to construct a new list,
+and we do that by calling new, which is the default Perl 6
+constructor, but to do that, we need to get the method "new". To find
+the method new we must first get the metaclass */
+/* it's also important to realize that this could be made on some
+existing list. As said before, every object have a prototype, so
+calling new in an already existing list would look just exactly the
+same */
+YAP6__CORE__MetaClass* list_metaclass = YAP6_HOW(list_prototype);
+
+/* The method resolution is something that depends entirely on the
+metaclass, and the only way to resolve it is to ask the metaclass for
+the method giving the Capture of the arguments */
+YAP6__CORE__Capture* arguments =
+  YAP6_CAPTURE(list_prototype /* invocant */,
+               NULL /* no positional arguments */,
+               NULL /* no named arguments */);
+
+/* Now that we have the capture for the "new" call, we can ask the
+metaclass for the code. Notice that no binding happened yet, only the
+signature matching to the correct method or sub in case of multi. But
+again, the only one who needs to know about it is the metaclass */
+/* Note that the return may be a Failure object, which would need to
+be identified by a smart match */
+YAP6__CORE__Code* method = 
+  YAP6_META_RESOLVE(
+        list_metaclass,
+        list_prototype,
+        YAP6_STRING_CREATE("new"),
+        arguments);
+
+/* The method could then be called, and the binding would happen
+inside it, as the argument processing depends on the metaclass */
+YAP6__CORE__Value* object = YAP6_CODE_CALL(method, arguments);
+
+/* The method new, in this case would probably be the new method for
+lowlevel prototype. which looks just like:
+
+sub new ($prototype: |@_, |%_) {
+    my $object = $prototype.CREATE();
+    $prototype.bless($object, |@_, |%_);
+}
+
+And this would behave just like the same. The metaclass would know how
+to call CREATE on the prototype, and the same for bless. And that's
+all. The object is created. bless will call BUILDALL, BUILDALL will
+call BUILD where fit. */
+
+The Bootstrap
+===================================================================
+
+The bootstrap would happen when the high level defines a new prototype
+that will have a metaclass of the higher level object system, and this
+metaclass will be able to implement all Perl 6 object features.
+
+At this point any object+metaclass+prototype can be mixed together, as
+in the low-level they will be binary-compatible to the lowlevel three
+basic YAP6 structures.

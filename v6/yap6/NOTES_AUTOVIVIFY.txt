@@ -17,48 +17,27 @@ created but no actual lookup was made yet.
 we have a lazy path to the container.
 
 my $b := %a<b><c>;
+
 The bind case, is at first, a capture creation, just like when using it into
 an argument list. So we have a two phase thing which is.
 
 capture = YAP6_CAPTURE(/*invocant*/ NULL, /*positional*/ YAP6_LIST_CREATE(__a_b_c), /*named*/ NULL);
+
 YAP6_BIND(/* this should be a signature, not detailed here*/ $b, capture);
 
-at some point above, the hash should autovivify and the lazy path
-should be resolved to the actual container. At one hand, it seems that
-it should be in the binding code, where the value would be tested if
-uninitialized and a explicit call to autovivify would be made. On the
-other hand, this leaves us without autovivifying in the \%a<b><c>
-case, which would make us think about calling autoviviy in the CAPTURE
-code.
+After TimToady's clarification (and actual spec change), we now know
+that the capture never autovivifies, but only the binding does it. And
+only if the bound container is a rw container, so.
 
-the key to this answer seems to be in:
-foo(%a<b><c>);
-if Capture autovivifies, this would autovivify also. Which may be a very
-bad idea, considering "exists" is a method call also, and this way you would
-need to circumvent it to avoid the autovivification.
+my $a is readonly := %a<b><c>; # doesn't autovivify
 
-one possible solution is to understand the prefix:<\> operator as the
-special case. If this operator besides creating the capture (which is already
-what it receives as parameter) autovivifies, we can leave the bind to autovivify
-in the general case.
+So, the capture is really just a way to defer the contextualization of
+the object and does nothing else.
 
-this also allows us to implement conditional autovivification depending on
-the signature it's binding to. like:
+The binding code is responsible for, when doing the actual bind,
+checking if the container itself is defined. If not and in the
+presence of a WHENCE closure, the object should be autovivified.
 
-sub foo ($data is readonly) { ... }
-sub bar ($data is rw) { ... }
+But this requires the bootstrap...
 
-foo(%a<b><c>); # would not autovivify, while
-bar(%a<b><c>); # would.
-
-The same as
-
-my $b is readonly := %a<b><c>; # would not autovivify, while
-my $b is rw := %a<b><c>;       # would
-
-But it's important to realize, however, that:
-
-my $b is readonly := %a<b><c>;
-%a<b><c> = 1;
-say $b; # would say "1", but
-$b = 2; # is invalid.
+for now, check NOTES_BOOTSTRAP.txt
