@@ -1162,8 +1162,8 @@ value.  Perhaps the associated value can also be bundled in somehow.]
 
 Autovivification will only happen if the vivifiable path is bound to
 a read-write container.  Value extraction (that is, binding to a readonly
-or copy container) does not autovivify.  (Note that assignment
-implicitly binds a copy, so it does not autovivify.)  Any mention of
+or copy container) does not autovivify.  (Note that assignment implicitly
+binds a copy, so it does not autovivify its right side.)  Any mention of
 an expression within a C<Capture> delays the autovivification decision
 to binding time.  (Binding to a "ref" parameter also defers the decision.)
 
@@ -1185,7 +1185,7 @@ But these bindings I<do> autovivify:
     my $val := %hash<foo><bar>;
 
     my @array;
-    my $cap = \@array[0][0]; # $obj is a Capture object - see S02
+    my $cap = \@array[0][0]; # $cap is a Capture object - see S02
     my :($obj) := $cap;   # @array[0][0] created here
 
     my @array;
@@ -1236,5 +1236,9 @@ On the other hand:
     %hash<foo><bar> += 42
 
 binds the left side to a mutable container, so it autovivifies.
+
+Assignment doesn't look like binding, but consider that it's really
+calling some kind of underlying set method on the container, which
+must be mutable in order to change its contents.
 
 =for vim:set expandtab sw=4:
