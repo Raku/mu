@@ -14,13 +14,17 @@ false, and C<[1,2] eqv [1,2]> returns true.
 
 =cut
 
-plan 76;
+plan 87;
 
 # === on values
 {
   ok  (1 === 1), "=== on values (1)";
   ok  (0 === 0), "=== on values (2)";
   ok !(0 === 1), "=== on values (3)";
+  ok  ("abc" === "abc"), "=== on values(abc)";
+  ok !("abc" === "ABC"), "=== on values(abc === ABC)";
+  ok !(1 === 1.0), "=== on values (1 === 1.0)";
+  ok !(1 === "1"), '=== on values (1 === "1")';
 }
 
 # Value types
@@ -230,4 +234,19 @@ plan 76;
   ok !$test(4),    "subparam binding doesn't affect eqv (3)";
   my $bar = 4;
   ok !$test($bar), "subparam binding doesn't affect eqv (4)";
+}
+
+=pod
+
+L<S03/"Chaining binary precedence" /Negated relational operators>
+
+=cut
+{
+  ok !(1 !=== 1), "!=== on values (1)";
+  ok !(0 !=== 0), "!=== on values (2)";
+  ok  (1 !=== 0), "!=== on values (3)";
+  ok !("abc" !=== "abc"), "!=== on values(abc)";
+  ok  ("abc" !=== "ABC"), "!=== on values(abc !=== ABC)";
+  ok  (1 !=== 1.0), "!=== on values (1 !=== 1.0)";
+  ok  (1 !=== "1"), '!=== on values (1 !=== "1")';
 }
