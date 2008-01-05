@@ -11,11 +11,11 @@ constant Int $unicode_max = 0x10ffff;
 #     I figure \c doesn't need to be efficient, so we can skip it and just grep UnicodeData.txt
 # 2 General_Category
 my Utable %is;
-for <Lu Ll Lt Lm Lo LC L>, <Mn Mc Me M>, <Nd Nl No N>,
+my Str @gen_cats = <Lu Ll Lt Lm Lo LC L>, <Mn Mc Me M>, <Nd Nl No N>,
     <Pc Pd Ps Pe Pi Pf Po P>, <Sm Sc Sk So S>,
     <Zs Zl Zp Z>, <Cc Cf Cs Co Cn C>,
     # Proplist.txt
-    <ASCII_Hex_Digit Bidi_Control Dash Deprecated Diacritic Extender Grapheme_Link>,
+my Str @proplist_cats = <ASCII_Hex_Digit Bidi_Control Dash Deprecated Diacritic Extender Grapheme_Link>,
     <Hex_Digit Hyphen Ideographic IDS_Binary_Operator IDS_Trinary_Operator Join_Control>,
     <Logical_Order_Exception Noncharacter_Code_Point Other_Alphabetic>,
     <Other_Default_Ignorable_Code_Point Other_Grapheme_Extend Other_ID_Continue>,
@@ -23,9 +23,18 @@ for <Lu Ll Lt Lm Lo LC L>, <Mn Mc Me M>, <Nd Nl No N>,
     <Pattern_White_Space Quotation_Mark Radical Soft_Dotted STerm Terminal_Punctuation>,
     <Unified_Ideograph Variation_Selector White_Space>,
     # Perlish stuff
-    <alnum alpha ascii blank cntrl digit graph lower print>,
+my Str @perl_cats = <alnum alpha ascii blank cntrl digit graph lower print>,
     <punct space title upper xdigit word vspace hspace>
-    -> my Str $cat { %is{$cat} = Utable.new; }
+for @gen_cats, @proplist_cats, @perl_cats -> my Str $cat {
+    %is{$cat} = Utable.new;
+}
+#XXX are things like /\w/ automatically hooked up to <alpha> etc.?
+for @gen_cats, @proplist_cats -> my Str $cat {
+    eval "our token is$cat { (.) <?{ \%is<$cat>.contains(\$0.ord) }> }";
+}
+for @perl_cats -> my Str $cat {
+    eval "our token $cat { (.) <?{ \%is<$cat>.contains(\$0.ord) }> }";
+}
 # STD needs this
 my Str %open2close;
 # 3 Canonical_Combining_Class
