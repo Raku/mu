@@ -11,10 +11,13 @@ struct YAP6__MetaClass; typedef struct YAP6__MetaClass YAP6__MetaClass;
  * The YAP6__Object struct represents any object in the YAP6 runtime.
  * The data of this object should be opaque for the users, the only
  * ones that should know about it are the prototype and the
- * metaclass. Every object must have a prototype. If it doesn't, it
- * is considered itself as one.
+ * metaclass. Every object must have a prototype. If it doesn't, it is
+ * considered itself as one. The 'repr' member is where the metaclass
+ * handles the object layout in interaction with the prototype to
+ * implement the object logic.
  */
 struct YAP6__Object {
+  void* repr;
   YAP6__Prototype* WHAT;
 };
 
@@ -26,6 +29,7 @@ struct YAP6__Object {
  * without a metaclass is a metaclass.
  */
 struct YAP6__Prototype {
+  void* repr;
   YAP6__Prototype* WHAT;
   YAP6__MetaClass* HOW;
 };
@@ -42,6 +46,7 @@ struct YAP6__Prototype {
  * refcount gc. Both methods return the input pointer.
  */
 struct YAP6__MetaClass {
+  void* repr;
   YAP6__Prototype* WHAT;
   YAP6__MetaClass* HOW;
   YAP6__Object* (*MESSAGE)   (YAP6__MetaClass* self,
