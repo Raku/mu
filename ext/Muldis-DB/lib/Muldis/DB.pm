@@ -241,7 +241,7 @@ Darren Duncan (C<perl@DarrenDuncan.net>)
 
 This file is part of the Muldis DB framework.
 
-Muldis DB is Copyright © 2002-2007, Darren Duncan.  All rights reserved.
+Muldis DB is Copyright © 2002-2008, Darren Duncan.  All rights reserved.
 
 Muldis DB is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License (LGPL) as published by

@@ -1,7 +1,7 @@
                                 Muldis::DB
 ---------------------------------------------------------------------------
 
-2007-12-xx   Darren Duncan <perl@DarrenDuncan.net>
+2008-01-xx   Darren Duncan <perl@DarrenDuncan.net>
 
     * Muldis DB version 0.7.0 for Perl 5 is released on CPAN as
     Muldis-DB-0.7.0.tar.gz.  Muldis DB version 0.7.0 for Perl 6 is not
@@ -11,9 +11,10 @@
     Changes entry refers only to the Perl 5 version.
 
     * New file versions are: DB.pm and Interface.pm and Validator.pm and
-    Example.pm 0.7.0.  The other pre-existing versioned files are
-    unchanged.  Added new file lib/Muldis/DB/Engine/Example/Value.pm, which
-    starts at version 0.0.0.
+    Example.pm 0.7.0 and SeeAlso.pod 0.4.3.  Added new file
+    lib/Muldis/DB/Engine/Example/Value.pm, which starts at version 0.0.0.
+
+    * Incremented all copyright year range-ends to 2008.
 
 2007-12-09   Darren Duncan <perl@DarrenDuncan.net>
 

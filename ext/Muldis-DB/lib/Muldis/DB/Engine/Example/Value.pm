@@ -609,7 +609,7 @@ all Muldis D implementations must have, namely: Bool, Order, Int, Rat,
 Blob, Text, Tuple, Relation, QuasiTuple, QuasiRelation, and the Cat.*
 types.
 
-By contrast, the onewional data types are given physical representations by
+By contrast, the optional data types are given physical representations by
 other files: L<Muldis::DB::Engine::Example::Value::Temporal>,
 L<Muldis::DB::Engine::Example::Value::Spatial>.
 
@@ -632,7 +632,7 @@ Darren Duncan (C<perl@DarrenDuncan.net>)
 
 This file is part of the Muldis DB framework.
 
-Muldis DB is Copyright © 2002-2007, Darren Duncan.
+Muldis DB is Copyright © 2002-2008, Darren Duncan.
 
 See the LICENSE AND COPYRIGHT of L<Muldis::DB> for details.
 
