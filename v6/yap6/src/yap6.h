@@ -52,9 +52,9 @@ struct YAP6__MetaClass {
                               YAP6__Object* identifier,
                               YAP6__Object* capture);
   YAP6__Object* (*REFERENCE) (YAP6__MetaClass* self,
-                              YAP6__Object* object)
+                              YAP6__Object* object);
   YAP6__Object* (*RELEASE)   (YAP6__MetaClass* self,
-                              YAP6__Object* object)
+                              YAP6__Object* object);
 }
 
 /* Every object in YAP6 must be binary compatible with one of these
@@ -101,4 +101,55 @@ struct YAP6__MetaClass {
                           (((YAP6__Prototype*)((((YAP6__Object*)object)->WHAT)?(((YAP6__Object*)object)->WHAT):(object)))->HOW) : \
                           (object)\
                          )),object))
+
+/*
+ * Besides the basic structures to which all objects must be
+ * binary-compatible with, we also need to have defined which are the
+ * native types for YAP6. These types are the key for the YAP6 runtime
+ * being able to actually do something in the low-level. The key to
+ * that is in S12:
+ *
+ *       You may derive from any built-in type, but the derivation of
+ *       a low-level type like int may only add behaviors, not change
+ *       the representation. Use composition and/or delegation to
+ *       change the representation.
+ *
+ * This means that the native objects can have a fixed structure. As
+ * they are known and fixed, we can intermix high-level calls and
+ * low-level calls. An important thing then, is that the autoboxing
+ * from the native types to the immutable types must be available in
+ * both ways, as the non-native implementations may even be some
+ * object that acts like a Int, so we can only use it by calling the
+ * metaclass.
+ *
+ * This means that, besides having a way to enforce numeric context to
+ * all values, we need a way to also force native-type-context to that
+ * value. Which would be something like:
+ *
+ *       my $a = +$someobject; # Returns Int, Num, Complex or even Rat
+ *       my $b = $a.$native_int_method(); # returns that as int
+ *       my $b = $a.$native_float_method(); # returns that as float
+ *
+ * The thing is, this methods will be part of the API of any object
+ * that emulates one of the types that can be autoboxed to/from native
+ * types.  Considering that a Int is any object that returns true to
+ * .^does(Int), the low-level runtime cannot presume to know which is
+ * the lowlevel implementation of an object, the only that knows it is
+ * the metaclass, so it's natural that this native-type coercion
+ * methods reside in the metaclass. This way, YAP6 will count on the
+ * metaclasses to provide a "native" method that receives the
+ * prototype of the native-type to convert to and returns a
+ * native-type object.
+ *
+ * It's important to realize that the native-type objects are binary
+ * compatible with any other object, but as they can't have they
+ * representation changed, they can't be extended, and the only
+ * prototype that can answer true to .^does(int) is the lowlevel int
+ * implementation. It is considered illegal to answer true to that for
+ * any other prototype, as this would certainly cause a segfault.
+ */
+
+
+
+
 #endif
