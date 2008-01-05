@@ -46,6 +46,10 @@ method tostr(--> Str) {
     return $s;
 }
 
+method perl(--> Str) {
+    return "Utable.new('" ~ $.tostr ~ "')";
+}
+
 method print(|$args --> Bool) {
     return $.tostr.print(|$args);
 }

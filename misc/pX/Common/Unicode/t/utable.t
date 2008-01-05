@@ -19,7 +19,7 @@ for -2..0, 3..4, 9..11 -> my $n {
 }
 my $s1 = $u.tostr;
 is $s1, '1..2;5..8', '.tostr works for @@( 1..2 ; 5..8 )';
-ok $u eqv Utable.new($u.tostr), 'round-trip to str works for @@( 1..2 ; 5..8 )';
+ok $u eqv $u.perl.eval, 'round-trip to .perl works for @@( 1..2 ; 5..8 )';
 
 $u = undef;
 ok $u = Utable.new('1..2;5..8'), 'Utable.new with a string works';
@@ -31,7 +31,7 @@ for -2..0, 3..4, 9..11 -> my $n {
 }
 my $s2 = $u.tostr;
 is $s2, '1..2;5..8', ".tostr works for '1..2;5..8'";
-ok $u eqv Utable.new($u.tostr), "round-trip to str works for '1..2;5..8'";
+ok $u eqv $u.perl.eval, "round-trip to .perl works for '1..2;5..8'";
 
 is $u.inverse.tostr '0;3..4;9..1114111', '.inverse works';
 
@@ -53,14 +53,14 @@ my $io = open "/tmp/utable.$*PID", :w orelse die;
 $u.say($io);
 $io.close orelse die;
 my $s = slurp "/tmp/utable.$*PID";
-is $s, '1..2;5..8', '.say($io) works';
+is $s, "1..2;5..8\n", '.say($io) works';
 unlink "/tmp/utable.$*PID" orelse die;
 
 my $io = open "/tmp/utable.$*PID", :w orelse die;
 $u.say(:$io);
 $io.close orelse die;
 my $s = slurp "/tmp/utable.$*PID";
-is $s, '1..2;5..8', '.say(:$io) works';
+is $s, "1..2;5..8\n", '.say(:$io) works';
 unlink "/tmp/utable.$*PID" orelse die;
 
 $u = undef;
@@ -76,7 +76,7 @@ for -2..0, 3..4, 9..11 -> my $n {
 }
 my $s1 = $u.tostr;
 is $s1, '1..2:1;5..8:2', '.tostr works for @@( 1..2 ; 5..8 ), (1, 2)';
-ok $u eqv Utable.new($u.tostr), 'round-trip to str works for @@( 1..2 ; 5..8 ), (1, 2)';
+ok $u eqv $u.perl.eval, 'round-trip to .perl works for @@( 1..2 ; 5..8 ), (1, 2)';
 
 $u = undef;
 ok $u = Utable.new('1..2:1;5..8:2'), 'Utable.new with a string with values works';
@@ -91,7 +91,7 @@ for -2..0, 3..4, 9..11 -> my $n {
 }
 my $s2 = $u.tostr;
 is $s2, '1..2:1;5..8:2', ".tostr works for '1..2:1;5..8:2'";
-ok $u eqv Utable.new($u.tostr), "round-trip to str works for '1..2:1;5..8:2'";
+ok $u eqv $u.perl.eval, "round-trip to .perl works for '1..2:1;5..8:2'";
 
 $u = Utable.new;
 for 1..2, 5..8 -> my $n { $u.add($n); }
@@ -105,7 +105,7 @@ for -2..0, 3..4, 9..11 -> my $n {
 }
 my $s1 = $u.tostr;
 is $s1, '1..2;5..8', '(add) .tostr works for @@( 1..2 ; 5..8 )';
-ok $u eqv Utable.new($u.tostr), '(add) round-trip to str works for @@( 1..2 ; 5..8 )';
+ok $u eqv $u.perl.eval, '(add) round-trip to .perl works for @@( 1..2 ; 5..8 )';
 
 $u = Utable.new;
 for 8, 7, 6, 5, 2, 1 -> my $n { $u.add($n); }
@@ -119,7 +119,7 @@ for -2..0, 3..4, 9..11 -> my $n {
 }
 my $s1 = $u.tostr;
 is $s1, '1..2;5..8', '(backwards add) .tostr works for @@( 1..2 ; 5..8 )';
-ok $u eqv Utable.new($u.tostr), '(backwards add) round-trip to str works for @@( 1..2 ; 5..8 )';
+ok $u eqv $u.perl.eval, '(backwards add) round-trip to .perl works for @@( 1..2 ; 5..8 )';
 
 $u = Utable.new;
 for 2, 6, 7, 5, 1, 8 -> my $n { $u.add($n); }
@@ -133,7 +133,7 @@ for -2..0, 3..4, 9..11 -> my $n {
 }
 my $s1 = $u.tostr;
 is $s1, '1..2;5..8', '(random add) .tostr works for @@( 1..2 ; 5..8 )';
-ok $u eqv Utable.new($u.tostr), '(random add) round-trip to str works for @@( 1..2 ; 5..8 )';
+ok $u eqv $u.perl.eval, '(random add) round-trip to .perl works for @@( 1..2 ; 5..8 )';
 
 $u = Utable.new;
 for 1..2 -> my $n { $u.add($n, :val(1)); }
@@ -152,7 +152,7 @@ for -2..0, 3..4, 9..11 -> my $n {
 }
 my $s1 = $u.tostr;
 is $s1, '1..2:1;5..8:2', '(add) .tostr works for @@( 1..2 ; 5..8 ), (1, 2)';
-ok $u eqv Utable.new($u.tostr), '(add) round-trip to str works for @@( 1..2 ; 5..8 ), (1, 2)';
+ok $u eqv $u.perl.eval, '(add) round-trip to .perl works for @@( 1..2 ; 5..8 ), (1, 2)';
 
 $u = Utable.new;
 for 8, 7, 6, 5 -> my $n { $u.add($n, :val(2)); }
@@ -171,7 +171,7 @@ for -2..0, 3..4, 9..11 -> my $n {
 }
 my $s1 = $u.tostr;
 is $s1, '1..2:1;5..8:2', '(backwards add) .tostr works for @@( 1..2 ; 5..8 ), (1, 2)';
-ok $u eqv Utable.new($u.tostr), '(backwards add) round-trip to str works for @@( 1..2 ; 5..8 ), (1, 2)';
+ok $u eqv $u.perl.eval, '(backwards add) round-trip to .perl works for @@( 1..2 ; 5..8 ), (1, 2)';
 
 $u = Utable.new;
 for 2, 1 -> my $n { $u.add($n, :val(1)); }
@@ -190,7 +190,7 @@ for -2..0, 3..4, 9..11 -> my $n {
 }
 my $s1 = $u.tostr;
 is $s1, '1..2:1;5..8:2', '(random add) .tostr works for @@( 1..2 ; 5..8 ), (1, 2)';
-ok $u eqv Utable.new($u.tostr), '(random add) round-trip to str works for @@( 1..2 ; 5..8 ), (1, 2)';
+ok $u eqv $u.perl.eval, '(random add) round-trip to .perl works for @@( 1..2 ; 5..8 ), (1, 2)';
 
 is eval('do{$u.add(0, :val(2)); $u.tostr}'), undef, 'add overlapping with different value fails';
 is eval('do{$u.add(3, :val(4)); $u.tostr}'), undef, 'add overlapping with different value fails';
@@ -209,7 +209,7 @@ for ^1000 {
 for %h.keys -> my $n {
     is $u.get($n), %h{$n}, 'rand lookup succeeds';
 }
-ok $u eqv Utable.new($u.tostr), 'round-trip to str works for big rand table';
+ok $u eqv $u.perl.eval, 'round-trip to .perl works for big rand table';
 
 $u = undef;
 ok $u = Utable.new(@@( 1..2 ; 3..4 ; 5..8 )), 'Utable.new with a list of contiguous ranges works';
