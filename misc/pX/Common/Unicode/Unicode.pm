@@ -58,7 +58,7 @@ my Str @proplist_cats = <ASCII_Hex_Digit Bidi_Control Dash Deprecated Diacritic 
     <Pattern_White_Space Quotation_Mark Radical Soft_Dotted STerm Terminal_Punctuation>,
     <Unified_Ideograph Variation_Selector White_Space>;
     # Perlish stuff
-my Str @perl_cats = <alnum alpha ascii blank cntrl digit graph lower print>,
+my Str @perl_cats = <alnum alpha ascii cntrl digit graph lower print>,
     <punct space title upper xdigit word vspace hspace>;
 BEGIN {
     for @gen_cats, @proplist_cats, @perl_cats -> my Str $cat {
@@ -89,9 +89,29 @@ BEGIN {
     }
     @mktab_ud_subs.push: my sub mktab_ud_isperl(Str *$code, Str *$name, Str *$gc, Str *@f -->) {
         $code.=hex;
-        #XXX where is this stuff defined in terms of unicode stuff?
-        %is<alnum>.add($code) if $gc eq any <Lu Ll Lt>;
-        ...;
+        my Str $maj = $gc.substr(0, 1);
+        # This is all from Camel3 p.168
+        %is<alnum>.add($code) if $gc eq any <Lu Ll Lt Lo Nd>;
+        %is<alpha>.add($code) if $gc eq any <Lu Ll Lt Lo>;
+        %is<ascii>.add($code) if $code < 0x80;
+        %is<cntrl>.add($code) if $maj eq 'C';
+        %is<digit>.add($code) if $gc eq 'Nd';
+        %is<lower>.add($code) if $gc eq 'Ll';
+        %is<print>.add($code) if $maj ne 'C';
+        %is<punct>.add($code) if $maj eq 'P';
+        if $code.chr eq "\t"|"\n"|"\f"|"\r" or $maj eq 'Z' {
+            %is<space>.add($code);
+        } else {
+            %is<graph>.add($code) if $maj ne 'C';
+        }
+        # guessing here...
+        %is<title>.add($code) if $gc eq 'Lt';
+        %is<upper>.add($code) if $gc eq 'Lt'|'Lu';
+        %is<xdigit>.add($code) if $code.chr ~~ token { <[a..zA..Z0..9]> };
+        %is<word>.add($code) if $code.chr eq '_' or $gc eq any <Lu Ll Lt Lo Nd>;
+        # guessing here...
+        %is<hspace>.add($code) if $maj eq 'Z' and $gc eq none <Zl Zp>;
+        %is<vspace>.add($code) if $gc eq any <Zl Zp>;
     }
     #XXX are things like /\w/ automatically hooked up to <alpha> etc.?
     for @gen_cats, @proplist_cats -> my Str $cat {
@@ -164,9 +184,9 @@ BEGIN{
 
 # STD needs this
 my Str %open2close;
+my Str %ps_to_pe;
 BEGIN {
     @mktab_ud_subs.push: my sub mktab_ud_open2close(Str *$code, Str *$name, Str *$gc, Str *@f -->) {
-        my Str %ps_to_pe;
         $code.=hex.=chr;
         if $gc eq 'Ps' {
             my Str $prev_ps = $code;
@@ -342,17 +362,47 @@ require ucd_dump;
 # From S29
 
 class Str is also {
-    our Str multi method lc ( Str $string: ) is export { ... }
-    our Str multi method lcfirst ( Str $string: ) is export { ... }
-    our Str multi method uc ( Str $string: ) is export { ... }
-    our Str multi method ucfirst ( Str $string: ) is export { ... }
-    our Str multi method capitalize ( Str $string: ) is export { ... }
-    our Str multi method normalize ( Str $string: Bool :$canonical = Bool::True, Bool :$recompose = Bool::False ) is export { ... }
-    our Str multi method nfd ( Str $string: ) is export { $string.normalize(:cononical, :!recompose); }
-    our Str multi method nfc ( Str $string: ) is export { $string.normalize(:canonical, :recompose); }
-    our Str multi method nfkd ( Str $string: ) is export { $string.normalize(:!canonical, :!recompose); }
-    our Str multi method nfkc ( Str $string: ) is export { $string.normalize(:!canonical, :recompose); }
-    our multi method ord( Str $string: ) is export { ... }
+    our multi method lc(Str $string: --> Str) is export { ... }
+    our multi method lcfirst(Str $string: --> Str) is export { ... }
+    our multi method uc(Str $string: --> Str) is export { ... }
+    our multi method ucfirst(Str $string: --> Str) is export { ... }
+    our multi method capitalize(Str $string: --> Str) is export { ... }
+    our multi method normalize(Str $string: Bool :$canonical = Bool::True, Bool :$recompose = Bool::False --> Str) is export { ... }
+    our multi method nfd(Str $string: --> Str) is export { $string.normalize(:cononical, :!recompose); }
+    our multi method nfc(Str $string: --> Str) is export { $string.normalize(:canonical, :recompose); }
+    our multi method nfkd(Str $string: --> Str) is export { $string.normalize(:!canonical, :!recompose); }
+    our multi method nfkc(Str $string: --> Str) is export { $string.normalize(:!canonical, :recompose); }
+    our multi method ord(Str $string: --> Int|List of Int) is export { ... }
+
+    # Cache a copy of ourself as an array of Codepoints
+    has Codepoint @.as_codes;
+    # XXX is this even remotely correct?
+    &STORE.wrap( { @.as_codes = undef; callsame; } );
+    our method to_codes(Str $string: --> List of Codepoint) {
+        return @.as_codes if defined @.as_codes;
+        $string ~~ m:codes/ @<codes>=(.)* /;                                       #/ XXX perl6.vim confused
+        return @.as_codes := @<codes>;
+    }
+
+    our multi method chars(Str $string: --> Int) is export {
+        # XXX how does the "current unicode level" work?
+        &graphs.callsame;
+    }
+
+    our multi method bytes(Str $string: --> Int) is export { ... }
+    our multi method codes(Str $string: --> Int) is export { +$string.to_codes }
+    our multi method graphs(Str $string: --> Int) is export {
+        my Int $nc = $string.codes;
+        my Int $ng = $nc;
+        for $string.to_codes -> my Str $c {
+            # discount Marks XXX may be wrong
+            $ng-- if %is<M>.contains($c.ord);
+            # CRLF is a grapheme in 5.0 and in Perl 6
+            # XXX substr must be as codes
+            $ng-- if $string.substr(my Int $n++, 2) eq "\r\n";
+        }
+        return $ng;
+    }
 }
 # Should I assume this stuff is done at a lower level?
 # If not, how?
