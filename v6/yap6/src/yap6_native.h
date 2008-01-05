@@ -66,15 +66,6 @@
                        // of yap6.h. It should do no harm because of
                        // the ifndefs of the beggining of the file.
 
-// forward declaration of the typedefs
-struct YAP6__NATIVE__bit; typedef struct YAP6__NATIVE__bit YAP6__NATIVE__bit;
-struct YAP6__NATIVE__int; typedef struct YAP6__NATIVE__int YAP6__NATIVE__int;
-struct YAP6__NATIVE__uint; typedef struct YAP6__NATIVE__uint YAP6__NATIVE__uint;
-struct YAP6__NATIVE__buf; typedef struct YAP6__NATIVE__buf YAP6__NATIVE__buf;
-struct YAP6__NATIVE__num; typedef struct YAP6__NATIVE__num YAP6__NATIVE__num;
-struct YAP6__NATIVE__complex; typedef struct YAP6__NATIVE__complex YAP6__NATIVE__complex;
-struct YAP6__NATIVE__bool; typedef struct YAP6__NATIVE__bool YAP6__NATIVE__bool;
-
 // prototypes
 extern YAP6__Prototype* YAP6__NATIVE__bit;
 extern YAP6__Prototype* YAP6__NATIVE__int;
@@ -85,30 +76,30 @@ extern YAP6__Prototype* YAP6__NATIVE__complex;
 extern YAP6__Prototype* YAP6__NATIVE__bool;
 
 // create methods
-extern YAP6__NATIVE__bit*     YAP6__NATIVE__bit_create(int value);
-extern YAP6__NATIVE__int*     YAP6__NATIVE__int_create(int value);
-extern YAP6__NATIVE__uint*    YAP6__NATIVE__uint_create(unsigned int value);
-extern YAP6__NATIVE__buf*     YAP6__NATIVE__buf_create(int bytesize, char* unicodestr);
-extern YAP6__NATIVE__num*     YAP6__NATIVE__num_create(double value);
-extern YAP6__NATIVE__complex* YAP6__NATIVE__complex_create(double complex value);
-extern YAP6__NATIVE__bool*    YAP6__NATIVE__bool_create(int value);
+extern YAP6__Object*    YAP6__NATIVE__bit_create(int value);
+extern YAP6__Object*    YAP6__NATIVE__int_create(int value);
+extern YAP6__Object*    YAP6__NATIVE__uint_create(unsigned int value);
+extern YAP6__Object*    YAP6__NATIVE__buf_create(int bytesize, char* unicodestr);
+extern YAP6__Object*    YAP6__NATIVE__num_create(double value);
+extern YAP6__Object*    YAP6__NATIVE__complex_create(double complex value);
+extern YAP6__Object*    YAP6__NATIVE__bool_create(int value);
 
 // get methods
-extern int                    YAP6__NATIVE__bit_fetch(YAP6__NATIVE__bit* value);
-extern int                    YAP6__NATIVE__int_fetch(YAP6__NATIVE__int* value);
-extern unsigned int           YAP6__NATIVE__uint_fetch(YAP6__NATIVE__uint* value);
-extern char*                  YAP6__NATIVE__buf_fetch(YAP6__NATIVE__buf* value, int* retsize);
-extern double                 YAP6__NATIVE__num_fetch(YAP6__NATIVE__num* value);
-extern double complex         YAP6__NATIVE__complex_fetch(YAP6__NATIVE__complex* value);
-extern int                    YAP6__NATIVE__bool_fetch(YAP6__NATIVE__bool* value);
+extern int              YAP6__NATIVE__bit_fetch(YAP6__Object* value);
+extern int              YAP6__NATIVE__int_fetch(YAP6__Object* value);
+extern unsigned int     YAP6__NATIVE__uint_fetch(YAP6__Object* value);
+extern char*            YAP6__NATIVE__buf_fetch(YAP6__Object* value, int* retsize);
+extern double           YAP6__NATIVE__num_fetch(YAP6__Object* value);
+extern double complex   YAP6__NATIVE__complex_fetch(YAP6__Object* value);
+extern int              YAP6__NATIVE__bool_fetch(YAP6__Object* value);
 
 // set methods
-extern void                   YAP6__NATIVE__bit_store(YAP6__NATIVE__bit* value, int newvalue);
-extern void                   YAP6__NATIVE__int_store(YAP6__NATIVE__int* value, int newvalue);
-extern void                   YAP6__NATIVE__uint_store(YAP6__NATIVE__uint* value, unsigned int newvalue);
-extern void                   YAP6__NATIVE__buf_store(YAP6__NATIVE__buf* value, int newbytesize, char* newvalue);
-extern void                   YAP6__NATIVE__num_store(YAP6__NATIVE__num* value, double newvalue);
-extern void                   YAP6__NATIVE__complex_store(YAP6__NATIVE__complex* value, double complex newvalue);
-extern void                   YAP6__NATIVE__bool_store(YAP6__NATIVE__bool* value, int newvalue);
+extern void             YAP6__NATIVE__bit_store(YAP6__Object* value, int newvalue);
+extern void             YAP6__NATIVE__int_store(YAP6__Object* value, int newvalue);
+extern void             YAP6__NATIVE__uint_store(YAP6__Object* value, unsigned int newvalue);
+extern void             YAP6__NATIVE__buf_store(YAP6__Object* value, int newbytesize, char* newvalue);
+extern void             YAP6__NATIVE__num_store(YAP6__Object* value, double newvalue);
+extern void             YAP6__NATIVE__complex_store(YAP6__Object* value, double complex newvalue);
+extern void             YAP6__NATIVE__bool_store(YAP6__Object* value, int newvalue);
 
 #endif
