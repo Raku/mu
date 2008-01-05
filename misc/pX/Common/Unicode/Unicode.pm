@@ -13,7 +13,7 @@ constant Int $unicode_max = 0x10ffff;
 my Utable %is;
 my Str @gen_cats = <Lu Ll Lt Lm Lo LC L>, <Mn Mc Me M>, <Nd Nl No N>,
     <Pc Pd Ps Pe Pi Pf Po P>, <Sm Sc Sk So S>,
-    <Zs Zl Zp Z>, <Cc Cf Cs Co Cn C>,
+    <Zs Zl Zp Z>, <Cc Cf Cs Co Cn C>;
     # Proplist.txt
 my Str @proplist_cats = <ASCII_Hex_Digit Bidi_Control Dash Deprecated Diacritic Extender Grapheme_Link>,
     <Hex_Digit Hyphen Ideographic IDS_Binary_Operator IDS_Trinary_Operator Join_Control>,
@@ -21,10 +21,10 @@ my Str @proplist_cats = <ASCII_Hex_Digit Bidi_Control Dash Deprecated Diacritic 
     <Other_Default_Ignorable_Code_Point Other_Grapheme_Extend Other_ID_Continue>,
     <Other_ID_Start Other_Lowercase Other_Math Other_Uppercase Pattern_Syntax>,
     <Pattern_White_Space Quotation_Mark Radical Soft_Dotted STerm Terminal_Punctuation>,
-    <Unified_Ideograph Variation_Selector White_Space>,
+    <Unified_Ideograph Variation_Selector White_Space>;
     # Perlish stuff
 my Str @perl_cats = <alnum alpha ascii blank cntrl digit graph lower print>,
-    <punct space title upper xdigit word vspace hspace>
+    <punct space title upper xdigit word vspace hspace>;
 for @gen_cats, @proplist_cats, @perl_cats -> my Str $cat {
     %is{$cat} = Utable.new;
 }
