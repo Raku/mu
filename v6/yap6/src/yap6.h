@@ -139,7 +139,14 @@ struct YAP6__MetaClass {
  * methods reside in the metaclass. This way, YAP6 will count on the
  * metaclasses to provide a "native" method that receives the
  * prototype of the native-type to convert to and returns a
- * native-type object.
+ * native-type object. One, possibly more important, reason for the
+ * "native" method to reside in the metaclass is because a metaclass
+ * will require at least some C code, and creating the lowlevel
+ * objects are C calls, so we concentrate that on the metaclass.
+ *
+ * But this doesn't mean that every metaclass must implement it
+ * directly. The call to native may result in a call to coerce to the
+ * respective high-level type before.
  *
  * It's important to realize that the native-type objects are binary
  * compatible with any other object, but as they can't have they
