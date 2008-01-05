@@ -6,9 +6,9 @@ use v6-alpha;
 my Bool $BOOL_FALSE = Bool::False;
 my Bool $BOOL_TRUE  = Bool::True;
 
-my Order $ORDER_INCREASE = (1 <=> 2);
-my Order $ORDER_SAME     = (1 <=> 1);
-my Order $ORDER_DECREASE = (2 <=> 1);
+my Order $CAT_ORDER_INCREASE = (1 <=> 2);
+my Order $CAT_ORDER_SAME     = (1 <=> 1);
+my Order $CAT_ORDER_DECREASE = (2 <=> 1);
 
 my Str $EMPTY_STR = q{};
 
@@ -23,11 +23,6 @@ module Muldis::DB::Engine::Example::Value-0.0.0 {
 sub newBool of Muldis::DB::Engine::Example::Value::Bool
         (Bool :$v!) is export {
     return ::Muldis::DB::Engine::Example::Value::Bool.new( :v($v) );
-}
-
-sub newOrder of Muldis::DB::Engine::Example::Value::Order
-        (Order :$v!) is export {
-    return ::Muldis::DB::Engine::Example::Value::Order.new( :v($v) );
 }
 
 sub newInt of Muldis::DB::Engine::Example::Value::Int
@@ -70,6 +65,11 @@ sub newRelation of Muldis::DB::Engine::Example::Value::Relation
         (Hash :$heading!, Array :$body!) is export {
     return ::Muldis::DB::Engine::Example::Value::Relation.new(
         :heading($heading), :body($body) );
+}
+
+sub newCat_Order of Muldis::DB::Engine::Example::Value::Cat_Order
+        (Order :$v!) is export {
+    return ::Muldis::DB::Engine::Example::Value::Cat_Order.new( :v($v) );
 }
 
 ###########################################################################
@@ -201,47 +201,6 @@ method v of Bool () {
 ###########################################################################
 
 } # class Muldis::DB::Engine::Example::Value::Bool
-
-###########################################################################
-###########################################################################
-
-class Muldis::DB::Engine::Example::Value::Order {
-    does Muldis::DB::Engine::Example::Value::Scalar;
-
-    has Order $!v;
-
-###########################################################################
-
-submethod BUILD (Order :$v!) {
-    $!v = $v;
-    return;
-}
-
-###########################################################################
-
-method _root_type of Str () {
-    return 'sys.Core.Order.Order';
-}
-
-method _which of Str () {
-    return ~$!v;
-}
-
-###########################################################################
-
-method _is_equal of Order (::T $self: T $other!) {
-    return $other!v === $self!v;
-}
-
-###########################################################################
-
-method v of Order () {
-    return $!v;
-}
-
-###########################################################################
-
-} # class Muldis::DB::Engine::Example::Value::Order
 
 ###########################################################################
 ###########################################################################
@@ -578,6 +537,47 @@ method _root_type of Str () {
 ###########################################################################
 ###########################################################################
 
+class Muldis::DB::Engine::Example::Value::Cat_Order {
+    does Muldis::DB::Engine::Example::Value::Scalar;
+
+    has Order $!v;
+
+###########################################################################
+
+submethod BUILD (Order :$v!) {
+    $!v = $v;
+    return;
+}
+
+###########################################################################
+
+method _root_type of Str () {
+    return 'sys.Core.Cat.Order';
+}
+
+method _which of Str () {
+    return ~$!v;
+}
+
+###########################################################################
+
+method _is_equal of Bool (::T $self: T $other!) {
+    return $other!v === $self!v;
+}
+
+###########################################################################
+
+method v of Order () {
+    return $!v;
+}
+
+###########################################################################
+
+} # class Muldis::DB::Engine::Example::Value::Cat_Order
+
+###########################################################################
+###########################################################################
+
 =pod
 
 =encoding utf8
@@ -605,9 +605,8 @@ intended to match the API that the language itself specifies as possible
 representations for system-defined data types.
 
 Specifically, this file represents the core system-defined data types that
-all Muldis D implementations must have, namely: Bool, Order, Int, Rat,
-Blob, Text, Tuple, Relation, QuasiTuple, QuasiRelation, and the Cat.*
-types.
+all Muldis D implementations must have, namely: Bool, Int, Rat, Blob, Text,
+Tuple, Relation, QuasiTuple, QuasiRelation, and the Cat.* types.
 
 By contrast, the optional data types are given physical representations by
 other files: L<Muldis::DB::Engine::Example::Value::Temporal>,

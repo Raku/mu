@@ -34,7 +34,7 @@ or 99.
 
 * Update the Example Engine to implement the rest of the relational
 algebra|calculus operators, as well as all the reasonable operators for
-other core data types: Bool, Order, Int, Num, Blob, Text.
+other core data types: Bool, Int, Rat, Blob, Text.
 
 * Update the Example Engine to implement persisting databases.  For
 simplicity of implementation and learning, a whole depot will simply be one
