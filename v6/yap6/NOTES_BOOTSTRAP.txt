@@ -31,12 +31,12 @@ The Object is completely dependant on its prototype, is only a storage
 and the only ones that knows its internal structure are its prototype,
 and, by extension, its metaclass.
 
-The prototype object is an Object in itself and is the return of the
+The prototype object is an Object itself and is the return of the
 WHAT call. The important thing in the low-level here, is that if a
 object doesn't have a prototype, it is a prototype, and a prototype
 is its own prototype.
 
-The MetaClass is the one who understands the "Object Layout" it knows
+The MetaClass is the thing which understands the "Object Layout" it knows
 how to know which members the object have by looking at the prototype,
 but the values for the members are stored in the object itself. The
 prototype never hold instance values, only prototype values.
@@ -58,8 +58,8 @@ metaclass.
 
 The only fixed thing here is that these three types must be presented
 as types in the low-level also, which means that implementing a perl5
-extension to YAP6 means writing a metaclass object that have the same
-C structure that the other metaclasses.
+extension to YAP6 means writing a metaclass object that has the same
+C structure as other metaclasses.
 
 Concept testing
 ===================================================================
@@ -108,7 +108,7 @@ sub new ($prototype: |@_, |%_) {
     $prototype.bless($object, |@_, |%_);
 }
 
-And this would behave just like the same. The metaclass would know how
+And this would behave just the same. The metaclass would know 
 to call CREATE on the prototype, and the same for bless. And that's
 all. The object is created. bless will call BUILDALL, BUILDALL will
 call BUILD where fit. */
