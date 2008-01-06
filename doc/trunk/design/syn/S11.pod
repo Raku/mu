@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 6 Aug 2007
+  Last Modified: 5 Jan 2008
   Number: 11
-  Version: 20
+  Version: 21
 
 =head1 Overview
 
@@ -229,6 +229,7 @@ fault of the insensitive clod who broke security :).
 
 The internal API for package names is always case-sensitive, even if
 the library system is hosted on a system that is not case-sensitive.
+Likewise internal names are Unicode-aware, even if the filesystem isn't.
 This implies either some sort of name mangling capability or storage
 of intermediate products into a database of some sort.  In any event,
 the actual storage location must be encapsulated in the library system
