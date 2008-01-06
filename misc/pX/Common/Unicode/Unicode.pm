@@ -7,6 +7,18 @@ constant Int $unicode_max = 0x10ffff;
 # we have perl6 -MUnicode -e mktables in lieu of a script
 my Code @mktab_subs;
 our sub mktables(-->) {
+    # requires .txt files from e.g. http://www.unicode.org/Public/zipped/5.0.0/UCD.zip
+    if ! 'ucd/Proplist.txt' ~~ :e {
+        if ! 'ucd/UCD.zip' ~~ :e {
+            mkdir 'ucd' unless 'ucd' ~~ :d;
+            chdir 'ucd' orelse die "Couldn't enter ucd/: $!";
+            system 'wget', 'http://www.unicode.org/Public/zipped/5.0.0/UCD.zip' orelse die "Couldn't get UCD.zip: $!";
+            chdir '..';
+        }
+        chdir 'ucd' orelse die "Couldn't enter ucd/: $!";
+        system 'unzip', 'UCD.zip' orelse die "Couldn't unzip UCD.zip: $!";
+        chdir '..';
+    }
     # collect all the init subs and run them
     my $dumpfile = open 'ucd_dump.pm', :w orelse die $!;
     $_.($dumpfile) for @mktab_subs;
@@ -65,7 +77,7 @@ BEGIN {
         %is{$cat} = Utable.new;
     }
     @mktab_subs.push: my sub mktab_proplist(IO $dumpfile -->) {
-        my $pl = open 'Proplist.txt', :r orelse die $!;
+        my $pl = open 'ucd/Proplist.txt', :r orelse die $!;
         for =$pl -> my Str $line {
             $line ~~ s/ '#' .* //;
             next if $line !~~ / ';' /;                            #/ XXX perl6.vim confused
@@ -205,7 +217,7 @@ BEGIN {
     }
 #XXX all @mktab_ud_subs must be defined above here.
     @mktab_subs.push: my sub mktab_ud_all(IO $dumpfile -->) {
-        my $ud = open 'UnicodeData.txt', :r orelse die $!;
+        my $ud = open 'ucd/UnicodeData.txt', :r orelse die $!;
         for =$ud -> my Str $line {
             my Str @f = $line.split(';');
             $_.(@f) for @mktab_ud_subs;
@@ -241,7 +253,7 @@ BEGIN {
 my Str %bidi_mirror;
 BEGIN {
     @mktab_subs.push: my sub mktab_bidi_mirror(IO $dumpfile -->) {
-        my $bm = open 'BidiMirroring.txt', :r orelse die $!;
+        my $bm = open 'ucd/BidiMirroring.txt', :r orelse die $!;
         for =$bm -> my Str $line {
             $line ~~ s/ '#' .* //;
             next if $line !~~ / ';' /;                            #/ XXX perl6.vim confused
@@ -268,7 +280,7 @@ BEGIN {
 my Utable $blockname.=new;
 BEGIN {
     @mktab_subs.push: my sub mktab_blocks(IO $dumpfile -->) {
-        my $bl = open 'Blocks.txt', :r orelse die $!;
+        my $bl = open 'ucd/Blocks.txt', :r orelse die $!;
         for =$bl -> my Str $line {
             $line ~~ s/ '#' .* //;
             next if $line !~~ / ';' /;                            #/ XXX perl6.vim confused

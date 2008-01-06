@@ -36,10 +36,10 @@ method tostr(--> Str) {
         my Range $r := @@.table[$i];
         my Any $v := @.val[$i];
         $s ~= ';' if $i;
-        if $r.min == $r.max {
-            $s ~= sprintf '%x', $r.min;
+        if $r.from == $r.to {
+            $s ~= sprintf '%x', $r.from;
         } else {
-            $s ~= sprintf '%x..%x', $r.min, $r.max;
+            $s ~= sprintf '%x..%x', $r.from, $r.to;
         }
         $s ~= ":$v" if $v.chars;
     }
@@ -60,14 +60,14 @@ method say(|$args --> Bool) {
 
 method contains(Int $x --> Bool) {
     return False if !+@@.table;
-    return False if $x < @@.table[0].min;
-    return False if $x > @@.table[*-1].max;
+    return False if $x < @@.table[0].from;
+    return False if $x > @@.table[*-1].to;
     my Int $min = 0;
     my Int $max = @@.table.elems-1;
     while $min <= $max {
         my Int $mid = ($max + $min) / 2;
         return True if $x ~~ @@.table[$mid];
-        if $x < @@.table[$mid].min  {
+        if $x < @@.table[$mid].from  {
             $max = $mid - 1;
         } else {
             $min = $mid + 1;
@@ -78,14 +78,14 @@ method contains(Int $x --> Bool) {
 
 method get(Int $x --> Any) {
     return undef if !+@@.table;
-    return undef if $x < @@.table[0].min;
-    return undef if $x > @@.table[*-1].max;
+    return undef if $x < @@.table[0].from;
+    return undef if $x > @@.table[*-1].to;
     my Int $min = 0;
     my Int $max = @@.table.elems-1;
     while $min <= $max {
         my Int $mid = ($max + $min) / 2;
         return @.val[$mid] if $x ~~ @@.table[$mid];
-        if $x < @@.table[$mid].min  {
+        if $x < @@.table[$mid].from  {
             $max = $mid - 1;
         } else {
             $min = $mid + 1;
@@ -100,12 +100,12 @@ method inverse(--> Utable) {
         $u.add(0 .. $unicode_max);
         return $u;
     }
-    $u.add(0 ..^ @@.table[0].min);
+    $u.add(0 .. @@.table[0].from-1);
     # $i < @@.table.elems-1 is intended
     loop my Int $i = 0; $i < @@.table.elems-1; $i++ {
-        $u.add(@@.table[$i].max ^..^ @@.table[$i+1].min, :!preen);
+        $u.add(@@.table[$i].to+1 .. @@.table[$i+1].from-1, :!preen);
     }
-    $u.add(@@.table[*-1].max ^.. $unicode_max);
+    $u.add(@@.table[*-1].to+1 .. $unicode_max);
     return $u;
 }
 
@@ -120,20 +120,20 @@ multi method add(Int $x, Any :$val, Bool :$preen = True -->) {
     my Int $min = 0;
     my Int $max = @@.table.elems-1;
     while $min <= $max {
-        if $x < @@.table[$min].min {
+        if $x < @@.table[$min].from {
             @@.table.=splice: $min, 0, $r;
             @.val.=splice: $min, 0, $val if @.val;
             $.preen if $preen;
             return;
         }
-        if $x > @@.table[$max].max {
+        if $x > @@.table[$max].to {
             @@.table.=splice: $max+1, 0, $r;
             @.val.=splice: $max+1, 0, $val if @.val;
             $.preen if $preen;
             return;
         }
         my Int $mid = ($max + $min) / 2;
-        if $x < @@.table[$mid].min {
+        if $x < @@.table[$mid].from {
             $max = $mid - 1;
         } else {
             $min = $mid + 1;
@@ -152,13 +152,13 @@ multi method add(Range $r, Any :$val, Bool :$preen = True -->) {
     my Int $min = 0;
     my Int $max = @@.table.elems-1;
     while $min <= $max {
-        if $r.max < @@.table[$min].min {
+        if $r.to < @@.table[$min].from {
             @@.table.=splice: $min, 0, $r;
             @.val.=splice: $min, 0, $val if @.val;
             $.preen if $preen;
             return;
         }
-        if $r.min > @@.table[$max].max {
+        if $r.from > @@.table[$max].to {
             @@.table.=splice: $max+1, 0, $r;
             @.val.=splice: $max+1, 0, $val if @.val;
             $.preen if $preen;
@@ -166,15 +166,15 @@ multi method add(Range $r, Any :$val, Bool :$preen = True -->) {
         }
         my Int $mid = ($max + $min) / 2;
         my Range $m := @@.table[$mid];
-        if ( $r.max >= $m.min and $r.min <= $m.min ) or ( $r.max >= $m.max and $r.min <= $m.max ) {
+        if ( $r.to >= $m.from and $r.from <= $m.from ) or ( $r.to >= $m.to and $r.from <= $m.to ) {
             # $r and $m overlap
             die "Utable::add: can't add overlapping ranges with different values"
                 if $val !eqv @.val[$mid];
-            $m = min($r.min, $m.min) .. max($r.max, $m.max);
+            $m = min($r.from, $m.from) .. max($r.to, $m.to);
             $.preen if $preen;
             return;
         }
-        if $r.max < @@.table[$mid].min {
+        if $r.to < @@.table[$mid].from {
             $max = $mid - 1;
         } else {
             $min = $mid + 1;
@@ -186,13 +186,13 @@ multi method add(Range $r, Any :$val, Bool :$preen = True -->) {
 method preen(-->) {
     # delete null ranges, fix up range overlaps and contiguities
     loop my Int $i = 0; $i < @@.table.elems; $i++ {
-        if @@.table[$i].max < @@.table[$i].min {
+        if @@.table[$i].to < @@.table[$i].from {
             @@.table[$i].delete;
             @.val[$i].delete;
         }
         last if $i == @@.table.elems-1;
-        if @@.table[$i].max >= @@.table[$i+1].min and @.val[$i] eqv @.val[$i+1]  {
-            @@.table.=splice: $i, 2, @@.table[$i].min .. @@.table[$i+1].max;
+        if @@.table[$i].to >= @@.table[$i+1].from and @.val[$i] eqv @.val[$i+1]  {
+            @@.table.=splice: $i, 2, @@.table[$i].from .. @@.table[$i+1].to;
             @.val[$i+1].delete;
         }
     }
