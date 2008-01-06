@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 1 Jan 2008
+  Last Modified: 5 Jan 2008
   Number: 2
-  Version: 123
+  Version: 124
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -2140,46 +2140,87 @@ following table shows the correspondence to the "fatarrow" notation:
     a => $$a            :$$a
     a => @$$a           :@$$a (etc.)
     a => %foo<a>        %foo<a>:p
-    '' => $x            :($x)
-    '' => <x>           :<x>
-    '' => ($x,$y)       :($x,$y)
-    '' => [$x,$y]       :[$x,$y]
-    '' => {$x => $y}    :{$x => $y}
 
 The fatarrow construct may be used only where a term is expected
 because it's considered an expression in its own right, since the
-fatarrow is parsed as a normal infix operator (even when autoquoting an
-identifier on its left).  The adverbial forms are considered special
-tokens and are recognized in various positions in addition to term
-position.  In particular, when used where an infix would be expected
-they modify the previous operator, ignoring the intervening term or
-parenthesized argument.  The form is also used to rename parameter
-declarations and to modify the meaning of various quoting forms.
-When appended to an identifier, the adverbial syntax is used to
-generate variants of that identifier; this syntax is used for
-naming operators such as C<< infix:<+> >> and multiply dispatched
-grammatical rules such as statement_control:if.  When so used the
-adverb is considered part of the name, so C<< infix:<+> >> and C<<
-infix:<-> >> are two different operators.  Likewise C<< prefix:<+>
->> is different from C<< infix:<+> >>.
+fatarrow itself is parsed as a normal infix operator (even when
+autoquoting an identifier on its left).  Because the left side is a
+general expression, the fatarrow form may be used to create a Pair
+with I<any> value as the key.  On the other hand, when used as above
+to generate C<Pair> objects, the adverbial forms are restricted to
+the use of identifiers as keys.  You must use the fatarrow form to
+generate a C<Pair> where the key is not an identifier.
 
-Either fatarrow or adverbial pair notation may be used to pass named arguments as
-terms to a function or method.  After a call with parenthesized arguments,
-only adverbial syntax may be used to pass additional arguments.  This is typically
-used to pass an extra block:
+Despite that restriction, it's possible for other things to
+come between a colon and its brackets; however, all of the possible
+non-identifier adverbial keys are reserved for special syntactical
+forms.  Perl 6 currently recognizes decimal numbers and the null key.
+In the following table the first and second columns do I<not> mean
+the same thing:
+
+    Simple pair         DIFFERS from    which means
+    ===========         ============    ===========
+    2 => <101010>       :2<101010>      radix literal 0b101010
+    8 => <123>          :8<123>         radix literal 0o123
+    16 => <123>         :16<deadbeef>   radix literal 0xdeadbeef
+    16 => <123>         :16($somevalue) radix conversion function
+    '' => $x            :($x)           arglist or signature literal
+    '' => ($x,$y)       :($x,$y)        arglist or signature literal
+    '' => <x>           :<x>            identifier extension
+    '' => «x»           :«x»            identifier extension
+    '' => [$x,$y]       :[$x,$y]        identifier extension
+    '' => { .say }      :{ .say }       adverbial block
+
+All of the adverbial forms (including the normal ones with
+identifier keys) are considered special tokens and are recognized
+in various positions in addition to term position.  In particular,
+when used where an infix would be expected they modify the previous
+operator, ignoring the intervening term or parenthesized argument:
+
+    1 .. 100 :by(3)     # count to 100 by threes
+
+Within declarations the form is used to rename parameter declarations:
+
+    sub foo ( :externalname($myname) ) {...}
+
+Adverbs modify the meaning of various quoting forms:
+
+    q:x 'cat /etc/passwd'
+
+When appended to an identifier (that is, in postfix position),
+the adverbial syntax is used to generate unique variants of that
+identifier; this syntax is used for naming operators such as C<<
+infix:<+> >> and multiply-dispatched grammatical rules such as
+C<statement_control:if>.  When so used, the adverb is considered an
+integral part of the name, so C<< infix:<+> >> and C<< infix:<-> >>
+are two different operators.  Likewise C<< prefix:<+> >> is different
+from C<< infix:<+> >>.  (The notation also has the benefit of grouping
+distinct identifiers into easily accessible sets; this is how the
+standard Perl 6 grammar knows the current set of infix operators,
+for instance.)
+
+Either fatarrow or adverbial pair notation may be used to pass
+named arguments as terms to a function or method.  After a call with
+parenthesized arguments, only the adverbial syntax may be used to pass
+additional arguments.  This is typically used to pass an extra block:
 
     find($directory) :{ when not /^\./ }
 
-This actually falls out from the preceding rules because the adverbial block is in 
-operator position, so it modifies the "find operator".
+This just naturally falls out from the preceding rules because the
+adverbial block is in operator position, so it modifies the "find
+operator".  (Parens aren't considered an operator.)
 
-Note that as usual the C<{...}> form can indicate either a closure or a hash
-depending on the contents.  It does I<not> indicate a subscript despite being
-parsed as one.
+Note that (as usual) the C<{...}> form (either identifier-based
+or special) can indicate either a closure or a hash depending on
+the contents.  It does I<not> always indicate a subscript despite
+being parsed as one.  (The function to which it is passed can I<use>
+the value as a subscript if it chooses, however.)
 
-Note also that the C<< <a b> >> form is not a subscript and is therefore
-equivalent not to C<.{'a','b'}> but rather to C<('a','b')>.  Bare C<< <a> >>
-turns into C<('a')> rather than C<('a',)>.
+Note also that the C<< <a b> >> form is not a subscript and is
+therefore equivalent not to C<.{'a','b'}> but rather to C<('a','b')>.
+Bare C<< <a> >> turns into C<('a')> rather than C<('a',)>.  (However,
+as with the other bracketed forms, the value may end up being used
+as a subscript depending on context.)
 
 Two or more adverbs can always be strung together without intervening
 punctuation anywhere a single adverb is acceptable.  When used as
@@ -2196,7 +2237,8 @@ See S06 for the use of adverbs as named arguments.
 
 The negated form (C<:!a>) and the sigiled forms (C<:$a>, C<:@a>,
 C<:%a>) never take an argument and don't care what the next character is.
-They are considered complete.
+They are considered complete.  These forms require an identifier to
+serve as the key.
 
 The other forms of adverb (including the bare C<:a> form) I<always>
 look for an immediate bracketed argument, and will slurp it up.
@@ -2214,10 +2256,11 @@ the brackets are similarly parsed as postfix operators.  As postfixes
 the brackets may be separated from their initial C<:foo> with either
 unspace or dot (or both), but nothing else.
 
-Regardless of syntax, adverbs used as named arguments generally show
-up as optional named parameters to the function in question--even
-if the function is an operator or macro.  The function in question
-neither knows nor cares how weird the original syntax was.
+Regardless of syntax, adverbs used as named arguments (in either term
+or infix position) generally show up as optional named parameters to
+the function in question--even if the function is an operator or macro.
+The function in question neither knows nor cares how weird the original
+syntax was.
 
 =item *
 
