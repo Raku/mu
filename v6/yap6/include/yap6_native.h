@@ -60,7 +60,7 @@
  * The native types are then declared here for external use.
  */
 #include <complex.h>
-#include "yap6_base.h" // this is declared by yap6.h which is the one
+#include <yap6_base.h> // this is declared by yap6.h which is the one
                        // who includes this file, but let's keep this
                        // here if anyone wants to include only parts
                        // of yap6.h. It should do no harm because of
