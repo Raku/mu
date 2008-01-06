@@ -4,6 +4,40 @@ use Utable;
 
 constant Int $unicode_max = 0x10ffff;
 
+grammar UCD {
+    token xdigit { <[a..zA..Z0..9]> };
+    method strip_comments(Str $s is copy: --> Str) {
+        return $s ~~ s/ '#' .* //;
+    }
+    token not_empty { ';' | <xdigit> }
+    token code {
+        (<xdigit>+)
+        { $<val> = $0.hex;
+          $<str> = $<val>.chr;
+        }
+    }
+    token code_or_range {
+        |   (<xdigit>+)
+            { $<val> = $0.hex; }
+        |   (<xdigit>+) '..' (<xdigit>+)
+            { $<val> = $0.hex .. $1.hex; }
+    }
+    token code_or_seq {
+        @<seq>=(<xdigit>+ \s*)+
+        { $<str> = [~] @<seq>».hex.chr; }
+    }
+}
+
+sub process_file(Str $file, Code &each_line:(Str) -->) {
+    my $fd = open $file, :r orelse die $!;
+    for =$file -> my Str $line {
+        $line.=UCD::strip_comments;
+        next if $line !~~ UCD::not_empty;
+        each_line($line);
+    }
+    $file.close orelse die $!;
+}
+
 # we have perl6 -MUnicode -e mktables in lieu of a script
 my Code @mktab_subs;
 our sub mktables(-->) {
@@ -20,7 +54,7 @@ our sub mktables(-->) {
         chdir '..';
     }
     # collect all the init subs and run them
-    my $dumpfile = open 'ucd_dump.pm', :w orelse die $!;
+    my $dumpfile = open 'ucd_basic_dump.pm', :w orelse die $!;
     $_.($dumpfile) for @mktab_subs;
     $dumpfile.close orelse die $!;
 }
@@ -77,35 +111,25 @@ BEGIN {
         %is{$cat} = Utable.new;
     }
     @mktab_subs.push: my sub mktab_proplist(IO $dumpfile -->) {
-        my $pl = open 'ucd/Proplist.txt', :r orelse die $!;
-        for =$pl -> my Str $line {
-            $line ~~ s/ '#' .* //;
-            next if $line !~~ / ';' /;                            #/ XXX perl6.vim confused
-            my $n;
-            my $name;
-            my token xdigit { <[a..zA..Z0..9]> };
-            if $line ~~ mm/(<xdigit>+) '..' (<xdigit>+) ';' (\w+)/ {
-                $n = hex $0 .. hex $1;
-                $name = $2;
+        process_file 'ucd/Proplist.txt', -> my Str $line {
+            if $line !~~ mm/ $<cr>=<UCD::code_or_range> ';' $<name>=(\w+)/ {
+                my $n := $<cr><val>;
+            } else {
+                die "Couldn't parse Proplist.txt line '$line'";
             }
-            if $line ~~ mm/(<xdigit>+) ';' (\w+)/ {
-                $n = hex $0;
-                $name = $1;
-            }
-            %is{$name}.add($n);
+            %is{$<name>}.add($n);
             #XXX where is this stuff defined in terms of unicode stuff?
             # my guesses here are probably very wrong, erring toward too inclusive...
-            %is<alnum>.add($n) if $name eq any <Hex_Digit Other_Alphabetic Other_ID_Start Other_Lowercase Other_Uppercase>;
-            %is<alpha>.add($n) if $name eq any <Other_Alphabetic Other_Lowercase Other_Uppercase>;
-            %is<cntrl>.add($n) if $name eq any <Bidi_Control Join_Control>;
-            %is<lower>.add($n) if $name eq any <Other_Lowercase>;
-            %is<punct>.add($n) if $name eq any <Dash Hyphen Pattern_Syntax Quotation_Mark STerm Terminal_Punctuation>;
-            %is<space>.add($n) if $name eq any <White_Space Pattern_White_Space>;
-            %is<upper>.add($n) if $name eq any <Other_Uppercase>;
-            %is<xdigit>.add($n) if $name eq any <ASCII_Hex_Digit Hex_Digit>;
-            %is<word>.add($n) if $name eq any <Hex_Digit Other_Alphabetic Other_ID_Start Other_Lowercase Other_Uppercase>;
+            %is<alnum>.add($n) if $<name> eq any <Hex_Digit Other_Alphabetic Other_ID_Start Other_Lowercase Other_Uppercase>;
+            %is<alpha>.add($n) if $<name> eq any <Other_Alphabetic Other_Lowercase Other_Uppercase>;
+            %is<cntrl>.add($n) if $<name> eq any <Bidi_Control Join_Control>;
+            %is<lower>.add($n) if $<name> eq any <Other_Lowercase>;
+            %is<punct>.add($n) if $<name> eq any <Dash Hyphen Pattern_Syntax Quotation_Mark STerm Terminal_Punctuation>;
+            %is<space>.add($n) if $<name> eq any <White_Space Pattern_White_Space>;
+            %is<upper>.add($n) if $<name> eq any <Other_Uppercase>;
+            %is<xdigit>.add($n) if $<name> eq any <ASCII_Hex_Digit Hex_Digit>;
+            %is<word>.add($n) if $<name> eq any <Hex_Digit Other_Alphabetic Other_ID_Start Other_Lowercase Other_Uppercase>;
         }
-        $pl.close orelse die $!;
     }
     @mktab_ud_subs.push: my sub mktab_ud_isperl(*$code, Str *$name, Str *$gc, Str *@f -->) {
         $code.=hex;
@@ -180,18 +204,18 @@ BEGIN{
                 # compat
                 my Str $decomp_type = $decomp.substr(0, $/.to);
                 $decomp.=substr($/.to);
-                $decomp = [~] map { .hex.chr }, $decomp.comb;
+                $decomp = [~] $decomp.comb».hex.chr;
                 %compat_decomp_type{$code} = $decomp_type;
                 %compat_decomp{$code} = $decomp;
             } else {
                 # canon
-                $decomp = [~] map { .hex.chr }, $decomp.comb;
+                $decomp = [~] $decomp.comb».hex.chr;
                 %canon_decomp{$code} = $decomp if $decomp.chars;
             }
             %dec_digit{$code} = +$dec if $dec.chars;
             %digit{$code} = +$dig if $dig.chars;
             %numeric{$code} = +$num if $num.chars;
-            $bidi_mirrored.add($code.ord) if $bdm ~~ m:i/y/;      #// XXX perl6.vim confused
+            $bidi_mirrored.add($code.ord) if $bdm ~~ m:i /y/;
             %upper{$code} = hex $uc if $uc.chars;
             %lower{$code} = hex $lc if $lc.chars;
             %title{$code} = hex $tc if $tc.chars;
@@ -217,12 +241,10 @@ BEGIN {
     }
 #XXX all @mktab_ud_subs must be defined above here.
     @mktab_subs.push: my sub mktab_ud_all(IO $dumpfile -->) {
-        my $ud = open 'ucd/UnicodeData.txt', :r orelse die $!;
-        for =$ud -> my Str $line {
+        process_file 'ucd/UnicodeData.txt', -> my Str $line {
             my Str @f = $line.split(';');
             $_.(@f) for @mktab_ud_subs;
         }
-        $ud.close orelse die $!;
 
         # Some special cases added here
         for «\t \n \r \f»».ord -> my Int $c {
@@ -253,11 +275,8 @@ BEGIN {
 my Str %bidi_mirror;
 BEGIN {
     @mktab_subs.push: my sub mktab_bidi_mirror(IO $dumpfile -->) {
-        my $bm = open 'ucd/BidiMirroring.txt', :r orelse die $!;
-        for =$bm -> my Str $line {
-            $line ~~ s/ '#' .* //;
-            next if $line !~~ / ';' /;                            #/ XXX perl6.vim confused
-            my $code, $mirrored_code = map { .hex.chr }, $line.split(';');
+        process_file 'ucd/BidiMirroring.txt', -> my Str $line {
+            my $code, $mirrored_code = $line.split(';')».hex.chr;
             %bidi_mirror{$code} = $mirrored_code;
             if $code < $mirrored_code
                 and !%is<Ps>.contains($code.ord) and !%is<Pe>.contains($code.ord)
@@ -265,7 +284,6 @@ BEGIN {
                     %open2close{$code} = $mirrored_code;
             }
         }
-        $bm.close orelse die $!;
         dumphash($dumpfile, :%bidi_mirror);
 
         # ps_to_pe take precedence over BidiMirroring mappings
@@ -280,19 +298,12 @@ BEGIN {
 my Utable $blockname.=new;
 BEGIN {
     @mktab_subs.push: my sub mktab_blocks(IO $dumpfile -->) {
-        my $bl = open 'ucd/Blocks.txt', :r orelse die $!;
-        for =$bl -> my Str $line {
-            $line ~~ s/ '#' .* //;
-            next if $line !~~ / ';' /;                            #/ XXX perl6.vim confused
-            my token xdigit { <[a..zA..Z0..9]> };
+        process_file 'ucd/Blocks.txt', -> my Str $line {
             #XXX are \S and \N OK here?
-            $line ~~ rule { (<xdigit>+) '..' (<xdigit>+) ';' (\S+\N*) }
+            $line ~~ rule { $<r>=<UCD::code_or_range> ';' $<name>=(\S+\N*) }
                 orelse die "Couldn't parse Blocks.txt line '$line'";
-            my Range $r = hex $0 .. hex $1;
-            my Str $name = $2;
-            $blockname.add($r, :val($name));
+            $blockname.add($<r><val>, :val($<name>));
         }
-        $bm.close orelse die $!;
         dumputable($dumpfile, :$blockname);
     }
 }
@@ -300,13 +311,34 @@ BEGIN {
 # CompositionExclusions.txt
 # 0 code
 my Bool %compex;
+BEGIN {
+    @mktab_subs.push: my sub mktab_compex(IO $dumpfile -->) {
+        process_file 'ucd/CompositionExclusions.txt', -> my Str $line {
+            $line ~~ m/ $<c>=<UCD::code> /
+                orelse die "Couldn't parse CompositionExclusions.txt line '$line'";;
+            %compex{$<c><str>}++;
+        }
+        dumphash($dumpfile, :%compex);
+    }
+}
 
 # CaseFolding.txt
 # 0 code
 # 1 status
 # 2 mapping
-my Str %casefold_stat;
-my Str %casefold_map;
+my Hash of Str %casefold;
+BEGIN {
+    @mktab_subs.push: my sub mktab_casefold(IO $dumpfile -->) {
+        process_file 'ucd/CaseFolding.txt', -> my Str $line {
+            $line ~~ mm/ $<c>=<UCD::code> ';' (<[FTSC]>) ';' $<map>=<UCD::code_or_seq> ';'/
+                orelse die "Couldn't parse CaseFolding.txt line '$line'";
+            %casefold{$0}{$<c><str>} = $<map><str>;
+        }
+        for <F T S C> -> my Str $s {
+            $dumpfile.say: "\%casefold<$s> := " ~ %casefold{$s}.perl ~ ";\n";
+        }
+    }
+}
 
 # DerivedAge.txt
 #     post-6.0?
@@ -333,6 +365,17 @@ my Str %casefold_map;
 # 1 Original (erroneous) decomposition
 # 2 Corrected decomposition
 # 3 version corrected
+my Str %norm_correct;
+BEGIN {
+    @mktab_subs.push: my sub mktab_norm_correct(IO $dumpfile -->) {
+        process_file 'ucd/NormalizationCorrections.txt', -> my Str $line {
+            $line ~~ mm/ $<c>=<UCD::code> ';' $<orig>=<UCD::code_or_seq> ';' $<corr>=<UCD::code_or_seq> ';' /
+                orelse die "Couldn't parse NormalizationCorrections.txt line '$line'";
+            %norm_correct{$<c><str>} = $<corr><str>;
+        }
+        dumphash($dumpfile, :%norm_correct);
+    }
+}
 
 # PropertyAliases.txt
 # 0 abbrev
@@ -356,6 +399,16 @@ my Hash of Str %pva;
 # 0 code range
 # 1 script name
 my Utable $script;
+BEGIN {
+    @mktab_subs.push: my sub mktab_script(IO $dumpfile -->) {
+        process_file 'ucd/Scripts.txt', -> my Str $line {
+            $line ~~ mm/ $<n>=<UCD::code_or_range> ';' $<name>=(\w+)/
+                orelse die "Couldn't parse Scripts.txt line '$line'";
+            $script.add($<n><val>, :val($<name>));
+        }
+        dumputable($dumpfile, :$script);
+    }
+}
 
 # SpecialCasing.txt
 # 0 code
@@ -367,6 +420,23 @@ my Str %upper_cond;
 my Str %lower_cond;
 my Str %title_cond;
 my Str %case_cond;
+BEGIN {
+    @mktab_subs.push: my sub mktab_script(IO $dumpfile -->) {
+        process_file 'ucd/SpecialCasing.txt', -> my Str $line {
+            $line ~~ mm{ $<c>=<UCD::code> ';' $<lower>=<UCD::code_or_seq> ';'
+                $<title>=<UCD::code_or_seq> ';' $<upper>=<UCD::code_or_seq> ';' $<cond>=(\N+) }
+                orelse die "Couldn't parse SpecialCasing.txt line '$line'";
+            %upper_cond{$<c><str>} = $<upper><str>;
+            %title_cond{$<c><str>} = $<title><str>;
+            %lower_cond{$<c><str>} = $<lower><str>;
+            %case_cond{$<c><str>} = $<cond>;
+        }
+        dumphash($dumpfile, :%upper_cond);
+        dumphash($dumpfile, :%title_cond);
+        dumphash($dumpfile, :%lower_cond);
+        dumphash($dumpfile, :%case_cond);
+    }
+}
 
 # Unihan.txt
 #     post-6.0?
@@ -383,7 +453,7 @@ my Str %case_cond;
 # WordBreakProperty.txt
 #     post-6.0?
 
-require ucd_dump;
+require ucd_basic_dump;
 
 # From S29
 
