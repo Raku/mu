@@ -30,7 +30,7 @@ setlocal shiftwidth=4 autoindent expandtab smarttab softtabstop=1
 syn keyword p6Attn          ACHTUNG ATTN ATTENTION FIXME NB contained 
 syn keyword p6Attn          todo Todo TODO WTF XXX contained
 syn keyword p6Module        module class role use require package enum grammar
-syn keyword p6KeyDecl       coro sub submethod method is but does trusts multi 
+syn keyword p6KeyDecl       coro sub submethod method is but does trusts multi only
 syn keyword p6KeyDecl       rule token regex category
 syn keyword p6KeyScopeDecl  let my our state temp has constant proto
 syn keyword p6KeyFlow       if else elsif unless  
@@ -58,7 +58,8 @@ syn keyword p6KeyFunc       substr index rindex
 syn keyword p6KeyFunc       grep map sort join split reduce min max reverse truncate zip
 syn keyword p6KeyFunc       cat roundrobin classify first 
 syn keyword p6KeyFunc       keys values pairs defined delete exists elems end kv
-syn keyword p6KeyFunc       arity assuming gather take any pick all none
+syn keyword p6KeyFunc       arity assuming gather take any pick all none one wrap
+syn keyword p6KeyFunc       callsame callwith nextsame nextwith
 syn keyword p6KeyFunc       pop push shift splice unshift  
 syn keyword p6KeyFunc       abs exp log log10 rand sign sqrt sin cos tan       
 syn keyword p6KeyFunc       floor ceil round srand roots cis unpolar polar
@@ -153,11 +154,11 @@ syn cluster p6Regexen contains=@p6Interp,p6Closure,p6Comment,p6CharClass,p6RuleC
 " Standard /.../
 syn region p6Regex matchgroup=p6Keyword start="\(\w\_s*\)\@<!/" start="\(\(\<split\|\<grep\)\s*\)\@<=/" skip="\\/" end="/" contains=@p6Regexen
 " m:/.../
-syn region p6Regex matchgroup=p6Keyword start="\<\(m\|rx\)\_s*\(\_s*:\_s*[a-zA-Z0-9_()]\+\)*\_s*\z([^a-zA-Z0-9_:(]\)" skip="\\\z1" end="\z1" contains=@p6Regexen
+syn region p6Regex matchgroup=p6Keyword start="\<\(m\|mm\|rx\)\_s*\(\_s*:\_s*[a-zA-Z0-9_()]\+\)*\_s*\z([^a-zA-Z0-9_:(]\)" skip="\\\z1" end="\z1" contains=@p6Regexen
 " m:[] m:{} and m:<>
-syn region p6Regex matchgroup=p6Keyword start="\<\(m\|rx\)\_s*\(\_s*:\_s*[a-zA-Z0-9_()]\+\)*\_s*\[" skip="\\]" end="]" contains=@p6Regexen
-syn region p6Regex matchgroup=p6Keyword start="\<\(m\|rx\)\_s*\(\_s*:\_s*[a-zA-Z0-9_()]\+\)*\_s*{" skip="\\}" end="}" contains=@p6Regexen
-syn region p6Regex matchgroup=p6Keyword start="\<\(m\|rx\)\_s*\(\_s*:\_s*[a-zA-Z0-9_()]\+\)*\_s*<"hs=e skip="\\>" end=">" contains=@p6Regexen
+syn region p6Regex matchgroup=p6Keyword start="\<\(m\|mm\|rx\)\_s*\(\_s*:\_s*[a-zA-Z0-9_()]\+\)*\_s*\[" skip="\\]" end="]" contains=@p6Regexen
+syn region p6Regex matchgroup=p6Keyword start="\<\(m\|mm\|rx\)\_s*\(\_s*:\_s*[a-zA-Z0-9_()]\+\)*\_s*{" skip="\\}" end="}" contains=@p6Regexen
+syn region p6Regex matchgroup=p6Keyword start="\<\(m\|mm\|rx\)\_s*\(\_s*:\_s*[a-zA-Z0-9_()]\+\)*\_s*<"hs=e skip="\\>" end=">" contains=@p6Regexen
 
 
 " rule { }
@@ -193,7 +194,7 @@ syn region p6TransNonBracket matchgroup=p6Keyword contained start="\z(\W\)" skip
 
 syn match p6RuleCall  contained "<\s*!\{0,1}\s*\w\+"hs=s+1
 syn match p6CharClass contained "<\s*!\{0,1}\s*\[\]\{0,1}[^]]*\]\s*>"
-syn match p6CharClass contained "<\s*!\{0,1}\s*-\{0,1}\(alpha\|digit\|sp\|ws\|null\|xdigit\|alnum\|space\|ascii\)\s*>"
+syn match p6CharClass contained "<\s*!\{0,1}\s*-\{0,1}\(alpha\|digit\|sp\|ws\|null\|xdigit\|alnum\|space\|ascii\|cntrl\|graph\|lower\|print\|punct\|title\|upper\|word\|vspace\|hspace\)\s*>"
 syn match p6CharClass contained "\\[HhVvNnTtEeRrFfWwSs]"
 syn match p6CharClass contained "\\[xX]\(\[[0-9a-f;]\+\]\|\x\+\)"
 syn match p6CharClass contained "\\0\(\[[0-7;]\+\]\|\o\+\)"

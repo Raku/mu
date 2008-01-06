@@ -38,11 +38,11 @@ my Str @gen_cats = <Lu Ll Lt Lm Lo LC L>, <Mn Mc Me M>, <Nd Nl No N>,
     <Pc Pd Ps Pe Pi Pf Po P>, <Sm Sc Sk So S>,
     <Zs Zl Zp Z>, <Cc Cf Cs Co Cn C>;
 BEGIN {
-    @mktab_ud_subs.push: my sub mktab_ud_isgc(Str *$code, Str *$name, Str *$gc, Str *@f -->) {
+    @mktab_ud_subs.push: my sub mktab_ud_isgc(*$code, Str *$name, Str *$gc, Str *@f -->) {
         $code.=hex;
         %is{$gc}.add($code);
         %is<LC>.add($code) if $gc eq 'Lu'|'Ll'|'Lt';
-        my Str $maj = substr $gc, 0, 1; # first letter
+        my Str $maj = $gc.substr(0, 1); # first letter
         %is{$maj}.add($code);
     }
 }
@@ -68,7 +68,7 @@ BEGIN {
         my $pl = open 'Proplist.txt', :r orelse die $!;
         for =$pl -> my Str $line {
             $line ~~ s/ '#' .* //;
-            next if line !~~ / ';' /;                            #/ XXX perl6.vim confused
+            next if $line !~~ / ';' /;                            #/ XXX perl6.vim confused
             my $n;
             my $name;
             my token xdigit { <[a..zA..Z0..9]> };
@@ -82,12 +82,20 @@ BEGIN {
             }
             %is{$name}.add($n);
             #XXX where is this stuff defined in terms of unicode stuff?
-            %is<alnum>.add($n) if $name eq any <Other_Alphabetic Other_Lowercase Other_Uppercase ASCII_Hex_Digit Hex_Digit>;
-            ...;
+            # my guesses here are probably very wrong, erring toward too inclusive...
+            %is<alnum>.add($n) if $name eq any <Hex_Digit Other_Alphabetic Other_ID_Start Other_Lowercase Other_Uppercase>;
+            %is<alpha>.add($n) if $name eq any <Other_Alphabetic Other_Lowercase Other_Uppercase>;
+            %is<cntrl>.add($n) if $name eq any <Bidi_Control Join_Control>;
+            %is<lower>.add($n) if $name eq any <Other_Lowercase>;
+            %is<punct>.add($n) if $name eq any <Dash Hyphen Pattern_Syntax Quotation_Mark STerm Terminal_Punctuation>;
+            %is<space>.add($n) if $name eq any <White_Space Pattern_White_Space>;
+            %is<upper>.add($n) if $name eq any <Other_Uppercase>;
+            %is<xdigit>.add($n) if $name eq any <ASCII_Hex_Digit Hex_Digit>;
+            %is<word>.add($n) if $name eq any <Hex_Digit Other_Alphabetic Other_ID_Start Other_Lowercase Other_Uppercase>;
         }
         $pl.close orelse die $!;
     }
-    @mktab_ud_subs.push: my sub mktab_ud_isperl(Str *$code, Str *$name, Str *$gc, Str *@f -->) {
+    @mktab_ud_subs.push: my sub mktab_ud_isperl(*$code, Str *$name, Str *$gc, Str *@f -->) {
         $code.=hex;
         my Str $maj = $gc.substr(0, 1);
         # This is all from Camel3 p.168
@@ -99,7 +107,7 @@ BEGIN {
         %is<lower>.add($code) if $gc eq 'Ll';
         %is<print>.add($code) if $maj ne 'C';
         %is<punct>.add($code) if $maj eq 'P';
-        if $code.chr eq "\t"|"\n"|"\f"|"\r" or $maj eq 'Z' {
+        if $maj eq 'Z' {
             %is<space>.add($code);
         } else {
             %is<graph>.add($code) if $maj ne 'C';
@@ -107,18 +115,17 @@ BEGIN {
         # guessing here...
         %is<title>.add($code) if $gc eq 'Lt';
         %is<upper>.add($code) if $gc eq 'Lt'|'Lu';
-        %is<xdigit>.add($code) if $code.chr ~~ token { <[a..zA..Z0..9]> };
-        %is<word>.add($code) if $code.chr eq '_' or $gc eq any <Lu Ll Lt Lo Nd>;
+        %is<word>.add($code) if $gc eq any <Lu Ll Lt Lo Nd>;
         # guessing here...
         %is<hspace>.add($code) if $maj eq 'Z' and $gc eq none <Zl Zp>;
         %is<vspace>.add($code) if $gc eq any <Zl Zp>;
     }
-    #XXX are things like /\w/ automatically hooked up to <alpha> etc.?
+    #XXX are things like /\w/ automatically hooked up to <word> etc.?
     for @gen_cats, @proplist_cats -> my Str $cat {
-        eval "our token is$cat { (.) <?{ \%is<$cat>.contains(\$0.ord) }> }";
+        eval "our token is$cat is export { (.) <?{ \%is<$cat>.contains(\$0.ord) }> }";
     }
     for @perl_cats -> my Str $cat {
-        eval "our token $cat { (.) <?{ \%is<$cat>.contains(\$0.ord) }> }";
+        eval "our token $cat is export { (.) <?{ \%is<$cat>.contains(\$0.ord) }> }";
     }
 }
 # 3 Canonical_Combining_Class
@@ -204,6 +211,13 @@ BEGIN {
             $_.(@f) for @mktab_ud_subs;
         }
         $ud.close orelse die $!;
+
+        # Some special cases added here
+        for «\t \n \r \f»».ord -> my Int $c {
+            %is<space>.add($c);
+        }
+        %is<word>.add('_'.ord);
+
         for keys %is -> my Str $cat {
             $dumpfile.say: "\%is<$cat> := " ~ %is{$cat}.perl ~ ";\n";
         }
@@ -230,7 +244,7 @@ BEGIN {
         my $bm = open 'BidiMirroring.txt', :r orelse die $!;
         for =$bm -> my Str $line {
             $line ~~ s/ '#' .* //;
-            next if line !~~ / ';' /;                            #/ XXX perl6.vim confused
+            next if $line !~~ / ';' /;                            #/ XXX perl6.vim confused
             my $code, $mirrored_code = map { .hex.chr }, $line.split(';');
             %bidi_mirror{$code} = $mirrored_code;
             if $code < $mirrored_code
@@ -257,7 +271,7 @@ BEGIN {
         my $bl = open 'Blocks.txt', :r orelse die $!;
         for =$bl -> my Str $line {
             $line ~~ s/ '#' .* //;
-            next if line !~~ / ';' /;                            #/ XXX perl6.vim confused
+            next if $line !~~ / ';' /;                            #/ XXX perl6.vim confused
             my token xdigit { <[a..zA..Z0..9]> };
             #XXX are \S and \N OK here?
             $line ~~ rule { (<xdigit>+) '..' (<xdigit>+) ';' (\S+\N*) }
