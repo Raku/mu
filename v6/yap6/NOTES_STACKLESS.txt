@@ -83,13 +83,14 @@ an "async" block.
 The methods would be
 
  * YAP6__INTERNAL__Stack__Init(): this would initialize an empty stack.
- * YAP6__INTERNAL__Stack__PushMessage(stack, meta, identifier, capture):
+ * YAP6__INTERNAL__Stack__Push(stack, node):
                  push a message to the top of the stack.
- * YAP6__INTERNAL__Stack__ContinueMessage(stack,meta,identifier,capture):
-                 add a message as a continuation fo the top message.
+ * YAP6__INTERNAL__Stack__Continue(stack,node):
+                 add a message as a continuation for the top message.
  * YAP6__INTERNAL__Stack__Next(stack): returns the next message on the
                  stack, obeying continuations.
- * YAP6__INTERNAL__Stack__Drop(stack): drop the top-most node, ignoring
+ * YAP6__INTERNAL__Stack__Eval(stack): Evaluate the top-most node.
+ * YAP6__INTERNAL__Stack__Drop(stack): drop the top-most frame, ignoring
                  continuations (exceptions and coroutines).
  * YAP6__INTERNAL__Stack__Invoke(stack, message): Invokes a message that
                  is not in the stack anymore. This message may manipulate
@@ -106,26 +107,28 @@ Stack navigation:
 
  <- means a "past" link
  -> means a "continuation" link
- \  means an "outer" link (from the upper to the lower)
+ |  means an "outer" link (from the upper to the lower)
  *  means the selected node for evaluation.
 
-                                 *
-                       1 <- 2 <- 3 -> 4 -> 5  Frame 3
-                        \
-               1 <- 2 <- 3 -> 4 -> 5 -> 6     Frame 2
-                \
-  1 <- 2 <- 3 <- 4 -> 5 -> 6 -> 7             Frame 1
+                          *
+                1 <- 2 <- 3 -> 4 -> 5                  Frame 3
+                          |
+                1 <- 2 <- 3 -> 4 -> 5 -> 6             Frame 2
+                          |
+           1 <- 2 <- 3 <- 4 -> 5 -> 6 -> 7             Frame 1
 
 This basically means that when a node is selected the links are
 changed from:
 
             *
   1 <- 2 <- 3 -> 4 -> 5 -> 6
+            |
 
 to:
 
                  *
   1 <- 2 <- 3 <- 4 -> 5 -> 6
+                 |
 
 Where the stack has only a reference to the selected node.
 
@@ -140,6 +143,6 @@ dropping and pushing a frame from the same node:
 
               original               continuation
                                           *
-            1 <- 2 <- 3 (destroied)  1 <- 2 -> 3                 Frame 2
-             \                       \
-  1 <- 2 <- (3 ... ... ...  ... ... ... ...) -> 4 -> 5 -> 6      Frame 1
+            1 <- 2 <- 3 (destroied)  1 <- 2 -> 3             Frame 2
+                                          |
+  1 <- 2 <- (3 ... ... ...  ... ... ... ...) -> 4 -> 5 -> 6  Frame 1
