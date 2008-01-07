@@ -8,6 +8,8 @@ planned, the old YAP6 changelog is in the end of this file.
 
 ROADMAP
 
+0.1.0 - Port YAP6__CORE__Value code to YAP6__Object code.
+
 0.1.1 - YAP6 STACK prototypes and lowlevel operators
 
 0.1.2 - YAP6 NATIVE prototypes and lowlevel operators
