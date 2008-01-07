@@ -58,6 +58,40 @@ to the environmental variable PERLTIDY or 'util/perltidyrc'.
 
 =back
 
+=head1 make targets
+
+=over 4
+
+=item make forcerecompile
+
+forcerecompile touch all of the *.pm files, forcing on the next "make all"
+command to recompile all KindaPerl6 files.
+
+WARNING: You cannot use 'make -j' to rebuild after this.
+as the make program will attempt to use files that have not yet been built.
+
+=item make test
+
+Run all of the tests for KindaPerl6
+
+=item make test_grammar
+
+Run the test files for KindaPerl6 grammar
+
+=item make test_io
+
+Run the test files for KindaPerl6 io
+
+=item make test_math
+
+Run the test files for KindaPerl6 math
+
+=item make test_todo
+
+Run the test files for KindaPerl6 todo
+
+=back
+
 =cut
 
 my %options;
