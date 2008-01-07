@@ -67,7 +67,9 @@ be a YAP6__Object and should have the following information:
  * past: this defines the node that was continued by the current node.
  * debug: any debug information like source file name and line
                  number.
- * jail: if set, this is a stop point for an exception.
+ * jail: if set, this value is a marker that here might have a handler
+                 for an exception. Stack manipulation will be required
+                 to make the checking.
  * lexical: a reference to the lexical scope to which this frame 
                  points to.
 
@@ -161,11 +163,14 @@ past result?
 When you think a bit more about it, you'll notice that having a C
 method to get a result from a past node doesn't actually help you much
 when you want to receive a capture in the next node. This is why you
-can call lowlevel operators from the stack. Basically, when a node has
-no meta, it's understood as a low-level operator. The identifier is
-still used to identify which operator, and the capture is used as a
-opaque data structure defined for each operator. Regarding the stack,
-some operators are specially usefull.
+can call lowlevel operators from the stack.
+
+Basically, low-level modules exist in YAP6 as meta-classes that can
+understand calls that other metaclasses don't. The identifier is still
+used to identify which operator, and the capture is used as a opaque
+data structure defined for each operator. Regarding the stack, some
+operators are specially usefull. More interesting yet is the fact that
+this metaclass objects will be available to the high-level.
 
 
 ===================
