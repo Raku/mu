@@ -195,6 +195,7 @@ sub constants {
     my $self      = shift;
     my $inherited = $self->SUPER::constants(@_);
     $inherited .= "\n";
+    $inherited .= "# Custom v6-KindaPerl6 constants:\n";
 
     # FIXME: There needs to be a better way to make "nmake" include code
     # dynamically.  nmake supports an inline file (microsoft specific) however,
@@ -227,8 +228,6 @@ END
 
         warn $warning;
 
-        $inherited .= "# Custom v6-KindaPerl6 constants:\n";
-
         $inherited .= 'kp6_mp6_OBJ = ' . _patsubst_wildcard(
             qw |
                 src/
@@ -252,19 +251,16 @@ END
                 compiled/cl/lib/
                 src/KindaPerl6/Runtime/Lisp/*.lisp |
         ) . "\n";
-
-        $inherited .= "# End custom v6-KindaPerl6 constants\n";
     }
     else {
         $inherited .= <<"END"
-# Custom v6-KindaPerl6 constants:
 kp6_mp6_OBJ = \$(patsubst src/%,$Kp6Build{lib}/%,\$(wildcard src/*.pm src/KindaPerl6/Grammar/*.pm src/KindaPerl6/Grammar.pm src/KindaPerl6/Traverse.pm src/KindaPerl6/Ast.pm src/KindaPerl6/Visitor/*.pm src/KindaPerl6/Visitor/Emit/*.pm src/KindaPerl6/Runtime/Perl5V6/*.pm src/KindaPerl6/Runtime/Perl5/*.pm src/KindaPerl6/Runtime/Perl6/*.pm src/KindaPerl6/Test/*.pm ))
 
 kp6_mp6_modules_OBJ = \$(patsubst src-modules/%,$Kp6Build{module_lib}/%,\$(wildcard src-modules/*.pm))
-
-# End custom v6-KindaPerl6 constants
 END
     }
+
+    $inherited .= "# End custom v6-KindaPerl6 constants\n";
 
     return $inherited;
 }
