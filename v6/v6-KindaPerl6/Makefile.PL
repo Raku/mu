@@ -240,6 +240,7 @@ END
                 src/KindaPerl6/Ast.pm
                 src/KindaPerl6/Visitor/*.pm
                 src/KindaPerl6/Visitor/Emit/*.pm
+                src/KindaPerl6/Runtime/Perl5V6/*.pm
                 src/KindaPerl6/Runtime/Perl5/*.pm
                 src/KindaPerl6/Runtime/Perl6/*.pm
                 src/KindaPerl6/Test/*.pm |
