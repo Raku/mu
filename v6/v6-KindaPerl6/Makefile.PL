@@ -217,7 +217,7 @@ sub constants {
 
         my $warning = <<"END";
 # WARNING: You will have to rebuild Makefile when ever you add a file to
-# the directories listed in Makefile.PL sub constats().  This is due to
+# the directories listed in Makefile.PL sub constants().  This is due to
 # Microsoft's nmake not supporting features that gnu make supports.
 
 # The problem that will arise is that if you add a file to a directory however,
