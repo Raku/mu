@@ -28,21 +28,18 @@ now it would call the deeper method, having the Perl stack complete
 but without feeding the C stack. Simple as:
 
 
+// create a stack.
 YAP6__Object* stack = YAP6__STACK__Stack__Init();
-
 // populate the stack here
 YAP6__STACK__Stack__Push(stack, node);
 // add a continuation to the top-most frame
 YAP6__STACK__Stack__Continue(stack, node);
 
-for (;;) {
-    if (YAP6__STACK__Stack__IsEmpty(stack) {
-       break;
-    }
+while (!YAP6__STACK__Stack__IsEmpty(stack) {
     YAP6__STACK__Stack_Next(stack);
     YAP6__STACK__Stack_Eval(stack);
 }
-YAP6_RELEASE(current_stack);
+YAP6_RELEASE(stack);
 
 Not all frames will represent a lexical scope, but the lexical scopes
 will be referenced from the stack, in a way that scope destructions
@@ -146,3 +143,13 @@ dropping and pushing a frame from the same node:
             1 <- 2 <- 3 (destroied)  1 <- 2 -> 3             Frame 2
                                           |
   1 <- 2 <- (3 ... ... ...  ... ... ... ...) -> 4 -> 5 -> 6  Frame 1
+
+
+Return values are obtained from any past node in the same frame by
+counting backwards (following the number of "past" links). An
+optimizer may break the linkage when some data is known as not
+important for the rest of the code. This is an important aspect, as
+anyone wanting to manipulate the frame must realize that this may
+cause breakage. If you want to discard the return value of a node, you
+may just set the result to -1. This will avoid the return for staying
+alive for more time than wanted.
