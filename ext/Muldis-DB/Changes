@@ -11,8 +11,17 @@
     Changes entry refers only to the Perl 5 version.
 
     * New file versions are: DB.pm and Interface.pm and Validator.pm and
-    Example.pm 0.7.0 and SeeAlso.pod 0.4.3.  Added new file
+    Example.pm 0.7.0 and SeeAlso.pod 0.5.0.  Added new file
     lib/Muldis/DB/Engine/Example/Value.pm, which starts at version 0.0.0.
+
+    TODO: Describe the new Value.pm and other new friends.
+
+    * (SeeAlso.pod)  The prospective extension namespace MuldisX::DB::\w+
+    is now also for experiments by the Muldis DB core developers, not just
+    unblessed extensions.  Also added prospective item MuldisX::DB::Simple
+    which is an experimental alternate Muldis DB API that is more dwimmy,
+    less verbose, and generally more pleasant to use than vanilla PHMD;
+    this would be made by the developers of the core, and be high priority.
 
     * Incremented all copyright year range-ends to 2008.
 

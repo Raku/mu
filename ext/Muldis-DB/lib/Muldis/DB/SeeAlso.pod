@@ -204,7 +204,51 @@ employ SQL translator utilities internally.
 =item C<MuldisX::DB::\w+>
 
 Unofficial extensions to Muldis DB could be named in this space, though it
-doesn't have to be used if prior coordination happens between developers.
+doesn't have to be used if prior coordination happens between developers;
+moreover, this namespace is likely to be used even by the main Muldis DB
+developers to experiment with possible extensions without tying up a "good"
+namespace for them.
+
+=item C<MuldisX::DB::Simple>
+
+The Muldis DB native API, as presented by the C<Muldis::DB::Interface>
+roles, is quite verbose.  It by default just accepts Muldis D code
+formatted as vanilla Perl Hosted Muldis D tuple and relation values that
+are of Muldis D system catalog data types.  While this format is simple and
+yet very expressive, unambiguous, easy to validate and translate, it tends
+to be non-dwimmy and require a programmer's intent spelled out for it,
+which increases code size an order of magnitude over a dwimmy equivalent,
+and also all expression trees have to be decomposed into a tagged list of
+tree nodes (a tuple or relation value is always a fixed composite depth
+rather than N-depth), which HLL programmers may find less friendly.
+
+The C<MuldisX::DB::Simple> module is an abstraction over I<Interface> which
+adds a considerable amount of dwimminess to it, and adds support for
+writing expressions as actual N-depth trees, and adds a considerable amount
+of huffmanization and common task shortcuts; this greatly reduces the size
+of the Muldis D code that programmers would actually write on a day to day
+basis, and make it more resemble other high-level languages.
+
+Unlike other such modules, C<Simple> is written by the creators of the
+Muldis D core itself.  Some of its concepts may make their way into the
+core roles as an additional API option, but meanwhile they are in the
+separately distributed (under the same LGPL license) C<Simple> where they
+can be experimented on more freely without unduly complicating the core
+(and encouraging competition). C<Simple> is a top priority for
+implementation, as it should help to test the core as well as help get the
+initial user base off the ground faster.
+
+In regards to what huffmanization and common task shortcuts are provided by
+C<Simple>, a lot of influence should be taken from the variety of existing
+C<DBI> or SQL wrappers on CPAN whose mandate is to make them simpler or
+more dwimmy, such as C<SQL::Abstract>.  In fact, while full emulation isn't
+promised, C<MuldisX::DB::Simple> may provide quasi-clones of several of
+such module's interfaces, so to help migration of people using them.  As
+with those other modules, C<Simple> will provide pass-thru when it doesn't
+have any special treatments for things that programmers want to do.
+
+In the longer term, C<MuldisX::DB::Simple> is deprecated (at least under
+that name) in favor of better solutions, independent or otherwise.
 
 =back
 
