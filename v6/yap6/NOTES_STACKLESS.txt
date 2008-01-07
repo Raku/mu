@@ -39,7 +39,8 @@ for (;;) {
     if (YAP6__STACK__Stack__IsEmpty(stack) {
        break;
     }
-    YAP6__STACK__Stack_EvalNext(stack);
+    YAP6__STACK__Stack_Next(stack);
+    YAP6__STACK__Stack_Eval(stack);
 }
 YAP6_RELEASE(current_stack);
 
@@ -62,8 +63,11 @@ be a YAP6__Object and should have the following information:
                  name).
  * capture: the arguments for this message, a Capture object.
  * outer: the outer stack frame to which this call should return.
- * continuation: if defined, the next message to be called before
-                 popping the stack.
+ * result: if defined, this node has already been executed and references
+                 the return value for it.
+ * continuation: if defined, this references the continuation for this
+                 node.
+ * past: this defines the node that was continued by the current node.
  * debug: any debug information like source file name and line
                  number.
  * jail: if set, this is a stop point for an exception.
@@ -96,3 +100,46 @@ It is important to remember, however that all the objects referenced
 here are also YAP6__Object. And the frame stack may be exposed to the
 high-level language. A new stack may even be built in high-level
 language and dispatched.
+
+
+Stack navigation:
+
+ <- means a "past" link
+ -> means a "continuation" link
+ \  means an "outer" link (from the upper to the lower)
+ *  means the selected node for evaluation.
+
+                                 *
+                       1 <- 2 <- 3 -> 4 -> 5  Frame 3
+                        \
+               1 <- 2 <- 3 -> 4 -> 5 -> 6     Frame 2
+                \
+  1 <- 2 <- 3 <- 4 -> 5 -> 6 -> 7             Frame 1
+
+This basically means that when a node is selected the links are
+changed from:
+
+            *
+  1 <- 2 <- 3 -> 4 -> 5 -> 6
+
+to:
+
+                 *
+  1 <- 2 <- 3 <- 4 -> 5 -> 6
+
+Where the stack has only a reference to the selected node.
+
+One important point here is that the objects are destroyed when the
+frame is destroyed, and the frame is subject to garbage
+collection. This also means that when the frame is saved in some
+variable, it won't be destroyed. You probably realised how easy it is
+to implement co-routines with that.
+
+Continuations may be easily implemented also, as it would mean
+dropping and pushing a frame from the same node:
+
+              original               continuation
+                                          *
+            1 <- 2 <- 3 (destroied)  1 <- 2 -> 3                 Frame 2
+             \                       \
+  1 <- 2 <- (3 ... ... ...  ... ... ... ...) -> 4 -> 5 -> 6      Frame 1
