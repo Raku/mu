@@ -140,6 +140,12 @@ sub find_pods {
 # Voodoo magic specific to building KindaPerl6:
 package MY;
 
+=head2 test
+
+Our custom tests
+
+=cut
+
 sub test {
 
     #my $self = shift;
