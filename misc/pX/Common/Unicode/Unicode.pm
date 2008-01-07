@@ -63,7 +63,15 @@ sub dumputable(IO $dumpfile, Pair $thing -->) {
     $dumpfile.say: "\$$name := " ~ $utable.perl ~ ";\n";
 }
 
+sub install_token(Str $name, Code &check(Str --> Bool) -->) {
+    eval "our token $name is export " ~ '{ (.) <?{ &check($0) }> }';
+}
+
 # we have perl6 -MUnicode -e mktables in lieu of a script
+# the two init paths (mktables/ucd_basic_dump) are interleaved
+# in the source to keep them organized - subs are gathered up
+# and executed at the right time
+my Code @dump_init_subs;
 my Code @mktab_subs;
 our sub mktables(-->) {
     # requires .txt files from e.g. http://www.unicode.org/Public/zipped/5.0.0/UCD.zip
@@ -82,6 +90,7 @@ our sub mktables(-->) {
     my $dumpfile = open 'ucd_basic_dump.pm', :w;
     $_.($dumpfile) for @mktab_subs;
     $dumpfile.close;
+    exit;
 }
 
 # UnicodeData.txt
@@ -142,6 +151,7 @@ BEGIN {
             %is<word>.add($n) if $<name> eq any <Hex_Digit Other_Alphabetic Other_ID_Start Other_Lowercase Other_Uppercase>;
         }
     }
+    # back to UnicodeData.txt
     @mktab_ud_subs.push: my sub mktab_ud_isperl(*$code, Str *$name, Str *$gc, Str *@f -->) {
         $code.=hex;
         my Str $maj = $gc.substr(0, 1);
@@ -168,11 +178,13 @@ BEGIN {
         %is<vspace>.add($code) if $gc eq any <Zl Zp>;
     }
     #XXX are things like /\w/ automatically hooked up to <word> etc.?
-    for @gen_cats, @proplist_cats -> my Str $cat {
-        eval "our token is$cat is export { (.) <?{ \%is<$cat>.contains(\$0.ord) }> }";
-    }
-    for @perl_cats -> my Str $cat {
-        eval "our token $cat is export { (.) <?{ \%is<$cat>.contains(\$0.ord) }> }";
+    @dump_init_subs.push: my sub dump_init_gc(-->) {
+        for @gen_cats, @proplist_cats -> my Str $cat {
+            install_token "is$cat", -> Str $s { %is{$cat}.contains($s.ord) };
+        }
+        for @perl_cats -> my Str $cat {
+            install_token $cat, -> Str $s { %is{$cat}.contains($s.ord) };
+        }
     }
 }
 # 3 Canonical_Combining_Class
@@ -184,11 +196,9 @@ my Str %compat_decomp;
 my Str %compat_decomp_type;
 my Str %canon_decomp;
 # 6 decimal digit
-my Int %dec_digit;
 # 7 digit
-my Int %digit;
 # 8 numeric
-my Num %numeric;
+my Hash of Num %numeric;
 # 9 Bidi_Mirrored
 my Utable $bidi_mirrored.=new;
 # 10 Unicode_1_Name
@@ -223,9 +233,9 @@ BEGIN{
                 $decomp = [~] $decomp.comb».hex.chr;
                 %canon_decomp{$code} = $decomp if $decomp.chars;
             }
-            %dec_digit{$code} = +$dec if $dec.chars;
-            %digit{$code} = +$dig if $dig.chars;
-            %numeric{$code} = +$num if $num.chars;
+            %numeric<Decimal>{$code} = +$dec if $dec.chars;
+            %numeric<Digit>{$code} = +$dig if $dig.chars;
+            %numeric<Numeric>{$code} = +$num if $num.chars;
             $bidi_mirrored.add($code.ord) if $bdm ~~ m:i{ y };
             %upper{$code} = hex $uc if $uc.chars;
             %lower{$code} = hex $lc if $lc.chars;
@@ -263,17 +273,17 @@ BEGIN {
         }
         %is<word>.add('_'.ord);
 
-        for keys %is -> my Str $cat {
+        for %is.keys -> my Str $cat {
             $dumpfile.say: "\%is<$cat> := " ~ %is{$cat}.perl ~ ";\n";
+        }
+        for %numeric.keys -> my Str $$nt {
+            $dumpfile.say: "\%numeric<$nt> := " ~ %numeric{$nt}.perl ~ ";\n";
         }
         dumphash($dumpfile, :%ccc);
         dumputable($dumpfile, :$bidi_class);
         dumphash($dumpfile, :%compat_decomp_type);
         dumphash($dumpfile, :%compat_decomp);
         dumphash($dumpfile, :%canon_decomp);
-        dumphash($dumpfile, :%dec_digit);
-        dumphash($dumpfile, :%digit);
-        dumphash($dumpfile, :%numeric);
         dumputable($dumpfile, :$bidi_mirrored);
         dumphash($dumpfile, :%upper);
         dumphash($dumpfile, :%lower);
@@ -375,8 +385,8 @@ BEGIN {
 # 0 code
 # 1 Original (erroneous) decomposition
 # 2 Corrected decomposition
-# 3 version corrected
 my Str %norm_correct;
+# 3 version corrected
 BEGIN {
     @mktab_subs.push: my sub mktab_norm_correct(IO $dumpfile -->) {
         process_file 'ucd/NormalizationCorrections.txt', -> my Str $line {
@@ -392,19 +402,76 @@ BEGIN {
 # 0 abbrev
 # 1 full name
 # 2... more aliases
-my Str %propalias;
+# do we actually need any of this?
 
 # PropertyValueAliases.txt
 # 0 prop
 # 1 abbrev
 # 2 full name
+my Str %bidi_class_alias;
+my Str %decomp_type_alias;
+my Str %gc_alias;
+my Str %numeric_alias;
+my Str %script_alias;
 # -- for ccc ---
 # 0 ccc
 # 1 ccc num
 # 2 abbrev
+my Str %ccc_abbrev;
 # 3 full name
-my Hash of Str %pva;
-...;
+my Str %ccc_full;
+BEGIN {
+    @mktab_subs.push: my sub mktab_pva(IO $dumpfile -->) {
+        process_file 'ucd/PropertyValueAliases.txt', -> my Str $line {
+            $line ~~ mm{ $<prop>=(\w+) [ ';' @<alias>=(\w+) ]+ }
+                orelse die "Couldn't parse PropertyValueAliases.txt line '$line'";
+            given $<prop> {
+                when 'bc' { %bidi_class_alias{@<alias>[0]} = @<alias>[1]; }
+                when 'dt' { %decomp_type_alias{lc @<alias>[1]} = @<alias>[0]; }
+                when 'ccc' {
+                    %ccc_abbrev{lc @<alias>[1]} = @<alias>[0];
+                    %ccc_full{lc @<alias>[2]} = @<alias>[0];
+                }
+                when 'gc' { %gc_alias{@<alias>[0]} = @<alias>[1]; }
+                when 'nt' { %numeric_alias{@<alias>[1]} = @<alias>[0] unless @<alias>[0] eq 'None'; }
+                when 'sc' { %script_alias{@<alias>[1]} = @<alias>[0]; }
+            }
+        }
+        dumphash($dumpfile, :%bidi_class_alias);
+        dumphash($dumpfile, :%decomp_type_alias);
+        dumphash($dumpfile, :%gc_alias);
+        dumphash($dumpfile, :%numeric_alias);
+        dumphash($dumpfile, :%script_alias);
+        dumphash($dumpfile, :%ccc_abbrev);
+        dumphash($dumpfile, :%ccc_full);
+    }
+    @dump_init_subs.push: my sub dump_init_pva(-->) {
+        # isccc($n) can take a ccc number, Range of numbers, abbreviation, or full name
+        our token isccc($n) is export      { (.) <?{ %ccc{$0} ~~ $n|%ccc_abbrev{lc $n}|%ccc_full{lc $n} }> }
+        our token isBidiMirrored is export { (.) <?{ $bidi_mirrored.contains($0.ord)                    }> }
+        our token isDecoCanon is export    { (.) <?{ exists %canon_decomp{$0}                           }> }
+        our token isDecoCompat is export   { (.) <?{ exists %compat_decomp{$0}                          }> }
+        for %decomp_type_alias.keys -> my Str $dc {
+            install_token "isDC$dc", -> Str $s     { %compat_decomp_type{$s} eq $dc                     };
+            my Str $dca = %decomp_type_alias{$dc};
+            install_token "isDC$dca", -> Str $s    { %compat_decomp_type{$s} eq $dc                     };
+        }
+        for %bidi_class_alias.keys -> my Str $bc {
+            install_token "isBidi$bc", -> Str $s   { $bidi_class.get($s.ord) eq $bc                     };
+            my Str $bca = %bidi_class_alias{$bc};
+            install_token "isBidi$bca", -> Str $s  { $bidi_class.get($s.ord) eq $bc                     };
+        }
+        for %gc_alias.keys -> my Str $gc {
+            my Str $gca = %gc_alias{$gc};
+            install_token "is$gca", -> Str $s      { %is{$gc}.contains($s.ord)                          };
+        }
+        for %numeric_alias.keys -> my Str $nt {
+            install_token "is$nt", -> Str $s       { exists %numeric{$nt}{$s}                           };
+            my Str $nta = %numeric_alias{$nt};
+            install_token "is$nta", -> Str $s      { exists %numeric{$nt}{$s}                           };
+        }
+    }
+}
 
 # Scripts.txt
 # 0 code range
@@ -419,17 +486,24 @@ BEGIN {
         }
         dumputable($dumpfile, :$script);
     }
+    @dump_init_subs.push: my sub dump_init_script(-->) {
+        for %script_alias.keys -> my Str $sc {
+            install_token "in$sc", -> Str $s       { $script.get($s.ord) eq $sn                         };
+            my Str $sca = %script_alias{$sc};
+            install_token "in$sca", -> Str $s      { $script.get($s.ord) eq $sn                         };
+        }
+    }
 }
 
 # SpecialCasing.txt
 # 0 code
 # 1 lower
-# 2 title
-# 3 upper
-# 4 conditionals
-my Str %upper_cond;
 my Str %lower_cond;
+# 2 title
 my Str %title_cond;
+# 3 upper
+my Str %upper_cond;
+# 4 conditionals
 my Str %case_cond;
 BEGIN {
     @mktab_subs.push: my sub mktab_spcase(IO $dumpfile -->) {
@@ -465,6 +539,8 @@ BEGIN {
 #     post-6.0?
 
 require ucd_basic_dump;
+# run all the @dump_init_subs here
+$_.() for @dump_init_subs;
 
 # From S29
 
