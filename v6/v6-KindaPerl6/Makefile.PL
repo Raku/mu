@@ -1,30 +1,92 @@
+use strict;
+use warnings;
+use ExtUtils::MakeMaker;
+
+# target.yml contains the various build parameters for each build.
+use YAML;
+use Getopt::Long;
+
 # Do:
 #    perl Makefile.PL
 #    make help
 # to see help specific to this build system
 
-use strict;
-use ExtUtils::MakeMaker;
+=head1 NAME
 
-# target.yml contains the various build parameters for each build.
-use YAML;
+Makefile.PL for KindaPerl6
 
-# use Getopt::Long;??
+=head1 SYNOPSIS
+
+perl Makefile.PL
+
+=head1 DESCRIPTION
+
+This Makefile.PL produces a Makefile for usage by gnu make.
+
+=head2 OPTIONS
+
+=over 4
+
+=item --manual
+
+If --manual is specified the MAN3POD pages will be produced.  When, I inquired
+on the #perl6 list, only 1 person admitted to reading the man pages... once.
+
+This feature defaults to off
+
+=item --target
+
+--target specifies the target "back-end" to use.  The default is 'KP6-MP6'.
+Also note, that the environmental variable "KP6_TARGET" can be set in lieu of
+--target.
+
+Current available targets are:
+
+ KP6-BOOT
+ KP6-BOOT-NOREGEX
+ KP6-KP6
+ KP6-LISP
+ KP6-LISPCLISP
+ KP6-LISPECL
+ KP6-LISPSBCL
+ KP6-MP6
+
+=item --perltidy=[location]
+
+--perltidy specifies the location of your perltidy file.  It defaults
+to the environmental variable PERLTIDY or 'util/perltidyrc'.
+
+=back
+
+=cut
+
 my %options;
 
 # I do not think anyone reads these, and the listing of man pages in the make
 # files is very long and makes the Makefile hard to read.
 # Further more, no one on #perl6 admitted to reading them more than once. :)
-$options{manual}     = 0;
-$options{perltidyrc} = 'util/perltidyrc';
+$options{manual} = 0;
+$options{perltidy} = $ENV{PERLTIDY} || 'util/perltidyrc';
 
 # default target is in ENV{KP6_TARGET} or will default to 'KP6-MP6'.
 $options{target} = $ENV{KP6_TARGET} || 'KP6-MP6';
 
-# Makefile.PL needs to be rerun with a different KP6_TARGET in order to build kp6-mp6, kp6-kp6, or kp6-lisp
+GetOptions(
+    'manual'     => \$options{manual},
+    'perltidy=s' => \$options{perltidy},
+    'target=s'   => \$options{target},
+);
+
+warn "Warning perltidy file: $options{perltidy} does not exist\nContinuing with build anyway.\n"
+    if !-e $options{perltidy};
+
+print STDERR "Using backend: $options{target}\n";
+print STDERR "Note: if you want to use a different backend, such as KP6-KP6 you will have to re-run Makefile.PL\nEx: perl Makefile.PL --target=KP6-KP6\n";
+
+# start the actual programming!
 
 our %Kp6Build = load_configuration( $options{target} );
-my %PM       = find_pm( \%Kp6Build );
+my %PM = find_pm( \%Kp6Build );
 
 my %extra_params;
 $extra_params{MAN3PODS} = find_pods() if $options{manual};
@@ -39,6 +101,7 @@ WriteMakefile(
     LICENSE      => 'perl',
     PREREQ_FATAL => 0,
     PREREQ_PM    => {
+
         # src/
         qw(
             Carp                  0
@@ -59,14 +122,16 @@ WriteMakefile(
     %extra_params,
 );
 
+=head1 Code Documentation
+
 =head2 load_configuration
 
 Args: Pass the target that you want to build for.
 
 Loads the configuration for each target from targets.yml, the $Kp6Build{make}
-file has the $perltidyrc file replaced with $options{perltidyrc}.
+file has the $perltidyrc file replaced with $options{perltidy}.
 
-Use util/make_targets_yml.pl to write the targets.yml file.
+Use util/make_targets_yml.pl to modify the targets.yml file.
 
 =cut
 
@@ -79,8 +144,9 @@ sub load_configuration {    # load target configuration
         unless exists $targets->{$target};
 
     %Kp6Build = %{ $targets->{$target} };
+
     # opps, YAML files do not allow for substitution.
-    $Kp6Build{make} =~ s/\$perltidyrc/$options{perltidyrc}/g;
+    $Kp6Build{make} =~ s/\$perltidyrc/$options{perltidy}/g;
 
     return %Kp6Build;
 }
@@ -124,13 +190,14 @@ sub find_pods {
     my $str = join( ' ', map @$_, map { [ "src/*.$_", "src/*/*.$_", "src/*/*/*.$_", "src/*/*/*/*.$_" ] } qw(pm) );
     my %MAN3POD;
 
-    for my $key (glob $str) {
+    for my $key ( glob $str ) {
+
         # for each perl package
         # convert src/My/Perl/Package.pm into
         # $(INST_MAN3DIR)/My::Perl::Package.3pm
         my ($value) = $key =~ m[^src/(.*)];
-        (my $name = $value) =~ s[/][::];
-        $name=~s!\.pm$!\.3pm!; # replace .pm with .3pm
+        ( my $name = $value ) =~ s[/][::];
+        $name =~ s!\.pm$!\.3pm!;    # replace .pm with .3pm
         $MAN3POD{$key} = '$(INST_MAN3DIR)/' . $name;
     }
 
