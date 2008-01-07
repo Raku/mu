@@ -49,7 +49,8 @@ struct YAP6__MetaClass {
   void* repr;
   YAP6__Prototype* WHAT;
   YAP6__MetaClass* HOW;
-  YAP6__Object* (*MESSAGE)   (YAP6__MetaClass* self,
+  YAP6__Object* (*MESSAGE)   (YAP6__Object* stack,
+                              YAP6__MetaClass* self,
                               YAP6__Object* identifier,
                               YAP6__Object* capture);
   YAP6__Object* (*REFERENCE) (YAP6__MetaClass* self,
@@ -79,7 +80,7 @@ struct YAP6__MetaClass {
                           (object)\
                          ))
 
-#define YAP6_DISPATCH(metaclass, identifier, capture) ((YAP6__MetaClass*)metaclass)->MESSAGE((YAP6__MetaClass*)metaclass,\
+#define YAP6_DISPATCH(stack, metaclass, identifier, capture) ((YAP6__MetaClass*)metaclass)->MESSAGE(stack,(YAP6__MetaClass*)metaclass,\
                                                                                              (YAP6__Object*)identifier,\
                                                                                              (YAP6__Object*)capture)
 

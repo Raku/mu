@@ -1,4 +1,5 @@
 Getting rid of the C stack in YAP6
+=====================================================================
 
 At first, a question must be made, which is "why do I need to get rid
 of the C stack"? The answer resides in the Perl 6 feature set, more
@@ -27,20 +28,18 @@ now it would call the deeper method, having the Perl stack complete
 but without feeding the C stack. Simple as:
 
 
-YAP6__INTERNAL__Stack__Frame* stack = YAP6__INTERNAL__Stack__Init();
+YAP6__Object* stack = YAP6__STACK__Stack__Init();
 
 // populate the stack here
-YAP6__INTERNAL__Stack__PushMessage(stack, metaclass, identifier, capture);
+YAP6__STACK__Stack__Push(stack, node);
 // add a continuation to the top-most frame
-YAP6__INTERNAL__Stack__ContinueMessage(stack, metaclass, identifier, capture);
+YAP6__STACK__Stack__Continue(stack, node);
 
 for (;;) {
-    if (YAP6__INTERNAL__Stack__IsEmpty(stack) {
+    if (YAP6__STACK__Stack__IsEmpty(stack) {
        break;
     }
-    YAP6__INTERNAL__Stack__Node* message = YAP6__INTERNAL__Stack__Next(stack);
-    YAP6__INTERNAL__Stack__Invoke(stack, message);
-    YAP6_RELEASE(message);
+    YAP6__STACK__Stack_EvalNext(stack);
 }
 YAP6_RELEASE(current_stack);
 
@@ -71,10 +70,10 @@ be a YAP6__Object and should have the following information:
  * lexical: a reference to the lexical scope to which this frame 
                  points to.
 
-YAP6__INTERNAL__Stack__Frame* is the object that holds the reference
-to the top-most node. It's important that this should not be global,
-so we can have different threads starting from any point and exiting
-after an "async" block.
+YAP6__INTERNAL__Stack* is the object that holds the reference to the
+top-most node. It's important that this should not be global, so we
+can have different threads starting from any point and exiting after
+an "async" block.
 
 
 The methods would be
@@ -89,8 +88,8 @@ The methods would be
  * YAP6__INTERNAL__Stack__Drop(stack): drop the top-most node, ignoring
                  continuations (exceptions and coroutines).
  * YAP6__INTERNAL__Stack__Invoke(stack, message): Invokes a message that
-                 is not in the stack anymore. This message may push
-                 manipulate the stack.
+                 is not in the stack anymore. This message may manipulate
+                 the stack.
 
 
 It is important to remember, however that all the objects referenced

@@ -14,7 +14,7 @@ So, the basic structure is:
         ____________________________             _____________________________  
        |                            |           |                             | 
        V                            |           V                             | 
-  YAP6__Object*              YAP6__Prototype*                           YAP6__MetaClass*
+  YAP6__Object*                    YAP6__Prototype*                     YAP6__MetaClass*
        |                            ^          |                               ^ 
        |                            |          |                               | 
         ----------------------------            -------------------------------  
