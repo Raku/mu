@@ -153,3 +153,59 @@ anyone wanting to manipulate the frame must realize that this may
 cause breakage. If you want to discard the return value of a node, you
 may just set the result to -1. This will avoid the return for staying
 alive for more time than wanted.
+
+You might notice that this causes a recursive problem, that for
+fetching a past result you need a node, so how can you actually use a
+past result?
+
+When you think a bit more about it, you'll notice that having a C
+method to get a result from a past node doesn't actually help you much
+when you want to receive a capture in the next node. This is why you
+can call lowlevel operators from the stack. Basically, when a node has
+no meta, it's understood as a low-level operator. The identifier is
+still used to identify which operator, and the capture is used as a
+opaque data structure defined for each operator. Regarding the stack,
+some operators are specially usefull.
+
+
+===================
+stack_capture_to_node:
+
+struct stack_capture_to_node {
+       int invocant;
+       int** positional;
+       int** named;
+       int target;
+}
+
+Where:
+  invocant: where in the past nodes to fetch the invocant;
+  positional: a null terminated int array describing where
+    to get the positional arguments.
+  named: a null terminated int array describing where to
+    get the pairs for each named argument.
+  target: where in the continuation nodes to store the capture.
+
+===================
+stack_metaclass_to_node:
+
+struct stack_metaclass_to_node {
+       int metaclass;
+       int target;
+}
+
+Where:
+  metaclass: where in the past nodes to fetch the metaclass;
+  target: where in the continuation nodes to store the metaclass;
+
+===================
+stack_identifier_to_node:
+
+struct stack_identifier_to_node {
+       int identifier;
+       int target;
+}
+
+Where:
+  identifier: where in the past nodes to fetch the identifier;
+  target: where in the continuation nodes to store the identifier;

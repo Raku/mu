@@ -16,8 +16,9 @@ YAP6__Object* YAP6__STACK__Stack_Push(YAP6__Object* stack, YAP6__Object* node);
 YAP6__Object* YAP6__STACK__Stack_Continue(YAP6__Object* stack, YAP6__Object* node);
 YAP6__Object* YAP6__STACK__Stack_Drop(YAP6__Object* stack);
 YAP6__Object* YAP6__STACK__Stack_Next(YAP6__Object* stack);
+YAP6__Object* YAP6__STACK__Stack_Curr(YAP6__Object* stack);
 YAP6__Object* YAP6__STACK__Stack_Eval(YAP6__Object* stack);
-YAP6__Object* YAP6__STACK__Stack_ReturnValue(YAP6__Object* stack, int count_backwards);
+YAP6__Object* YAP6__STACK__Stack_Result(YAP6__Object* stack, int count_backwards);
 YAP6__Object* YAP6__STACK__Stack_IsEmpty(YAP6__Object* stack);
 
 YAP6__Object* YAP6__STACK__Node_Init();
