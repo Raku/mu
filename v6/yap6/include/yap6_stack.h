@@ -8,6 +8,10 @@
                        // of yap6.h. It should do no harm because of
                        // the ifndefs of the beggining of the file.
 
+// this is the metaclass proto-object that implements the
+// lowlevel operations that deal with the current stack.
+extern YAP6__Prototype* YAP6__STACK__Operators;
+// And the Stack and Node prototypes.
 extern YAP6__Prototype* YAP6__STACK__Stack;
 extern YAP6__Prototype* YAP6__STACK__Node;
 

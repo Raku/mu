@@ -66,6 +66,9 @@
                        // of yap6.h. It should do no harm because of
                        // the ifndefs of the beggining of the file.
 
+// Native operators metaclass proto-object.
+extern YAP6__Prototype* YAP6__NATIVE__Operators;
+
 // prototypes
 extern YAP6__Prototype* YAP6__NATIVE__bit;
 extern YAP6__Prototype* YAP6__NATIVE__int;
