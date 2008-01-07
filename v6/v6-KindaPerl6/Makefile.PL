@@ -45,6 +45,7 @@ WriteMakefile(
             Exporter              0
             Data::Dumper          0
             Perl::Tidy            0
+            YAML                  0
             ),
 
         # script/kp6
