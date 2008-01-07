@@ -1,0 +1,99 @@
+Getting rid of the C stack in YAP6
+
+At first, a question must be made, which is "why do I need to get rid
+of the C stack"? The answer resides in the Perl 6 feature set, more
+than anything else. My inspiration on this is the stackless python
+project (which was not adopted by the mainstream python) because it
+makes the support for continuations and co-routines much easier. It
+would be possible to implement it using the C stack, but this would
+require mixing the manipulation of the C stack with the manipulation
+of the Perl 6 stack, which may be very complex. Let's think about the
+gather/take operators. They may be called from a very deep level of
+the stack. Mixing that with interpreted code and the C stack would be
+very much complex.
+
+The solution would be to simply remove the C stack from the
+story. This would make a single frame stack to exist, and considering
+it's separated from the C stack, it's more easily manipulated. But how
+to implement a simple stackless C code that supports that? The
+solution is actually quite simple and is completely inspired in the
+stackless project. The key thing is, instead of calling a function,
+you just prepare it by putting it on top of the stack. The "machine"
+runs by popping the message from the stack and calling it. The
+difference here is that: if this call would call another message,
+instead of calling it directly, it push the call to the stack and
+returns immediatly. The "machine" would again pop from the stack and
+now it would call the deeper method, having the Perl stack complete
+but without feeding the C stack. Simple as:
+
+
+YAP6__INTERNAL__Stack__Frame* stack = YAP6__INTERNAL__Stack__Init();
+
+// populate the stack here
+YAP6__INTERNAL__Stack__PushMessage(stack, metaclass, identifier, capture);
+// add a continuation to the top-most frame
+YAP6__INTERNAL__Stack__ContinueMessage(stack, metaclass, identifier, capture);
+
+for (;;) {
+    if (YAP6__INTERNAL__Stack__IsEmpty(stack) {
+       break;
+    }
+    YAP6__INTERNAL__Stack__Node* message = YAP6__INTERNAL__Stack__Next(stack);
+    YAP6__INTERNAL__Stack__Invoke(stack, message);
+    YAP6_RELEASE(message);
+}
+YAP6_RELEASE(current_stack);
+
+Not all frames will represent a lexical scope, but the lexical scopes
+will be referenced from the stack, in a way that scope destructions
+happens naturally once the frame is dropped. The same happens with
+exeption handling and debug information. Any frame may contain debug
+information about source and line number, as well as can mark a jail
+for exeptions. The die code would simply pop the stack until it finds
+a jail. Coroutines could simply keep a reference of the current frame
+node (with the continuation reference) just before popping.
+
+The YAP6 stack API would be:
+
+YAP6__INTERNAL__Stack__Node* is the object of one message. It should
+be a YAP6__Object and should have the following information:
+
+ * metaclass: the metaclass that handles the message.
+ * identifier: the message string identifier (probably the method
+                 name).
+ * capture: the arguments for this message, a Capture object.
+ * outer: the outer stack frame to which this call should return.
+ * continuation: if defined, the next message to be called before
+                 popping the stack.
+ * debug: any debug information like source file name and line
+                 number.
+ * jail: if set, this is a stop point for an exception.
+ * lexical: a reference to the lexical scope to which this frame 
+                 points to.
+
+YAP6__INTERNAL__Stack__Frame* is the object that holds the reference
+to the top-most node. It's important that this should not be global,
+so we can have different threads starting from any point and exiting
+after an "async" block.
+
+
+The methods would be
+
+ * YAP6__INTERNAL__Stack__Init(): this would initialize an empty stack.
+ * YAP6__INTERNAL__Stack__PushMessage(stack, meta, identifier, capture):
+                 push a message to the top of the stack.
+ * YAP6__INTERNAL__Stack__ContinueMessage(stack,meta,identifier,capture):
+                 add a message as a continuation fo the top message.
+ * YAP6__INTERNAL__Stack__Next(stack): returns the next message on the
+                 stack, obeying continuations.
+ * YAP6__INTERNAL__Stack__Drop(stack): drop the top-most node, ignoring
+                 continuations (exceptions and coroutines).
+ * YAP6__INTERNAL__Stack__Invoke(stack, message): Invokes a message that
+                 is not in the stack anymore. This message may push
+                 manipulate the stack.
+
+
+It is important to remember, however that all the objects referenced
+here are also YAP6__Object. And the frame stack may be exposed to the
+high-level language. A new stack may even be built in high-level
+language and dispatched.
