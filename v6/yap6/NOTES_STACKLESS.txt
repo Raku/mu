@@ -146,6 +146,16 @@ dropping and pushing a frame from the same node:
                                           |
   1 <- 2 <- (3 ... ... ...  ... ... ... ...) -> 4 -> 5 -> 6  Frame 1
 
+Some functions could manipulate the stack to do some nice things. The
+warning function would intercept the stack for some time, and resume
+it later, even the current context isn't of a coroutine.
+
+                 Original           warning             Original
+                 
+
+ Frame 2      1 -> 2 => SAVED       1 -> 2     RESTORE =>  3 -> 4 
+
+ Frame 1  1 -> (2 ... ... ... ... ... ... ... ... ... ... ... ...)
 
 Return values are obtained from any past node in the same frame by
 counting backwards (following the number of "past" links). An
