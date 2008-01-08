@@ -8,13 +8,31 @@ planned, the old YAP6 changelog is in the end of this file.
 
 ROADMAP
 
+Base runtime - lowlevel types
+=============================
+
 0.1.0 - Port YAP6__CORE__Value code to YAP6__Object code.
 
 0.1.1 - YAP6 STACK prototypes and lowlevel operators
 
 0.1.2 - YAP6 NATIVE prototypes and lowlevel operators
 
+0.1.2.1 - Capture type (lowlevel implementation)
+
+0.1.2.2 - Str type (lowlevel implementation)
+
 0.1.3 - YAP6 interpreter loop.
+
+0.1.3.1 - Code type (lowlevel implementation)
+
+0.1.3.2 - Sub type (lowlevel implementation)
+
+0.1.3.3 - say (lowlevel implementation)
+
+0.1.3.4 - An equivalent to: say 'Hello World';
+
+High-level runtime - Class MetaClass
+====================================
 
 0.1.4 - Undef builtin types.
 
@@ -24,9 +42,15 @@ ROADMAP
 
 0.1.7 - Lexical Scope.
 
+Real Interpreter
+================
+
 0.1.8 - AST types.
 
 0.2.0 - AST -> Stack runtime transformation (real interpreter)
+
+Compiler + Interpreter
+======================
 
 0.2.1 - KP6 backend to YAP6
 
@@ -38,6 +62,21 @@ ROADMAP
 
 1.0.0 - STD ported to YAP6.
 
+Other Features
+==============
+
+x.x.x - perl embedded - libperl
+
+x.x.x - parrot embedded - libparrot
+
+x.x.x - python embedded (stackless python?)
+
+x.x.x - jvm embedded - libgcj
+
+x.x.x - spidermonkey embedded - libmoz-js
+
+
+-----------------------------------------------------------
 OLD CHANGELOG
 
 0.0.1 - The initial revision, definining the basic data structures to
