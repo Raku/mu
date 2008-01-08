@@ -258,18 +258,14 @@ BEGIN{
 
 # STD needs this
 my Str %open2close;
+# these are used to construct %open2close and are not dumped
 my Str %ps_to_pe;
+my Str $all_codes;
 BEGIN {
-    @mktab_ud_subs.push: my sub mktab_ud_open2close(Str *$code, Str *$name, Str *$gc, Str *@f -->) {
-        $code.=hex.=chr;
-        if $gc eq 'Ps' {
-            my Str $prev_ps = $code;
-        }
-        if $gc eq 'Pe' and $prev_ps {
-            %ps_to_pe{$prev_ps} = $code;
-            $prev_ps = undef;
-        }
+    @mktab_ud_subs.push: my sub mktab_ud_open2close(Str *$code, Str *@f -->) {
+        $all_codes ~= $code.hex.chr;
     }
+}
 # run all the @mktab_ud_subs here
     @mktab_subs.push: my sub mktab_ud_all(-->) {
         process_file 'ucd/UnicodeData.txt', -> my Str $line {
@@ -312,6 +308,17 @@ BEGIN {
         }
         dumphash(:%bidi_mirror);
 
+        # only map first Pe after each Ps
+        # this is easier to do with a state machine
+        $all_codes ~~ token {
+            [
+                <-isPs>*
+                (<isPs>)
+                <-isPe-isPs>*
+                (<isPe>?)
+                { %ps_to_pe{$0}  = $1 if $1.chars }
+            ]*
+        }
         # ps_to_pe take precedence over BidiMirroring mappings
         %open2close = %(@%open2close, @%ps_to_pe);
         dumphash(:%open2close);
@@ -668,14 +675,13 @@ class Str is also {
     }
     # "default" / "locale-independent" grapheme cluster
     # text does not need to be normalized
-    regex grapheme_cluster {
+    # relies on longest-token matching
+    token grapheme_cluster {
         | <isGCBCR> <isGCBLF>
         | [ <isGCBCR> | <isGCBLF> | <isGCBControl> ]
-        | <isGCBHangulSyllable>*
-        | (.+) <?{
-            $0 ~~ rx { .? <isGrapheme_Extend>* }
-            and $0 !~~ rx { <isGCBCR> | <isGCBLF> | <isGCBControl> }
-          }>
+        | <isGCBHangulSyllable>+ <isGrapheme_Extend>*
+        | <-isGCBCR-isGCBLF-isGCBControl> <isGrapheme_Extend>*
+        | <isGrapheme_Extend>+
     }
     our method to_graphs(Str $string: --> List of StrPos) {
         return @.as_graphs if defined @.as_graphs;
