@@ -112,17 +112,17 @@ my Code @mktab_ud_subs;
 #     I figure \c doesn't need to be efficient, so we can skip it and just grep UnicodeData.txt
 our sub char_named(Str $name --> Codepoint) { ... }
 # 2 General_Category
-my Utable %is;
+my Utable %category;
 my Str @gen_cats = <Lu Ll Lt Lm Lo LC L>, <Mn Mc Me M>, <Nd Nl No N>,
     <Pc Pd Ps Pe Pi Pf Po P>, <Sm Sc Sk So S>,
     <Zs Zl Zp Z>, <Cc Cf Cs Co Cn C>;
 BEGIN {
     @mktab_ud_subs.push: my sub mktab_ud_isgc(*$code, Str *$name, Str *$gc, Str *@f -->) {
         $code.=hex;
-        %is{$gc}.add($code);
-        %is<LC>.add($code) if $gc eq 'Lu'|'Ll'|'Lt';
+        %category{$gc}.add($code);
+        %category<LC>.add($code) if $gc eq 'Lu'|'Ll'|'Lt';
         my Str $maj = $gc.substr(0, 1); # first letter
-        %is{$maj}.add($code);
+        %category{$maj}.add($code);
     }
 }
     # a quick digression for...
@@ -141,23 +141,23 @@ my Str @perl_cats = <alnum alpha ascii cntrl digit graph lower print>,
     <punct space title upper xdigit word vspace hspace>;
 BEGIN {
     for @gen_cats, @proplist_cats, @perl_cats -> my Str $cat {
-        %is{$cat} = Utable.new;
+        %category{$cat} = Utable.new;
     }
     @mktab_subs.push: my sub mktab_proplist(-->) {
         process_file 'ucd/Proplist.txt', rule { $<cr>=<UCD::code_or_range> ';' $<name>=(\w+) }, {
             my $n := $<cr><ord>;
-            %is{$<name>}.add($n);
+            %category{$<name>}.add($n);
             #XXX where is this stuff defined in terms of unicode stuff?
             # my guesses here are probably very wrong, erring toward too inclusive...
-            %is<alnum>.add($n)    if $<name> eq any <Hex_Digit Other_Alphabetic Other_ID_Start Other_Lowercase Other_Uppercase>;
-            %is<alpha>.add($n)    if $<name> eq any <Other_Alphabetic Other_Lowercase Other_Uppercase>;
-            %is<cntrl>.add($n)    if $<name> eq any <Bidi_Control Join_Control>;
-            %is<lower>.add($n)    if $<name> eq any <Other_Lowercase>;
-            %is<punct>.add($n)    if $<name> eq any <Dash Hyphen Pattern_Syntax Quotation_Mark STerm Terminal_Punctuation>;
-            %is<space>.add($n)    if $<name> eq any <White_Space Pattern_White_Space>;
-            %is<upper>.add($n)    if $<name> eq any <Other_Uppercase>;
-            %is<xdigit>.add($n)   if $<name> eq any <ASCII_Hex_Digit Hex_Digit>;
-            %is<word>.add($n)     if $<name> eq any <Hex_Digit Other_Alphabetic Other_ID_Start Other_Lowercase Other_Uppercase>;
+            %category<alnum>.add($n)    if $<name> eq any <Hex_Digit Other_Alphabetic Other_ID_Start Other_Lowercase Other_Uppercase>;
+            %category<alpha>.add($n)    if $<name> eq any <Other_Alphabetic Other_Lowercase Other_Uppercase>;
+            %category<cntrl>.add($n)    if $<name> eq any <Bidi_Control Join_Control>;
+            %category<lower>.add($n)    if $<name> eq any <Other_Lowercase>;
+            %category<punct>.add($n)    if $<name> eq any <Dash Hyphen Pattern_Syntax Quotation_Mark STerm Terminal_Punctuation>;
+            %category<space>.add($n)    if $<name> eq any <White_Space Pattern_White_Space>;
+            %category<upper>.add($n)    if $<name> eq any <Other_Uppercase>;
+            %category<xdigit>.add($n)   if $<name> eq any <ASCII_Hex_Digit Hex_Digit>;
+            %category<word>.add($n)     if $<name> eq any <Hex_Digit Other_Alphabetic Other_ID_Start Other_Lowercase Other_Uppercase>;
         }
     }
     # back to UnicodeData.txt
@@ -165,34 +165,35 @@ BEGIN {
         $code.=hex;
         my Str $maj = $gc.substr(0, 1);
         # This is all from Camel3 p.168
-        %is<alnum>.add($code)     if $gc     eq any <Lu Ll Lt Lo Nd>;
-        %is<alpha>.add($code)     if $gc     eq any <Lu Ll Lt Lo>;
-        %is<ascii>.add($code)     if $code   < 0x80;
-        %is<cntrl>.add($code)     if $maj    eq 'C';
-        %is<digit>.add($code)     if $gc     eq 'Nd';
-        %is<lower>.add($code)     if $gc     eq 'Ll';
-        %is<print>.add($code)     if $maj    ne 'C';
-        %is<punct>.add($code)     if $maj    eq 'P';
+        %category<alnum>.add($code)     if $gc     eq any <Lu Ll Lt Lo Nd>;
+        %category<alpha>.add($code)     if $gc     eq any <Lu Ll Lt Lo>;
+        %category<ascii>.add($code)     if $code   < 0x80;
+        %category<cntrl>.add($code)     if $maj    eq 'C';
+        %category<digit>.add($code)     if $gc     eq 'Nd';
+        %category<lower>.add($code)     if $gc     eq 'Ll';
+        %category<print>.add($code)     if $maj    ne 'C';
+        %category<punct>.add($code)     if $maj    eq 'P';
         if $maj eq 'Z' {
-            %is<space>.add($code);
+            %category<space>.add($code);
         } else {
-            %is<graph>.add($code) if $maj    ne 'C';
+            %category<graph>.add($code) if $maj    ne 'C';
         }
         # guessing here...
-        %is<title>.add($code)     if $gc     eq 'Lt';
-        %is<upper>.add($code)     if $gc     eq 'Lt'|'Lu';
-        %is<word>.add($code)      if $gc     eq any <Lu Ll Lt Lo Nd>;
+        %category<title>.add($code)     if $gc     eq 'Lt';
+        %category<upper>.add($code)     if $gc     eq 'Lt'|'Lu';
+        %category<word>.add($code)      if $gc     eq any <Lu Ll Lt Lo Nd>;
         # guessing here...
-        %is<hspace>.add($code)    if $maj    eq 'Z' and $gc eq none <Zl Zp>;
-        %is<vspace>.add($code)    if $gc     eq any <Zl Zp>;
+        %category<hspace>.add($code)    if $maj    eq 'Z' and $gc eq none <Zl Zp>;
+        %category<vspace>.add($code)    if $gc     eq any <Zl Zp>;
     }
     #XXX are things like /\w/ automatically hooked up to <word> etc.?
+    # the answer is token regex_backslash:w
     @dump_init_subs.push: my sub dump_init_gc(-->) {
         for @gen_cats, @proplist_cats -> my Str $cat {
-            install_token "is$cat", -> Str $s { %is{$cat}.contains($s.ord) };
+            install_token "is$cat", -> Str $s { %category{$cat}.contains($s.ord) };
         }
         for @perl_cats -> my Str $cat {
-            install_token $cat,     -> Str $s { %is{$cat}.contains($s.ord) };
+            install_token $cat,     -> Str $s { %category{$cat}.contains($s.ord) };
         }
     }
 }
@@ -278,11 +279,11 @@ BEGIN {
 
         # Some special cases added here
         for «\t \n \r \f»».ord -> my Int $c {
-            %is<space>.add($c);
+            %category<space>.add($c);
         }
-        %is<word>.add('_'.ord);
+        %category<word>.add('_'.ord);
 
-        dumphash(  :%is);
+        dumphash(  :%category);
         dumphash(  :%numeric);
         dumphash(  :%ccc);
         dumputable(:$bidi_class);
@@ -305,7 +306,7 @@ BEGIN {
             my $code, $mirrored_code = $line.split(';')».hex.chr;
             %bidi_mirror{$code} = $mirrored_code;
             if $code < $mirrored_code
-                and not %is{'Ps'|'Pe'}.contains($code|$mirrored_code) {
+                and not %category{'Ps'|'Pe'}.contains($code|$mirrored_code) {
                     %open2close{$code} = $mirrored_code;
             }
         }
@@ -455,7 +456,7 @@ BEGIN {
         }
         for %gc_alias.keys -> my Str $gc {
             my Str $gca = %gc_alias{$gc};
-            install_token "is$gca", -> Str $s      { %is{$gc}.contains($s.ord)                          };
+            install_token "is$gca", -> Str $s      { %category{$gc}.contains($s.ord)                    };
         }
         for %numeric_alias.keys -> my Str $nt {
             install_token "is$nt", -> Str $s       { exists %numeric{$nt}{$s}                           };
@@ -624,6 +625,11 @@ class Str is also {
         $string ~~ m:codes{ [ (.) { @.as_codes.push: $0[*-1].from } ]* };
         return @.as_codes;
     }
+    # access the string as an array of codepoints
+    our method code_n(Int $n --> Str) is rw {
+        my StrPos @c := $.to_codes();
+        return $.substr(@c[$n], @c[$n+1]);
+    }
     our multi method codes(Str $string: --> Int) is export { +$string.to_codes }
 
     # Grapheme Cluster Boundary Determination        UAX #29
@@ -635,6 +641,11 @@ class Str is also {
         return @.as_graphs if defined @.as_graphs;
         $string ~~ m:codes{ [ (<grapheme_cluster>) { @.as_graphs.push: $0[*-1].from } ]* };
         return @.as_graphs;
+    }
+    # access the string as an array of graphemes
+    our method graph_n(Int $n --> Str) is rw {
+        my StrPos @g := $.to_graphs();
+        return $.substr(@g[$n], @g[$n+1]);
     }
     our multi method graphs(Str $string: --> Int) is export { +$string.to_graphs }
 
