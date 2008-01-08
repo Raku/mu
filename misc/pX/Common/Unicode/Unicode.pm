@@ -672,7 +672,10 @@ class Str is also {
         | <isGCBCR> <isGCBLF>
         | [ <isGCBCR> | <isGCBLF> | <isGCBControl> ]
         | <isGCBHangulSyllable>*
-        | (.+) <?{ $0 ~~ rx { .? <isGrapheme_Extend>* } }>
+        | (.+) <?{
+            $0 ~~ rx { .? <isGrapheme_Extend>* }
+            and $0 !~~ rx { <isGCBCR> | <isGCBLF> | <isGCBControl> }
+          }>
     }
     our method to_graphs(Str $string: --> List of StrPos) {
         return @.as_graphs if defined @.as_graphs;
