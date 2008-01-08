@@ -65,7 +65,19 @@
  */
 extern YAP6__Prototype* YAP6__STACK__Operators;
 
-
+/* The following 4 operators will allways manipulate the current call
+ * stack. It is strongly advised that this should only be called by
+ * the interpreter loop itself, with a running stack. They are exposed
+ * to the high-level space so you can build a new stack referencing
+ * them. Calling this directly will probably cause a segfault.
+ * This operators are:
+ *
+ * YAP6__STACK__OP_Move_Capturize
+ * YAP6__STACK__OP_Move_Identifier
+ * YAP6__STACK__OP_Move_MetaClass
+ * YAP6__STACK__OP_Move_Copy
+ *
+ */
 /* YAP6__STACK__OP_Move_Capturize
  *
  * Creates a low-level capture from previous stack nodes and store it
@@ -153,9 +165,9 @@ extern YAP6__Object* YAP6__STACK__OP_Move_MetaClass;
 
 /* YAP6__STACK__OP_Copy
  *
- * This operator copies the result of some past node to the result of
- * this node. This is usefull when you want the result of some node to
- * be available to more than one of the move operators.
+ * This operator copies the result of some past node and returns
+ * it. This is usefull when you want the result of some node to be
+ * available to more than one of the move operators.
  *
  * lowlevel C call: yap6__stack__opcapture_copy_new
  *
