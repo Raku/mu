@@ -55,7 +55,7 @@ multi sub process_file(Str $file, Regex &line_rx, Code &each_line -->) {
     for =$fd -> my Str $line {
         $line.=UCD::strip_comments;
         next if $line !~~ &UCD::not_empty;
-        $line ~~ rule { <line_rx> { each_line() } };
+        $line ~~ rule { $/=<line_rx> { each_line() } };
             orelse die "Couldn't parse $file line '$line'";
     }
     $fd.close;
@@ -324,7 +324,7 @@ BEGIN {
 my Utable $blockname.=new;
 BEGIN {
     @mktab_subs.push: my sub mktab_blocks(-->) {
-        process_file 'ucd/Blocks.txt',rule { $<r>=<UCD::code_or_range> ';' $<name>=(\S+\N*) }, {
+        process_file 'ucd/Blocks.txt', rule { $<r>=<UCD::code_or_range> ';' $<name>=(\S+\N*) }, {
             $blockname.add($<r><ord>, :val($<name>));
         }
         dumputable(:$blockname);
@@ -617,15 +617,26 @@ $_.() for @dump_init_subs;
 
 # From S29 (mostly)
 class Str is also {
-    # Cache a copy of ourself as an array of Codepoints
-    has Codepoint @.as_codes;
-    # XXX is this even remotely correct?
-    &STORE.wrap( { @.as_codes = undef; callsame; } );
-    our method to_codes(Str $string: --> List of Codepoint) {
+    # Cache a copy of ourself as an array of Codepoints and Graphemes
+    has StrPos @.as_codes;
+    our method to_codes(Str $string: --> List of StrPos) {
         return @.as_codes if defined @.as_codes;
-        $string ~~ m:codes{ @<codes>=(.)* };
-        return @.as_codes := @<codes>;
+        $string ~~ m:codes{ [ (.) { @.as_codes.push: $0[*-1].from } ]* };
+        return @.as_codes;
     }
+    our multi method codes(Str $string: --> Int) is export { +$string.to_codes }
+
+    # Grapheme Cluster Boundary Determination        UAX #29
+    has StrPos @.as_graphs;
+    # XXX is this even remotely correct?
+    &STORE.wrap( { @.as_codes = undef; @.as_graphs = undef; callsame; } );
+    token grapheme_cluster { {...} }
+    our method to_graphs(Str $string: --> List of StrPos) {
+        return @.as_graphs if defined @.as_graphs;
+        $string ~~ m:codes{ [ (<grapheme_cluster>) { @.as_graphs.push: $0[*-1].from } ]* };
+        return @.as_graphs;
+    }
+    our multi method graphs(Str $string: --> Int) is export { +$string.to_graphs }
 
     our multi method chars(Str $string: --> Int) is export {
         # XXX how does the "current unicode level" work?
@@ -672,21 +683,6 @@ class Str is also {
 
     our multi method bytes(Str $string: --> Int) is export {
         ...;
-    }
-    our multi method codes(Str $string: --> Int) is export { +$string.to_codes }
-
-    # Grapheme Cluster Boundary Determination        UAX #29
-    our multi method graphs(Str $string: --> Int) is export {
-        my Int $nc = $string.codes;
-        my Int $ng = $nc;
-        for $string.to_codes -> my Str $c {
-            # discount Marks XXX may be wrong
-            $ng-- if %is<M>.contains($c.ord);
-            # CRLF is a grapheme in 5.0 and in Perl 6
-            # XXX substr must be as codes
-            $ng-- if $string.substr(my Int $n++, 2) eq "\r\n";
-        }
-        return $ng;
     }
 }
 # Should I assume this stuff is done at a lower level?
