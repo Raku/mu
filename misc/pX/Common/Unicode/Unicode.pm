@@ -655,30 +655,24 @@ class Str is also {
     # XXX is this even remotely correct?
     &STORE.wrap( { @.as_codes = undef; @.as_graphs = undef; callsame; } );
     # Grapheme Cluster Boundary Determination        UAX #29
-    token isGCBCR is export { \x{000D} }
-    token isGCBLF is export { \x{000A} }
-    token isGCBControl is export { <+isZl+isZp+isCc+isCf-[\x{000D}\x{000A}\x{200C}\x{200D}]> }
-    token isGCBExtend is export { <isGrapheme_Extend> }
-    token isGCBL is export { <isHSTL> }
-    token isGCBV is export { <isHSTV> }
-    token isGCBT is export { <isHSTT> }
-    token isGCBLV is export { <isHSTLV> }
-    token isGCBLVT is export { <isHSTLVT> }
-    token isGCBAny is export { <+isGCBCR+isGCBLF+isGCBControl+isGCBExtend+isGCBL+isGCBV+isGCBT+isGCBLV+isGCBLVT> }
+    token isGCBCR { \x{000D} }
+    token isGCBLF { \x{000A} }
+    token isGCBControl { <+isZl+isZp+isCc+isCf-[\x{000D}\x{000A}\x{200C}\x{200D}]> }
     token isGCBHangulSyllable {
-        | <after <isGCBL>                  >          [ <isGCBL> | <isGCBV> | <isGCBLV> | <isGCBLVT> ]
-        |        <isGCBL>                     <before [ <isGCBL> | <isGCBV> | <isGCBLV> | <isGCBLVT> ] >
-        | <after [ <isGCBLV> | <isGCBV> ]  >          [ <isGCBV> | <isGCBT> ]
-        |        [ <isGCBLV> | <isGCBV> ]     <before [ <isGCBV> | <isGCBT> ]                          >
-        | <after [ <isGCBLVT> | <isGCBT> ] >          <isGCBV>
-        |        [ <isGCBLVT> | <isGCBT> ]    <before <isGCBV>                                         >
+        | <after <isHSTL>                  >          [ <isHSTL> | <isHSTV> | <isHSTLV> | <isHSTLVT> ]
+        |        <isHSTL>                     <before [ <isHSTL> | <isHSTV> | <isHSTLV> | <isHSTLVT> ] >
+        | <after [ <isHSTLV> | <isHSTV> ]  >          [ <isHSTV> | <isHSTT> ]
+        |        [ <isHSTLV> | <isHSTV> ]     <before [ <isHSTV> | <isHSTT> ]                          >
+        | <after [ <isHSTLVT> | <isHSTT> ] >          <isHSTV>
+        |        [ <isHSTLVT> | <isHSTT> ]    <before <isHSTV>                                         >
     }
-    token grapheme_cluster {
+    # "default" / "locale-independent" grapheme cluster
+    # text does not need to be normalized
+    regex grapheme_cluster {
         | <isGCBCR> <isGCBLF>
         | [ <isGCBCR> | <isGCBLF> | <isGCBControl> ]
         | <isGCBHangulSyllable>*
-        | .? <isGCBExtend>*
-        | <isGCBAny>
+        | (.+) <?{ $0 ~~ rx { .? <isGrapheme_Extend>* } }>
     }
     our method to_graphs(Str $string: --> List of StrPos) {
         return @.as_graphs if defined @.as_graphs;
