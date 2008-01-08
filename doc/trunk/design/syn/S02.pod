@@ -2162,8 +2162,8 @@ the same thing:
     ===========         ============    ===========
     2 => <101010>       :2<101010>      radix literal 0b101010
     8 => <123>          :8<123>         radix literal 0o123
-    16 => <123>         :16<deadbeef>   radix literal 0xdeadbeef
-    16 => <123>         :16($somevalue) radix conversion function
+    16 => <deadbeef>    :16<deadbeef>   radix literal 0xdeadbeef
+    16 => $somevalue    :16($somevalue) radix conversion function
     '' => $x            :($x)           arglist or signature literal
     '' => ($x,$y)       :($x,$y)        arglist or signature literal
     '' => <x>           :<x>            identifier extension
