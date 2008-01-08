@@ -365,7 +365,23 @@ BEGIN {
 #     post-6.0?
 
 # HangulSyllableType.txt
-#     post-6.0?
+my Utable $hangul;
+BEGIN {
+    @mktab_subs.push: my sub mktab_hst(-->) {
+        process_file 'ucd/HangulSyllableType.txt', rule { $<n>=<UCD::code_or_range> ';' $<name>=(\w+) }, {
+            $hangul.add($<n><ord>, :val($<name>));
+        }
+        dumputable(:$hangul);
+    }
+    @dump_init_subs.push: my sub dump_init_hst(-->) {
+        for %hst_alias.keys -> my Str $st {
+            install_token "isHST$st", -> Str $s       { $hangul.get($s.ord) eq $st                         };
+            my Str $sta = %hst_alias{$st};
+            install_token "isHST$sta", -> Str $s      { $hangul.get($s.ord) eq $st                         };
+        }
+    }
+}
+
 
 # Jamo.txt
 #     post-6.0?
@@ -407,6 +423,7 @@ BEGIN {
 my Str %bidi_class_alias;
 my Str %decomp_type_alias;
 my Str %gc_alias;
+my Str %hst_alias;
 my Str %numeric_alias;
 my Str %script_alias;
 # -- for ccc ---
@@ -425,6 +442,7 @@ BEGIN {
                 when 'ccc' { %ccc_abbrev{       lc @<alias>[1]} = @<alias>[0];
                              %ccc_full{         lc @<alias>[2]} = @<alias>[0]; }
                 when 'gc'  { %gc_alias{            @<alias>[0]} = @<alias>[1]; }
+                when 'hst' { %hst_alias{           @<alias>[0]} = @<alias>[1]; }
                 when 'nt'  { %numeric_alias{       @<alias>[1]} = @<alias>[0]
                                                  unless @<alias>[0] eq 'None'; }
                 when 'sc'  { %script_alias{        @<alias>[1]} = @<alias>[0]; }
@@ -433,6 +451,7 @@ BEGIN {
         dumphash(:%bidi_class_alias);
         dumphash(:%decomp_type_alias);
         dumphash(:%gc_alias);
+        dumphash(:%hst_alias);
         dumphash(:%numeric_alias);
         dumphash(:%script_alias);
         dumphash(:%ccc_abbrev);
@@ -632,11 +651,32 @@ class Str is also {
     }
     our multi method codes(Str $string: --> Int) is export { +$string.to_codes }
 
-    # Grapheme Cluster Boundary Determination        UAX #29
     has StrPos @.as_graphs;
     # XXX is this even remotely correct?
     &STORE.wrap( { @.as_codes = undef; @.as_graphs = undef; callsame; } );
-    token grapheme_cluster { {...} }
+    # Grapheme Cluster Boundary Determination        UAX #29
+    token isGCBCR is export { \x{000D} }
+    token isGCBLF is export { \x{000A} }
+    token isGCBControl is export { <+isZl+isZp+isCc+isCf-[\x{000D}\x{000A}\x{200C}\x{200D}]> }
+    token isGCBExtend is export { <isGrapheme_Extend> }
+    token isGCBL is export { <isHSTL> }
+    token isGCBV is export { <isHSTV> }
+    token isGCBT is export { <isHSTT> }
+    token isGCBLV is export { <isHSTLV> }
+    token isGCBLVT is export { <isHSTLVT> }
+    token isGCBAny is export { <+isGCBCR+isGCBLF+isGCBControl+isGCBExtend+isGCBL+isGCBV+isGCBT+isGCBLV+isGCBLVT> }
+    token isGCBHangulSyllable {
+        | <isGCBL> [ <isGCBL> | <isGCBV> | <isGCBLV> | <isGCBLVT> ]
+        | [ <isGCBLV> | <isGCBV> ] [ <isGCBV> | <isGCBT> ]
+        | [ <isGCBLVT> | <isGCBT> ] <isGCBV>
+    }
+    token grapheme_cluster {
+        | <isGCBCR> <isGCBLF>
+        | [ <isGCBCR> | <isGCBLF> | <isGCBControl> ]
+        | <isGCBHangulSyllable>*
+        | .? <isGCBExtend>*
+        | <isGCBAny>
+    }
     our method to_graphs(Str $string: --> List of StrPos) {
         return @.as_graphs if defined @.as_graphs;
         $string ~~ m:codes{ [ (<grapheme_cluster>) { @.as_graphs.push: $0[*-1].from } ]* };
