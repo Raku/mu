@@ -666,9 +666,12 @@ class Str is also {
     token isGCBLVT is export { <isHSTLVT> }
     token isGCBAny is export { <+isGCBCR+isGCBLF+isGCBControl+isGCBExtend+isGCBL+isGCBV+isGCBT+isGCBLV+isGCBLVT> }
     token isGCBHangulSyllable {
-        | <isGCBL> [ <isGCBL> | <isGCBV> | <isGCBLV> | <isGCBLVT> ]
-        | [ <isGCBLV> | <isGCBV> ] [ <isGCBV> | <isGCBT> ]
-        | [ <isGCBLVT> | <isGCBT> ] <isGCBV>
+        | <after <isGCBL>                  >          [ <isGCBL> | <isGCBV> | <isGCBLV> | <isGCBLVT> ]
+        |        <isGCBL>                     <before [ <isGCBL> | <isGCBV> | <isGCBLV> | <isGCBLVT> ] >
+        | <after [ <isGCBLV> | <isGCBV> ]  >          [ <isGCBV> | <isGCBT> ]
+        |        [ <isGCBLV> | <isGCBV> ]     <before [ <isGCBV> | <isGCBT> ]                          >
+        | <after [ <isGCBLVT> | <isGCBT> ] >          <isGCBV>
+        |        [ <isGCBLVT> | <isGCBT> ]    <before <isGCBV>                                         >
     }
     token grapheme_cluster {
         | <isGCBCR> <isGCBLF>
