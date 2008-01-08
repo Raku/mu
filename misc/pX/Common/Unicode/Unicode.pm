@@ -41,7 +41,7 @@ BEGIN {
 }
 
 # generic processing for UCD .txt files
-sub process_file(Str $file, Code &each_line:(Str) -->) {
+multi sub process_file(Str $file, Code &each_line:(Str) -->) {
     my $fd = open $file, :r;
     for =$fd -> my Str $line {
         $line.=UCD::strip_comments;
@@ -50,17 +50,27 @@ sub process_file(Str $file, Code &each_line:(Str) -->) {
     }
     $fd.close;
 }
+multi sub process_file(Str $file, Regex &line_rx, Code &each_line -->) {
+    my $fd = open $file, :r;
+    for =$fd -> my Str $line {
+        $line.=UCD::strip_comments;
+        next if $line !~~ &UCD::not_empty;
+        $line ~~ rule { <line_rx> { each_line() } };
+            orelse die "Couldn't parse $file line '$line'";
+    }
+    $fd.close;
+}
 
-# call like dumphash($dumpfile, :%hash);
-sub dumphash(IO $dumpfile, Pair $thing -->) {
+# call like dumphash(:%hash);
+sub dumphash(Pair $thing -->) {
     my Str $name := $thing.k;
     my $hash := $thing.v;
-    $dumpfile.say: "\%$name := " ~ $hash.perl ~ ";\n";
+    $+dumpfile.say: "\%$name := " ~ $hash.perl ~ ";\n";
 }
-sub dumputable(IO $dumpfile, Pair $thing -->) {
+sub dumputable(Pair $thing -->) {
     my Str $name := $thing.k;
     my $utable := $thing.v;
-    $dumpfile.say: "\$$name := " ~ $utable.perl ~ ";\n";
+    $+dumpfile.say: "\$$name := " ~ $utable.perl ~ ";\n";
 }
 
 sub install_token(Str $name, Code &check(Str --> Bool) -->) {
@@ -86,10 +96,11 @@ our sub mktables(-->) {
         system 'unzip', 'UCD.zip';
         chdir '..';
     }
-    # collect all the init subs and run them
-    my $dumpfile = open 'ucd_basic_dump.pm', :w;
-    $_.($dumpfile) for @mktab_subs;
-    $dumpfile.close;
+    # make this a context var to avoid cluttering up lots of arglists
+    my $+dumpfile = open 'ucd_basic_dump.pm', :w;
+    # run all the @mktab_subs here
+    $_.() for @mktab_subs;
+    $+dumpfile.close;
     exit;
 }
 
@@ -132,23 +143,21 @@ BEGIN {
     for @gen_cats, @proplist_cats, @perl_cats -> my Str $cat {
         %is{$cat} = Utable.new;
     }
-    @mktab_subs.push: my sub mktab_proplist(IO $dumpfile -->) {
-        process_file 'ucd/Proplist.txt', -> my Str $line {
-            $line ~~ mm{ $<cr>=<UCD::code_or_range> ';' $<name>=(\w+) }
-                orelse die "Couldn't parse Proplist.txt line '$line'";
+    @mktab_subs.push: my sub mktab_proplist(-->) {
+        process_file 'ucd/Proplist.txt', rule { $<cr>=<UCD::code_or_range> ';' $<name>=(\w+) }, {
             my $n := $<cr><ord>;
             %is{$<name>}.add($n);
             #XXX where is this stuff defined in terms of unicode stuff?
             # my guesses here are probably very wrong, erring toward too inclusive...
-            %is<alnum>.add($n) if $<name> eq any <Hex_Digit Other_Alphabetic Other_ID_Start Other_Lowercase Other_Uppercase>;
-            %is<alpha>.add($n) if $<name> eq any <Other_Alphabetic Other_Lowercase Other_Uppercase>;
-            %is<cntrl>.add($n) if $<name> eq any <Bidi_Control Join_Control>;
-            %is<lower>.add($n) if $<name> eq any <Other_Lowercase>;
-            %is<punct>.add($n) if $<name> eq any <Dash Hyphen Pattern_Syntax Quotation_Mark STerm Terminal_Punctuation>;
-            %is<space>.add($n) if $<name> eq any <White_Space Pattern_White_Space>;
-            %is<upper>.add($n) if $<name> eq any <Other_Uppercase>;
-            %is<xdigit>.add($n) if $<name> eq any <ASCII_Hex_Digit Hex_Digit>;
-            %is<word>.add($n) if $<name> eq any <Hex_Digit Other_Alphabetic Other_ID_Start Other_Lowercase Other_Uppercase>;
+            %is<alnum>.add($n)    if $<name> eq any <Hex_Digit Other_Alphabetic Other_ID_Start Other_Lowercase Other_Uppercase>;
+            %is<alpha>.add($n)    if $<name> eq any <Other_Alphabetic Other_Lowercase Other_Uppercase>;
+            %is<cntrl>.add($n)    if $<name> eq any <Bidi_Control Join_Control>;
+            %is<lower>.add($n)    if $<name> eq any <Other_Lowercase>;
+            %is<punct>.add($n)    if $<name> eq any <Dash Hyphen Pattern_Syntax Quotation_Mark STerm Terminal_Punctuation>;
+            %is<space>.add($n)    if $<name> eq any <White_Space Pattern_White_Space>;
+            %is<upper>.add($n)    if $<name> eq any <Other_Uppercase>;
+            %is<xdigit>.add($n)   if $<name> eq any <ASCII_Hex_Digit Hex_Digit>;
+            %is<word>.add($n)     if $<name> eq any <Hex_Digit Other_Alphabetic Other_ID_Start Other_Lowercase Other_Uppercase>;
         }
     }
     # back to UnicodeData.txt
@@ -156,26 +165,26 @@ BEGIN {
         $code.=hex;
         my Str $maj = $gc.substr(0, 1);
         # This is all from Camel3 p.168
-        %is<alnum>.add($code) if $gc eq any <Lu Ll Lt Lo Nd>;
-        %is<alpha>.add($code) if $gc eq any <Lu Ll Lt Lo>;
-        %is<ascii>.add($code) if $code < 0x80;
-        %is<cntrl>.add($code) if $maj eq 'C';
-        %is<digit>.add($code) if $gc eq 'Nd';
-        %is<lower>.add($code) if $gc eq 'Ll';
-        %is<print>.add($code) if $maj ne 'C';
-        %is<punct>.add($code) if $maj eq 'P';
+        %is<alnum>.add($code)     if $gc     eq any <Lu Ll Lt Lo Nd>;
+        %is<alpha>.add($code)     if $gc     eq any <Lu Ll Lt Lo>;
+        %is<ascii>.add($code)     if $code   < 0x80;
+        %is<cntrl>.add($code)     if $maj    eq 'C';
+        %is<digit>.add($code)     if $gc     eq 'Nd';
+        %is<lower>.add($code)     if $gc     eq 'Ll';
+        %is<print>.add($code)     if $maj    ne 'C';
+        %is<punct>.add($code)     if $maj    eq 'P';
         if $maj eq 'Z' {
             %is<space>.add($code);
         } else {
-            %is<graph>.add($code) if $maj ne 'C';
+            %is<graph>.add($code) if $maj    ne 'C';
         }
         # guessing here...
-        %is<title>.add($code) if $gc eq 'Lt';
-        %is<upper>.add($code) if $gc eq 'Lt'|'Lu';
-        %is<word>.add($code) if $gc eq any <Lu Ll Lt Lo Nd>;
+        %is<title>.add($code)     if $gc     eq 'Lt';
+        %is<upper>.add($code)     if $gc     eq 'Lt'|'Lu';
+        %is<word>.add($code)      if $gc     eq any <Lu Ll Lt Lo Nd>;
         # guessing here...
-        %is<hspace>.add($code) if $maj eq 'Z' and $gc eq none <Zl Zp>;
-        %is<vspace>.add($code) if $gc eq any <Zl Zp>;
+        %is<hspace>.add($code)    if $maj    eq 'Z' and $gc eq none <Zl Zp>;
+        %is<vspace>.add($code)    if $gc     eq any <Zl Zp>;
     }
     #XXX are things like /\w/ automatically hooked up to <word> etc.?
     @dump_init_subs.push: my sub dump_init_gc(-->) {
@@ -183,7 +192,7 @@ BEGIN {
             install_token "is$cat", -> Str $s { %is{$cat}.contains($s.ord) };
         }
         for @perl_cats -> my Str $cat {
-            install_token $cat, -> Str $s { %is{$cat}.contains($s.ord) };
+            install_token $cat,     -> Str $s { %is{$cat}.contains($s.ord) };
         }
     }
 }
@@ -234,7 +243,7 @@ BEGIN{
                 %canon_decomp{$code} = $decomp if $decomp.chars;
             }
             %numeric<Decimal>{$code} = +$dec if $dec.chars;
-            %numeric<Digit>{$code} = +$dig if $dig.chars;
+            %numeric<Digit>{$code}   = +$dig if $dig.chars;
             %numeric<Numeric>{$code} = +$num if $num.chars;
             $bidi_mirrored.add($code.ord) if $bdm ~~ m:i{ y };
             %upper{$code} = hex $uc if $uc.chars;
@@ -260,8 +269,8 @@ BEGIN {
             $prev_ps = undef;
         }
     }
-#XXX all @mktab_ud_subs must be defined above here.
-    @mktab_subs.push: my sub mktab_ud_all(IO $dumpfile -->) {
+# run all the @mktab_ud_subs here
+    @mktab_subs.push: my sub mktab_ud_all(-->) {
         process_file 'ucd/UnicodeData.txt', -> my Str $line {
             my Str @f = $line.split(';');
             $_.(@f) for @mktab_ud_subs;
@@ -273,21 +282,17 @@ BEGIN {
         }
         %is<word>.add('_'.ord);
 
-        for %is.keys -> my Str $cat {
-            $dumpfile.say: "\%is<$cat> := " ~ %is{$cat}.perl ~ ";\n";
-        }
-        for %numeric.keys -> my Str $$nt {
-            $dumpfile.say: "\%numeric<$nt> := " ~ %numeric{$nt}.perl ~ ";\n";
-        }
-        dumphash($dumpfile, :%ccc);
-        dumputable($dumpfile, :$bidi_class);
-        dumphash($dumpfile, :%compat_decomp_type);
-        dumphash($dumpfile, :%compat_decomp);
-        dumphash($dumpfile, :%canon_decomp);
-        dumputable($dumpfile, :$bidi_mirrored);
-        dumphash($dumpfile, :%upper);
-        dumphash($dumpfile, :%lower);
-        dumphash($dumpfile, :%title);
+        dumphash(  :%is);
+        dumphash(  :%numeric);
+        dumphash(  :%ccc);
+        dumputable(:$bidi_class);
+        dumphash(  :%compat_decomp_type);
+        dumphash(  :%compat_decomp);
+        dumphash(  :%canon_decomp);
+        dumputable(:$bidi_mirrored);
+        dumphash(  :%upper);
+        dumphash(  :%lower);
+        dumphash(  :%title);
     }
 }
 # BidiMirroring.txt
@@ -295,37 +300,34 @@ BEGIN {
 # 1 mirrored code
 my Str %bidi_mirror;
 BEGIN {
-    @mktab_subs.push: my sub mktab_bidi_mirror(IO $dumpfile -->) {
+    @mktab_subs.push: my sub mktab_bidi_mirror(-->) {
         process_file 'ucd/BidiMirroring.txt', -> my Str $line {
             my $code, $mirrored_code = $line.split(';')».hex.chr;
             %bidi_mirror{$code} = $mirrored_code;
             if $code < $mirrored_code
-                and !%is<Ps>.contains($code.ord) and !%is<Pe>.contains($code.ord)
-                and !%is<Ps>.contains($mirrored_code.ord) and !%is<Pe>.contains($mirrored_code.ord) {
+                and not %is{'Ps'|'Pe'}.contains($code|$mirrored_code) {
                     %open2close{$code} = $mirrored_code;
             }
         }
-        dumphash($dumpfile, :%bidi_mirror);
+        dumphash(:%bidi_mirror);
 
         # ps_to_pe take precedence over BidiMirroring mappings
         %open2close = %(@%open2close, @%ps_to_pe);
-        dumphash($dumpfile, :%open2close);
+        dumphash(:%open2close);
     }
 }
 
 # Blocks.txt
 # 0 code range
 # 1 block name
+# what do we do with block names?
 my Utable $blockname.=new;
 BEGIN {
-    @mktab_subs.push: my sub mktab_blocks(IO $dumpfile -->) {
-        process_file 'ucd/Blocks.txt', -> my Str $line {
-            #XXX are \S and \N OK here?
-            $line ~~ mm{ $<r>=<UCD::code_or_range> ';' $<name>=(\S+\N*) }
-                orelse die "Couldn't parse Blocks.txt line '$line'";
+    @mktab_subs.push: my sub mktab_blocks(-->) {
+        process_file 'ucd/Blocks.txt',rule { $<r>=<UCD::code_or_range> ';' $<name>=(\S+\N*) }, {
             $blockname.add($<r><ord>, :val($<name>));
         }
-        dumputable($dumpfile, :$blockname);
+        dumputable(:$blockname);
     }
 }
 
@@ -333,13 +335,11 @@ BEGIN {
 # 0 code
 my Bool %compex;
 BEGIN {
-    @mktab_subs.push: my sub mktab_compex(IO $dumpfile -->) {
-        process_file 'ucd/CompositionExclusions.txt', -> my Str $line {
-            $line ~~ mm{ $<c>=<UCD::code> }
-                orelse die "Couldn't parse CompositionExclusions.txt line '$line'";;
+    @mktab_subs.push: my sub mktab_compex(-->) {
+        process_file 'ucd/CompositionExclusions.txt', rule { $<c>=<UCD::code> }, {
             %compex{$<c><str>}++;
         }
-        dumphash($dumpfile, :%compex);
+        dumphash(:%compex);
     }
 }
 
@@ -349,15 +349,11 @@ BEGIN {
 # 2 mapping
 my Hash of Str %casefold;
 BEGIN {
-    @mktab_subs.push: my sub mktab_casefold(IO $dumpfile -->) {
-        process_file 'ucd/CaseFolding.txt', -> my Str $line {
-            $line ~~ mm{ $<c>=<UCD::code> ';' (<[FTSC]>) ';' $<map>=<UCD::code_or_seq> ';' }
-                orelse die "Couldn't parse CaseFolding.txt line '$line'";
+    @mktab_subs.push: my sub mktab_casefold(-->) {
+        process_file 'ucd/CaseFolding.txt', rule { $<c>=<UCD::code> ';' (<[FTSC]>) ';' $<map>=<UCD::code_or_seq> ';' }, {
             %casefold{$0}{$<c><str>} = $<map><str>;
         }
-        for <F T S C> -> my Str $s {
-            $dumpfile.say: "\%casefold<$s> := " ~ %casefold{$s}.perl ~ ";\n";
-        }
+        dumphash(:%casefold);
     }
 }
 
@@ -388,13 +384,12 @@ BEGIN {
 my Str %norm_correct;
 # 3 version corrected
 BEGIN {
-    @mktab_subs.push: my sub mktab_norm_correct(IO $dumpfile -->) {
-        process_file 'ucd/NormalizationCorrections.txt', -> my Str $line {
-            $line ~~ mm{ $<c>=<UCD::code> ';' $<orig>=<UCD::code_or_seq> ';' $<corr>=<UCD::code_or_seq> ';' }
-                orelse die "Couldn't parse NormalizationCorrections.txt line '$line'";
-            %norm_correct{$<c><str>} = $<corr><str>;
+    @mktab_subs.push: my sub mktab_norm_correct(-->) {
+        process_file 'ucd/NormalizationCorrections.txt',
+            rule { $<c>=<UCD::code> ';' $<orig>=<UCD::code_or_seq> ';' $<corr>=<UCD::code_or_seq> ';' }, {
+                %norm_correct{$<c><str>} = $<corr><str>;
         }
-        dumphash($dumpfile, :%norm_correct);
+        dumphash(:%norm_correct);
     }
 }
 
@@ -421,29 +416,26 @@ my Str %ccc_abbrev;
 # 3 full name
 my Str %ccc_full;
 BEGIN {
-    @mktab_subs.push: my sub mktab_pva(IO $dumpfile -->) {
-        process_file 'ucd/PropertyValueAliases.txt', -> my Str $line {
-            $line ~~ mm{ $<prop>=(\w+) [ ';' @<alias>=(\w+) ]+ }
-                orelse die "Couldn't parse PropertyValueAliases.txt line '$line'";
-            given $<prop> {
-                when 'bc' { %bidi_class_alias{@<alias>[0]} = @<alias>[1]; }
-                when 'dt' { %decomp_type_alias{lc @<alias>[1]} = @<alias>[0]; }
-                when 'ccc' {
-                    %ccc_abbrev{lc @<alias>[1]} = @<alias>[0];
-                    %ccc_full{lc @<alias>[2]} = @<alias>[0];
-                }
-                when 'gc' { %gc_alias{@<alias>[0]} = @<alias>[1]; }
-                when 'nt' { %numeric_alias{@<alias>[1]} = @<alias>[0] unless @<alias>[0] eq 'None'; }
-                when 'sc' { %script_alias{@<alias>[1]} = @<alias>[0]; }
+    @mktab_subs.push: my sub mktab_pva(-->) {
+        process_file 'ucd/PropertyValueAliases.txt', rule { $<prop>=(\w+) [ ';' @<alias>=(\w+) ]+ }, {
+            given $<prop>  {
+                when 'bc'  { %bidi_class_alias{    @<alias>[0]} = @<alias>[1]; }
+                when 'dt'  { %decomp_type_alias{lc @<alias>[1]} = @<alias>[0]; }
+                when 'ccc' { %ccc_abbrev{       lc @<alias>[1]} = @<alias>[0];
+                             %ccc_full{         lc @<alias>[2]} = @<alias>[0]; }
+                when 'gc'  { %gc_alias{            @<alias>[0]} = @<alias>[1]; }
+                when 'nt'  { %numeric_alias{       @<alias>[1]} = @<alias>[0]
+                                                 unless @<alias>[0] eq 'None'; }
+                when 'sc'  { %script_alias{        @<alias>[1]} = @<alias>[0]; }
             }
         }
-        dumphash($dumpfile, :%bidi_class_alias);
-        dumphash($dumpfile, :%decomp_type_alias);
-        dumphash($dumpfile, :%gc_alias);
-        dumphash($dumpfile, :%numeric_alias);
-        dumphash($dumpfile, :%script_alias);
-        dumphash($dumpfile, :%ccc_abbrev);
-        dumphash($dumpfile, :%ccc_full);
+        dumphash(:%bidi_class_alias);
+        dumphash(:%decomp_type_alias);
+        dumphash(:%gc_alias);
+        dumphash(:%numeric_alias);
+        dumphash(:%script_alias);
+        dumphash(:%ccc_abbrev);
+        dumphash(:%ccc_full);
     }
     @dump_init_subs.push: my sub dump_init_pva(-->) {
         # isccc($n) can take a ccc number, Range of numbers, abbreviation, or full name
@@ -478,19 +470,17 @@ BEGIN {
 # 1 script name
 my Utable $script;
 BEGIN {
-    @mktab_subs.push: my sub mktab_script(IO $dumpfile -->) {
-        process_file 'ucd/Scripts.txt', -> my Str $line {
-            $line ~~ mm{ $<n>=<UCD::code_or_range> ';' $<name>=(\w+) }
-                orelse die "Couldn't parse Scripts.txt line '$line'";
+    @mktab_subs.push: my sub mktab_script(-->) {
+        process_file 'ucd/Scripts.txt', rule { $<n>=<UCD::code_or_range> ';' $<name>=(\w+) }, {
             $script.add($<n><ord>, :val($<name>));
         }
-        dumputable($dumpfile, :$script);
+        dumputable(:$script);
     }
     @dump_init_subs.push: my sub dump_init_script(-->) {
         for %script_alias.keys -> my Str $sc {
-            install_token "in$sc", -> Str $s       { $script.get($s.ord) eq $sn                         };
+            install_token "in$sc", -> Str $s       { $script.get($s.ord) eq $sc                         };
             my Str $sca = %script_alias{$sc};
-            install_token "in$sca", -> Str $s      { $script.get($s.ord) eq $sn                         };
+            install_token "in$sca", -> Str $s      { $script.get($s.ord) eq $sc                         };
         }
     }
 }
@@ -498,28 +488,40 @@ BEGIN {
 # SpecialCasing.txt
 # 0 code
 # 1 lower
-my Str %lower_cond;
+my Str %lower_spec;
 # 2 title
-my Str %title_cond;
+my Str %title_spec;
 # 3 upper
-my Str %upper_cond;
+my Str %upper_spec;
 # 4 conditionals
 my Str %case_cond;
 BEGIN {
-    @mktab_subs.push: my sub mktab_spcase(IO $dumpfile -->) {
-        process_file 'ucd/SpecialCasing.txt', -> my Str $line {
-            $line ~~ mm{ $<c>=<UCD::code> ';' $<lower>=<UCD::code_or_seq> ';'
-                $<title>=<UCD::code_or_seq> ';' $<upper>=<UCD::code_or_seq> ';' $<cond>=(\N*) }
-                orelse die "Couldn't parse SpecialCasing.txt line '$line'";
-            %upper_cond{$<c><str>} = $<upper><str>;
-            %title_cond{$<c><str>} = $<title><str>;
-            %lower_cond{$<c><str>} = $<lower><str>;
-            %case_cond{$<c><str>} = $<cond>;
+    @mktab_subs.push: my sub mktab_spcase(-->) {
+        process_file 'ucd/SpecialCasing.txt',
+            rule {
+                    $<c>=<UCD::code>
+                ';' $<lower>=<UCD::code_or_seq>
+                ';' $<title>=<UCD::code_or_seq>
+                ';' $<upper>=<UCD::code_or_seq>
+                ';' $<cond>=(\N*)
+            }, {
+                if $<cond>.chars {
+                    %case_cond{$<c><str>}.push: %{
+                        :lower($<lower><str>),
+                        :title($<title><str>),
+                        :upper($<upper><str>),
+                        :cond($<cond>)
+                    }
+                } else {
+                    %lower_spec{$<c><str>} = $<lower><str>;
+                    %title_spec{$<c><str>} = $<title><str>;
+                    %upper_spec{$<c><str>} = $<upper><str>;
+                }
         }
-        dumphash($dumpfile, :%upper_cond);
-        dumphash($dumpfile, :%title_cond);
-        dumphash($dumpfile, :%lower_cond);
-        dumphash($dumpfile, :%case_cond);
+        dumphash(:%lower_spec);
+        dumphash(:%title_spec);
+        dumphash(:%upper_spec);
+        dumphash(:%case_cond);
     }
 }
 
@@ -527,36 +529,94 @@ BEGIN {
 #     post-6.0?
 
 # DerivedCoreProperties.txt
+my Utable %derived;
+BEGIN {
+    @mktab_subs.push: my sub mktab_derived_core(-->) {
+        process_file 'ucd/DerivedCoreProperties.txt', rule { $<n>=<UCD::code_or_range> ';' $<name>=(\w+) }, {
+            %derived{$<name>).add($<n><ord>);
+        }
+        dumphash(:%derived);
+    }
+    @dump_init_subs.push: my sub dump_init_derived_core(-->) {
+        for %derived.keys -> my Str $dp {
+            install_token "is$dp", -> Str $s       { %derived{$dp}.contains($s.ord)                      };
+        }
+    }
+}
+
 # DerivedNormalizationProps.txt
 
 # GraphemeBreakProperty.txt
-#     post-6.0?
 
 # SentenceBreakProperty.txt
 #     post-6.0?
 
 # WordBreakProperty.txt
+
+# Unicode algorithms
+
+# Canonical Ordering                             Section 3.11
+
+# Default Case Detection                         Section 3.13
+# Default Caseless Matching                      Section 3.13 and Section 5.18
+our token iscased is export { <+isLt+isUppercase+isLowercase> }
+# from UAX #29, doesn't belong here...
+our token isWord_BreakMidLetter is export { <[\x{0027}\x{00B7}\x{05F4}\x{2019}\x{2027}\x{003A}]> }
+our token iscase_ignorable is export { <+isMn+isMe+isCf+isLm+isSk+isWord_BreakMidLetter> }
+our token final_sigma(StrPos $pos) {
+    <after <iscased> <iscase_ignorable>* >
+    <at($pos)> .
+    <!before <iscase_ignorable>* <iscased> >
+}
+our token after_soft_dotted(StrPos $pos) is export {
+    <after <isSoft_Dotted> <-isccc(0|230)>* >
+    <at($pos)> .
+}
+our token more_above(StrPos $pos) is export {
+    <at($pos)> .
+    <before <-isccc(0)>* <isccc(230)> >
+}
+our token before_dot(StrPos $pos) is export {
+    <at($pos)> .
+    <before <-isccc(0|230)>* \x{0307} >
+}
+our token after_i(StrPos $pos) is export {
+    <after I <-isccc(0|230)>* >
+    <at($pos)> .
+}
+
+# Hangul Syllable Boundary Determination         Section 3.12
+# Hangul Syllable Composition                    Section 3.12
+# Hangul Syllable Decomposition                  Section 3.12
+# Hangul Syllable Name Generation                Section 3.12
+#     post-6.0?
+
+# Bidirectional Algorithm                        UAX #9
+#     post-6.0?
+
+# Line Breaking Algorithm                        UAX #14
+#     post-6.0?
+
+# Word Boundary Determination                    UAX #29
+
+# Sentence Boundary Determination                UAX #29
+#     post-6.0?
+
+# Default Identifier Determination               UAX #31
+# Alternative Identifier Determination           UAX #31
+# Pattern Syntax Determination                   UAX #31
+# Identifier Normalization                       UAX #31
+# Identifier Case Folding                        UAX #31
+# Standard Compression Scheme for Unicode (SCSU) UTS #6
+# Collation Algorithm (UCA)                      UTS #10
 #     post-6.0?
 
 require ucd_basic_dump;
 # run all the @dump_init_subs here
 $_.() for @dump_init_subs;
 
-# From S29
-
+# From S29 (mostly)
 class Str is also {
-    our multi method lc(Str $string: --> Str) is export { ... }
-    our multi method lcfirst(Str $string: --> Str) is export { ... }
-    our multi method uc(Str $string: --> Str) is export { ... }
-    our multi method ucfirst(Str $string: --> Str) is export { ... }
-    our multi method capitalize(Str $string: --> Str) is export { ... }
-    our multi method normalize(Str $string: Bool :$canonical = Bool::True, Bool :$recompose = Bool::False --> Str) is export { ... }
-    our multi method nfd(Str $string: --> Str) is export { $string.normalize(:cononical, :!recompose); }
-    our multi method nfc(Str $string: --> Str) is export { $string.normalize(:canonical, :recompose); }
-    our multi method nfkd(Str $string: --> Str) is export { $string.normalize(:!canonical, :!recompose); }
-    our multi method nfkc(Str $string: --> Str) is export { $string.normalize(:!canonical, :recompose); }
-    our multi method ord(Str $string: --> Int|List of Int) is export { ... }
-
     # Cache a copy of ourself as an array of Codepoints
     has Codepoint @.as_codes;
     # XXX is this even remotely correct?
@@ -572,8 +632,50 @@ class Str is also {
         &graphs.callsame;
     }
 
-    our multi method bytes(Str $string: --> Int) is export { ... }
+    # Default Case Conversion                        Section 3.13
+    our multi method lc(Str $string: --> Str) is export {
+        ...;
+    }
+    our multi method lcfirst(Str $string: --> Str) is export {
+        ...;
+    }
+    our multi method uc(Str $string: --> Str) is export {
+        ...;
+    }
+    our multi method ucfirst(Str $string: --> Str) is export {
+        ...;
+    }
+    our multi method capitalize(Str $string: --> Str) is export {
+        ...;
+    }
+
+    # Normalization Algorithm                        UAX #15
+    our multi method normalize(Str $string: Bool :$canonical = Bool::True, Bool :$recompose = Bool::False --> Str) is export {
+        ...;
+    }
+    our multi method nfd(Str $string: --> Str) is export {
+        ...;
+    }
+    our multi method nfc(Str $string: --> Str) is export {
+        ...;
+    }
+    our multi method nfkd(Str $string: --> Str) is export {
+        ...;
+    }
+    our multi method nfkc(Str $string: --> Str) is export {
+        ...;
+    }
+
+    our multi method ord(Str $string: --> Int|List of Int) is export {
+        ...;
+    }
+
+    our multi method bytes(Str $string: --> Int) is export {
+        ...;
+    }
     our multi method codes(Str $string: --> Int) is export { +$string.to_codes }
+
+    # Grapheme Cluster Boundary Determination        UAX #29
     our multi method graphs(Str $string: --> Int) is export {
         my Int $nc = $string.codes;
         my Int $ng = $nc;
@@ -597,3 +699,7 @@ class Str is also {
 # our class Grapheme is AnyChar { ... }
 # our class Byte is AnyChar is Int { ... }
 # our class CharLingua is AnyChar { ... }
+
+# there's no mini-language for defining custom char classes
+# like in p5, since in p6 you can just do e.g.
+# token funky_alnum { <+isLC+isN+isM+isOther_Alphabetic-isASCII_Hex_Digit> }
