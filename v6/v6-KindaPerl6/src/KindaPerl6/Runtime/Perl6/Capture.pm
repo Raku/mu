@@ -9,7 +9,6 @@ class Capture is Value {
         @.array.elems + $.hash.elems;
     };
     method perl {
-        my $v;   # XXX kp6 ast processor bug
         my $s = '\\( ';
 
         if $.invocant.defined {
