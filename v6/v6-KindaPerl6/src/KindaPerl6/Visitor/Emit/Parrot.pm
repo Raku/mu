@@ -198,17 +198,17 @@ class Lit::Code {
         $str := $str ~ $CAPTURE_decl.emit_parrot;
         $str := $str ~ '::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));';
 
-        my $bind_ := Bind.new(parameters=>$array_,arguments=>::Call(invocant => $CAPTURE,method => 'array',arguments => []));
+        my $bind_ := Bind.new(parameters=>$array_,arguments=> Call.new(invocant => $CAPTURE,method => 'array',arguments => []));
         $str := $str ~ $bind_.emit_parrot ~ ' ';
 
         my $bind_hash :=
-                     Bind.new(parameters=>$hash_, arguments=>::Call(invocant => $CAPTURE,method => 'hash', arguments => []));
+                     Bind.new(parameters=>$hash_, arguments=> Call.new(invocant => $CAPTURE,method => 'hash', arguments => []));
         $str := $str ~ $bind_hash.emit_parrot ~ ' ';
 
         my $i := 0;
         my $field;
         for @($.sig.positional) -> $field {
-            my $bind := Bind.new(parameters=>$field,arguments=>::Index(obj=> $array_ , 'index'=>::Val::Int(int=>$i)) );
+            my $bind := Bind.new(parameters=>$field,arguments=> Index.new(obj=> $array_ , 'index'=> Val::Int.new(int=>$i)) );
             $str := $str ~ $bind.emit_parrot ~ ' ';
             $i := $i + 1;
         };

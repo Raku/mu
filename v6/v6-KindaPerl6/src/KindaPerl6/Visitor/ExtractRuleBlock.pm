@@ -64,7 +64,7 @@ class KindaPerl6::Visitor::ExtractRuleBlock {
                     ),
                     state => {},
                   ), name=>$name);
-            push @(($node.closure).body), Return.new(result=>::Val::Buf(buf=>'sTrNgE V4l'));
+            push @(($node.closure).body), Return.new(result=> Val::Buf.new(buf=>'sTrNgE V4l'));
             $node.closure($name);
             return $node;
         };

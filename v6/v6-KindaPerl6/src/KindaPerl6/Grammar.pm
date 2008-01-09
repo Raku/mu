@@ -270,7 +270,7 @@ token term_meth {
     | \< <angle_quoted> \>   # $a{exp}
          { make Call.new(
                  'invocant' => $$<term>,
-                 'arguments' => [::Val::Buf( 'buf' => ~$<angle_quoted> )],
+                 'arguments' => [ Val::Buf.new( 'buf' => ~$<angle_quoted> ) ],
                  'method' => 'LOOKUP',
                  'hyper' => ''
            )
@@ -394,47 +394,6 @@ token exp_seq {
         # { say 'exp_seq: end of match' }
         { make [] }
 };
-
-
-token lit {
-    #| <lit_seq>    { make $$<lit_seq>    }  # (a, b, c)
-    #| <lit_array>  { make $$<lit_array>  }  # [a, b, c]
-    #| <lit_hash>   { make $$<lit_hash>   }  # {a => x, b => y}
-    #| <lit_code>   { make $$<lit_code>   }  # sub $x {...}
-    | <lit_object> { make $$<lit_object> }  # Tree.new(a => x, b => y);
-};
-
-token lit_seq   {  XXX { make 'TODO: lit_seq'    } };
-token lit_array {  XXX { make 'TODO: lit_array'  } };
-token lit_hash  {  XXX { make 'TODO: lit_hash'   } };
-token lit_code  {  XXX { make 'TODO - Lit::Code' } };
-
-token lit_object {
-    '::'
-    <full_ident>
-    \( 
-    [
-        <.opt_ws> <exp_mapping> <.opt_ws> \)
-        {
-            # say 'Parsing Lit::Object ', $$<full_ident>, ($$<exp_mapping>).perl;
-            make Lit::Object.new(
-                'class'  => $$<full_ident>,
-                'fields' => $$<exp_mapping>
-            )
-        }
-    | { say '*** Syntax Error parsing Constructor ',$$<full_ident>; die() }
-    ]
-};
-
-#token bind {
-#    <exp>  <.opt_ws> ':=' <.opt_ws>  <exp2>
-#    {
-#        make Bind.new(
-#            'parameters' => $$<exp>,
-#            'arguments'  => $$<exp2>,
-#        )
-#    }
-#};
 
 token call {
     <exp> <.dot> <ident> \( <.opt_ws> <exp_parameter_list> <.opt_ws> \)

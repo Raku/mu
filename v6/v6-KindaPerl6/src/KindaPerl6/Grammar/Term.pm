@@ -110,7 +110,7 @@ token term {
             'invocant'   => Var.new( 'sigil' => '$', 'twigil' => '', 'name' => '/', namespace => [ ] ),
             'hyper' => '',
             'method' => 'LOOKUP',
-            'arguments' => [::Val::Buf( 'buf' => $$<sub_or_method_name> )]
+            'arguments' => [ Val::Buf.new( 'buf' => $$<sub_or_method_name> ) ]
         ) }   # $<ident>
     | do <.opt_ws> <block1>
         # block1 is defined in the Grammar::Control module
@@ -118,8 +118,6 @@ token term {
     | use <.ws> <full_ident> <use_from_perl5> [ - <ident> | '' ]
         { make Use.new( 'mod' => $$<full_ident>,'perl5' => $$<use_from_perl5> ) }
     | <val>      { make $$<val> }     # 'value'
-    | <lit>      { make $$<lit> }     # [literal construct]
-#   | <bind>     { make $$<bind>   }  # $lhs := $rhs
 
     | <token_sym>
                  { make $$<token_sym>  }  # token:sym<...>  { regex... }
