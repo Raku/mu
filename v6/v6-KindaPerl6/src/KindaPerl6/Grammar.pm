@@ -12,6 +12,7 @@ use KindaPerl6::Grammar::Statements;
 use KindaPerl6::Grammar::Quote;
 use KindaPerl6::Grammar::Sub;
 use KindaPerl6::Grammar::Token;
+use KindaPerl6::Grammar::Expression;
 
 my $Class_name;  # for diagnostic messages
 sub get_class_name { $Class_name }; 
@@ -182,94 +183,11 @@ token comp_unit {
     ]
 };
 
-token infix_op {
-      '+' | '-' | '*' | '//' | '/' | eq | ne | '==' | '!=' | '&&' | '||' | '~~' | '~'
-    | '<=>'
-    | '<=' | '>=' 
-    | '<'  | '>' 
-    | '&' | '^' | '|'
-    | '..'
-    | 'but'
-    | 'x'
-};
-
-token hyper_op {
-    '>>' | ''
-};
-
-token prefix_op {
-    [ '$' | '@' | '%' | '?' | '!' | '++' | '--' | '+' | '-' | '~' | '|' ] 
-    <before '$' | '@' | '%' 
-          | '(' | '{' | '[' 
-    >
-};
-
 token declarator {
      'my' | 'state' | 'has' | 'our'
 };
 token opt_declarator {
     <declarator> <.ws> { make $$<declarator>;} | { make '';}
-};
-
-token exp2 { <exp> { make $$<exp> } };
-
-
-
-token exp {
-    # { say 'exp: going to match <term_meth> at ', $/.to; }
-    <term_meth> 
-    [
-        <.opt_ws>
-        '??'
-        [
-          <.opt_ws>  <exp>
-          <.opt_ws>  
-                [ '::' { die "maybe you mean ternary:<?? !!>" } 
-                | '!!' 
-                ]
-          <.opt_ws>
-          <exp2>
-          { 
-          
-            # XXX TODO - expand macro
-            # is &ternary:<?? !!> a macro?
-            my $macro_ast := ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'ternary:<?? !!>', namespace => [ ] );
-            my $macro := COMPILER::get_var( $macro_ast );
-            if defined($macro) {
-                # fetch the macro 
-                my $sub := ( COMPILER::current_pad() ).eval_ast( $macro_ast );
-                Main::expand_macro( $sub, $$<term_meth>, $$<exp>, $$<exp2> );
-                # say "# ternary macro = ", $sub.perl;
-            }
-            
-            make ::Apply(
-                'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'ternary:<?? !!>', namespace => [ ] ),
-                'arguments' => [ $$<term_meth>, $$<exp>, $$<exp2> ],
-            ); 
-          }
-        | { say '*** Syntax error in ternary operation' }
-        ]
-    |
-        <.opt_ws>
-        <infix_op>
-        <.opt_ws>
-        <exp>
-          { make ::Apply(
-            'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'infix:<' ~ $<infix_op> ~ '>', namespace => [ ]  ),
-            'arguments' => [ $$<term_meth>, $$<exp> ],
-          ) }
-    | <.opt_ws> '::=' <.opt_ws> <exp>
-        { 
-            my $bind := ::Bind( 'parameters' => $$<term_meth>, 'arguments' => $$<exp>);
-            COMPILER::begin_block( $bind );   # ::=   compile-time
-            make $bind;                         # :=    run-time
-        }
-    | <.opt_ws> ':=' <.opt_ws> <exp>
-        { make ::Bind( 'parameters' => $$<term_meth>, 'arguments' => $$<exp>) }
-    | <.opt_ws> '=' <.opt_ws> <exp>
-        { make ::Assign( 'parameters' => $$<term_meth>, 'arguments' => $$<exp>) }
-    |   { make $$<term_meth> }
-    ]
 };
 
 token opt_ident {  
