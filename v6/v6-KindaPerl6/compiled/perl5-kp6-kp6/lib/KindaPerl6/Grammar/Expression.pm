@@ -133,8 +133,8 @@ $::KindaPerl6::Grammar = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $:
     Match::from_global_data( $GLOBAL::_M ); 
     $MATCH = $GLOBAL::MATCH = pop @Match::Matches; 
     @Match::Matches = (); 
-    do {::DISPATCH_VAR( $GLOBAL::_REGEX_RETURN_, "STORE", ::DISPATCH( $::Apply, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'code' )
-    , value           => ::DISPATCH( $::Var, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'sigil' )
+    do {::DISPATCH_VAR( $GLOBAL::_REGEX_RETURN_, "STORE", ::DISPATCH( $::Apply, 'new', ::DISPATCH( $::Pair, 'new', { key => ::DISPATCH( $::Str, 'new', 'code' )
+    , value => ::DISPATCH( $::Var, 'new', ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'sigil' )
     , value           => ::DISPATCH( $::Str, 'new', '&' )
     ,  } ), ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'twigil' )
     , value           => ::DISPATCH( $::Str, 'new', '' )
@@ -151,8 +151,9 @@ $::KindaPerl6::Grammar = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $:
     , value           => ::DISPATCH( $::Array, 'new', { _array => [] }
      )
     ,  } ),  )
-    ,  } ), ::DISPATCH( $::NamedArgument, "new", { _argument_name_ => ::DISPATCH( $::Str, 'new', 'arguments' )
-    , value           => ::DISPATCH( $::Array, 'new', { _array => [::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__36__62_ = $GLOBAL::Code_prefix_58__60__36__62_ || ::DISPATCH( $::Routine, "new", )  ) 
+     } )
+    , ::DISPATCH( $::Pair, 'new', { key => ::DISPATCH( $::Str, 'new', 'arguments' )
+    , value => ::DISPATCH( $::Array, 'new', { _array => [::DISPATCH(  ( $GLOBAL::Code_prefix_58__60__36__62_ = $GLOBAL::Code_prefix_58__60__36__62_ || ::DISPATCH( $::Routine, "new", )  ) 
     , 'APPLY', ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'term_meth' )
      )
      )
@@ -162,7 +163,8 @@ $::KindaPerl6::Grammar = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $:
      )
     ] }
      )
-    ,  } ),  )
+     } )
+     )
      )
     };} if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { $GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", ::DISPATCH( $GLOBAL::_REGEX_RETURN_, "FETCH" ) ]; } 1 } ) ) || ( ( ( pos() = $_pos ) || 1 ) && ( do { local $GLOBAL::_M; _rule_opt_ws() } && /\G\:\:\=/g && do { local $GLOBAL::_M; _rule_opt_ws() } && ( _rule_exp() && ( $GLOBAL::_M = [ $GLOBAL::_M2, "named_capture", "exp" ] ))  && do { {local $GLOBAL::_M = [ $GLOBAL::_M, "to", pos() ]; 
     Match::from_global_data( $GLOBAL::_M ); 

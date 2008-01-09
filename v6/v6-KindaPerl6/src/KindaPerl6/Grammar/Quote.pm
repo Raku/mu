@@ -18,8 +18,8 @@ token quoted_any { . }
 token quoted_array {
     <before \@ > <var> \[ <.opt_ws> \]
         {
-            make ::Apply(
-                'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'prefix:<~>', namespace => [ ] ),
+            make Apply.new(
+                'code'      => Var.new( 'sigil' => '&', 'twigil' => '', 'name' => 'prefix:<~>', namespace => [ ] ),
                 'arguments' => [ $$<var> ],
             );
         }
@@ -28,8 +28,8 @@ token quoted_array {
 token quoted_hash {
     <before \% > <var> \{ <.opt_ws> \}
         {
-            make ::Apply(
-                'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'prefix:<~>', namespace => [ ] ),
+            make Apply.new(
+                'code'      => Var.new( 'sigil' => '&', 'twigil' => '', 'name' => 'prefix:<~>', namespace => [ ] ),
                 'arguments' => [ $$<var> ],
             );
         }
@@ -38,8 +38,8 @@ token quoted_hash {
 token quoted_scalar {
     <before \$ > <var>
         {
-            make ::Apply(
-                'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'prefix:<~>', namespace => [ ] ),
+            make Apply.new(
+                'code'      => Var.new( 'sigil' => '&', 'twigil' => '', 'name' => 'prefix:<~>', namespace => [ ] ),
                 'arguments' => [ $$<var> ],
             );
         }
@@ -49,29 +49,29 @@ token quoted_exp {
     |  <quoted_array>  { make $$<quoted_array>  }
     |  <quoted_hash>   { make $$<quoted_hash>   }
     |  <quoted_scalar> { make $$<quoted_scalar> }
-    |  \' { make ::Val::Char( char => 39 ) }
+    |  \' { make Val::Char.new( char => 39 ) }
     |  \\
         [  # see S02
-        |   a  { make ::Val::Char( char =>  7 ) }
-        |   b  { make ::Val::Char( char =>  8 ) }
-        |   t  { make ::Val::Char( char =>  9 ) }
-        |   n  { make ::Val::Char( char => 10 ) }
-        |   f  { make ::Val::Char( char => 12 ) }
-        |   r  { make ::Val::Char( char => 13 ) }
-        |   e  { make ::Val::Char( char => 27 ) }
-        |   \" { make ::Val::Char( char => 34 ) }
-        |   \' { make ::Val::Char( char => 39 ) }
-        |   \\ { make ::Val::Char( char => 92 ) }
-        |   <quoted_any> { make ::Val::Buf( 'buf' => $$<quoted_any> ) }
+        |   a  { make Val::Char.new( char =>  7 ) }
+        |   b  { make Val::Char.new( char =>  8 ) }
+        |   t  { make Val::Char.new( char =>  9 ) }
+        |   n  { make Val::Char.new( char => 10 ) }
+        |   f  { make Val::Char.new( char => 12 ) }
+        |   r  { make Val::Char.new( char => 13 ) }
+        |   e  { make Val::Char.new( char => 27 ) }
+        |   \" { make Val::Char.new( char => 34 ) }
+        |   \' { make Val::Char.new( char => 39 ) }
+        |   \\ { make Val::Char.new( char => 92 ) }
+        |   <quoted_any> { make Val::Buf.new( 'buf' => $$<quoted_any> ) }
         ]
-    |  [ \$ | \@ | \% | '' ] <double_quoted> { make ::Val::Buf( 'buf' => ~$/ ) }
+    |  [ \$ | \@ | \% | '' ] <double_quoted> { make Val::Buf.new( 'buf' => ~$/ ) }
 }
 
 token single_quoted_exp {
-    |   \\  \'   { make ::Val::Char( char => 39 ) }
-    |   \\  \\   { make ::Val::Char( char => 92 ) }
-    |   \\       { make ::Val::Char( char => 92 ) }
-    |  <single_quoted> { make ::Val::Buf( 'buf' => ~$/ ) }
+    |   \\  \'   { make Val::Char.new( char => 39 ) }
+    |   \\  \\   { make Val::Char.new( char => 92 ) }
+    |   \\       { make Val::Char.new( char => 92 ) }
+    |  <single_quoted> { make Val::Buf.new( 'buf' => ~$/ ) }
 }
 
 token quoted_exp_seq {
@@ -81,8 +81,8 @@ token quoted_exp_seq {
     |
         <quoted_exp_seq>
         {
-            make ::Apply(
-                'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'infix:<~>', namespace => [ ] ),
+            make Apply.new(
+                'code'      => Var.new( 'sigil' => '&', 'twigil' => '', 'name' => 'infix:<~>', namespace => [ ] ),
                 'arguments' => [ $$<quoted_exp>, $$<quoted_exp_seq> ],
             );
         }
@@ -96,8 +96,8 @@ token single_quoted_exp_seq {
     |
         <single_quoted_exp_seq>
         {
-            make ::Apply(
-                'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'infix:<~>', namespace => [ ] ),
+            make Apply.new(
+                'code'      => Var.new( 'sigil' => '&', 'twigil' => '', 'name' => 'infix:<~>', namespace => [ ] ),
                 'arguments' => [ $$<single_quoted_exp>, $$<single_quoted_exp_seq> ],
             );
         }

@@ -15,9 +15,9 @@ token token_P5 {
         <token_p5_body>
     \}
     {
-        make ::Token(
+        make Token.new(
              'name' => $$<opt_name>,
-             'regex' => ::P5Token(regex => $$<token_p5_body>),
+             'regex' => P5Token.new(regex => $$<token_p5_body>),
              'sym' => undef
         );
     }

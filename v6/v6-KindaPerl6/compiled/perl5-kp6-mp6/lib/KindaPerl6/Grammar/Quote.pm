@@ -941,7 +941,7 @@ sub single_quoted_exp_seq {
                                             do {
                                                 return (
                                                     Apply->new(
-                                                        'code' => Var->new( 'sigil' => '&', 'twigil' => '', 'name' => 'infix:<~>', 'namespace' => [], ),
+                                                        'code'      => Var->new( 'sigil'                     => '&', 'twigil' => '', 'name' => 'infix:<~>', 'namespace' => [], ),
                                                         'arguments' => [ ${ $MATCH->{'single_quoted_exp'} }, ${ $MATCH->{'single_quoted_exp_seq'} } ],
                                                     )
                                                 );

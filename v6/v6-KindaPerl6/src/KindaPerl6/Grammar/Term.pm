@@ -5,26 +5,26 @@ grammar KindaPerl6::Grammar {
 
 token term {
     | '...'
-        { make ::Apply(
-            'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'die', namespace => [ ] ),
+        { make Apply.new(
+            'code'      => Var.new( 'sigil' => '&', 'twigil' => '', 'name' => 'die', namespace => [ ] ),
             'arguments' => [],
           ) }
     | Inf  <!before <.word> | _ | <.digit> >
-        { make ::Apply(
-            'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'Inf', namespace => [ ] ),
+        { make Apply.new(
+            'code'      => Var.new( 'sigil' => '&', 'twigil' => '', 'name' => 'Inf', namespace => [ ] ),
             'arguments' => [],
           ) }
     | NaN  <!before <.word> | _ | <.digit> >
-        { make ::Apply(
-            'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'NaN', namespace => [ ] ),
+        { make Apply.new(
+            'code'      => Var.new( 'sigil' => '&', 'twigil' => '', 'name' => 'NaN', namespace => [ ] ),
             'arguments' => [],
           ) }
 
     | <var>     { make $$<var> }     # $variable
     | <arrow_sub> { make $$<arrow_sub> }     # -> $param { code... }
     | <prefix_op> <exp>
-          { make ::Apply(
-            'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'prefix:<' ~ $<prefix_op> ~ '>', namespace => [ ] ),
+          { make Apply.new(
+            'code'      => Var.new( 'sigil' => '&', 'twigil' => '', 'name' => 'prefix:<' ~ $<prefix_op> ~ '>', namespace => [ ] ),
             'arguments' => [ $$<exp> ],
           ) }
 
@@ -36,14 +36,14 @@ token term {
             { make $$<exp> }   # ( exp )
         | <pair> <.opt_ws> [ ',' <.opt_ws> | '' ] \)
             # special case - just for testing
-            { make ::Lit::Pair( key => ($$<pair>)[0], value => ($$<pair>)[1] ) }
+            { make Lit::Pair.new( key => ($$<pair>)[0], value => ($$<pair>)[1] ) }
         | <exp_seq> <.opt_ws> \)
             { return
-                ::Call(
-                    'invocant'  => ::Proto( name => 'List' ),
+                Call.new(
+                    'invocant'  => Proto.new( name => 'List' ),
                     'hyper'     => '',
                     'method'    => 'new',
-                    'arguments' => [ ::Lit::Array( 'array' => $$<exp_seq> ) ]
+                    'arguments' => [ Lit::Array.new( 'array' => $$<exp_seq> ) ]
                 );
             }
         ]
@@ -52,29 +52,29 @@ token term {
     | \{ <.opt_ws>
         [
         |   <pair> <.opt_ws> , <.opt_ws> \}
-            { make ::Lit::Pair( key => ($$<pair>)[0], value => ($$<pair>)[1] ) }
+            { make Lit::Pair.new( key => ($$<pair>)[0], value => ($$<pair>)[1] ) }
         |   <pair> <.opt_ws> \}
             {
-                make ::Lit::Code(
+                make Lit::Code.new(
                     pad   => COMPILER::current_pad(),
                     state => { },
                     sig   =>
-                        ::Sig(
+                        Sig.new(
                             'invocant' => undef,
                             'positional' => [ ],
                         ),
                     body  => [
-                            ::Lit::Pair( key => ($$<pair>)[0], value => ($$<pair>)[1] )
+                            Lit::Pair.new( key => ($$<pair>)[0], value => ($$<pair>)[1] )
                         ],
                 );
             }
         |   <exp_mapping> <.opt_ws> \}
             { return
-                ::Call(
-                    'invocant'  => ::Proto( name => 'Hash' ),
+                Call.new(
+                    'invocant'  => Proto.new( name => 'Hash' ),
                     'hyper'     => '',
                     'method'    => 'new',
-                    'arguments' => [ ::Lit::Hash( 'hash' => $$<exp_mapping> ) ]
+                    'arguments' => [ Lit::Hash.new( 'hash' => $$<exp_mapping> ) ]
                 );
             }
         |   <bare_block>
@@ -89,11 +89,11 @@ token term {
 
     | \[ <.opt_ws> <exp_seq> <.opt_ws> \]
             { return
-                ::Call(
-                    'invocant'  => ::Proto( name => 'Array' ),
+                Call.new(
+                    'invocant'  => Proto.new( name => 'Array' ),
                     'hyper'     => '',
                     'method'    => 'new',
-                    'arguments' => [ ::Lit::Array( 'array' => $$<exp_seq> ) ]
+                    'arguments' => [ Lit::Array.new( 'array' => $$<exp_seq> ) ]
                 );
             }
 
@@ -101,22 +101,22 @@ token term {
     | \\ \( <.opt_ws> <capture> <.opt_ws> \)
         { make $$<capture> }                                # \( exp, ... )
     | \\ \( <.opt_ws> <exp_seq> <.opt_ws> \)
-        { make ::Lit::Capture( 'invocant' => undef, 'array' => $$<exp_seq>, 'hash' => [ ] ); }
+        { make Lit::Capture.new( 'invocant' => undef, 'array' => $$<exp_seq>, 'hash' => [ ] ); }
     | \\ <var>
-        { make ::Lit::Capture( 'invocant' => undef, 'array' => [ $$<var> ], 'hash' => [ ] ); }
+        { make Lit::Capture.new( 'invocant' => undef, 'array' => [ $$<var> ], 'hash' => [ ] ); }
 
     | \$ \< <sub_or_method_name> \>
-        { make ::Call(
-            'invocant'   => ::Var( 'sigil' => '$', 'twigil' => '', 'name' => '/', namespace => [ ] ),
+        { make Call.new(
+            'invocant'   => Var.new( 'sigil' => '$', 'twigil' => '', 'name' => '/', namespace => [ ] ),
             'hyper' => '',
             'method' => 'LOOKUP',
             'arguments' => [::Val::Buf( 'buf' => $$<sub_or_method_name> )]
         ) }   # $<ident>
     | do <.opt_ws> <block1>
         # block1 is defined in the Grammar::Control module
-        { make ::Do( 'block' => $$<block1> ) }
+        { make Do.new( 'block' => $$<block1> ) }
     | use <.ws> <full_ident> <use_from_perl5> [ - <ident> | '' ]
-        { make ::Use( 'mod' => $$<full_ident>,'perl5' => $$<use_from_perl5> ) }
+        { make Use.new( 'mod' => $$<full_ident>,'perl5' => $$<use_from_perl5> ) }
     | <val>      { make $$<val> }     # 'value'
     | <lit>      { make $$<lit> }     # [literal construct]
 #   | <bind>     { make $$<bind>   }  # $lhs := $rhs
@@ -136,11 +136,11 @@ token term {
         {
             if ($$<subset>).name ne '' {
                 # subset x ...  -->  our &x ::= subset ...
-                my $bind := ::Bind(
-                    parameters => ::Proto(
+                my $bind := Bind.new(
+                    parameters => Proto.new(
                         name   => ($$<subset>).name,
                     ),
-                    arguments => ::Lit::Subset(
+                    arguments => Lit::Subset.new(
                         name       => '',
                         base_class => ($$<subset>).base_class,
                         block      => ($$<subset>).block,
@@ -169,9 +169,9 @@ token term {
                 $decl := $$<opt_declarator>;
             };
             ( COMPILER::current_pad() ).add_lexicals( [
-                ::Decl(
+                Decl.new(
                     decl  => $decl,
-                    var   => ::Var(
+                    var   => Var.new(
                         name   => ($$<sub>).name,
                         twigil => '',
                         sigil  => '&',
@@ -180,8 +180,8 @@ token term {
                     type  => '',
                 ),
             ] );
-            my $bind := ::Bind(
-                parameters => ::Var(
+            my $bind := Bind.new(
+                parameters => Var.new(
                     name   => ($$<sub>).name,
                     twigil => '',
                     sigil  => '&',
@@ -210,9 +210,9 @@ token term {
                 $decl := $$<opt_declarator>;
             };
             ( COMPILER::current_pad() ).add_lexicals( [
-                ::Decl(
+                Decl.new(
                     decl  => $decl,
-                    var   => ::Var(
+                    var   => Var.new(
                         name   => ($$<macro>).name,
                         twigil => '',
                         sigil  => '&',
@@ -221,8 +221,8 @@ token term {
                     type  => '',
                 ),
             ] );
-            my $bind := ::Bind(
-                parameters => ::Var(
+            my $bind := Bind.new(
+                parameters => Var.new(
                     name   => ($$<macro>).name,
                     twigil => '',
                     sigil  => '&',
@@ -251,9 +251,9 @@ token term {
                 $decl := $$<opt_declarator>;
             };
             ( COMPILER::current_pad() ).add_lexicals( [
-                ::Decl(
+                Decl.new(
                     decl  => $decl,
-                    var   => ::Var(
+                    var   => Var.new(
                         name   => ($$<coro>).name,
                         twigil => '',
                         sigil  => '&',
@@ -262,8 +262,8 @@ token term {
                     type  => '',
                 ),
             ] );
-            my $bind := ::Bind(
-                parameters => ::Var(
+            my $bind := Bind.new(
+                parameters => Var.new(
                     name   => ($$<coro>).name,
                     twigil => '',
                     sigil  => '&',
@@ -279,7 +279,7 @@ token term {
         {
             if ($$<declarator>) eq 'my' {
                 ( COMPILER::current_pad() ).add_lexicals( [
-                    ::Decl( 'decl' => $$<declarator>, 'type' => $$<opt_type>, 'var' => $$<undeclared_var> ),
+                    Decl.new( 'decl' => $$<declarator>, 'type' => $$<opt_type>, 'var' => $$<undeclared_var> ),
                 ] );
                 make $$<undeclared_var>;
             };
@@ -287,12 +287,12 @@ token term {
                 # TODO - bind to namespace
                 #say 'our declaration in namespace: ', ( COMPILER::current_pad() ).namespace;
                 ( COMPILER::current_pad() ).add_lexicals( [
-                    ::Decl( 'decl' => $$<declarator>, 'type' => $$<opt_type>, 'var' => $$<undeclared_var> ),
+                    Decl.new( 'decl' => $$<declarator>, 'type' => $$<opt_type>, 'var' => $$<undeclared_var> ),
                 ] );
                 make $$<undeclared_var>;
             };
             # TODO - our, temp, state, has
-            make ::Decl( 'decl' => $$<declarator>, 'type' => $$<opt_type>, 'var' => $$<undeclared_var> );
+            make Decl.new( 'decl' => $$<declarator>, 'type' => $$<opt_type>, 'var' => $$<undeclared_var> );
         }
     | <begin_block>
                 { make $$<begin_block> }  # BEGIN { code... }
@@ -300,16 +300,16 @@ token term {
                 { make $$<check_block> }  # CHECK { code... }
     | gather <.ws> \{ <.opt_ws> <bare_block>      # gather { code... }
         { return
-            ::Call(
+            Call.new(
                 hyper     => '',
                 arguments => [
-                    ::Sub(
+                    Sub.new(
                         'name'  => undef,
                         'block' => $$<bare_block>,
                     ),
                 ],
                 method   => 'new',
-                invocant => ::Proto( name => 'Gather', ),
+                invocant => Proto.new( name => 'Gather', ),
             );
         }
     | is <.ws> <full_ident>
@@ -323,9 +323,9 @@ token term {
 
     | <apply>   { make $$<apply>  }  # self; print 1,2,3
     | \<  <angle_quoted>  \>
-        { make ::Apply(
-            'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'qw', namespace => [ ] ),
-            'arguments' => [ ::Val::Buf( buf => ~$<angle_quoted> ) ],
+        { make Apply.new(
+            'code'      => Var.new( 'sigil' => '&', 'twigil' => '', 'name' => 'qw', namespace => [ ] ),
+            'arguments' => [ Val::Buf.new( buf => ~$<angle_quoted> ) ],
           ) }
 
 };

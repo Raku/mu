@@ -44,7 +44,7 @@ token exp {
           
             # XXX TODO - expand macro
             # is &ternary:<?? !!> a macro?
-            my $macro_ast := ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'ternary:<?? !!>', namespace => [ ] );
+            my $macro_ast := Var.new( 'sigil' => '&', 'twigil' => '', 'name' => 'ternary:<?? !!>', namespace => [ ] );
             my $macro := COMPILER::get_var( $macro_ast );
             if defined($macro) {
                 # fetch the macro 
@@ -53,8 +53,8 @@ token exp {
                 # say "# ternary macro = ", $sub.perl;
             }
             
-            make ::Apply(
-                'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'ternary:<?? !!>', namespace => [ ] ),
+            make Apply.new(
+                'code'      => Var.new( 'sigil' => '&', 'twigil' => '', 'name' => 'ternary:<?? !!>', namespace => [ ] ),
                 'arguments' => [ $$<term_meth>, $$<exp>, $$<exp2> ],
             ); 
           }
@@ -65,20 +65,20 @@ token exp {
         <infix_op>
         <.opt_ws>
         <exp>
-          { make ::Apply(
-            'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'infix:<' ~ $<infix_op> ~ '>', namespace => [ ]  ),
+          { make Apply.new(
+            'code'      => Var.new( 'sigil' => '&', 'twigil' => '', 'name' => 'infix:<' ~ $<infix_op> ~ '>', namespace => [ ]  ),
             'arguments' => [ $$<term_meth>, $$<exp> ],
           ) }
     | <.opt_ws> '::=' <.opt_ws> <exp>
         { 
-            my $bind := ::Bind( 'parameters' => $$<term_meth>, 'arguments' => $$<exp>);
+            my $bind := Bind.new( 'parameters' => $$<term_meth>, 'arguments' => $$<exp>);
             COMPILER::begin_block( $bind );   # ::=   compile-time
             make $bind;                         # :=    run-time
         }
     | <.opt_ws> ':=' <.opt_ws> <exp>
-        { make ::Bind( 'parameters' => $$<term_meth>, 'arguments' => $$<exp>) }
+        { make Bind.new( 'parameters' => $$<term_meth>, 'arguments' => $$<exp>) }
     | <.opt_ws> '=' <.opt_ws> <exp>
-        { make ::Assign( 'parameters' => $$<term_meth>, 'arguments' => $$<exp>) }
+        { make Assign.new( 'parameters' => $$<term_meth>, 'arguments' => $$<exp>) }
     |   { make $$<term_meth> }
     ]
 };

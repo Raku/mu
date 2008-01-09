@@ -10,7 +10,7 @@ grammar KindaPerl6::Grammar {
     }
     token sig_default_value {
         |   <.opt_ws> '=' <.opt_ws> <exp> <.opt_ws> { make { has_default => 1, default => $$<exp>, } }
-        |   ''                                      { make { has_default => 0, default => ::Val::Undef( ), } }
+        |   ''                                      { make { has_default => 0, default => Val::Undef.new( ), } }
     }
     token sig_named_only       { ':' { make 1 } | { make 0 } }
     token sig_optional         {
@@ -33,8 +33,8 @@ grammar KindaPerl6::Grammar {
             <sig_default_value>
             <sig_rw> <sig_copy>   # XXX no order !!!
 
-            { make ::Lit::SigArgument(
-                    key           => ::Var(
+            { make Lit::SigArgument.new(
+                    key           => Var.new(
                             sigil     => ~$<sigil>,
                             twigil    => '',
                             name      => ~$<ident>,
@@ -42,14 +42,14 @@ grammar KindaPerl6::Grammar {
                         ),
                     value         => ($$<sig_default_value>){'default'},
                     type          => $$<sig_type>,
-                    has_default   => ::Val::Bit( bit => ($$<sig_default_value>){'has_default'} ),
-                    is_named_only => ::Val::Bit( bit => $$<sig_named_only>  ),
-                    is_optional   => ::Val::Bit( bit => $$<sig_optional>    ),
-                    is_slurpy     => ::Val::Bit( bit => $$<sig_slurpy>      ),
+                    has_default   => Val::Bit.new( bit => ($$<sig_default_value>){'has_default'} ),
+                    is_named_only => Val::Bit.new( bit => $$<sig_named_only>  ),
+                    is_optional   => Val::Bit.new( bit => $$<sig_optional>    ),
+                    is_slurpy     => Val::Bit.new( bit => $$<sig_slurpy>      ),
                     is_multidimensional =>
-                                     ::Val::Bit( bit => $$<sig_multidimensional> ),
-                    is_rw         => ::Val::Bit( bit => $$<sig_rw>          ),
-                    is_copy       => ::Val::Bit( bit => $$<sig_copy>        ),
+                                     Val::Bit.new( bit => $$<sig_multidimensional> ),
+                    is_rw         => Val::Bit.new( bit => $$<sig_rw>          ),
+                    is_copy       => Val::Bit.new( bit => $$<sig_copy>        ),
                 ) }
     }
 
@@ -72,7 +72,7 @@ grammar KindaPerl6::Grammar {
         {
             # say ' invocant: ', ($$<invocant>).perl;
             # say ' positional: ', ($$<exp_seq>).perl;
-            make ::Sig( 'invocant' => $$<invocant>, 'positional' => $$<exp_sig_list>, );
+            make Sig.new( 'invocant' => $$<invocant>, 'positional' => $$<exp_sig_list>, );
         }
     };
 

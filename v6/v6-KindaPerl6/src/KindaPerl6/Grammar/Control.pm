@@ -27,10 +27,10 @@ token block1 {
         {
             my $env := COMPILER::current_pad();
             COMPILER::drop_pad();
-            make ::Lit::Code(
+            make Lit::Code.new(
                     pad   => $env,
                     state => { },
-                    sig   => ::Sig( 'invocant' => undef, 'positional' => [ ] ),
+                    sig   => Sig.new( 'invocant' => undef, 'positional' => [ ] ),
                     body  => $$<exp_stmts>,
                 );
         }
@@ -49,7 +49,7 @@ token if {
         else <.opt_ws>
         <block2>
         {
-            make ::If(
+            make If.new(
                 'cond'      => $$<exp>,
                 'body'      => $$<block1>,
                 'otherwise' => $$<block2>,
@@ -57,7 +57,7 @@ token if {
         }
     |
         {
-            make ::If(
+            make If.new(
                 'cond' => $$<exp>,
                 'body' => $$<block1>,
                 'otherwise' => undef,
@@ -74,7 +74,7 @@ token unless {
         else <.opt_ws>
         <block2>
         {
-            make ::If(
+            make If.new(
                 'cond'      => $$<exp>,
                 'body'      => $$<block2>,
                 'otherwise' => $$<block1>,
@@ -82,7 +82,7 @@ token unless {
         }
     |
         {
-            make ::If(
+            make If.new(
                 'cond' => $$<exp>,
                 'body' => undef,
                 'otherwise' => $$<block1>,
@@ -94,7 +94,7 @@ token unless {
 token when {
     when <.ws> <exp_seq> <.opt_ws> <block1>
     {
-        make ::When(
+        make When.new(
             'parameters' => $$<exp_seq>,
             'body'       => $$<block1>,
             ) }
@@ -103,7 +103,7 @@ token when {
 token for {
     for <.ws> <exp> <.opt_ws> <arrow_sub>
     {
-            make ::Call(
+            make Call.new(
                 hyper     => '',
                 arguments => [ $$<arrow_sub> ],
                 method   => 'map',
@@ -115,7 +115,7 @@ token for {
 token while {
     while <.ws> <exp> <.ws> <block1>
     {
-        make ::While(
+        make While.new(
             'cond' => $$<exp>,
             'body' => $$<block1>,
             ) }
@@ -123,15 +123,15 @@ token while {
 
 token ctrl_leave {
     leave
-    { make ::Leave() }
+    { make Leave.new() }
 };
 
 token ctrl_return {
     return <.ws> <exp>
-    { make ::Return( 'result' => $$<exp> ) }
+    { make Return.new( 'result' => $$<exp> ) }
     |
     return
-    { make ::Return( 'result' => ::Val::Undef() ) }
+    { make Return.new( 'result' => Val::Undef.new() ) }
 };
 
 }

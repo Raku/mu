@@ -8,7 +8,7 @@ token pair {
     |   <ident>                             #  key => value
         <.opt_ws> '=>' <.opt_ws>
         <exp>
-        { make [ ::Val::Buf( 'buf' => ~$<ident> ), $$<exp> ] }
+        { make [ Val::Buf.new( 'buf' => ~$<ident> ), $$<exp> ] }
     |   <exp2>                              #  key => value
         <.opt_ws> '=>' <.opt_ws>
         <exp>
@@ -16,26 +16,26 @@ token pair {
     |   \: <ident> \< <angle_quoted> \>     #  :key<value>
         {
             make [
-                ::Val::Buf( 'buf' => ~$<ident> ),
-                ::Val::Buf( 'buf' => ~$<angle_quoted> ) ]
+                Val::Buf.new( 'buf' => ~$<ident> ),
+                Val::Buf.new( 'buf' => ~$<angle_quoted> ) ]
         }
     |   \: <ident> \( <.opt_ws> <exp> <.opt_ws> \)   #  :key(value)
         {
             make [
-                ::Val::Buf( 'buf' => ~$<ident> ),
+                Val::Buf.new( 'buf' => ~$<ident> ),
                 $$<exp> ]
         }
     |   \: <ident>                          #  :key
         {
             make [
-                ::Val::Buf( 'buf' => ~$<ident> ),
-                ::Val::Bit( 'bit' => 1 ) ]
+                Val::Buf.new( 'buf' => ~$<ident> ),
+                Val::Bit.new( 'bit' => 1 ) ]
         }
     |   \: <sigil> <ident>                  #  :$var
         {
             make [
-                ::Val::Buf( 'buf' => ~$<ident> ),
-                ::Var( 'sigil' => ~$$<sigil>, 'twigil' => '', 'name' => $$<ident>, namespace => [ ] ) ]
+                Val::Buf.new( 'buf' => ~$<ident> ),
+                Var.new( 'sigil' => ~$$<sigil>, 'twigil' => '', 'name' => $$<ident>, namespace => [ ] ) ]
         }
 };
 

@@ -5,8 +5,8 @@ grammar KindaPerl6::Grammar {
 token method_sig {
     |   <.opt_ws> \( <.opt_ws>  <sig>  <.opt_ws>  \)
         { make $$<sig> }
-    |   { make ::Sig(
-            'invocant' => ::Var(
+    |   { make Sig.new(
+            'invocant' => Var.new(
                 'sigil'  => '$',
                 'twigil' => '',
                 'name'   => 'self',
@@ -18,7 +18,7 @@ token method_sig {
 token sub_sig {
     |   <.opt_ws> \( <.opt_ws>  <sig>  <.opt_ws>  \)
         { make $$<sig> }
-    |   { make ::Sig(
+    |   { make Sig.new(
             'invocant' => undef,
             'positional' => [ ],
             ) }
@@ -26,8 +26,8 @@ token sub_sig {
 
 token arrow_sub_sig {
     |   <exp_sig_list>
-        { make ::Sig(
-            'invocant' =>   ::Val::Undef(),
+        { make Sig.new(
+            'invocant' =>   Val::Undef.new(),
             'positional' => $$<exp_sig_list>,
             ) }
     |   \( <.opt_ws>  <sig>  <.opt_ws>  \)
@@ -52,14 +52,14 @@ token sub {
         KindaPerl6::Grammar::declare_parameters(
             $env,
             [
-                ::Var( sigil => '@', twigil => '', name => '_', namespace => [ ] ),
+                Var.new( sigil => '@', twigil => '', name => '_', namespace => [ ] ),
                 # ($$<sub_sig>).invocant,
                 @(($$<sub_sig>).positional).>>key,
             ]
         );
-        make ::Sub(
+        make Sub.new(
             'name'  => $$<opt_name>,
-            'block' => ::Lit::Code(
+            'block' => Lit::Code.new(
                 pad   => $env,
                 state => { },
                 sig   => $$<sub_sig>,
@@ -87,14 +87,14 @@ token coro {
         KindaPerl6::Grammar::declare_parameters(
             $env,
             [
-                ::Var( sigil => '@', twigil => '', name => '_', namespace => [ ] ),
+                Var.new( sigil => '@', twigil => '', name => '_', namespace => [ ] ),
                 # ($$<sub_sig>).invocant,
                 @(($$<sub_sig>).positional).>>key,
             ]
         );
-        make ::Coro(
+        make Coro.new(
             'name'  => $$<opt_name>,
-            'block' => ::Lit::Code(
+            'block' => Lit::Code.new(
                 pad   => $env,
                 state => { },
                 sig   => $$<sub_sig>,
@@ -122,14 +122,14 @@ token arrow_sub {
         KindaPerl6::Grammar::declare_parameters(
             $env,
             [
-                ::Var( sigil => '@', twigil => '', name => '_', namespace => [ ] ),
+                Var.new( sigil => '@', twigil => '', name => '_', namespace => [ ] ),
                 # ($$<sub_sig>).invocant,
                 @(($$<arrow_sub_sig>).positional).>>key,
             ]
         );
-        make ::Sub(
+        make Sub.new(
             'name'  => undef,
-            'block' => ::Lit::Code(
+            'block' => Lit::Code.new(
                 pad   => $env,
                 state => { },
                 sig   => $$<arrow_sub_sig>,
@@ -154,16 +154,16 @@ token bare_block {
         KindaPerl6::Grammar::declare_parameters(
             $env,
             [
-                # ::Var( sigil => '@', twigil => '', name => '_', namespace => [ ] ),
+                # Var.new( sigil => '@', twigil => '', name => '_', namespace => [ ] ),
                 # ($$<sub_sig>).invocant,
                 # @(($$<sub_sig>).positional).>>key,
             ]
         );
-        make ::Lit::Code(
+        make Lit::Code.new(
                 pad   => $env,
                 state => { },
                 sig   =>
-                    ::Sig(
+                    Sig.new(
                         'invocant' => undef,
                         'positional' => [ ],
                     ),
@@ -177,20 +177,20 @@ token proto {
         <namespace> <ident> <.ws> '{' <.opt_ws> '}'
         {
             # proto token x { }
-            my $bind := ::Bind(
+            my $bind := Bind.new(
                 parameters =>         # no pre-declaration checks ???
-                        ::Var(
+                        Var.new(
                             sigil     => '&',
                             twigil    => '',
                             name      => ~$<ident>,
                             namespace => $$<namespace>,
                         ),
                 arguments =>
-                        ::Call(
+                        Call.new(
                             'hyper'     => '',
                             'arguments' => [ ],
                             'method'    => 'new',
-                            'invocant'  => ::Proto(
+                            'invocant'  => Proto.new(
                                 name => 'Multi',
                             ),
                         ),
@@ -220,15 +220,15 @@ token method {
         KindaPerl6::Grammar::declare_parameters(
             $env,
             [
-                ::Var( sigil => '@', twigil => '', name => '_', namespace => [ ] ),
+                Var.new( sigil => '@', twigil => '', name => '_', namespace => [ ] ),
                 ($$<method_sig>).invocant,
                 @(($$<method_sig>).positional).>>key,
             ]
         );
         COMPILER::drop_pad();
-        make ::Method(
+        make Method.new(
             'name'  => $$<opt_name>,
-            'block' => ::Lit::Code(
+            'block' => Lit::Code.new(
                 pad   => $env,
                 state => { },
                 sig   => $$<method_sig>,
@@ -264,26 +264,26 @@ token multi_method {
             KindaPerl6::Grammar::declare_parameters(
                 $env,
                 [
-                    ::Var( sigil => '@', twigil => '', name => '_', namespace => [ ] ),
+                    Var.new( sigil => '@', twigil => '', name => '_', namespace => [ ] ),
                     ($$<method_sig>).invocant,
                     @(($$<method_sig>).positional).>>key,
                 ]
             );
             COMPILER::drop_pad();
             return
-                ::Call(
+                Call.new(
                     hyper     => '',
                     method   => 'add_variant',
-                    invocant => ::Var(
+                    invocant => Var.new(
                             namespace => $$<namespace>,
                             name      => $$<ident>,
                             twigil    => '',
                             sigil     => '&',
                     ),
                     arguments => [
-                        ::Method(
+                        Method.new(
                             name  => '',
-                            'block' => ::Lit::Code(
+                            'block' => Lit::Code.new(
                                 pad   => $env,
                                 state => { },
                                 sig   => $$<method_sig>,
@@ -315,26 +315,26 @@ token multi_sub {
             KindaPerl6::Grammar::declare_parameters(
                 $env,
                 [
-                    ::Var( sigil => '@', twigil => '', name => '_', namespace => [ ] ),
+                    Var.new( sigil => '@', twigil => '', name => '_', namespace => [ ] ),
                     # ($$<sub_sig>).invocant,
                     @(($$<sub_sig>).positional).>>key,
                 ]
             );
             COMPILER::drop_pad();
             return
-                ::Call(
+                Call.new(
                     hyper     => '',
                     method   => 'add_variant',
-                    invocant => ::Var(
+                    invocant => Var.new(
                             namespace => $$<namespace>,
                             name      => $$<ident>,
                             twigil    => '',
                             sigil     => '&',
                     ),
                     arguments => [
-                        ::Sub(
+                        Sub.new(
                             name  => '',
-                            'block' => ::Lit::Code(
+                            'block' => Lit::Code.new(
                                 pad   => $env,
                                 state => { },
                                 sig   => $$<sub_sig>,
@@ -353,7 +353,7 @@ token token {
         <KindaPerl6::Grammar::Regex.rule>
     \}
     {
-        make ::Token(
+        make Token.new(
             name  => ~$<opt_name>,
             regex => $$<KindaPerl6::Grammar::Regex.rule>,
             sym   => undef,
@@ -379,22 +379,22 @@ token token_sym {
     \}
     {
             return
-                ::Call(
+                Call.new(
                     hyper     => '',
                     method   => 'add_token_variant',
-                    invocant => ::Var(
+                    invocant => Var.new(
                             namespace => $$<namespace>,
                             name      => $$<ident>,
                             twigil    => '',
                             sigil     => '&',
                     ),
                     arguments => [
-                        ::Token(
+                        Token.new(
                             name  => undef,
                             regex => $$<KindaPerl6::Grammar::Regex.rule>,
                             sym   => ~$<token_sym_ident>,
                         ),
-                        ::Val::Buf( 'buf' => ~$<token_sym_ident> ),
+                        Val::Buf.new( 'buf' => ~$<token_sym_ident> ),
                     ],
                 );
     }
@@ -419,14 +419,14 @@ token macro {
         KindaPerl6::Grammar::declare_parameters(
             $env,
             [
-                ::Var( sigil => '@', twigil => '', name => '_', namespace => [ ] ),
+                Var.new( sigil => '@', twigil => '', name => '_', namespace => [ ] ),
                 # ($$<sub_sig>).invocant,
                 @(($$<sub_sig>).positional).>>key,
             ]
         );
-        make ::Macro(
+        make Macro.new(
             'name'  => $$<opt_name>,
-            'block' => ::Lit::Code(
+            'block' => Lit::Code.new(
                 pad   => $env,
                 state => { },
                 sig   => $$<sub_sig>,
