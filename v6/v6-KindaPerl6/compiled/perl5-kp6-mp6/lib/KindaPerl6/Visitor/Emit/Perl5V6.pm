@@ -358,101 +358,14 @@ sub emit_arguments_v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    my $array_  = Var->new( 'sigil' => '@', 'twigil' => '', 'name' => '_',       'namespace' => [], );
-    my $hash_   = Var->new( 'sigil' => '%', 'twigil' => '', 'name' => '_',       'namespace' => [], );
-    my $CAPTURE = Var->new( 'sigil' => '$', 'twigil' => '', 'name' => 'CAPTURE', 'namespace' => [], );
-    my $CAPTURE_decl = Decl->new( 'decl' => 'my', 'type' => '', 'var' => $CAPTURE, );
     my $str = '';
-    $str = ( $str . $CAPTURE_decl->emit_perl5v6() );
-    $str = ( $str . Decl->new( 'decl' => 'my', 'type' => '', 'var' => $array_, )->emit_perl5v6() );
-    $str = ( $str . '::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));' );
-    my $bind_array = Assign->new( 'parameters' => $array_, 'arguments' => Call->new( 'invocant' => $CAPTURE, 'method' => 'array', 'arguments' => [], ), );
-    $str = ( $str . ( $bind_array->emit_perl5v6() . ';' ) );
-    my $bind_hash = Bind->new( 'parameters' => $hash_, 'arguments' => Call->new( 'invocant' => $CAPTURE, 'method' => 'hash', 'arguments' => [], ), );
-    $str = ( $str . ( $bind_hash->emit_perl5v6() . ';' ) );
-    my $i = 0;
-    my $field;
-    $str = ( $str . '{ my $_param_index = 0; ' );
+    my $i   = 0;
     do {
-
         for my $field ( @{ $self->{sig}->positional() } ) {
-            my $bind_named = Bind->new( 'parameters' => $field->key(), 'arguments' => Call->new( 'invocant' => $hash_, 'arguments' => [ Val::Buf->new( 'buf' => $field->key()->name(), ) ], 'method' => 'LOOKUP', ), );
-            my $bind_default = Bind->new( 'parameters' => $field->key(), 'arguments' => $field->value(), );
-            $str = (
-                $str
-                    . (
-                    ' if ( ::DISPATCH( $GLOBAL::Code_exists, '
-                        . (
-                        ' \'APPLY\', '
-                            . (
-                            ' ::DISPATCH( '
-                                . (
-                                ' $Hash__, \'LOOKUP\', '
-                                    . (
-                                    ' ::DISPATCH( $::Str, \'new\', \''
-                                        . (
-                                        $field->key()->name()
-                                            . (
-                                            '\' ) '
-                                                . (
-                                                ' ) )->{_value} '
-                                                    . (
-                                                    ' ) '
-                                                        . (
-                                                        ' { '
-                                                            . (
-                                                            $bind_named->emit_perl5v6()
-                                                                . (
-                                                                ' } '
-                                                                    . (
-                                                                    ' elsif ( ::DISPATCH( $GLOBAL::Code_exists, '
-                                                                        . (
-                                                                        ' \'APPLY\', '
-                                                                            . (
-                                                                            ' ::DISPATCH( '
-                                                                                . (
-                                                                                ' $List__, \'INDEX\', '
-                                                                                    . (
-                                                                                    ' ::DISPATCH( $::Int, \'new\', $_param_index ) '
-                                                                                        . (
-                                                                                        ' ) )->{_value} '
-                                                                                            . (
-                                                                                            ' ) '
-                                                                                                . (
-                                                                                                ' { '
-                                                                                                    . (
-                                                                                                    $field->key()->emit_perl5v6()
-                                                                                                        . ( ' = ::DISPATCH( ' . ( ' $List__, \'INDEX\', ' . ( ' ::DISPATCH( $::Int, \'new\', $_param_index++ ) ' . ( ' ); ' . ' } ' ) ) ) )
-                                                                                                    )
-                                                                                                )
-                                                                                            )
-                                                                                        )
-                                                                                    )
-                                                                                )
-                                                                            )
-                                                                        )
-                                                                    )
-                                                                )
-                                                            )
-                                                        )
-                                                    )
-                                                )
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
-            );
-            do {
-                if ( $field->has_default()->bit() ) { $str = ( $str . ( ' else { ' . ( $bind_default->emit_perl5v6() . ' } ' ) ) ) }
-                else                                { }
-            };
+            $str = ( $str . ( 'bind_op(' . ( Main::singlequote() . ( $field->key()->emit_perl5v6() . ( Main::singlequote() . ( ' => \\' . ( '$_[' . ( $i . ( ']' . ');' ) ) ) ) ) ) ) ) );
             $i = ( $i + 1 );
         }
     };
-    $str = ( $str . '} ' );
     return ($str);
 }
 
@@ -797,7 +710,7 @@ sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( 'sub {' . ( $self->{block}->emit_declarations_v6() . ( $self->{block}->emit_body_v6() . ( ' }' . Main::newline() ) ) ) );
+    ( 'sub {' . ( $self->{block}->emit_declarations_v6() . ( $self->{block}->emit_arguments_v6() . ( $self->{block}->emit_body_v6() . ( ' }' . Main::newline() ) ) ) ) );
 }
 
 package Macro;

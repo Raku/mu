@@ -190,76 +190,18 @@ class Lit::Code {
         return $s;
     };
     method emit_arguments_v6 {
-        my $array_  := ::Var( sigil => '@', twigil => '', name => '_',       namespace => [ ], );
-        my $hash_   := ::Var( sigil => '%', twigil => '', name => '_',       namespace => [ ], );
-        my $CAPTURE := ::Var( sigil => '$', twigil => '', name => 'CAPTURE', namespace => [ ],);
-        my $CAPTURE_decl := ::Decl(decl=>'my',type=>'',var=>$CAPTURE);
         my $str := '';
-        $str := $str ~ $CAPTURE_decl.emit_perl5v6;
-        $str := $str ~ ::Decl(decl=>'my',type=>'',var=>$array_).emit_perl5v6;
-        $str := $str ~ '::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));';
-
-        # XXX s/assign/bind/ ?
-        my $bind_array :=
-                    ::Assign(parameters=>$array_,arguments=>::Call(invocant => $CAPTURE,method => 'array',arguments => []));
-        $str := $str ~ $bind_array.emit_perl5v6 ~ ';';
-
-        my $bind_hash :=
-                    ::Bind(parameters=>$hash_, arguments=>::Call(invocant => $CAPTURE,method => 'hash', arguments => []));
-        $str := $str ~ $bind_hash.emit_perl5v6 ~ ';';
-
         my $i := 0;
-        my $field;
-        $str := $str ~ '{ my $_param_index = 0; ';
         for @($.sig.positional) -> $field {
-
-            my $bind_named := ::Bind(
-                    parameters => $field.key,
-                    arguments  => ::Call(
-                            invocant  => $hash_,
-                            arguments => [ ::Val::Buf( buf => ($field.key).name ) ],
-                            method    => 'LOOKUP',
-                        ),
-                );
-            my $bind_default := ::Bind(
-                    parameters => $field.key,
-                    arguments  => $field.value,
-                );
-
-            $str := $str
-                    ~ ' if ( ::DISPATCH( $GLOBAL::Code_exists, '
-                    ~   ' \'APPLY\', '
-                    ~   ' ::DISPATCH( '
-                    ~       ' $Hash__, \'LOOKUP\', '
-                    ~       ' ::DISPATCH( $::Str, \'new\', \'' ~ ($field.key).name ~ '\' ) '
-                    ~   ' ) )->{_value} '
-                    ~ ' ) '
-                    ~ ' { '
-                    ~     $bind_named.emit_perl5v6
-                    ~ ' } '
-                    ~ ' elsif ( ::DISPATCH( $GLOBAL::Code_exists, '
-                    ~   ' \'APPLY\', '
-                    ~   ' ::DISPATCH( '
-                    ~       ' $List__, \'INDEX\', '
-                    ~       ' ::DISPATCH( $::Int, \'new\', $_param_index ) '
-                    ~   ' ) )->{_value} '
-                    ~ ' ) '
-                    ~ ' { '
-                    ~     ($field.key).emit_perl5v6
-                    ~         ' = ::DISPATCH( '
-                    ~       ' $List__, \'INDEX\', '
-                    ~       ' ::DISPATCH( $::Int, \'new\', $_param_index++ ) '
-                    ~   ' ); '
-                    ~ ' } ';
-            if ($field.has_default).bit {
-                $str := $str
-                    ~ ' else { '
-                    ~     $bind_default.emit_perl5v6
-                    ~ ' } ';
-            }
+            $str := $str ~ 'bind_op('
+                    ~ Main::singlequote
+                    ~ ($field.key).emit_perl5v6
+                    ~ Main::singlequote 
+                    ~ ' => \\'
+                    ~ '$_[' ~ $i ~ ']'
+                    ~ ');';
             $i := $i + 1;
         };
-        $str := $str ~ '} ';
 
         return $str;
     };
@@ -610,6 +552,7 @@ class Sub {
     method emit_perl5v6 {
         'sub {' 
         ~       $.block.emit_declarations_v6
+        ~       $.block.emit_arguments_v6
         ~       $.block.emit_body_v6
         ~ ' }'
         ~ Main::newline();
