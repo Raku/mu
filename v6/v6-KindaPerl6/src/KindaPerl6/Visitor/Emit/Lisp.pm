@@ -417,25 +417,6 @@ class If {
     }
 }
 
-#class For {
-#    method emit_lisp ($interpreter, $indent) {
-#        my $cond := $.cond;
-#        if   $cond.isa( 'Var' )
-#          && ($cond.sigil eq '@')
-#        {
-#        } else {
-#            $cond := Apply.new( code => ::Var(sigil=>'&',twigil=>'',name=>'prefix:<@>',namespace => [ 'GLOBAL' ],), arguments => [$cond] );
-#        }
-#        '(kp6-for-loop-structure ('
-#        ~ $interpreter
-#        ~ ' ' ~ $.topic.emit_lisp_name()
-#        ~ ' ' ~ $cond.emit_lisp($interpreter, $indent)
-#        ~ ')' ~ Main::newline()
-#        ~ ' ' ~ $.body.emit_lisp($interpreter, $indent)
-#        ~ ')';
-#    }
-#}
-
 class While {
     method emit_lisp ($interpreter, $indent) {
         my $cond := $.cond;
@@ -443,7 +424,7 @@ class While {
           && $cond.sigil eq '@'
         {
         } else {
-            $cond := Apply.new( code => ::Var(sigil=>'&',twigil=>'',name=>'prefix:<@>',namespace => [ 'GLOBAL' ],), arguments => [$cond] );
+            $cond := Apply.new( code => Var.new(sigil=>'&',twigil=>'',name=>'prefix:<@>',namespace => [ 'GLOBAL' ],), arguments => [$cond] );
         }
         '(loop :while (kp6-dispatch' ~ Main::newline()
         ~ '  (kp6-dispatch '

@@ -433,7 +433,7 @@ class While {
           && $cond.sigil eq '@'
         {
         } else {
-            $cond := Apply.new( code => ::Var(sigil=>'&',twigil=>'',name=>'prefix:<@>',namespace => [ 'GLOBAL' ],), arguments => [$cond] );
+            $cond := Apply.new( code => Var.new(sigil=>'&',twigil=>'',name=>'prefix:<@>',namespace => [ 'GLOBAL' ],), arguments => [$cond] );
         }
         'do { while (::DISPATCH(::DISPATCH(' ~ $.cond.emit_perl5v6 ~ ',"true"),"p5landish") ) '
         ~ ' { '

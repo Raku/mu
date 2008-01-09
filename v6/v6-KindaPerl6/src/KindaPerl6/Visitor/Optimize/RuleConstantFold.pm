@@ -24,7 +24,7 @@ class KindaPerl6::Visitor::Optimize::RuleConstantFold {
                     # dump them
                     if ($constant ne '')
                     {
-                        push @$nodes, ::Rule::Constant(
+                        push @$nodes, Rule::Constant.new(
                             constant => $constant,
                         );
                         $constant := '';
@@ -35,11 +35,11 @@ class KindaPerl6::Visitor::Optimize::RuleConstantFold {
 
             if (defined($constant))
             {
-                push @$nodes, ::Rule::Constant(
+                push @$nodes, Rule::Constant.new(
                     constant => $constant,
                 );
             }
-            return ::Rule::Concat(
+            return Rule::Concat.new(
                 concat => $nodes,
             );
         }

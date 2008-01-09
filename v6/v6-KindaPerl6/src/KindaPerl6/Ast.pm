@@ -1,23 +1,5 @@
 use v6-alpha;
 
-#class Module {
-#    has $.name;
-#    has @.body;
-#    method emit( $visitor, $path ) {
-#        KindaPerl6::Traverse::visit( 
-#            $visitor, 
-#            self,
-#            'Module',
-#        );
-#    };
-#    method attribs {
-#            { 
-#                name    => $.name,
-#                body    => @.body,
-#            }
-#    };
-#}
-
 class CompUnit {
     has $.unit_type;
     has $.name;
@@ -1173,7 +1155,7 @@ C<KindaPerl6::Visitor::Emit*>.
         | Lit::Array    # [a, b, c]
         | Lit::Hash     # {a => x, b => y}
         | Lit::Code     # sub $x {...}
-        | Lit::Object   # ::Tree(a => x, b => y);
+        | Lit::Object   # Tree.new(a => x, b => y);
         );
 
     # Fully reduced values.
