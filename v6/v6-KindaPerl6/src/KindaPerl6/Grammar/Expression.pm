@@ -24,6 +24,98 @@ token prefix_op {
     >
 };
 
+# Lowest Precedence
+
+    # See: <term>
+
+# Middle Precedence
+
+token term_meth {
+    <full_ident>
+    [ <.dot>
+        <hyper_op>
+        <ident>
+            [ \( <.opt_ws> <exp_parameter_list> <.opt_ws> \)
+                # { say 'found parameter list: ', $<exp_parameter_list>.perl }
+            | \: <.ws> <exp_parameter_list> <.opt_ws>
+            |
+                {
+                    make Call.new(
+                        'invocant'  => Proto.new( 'name' => ~$<full_ident> ),
+                        'method'    => $$<ident>,
+                        'arguments' => undef,
+                        'hyper'     => $$<hyper_op>,
+                    )
+                }
+            ]
+            {
+                make Call.new(
+                    'invocant'  => Proto.new( 'name' => ~$<full_ident> ),
+                    'method'    => $$<ident>,
+                    'arguments' => $$<exp_parameter_list>,
+                    'hyper'     => $$<hyper_op>,
+                )
+            }
+    ]
+    |
+    <term>
+    [ 
+    | [ '[' | '.[' ]  <.opt_ws> <exp> <.opt_ws> \]   # $a[exp]
+         { make Call.new(
+                 'invocant' => $$<term>,
+                 'arguments' => [$$<exp>],
+                 'method' => 'INDEX',
+                 'hyper' => '' 
+           )
+         }
+    | [ '{' | '.{' ] <.opt_ws> <exp> <.opt_ws> \}   # $a{exp}
+         { make Call.new(
+                 'invocant' => $$<term>,
+                 'arguments' => [$$<exp>],
+                 'method' => 'LOOKUP',
+                 'hyper' => ''
+           )
+         }
+    | <.dot>
+        <hyper_op>
+        <opt_ident>   # $obj.(42)
+            [ \( 
+                # { say 'testing exp_parameter_list at ', $/.to }
+                <.opt_ws> <exp_parameter_list> <.opt_ws> \)
+                # { say 'found parameter list: ', $<exp_parameter_list>.perl }
+            | \: <.ws> <exp_parameter_list> <.opt_ws>
+            |
+                {
+                    make Call.new(
+                        'invocant'  => $$<term>,
+                        'method'    => $$<opt_ident>,
+                        'arguments' => undef,
+                        'hyper'     => $$<hyper_op>,
+                    )
+                }
+            ]
+            {
+                make Call.new(
+                    'invocant'  => $$<term>,
+                    'method'    => $$<opt_ident>,
+                    'arguments' => $$<exp_parameter_list>,
+                    'hyper'     => $$<hyper_op>,
+                )
+            }
+    | \< <angle_quoted> \>   # $a{exp}
+         { make Call.new(
+                 'invocant' => $$<term>,
+                 'arguments' => [ Val::Buf.new( 'buf' => ~$<angle_quoted> ) ],
+                 'method' => 'LOOKUP',
+                 'hyper' => ''
+           )
+         }
+    |    { make $$<term> }
+    ]
+};
+
+# Lowest Precedence
+
 token exp2 { <exp> { make $$<exp> } };
 
 token exp {
@@ -90,7 +182,7 @@ token exp {
 
 =head1 NAME 
 
-KindaPerl6::Grammar - Grammar for KindaPerl6
+KindaPerl6::Grammar - Expression Grammar for KindaPerl6
 
 =head1 SYNOPSIS
 

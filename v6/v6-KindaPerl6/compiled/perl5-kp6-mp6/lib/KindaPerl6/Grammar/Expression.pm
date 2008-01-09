@@ -164,6 +164,477 @@ sub prefix_op {
     return ($MATCH);
 }
 
+sub term_meth {
+    my $grammar = shift;
+    my $List__  = \@_;
+    my $str;
+    my $pos;
+    do { $str = $List__->[0]; $pos = $List__->[1]; [ $str, $pos ] };
+    my $MATCH;
+    $MATCH = MiniPerl6::Perl5::Match->new( 'str' => $str, 'from' => $pos, 'to' => $pos, 'bool' => 1, );
+    $MATCH->bool(
+        do {
+            my $pos1 = $MATCH->to();
+            (   do {
+                    (   do {
+                            my $m2 = $grammar->full_ident( $str, $MATCH->to() );
+                            do {
+                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'full_ident'} = $m2; 1 }
+                                else     {0}
+                                }
+                            }
+                            && do {
+                            my $pos1 = $MATCH->to();
+                            do {
+                                (   do {
+                                        my $m2 = $grammar->dot( $str, $MATCH->to() );
+                                        do {
+                                            if ($m2) { $MATCH->to( $m2->to() ); 1 }
+                                            else     {0}
+                                            }
+                                        }
+                                        && (
+                                        do {
+                                            my $m2 = $grammar->hyper_op( $str, $MATCH->to() );
+                                            do {
+                                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'hyper_op'} = $m2; 1 }
+                                                else     {0}
+                                                }
+                                        }
+                                        && (do {
+                                                my $m2 = $grammar->ident( $str, $MATCH->to() );
+                                                do {
+                                                    if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'ident'} = $m2; 1 }
+                                                    else     {0}
+                                                    }
+                                            }
+                                            && (do {
+                                                    my $pos1 = $MATCH->to();
+                                                    (   do {
+                                                            (   ( ( '(' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
+                                                                    do {
+                                                                        my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
+                                                                        do {
+                                                                            if ($m2) { $MATCH->to( $m2->to() ); 1 }
+                                                                            else     {0}
+                                                                            }
+                                                                    }
+                                                                    && (do {
+                                                                            my $m2 = $grammar->exp_parameter_list( $str, $MATCH->to() );
+                                                                            do {
+                                                                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'exp_parameter_list'} = $m2; 1 }
+                                                                                else     {0}
+                                                                                }
+                                                                        }
+                                                                        && (do {
+                                                                                my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
+                                                                                do {
+                                                                                    if ($m2) { $MATCH->to( $m2->to() ); 1 }
+                                                                                    else     {0}
+                                                                                    }
+                                                                            }
+                                                                            && ( ( ')' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 )
+                                                                        )
+                                                                    )
+                                                                )
+                                                            );
+                                                            }
+                                                            || (
+                                                            do {
+                                                                $MATCH->to($pos1);
+                                                                (   ( ( ':' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
+                                                                        do {
+                                                                            my $m2 = $grammar->ws( $str, $MATCH->to() );
+                                                                            do {
+                                                                                if ($m2) { $MATCH->to( $m2->to() ); 1 }
+                                                                                else     {0}
+                                                                                }
+                                                                        }
+                                                                        && (do {
+                                                                                my $m2 = $grammar->exp_parameter_list( $str, $MATCH->to() );
+                                                                                do {
+                                                                                    if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'exp_parameter_list'} = $m2; 1 }
+                                                                                    else     {0}
+                                                                                    }
+                                                                            }
+                                                                            && do {
+                                                                                my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
+                                                                                do {
+                                                                                    if ($m2) { $MATCH->to( $m2->to() ); 1 }
+                                                                                    else     {0}
+                                                                                    }
+                                                                            }
+                                                                        )
+                                                                    )
+                                                                );
+                                                            }
+                                                            || do {
+                                                                $MATCH->to($pos1);
+                                                                do {
+                                                                    my $ret = sub {
+                                                                        my $List__ = \@_;
+                                                                        do { [] };
+                                                                        do {
+                                                                            return (
+                                                                                Call->new(
+                                                                                    'invocant'  => Proto->new( 'name' => ( "" . $MATCH->{'full_ident'} ), ),
+                                                                                    'method'    => ${ $MATCH->{'ident'} },
+                                                                                    'arguments' => (undef),
+                                                                                    'hyper'     => ${ $MATCH->{'hyper_op'} },
+                                                                                )
+                                                                            );
+                                                                        };
+                                                                        '974^213';
+                                                                        }
+                                                                        ->();
+                                                                    do {
+                                                                        if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                                                                        else                         { }
+                                                                    };
+                                                                    1;
+                                                                    }
+                                                            }
+                                                            )
+                                                    );
+                                                }
+                                                && do {
+                                                    my $ret = sub {
+                                                        my $List__ = \@_;
+                                                        do { [] };
+                                                        do {
+                                                            return (
+                                                                Call->new(
+                                                                    'invocant'  => Proto->new( 'name' => ( "" . $MATCH->{'full_ident'} ), ),
+                                                                    'method'    => ${ $MATCH->{'ident'} },
+                                                                    'arguments' => ${ $MATCH->{'exp_parameter_list'} },
+                                                                    'hyper'     => ${ $MATCH->{'hyper_op'} },
+                                                                )
+                                                            );
+                                                        };
+                                                        '974^213';
+                                                        }
+                                                        ->();
+                                                    do {
+                                                        if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                                                        else                         { }
+                                                    };
+                                                    1;
+                                                }
+                                            )
+                                        )
+                                        )
+                                );
+                                }
+                            }
+                    );
+                    }
+                    || do {
+                    $MATCH->to($pos1);
+                    (   do {
+                            my $m2 = $grammar->term( $str, $MATCH->to() );
+                            do {
+                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'term'} = $m2; 1 }
+                                else     {0}
+                                }
+                            }
+                            && do {
+                            my $pos1 = $MATCH->to();
+                            (   do {
+                                    (   do {
+                                            my $pos1 = $MATCH->to();
+                                            (   do { ( ( '[' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) }
+                                                    || do { $MATCH->to($pos1); ( ( '.[' eq substr( $str, $MATCH->to(), 2 ) ) ? ( 1 + $MATCH->to( ( 2 + $MATCH->to() ) ) ) : 0 ) }
+                                            );
+                                            }
+                                            && (
+                                            do {
+                                                my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
+                                                do {
+                                                    if ($m2) { $MATCH->to( $m2->to() ); 1 }
+                                                    else     {0}
+                                                    }
+                                            }
+                                            && (do {
+                                                    my $m2 = $grammar->exp( $str, $MATCH->to() );
+                                                    do {
+                                                        if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'exp'} = $m2; 1 }
+                                                        else     {0}
+                                                        }
+                                                }
+                                                && (do {
+                                                        my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
+                                                        do {
+                                                            if ($m2) { $MATCH->to( $m2->to() ); 1 }
+                                                            else     {0}
+                                                            }
+                                                    }
+                                                    && (( ( ']' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
+                                                            my $ret = sub {
+                                                                my $List__ = \@_;
+                                                                do { [] };
+                                                                do { return ( Call->new( 'invocant' => ${ $MATCH->{'term'} }, 'arguments' => [ ${ $MATCH->{'exp'} } ], 'method' => 'INDEX', 'hyper' => '', ) ) };
+                                                                '974^213';
+                                                                }
+                                                                ->();
+                                                            do {
+                                                                if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                                                                else                         { }
+                                                            };
+                                                            1;
+                                                        }
+                                                    )
+                                                )
+                                            )
+                                            )
+                                    );
+                                    }
+                                    || (
+                                    do {
+                                        $MATCH->to($pos1);
+                                        (   do {
+                                                my $pos1 = $MATCH->to();
+                                                (   do { ( ( '{' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) }
+                                                        || do { $MATCH->to($pos1); ( ( '.{' eq substr( $str, $MATCH->to(), 2 ) ) ? ( 1 + $MATCH->to( ( 2 + $MATCH->to() ) ) ) : 0 ) }
+                                                );
+                                                }
+                                                && (
+                                                do {
+                                                    my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
+                                                    do {
+                                                        if ($m2) { $MATCH->to( $m2->to() ); 1 }
+                                                        else     {0}
+                                                        }
+                                                }
+                                                && (do {
+                                                        my $m2 = $grammar->exp( $str, $MATCH->to() );
+                                                        do {
+                                                            if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'exp'} = $m2; 1 }
+                                                            else     {0}
+                                                            }
+                                                    }
+                                                    && (do {
+                                                            my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
+                                                            do {
+                                                                if ($m2) { $MATCH->to( $m2->to() ); 1 }
+                                                                else     {0}
+                                                                }
+                                                        }
+                                                        && (( ( '}' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
+                                                                my $ret = sub {
+                                                                    my $List__ = \@_;
+                                                                    do { [] };
+                                                                    do { return ( Call->new( 'invocant' => ${ $MATCH->{'term'} }, 'arguments' => [ ${ $MATCH->{'exp'} } ], 'method' => 'LOOKUP', 'hyper' => '', ) ) };
+                                                                    '974^213';
+                                                                    }
+                                                                    ->();
+                                                                do {
+                                                                    if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                                                                    else                         { }
+                                                                };
+                                                                1;
+                                                            }
+                                                        )
+                                                    )
+                                                )
+                                                )
+                                        );
+                                    }
+                                    || (do {
+                                            $MATCH->to($pos1);
+                                            (   do {
+                                                    my $m2 = $grammar->dot( $str, $MATCH->to() );
+                                                    do {
+                                                        if ($m2) { $MATCH->to( $m2->to() ); 1 }
+                                                        else     {0}
+                                                        }
+                                                    }
+                                                    && (
+                                                    do {
+                                                        my $m2 = $grammar->hyper_op( $str, $MATCH->to() );
+                                                        do {
+                                                            if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'hyper_op'} = $m2; 1 }
+                                                            else     {0}
+                                                            }
+                                                    }
+                                                    && (do {
+                                                            my $m2 = $grammar->opt_ident( $str, $MATCH->to() );
+                                                            do {
+                                                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'opt_ident'} = $m2; 1 }
+                                                                else     {0}
+                                                                }
+                                                        }
+                                                        && (do {
+                                                                my $pos1 = $MATCH->to();
+                                                                (   do {
+                                                                        (   ( ( '(' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
+                                                                                do {
+                                                                                    my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
+                                                                                    do {
+                                                                                        if ($m2) { $MATCH->to( $m2->to() ); 1 }
+                                                                                        else     {0}
+                                                                                        }
+                                                                                }
+                                                                                && (do {
+                                                                                        my $m2 = $grammar->exp_parameter_list( $str, $MATCH->to() );
+                                                                                        do {
+                                                                                            if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'exp_parameter_list'} = $m2; 1 }
+                                                                                            else     {0}
+                                                                                            }
+                                                                                    }
+                                                                                    && (do {
+                                                                                            my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
+                                                                                            do {
+                                                                                                if ($m2) { $MATCH->to( $m2->to() ); 1 }
+                                                                                                else     {0}
+                                                                                                }
+                                                                                        }
+                                                                                        && ( ( ')' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 )
+                                                                                    )
+                                                                                )
+                                                                            )
+                                                                        );
+                                                                        }
+                                                                        || (
+                                                                        do {
+                                                                            $MATCH->to($pos1);
+                                                                            (   ( ( ':' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
+                                                                                    do {
+                                                                                        my $m2 = $grammar->ws( $str, $MATCH->to() );
+                                                                                        do {
+                                                                                            if ($m2) { $MATCH->to( $m2->to() ); 1 }
+                                                                                            else     {0}
+                                                                                            }
+                                                                                    }
+                                                                                    && (do {
+                                                                                            my $m2 = $grammar->exp_parameter_list( $str, $MATCH->to() );
+                                                                                            do {
+                                                                                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'exp_parameter_list'} = $m2; 1 }
+                                                                                                else     {0}
+                                                                                                }
+                                                                                        }
+                                                                                        && do {
+                                                                                            my $m2 = $grammar->opt_ws( $str, $MATCH->to() );
+                                                                                            do {
+                                                                                                if ($m2) { $MATCH->to( $m2->to() ); 1 }
+                                                                                                else     {0}
+                                                                                                }
+                                                                                        }
+                                                                                    )
+                                                                                )
+                                                                            );
+                                                                        }
+                                                                        || do {
+                                                                            $MATCH->to($pos1);
+                                                                            do {
+                                                                                my $ret = sub {
+                                                                                    my $List__ = \@_;
+                                                                                    do { [] };
+                                                                                    do {
+                                                                                        return (
+                                                                                            Call->new( 'invocant' => ${ $MATCH->{'term'} }, 'method' => ${ $MATCH->{'opt_ident'} }, 'arguments' => (undef), 'hyper' => ${ $MATCH->{'hyper_op'} }, ) );
+                                                                                    };
+                                                                                    '974^213';
+                                                                                    }
+                                                                                    ->();
+                                                                                do {
+                                                                                    if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                                                                                    else                         { }
+                                                                                };
+                                                                                1;
+                                                                                }
+                                                                        }
+                                                                        )
+                                                                );
+                                                            }
+                                                            && do {
+                                                                my $ret = sub {
+                                                                    my $List__ = \@_;
+                                                                    do { [] };
+                                                                    do {
+                                                                        return (
+                                                                            Call->new(
+                                                                                'invocant'  => ${ $MATCH->{'term'} },
+                                                                                'method'    => ${ $MATCH->{'opt_ident'} },
+                                                                                'arguments' => ${ $MATCH->{'exp_parameter_list'} },
+                                                                                'hyper'     => ${ $MATCH->{'hyper_op'} },
+                                                                            )
+                                                                        );
+                                                                    };
+                                                                    '974^213';
+                                                                    }
+                                                                    ->();
+                                                                do {
+                                                                    if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                                                                    else                         { }
+                                                                };
+                                                                1;
+                                                            }
+                                                        )
+                                                    )
+                                                    )
+                                            );
+                                        }
+                                        || (do {
+                                                $MATCH->to($pos1);
+                                                (   ( ( '<' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && (
+                                                        do {
+                                                            my $m2 = $grammar->angle_quoted( $str, $MATCH->to() );
+                                                            do {
+                                                                if ($m2) { $MATCH->to( $m2->to() ); $MATCH->{'angle_quoted'} = $m2; 1 }
+                                                                else     {0}
+                                                                }
+                                                        }
+                                                        && (( ( '>' eq substr( $str, $MATCH->to(), 1 ) ) ? ( 1 + $MATCH->to( ( 1 + $MATCH->to() ) ) ) : 0 ) && do {
+                                                                my $ret = sub {
+                                                                    my $List__ = \@_;
+                                                                    do { [] };
+                                                                    do {
+                                                                        return (
+                                                                            Call->new( 'invocant' => ${ $MATCH->{'term'} }, 'arguments' => [ Val::Buf->new( 'buf' => ( "" . $MATCH->{'angle_quoted'} ), ) ], 'method' => 'LOOKUP', 'hyper' => '', ) );
+                                                                    };
+                                                                    '974^213';
+                                                                    }
+                                                                    ->();
+                                                                do {
+                                                                    if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                                                                    else                         { }
+                                                                };
+                                                                1;
+                                                            }
+                                                        )
+                                                    )
+                                                );
+                                            }
+                                            || do {
+                                                $MATCH->to($pos1);
+                                                do {
+                                                    my $ret = sub {
+                                                        my $List__ = \@_;
+                                                        do { [] };
+                                                        do { return ( ${ $MATCH->{'term'} } ) };
+                                                        '974^213';
+                                                        }
+                                                        ->();
+                                                    do {
+                                                        if ( ( $ret ne '974^213' ) ) { $MATCH->capture($ret); $MATCH->bool(1); return ($MATCH) }
+                                                        else                         { }
+                                                    };
+                                                    1;
+                                                    }
+                                            }
+                                        )
+                                    )
+                                    )
+                            );
+                            }
+                    );
+                    }
+            );
+            }
+    );
+    return ($MATCH);
+}
+
 sub exp2 {
     my $grammar = shift;
     my $List__  = \@_;

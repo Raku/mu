@@ -59,7 +59,7 @@ token pod_begin {
 };
 
 token pod_other {
-    |   \n '=cut' <.to_line_end>   # XXX
+    |   \n '=cut' <.to_line_end>   # XXX is "cut" deprecated?
     |   \n '=end' <.to_line_end>
     |   . <.to_line_end> <.pod_other>
 };
@@ -195,90 +195,6 @@ token opt_ident {
     | ''     { make 'postcircumfix:<( )>' }
 };
 
-token term_meth {
-    <full_ident>
-    [ <.dot>
-        <hyper_op>
-        <ident>
-            [ \( <.opt_ws> <exp_parameter_list> <.opt_ws> \)
-                # { say 'found parameter list: ', $<exp_parameter_list>.perl }
-            | \: <.ws> <exp_parameter_list> <.opt_ws>
-            |
-                {
-                    make Call.new(
-                        'invocant'  => Proto.new( 'name' => ~$<full_ident> ),
-                        'method'    => $$<ident>,
-                        'arguments' => undef,
-                        'hyper'     => $$<hyper_op>,
-                    )
-                }
-            ]
-            {
-                make Call.new(
-                    'invocant'  => Proto.new( 'name' => ~$<full_ident> ),
-                    'method'    => $$<ident>,
-                    'arguments' => $$<exp_parameter_list>,
-                    'hyper'     => $$<hyper_op>,
-                )
-            }
-    ]
-    |
-    <term>
-    [ 
-    | [ '[' | '.[' ]  <.opt_ws> <exp> <.opt_ws> \]   # $a[exp]
-         { make Call.new(
-                 'invocant' => $$<term>,
-                 'arguments' => [$$<exp>],
-                 'method' => 'INDEX',
-                 'hyper' => '' 
-           )
-         }
-    | [ '{' | '.{' ] <.opt_ws> <exp> <.opt_ws> \}   # $a{exp}
-         { make Call.new(
-                 'invocant' => $$<term>,
-                 'arguments' => [$$<exp>],
-                 'method' => 'LOOKUP',
-                 'hyper' => ''
-           )
-         }
-    | <.dot>
-        <hyper_op>
-        <opt_ident>   # $obj.(42)
-            [ \( 
-                # { say 'testing exp_parameter_list at ', $/.to }
-                <.opt_ws> <exp_parameter_list> <.opt_ws> \)
-                # { say 'found parameter list: ', $<exp_parameter_list>.perl }
-            | \: <.ws> <exp_parameter_list> <.opt_ws>
-            |
-                {
-                    make Call.new(
-                        'invocant'  => $$<term>,
-                        'method'    => $$<opt_ident>,
-                        'arguments' => undef,
-                        'hyper'     => $$<hyper_op>,
-                    )
-                }
-            ]
-            {
-                make Call.new(
-                    'invocant'  => $$<term>,
-                    'method'    => $$<opt_ident>,
-                    'arguments' => $$<exp_parameter_list>,
-                    'hyper'     => $$<hyper_op>,
-                )
-            }
-    | \< <angle_quoted> \>   # $a{exp}
-         { make Call.new(
-                 'invocant' => $$<term>,
-                 'arguments' => [ Val::Buf.new( 'buf' => ~$<angle_quoted> ) ],
-                 'method' => 'LOOKUP',
-                 'hyper' => ''
-           )
-         }
-    |    { make $$<term> }
-    ]
-};
-
 token sub_or_method_name {
     <full_ident> [ <.dot> <ident> | '' ]
 };
@@ -292,16 +208,9 @@ token use_from_perl5 {
     ':from<perl5>' { make 1 } | { make 0 }
 }
 
-#token index { XXX }
-#token lookup { XXX }
-
-
 token sigil { \$ |\% |\@ |\& };
 
 token twigil { [ \. | \! | \^ | \* ] | '' };
-
-# XXX unused?
-# token var_name { <ident> | '/' | <digit> };
 
 # used in Term.pm
 token undeclared_var {
@@ -393,17 +302,6 @@ token exp_seq {
     | 
         # { say 'exp_seq: end of match' }
         { make [] }
-};
-
-token call {
-    <exp> <.dot> <ident> \( <.opt_ws> <exp_parameter_list> <.opt_ws> \)
-    {
-        make Call.new(
-            'invocant'  => $$<exp>,
-            'method'    => $$<ident>,
-            'arguments' => $$<exp_parameter_list>,
-        )
-    }
 };
 
 token apply {
