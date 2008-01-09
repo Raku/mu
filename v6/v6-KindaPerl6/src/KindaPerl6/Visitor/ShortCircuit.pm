@@ -3,11 +3,11 @@ use v6-alpha;
 
 class KindaPerl6::Visitor::ShortCircuit {
     sub thunk($value,$pad) {
-        ::Sub(
-                block => ::Lit::Code(
+        Sub.new(
+                block => Lit::Code.new(
                     pad => COMPILER::inner_pad($KindaPerl6::Visitor::ShortCircuit::last_pad),
                     body => [$value],
-                    sig => ::Sig( invocant => undef, positional => [ ] )
+                    sig => Sig.new( invocant => undef, positional => [ ] )
                 )
         );
     };
@@ -19,7 +19,7 @@ class KindaPerl6::Visitor::ShortCircuit {
             my $right := (($node.arguments)[1]).emit(self);
 
 
-            return ::Apply(
+            return Apply.new(
                 code => $node.code,
                 arguments => [ thunk($left),thunk($right) ]
             );

@@ -16,19 +16,19 @@ class KindaPerl6::Visitor::Namespace {
             if @($node.namespace) {
                 #say "global ", $node.name;
                 # $X::Y::z -> %KP6<X::Y><Scalar_z>
-                return ::Call(
-                     'invocant' => ::Call(
-                             'invocant' => ::Var(
+                return Call.new(
+                     'invocant' => Call.new(
+                             'invocant' => Var.new(
                                     namespace => [ 'GLOBAL' ],
                                     name      => 'KP6',
                                     twigil    => '',
                                     sigil     => '%',
                                 ),
-                             'arguments' => [ ::Val::Buf( buf => ($node.namespace).join('::') ) ],
+                             'arguments' => [ Val::Buf.new( buf => ($node.namespace).join('::') ) ],
                              'method' => 'LOOKUP',
                              'hyper' => ''
                         ),
-                     'arguments' => [ ::Val::Buf( buf => ( $node.sigil ~ $node.name) ) ],
+                     'arguments' => [ Val::Buf.new( buf => ( $node.sigil ~ $node.name) ) ],
                      'method' => 'LOOKUP',
                      'hyper' => ''
                 );

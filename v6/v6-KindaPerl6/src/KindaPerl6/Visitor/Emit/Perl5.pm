@@ -189,10 +189,10 @@ class Lit::Code {
         my $s;
         my $name;
         for @($.pad.lexicals) -> $name {
-            my $decl := ::Decl(
+            my $decl := Decl.new(
                 decl => 'my',
                 type => '',
-                var  => ::Var(
+                var  => Var.new(
                     sigil     => '',
                     twigil    => '',
                     name      => $name,
@@ -204,22 +204,22 @@ class Lit::Code {
         return $s;
     };
     method emit_arguments {
-        my $array_  := ::Var( sigil => '@', twigil => '', name => '_',       namespace => [ ], );
-        my $hash_   := ::Var( sigil => '%', twigil => '', name => '_',       namespace => [ ], );
-        my $CAPTURE := ::Var( sigil => '$', twigil => '', name => 'CAPTURE', namespace => [ ],);
-        my $CAPTURE_decl := ::Decl(decl=>'my',type=>'',var=>$CAPTURE);
+        my $array_  := Var.new( sigil => '@', twigil => '', name => '_',       namespace => [ ], );
+        my $hash_   := Var.new( sigil => '%', twigil => '', name => '_',       namespace => [ ], );
+        my $CAPTURE := Var.new( sigil => '$', twigil => '', name => 'CAPTURE', namespace => [ ],);
+        my $CAPTURE_decl := Decl.new(decl=>'my',type=>'',var=>$CAPTURE);
         my $str := '';
         $str := $str ~ $CAPTURE_decl.emit_perl5;
-        $str := $str ~ ::Decl(decl=>'my',type=>'',var=>$array_).emit_perl5;
+        $str := $str ~ (Decl.new(decl=>'my',type=>'',var=>$array_)).emit_perl5;
         $str := $str ~ '::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));';
 
         # XXX s/assign/bind/ ?
         my $bind_array :=
-                    ::Assign(parameters=>$array_,arguments=>::Call(invocant => $CAPTURE,method => 'array',arguments => []));
+                    Assign.new(parameters=>$array_,arguments=> Call.new(invocant => $CAPTURE,method => 'array',arguments => []));
         $str := $str ~ $bind_array.emit_perl5 ~ ';';
 
         my $bind_hash :=
-                    ::Bind(parameters=>$hash_, arguments=>::Call(invocant => $CAPTURE,method => 'hash', arguments => []));
+                    Bind.new(parameters=>$hash_, arguments=> Call.new(invocant => $CAPTURE,method => 'hash', arguments => []));
         $str := $str ~ $bind_hash.emit_perl5 ~ ';';
 
         my $i := 0;
@@ -227,15 +227,15 @@ class Lit::Code {
         $str := $str ~ '{ my $_param_index = 0; ';
         for @($.sig.positional) -> $field {
 
-            my $bind_named := ::Bind(
+            my $bind_named := Bind.new(
                     parameters => $field.key,
-                    arguments  => ::Call(
+                    arguments  => Call.new(
                             invocant  => $hash_,
-                            arguments => [ ::Val::Buf( buf => ($field.key).name ) ],
+                            arguments => [ Val::Buf.new( buf => ($field.key).name ) ],
                             method    => 'LOOKUP',
                         ),
                 );
-            my $bind_default := ::Bind(
+            my $bind_default := Bind.new(
                     parameters => $field.key,
                     arguments  => $field.value,
                 );
@@ -312,23 +312,23 @@ class Assign {
             # and it should be autovivified
 
             $node :=
-                ::Apply(
-                    code => ::Var(
+                Apply.new(
+                    code => Var.new(
                         name      => 'ternary:<?? !!>',
                         twigil    => '',
                         sigil     => '&',
                         namespace => [ 'GLOBAL' ],
                     ),
                     arguments => [
-                       ::Apply(
+                       Apply.new(
                             arguments => [ $node ],
-                            code => ::Var( name => 'VAR_defined', twigil => '', sigil => '&', namespace => [ 'GLOBAL' ] ),
+                            code => Var.new( name => 'VAR_defined', twigil => '', sigil => '&', namespace => [ 'GLOBAL' ] ),
                         ),
                         $node,
-                        ::Bind(
+                        Bind.new(
                             'parameters' => $node,
-                            'arguments'  => ::Call(
-                                'invocant' => ::Var( name => '::Scalar', twigil => '', sigil => '$', namespace => [ ] ),
+                            'arguments'  => Call.new(
+                                'invocant' => Var.new( name => '::Scalar', twigil => '', sigil => '$', namespace => [ ] ),
                                 'method'   => 'new',
                                 'hyper'    => '',
                             ),
@@ -425,7 +425,7 @@ class Bind {
         # XXX - replace Bind with Assign
         #if $.parameters.isa('Call')
         #{
-        #    return ::Assign(parameters=>$.parameters,arguments=>$.arguments).emit_perl5;
+        #    return Assign.new(parameters=>$.parameters,arguments=>$.arguments).emit_perl5;
         #};
 
         my $str := '::MODIFIED(' ~ $.parameters.emit_perl5 ~ ');' ~ Main::newline();
@@ -577,7 +577,7 @@ class While {
           && $cond.sigil eq '@'
         {
         } else {
-            $cond := ::Apply( code => ::Var(sigil=>'&',twigil=>'',name=>'prefix:<@>',namespace => [ 'GLOBAL' ],), arguments => [$cond] );
+            $cond := Apply.new( code => Var.new(sigil=>'&',twigil=>'',name=>'prefix:<@>',namespace => [ 'GLOBAL' ],), arguments => [$cond] );
         }
         'do { while (::DISPATCH(::DISPATCH(' ~ $.cond.emit_perl5 ~ ',"true"),"p5landish") ) '
         ~ ' { '

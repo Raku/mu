@@ -14,13 +14,13 @@ class KindaPerl6::Visitor::ExtractRuleBlock {
             my $comp_unit := $path[0-1];
             $count := $count + 1;
             my $name := '__rule_block' ~ $count ~ '_' ~ $COMPILER::source_md5;
-            push @(($comp_unit.body).body), ::Method(block=> ::Lit::Code(
+            push @(($comp_unit.body).body), Method.new(block=> Lit::Code.new(
                     body => ($node.closure).body,
-                    sig => ::Sig(
+                    sig => Sig.new(
                         invocant   => '',
                         positional => [
-                            ::Lit::SigArgument(
-                                key           => ::Var(
+                            Lit::SigArgument.new(
+                                key           => Var.new(
                                     namespace   => [],
                                     name        => 'MATCH',
                                     twigil      => '',
@@ -28,21 +28,21 @@ class KindaPerl6::Visitor::ExtractRuleBlock {
                                 ),
                                 value         => undef,
                                 type          => '',
-                                is_multidimensional => ::Val::Bit( bit => '0', ),
-                                is_slurpy     => ::Val::Bit( bit => '0', ),
-                                is_optional   => ::Val::Bit( bit => '0', ),
-                                is_named_only => ::Val::Bit( bit => '0', ),
-                                is_copy       => ::Val::Bit( bit => '0', ),
-                                is_rw         => ::Val::Bit( bit => '0', ),
-                                has_default   => ::Val::Bit( bit => '0', ),
+                                is_multidimensional => Val::Bit.new( bit => '0', ),
+                                is_slurpy     => Val::Bit.new( bit => '0', ),
+                                is_optional   => Val::Bit.new( bit => '0', ),
+                                is_named_only => Val::Bit.new( bit => '0', ),
+                                is_copy       => Val::Bit.new( bit => '0', ),
+                                is_rw         => Val::Bit.new( bit => '0', ),
+                                has_default   => Val::Bit.new( bit => '0', ),
                             ),
                         ],
                     ),
-                    pad => ::Pad(
+                    pad => Pad.new(
                         lexicals => [
-                            ::Decl(
+                            Decl.new(
                                 decl => 'my',
-                                var  => ::Var(
+                                var  => Var.new(
                                     namespace => [],
                                     name      => '_',
                                     twigil    => '',
@@ -50,9 +50,9 @@ class KindaPerl6::Visitor::ExtractRuleBlock {
                                 ),
                                 type => '',
                             ),
-                            ::Decl(
+                            Decl.new(
                                 decl => 'my',
-                                var  => ::Var(
+                                var  => Var.new(
                                     namespace => [],
                                     name      => 'MATCH',
                                     twigil    => '',
@@ -64,7 +64,7 @@ class KindaPerl6::Visitor::ExtractRuleBlock {
                     ),
                     state => {},
                   ), name=>$name);
-            push @(($node.closure).body), ::Return(result=>::Val::Buf(buf=>'sTrNgE V4l'));
+            push @(($node.closure).body), Return.new(result=>::Val::Buf(buf=>'sTrNgE V4l'));
             $node.closure($name);
             return $node;
         };

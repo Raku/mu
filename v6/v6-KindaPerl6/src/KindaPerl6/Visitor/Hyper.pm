@@ -23,14 +23,14 @@ class KindaPerl6::Visitor::Hyper {
         if    ( $node_name eq 'Call' )
            && ( $node.hyper )
         {
-            return ::Apply(
+            return Apply.new(
                 code      => 'map',
                 arguments => [
-                    ::Sub(
-                        sig   => ::Sig( invocant => undef, positional => [ ] ),
+                    Sub.new(
+                        sig   => Sig.new( invocant => undef, positional => [ ] ),
                         block => [
-                            ::Call(
-                                invocant  => ::Var( sigil => '$', twigil => '', name => '_' ),
+                            Call.new(
+                                invocant  => Var.new( sigil => '$', twigil => '', name => '_' ),
                                 method    => $node.method,
                                 arguments => $node.arguments,
                             ),

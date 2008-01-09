@@ -16,25 +16,25 @@ class KindaPerl6::Visitor::Scope {
         if    ( $node_name eq 'Lit::Code' )
         {
 
-            return ::Lit::Code(
+            return Lit::Code.new(
                 pad   => $node.pad,
                 state => $node.state,
                 sig   => $node.sig,
                 body  => [
 
                     # $MY = $MY.inner
-                    ::Assign(
-                        parameters => ::Var(
+                    Assign.new(
+                        parameters => Var.new(
                             namespace => [],
                             name      => 'MY',
                             twigil    => '',
                             sigil     => '$',
                         ),
-                        arguments => ::Call(
+                        arguments => Call.new(
                             hyper     => undef,
                             arguments => undef,
                             method    => 'inner',
-                            invocant  => ::Var(
+                            invocant  => Var.new(
                                 namespace => [],
                                 name      => 'MY',
                                 twigil    => '',
@@ -46,18 +46,18 @@ class KindaPerl6::Visitor::Scope {
                     @($node.body),
 
                     # $MY = $MY.outer
-                    ::Assign(
-                        parameters => ::Var(
+                    Assign.new(
+                        parameters => Var.new(
                             namespace => [],
                             name      => 'MY',
                             twigil    => '',
                             sigil     => '$',
                         ),
-                        arguments => ::Call(
+                        arguments => Call.new(
                             hyper     => undef,
                             arguments => undef,
                             method    => 'outer',
-                            invocant  => ::Var(
+                            invocant  => Var.new(
                                 namespace => [],
                                 name      => 'MY',
                                 twigil    => '',

@@ -783,7 +783,7 @@ sub emit_lisp {
     };
     do {
         if ( defined( $self->{array} ) ) {
-            $s = ( $s . 'array: ::DISPATCH( $::Array, "new", { _array => [ ' );
+            $s = ( $s . 'array: DISPATCH.new( $::Array, "new", { _array => [ ' );
             my $item;
             do {
                 for my $item ( @{ $self->{array} } ) { $s = ( $s . ( $item->emit_lisp( $interpreter, $indent ) . ', ' ) ) }
@@ -794,7 +794,7 @@ sub emit_lisp {
     };
     do {
         if ( defined( $self->{hash} ) ) {
-            $s = ( $s . 'hash: ::DISPATCH( $::Hash, "new", { _hash => { ' );
+            $s = ( $s . 'hash: DISPATCH.new( $::Hash, "new", { _hash => { ' );
             my $item;
             do {
                 for my $item ( @{ $self->{hash} } ) { $s = ( $s . ( $item->[0]->emit_lisp( $interpreter, $indent ) . ( '->{_value} => ' . ( $item->[1]->emit_lisp($interpreter) . ', ' ) ) ) ) }

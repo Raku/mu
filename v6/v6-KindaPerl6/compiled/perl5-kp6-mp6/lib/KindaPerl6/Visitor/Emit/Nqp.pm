@@ -22,7 +22,7 @@ sub emit_nqp {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( 'module ' . ( $self->{name} . ( ';' . ( Main::newline() . ( $self->{body}->emit_nqp() . Main::newline() ) ) ) ) );
+    ( 'module ' . ( $self->{name} . ( ' {' . ( Main::newline() . ( $self->{body}->emit_nqp() . ( Main::newline() . ( '}' . Main::newline() ) ) ) ) ) ) );
 }
 
 package Val::Int;
@@ -212,17 +212,17 @@ sub emit_nqp {
     my $table = { '$' => '$', '@' => '$List_', '%' => '$Hash_', '&' => '$Code_', };
     do {
         if ( ( $self->{twigil} eq '.' ) ) { return ( ( '$self->{' . ( $self->{name} . '}' ) ) ) }
-        else { }
+        else                              { }
     };
     do {
         if ( ( $self->{name} eq '/' ) ) { return ( ( $table->{ $self->{sigil} } . 'MATCH' ) ) }
-        else { }
+        else                            { }
     };
     do {
         if ( ( $self->{sigil} eq '&' ) ) {
             do {
-                if ( ( Main::join( $self->{namespace}, '::' ) eq '' ) ) { return ( ( $self->{sigil} . $self->{name} ) ) }
-                else { return ( ( $self->{sigil} . ( $self->{twigil} . ( Main::join( $self->{namespace}, '::' ) . $self->{name} ) ) ) ) }
+                if   ( ( Main::join( $self->{namespace}, '::' ) eq '' ) ) { return ( ( $self->{sigil} . $self->{name} ) ) }
+                else                                                      { return ( ( $self->{sigil} . ( $self->{twigil} . ( Main::join( $self->{namespace}, '::' ) . $self->{name} ) ) ) ) }
                 }
         }
         else { }
@@ -262,14 +262,14 @@ sub emit_nqp {
         if ( Main::isa( $self->{invocant}, 'Str' ) ) { $invocant = ( '$::Class_' . $self->{invocant} ) }
         else {
             do {
-                if ( Main::isa( $self->{invocant}, 'Val::Buf' ) ) { $invocant = ( '$::Class_' . $self->{invocant}->buf() ) }
-                else { $invocant = $self->{invocant}->emit_nqp() }
+                if   ( Main::isa( $self->{invocant}, 'Val::Buf' ) ) { $invocant = ( '$::Class_' . $self->{invocant}->buf() ) }
+                else                                                { $invocant = $self->{invocant}->emit_nqp() }
                 }
         }
     };
     do {
         if ( ( $invocant eq 'self' ) ) { $invocant = '$self' }
-        else { }
+        else                           { }
     };
     do {
         if ( ( ( $self->{method} eq 'perl' ) || ( ( $self->{method} eq 'yaml' ) || ( ( $self->{method} eq 'say' ) || ( ( $self->{method} eq 'join' ) || ( ( $self->{method} eq 'chars' ) || ( $self->{method} eq 'isa' ) ) ) ) ) ) ) {
@@ -287,7 +287,7 @@ sub emit_nqp {
     my $meth = $self->{method};
     do {
         if ( ( $meth eq 'postcircumfix:<( )>' ) ) { $meth = '' }
-        else { }
+        else                                      { }
     };
     my $call = Main::join( [ map { $_->emit_nqp() } @{ $self->{arguments} } ], ', ' );
     do {

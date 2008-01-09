@@ -172,25 +172,25 @@ class Rule::SpecialChar {
         my $char := $.char;
         #say 'CHAR ',$char;
         if $char eq 'n' {
-            my $rul := ::Rule::SubruleNoCapture( 'metasyntax' => 'newline' );
+            my $rul := Rule::SubruleNoCapture.new( 'metasyntax' => 'newline' );
             $rul := $rul.emit_token;
             #say 'NEWLINE ', $rul;
             return $rul;
             # Rule::perl5( '(?:\n\r?|\r\n?)' )
         };
         if $char eq 'N' {
-            my $rul := ::Rule::SubruleNoCapture( 'metasyntax' => 'not_newline' );
+            my $rul := Rule::SubruleNoCapture.new( 'metasyntax' => 'not_newline' );
             $rul := $rul.emit_token;
             return $rul;
             # Rule::perl5( '(?!\n\r?|\r\n?).' )
         };
         if $char eq 'd' {
-            my $rul := ::Rule::SubruleNoCapture( 'metasyntax' => 'digit' );
+            my $rul := Rule::SubruleNoCapture.new( 'metasyntax' => 'digit' );
             $rul := $rul.emit_token;
             return $rul;
         };
         if $char eq 's' {
-            my $rul := ::Rule::SubruleNoCapture( 'metasyntax' => 'space' );
+            my $rul := Rule::SubruleNoCapture.new( 'metasyntax' => 'space' );
             $rul := $rul.emit_token;
             return $rul;
         };

@@ -480,7 +480,7 @@ sub emit_perl5v6 {
     do {
         if ( $self->{hyper} ) {
             ( '::DISPATCH( $::List, "new", { _array => [ '
-                    . ( 'map { ::DISPATCH( $_, "' . ( $meth . ( '", ' . ( $call . ( ') } ' . ( '@{ ::DISPATCH( ' . ( $invocant . ( ', "array" )->{_value}{_array} } ' . ( '] } )' . Main::newline() ) ) ) ) ) ) ) ) ) );
+                    . ( 'map { DISPATCH.new( $_, "' . ( $meth . ( '", ' . ( $call . ( ') } ' . ( '@{ DISPATCH.new( ' . ( $invocant . ( ', "array" )->{_value}{_array} } ' . ( '] } )' . Main::newline() ) ) ) ) ) ) ) ) ) );
         }
         else {
             do {
@@ -594,7 +594,7 @@ sub emit_perl5v6 {
         for my $decl ( @{ $self->{positional} } ) { $pos = ( $pos . ( $decl->emit_perl5v6() . ', ' ) ) }
     };
     my $named = '';
-    ( '::DISPATCH( $::Signature, "new", { ' . ( 'invocant => ' . ( $inv . ( ', ' . ( 'array    => ::DISPATCH( $::List, "new", { _array => [ ' . ( $pos . ( ' ] } ), ' . ( 'return   => $::Undef, ' . ( '} )' . Main::newline() ) ) ) ) ) ) ) ) );
+    ( '::DISPATCH( $::Signature, "new", { ' . ( 'invocant => ' . ( $inv . ( ', ' . ( 'array    => DISPATCH.new( $::List, "new", { _array => [ ' . ( $pos . ( ' ] } ), ' . ( 'return   => $::Undef, ' . ( '} )' . Main::newline() ) ) ) ) ) ) ) ) );
 }
 
 package Lit::Capture;
@@ -611,7 +611,7 @@ sub emit_perl5v6 {
     };
     do {
         if ( defined( $self->{array} ) ) {
-            $s = ( $s . 'array => ::DISPATCH( $::List, "new", { _array => [ ' );
+            $s = ( $s . 'array => DISPATCH.new( $::List, "new", { _array => [ ' );
             my $item;
             do {
                 for my $item ( @{ $self->{array} } ) { $s = ( $s . ( $item->emit_perl5v6() . ', ' ) ) }
@@ -622,7 +622,7 @@ sub emit_perl5v6 {
     };
     do {
         if ( defined( $self->{hash} ) ) {
-            $s = ( $s . 'hash => ::DISPATCH( $::Hash, "new", ' );
+            $s = ( $s . 'hash => DISPATCH.new( $::Hash, "new", ' );
             my $item;
             do {
                 for my $item ( @{ $self->{hash} } ) { $s = ( $s . ( '[ ' . ( $item->[0]->emit_perl5v6() . ( ', ' . ( $item->[1]->emit_perl5v6() . ' ], ' ) ) ) ) ) }

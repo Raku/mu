@@ -149,10 +149,10 @@ class Lit::Code {
         my $s := '';
         my $name;
         for @($.pad.lexicals) -> $name {
-            my $decl := ::Decl(
+            my $decl := Decl.new(
                 decl => 'my',
                 type => '',
-                var  => ::Var(
+                var  => Var.new(
                     sigil     => '',
                     twigil    => '',
                     name      => $name,
@@ -424,7 +424,7 @@ class If {
 #          && ($cond.sigil eq '@')
 #        {
 #        } else {
-#            $cond := ::Apply( code => ::Var(sigil=>'&',twigil=>'',name=>'prefix:<@>',namespace => [ 'GLOBAL' ],), arguments => [$cond] );
+#            $cond := Apply.new( code => ::Var(sigil=>'&',twigil=>'',name=>'prefix:<@>',namespace => [ 'GLOBAL' ],), arguments => [$cond] );
 #        }
 #        '(kp6-for-loop-structure ('
 #        ~ $interpreter
@@ -443,7 +443,7 @@ class While {
           && $cond.sigil eq '@'
         {
         } else {
-            $cond := ::Apply( code => ::Var(sigil=>'&',twigil=>'',name=>'prefix:<@>',namespace => [ 'GLOBAL' ],), arguments => [$cond] );
+            $cond := Apply.new( code => ::Var(sigil=>'&',twigil=>'',name=>'prefix:<@>',namespace => [ 'GLOBAL' ],), arguments => [$cond] );
         }
         '(loop :while (kp6-dispatch' ~ Main::newline()
         ~ '  (kp6-dispatch '
@@ -510,7 +510,7 @@ class Lit::Capture {
             $s := $s ~ 'invocant: $::Undef, '
         };
         if defined $.array {
-           $s := $s ~ 'array: ::DISPATCH( $::Array, "new", { _array => [ ';
+           $s := $s ~ 'array: DISPATCH.new( $::Array, "new", { _array => [ ';
                             my $item;
            for @.array -> $item {
                 $s := $s ~ $item.emit_lisp($interpreter, $indent) ~ ', ';
@@ -518,7 +518,7 @@ class Lit::Capture {
             $s := $s ~ ' ] } ),';
         };
         if defined $.hash {
-           $s := $s ~ 'hash: ::DISPATCH( $::Hash, "new", { _hash => { ';
+           $s := $s ~ 'hash: DISPATCH.new( $::Hash, "new", { _hash => { ';
                            my $item;
            for @.hash -> $item {
                 $s := $s ~ ($item[0]).emit_lisp($interpreter, $indent) ~ '->{_value} => ' ~ ($item[1]).emit_lisp($interpreter) ~ ', ';

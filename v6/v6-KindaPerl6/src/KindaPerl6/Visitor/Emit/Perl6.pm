@@ -99,10 +99,10 @@ class Lit::Code {
         my $s;
         my $name;
         for @($.pad.lexicals) -> $name {
-            my $decl := ::Decl(
+            my $decl := Decl.new(
                 decl => 'my',
                 type => '',
-                var  => ::Var(
+                var  => Var.new(
                     sigil => '',
                     twigil => '',
                     name => $name,
@@ -328,9 +328,9 @@ class Method {
             $str := $str ~ 'my ' ~ $field.emit_perl6 ~ '; ' ~ Main::newline();
         };
 
-        my $bind := ::Bind(
-            'parameters' => ::Lit::Array( array => $sig.positional ),
-            'arguments'  => ::Var( sigil => '@', twigil => '', name => '_' )
+        my $bind := Bind.new(
+            'parameters' => Lit::Array.new( array => $sig.positional ),
+            'arguments'  => Var.new( sigil => '@', twigil => '', name => '_' )
         );
         $str := $str ~ $bind.emit_perl6 ~ '; ' ~ Main::newline();
 

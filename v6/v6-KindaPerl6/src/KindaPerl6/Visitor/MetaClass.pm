@@ -15,22 +15,22 @@ class KindaPerl6::Visitor::MetaClass {
             my $module := [ ];
 
             # calls GLOBAL::import
-            #push @$module, ::Apply(
-            #    code      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'import' ),
+            #push @$module, Apply.new(
+            #    code      => Var.new( 'sigil' => '&', 'twigil' => '', 'name' => 'import' ),
             #    arguments => [
-            #        ::Val::Buf( buf => $node.name ),
+            #        Val::Buf.new( buf => $node.name ),
             #    ],
             #);
 
             # role or class/grammar/module ?
             if $node.unit_type eq 'role' {
-                push @$module, ::Call(
+                push @$module, Call.new(
                     'hyper'     => '',
                     'arguments' => [
-                        ::Val::Buf( buf => $node.name ),
+                        Val::Buf.new( buf => $node.name ),
                     ],
                     'method'   => 'new',
-                    'invocant' => ::Proto( name => 'KindaPerl6::Role' ),
+                    'invocant' => Proto.new( name => 'KindaPerl6::Role' ),
                 );
             }
             else {
@@ -43,13 +43,13 @@ class KindaPerl6::Visitor::MetaClass {
                         }
                     };
                 };
-                my $metaobject := ::Call(
+                my $metaobject := Call.new(
                     'hyper'     => '',
                     'arguments' => [
-                        ::Val::Buf( buf => $node.name ),
+                        Val::Buf.new( buf => $node.name ),
                     ],
                     'method'   => 'new',
-                    'invocant' => ::Proto( name => $metaclass ),
+                    'invocant' => Proto.new( name => $metaclass ),
                 );
                 # 'If' == avoid redefining the prototype object
                 my $body := $node.body;
@@ -58,26 +58,26 @@ class KindaPerl6::Visitor::MetaClass {
                     $pad := $body.pad;
                 }
                 push @$module,
-                    ::If(
+                    If.new(
                         cond      =>
-                           ::Apply(
-                                arguments => [ ::Proto( name => $node.name ) ],
-                                code => ::Var( name => 'VAR_defined', twigil => '', sigil => '&', namespace => [ ] ),
+                           Apply.new(
+                                arguments => [ Proto.new( name => $node.name ) ],
+                                code => Var.new( name => 'VAR_defined', twigil => '', sigil => '&', namespace => [ ] ),
                             ),
                         body      =>
-                            ::Lit::Code(
+                            Lit::Code.new(
                                 body => [ ],
                                 sig   =>
-                                  ::Sig( invocant => '', positional => [], ),
+                                  Sig.new( invocant => '', positional => [], ),
                                 pad   => $pad,
                                 state => { },
                             ),
                         otherwise =>
-                            ::Lit::Code(
+                            Lit::Code.new(
                                 body => [
-                                    ::Bind(
-                                        'parameters' => ::Proto( name => $node.name ),
-                                        'arguments'  => ::Call(
+                                    Bind.new(
+                                        'parameters' => Proto.new( name => $node.name ),
+                                        'arguments'  => Call.new(
                                             'invocant' => $metaobject,
                                             'method'   => 'PROTOTYPE',
                                             'hyper'    => '',
@@ -85,7 +85,7 @@ class KindaPerl6::Visitor::MetaClass {
                                     )
                                 ],
                                 sig   =>
-                                  ::Sig( invocant => '', positional => [], ),
+                                  Sig.new( invocant => '', positional => [], ),
                                 pad   => $pad,
                                 state => { },
                             ),
@@ -96,17 +96,17 @@ class KindaPerl6::Visitor::MetaClass {
             for @($node.traits) -> $trait {
                 if $trait[0] eq 'does' {
                     # Bar->HOW->add_role('bar');
-                    push @$module, ::Call(
+                    push @$module, Call.new(
                         'hyper'     => '',
                         'arguments' => [
-                            ::Val::Buf( buf => $trait[1] ),
+                            Val::Buf.new( buf => $trait[1] ),
                         ],
                         'method'    => 'add_role',
-                        'invocant'  => ::Call(
+                        'invocant'  => Call.new(
                             'hyper'     => '',
                             'arguments' => [ ],
                             'method'    => 'HOW',
-                            'invocant'  => ::Proto(
+                            'invocant'  => Proto.new(
                                     name => $node.name
                                 )
                         ),
@@ -115,24 +115,24 @@ class KindaPerl6::Visitor::MetaClass {
                 else {
                 if $trait[0] eq 'is' {
                     # Bar->HOW->add_parent('bar');
-                    push @$module, ::Call(
+                    push @$module, Call.new(
                         'hyper'     => '',
                         'arguments' => [
-                            ::Call(
+                            Call.new(
                                 'hyper'     => '',
                                 'arguments' => [ ],
                                 'method'    => 'HOW',
-                                'invocant'  => ::Proto(
+                                'invocant'  => Proto.new(
                                     name => $trait[1]
                                 )
                             ),
                         ],
                         'method'    => 'add_parent',
-                        'invocant'  => ::Call(
+                        'invocant'  => Call.new(
                             'hyper'     => '',
                             'arguments' => [ ],
                             'method'    => 'HOW',
-                            'invocant'  => ::Proto(
+                            'invocant'  => Proto.new(
                                    name => $node.name
                                 )
                         ),
@@ -158,34 +158,34 @@ class KindaPerl6::Visitor::MetaClass {
                 if   $item.isa( 'Method' )
                 {
                     # Bar->HOW->add_method('bar' => Method->new( 'method' => sub { 789 } ) );
-                    push @$module, ::Call(
+                    push @$module, Call.new(
                         'hyper'     => '',
                         'arguments' => [
-                            ::Val::Buf( buf => $item.name ),
+                            Val::Buf.new( buf => $item.name ),
 
                             $item,
                             # create Method
-                            # ::Call(
+                            # Call.new(
                             #    'hyper'     => '',
                             #    'arguments' => [
-                            #        ::Method(
+                            #        Method.new(
                             #            name  => '',
                             #            block => $item.block,
                             #        ),
                             #    ],
                             #    'method'    => 'new',
-                            #    'invocant'  => ::Proto(
+                            #    'invocant'  => Proto.new(
                             #        name => 'Method',
                             #    ),
                             # ),
 
                         ],
                         'method'    => 'add_method',
-                        'invocant'  => ::Call(
+                        'invocant'  => Call.new(
                             'hyper'     => '',
                             'arguments' => [ ],
                             'method'    => 'HOW',
-                            'invocant'  => ::Proto(
+                            'invocant'  => Proto.new(
                                     name => $node.name
                                 )
                         ),
@@ -197,33 +197,33 @@ class KindaPerl6::Visitor::MetaClass {
                    && ( $item.decl eq 'has' )
                 {
                     # Bar->HOW->add_attribute($attribute_name, $attribute_meta_object)
-                    push @$module, ::Call(
+                    push @$module, Call.new(
                         'hyper'     => '',
                         'arguments' => [
-                                    ::Val::Buf(
+                                    Val::Buf.new(
                                         buf => ($item.var).name,
                                     )
 
-#                            ::Call(
+#                            Call.new(
 #                                'hyper'     => '',
 #                                'arguments' => [
-#                                    ::Val::Buf(
+#                                    Val::Buf.new(
 #                                        buf => ($item.var).name,
 #                                    )
 #                                ],
 #                                'method'    => 'new',
-#                                'invocant'  => ::Proto(
+#                                'invocant'  => Proto.new(
 #                                    name => 'Class::MOP::Attribute'
 #                                ),
 #                            )
 
                         ],
                         'method'    => 'add_attribute',
-                        'invocant'  => ::Call(
+                        'invocant'  => Call.new(
                             'hyper'     => '',
                             'arguments' => [ ],
                             'method'    => 'HOW',
-                            'invocant'  => ::Proto(
+                            'invocant'  => Proto.new(
                                     name => $node.name
                                 )
                         ),
@@ -261,13 +261,13 @@ class KindaPerl6::Visitor::MetaClass {
             if ($body) {
                 $pad := $body.pad;
             };
-            return ::CompUnit(
+            return CompUnit.new(
                 unit_type => 'module',
                 name => $node.name,
-                body => ::Lit::Code(
+                body => Lit::Code.new(
                     pad   => $pad,
                     state => { },
-                    sig   => ::Sig( 'invocant' => undef, 'positional' => [ ] ),
+                    sig   => Sig.new( 'invocant' => undef, 'positional' => [ ] ),
                     body  => $module,
                 ),
             );

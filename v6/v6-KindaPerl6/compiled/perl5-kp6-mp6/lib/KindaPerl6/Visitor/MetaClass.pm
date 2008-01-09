@@ -44,11 +44,11 @@ sub visit {
                     push(
                         @{$module},
                         If->new(
-                            'cond' => Apply->new( 'arguments' => [ Proto->new( 'name' => $node->name(), ) ], 'code' => Var->new( 'name' => 'VAR_defined', 'twigil' => '', 'sigil' => '&', 'namespace' => [], ), ),
-                            'body'      => Lit::Code->new( 'body' => [], 'sig' => Sig->new( 'invocant' => '', 'positional' => [], ), 'pad' => $pad, 'state' => {}, ),
+                            'cond'      => Apply->new( 'arguments' => [ Proto->new( 'name' => $node->name(), ) ], 'code'                  => Var->new( 'name' => 'VAR_defined', 'twigil'  => '', 'sigil'  => '&', 'namespace' => [], ), ),
+                            'body'      => Lit::Code->new( 'body'  => [],                  'sig'                  => Sig->new( 'invocant' => '',              'positional'      => [], ), 'pad'  => $pad, 'state' => {}, ),
                             'otherwise' => Lit::Code->new(
-                                'body' => [ Bind->new( 'parameters' => Proto->new( 'name' => $node->name(), ), 'arguments' => Call->new( 'invocant' => $metaobject, 'method' => 'PROTOTYPE', 'hyper' => '', ), ) ],
-                                'sig'   => Sig->new( 'invocant' => '', 'positional' => [], ),
+                                'body'  => [ Bind->new( 'parameters' => Proto->new( 'name' => $node->name(), ), 'arguments' => Call->new( 'invocant' => $metaobject, 'method' => 'PROTOTYPE', 'hyper' => '', ), ) ],
+                                'sig'   => Sig->new( 'invocant'      => '',                'positional'         => [], ),
                                 'pad'   => $pad,
                                 'state' => {},
                             ),

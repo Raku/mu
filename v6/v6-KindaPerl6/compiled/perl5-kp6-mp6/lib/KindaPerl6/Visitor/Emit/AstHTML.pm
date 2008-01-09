@@ -27,8 +27,8 @@ sub visit {
                     do {
                         for my $subitem ( @{ $data->{$item} } ) {
                             do {
-                                if ( Main::isa( $subitem, 'Array' ) ) { $result = ( $result . ' [ ... ], ' ) }
-                                else { $result = ( $result . ( $subitem->emit($self) . ', ' ) ) }
+                                if   ( Main::isa( $subitem, 'Array' ) ) { $result = ( $result . ' [ ... ], ' ) }
+                                else                                    { $result = ( $result . ( $subitem->emit($self) . ', ' ) ) }
                                 }
                         }
                     };
@@ -46,7 +46,7 @@ sub visit {
                         else {
                             do {
                                 if ( Main::isa( $data->{$item}, 'Str' ) ) { $result = ( $result . ( '\'' . ( $data->{$item} . '\', ' ) ) ) }
-                                else { $result = ( $result . ( $data->{$item}->emit($self) . ', ' ) ) }
+                                else                                      { $result = ( $result . ( $data->{$item}->emit($self) . ', ' ) ) }
                                 }
                         }
                         }

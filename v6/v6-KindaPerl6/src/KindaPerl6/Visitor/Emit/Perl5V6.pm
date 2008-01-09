@@ -175,10 +175,10 @@ class Lit::Code {
         my $s;
         my $name;
         for @($.pad.lexicals) -> $name {
-            my $decl := ::Decl(
+            my $decl := Decl.new(
                 decl => 'my',
                 type => '',
-                var  => ::Var(
+                var  => Var.new(
                     sigil     => '',
                     twigil    => '',
                     name      => $name,
@@ -329,8 +329,8 @@ class Call {
         if ($.hyper) {
             # TODO - hyper + role
               '::DISPATCH( $::List, "new", { _array => [ '
-            ~     'map { ::DISPATCH( $_, "' ~ $meth ~ '", ' ~ $call ~ ') } '
-            ~          '@{ ::DISPATCH( ' ~ $invocant ~ ', "array" )->{_value}{_array} } '
+            ~     'map { DISPATCH.new( $_, "' ~ $meth ~ '", ' ~ $call ~ ') } '
+            ~          '@{ DISPATCH.new( ' ~ $invocant ~ ', "array" )->{_value}{_array} } '
             ~ '] } )' ~ Main::newline();
         }
         else {
@@ -404,7 +404,7 @@ class Apply {
 class Return {
     method emit_perl5v6 {
         # call .FETCH just in case it's a Container
-        # 'return( ::DISPATCH(' ~ $.result.emit_perl5v6 ~ ', "FETCH" ) )' ~ Main::newline();
+        # 'return( DISPATCH.new(' ~ $.result.emit_perl5v6 ~ ', "FETCH" ) )' ~ Main::newline();
 
         #'do { print Main::perl(caller(),' ~ $.result.emit_perl5v6 ~ '); return(' ~ $.result.emit_perl5v6 ~ ') }';
         'return(' ~ $.result.emit_perl5v6 ~ ')' ~ Main::newline();
@@ -433,7 +433,7 @@ class While {
           && $cond.sigil eq '@'
         {
         } else {
-            $cond := ::Apply( code => ::Var(sigil=>'&',twigil=>'',name=>'prefix:<@>',namespace => [ 'GLOBAL' ],), arguments => [$cond] );
+            $cond := Apply.new( code => ::Var(sigil=>'&',twigil=>'',name=>'prefix:<@>',namespace => [ 'GLOBAL' ],), arguments => [$cond] );
         }
         'do { while (::DISPATCH(::DISPATCH(' ~ $.cond.emit_perl5v6 ~ ',"true"),"p5landish") ) '
         ~ ' { '
@@ -478,8 +478,8 @@ class Sig {
 
           '::DISPATCH( $::Signature, "new", { '
         ~     'invocant => ' ~ $inv ~ ', '
-        ~     'array    => ::DISPATCH( $::List, "new", { _array => [ ' ~ $pos   ~ ' ] } ), '
-        # ~     'hash     => ::DISPATCH( $::Hash,  "new", { _hash  => { ' ~ $named ~ ' } } ), '
+        ~     'array    => DISPATCH.new( $::List, "new", { _array => [ ' ~ $pos   ~ ' ] } ), '
+        # ~     'hash     => DISPATCH.new( $::Hash,  "new", { _hash  => { ' ~ $named ~ ' } } ), '
         ~     'return   => $::Undef, '
         ~ '} )'
         ~ Main::newline();
@@ -496,7 +496,7 @@ class Lit::Capture {
             $s := $s ~ 'invocant => $::Undef, '
         };
         if defined $.array {
-           $s := $s ~ 'array => ::DISPATCH( $::List, "new", { _array => [ ';
+           $s := $s ~ 'array => DISPATCH.new( $::List, "new", { _array => [ ';
                             my $item;
            for @.array -> $item {
                 $s := $s ~ $item.emit_perl5v6 ~ ', ';
@@ -504,7 +504,7 @@ class Lit::Capture {
             $s := $s ~ ' ] } ),';
         };
         if defined $.hash {
-            $s := $s ~ 'hash => ::DISPATCH( $::Hash, "new", ';
+            $s := $s ~ 'hash => DISPATCH.new( $::Hash, "new", ';
             my $item;
             for @.hash -> $item {
                 $s := $s ~ '[ ' ~ ($item[0]).emit_perl5v6 ~ ', ' ~ ($item[1]).emit_perl5v6 ~ ' ], ';
