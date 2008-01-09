@@ -62,6 +62,8 @@
  *
  * This is the metaclass that support all stack operators as described
  * below.
+ *
+ * This metaclass/prototype is closed and final.
  */
 extern YAP6__Prototype* YAP6__STACK__Operators;
 
@@ -106,12 +108,12 @@ extern YAP6__Prototype* YAP6__STACK__Operators;
  * be (int, List of int, List of int, int). But again, this is just
  * the capture creator for the operator and not the operator itself.
  */
+extern YAP6__Object* YAP6__STACK__OP_Move_Capturize;
 YAP6__Object* yap6__stack__opcapture_move_capturize_new(int invocant,
                                                         int** positional,
                                                         int** named,
                                                         int target);
 extern YAP6__Prototype* YAP6__STACK__OPCAPTURE_Move_Capturize;
-extern YAP6__Object* YAP6__STACK__OP_Move_Capturize;
 
 /* YAP6__STACK__OP_Move_Identifier
  *
@@ -134,9 +136,9 @@ extern YAP6__Object* YAP6__STACK__OP_Move_Capturize;
  * compatible with this operator. The "new" signature will be (int,
  * int).
  */
+extern YAP6__Object* YAP6__STACK__OP_Move_Identifier;
 YAP6__Object* yap6__stack__opcapture_move_identifier_new(int source, int target);
 extern YAP6__Prototype* YAP6__STACK__OPCAPTURE_Move_Identifier;
-extern YAP6__Object* YAP6__STACK__OP_Move_Identifier;
 
 /* YAP6__STACK__OP_Move_MetaClass
  *
@@ -159,15 +161,16 @@ extern YAP6__Object* YAP6__STACK__OP_Move_Identifier;
  * compatible with this operator. The "new" signature will be (int,
  * int).
  */
+extern YAP6__Object* YAP6__STACK__OP_Move_MetaClass;
 YAP6__Object* yap6__stack__opcapture_move_metaclass_new(int source, int target);
 extern YAP6__Prototype* YAP6__STACK__OPCAPTURE_Move_MetaClass;
-extern YAP6__Object* YAP6__STACK__OP_Move_MetaClass;
 
 /* YAP6__STACK__OP_Copy
  *
  * This operator copies the result of some past node and returns
  * it. This is usefull when you want the result of some node to be
- * available to more than one of the move operators.
+ * available to more than one of the move operators. This operator
+ * manipulates the current stack.
  *
  * lowlevel C call: yap6__stack__opcapture_copy_new
  *
@@ -181,20 +184,114 @@ extern YAP6__Object* YAP6__STACK__OP_Move_MetaClass;
  * compatible with this operator. The "new" signature will simply be
  * (int).
  */
+extern YAP6__Object* YAP6__STACK__OP_Copy;
 YAP6__Object* yap6__stack__opcapture_copy_new(int source);
 extern YAP6__Prototype* YAP6__STACK__OPCAPTURE_Copy;
-extern YAP6__Object* YAP6__STACK__OP_Copy;
 
 
-extern YAP6__Object* YAP6__STACK__OP_Stack_Init;
-extern YAP6__Object* YAP6__STACK__OP_Stack_Push;
-extern YAP6__Object* YAP6__STACK__OP_Stack_Continues;
-extern YAP6__Object* YAP6__STACK__OP_Stack_Next;
-extern YAP6__Object* YAP6__STACK__OP_Stack_Current;
-extern YAP6__Object* YAP6__STACK__OP_Stack_Eval;
-extern YAP6__Object* YAP6__STACK__OP_Stack_Result;
-extern YAP6__Object* YAP6__STACK__OP_Stack_IsEmpty;
-extern YAP6__Object* YAP6__STACK__OP_Stack_Loop;
+/*
+ * The YAP6__STACK__Stack and the YAP6__STACK__Node prototypes are the
+ * ones used to create new stacks and to operate on it. Differently
+ * from the lowlevel stack operations that manipulate the currently
+ * running stack, these methods are safe to be run without a current
+ * stack at all. This methods always look for the stack as the
+ * invocant in the capture, and not as the stack parameter to the
+ * lowlevel MESSAGE call.
+ *
+ * In fact, when calling the low-level MESSAGE (using YAP6_DISPATCH,
+ * probably) you can even pass NULL as the current stack. IF this
+ * methods need to recurse they will do it using the C stack. The only
+ * exception for this rule is the "eval" method on the Stack
+ * prototype. This method will actually call a message using the given
+ * stack as the call stack, and probably cause stack manipulation.
+ *
+ * The methods of this types already use a high-level compatible
+ * Capture (as opposed to the lowlevel stack operators that use a
+ * different object as the capture), but still some helper C methods
+ * are defined here to create the captures, as to make it possible to
+ * use these methods from the low-level more easily and efficiently.
+ *
+ * As with the lowlevel operators, a set of constants is defined as to
+ * provide a more optimized method for name resolution for this
+ * prototypes. But if that fails, it will fallback to string name
+ * resolution.
+ */
+
+/* YAP6__STACK__Stack
+ *
+ * The Stack type is a reference holder to the top-most node in the
+ * execution. It works like an iterator on the stack, but it's a live
+ * iterator that can change the sequence of the iteration. The idea
+ * behind the stack containing just a reference to the current node
+ * resides in the fact that this makes very easy to manipulate the
+ * current stack and displace the execution to different chains. It
+ * could even be used to implement green threads (non-OS threads) like
+ * implemeting a POE kernel.
+ *
+ * The only information the stack itself holds is the reference to the
+ * currently selected node. And everything the Stack methods do always
+ * use that as the starting point.
+ *
+ * None of this methods manipulate the current stack, and it is
+ * considered legal to pass a NULL reference to the low-level MESSAGE
+ * call. None of this methods will recurse, but "eval" will call the
+ * current node's message passing the invocant as the call stack.
+ *
+ * The Stack type is closed and final.
+ *
+ */
+extern YAP6__Prototype* YAP6__STACK__Stack;
+
+/* YAP6__STACK__Stack_new
+ *
+ * This method creates a new Stack object. It doesn't receive any
+ * argument and simply returns an empty stack for later manipulation.
+ *
+ * Signature: ()
+ *
+ * Lowlevel C call: not necessary, you can actually pass
+ * NULL as the capture.
+ */
+extern YAP6__Object* YAP6__STACK__Stack_new;
+
+/* YAP6__STACK__Stack_push
+ *
+ * This method pushes a node to the stack. This will cause the
+ * following operation:
+ *
+ * Before
+ *                                *
+ *    Current Frame     1 <- 2 <- 3 -> 4 -> 5
+ *
+ * After
+ *                                *
+ *    New Frame              given node
+ *                                |
+ *    Current Frame     1 <- 2 <- 3 -> 4 -> 5
+ *
+ * Signature:
+ *     (YAP6__STACK__Stack $stack: YAP6__STACK__Node $node);
+ *
+ * Lowlevel C call:
+ *     yap6__stack__stack_push_capture(YAP6__Object* stack,
+ *                                     YAP6__Object* node);
+ */
+extern YAP6__Object* YAP6__STACK__Stack_push;
+YAP6__Object* yap6__stack__stack_push_capture(YAP6__Object* stack,
+                                              YAP6__Object* node);
+
+extern YAP6__Object* YAP6__STACK__Stack_continues;
+extern YAP6__Object* YAP6__STACK__Stack_next;
+extern YAP6__Object* YAP6__STACK__Stack_current;
+extern YAP6__Object* YAP6__STACK__Stack_eval;
+extern YAP6__Object* YAP6__STACK__Stack_result;
+extern YAP6__Object* YAP6__STACK__Stack_is_empty;
+extern YAP6__Object* YAP6__STACK__Stack_loop;
+
+
+extern YAP6__Prototype* YAP6__STACK__Node;
+
+
 
 
 extern YAP6__Object* YAP6__STACK__OP_Node_Init;
@@ -209,9 +306,6 @@ extern YAP6__Object* YAP6__STACK__OP_Node_Continuation;
 extern YAP6__Object* YAP6__STACK__OP_Node_Past;
 extern YAP6__Object* YAP6__STACK__OP_Node_Result;
 
-// And the Stack and Node prototypes.
-extern YAP6__Prototype* YAP6__STACK__Stack;
-extern YAP6__Prototype* YAP6__STACK__Node;
 
 YAP6__Object* YAP6__STACK__Stack_Init();
 YAP6__Object* YAP6__STACK__Stack_Push(YAP6__Object* stack, YAP6__Object* node);
