@@ -283,9 +283,6 @@ BEGIN {
         dumphash(  :%numeric);
         dumphash(  :%ccc);
         dumputable(:$bidi_class);
-        dumphash(  :%compat_decomp_type);
-        dumphash(  :%compat_decomp);
-        dumphash(  :%canon_decomp);
         dumputable(:$bidi_mirrored);
         dumphash(  :%upper);
         dumphash(  :%lower);
@@ -316,7 +313,7 @@ BEGIN {
                 (<isPs>)
                 <-isPe-isPs>*
                 (<isPe>?)
-                { %ps_to_pe{$0}  = $1 if $1.chars }
+                { %ps_to_pe{$0} = $1 if $1.chars }
             ]*
         }
         # ps_to_pe take precedence over BidiMirroring mappings
@@ -332,7 +329,7 @@ BEGIN {
 my Utable $blockname.=new;
 BEGIN {
     @mktab_subs.push: my sub mktab_blocks(-->) {
-        process_file 'ucd/Blocks.txt', rule { $<r>=<UCD::code_or_range> ';' $<name>=(\S+\N*) }, {
+        process_file 'ucd/Blocks.txt', rule { <r=UCD::code_or_range> ';' $<name>=(\S+\N*) }, {
             $blockname.add($<r><ord>, :val($<name>));
         }
         dumputable(:$blockname);
@@ -344,7 +341,7 @@ BEGIN {
 my Bool %compex;
 BEGIN {
     @mktab_subs.push: my sub mktab_compex(-->) {
-        process_file 'ucd/CompositionExclusions.txt', rule { $<c>=<UCD::code> }, {
+        process_file 'ucd/CompositionExclusions.txt', rule { <c=UCD::code> }, {
             %compex{$<c><str>}++;
         }
         dumphash(:%compex);
@@ -358,7 +355,7 @@ BEGIN {
 my Hash of Str %casefold;
 BEGIN {
     @mktab_subs.push: my sub mktab_casefold(-->) {
-        process_file 'ucd/CaseFolding.txt', rule { $<c>=<UCD::code> ';' (<[FTSC]>) ';' $<map>=<UCD::code_or_seq> ';' }, {
+        process_file 'ucd/CaseFolding.txt', rule { <c=UCD::code> ';' (<[FTSC]>) ';' <map=UCD::code_or_seq> ';' }, {
             %casefold{$0}{$<c><str>} = $<map><str>;
         }
         dumphash(:%casefold);
@@ -375,7 +372,7 @@ BEGIN {
 my Utable $hangul;
 BEGIN {
     @mktab_subs.push: my sub mktab_hst(-->) {
-        process_file 'ucd/HangulSyllableType.txt', rule { $<n>=<UCD::code_or_range> ';' $<name>=(\w+) }, {
+        process_file 'ucd/HangulSyllableType.txt', rule { <n=UCD::code_or_range> ';' $<name>=(\w+) }, {
             $hangul.add($<n><ord>, :val($<name>));
         }
         dumputable(:$hangul);
@@ -400,20 +397,35 @@ BEGIN {
 # 0 code
 # 1 name
 #     see note about names in UnicodeData.txt
+# UAX#15 also has code for hangul syllable names
 
 # NormalizationCorrections.txt
 # 0 code
 # 1 Original (erroneous) decomposition
 # 2 Corrected decomposition
-my Str %norm_correct;
 # 3 version corrected
 BEGIN {
     @mktab_subs.push: my sub mktab_norm_correct(-->) {
         process_file 'ucd/NormalizationCorrections.txt',
-            rule { $<c>=<UCD::code> ';' $<orig>=<UCD::code_or_seq> ';' $<corr>=<UCD::code_or_seq> ';' }, {
-                %norm_correct{$<c><str>} = $<corr><str>;
+            rule { <c=UCD::code> ';' <orig=UCD::code_or_seq> ';' <corr=UCD::code_or_seq> ';' }, {
+                my Str $decomp = $<corr><str>;
+                my Int $code = $<c><ord>;
+                if $decomp ~~ rule { '<' \w+ '>'} {
+                    # compat    
+                    my Str $decomp_type = $decomp.substr(0, $/.to);
+                    $decomp.=substr($/.to);
+                    $decomp = [~] $decomp.comb».hex.chr;
+                    %compat_decomp_type{$code} = $decomp_type;
+                    %compat_decomp{$code} = $decomp;
+                } else {    
+                    # canon     
+                    $decomp = [~] $decomp.comb».hex.chr;
+                    %canon_decomp{$code} = $decomp if $decomp.chars;
+                }           
         }
-        dumphash(:%norm_correct);
+        dumphash(  :%compat_decomp_type);
+        dumphash(  :%compat_decomp);
+        dumphash(  :%canon_decomp);
     }
 }
 
@@ -465,11 +477,17 @@ BEGIN {
         dumphash(:%ccc_full);
     }
     @dump_init_subs.push: my sub dump_init_pva(-->) {
-        # isccc($n) can take a ccc number, Range of numbers, abbreviation, or full name
-        our token isccc($n) is export      { (.) <?{ %ccc{$0} ~~ $n|%ccc_abbrev{lc $n}|%ccc_full{lc $n} }> }
         our token isBidiMirrored is export { (.) <?{ $bidi_mirrored.contains($0.ord)                    }> }
         our token isDecoCanon is export    { (.) <?{ exists %canon_decomp{$0}                           }> }
         our token isDecoCompat is export   { (.) <?{ exists %compat_decomp{$0}                          }> }
+        # generic smartmatch isccc, can deal with Int, Range, List, Code:(Int), etc.
+        our multi token isccc($n) is export      { (.) <?{ ( !exists %ccc{$0} and $n ~~ 0 )
+                                                                               or %ccc{$0} ~~ $n
+                                                                                                        }> }
+        # however, isccc('Virama') "matches" 0, so a Str version is required
+        our multi token isccc(Str $n) is export      { (.) <?{ ( !exists %ccc{$0} and lc $n eq 'none' )
+                                                        or %ccc{$0} ~~ %ccc_abbrev{lc $n}|%ccc_full{lc $n}
+                                                                                                        }> }
         for %decomp_type_alias.keys -> my Str $dc {
             install_token "isDC$dc", -> Str $s     { %compat_decomp_type{$s} eq $dc                     };
             my Str $dca = %decomp_type_alias{$dc};
@@ -498,7 +516,7 @@ BEGIN {
 my Utable $script;
 BEGIN {
     @mktab_subs.push: my sub mktab_script(-->) {
-        process_file 'ucd/Scripts.txt', rule { $<n>=<UCD::code_or_range> ';' $<name>=(\w+) }, {
+        process_file 'ucd/Scripts.txt', rule { <n=UCD::code_or_range> ';' $<name>=(\w+) }, {
             $script.add($<n><ord>, :val($<name>));
         }
         dumputable(:$script);
@@ -526,10 +544,10 @@ BEGIN {
     @mktab_subs.push: my sub mktab_spcase(-->) {
         process_file 'ucd/SpecialCasing.txt',
             rule {
-                    $<c>=<UCD::code>
-                ';' $<lower>=<UCD::code_or_seq>
-                ';' $<title>=<UCD::code_or_seq>
-                ';' $<upper>=<UCD::code_or_seq>
+                    <c=UCD::code>
+                ';' <lower=UCD::code_or_seq>
+                ';' <title=UCD::code_or_seq>
+                ';' <upper=UCD::code_or_seq>
                 ';' $<cond>=(\N*)
             }, {
                 if $<cond>.chars {
@@ -556,18 +574,22 @@ BEGIN {
 #     post-6.0?
 
 # DerivedCoreProperties.txt
-my Utable %derived;
 BEGIN {
-    @mktab_subs.push: my sub mktab_derived_core(-->) {
-        process_file 'ucd/DerivedCoreProperties.txt', rule { $<n>=<UCD::code_or_range> ';' $<name>=(\w+) }, {
-            %derived{$<name>).add($<n><ord>);
-        }
-        dumphash(:%derived);
-    }
     @dump_init_subs.push: my sub dump_init_derived_core(-->) {
-        for %derived.keys -> my Str $dp {
-            install_token "is$dp", -> Str $s       { %derived{$dp}.contains($s.ord)                      };
+        our token isMath is export { <+isSm+isOther_Math> }
+        our token isAlphabetic is export { <+isLu+isLl+isLt+isLm+isLo+isNl+isOther_Alphabetic> }
+        our token isLowercase is export { <+isLl+isOther_Lowercase> }
+        our token isUppercase is export { <+isLu+isOther_Uppercase> }
+        our token isID_Start is export { <+isLu+isLl+isLt+isLm+isLo+isNl+isOther_ID_Start> }
+        our token isID_Continue is export { <+isID_Start+isMn+isMc+isNd+isPc+isOther_ID_Continue> }
+        our token isXID_Start is export { {...} }
+        our token isXID_Continue is export { {...} }
+        our token isDefault_Ignorable_Code_Point is export {
+            <+isOther_Default_Ignorable_Code_Point+isCf+isCc+isCs+isNoncharacters-isWhite_Space-[\x{FFF9}..\x{FFF9}]>
         }
+        our token isGrapheme_Extend is export { <+isMe+isMn+isOther_Grapheme_Extend> }
+        our token isGrapheme_Base is export { <-isCc-isCf-isCs-isCo-isCn-isZl-isZp-isGrapheme_Extend> }
+        our token isGrapheme_Link is export { <isccc('Virama')> }
     }
 }
 
@@ -648,7 +670,7 @@ class Str is also {
     has StrPos @.as_codes;
     our method to_codes(Str $string: --> List of StrPos) {
         return @.as_codes if defined @.as_codes;
-        $string ~~ m:codes{ [ (.) { @.as_codes.push: $0[*-1].from } ]* };
+        $string ~~ token :codes{ [ (.) { @.as_codes.push: $0[*-1].from } ]* };
         return @.as_codes;
     }
     # access the string as an array of codepoints
@@ -662,10 +684,10 @@ class Str is also {
     # XXX is this even remotely correct?
     &STORE.wrap( { @.as_codes = undef; @.as_graphs = undef; callsame; } );
     # Grapheme Cluster Boundary Determination        UAX #29
-    token isGCBCR { \x{000D} }
-    token isGCBLF { \x{000A} }
-    token isGCBControl { <+isZl+isZp+isCc+isCf-[\x{000D}\x{000A}\x{200C}\x{200D}]> }
-    token isGCBHangulSyllable {
+    token isGCBCR :codes { \x{000D} }
+    token isGCBLF :codes { \x{000A} }
+    token isGCBControl :codes { <+isZl+isZp+isCc+isCf-[\x{000D}\x{000A}\x{200C}\x{200D}]> }
+    token isGCBHangulSyllable :codes {
         | <after <isHSTL>                  >          [ <isHSTL> | <isHSTV> | <isHSTLV> | <isHSTLVT> ]
         |        <isHSTL>                     <before [ <isHSTL> | <isHSTV> | <isHSTLV> | <isHSTLVT> ] >
         | <after [ <isHSTLV> | <isHSTV> ]  >          [ <isHSTV> | <isHSTT> ]
@@ -676,7 +698,7 @@ class Str is also {
     # "default" / "locale-independent" grapheme cluster
     # text does not need to be normalized
     # relies on longest-token matching
-    token grapheme_cluster {
+    token grapheme_cluster :codes {
         | <isGCBCR> <isGCBLF>
         | [ <isGCBCR> | <isGCBLF> | <isGCBControl> ]
         | <isGCBHangulSyllable>+ <isGrapheme_Extend>*
@@ -685,7 +707,7 @@ class Str is also {
     }
     our method to_graphs(Str $string: --> List of StrPos) {
         return @.as_graphs if defined @.as_graphs;
-        $string ~~ m:codes{ [ (<grapheme_cluster>) { @.as_graphs.push: $0[*-1].from } ]* };
+        $string ~~ token :codes{ [ (<grapheme_cluster>) { @.as_graphs.push: $0[*-1].from } ]* };
         return @.as_graphs;
     }
     # access the string as an array of graphemes
@@ -718,17 +740,63 @@ class Str is also {
     }
 
     # Normalization Algorithm                        UAX #15
+    our method reorder(Str $string: --> Str) is export {
+        my Str $ret;
+        $string ~~ token :codes {
+            [ $<ns>=[ <isccc(0)>+ ]
+                { $ret ~= $<ns>[*-1] }
+            | @<s>=<isccc(1..*)>*
+                { $ret ~= [~] @@<s>[*-1].sort: { %ccc{$^c} } }
+            ]*
+        };
+        return $ret;
+    }
+    sub hangul_decomp(Str $s --> Str) {
+        my Int $o = $s.ord;
+        return $s if $o < 0xAC00 or $o >= 0xD7A4;
+        my Str $ret;
+        $ret ~= ((($o - 0xAC00) / 0x2BA4) + 0x1100).chr;
+        $ret ~= ((((($o - 0xAC00) % 0x2BA4) / 28 ) + 0x1161 ).chr;
+        my Int $t = (($o - 0xAC00) % 28 ) + 0x11A7;
+        $ret ~= $t.chr if $t != 0x11A7;
+        return $ret;
+    }
     our multi method normalize(Str $string: Bool :$canonical = Bool::True, Bool :$recompose = Bool::False --> Str) is export {
-        ...;
+        return $string.nfd  if  $canonical and !$recompose;
+        return $string.nfc  if  $canonical and  $recompose;
+        return $string.nfkd if !$canonical and !$recompose;
+        return $string.nfkc if !$canonical and  $recompose;
     }
     our multi method nfd(Str $string: --> Str) is export {
-        ...;
+        my Str $old;
+        my Str $new := $string;
+        while $old ne $new {
+            $old := $new;
+            $new = '';
+            $old ~~ token :codes {
+                [
+                    (.) { $new ~= %canon_decomp{$0[*-1]} // hangul_decomp($0[*-1]) }
+                ]*
+            };
+        }
+        return $new.reorder;
     }
     our multi method nfc(Str $string: --> Str) is export {
         ...;
     }
     our multi method nfkd(Str $string: --> Str) is export {
-        ...;
+        my Str $old;
+        my Str $new := $string;
+        while $old ne $new {
+            $old := $new;
+            $new = '';
+            $old ~~ token :codes {
+                [
+                    (.) { $new ~= %compat_decomp{$0[*-1]} // %canon_decomp{$0[*-1]} // hangul_decomp($0[*-1]) }
+                ]*
+            };
+        }
+        return $new.reorder;
     }
     our multi method nfkc(Str $string: --> Str) is export {
         ...;
