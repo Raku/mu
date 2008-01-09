@@ -1,0 +1,133 @@
+2008-Jan-09
+
+From #perl6, re creating a MOP for the CL backend:
+
+mncharity: stevan_: you wouldn't happen to have a CL version of the p6 mop lying around, would you? :)
+pasteling: "stevan" pasted "This is about all I have" (119 lines, 3.8K) at http://sial.org/pbot/29727
+stevan_: mncharity: just a proof of concept really,.. not complete
+stevan_: the Perl6::ObjectSpace metamodel code had some pseudo-LISP stuff in it 
+stevan_: http://svn.openfoundry.org/pugs/perl5/Perl6-ObjectSpace
+lambdabot: Title: Revision 16464: /perl5/Perl6-ObjectSpace
+stevan_: http://svn.openfoundry.org/pugs/perl5/Perl6-ObjectSpace/lib/Perl6/MetaModel/Bootstrap.pm
+lambdabot: http://tinyurl.com/3d4yrj
+
+==begin paste==
+;;
+;; Perl 6 MiniMetaModel in Common Lisp
+;; 
+;; AUTHOR
+;;
+;; Stevan Little <stevan@iinteractive.com>
+;;
+
+;; opaque instances
+
+(defclass opaque-instance ()
+    ((count :accessor   opaque-instance-count 
+            :initform   0
+            :allocation :class)
+     (id    :accessor   opaque-instance-id)
+     (class :accessor   opaque-instance-class 
+            :initarg    :class)
+     (attrs :accessor   opaque-instance-attrs 
+            :initarg    :attrs)))
+    
+(defmethod initialize-instance :after ((instance opaque-instance) &key)
+    (setf (opaque-instance-count instance) (+ 1 (opaque-instance-count instance)))
+    (setf (opaque-instance-id instance) (opaque-instance-count instance)))    
+    
+(defmethod opaque-instance-change-class ((instance opaque-instance) (class opaque-instance))
+    (setf (opaque-instance-class instance) class))
+    
+(defmethod opaque-instance-attr ((instance opaque-instance) label)
+    (getf (opaque-instance-attrs instance) label))    
+
+;; Boostraping stuff
+    
+(defparameter ^Class  nil)
+(defparameter ^Object nil)
+
+;; special ^Class conststructor
+(defun create-class (&key name superclass methods)
+    (make-instance `opaque-instance 
+        :attrs (list :name       name 
+                     :superclass superclass
+                     :methods    methods)))
+
+;; method-send
+
+(defun WALKCLASS (class)
+  (opaque-instance-attr class :superclass))
+
+(defun WALKMETH (class method-name)
+    (or (getf (opaque-instance-attr class :methods) method-name)
+        (WALKMETH (WALKCLASS class) method-name)))
+
+(defmethod send ((obj opaque-instance) method-name &rest args)
+    (let ((method (WALKMETH (opaque-instance-class obj) method-name)))
+        (apply method obj args)))
+
+;; create ^Class
+
+(setf ^Class (create-class 
+                    :name    "Class"
+                    :methods (list 
+                        :new        (lambda (self &rest attrs) 
+                                        (make-instance `opaque-instance :class self :attrs attrs))
+                        :name       (lambda (self) (opaque-instance-attr self :name))
+                        :superclass (lambda (self) (opaque-instance-attr self :superclass)) 
+                    )))
+
+;; set's ^Class's :class to ^Class
+(opaque-instance-change-class ^Class ^Class)
+
+;; create ^Object
+
+(setf ^Object (send ^Class :new 
+                        :name    "Object"
+                        :methods (list
+                            :id    (lambda (self) (opaque-instance-id self))
+                            :class (lambda (self) (opaque-instance-class self))
+                        )))
+                        
+;; Class is-a Object                        
+(setf (getf (opaque-instance-attrs ^Class) :superclass) ^Object)
+ 
+;; The knot has been tied:
+;; - Class instance-of Class
+;; - Object instance-of Class
+;; - Class subclass-of Object
+
+;; some quick test functions
+     
+(defparameter test-num 0)
+
+(defun next-test-num ()
+  (setf test-num (+ test-num 1)))
+
+(defun okay (test message)
+  (or test
+      (format t "~A no-ok ... ~A " (next-test-num) message))
+  (and test
+      (format t "~A ok ... ~A" (next-test-num) message)))              
+                        
+;; do stuff with the model now
+
+(setf ^Foo (send ^Class :new
+                        :name       "Foo"
+                        :superclass ^Object
+                        :methods (list 
+                            :foo (lambda (self) "Foo::foo")
+                        )))
+
+(setf $foo (send ^Foo :new))
+
+(setf ^Bar (send ^Class :new
+                        :name       "Bar"
+                        :superclass ^Foo
+                        :methods (list 
+                            :bar (lambda (self) "Bar::bar")
+                        )))
+
+(setf $bar (send ^Bar :new))
+==end paste==
