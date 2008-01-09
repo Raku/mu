@@ -259,6 +259,9 @@ extern YAP6__Object* YAP6__STACK__Stack_new;
  * This method pushes a node to the stack. This will cause the
  * following operation:
  *
+ * If the stack is empty, the given node is considered the first
+ * frame.
+ *
  * Before
  *                                *
  *    Current Frame     1 <- 2 <- 3 -> 4 -> 5
@@ -407,46 +410,27 @@ YAP6__Object* yap6__stack__stack_has_next_capture(YAP6__Object* stack);
 extern YAP6__Object* YAP6__STACK__Stack_loop;
 YAP6__Object* yap6__stack__stack_loop_capture(YAP6__Object* stack);
 
-
+/* YAP6__STACK__Node
+ *
+ * The node type is just a placeholder for the data operated by the
+ * stack. It's a simple object that have simple accessors. These are
+ * not the standard Perl accessors, are explicit methods that handle
+ * it.
+ *
+ * One way or another, this class is closed and final.
+ */
 extern YAP6__Prototype* YAP6__STACK__Node;
+extern YAP6__Object* YAP6__STACK__Node_new;
+extern YAP6__Object* YAP6__STACK__Node_metaclass;
+extern YAP6__Object* YAP6__STACK__Node_identifier;
+extern YAP6__Object* YAP6__STACK__Node_capture;
+extern YAP6__Object* YAP6__STACK__Node_debug;
+extern YAP6__Object* YAP6__STACK__Node_jail;
+extern YAP6__Object* YAP6__STACK__Node_lexical;
+extern YAP6__Object* YAP6__STACK__Node_outer;
+extern YAP6__Object* YAP6__STACK__Node_continuation;
+extern YAP6__Object* YAP6__STACK__Node_past;
+extern YAP6__Object* YAP6__STACK__Node_result;
 
-
-
-
-extern YAP6__Object* YAP6__STACK__OP_Node_Init;
-extern YAP6__Object* YAP6__STACK__OP_Node_MetaClass;
-extern YAP6__Object* YAP6__STACK__OP_Node_Identifier;
-extern YAP6__Object* YAP6__STACK__OP_Node_Capture;
-extern YAP6__Object* YAP6__STACK__OP_Node_Debug;
-extern YAP6__Object* YAP6__STACK__OP_Node_Jail;
-extern YAP6__Object* YAP6__STACK__OP_Node_Lexical;
-extern YAP6__Object* YAP6__STACK__OP_Node_Outer;
-extern YAP6__Object* YAP6__STACK__OP_Node_Continuation;
-extern YAP6__Object* YAP6__STACK__OP_Node_Past;
-extern YAP6__Object* YAP6__STACK__OP_Node_Result;
-
-
-YAP6__Object* YAP6__STACK__Stack_Init();
-YAP6__Object* YAP6__STACK__Stack_Push(YAP6__Object* stack, YAP6__Object* node);
-YAP6__Object* YAP6__STACK__Stack_Continue(YAP6__Object* stack, YAP6__Object* node);
-YAP6__Object* YAP6__STACK__Stack_Drop(YAP6__Object* stack);
-YAP6__Object* YAP6__STACK__Stack_Next(YAP6__Object* stack);
-YAP6__Object* YAP6__STACK__Stack_Curr(YAP6__Object* stack);
-YAP6__Object* YAP6__STACK__Stack_Eval(YAP6__Object* stack);
-YAP6__Object* YAP6__STACK__Stack_Result(YAP6__Object* stack, int count_backwards);
-YAP6__Object* YAP6__STACK__Stack_IsEmpty(YAP6__Object* stack);
-
-YAP6__Object* YAP6__STACK__Node_Init();
-// All getters are setters at the same time. If you want to use only as getter, pass NULL.
-YAP6__Object* YAP6__STACK__Node_MetaClass(YAP6__Object* node, YAP6__Object* newvalue);
-YAP6__Object* YAP6__STACK__Node_Identifier(YAP6__Object* node,  YAP6__Object* newvalue);
-YAP6__Object* YAP6__STACK__Node_Capture(YAP6__Object* node, YAP6__Object* newvalue);
-YAP6__Object* YAP6__STACK__Node_Debug(YAP6__Object* node, YAP6__Object* newvalue);
-YAP6__Object* YAP6__STACK__Node_Jail(YAP6__Object* node, YAP6__Object* newvalue);
-YAP6__Object* YAP6__STACK__Node_Lexical(YAP6__Object* node, YAP6__Object* newvalue);
-YAP6__Object* YAP6__STACK__Node_Outer(YAP6__Object* node, YAP6__Object* newvalue);
-YAP6__Object* YAP6__STACK__Node_Continuation(YAP6__Object* node, YAP6__Object* newvalue);
-YAP6__Object* YAP6__STACK__Node_Past(YAP6__Object* node, YAP6__Object* newvalue);
-YAP6__Object* YAP6__STACK__Node_Result(YAP6__Object* node, YAP6__Object* newvalue);
 
 #endif

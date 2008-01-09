@@ -8,31 +8,36 @@ planned, the old YAP6 changelog is in the end of this file.
 
 ROADMAP
 
-Base runtime - lowlevel types
+Stage 1 YAP6
 =============================
 
 0.1.0 - Port YAP6__CORE__Value code to YAP6__Object code.
 
 0.1.1 - YAP6 STACK prototypes and lowlevel operators
 
-0.1.2 - YAP6 NATIVE prototypes and lowlevel operators
+0.1.1.1 - Capture type (lowlevel implementation)
 
-0.1.2.1 - Capture type (lowlevel implementation)
+0.1.2.2 - int type (lowlevel implementation)
 
-0.1.2.2 - Str type (lowlevel implementation)
+0.1.2.3 - "Method Name Constant" type and the definition
+          of the pool of constants.
 
-0.1.3 - YAP6 interpreter loop.
+0.1.2 - YAP6 interpreter loop.
 
-0.1.3.1 - Code type (lowlevel implementation)
+0.1.2.1 - Code type (lowlevel implementation)
 
-0.1.3.2 - Sub type (lowlevel implementation)
+0.1.2.2 - Sub type (lowlevel implementation)
 
-0.1.3.3 - say (lowlevel implementation)
+0.1.2.3 - say (lowlevel implementation)
 
-0.1.3.4 - An equivalent to: say 'Hello World';
+0.1.2.4 - An equivalent to: say 'Hello World';
 
-High-level runtime - Class MetaClass
+0.1.2.5 - YAP6 Stage 1 language
+
+Completing YAP6 runtime
 ====================================
+
+0.1.3 - YAP6 NATIVE prototypes and lowlevel operators
 
 0.1.4 - Undef builtin types.
 
@@ -42,14 +47,14 @@ High-level runtime - Class MetaClass
 
 0.1.7 - Lexical Scope.
 
-Real Interpreter
+STAGE 2 YAP6
 ================
 
 0.1.8 - AST types.
 
 0.2.0 - AST -> Stack runtime transformation (real interpreter)
 
-Compiler + Interpreter
+Self-hosted YAP6
 ======================
 
 0.2.1 - KP6 backend to YAP6
