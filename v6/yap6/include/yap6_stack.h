@@ -280,13 +280,132 @@ extern YAP6__Object* YAP6__STACK__Stack_push;
 YAP6__Object* yap6__stack__stack_push_capture(YAP6__Object* stack,
                                               YAP6__Object* node);
 
+/* YAP6__STACK__Stack_continues
+ *
+ * This method adds a node as the continuation of the currently
+ * selected node of the stack.
+ *
+ * Before
+ *                              * 
+ *    Current Frame   1 <- 2 <- 3 -> 4 -> 5
+ *
+ * After
+ *                              * 
+ *    Current Frame   1 <- 2 <- 3 -> given node -> 4 -> 5
+ *
+ * Signature:
+ *     (YAP6__STACK__Stack $stack: YAP6__STACK__Node $node);
+ *
+ * Lowlevel C call:
+ *     yap6__stack__stack_continues_capture(YAP6__Object* stack,
+ *                                          YAP6__Object* node);
+ * 
+ */
 extern YAP6__Object* YAP6__STACK__Stack_continues;
+YAP6__Object* yap6__stack__stack_continues_capture(YAP6__Object* stack,
+                                                   YAP6__Object* node);
+
+/* YAP6__STACK__Stack_next
+ *
+ * This method goes to the next node in the stack, with implied stack
+ * droppings being realised.
+ *
+ * This have some situations:
+ *
+ *      *                            *
+ * 1 <- 2 -> 3  turns into 1 <- 2 <- 3
+ *      |                            |
+ *
+ *           *
+ * 1 <- 2 <- 3  turns into 
+ *           |                  *
+ *      1 <- 2             1 <- 2
+ *
+ * where the result from the last node is copied as the result of the
+ * outer node, and the inner frame is released, which will cause it to
+ * be got by the gc, unless of course, the frame is saved somewhere
+ * else. This method should always leave the selected node as an
+ * executable node, unless the stack becomes empty.
+ *
+ * Signature:
+ *     (YAP6__STACK__Stack $stack: )
+ *
+ * Lowlevel C call:
+ *     yap6__stack__stack_next_capture(YAP6__Object* stack);
+ */
 extern YAP6__Object* YAP6__STACK__Stack_next;
+YAP6__Object* yap6__stack__stack_next_capture(YAP6__Object* stack);
+
+/* YAP6__STACK__Stack_current
+ *
+ * Returns the currently selected node.
+ *
+ * Signature:
+ *     (YAP6__STACK__Stack $stack: )
+ *
+ * Lowlevel C call:
+ *     yap6__stack__stack_current_capture(YAP6__Object* stack);
+ */
 extern YAP6__Object* YAP6__STACK__Stack_current;
+YAP6__Object* yap6__stack__stack_current_capture(YAP6__Object* stack);
+
+/* YAP6__STACK__Stack_eval
+ *
+ * Evaluate the selected node, and only the selected node, storing the
+ * result in the node. This method won't recurse in the C stack, it
+ * will, in the case this node would cause a C recursion, push
+ * something to the given stack. In a very clear vision, it calls the
+ * message giving it the invocant stack as the call stack. It returns
+ * the return value of the node.
+ *
+ * Signature:
+ *     (YAP6__STACK__Stack $stack: )
+ * Lowlevel C call:
+ *     yap6__stack__stack_eval_capture(YAP6__Object* stack);
+ */
 extern YAP6__Object* YAP6__STACK__Stack_eval;
+YAP6__Object* yap6__stack__stack_current_capture(YAP6__Object* stack);
+
+/* YAP6__STACK__Stack_result
+ *
+ * Returns the result of some past node, counting backwards. This
+ * means that 1 is the immediate past node, 2 is that nodes past node
+ * and so on.
+ *
+ * Signature:
+ *     (YAP6__STACK__Stack $stack: int node)
+ * Lowlevel C call:
+ *     yap6__stack__stack_result_capture(YAP6__Object* stack, int node);
+ */
 extern YAP6__Object* YAP6__STACK__Stack_result;
-extern YAP6__Object* YAP6__STACK__Stack_is_empty;
+YAP6__Object* yap6__stack__stack_result_capture(YAP6__Object* stack, int node);
+
+/* YAP6__STACK__Stack_has_next
+ *
+ * Returns true if the stack is not empty and false if it is.
+ *
+ * Signature:
+ *     (YAP6__STACK__Stack $stack: )
+ * Lowlevel C call:
+ *     yap6__stack__stack_has_next_capture(YAP6__Object* stack);
+ */
+extern YAP6__Object* YAP6__STACK__Stack_has_next;
+YAP6__Object* yap6__stack__stack_has_next_capture(YAP6__Object* stack);
+
+/* YAP6__STACK__Stack_loop
+ *
+ * This is the only method that will use the C stack. It will return
+ * when the stack gets empty, it will iterate in the given stack using
+ * has_hext, next and eval until the stack is empty. The return value
+ * will be the return value of the last node evaled in the stack.
+ *
+ * Signature:
+ *     (YAP6__STACK__Stack $stack: )
+ * Lowlevel C call:
+ *     yap6__stack__stack_loop_capture(YAP6__Object* stack);
+ */
 extern YAP6__Object* YAP6__STACK__Stack_loop;
+YAP6__Object* yap6__stack__stack_loop_capture(YAP6__Object* stack);
 
 
 extern YAP6__Prototype* YAP6__STACK__Node;
