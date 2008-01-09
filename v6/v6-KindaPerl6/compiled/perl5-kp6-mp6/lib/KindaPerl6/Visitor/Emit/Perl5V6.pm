@@ -437,7 +437,11 @@ sub emit_perl5v6 {
         }
         else { }
     };
-    die('TODO');
+    do {
+        if ( Main::isa( $self->{parameters}, 'Proto' ) ) { return ( ( '(' . ( $self->{parameters}->emit_perl5v6() . ( ' = ' . ( $self->{arguments}->emit_perl5v6() . ' )' ) ) ) ) ) }
+        else                                             { }
+    };
+    die('TODO - unimplemented form of Bind');
 }
 
 package Proto;
@@ -447,7 +451,7 @@ sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    return ( ( '$::' . $self->{name} ) );
+    return ( ( '$::Proto_' . $self->{name} ) );
 }
 
 package Call;
@@ -484,8 +488,8 @@ sub emit_perl5v6 {
         }
         else {
             do {
-                if ( ( $meth eq '' ) ) { ( '::DISPATCH( ' . ( $invocant . ( ', \'APPLY\', ' . ( $call . ( ' )' . Main::newline() ) ) ) ) ) }
-                else                   { ( '::DISPATCH( ' . ( $invocant . ( ', ' . ( '\'' . ( $meth . ( '\', ' . ( $call . ( ' )' . Main::newline() ) ) ) ) ) ) ) ) }
+                if ( ( $meth eq '' ) ) { ( '(' . ( $invocant . ( ')->(' . ( $call . ( ' )' . Main::newline() ) ) ) ) ) }
+                else                   { ( $invocant . ( '->' . ( $meth . ( '(' . ( $call . ( ' )' . Main::newline() ) ) ) ) ) ) }
                 }
         }
         }
@@ -652,55 +656,7 @@ sub emit_perl5v6 {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    die('TODO methods');
-    (   '::DISPATCH( $::Code, \'new\', { '
-            . (
-            'code => sub { '
-                . (
-                Main::newline()
-                    . (
-                    '# emit_declarations'
-                        . (
-                        Main::newline()
-                            . (
-                            $self->{block}->emit_declarations_v6()
-                                . (
-                                Main::newline()
-                                    . (
-                                    '# get $self'
-                                        . (
-                                        Main::newline()
-                                            . (
-                                            '$self = shift; '
-                                                . (
-                                                Main::newline()
-                                                    . (
-                                                    '# emit_arguments'
-                                                        . (
-                                                        Main::newline()
-                                                            . (
-                                                            $self->{block}->emit_arguments_v6()
-                                                                . (
-                                                                Main::newline()
-                                                                    . (
-                                                                    '# emit_body'
-                                                                        . ( Main::newline() . ( $self->{block}->emit_body_v6() . ( ' }, ' . ( 'signature => ' . ( $self->{block}->emit_signature_v6() . ( ', ' . ( ' } )' . Main::newline() ) ) ) ) ) ) )
-                                                                    )
-                                                                )
-                                                            )
-                                                        )
-                                                    )
-                                                )
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
-                )
-            )
-    );
+    ( 'sub {' . ( $self->{block}->emit_declarations_v6() . ( 'my $self = shift;' . ( $self->{block}->emit_arguments_v6() . ( $self->{block}->emit_body_v6() . ( ' }' . Main::newline() ) ) ) ) ) );
 }
 
 package Sub;

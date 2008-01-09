@@ -290,13 +290,16 @@ class Bind {
            };
           return '(' ~ $.parameters.emit_perl5v6 ~ ' = ' ~ $.arguments.emit_perl5v6 ~ ' )';
         };
-        die 'TODO';
+        if ($.parameters.isa('Proto')) {
+          return '(' ~ $.parameters.emit_perl5v6 ~ ' = ' ~ $.arguments.emit_perl5v6 ~ ' )';
+        }
+        die 'TODO - unimplemented form of Bind';
     }
 }
 
 class Proto {
     method emit_perl5v6 {
-        return '$::'~$.name;
+        return '$::Proto_'~$.name;
     }
 }
 
@@ -336,12 +339,11 @@ class Call {
         else {
             if ( $meth eq '' ) {
                 # $var.()
-                '::DISPATCH( ' ~ $invocant ~ ', \'APPLY\', ' ~ $call ~ ' )' ~ Main::newline()
+                '(' ~ $invocant ~ ')->(' ~ $call ~ ' )' ~ Main::newline()
             }
             else {
-                  '::DISPATCH( '
-                ~ $invocant ~ ', '
-                ~ '\'' ~ $meth ~ '\', '
+                  $invocant ~ '->'
+                ~ $meth ~ '('
                 ~ $call
                 ~ ' )'
                 ~ Main::newline()
@@ -528,22 +530,12 @@ class Lit::Subset {
 
 class Method {
     method emit_perl5v6 {
-        die "TODO methods";
-          '::DISPATCH( $::Code, \'new\', { '
-        ~   'code => sub { '                 ~ Main::newline()
-        ~     '# emit_declarations'          ~ Main::newline()
-        ~     $.block.emit_declarations_v6   ~ Main::newline()
-        ~     '# get $self'                  ~ Main::newline()
-        ~     '$self = shift; '              ~ Main::newline()
-        ~     '# emit_arguments'             ~ Main::newline()
-        ~     $.block.emit_arguments_v6      ~ Main::newline()
-        ~     '# emit_body'                  ~ Main::newline()
-        ~     $.block.emit_body_v6
-        ~    ' }, '
-        ~   'signature => '
-        ~       $.block.emit_signature_v6
-        ~    ', '
-        ~ ' } )'
+        'sub {' 
+        ~       $.block.emit_declarations_v6
+        ~       'my $self = shift;'
+        ~       $.block.emit_arguments_v6
+        ~       $.block.emit_body_v6
+        ~ ' }'
         ~ Main::newline();
     }
 }
@@ -556,18 +548,6 @@ class Sub {
         ~       $.block.emit_body_v6
         ~ ' }'
         ~ Main::newline();
-
-#          '::DISPATCH( $::Code, \'new\', { '
-#        ~   'code => sub { '
-#        ~       $.block.emit_declarations
-#        ~       $.block.emit_arguments
-#        ~       $.block.emit_body
-#        ~    ' }, '
-#        ~   'signature => '
-#        ~       $.block.emit_signature
-#        ~    ', '
-#        ~ ' } )'
-#        ~ Main::newline();
     }
 }
 
