@@ -66,8 +66,8 @@ struct VROOM__ResponderInterface {
 #define VROOM_WHO(object) ((VROOM__ResponderInterface*)(((VROOM__Object*)object)->WHO)?(((VROOM__Object*)object)->WHO):(object))
 
 #define VROOM_DISPATCH(stack, object, identifier, capture) \
-      (((VROOM__ResponderInterface*)(((VROOM__Object*)object)->WHO)?(((VROOM__Object*)object)->WHO):(object))->MESSAGE(  \
-          stack, ((VROOM__ResponderInterface*)(((VROOM__Object*)object)->WHO)?(((VROOM__Object*)object)->WHO):(object)), \
+      (((VROOM__ResponderInterface*)object)->MESSAGE(  \
+          stack, ((VROOM__ResponderInterface*)object), \
           identifier, capture \
       ))
 
