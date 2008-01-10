@@ -709,7 +709,7 @@ would interpret it with the wrong units.
 Implementation note: since Perl 6 mandates that the default Unicode
 processing level must view graphemes as the fundamental unit rather
 than codepoints, this has some implications regarding efficient
-implementation.  It is suggested that all graphames be translated on
+implementation.  It is suggested that all graphemes be translated on
 input to a unique grapheme numbers and represented as integers within
 some kind of uniform array for fast substr access.  For those graphemes
 that have a precomposed form, use of that codepoint is suggested.
