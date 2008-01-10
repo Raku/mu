@@ -1,12 +1,12 @@
 LDADD = -lpthread
-AM_CFLAGS = -Wall -D_GNU_SOURCE -DYAP6_MEM_TRACE
+AM_CFLAGS = -Wall -D_GNU_SOURCE -DVROOM_MEM_TRACE
 # use this to see alloc, refcnt_inc, refcnt_dec and destroys...
 
 SOURCEFILES = const.c int_dispatcher.c ident_dispatcher.c scalar_dispatcher.c list_dispatcher.c \
-	 pair_dispatcher.c bytes_dispatcher.c yap6.c yap6.h memory.c 
+	 pair_dispatcher.c bytes_dispatcher.c vroom.c vroom.h memory.c 
 
-bin_PROGRAMS = yap6
-yap6_SOURCES = $(SOURCEFILES) main.c
+bin_PROGRAMS = vroom
+vroom_SOURCES = $(SOURCEFILES) main.c
 
 check_PROGRAMS = 01_apply.t 02_refcnt.t 03_refcnt_thread_trick.t 04_list.t 05_int.t 06_scalar.t 07_pair.t \
 	08_bytes.t 09_int_which.t

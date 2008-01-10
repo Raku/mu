@@ -1,0 +1,7 @@
+
+#ifndef VROOM_MACROS_H
+#define VROOM_MACROS_H
+
+VROOM_CORE_MESSAGE
+
+#endif

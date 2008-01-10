@@ -1,166 +1,166 @@
-#include "yap6.h"
+#include "vroom.h"
 #include <assert.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct YAP6__CORE__List__ProxyScalar {
-  YAP6__BASE__Value
-  YAP6__CORE__ScalarDispatcher* dispatcher;
-  YAP6__CORE__Value* cell;
-  YAP6__CORE__List* owner;
-  YAP6__CORE__int* index;
-} YAP6__CORE__List__ProxyScalar;
+typedef struct VROOM__CORE__List__ProxyScalar {
+  VROOM__BASE__Value
+  VROOM__CORE__ScalarDispatcher* dispatcher;
+  VROOM__CORE__Value* cell;
+  VROOM__CORE__List* owner;
+  VROOM__CORE__int* index;
+} VROOM__CORE__List__ProxyScalar;
 
-YAP6__CORE__ScalarDispatcher* yap6_const_list_proxyscalar_dispatcher;
+VROOM__CORE__ScalarDispatcher* vroom_const_list_proxyscalar_dispatcher;
 
-YAP6__CORE__List__ProxyScalar* yap6_list_proxyscalar_create() {
-  YAP6__CORE__List__ProxyScalar* foo = (YAP6__CORE__List__ProxyScalar*)yap6_value_alloc(sizeof(YAP6__CORE__List__ProxyScalar));
-  yap6_value_refcnt_inc((YAP6__CORE__Value*)yap6_const_list_proxyscalar_dispatcher);
-  foo->dispatcher = (YAP6__CORE__ScalarDispatcher*)yap6_const_list_proxyscalar_dispatcher;
+VROOM__CORE__List__ProxyScalar* vroom_list_proxyscalar_create() {
+  VROOM__CORE__List__ProxyScalar* foo = (VROOM__CORE__List__ProxyScalar*)vroom_value_alloc(sizeof(VROOM__CORE__List__ProxyScalar));
+  vroom_value_refcnt_inc((VROOM__CORE__Value*)vroom_const_list_proxyscalar_dispatcher);
+  foo->dispatcher = (VROOM__CORE__ScalarDispatcher*)vroom_const_list_proxyscalar_dispatcher;
   return foo;
 }
 
 
 
 
-static void list_dispatcher_DESTR(YAP6__CORE__Dispatcher* self,
-                                          YAP6__CORE__Value* value) {
-  yap6_value_wrlock(value);
-  YAP6__CORE__List* list = (YAP6__CORE__List*)value;
+static void list_dispatcher_DESTR(VROOM__CORE__Dispatcher* self,
+                                          VROOM__CORE__Value* value) {
+  vroom_value_wrlock(value);
+  VROOM__CORE__List* list = (VROOM__CORE__List*)value;
   int length = list->length;
-  YAP6__CORE__Value** items = list->items;
+  VROOM__CORE__Value** items = list->items;
   list->length = 0;
   list->items = NULL;
-  yap6_value_unlock(value);
+  vroom_value_unlock(value);
   int i;
   for (i = 0; i < length; i++) {
     if (items[i]) {
-      yap6_value_refcnt_dec(items[i]);
+      vroom_value_refcnt_dec(items[i]);
       items[i] = NULL;
     }
   }
   free(items);
 }
 
-static YAP6__CORE__Scalar* list_dispatcher_LOOKP(YAP6__CORE__Dispatcher* self,
-                                                 YAP6__CORE__Value* v_value,
-                                                 YAP6__CORE__int* index) {
-  YAP6__CORE__List* value = (YAP6__CORE__List*)v_value;
-  int wanted = yap6_int_lowlevel(index);
-  yap6_value_wrlock(v_value);
-  YAP6__CORE__Scalar* ret = NULL;
+static VROOM__CORE__Scalar* list_dispatcher_LOOKP(VROOM__CORE__Dispatcher* self,
+                                                 VROOM__CORE__Value* v_value,
+                                                 VROOM__CORE__int* index) {
+  VROOM__CORE__List* value = (VROOM__CORE__List*)v_value;
+  int wanted = vroom_int_lowlevel(index);
+  vroom_value_wrlock(v_value);
+  VROOM__CORE__Scalar* ret = NULL;
   if (value->length > wanted && value->items[wanted]) {
-    ret = (YAP6__CORE__Scalar*)value->items[wanted];
-    yap6_value_refcnt_inc((YAP6__CORE__Value*)ret);
-    yap6_value_unlock(v_value);
+    ret = (VROOM__CORE__Scalar*)value->items[wanted];
+    vroom_value_refcnt_inc((VROOM__CORE__Value*)ret);
+    vroom_value_unlock(v_value);
   } else {
-    yap6_value_unlock(v_value);
-    YAP6__CORE__List__ProxyScalar* p = yap6_list_proxyscalar_create();
+    vroom_value_unlock(v_value);
+    VROOM__CORE__List__ProxyScalar* p = vroom_list_proxyscalar_create();
     // no need to lock here...
-    p->cell = yap6_const_undef;
-    yap6_value_refcnt_inc(yap6_const_undef);
+    p->cell = vroom_const_undef;
+    vroom_value_refcnt_inc(vroom_const_undef);
     p->index = index;
-    yap6_value_refcnt_inc((YAP6__CORE__Value*)index);
+    vroom_value_refcnt_inc((VROOM__CORE__Value*)index);
     p->owner = value;
-    yap6_value_refcnt_inc(v_value);
-    ret = (YAP6__CORE__Scalar*)p;
+    vroom_value_refcnt_inc(v_value);
+    ret = (VROOM__CORE__Scalar*)p;
   }
   return ret;
 }
 
-static YAP6__CORE__Scalar* list_dispatcher_EXIST(YAP6__CORE__Dispatcher* self,
-                                                 YAP6__CORE__Value* v_value,
-                                                 YAP6__CORE__int* index) {
-  int wanted = yap6_int_lowlevel(index);
-  yap6_value_wrlock(v_value);
-  YAP6__CORE__List* value = (YAP6__CORE__List*)v_value;
-  YAP6__CORE__Scalar* ret = NULL;
+static VROOM__CORE__Scalar* list_dispatcher_EXIST(VROOM__CORE__Dispatcher* self,
+                                                 VROOM__CORE__Value* v_value,
+                                                 VROOM__CORE__int* index) {
+  int wanted = vroom_int_lowlevel(index);
+  vroom_value_wrlock(v_value);
+  VROOM__CORE__List* value = (VROOM__CORE__List*)v_value;
+  VROOM__CORE__Scalar* ret = NULL;
   if (value->length > wanted) {
-    YAP6__CORE__Scalar* ret = (YAP6__CORE__Scalar*)value->items[wanted];
-    yap6_value_refcnt_inc((YAP6__CORE__Value*)ret);
+    VROOM__CORE__Scalar* ret = (VROOM__CORE__Scalar*)value->items[wanted];
+    vroom_value_refcnt_inc((VROOM__CORE__Value*)ret);
   }
-  yap6_value_unlock(v_value);
+  vroom_value_unlock(v_value);
   return ret;
 }
 
-static YAP6__CORE__Scalar* list_dispatcher_DELET(YAP6__CORE__Dispatcher* self,
-                                                 YAP6__CORE__Value* v_value,
-                                                 YAP6__CORE__int* index) {
-  int wanted = yap6_int_lowlevel(index);
-  yap6_value_wrlock(v_value);
-  YAP6__CORE__List* value = (YAP6__CORE__List*)v_value;
-  YAP6__CORE__Scalar* ret = NULL;
+static VROOM__CORE__Scalar* list_dispatcher_DELET(VROOM__CORE__Dispatcher* self,
+                                                 VROOM__CORE__Value* v_value,
+                                                 VROOM__CORE__int* index) {
+  int wanted = vroom_int_lowlevel(index);
+  vroom_value_wrlock(v_value);
+  VROOM__CORE__List* value = (VROOM__CORE__List*)v_value;
+  VROOM__CORE__Scalar* ret = NULL;
   if (value->length >= wanted) {
-    ret = (YAP6__CORE__Scalar*)value->items[wanted];
-    value->items[wanted] = yap6_const_undef;
-    yap6_value_refcnt_inc(yap6_const_undef);
+    ret = (VROOM__CORE__Scalar*)value->items[wanted];
+    value->items[wanted] = vroom_const_undef;
+    vroom_value_refcnt_inc(vroom_const_undef);
   }
-  yap6_value_unlock(v_value);
+  vroom_value_unlock(v_value);
   return ret;
 }
 
-static YAP6__CORE__bytes* list_dispatcher_WHICH(YAP6__CORE__Dispatcher* self,
-                                   YAP6__CORE__Value* value) {
+static VROOM__CORE__bytes* list_dispatcher_WHICH(VROOM__CORE__Dispatcher* self,
+                                   VROOM__CORE__Value* value) {
   char str[32];
   sprintf(str, "list:%p", value);
   int len = strlen(str);
-  return yap6_bytes_create(str, len);
+  return vroom_bytes_create(str, len);
 
 }
 
-static YAP6__CORE__int* list_dispatcher_ELEMS(YAP6__CORE__Dispatcher* self,
-                                   YAP6__CORE__Value* value) {
-  yap6_value_rdlock(value);
-  int length = ((YAP6__CORE__List*)value)->length;
-  yap6_value_unlock(value);
-  return yap6_int_create(length);
+static VROOM__CORE__int* list_dispatcher_ELEMS(VROOM__CORE__Dispatcher* self,
+                                   VROOM__CORE__Value* value) {
+  vroom_value_rdlock(value);
+  int length = ((VROOM__CORE__List*)value)->length;
+  vroom_value_unlock(value);
+  return vroom_int_create(length);
 
 }
 
 
-static void list_proxyscalar_dispatcher_DESTR(YAP6__CORE__Dispatcher* self,
-                                          YAP6__CORE__Value* value) {
-  yap6_value_wrlock(value);
-  YAP6__CORE__Value* cell = ((YAP6__CORE__Scalar*)value)->cell;
-  YAP6__CORE__List* owner = ((YAP6__CORE__List__ProxyScalar*)value)->owner;
-  ((YAP6__CORE__Scalar*)value)->cell = NULL;
-  ((YAP6__CORE__List__ProxyScalar*)value)->owner = NULL;
-  yap6_value_unlock(value);
+static void list_proxyscalar_dispatcher_DESTR(VROOM__CORE__Dispatcher* self,
+                                          VROOM__CORE__Value* value) {
+  vroom_value_wrlock(value);
+  VROOM__CORE__Value* cell = ((VROOM__CORE__Scalar*)value)->cell;
+  VROOM__CORE__List* owner = ((VROOM__CORE__List__ProxyScalar*)value)->owner;
+  ((VROOM__CORE__Scalar*)value)->cell = NULL;
+  ((VROOM__CORE__List__ProxyScalar*)value)->owner = NULL;
+  vroom_value_unlock(value);
   if (cell) {
-    yap6_value_refcnt_dec(cell);
+    vroom_value_refcnt_dec(cell);
   }
   if (owner) {
-    yap6_value_refcnt_dec((YAP6__CORE__Value*)owner);
+    vroom_value_refcnt_dec((VROOM__CORE__Value*)owner);
   }
 }
 
 
-static YAP6__CORE__Value* list_proxyscalar_dispatcher_FETCH(YAP6__CORE__Dispatcher* self,
-                                          YAP6__CORE__Value* value,
-                                          YAP6__CORE__Value* wants) {
+static VROOM__CORE__Value* list_proxyscalar_dispatcher_FETCH(VROOM__CORE__Dispatcher* self,
+                                          VROOM__CORE__Value* value,
+                                          VROOM__CORE__Value* wants) {
 
-  yap6_value_wrlock(value);
-  YAP6__CORE__Value* val = ((YAP6__CORE__Scalar*)value)->cell;
-  yap6_value_unlock(value);
-  yap6_value_refcnt_inc(val);
+  vroom_value_wrlock(value);
+  VROOM__CORE__Value* val = ((VROOM__CORE__Scalar*)value)->cell;
+  vroom_value_unlock(value);
+  vroom_value_refcnt_inc(val);
   return val;
 }
 
-static YAP6__CORE__Value* list_proxyscalar_dispatcher_STORE(YAP6__CORE__Dispatcher* self,
-                                          YAP6__CORE__Value* value,
-                                          YAP6__CORE__Value* newvalue) {
-  yap6_value_wrlock(value);
-  YAP6__CORE__Value* oldval = ((YAP6__CORE__Scalar*)value)->cell;
-  ((YAP6__CORE__Scalar*)value)->cell = newvalue;
-  YAP6__CORE__List* list = ((YAP6__CORE__List__ProxyScalar*)value)->owner;
-  YAP6__CORE__int* index_i = ((YAP6__CORE__List__ProxyScalar*)value)->index;
-  int index = yap6_int_lowlevel(index_i);
-  yap6_value_unlock(value);
+static VROOM__CORE__Value* list_proxyscalar_dispatcher_STORE(VROOM__CORE__Dispatcher* self,
+                                          VROOM__CORE__Value* value,
+                                          VROOM__CORE__Value* newvalue) {
+  vroom_value_wrlock(value);
+  VROOM__CORE__Value* oldval = ((VROOM__CORE__Scalar*)value)->cell;
+  ((VROOM__CORE__Scalar*)value)->cell = newvalue;
+  VROOM__CORE__List* list = ((VROOM__CORE__List__ProxyScalar*)value)->owner;
+  VROOM__CORE__int* index_i = ((VROOM__CORE__List__ProxyScalar*)value)->index;
+  int index = vroom_int_lowlevel(index_i);
+  vroom_value_unlock(value);
   if (list) {
-    yap6_value_wrlock((YAP6__CORE__Value*)list);
+    vroom_value_wrlock((VROOM__CORE__Value*)list);
     if (list->length <= index) {
-      list->items = (YAP6__CORE__Value**)realloc(list->items, sizeof(void*)*(index+1));
+      list->items = (VROOM__CORE__Value**)realloc(list->items, sizeof(void*)*(index+1));
       assert(list->items);
       memset(list->items[list->length - 1], 0, list->length - index);
       list->length = index + 1;
@@ -168,59 +168,59 @@ static YAP6__CORE__Value* list_proxyscalar_dispatcher_STORE(YAP6__CORE__Dispatch
     if (list->items[index] == NULL) {
       list->items[index] = value;
     }
-    yap6_value_refcnt_inc(value);
-    yap6_value_unlock((YAP6__CORE__Value*)list);
-    yap6_value_wrlock(value);
-    ((YAP6__CORE__List__ProxyScalar*)value)->owner = NULL;
-    yap6_value_refcnt_dec((YAP6__CORE__Value*)((YAP6__CORE__List__ProxyScalar*)value)->index);
-    ((YAP6__CORE__List__ProxyScalar*)value)->index = NULL;
-    yap6_value_refcnt_dec((YAP6__CORE__Value*)list);
-    yap6_value_unlock(value);
+    vroom_value_refcnt_inc(value);
+    vroom_value_unlock((VROOM__CORE__Value*)list);
+    vroom_value_wrlock(value);
+    ((VROOM__CORE__List__ProxyScalar*)value)->owner = NULL;
+    vroom_value_refcnt_dec((VROOM__CORE__Value*)((VROOM__CORE__List__ProxyScalar*)value)->index);
+    ((VROOM__CORE__List__ProxyScalar*)value)->index = NULL;
+    vroom_value_refcnt_dec((VROOM__CORE__Value*)list);
+    vroom_value_unlock(value);
   }
-  yap6_value_refcnt_inc(newvalue);
+  vroom_value_refcnt_inc(newvalue);
   return oldval;
 }
 
-static YAP6__CORE__bytes* list_proxyscalar_dispatcher_WHICH(YAP6__CORE__Dispatcher* self,
-                                   YAP6__CORE__Value* value) {
-  yap6_value_wrlock(value);
-  YAP6__CORE__Value* val = ((YAP6__CORE__Scalar*)value)->cell;
-  yap6_value_unlock(value);
-  return YAP6_WHICH(val);
+static VROOM__CORE__bytes* list_proxyscalar_dispatcher_WHICH(VROOM__CORE__Dispatcher* self,
+                                   VROOM__CORE__Value* value) {
+  vroom_value_wrlock(value);
+  VROOM__CORE__Value* val = ((VROOM__CORE__Scalar*)value)->cell;
+  vroom_value_unlock(value);
+  return VROOM_WHICH(val);
 }
 
 
-YAP6__CORE__ListDispatcher* yap6_const_list_dispatcher;
+VROOM__CORE__ListDispatcher* vroom_const_list_dispatcher;
 
-void yap6_list_dispatcher_init() {
-  yap6_const_list_dispatcher = (YAP6__CORE__ListDispatcher*)yap6_value_alloc(sizeof(YAP6__CORE__ListDispatcher));
-  yap6_const_list_dispatcher->dispatcher = yap6_const_ident_dispatcher;
-  yap6_value_refcnt_inc((YAP6__CORE__Value*)yap6_const_ident_dispatcher);
-  yap6_const_list_dispatcher->DESTR = &list_dispatcher_DESTR;
-  yap6_const_list_dispatcher->LOOKP = &list_dispatcher_LOOKP;
-  yap6_const_list_dispatcher->EXIST = &list_dispatcher_EXIST;
-  yap6_const_list_dispatcher->DELET = &list_dispatcher_DELET;
-  yap6_const_list_dispatcher->WHICH = &list_dispatcher_WHICH;
-  yap6_const_list_dispatcher->ELEMS = &list_dispatcher_ELEMS;
+void vroom_list_dispatcher_init() {
+  vroom_const_list_dispatcher = (VROOM__CORE__ListDispatcher*)vroom_value_alloc(sizeof(VROOM__CORE__ListDispatcher));
+  vroom_const_list_dispatcher->dispatcher = vroom_const_ident_dispatcher;
+  vroom_value_refcnt_inc((VROOM__CORE__Value*)vroom_const_ident_dispatcher);
+  vroom_const_list_dispatcher->DESTR = &list_dispatcher_DESTR;
+  vroom_const_list_dispatcher->LOOKP = &list_dispatcher_LOOKP;
+  vroom_const_list_dispatcher->EXIST = &list_dispatcher_EXIST;
+  vroom_const_list_dispatcher->DELET = &list_dispatcher_DELET;
+  vroom_const_list_dispatcher->WHICH = &list_dispatcher_WHICH;
+  vroom_const_list_dispatcher->ELEMS = &list_dispatcher_ELEMS;
 
-  yap6_const_list_proxyscalar_dispatcher = (YAP6__CORE__ScalarDispatcher*)yap6_value_alloc(sizeof(YAP6__CORE__ScalarDispatcher));
-  yap6_const_list_proxyscalar_dispatcher->dispatcher = yap6_const_ident_dispatcher;
-  yap6_value_refcnt_inc((YAP6__CORE__Value*)yap6_const_ident_dispatcher);
-  yap6_const_list_proxyscalar_dispatcher->DESTR = &list_proxyscalar_dispatcher_DESTR;
-  yap6_const_list_proxyscalar_dispatcher->FETCH = &list_proxyscalar_dispatcher_FETCH;
-  yap6_const_list_proxyscalar_dispatcher->STORE = &list_proxyscalar_dispatcher_STORE;
-  yap6_const_list_proxyscalar_dispatcher->WHICH = &list_proxyscalar_dispatcher_WHICH;
+  vroom_const_list_proxyscalar_dispatcher = (VROOM__CORE__ScalarDispatcher*)vroom_value_alloc(sizeof(VROOM__CORE__ScalarDispatcher));
+  vroom_const_list_proxyscalar_dispatcher->dispatcher = vroom_const_ident_dispatcher;
+  vroom_value_refcnt_inc((VROOM__CORE__Value*)vroom_const_ident_dispatcher);
+  vroom_const_list_proxyscalar_dispatcher->DESTR = &list_proxyscalar_dispatcher_DESTR;
+  vroom_const_list_proxyscalar_dispatcher->FETCH = &list_proxyscalar_dispatcher_FETCH;
+  vroom_const_list_proxyscalar_dispatcher->STORE = &list_proxyscalar_dispatcher_STORE;
+  vroom_const_list_proxyscalar_dispatcher->WHICH = &list_proxyscalar_dispatcher_WHICH;
 
 }
 
-YAP6__CORE__List* yap6_list_create() {
-  YAP6__CORE__List* foo = (YAP6__CORE__List*)yap6_value_alloc(sizeof(YAP6__CORE__List));
-  yap6_value_refcnt_inc((YAP6__CORE__Value*)yap6_const_list_dispatcher);
-  foo->dispatcher = yap6_const_list_dispatcher;
+VROOM__CORE__List* vroom_list_create() {
+  VROOM__CORE__List* foo = (VROOM__CORE__List*)vroom_value_alloc(sizeof(VROOM__CORE__List));
+  vroom_value_refcnt_inc((VROOM__CORE__Value*)vroom_const_list_dispatcher);
+  foo->dispatcher = vroom_const_list_dispatcher;
   return foo;
 }
 
-void yap6_list_dispatcher_destr() {
-  yap6_value_refcnt_dec((YAP6__CORE__Value*)yap6_const_list_dispatcher);
-  yap6_value_refcnt_dec((YAP6__CORE__Value*)yap6_const_list_proxyscalar_dispatcher);
+void vroom_list_dispatcher_destr() {
+  vroom_value_refcnt_dec((VROOM__CORE__Value*)vroom_const_list_dispatcher);
+  vroom_value_refcnt_dec((VROOM__CORE__Value*)vroom_const_list_proxyscalar_dispatcher);
 }

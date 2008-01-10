@@ -1,82 +1,82 @@
-#include "yap6.h"
+#include "vroom.h"
 #include <assert.h>
 #include <string.h>
 #include <stdlib.h>
 
 
-static void scalar_dispatcher_DESTR(YAP6__CORE__Dispatcher* self,
-                                          YAP6__CORE__Value* value) {
-  yap6_value_wrlock(value);
-  YAP6__CORE__Value* cell = ((YAP6__CORE__Scalar*)value)->cell;
-  ((YAP6__CORE__Scalar*)value)->cell = NULL;
-  yap6_value_unlock(value);
+static void scalar_dispatcher_DESTR(VROOM__CORE__Dispatcher* self,
+                                          VROOM__CORE__Value* value) {
+  vroom_value_wrlock(value);
+  VROOM__CORE__Value* cell = ((VROOM__CORE__Scalar*)value)->cell;
+  ((VROOM__CORE__Scalar*)value)->cell = NULL;
+  vroom_value_unlock(value);
   if (cell) {
-    yap6_value_refcnt_dec(cell);
+    vroom_value_refcnt_dec(cell);
   }
 }
 
 
-static YAP6__CORE__Value* scalar_dispatcher_FETCH(YAP6__CORE__Dispatcher* self,
-                                          YAP6__CORE__Value* value,
-                                          YAP6__CORE__Value* wants) {
+static VROOM__CORE__Value* scalar_dispatcher_FETCH(VROOM__CORE__Dispatcher* self,
+                                          VROOM__CORE__Value* value,
+                                          VROOM__CORE__Value* wants) {
 
-  yap6_value_wrlock(value);
-  YAP6__CORE__Value* val = ((YAP6__CORE__Scalar*)value)->cell;
-  yap6_value_unlock(value);
-  yap6_value_refcnt_inc(val);
+  vroom_value_wrlock(value);
+  VROOM__CORE__Value* val = ((VROOM__CORE__Scalar*)value)->cell;
+  vroom_value_unlock(value);
+  vroom_value_refcnt_inc(val);
   return val;
 }
 
-static YAP6__CORE__Value* scalar_dispatcher_STORE(YAP6__CORE__Dispatcher* self,
-                                          YAP6__CORE__Value* value,
-                                          YAP6__CORE__Value* newvalue) {
-  yap6_value_wrlock(value);
-  YAP6__CORE__Value* oldval = ((YAP6__CORE__Scalar*)value)->cell;
-  ((YAP6__CORE__Scalar*)value)->cell = newvalue;
-  yap6_value_unlock(value);
-  yap6_value_refcnt_inc(newvalue);
+static VROOM__CORE__Value* scalar_dispatcher_STORE(VROOM__CORE__Dispatcher* self,
+                                          VROOM__CORE__Value* value,
+                                          VROOM__CORE__Value* newvalue) {
+  vroom_value_wrlock(value);
+  VROOM__CORE__Value* oldval = ((VROOM__CORE__Scalar*)value)->cell;
+  ((VROOM__CORE__Scalar*)value)->cell = newvalue;
+  vroom_value_unlock(value);
+  vroom_value_refcnt_inc(newvalue);
   return oldval;
 }
 
-static YAP6__CORE__bytes* scalar_dispatcher_WHICH(YAP6__CORE__Dispatcher* self,
-                                   YAP6__CORE__Value* value) {
-  yap6_value_wrlock(value);
-  YAP6__CORE__Value* val = ((YAP6__CORE__Scalar*)value)->cell;
-  yap6_value_unlock(value);
-  return YAP6_WHICH(val);
+static VROOM__CORE__bytes* scalar_dispatcher_WHICH(VROOM__CORE__Dispatcher* self,
+                                   VROOM__CORE__Value* value) {
+  vroom_value_wrlock(value);
+  VROOM__CORE__Value* val = ((VROOM__CORE__Scalar*)value)->cell;
+  vroom_value_unlock(value);
+  return VROOM_WHICH(val);
 
 }
 
 
-YAP6__CORE__ScalarDispatcher* yap6_const_scalar_dispatcher;
+VROOM__CORE__ScalarDispatcher* vroom_const_scalar_dispatcher;
 
-void yap6_scalar_dispatcher_init() {
+void vroom_scalar_dispatcher_init() {
 
-  yap6_const_scalar_dispatcher = (YAP6__CORE__ScalarDispatcher*)yap6_value_alloc(sizeof(YAP6__CORE__ScalarDispatcher));
-  yap6_const_scalar_dispatcher->dispatcher = yap6_const_ident_dispatcher;
-  yap6_value_refcnt_inc((YAP6__CORE__Value*)yap6_const_ident_dispatcher);
+  vroom_const_scalar_dispatcher = (VROOM__CORE__ScalarDispatcher*)vroom_value_alloc(sizeof(VROOM__CORE__ScalarDispatcher));
+  vroom_const_scalar_dispatcher->dispatcher = vroom_const_ident_dispatcher;
+  vroom_value_refcnt_inc((VROOM__CORE__Value*)vroom_const_ident_dispatcher);
 
-  yap6_const_scalar_dispatcher->DESTR = &scalar_dispatcher_DESTR;
-  yap6_const_scalar_dispatcher->FETCH = &scalar_dispatcher_FETCH;
-  yap6_const_scalar_dispatcher->STORE = &scalar_dispatcher_STORE;
-  yap6_const_scalar_dispatcher->WHICH = &scalar_dispatcher_WHICH;
+  vroom_const_scalar_dispatcher->DESTR = &scalar_dispatcher_DESTR;
+  vroom_const_scalar_dispatcher->FETCH = &scalar_dispatcher_FETCH;
+  vroom_const_scalar_dispatcher->STORE = &scalar_dispatcher_STORE;
+  vroom_const_scalar_dispatcher->WHICH = &scalar_dispatcher_WHICH;
 
 }
 
-YAP6__CORE__Scalar* yap6_scalar_create(YAP6__CORE__Value* initialValue) {
-  YAP6__CORE__Scalar* foo = (YAP6__CORE__Scalar*)yap6_value_alloc(sizeof(YAP6__CORE__Scalar));
-  yap6_value_refcnt_inc((YAP6__CORE__Value*)yap6_const_scalar_dispatcher);
-  foo->dispatcher = yap6_const_scalar_dispatcher;
+VROOM__CORE__Scalar* vroom_scalar_create(VROOM__CORE__Value* initialValue) {
+  VROOM__CORE__Scalar* foo = (VROOM__CORE__Scalar*)vroom_value_alloc(sizeof(VROOM__CORE__Scalar));
+  vroom_value_refcnt_inc((VROOM__CORE__Value*)vroom_const_scalar_dispatcher);
+  foo->dispatcher = vroom_const_scalar_dispatcher;
   if (initialValue) {
     foo->cell = initialValue;
-    yap6_value_refcnt_inc(initialValue);
+    vroom_value_refcnt_inc(initialValue);
   } else {
-    foo->cell = yap6_const_undef;
-    yap6_value_refcnt_inc(yap6_const_undef);
+    foo->cell = vroom_const_undef;
+    vroom_value_refcnt_inc(vroom_const_undef);
   }
   return foo;
 }
 
-void yap6_scalar_dispatcher_destr() {
-  yap6_value_refcnt_dec((YAP6__CORE__Value*)yap6_const_scalar_dispatcher);
+void vroom_scalar_dispatcher_destr() {
+  vroom_value_refcnt_dec((VROOM__CORE__Value*)vroom_const_scalar_dispatcher);
 }

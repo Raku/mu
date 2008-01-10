@@ -1,22 +1,22 @@
 #include <stdlib.h>
 #include <assert.h>
-#include "yap6.h"
+#include "vroom.h"
 
-YAP6__CORE__Value* yap6_const_undef;
-YAP6__CORE__Value* yap6_bool_false;
+VROOM__CORE__Value* vroom_const_undef;
+VROOM__CORE__Value* vroom_bool_false;
 
-void yap6_const_init() {
+void vroom_const_init() {
 
-  yap6_const_undef = yap6_value_alloc(sizeof(YAP6__CORE__Value));
-  yap6_const_undef->dispatcher = yap6_const_ident_dispatcher;
-  yap6_value_refcnt_inc((YAP6__CORE__Value*)yap6_const_ident_dispatcher);
+  vroom_const_undef = vroom_value_alloc(sizeof(VROOM__CORE__Value));
+  vroom_const_undef->dispatcher = vroom_const_ident_dispatcher;
+  vroom_value_refcnt_inc((VROOM__CORE__Value*)vroom_const_ident_dispatcher);
 
-  yap6_bool_false = yap6_value_alloc(sizeof(YAP6__CORE__Value));
-  yap6_bool_false->dispatcher = yap6_const_ident_dispatcher;
-  yap6_value_refcnt_inc((YAP6__CORE__Value*)yap6_const_ident_dispatcher);
+  vroom_bool_false = vroom_value_alloc(sizeof(VROOM__CORE__Value));
+  vroom_bool_false->dispatcher = vroom_const_ident_dispatcher;
+  vroom_value_refcnt_inc((VROOM__CORE__Value*)vroom_const_ident_dispatcher);
 }
 
-void yap6_const_destr() {
-  yap6_value_refcnt_dec(yap6_bool_false);
-  yap6_value_refcnt_dec(yap6_const_undef);
+void vroom_const_destr() {
+  vroom_value_refcnt_dec(vroom_bool_false);
+  vroom_value_refcnt_dec(vroom_const_undef);
 }

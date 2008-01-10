@@ -1,81 +1,81 @@
-#include "yap6.h"
+#include "vroom.h"
 #include <assert.h>
 #include <stdlib.h>
 
 
-static void pair_dispatcher_DESTR(YAP6__CORE__Dispatcher* self,
-                                          YAP6__CORE__Value* v) {
-  YAP6__CORE__Pair* value = (YAP6__CORE__Pair*)v;
-  YAP6__CORE__Value* key = value->key; value->key = NULL;
-  YAP6__CORE__Value* val = value->value; value->value = NULL;
-  yap6_value_refcnt_dec(key);
-  yap6_value_refcnt_dec(val);
+static void pair_dispatcher_DESTR(VROOM__CORE__Dispatcher* self,
+                                          VROOM__CORE__Value* v) {
+  VROOM__CORE__Pair* value = (VROOM__CORE__Pair*)v;
+  VROOM__CORE__Value* key = value->key; value->key = NULL;
+  VROOM__CORE__Value* val = value->value; value->value = NULL;
+  vroom_value_refcnt_dec(key);
+  vroom_value_refcnt_dec(val);
 }
 
-static YAP6__CORE__Value* pair_dispatcher_GTKEY(YAP6__CORE__Dispatcher* self,
-                                  YAP6__CORE__Value* v) {
-  YAP6__CORE__Pair* value = (YAP6__CORE__Pair*)v;
-  yap6_value_rdlock(v);
-  YAP6__CORE__Value* key = value->key;
-  yap6_value_refcnt_inc(key);
-  yap6_value_unlock(v);
+static VROOM__CORE__Value* pair_dispatcher_GTKEY(VROOM__CORE__Dispatcher* self,
+                                  VROOM__CORE__Value* v) {
+  VROOM__CORE__Pair* value = (VROOM__CORE__Pair*)v;
+  vroom_value_rdlock(v);
+  VROOM__CORE__Value* key = value->key;
+  vroom_value_refcnt_inc(key);
+  vroom_value_unlock(v);
   return key;
 }
 
-static YAP6__CORE__Value* pair_dispatcher_GTVAL(YAP6__CORE__Dispatcher* self,
-                                  YAP6__CORE__Value* v) {
-  YAP6__CORE__Pair* value = (YAP6__CORE__Pair*)v;
-  yap6_value_rdlock(v);
-  YAP6__CORE__Value* pairvalue = value->value;
-  yap6_value_refcnt_inc(pairvalue);
-  yap6_value_unlock(v);
+static VROOM__CORE__Value* pair_dispatcher_GTVAL(VROOM__CORE__Dispatcher* self,
+                                  VROOM__CORE__Value* v) {
+  VROOM__CORE__Pair* value = (VROOM__CORE__Pair*)v;
+  vroom_value_rdlock(v);
+  VROOM__CORE__Value* pairvalue = value->value;
+  vroom_value_refcnt_inc(pairvalue);
+  vroom_value_unlock(v);
   return pairvalue;
 }
 
-static YAP6__CORE__Value* pair_dispatcher_STVAL(YAP6__CORE__Dispatcher* self,
-                                  YAP6__CORE__Value* v, YAP6__CORE__Value* newv) {
-  YAP6__CORE__Pair* value = (YAP6__CORE__Pair*)v;
-  yap6_value_wrlock(v);
-  YAP6__CORE__Value* oldvalue = value->value;
+static VROOM__CORE__Value* pair_dispatcher_STVAL(VROOM__CORE__Dispatcher* self,
+                                  VROOM__CORE__Value* v, VROOM__CORE__Value* newv) {
+  VROOM__CORE__Pair* value = (VROOM__CORE__Pair*)v;
+  vroom_value_wrlock(v);
+  VROOM__CORE__Value* oldvalue = value->value;
   value->value = newv;
-  yap6_value_refcnt_inc(newv);
-  yap6_value_unlock(v);
+  vroom_value_refcnt_inc(newv);
+  vroom_value_unlock(v);
   return oldvalue;
 }
 
-static YAP6__CORE__bytes* pair_dispatcher_WHICH(YAP6__CORE__Dispatcher* self,
-                                   YAP6__CORE__Value* value) {
-  yap6_value_rdlock(value);
-  YAP6__CORE__Value* key = ((YAP6__CORE__Pair*)value)->key;
-  yap6_value_unlock(value);
-  return YAP6_WHICH(key);
+static VROOM__CORE__bytes* pair_dispatcher_WHICH(VROOM__CORE__Dispatcher* self,
+                                   VROOM__CORE__Value* value) {
+  vroom_value_rdlock(value);
+  VROOM__CORE__Value* key = ((VROOM__CORE__Pair*)value)->key;
+  vroom_value_unlock(value);
+  return VROOM_WHICH(key);
 }
 
 
-YAP6__CORE__PairDispatcher* yap6_const_pair_dispatcher;
+VROOM__CORE__PairDispatcher* vroom_const_pair_dispatcher;
 
-void yap6_pair_dispatcher_init() {
-  yap6_const_pair_dispatcher = (YAP6__CORE__PairDispatcher*)yap6_value_alloc(sizeof(YAP6__CORE__PairDispatcher));
-  yap6_const_pair_dispatcher->dispatcher = yap6_const_ident_dispatcher;
-  yap6_value_refcnt_inc((YAP6__CORE__Value*)yap6_const_ident_dispatcher);
-  yap6_const_pair_dispatcher->DESTR = &pair_dispatcher_DESTR;
-  yap6_const_pair_dispatcher->GTKEY = &pair_dispatcher_GTKEY;
-  yap6_const_pair_dispatcher->GTVAL = &pair_dispatcher_GTVAL;
-  yap6_const_pair_dispatcher->STVAL = &pair_dispatcher_STVAL;
-  yap6_const_pair_dispatcher->WHICH = &pair_dispatcher_WHICH;
+void vroom_pair_dispatcher_init() {
+  vroom_const_pair_dispatcher = (VROOM__CORE__PairDispatcher*)vroom_value_alloc(sizeof(VROOM__CORE__PairDispatcher));
+  vroom_const_pair_dispatcher->dispatcher = vroom_const_ident_dispatcher;
+  vroom_value_refcnt_inc((VROOM__CORE__Value*)vroom_const_ident_dispatcher);
+  vroom_const_pair_dispatcher->DESTR = &pair_dispatcher_DESTR;
+  vroom_const_pair_dispatcher->GTKEY = &pair_dispatcher_GTKEY;
+  vroom_const_pair_dispatcher->GTVAL = &pair_dispatcher_GTVAL;
+  vroom_const_pair_dispatcher->STVAL = &pair_dispatcher_STVAL;
+  vroom_const_pair_dispatcher->WHICH = &pair_dispatcher_WHICH;
 }
 
-YAP6__CORE__Pair* yap6_pair_create(YAP6__CORE__Value* key, YAP6__CORE__Value* value) {
-  YAP6__CORE__Pair* val = (YAP6__CORE__Pair*)yap6_value_alloc(sizeof(YAP6__CORE__Pair));
-  yap6_value_refcnt_inc((YAP6__CORE__Value*)yap6_const_pair_dispatcher);
-  yap6_value_refcnt_inc(key);
-  yap6_value_refcnt_inc(value);
-  val->dispatcher = yap6_const_pair_dispatcher;
+VROOM__CORE__Pair* vroom_pair_create(VROOM__CORE__Value* key, VROOM__CORE__Value* value) {
+  VROOM__CORE__Pair* val = (VROOM__CORE__Pair*)vroom_value_alloc(sizeof(VROOM__CORE__Pair));
+  vroom_value_refcnt_inc((VROOM__CORE__Value*)vroom_const_pair_dispatcher);
+  vroom_value_refcnt_inc(key);
+  vroom_value_refcnt_inc(value);
+  val->dispatcher = vroom_const_pair_dispatcher;
   val->key = key;
   val->value = value;
   return val;
 }
 
-void yap6_pair_dispatcher_destr() {
-  yap6_value_refcnt_dec((YAP6__CORE__Value*)yap6_const_pair_dispatcher);
+void vroom_pair_dispatcher_destr() {
+  vroom_value_refcnt_dec((VROOM__CORE__Value*)vroom_const_pair_dispatcher);
 }

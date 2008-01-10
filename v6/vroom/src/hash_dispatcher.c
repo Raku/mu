@@ -1,117 +1,117 @@
-#include "yap6.h"
+#include "vroom.h"
 #include <assert.h>
 #include <string.h>
 #include <stdlib.h>
 
-YAP6__CORE__Hash__ProxyScalar* yap6_hash_proxyscalar_create() {
-  YAP6__CORE__Hash__ProxyScalar* foo = (YAP6__CORE__Hash__ProxyScalar*)yap6_value_alloc(sizeof(YAP6__CORE__Hash__ProxyScalar));
-  yap6_value_refcnt_inc((YAP6__CORE__Value*)yap6_const_hash_proxyscalar_dispatcher);
-  foo->dispatcher = (YAP6__CORE__ScalarDispatcher*)yap6_const_hash_proxyscalar_dispatcher;
+VROOM__CORE__Hash__ProxyScalar* vroom_hash_proxyscalar_create() {
+  VROOM__CORE__Hash__ProxyScalar* foo = (VROOM__CORE__Hash__ProxyScalar*)vroom_value_alloc(sizeof(VROOM__CORE__Hash__ProxyScalar));
+  vroom_value_refcnt_inc((VROOM__CORE__Value*)vroom_const_hash_proxyscalar_dispatcher);
+  foo->dispatcher = (VROOM__CORE__ScalarDispatcher*)vroom_const_hash_proxyscalar_dispatcher;
   return foo;
 }
 
 
 
-static void hash_dispatcher_DESTR(YAP6__CORE__Dispatcher* self,
-                                          YAP6__CORE__Value* value) {
-  yap6_value_wrlock(value);
-  YAP6__CORE__Hash* hash = (YAP6__CORE__Hash*)value;
+static void hash_dispatcher_DESTR(VROOM__CORE__Dispatcher* self,
+                                          VROOM__CORE__Value* value) {
+  vroom_value_wrlock(value);
+  VROOM__CORE__Hash* hash = (VROOM__CORE__Hash*)value;
   int length = hash->length;
-  YAP6__CORE__Pair** pairs = hash->pairs;
+  VROOM__CORE__Pair** pairs = hash->pairs;
   hash->length = 0;
   hash->pairs = NULL;
-  yap6_value_unlock(value);
+  vroom_value_unlock(value);
   int i;
   for (i = 0; i < length; i++) {
     if (pairs[i]) {
-      yap6_value_refcnt_dec(pairs[i]);
+      vroom_value_refcnt_dec(pairs[i]);
       pairs[i] = NULL;
     }
   }
 }
 
-static YAP6__CORE__Scalar* hash_dispatcher_LOOKP(YAP6__CORE__Dispatcher* self,
-                                                 YAP6__CORE__Value* v_value,
-                                                 YAP6__CORE__Value* key) {
+static VROOM__CORE__Scalar* hash_dispatcher_LOOKP(VROOM__CORE__Dispatcher* self,
+                                                 VROOM__CORE__Value* v_value,
+                                                 VROOM__CORE__Value* key) {
 }
 
-static YAP6__CORE__Scalar* hash_dispatcher_EXIST(YAP6__CORE__Dispatcher* self,
-                                                 YAP6__CORE__Value* v_value,
-                                                 YAP6__CORE__Value* key) {
+static VROOM__CORE__Scalar* hash_dispatcher_EXIST(VROOM__CORE__Dispatcher* self,
+                                                 VROOM__CORE__Value* v_value,
+                                                 VROOM__CORE__Value* key) {
 }
 
-static YAP6__CORE__Scalar* hash_dispatcher_DELET(YAP6__CORE__Dispatcher* self,
-                                                 YAP6__CORE__Value* v_value,
-                                                 YAP6__CORE__Value* key) {
+static VROOM__CORE__Scalar* hash_dispatcher_DELET(VROOM__CORE__Dispatcher* self,
+                                                 VROOM__CORE__Value* v_value,
+                                                 VROOM__CORE__Value* key) {
 }
 
-static YAP6__CORE__bytes* hash_dispatcher_WHICH(YAP6__CORE__Dispatcher* self,
-                                   YAP6__CORE__Value* value) {
+static VROOM__CORE__bytes* hash_dispatcher_WHICH(VROOM__CORE__Dispatcher* self,
+                                   VROOM__CORE__Value* value) {
   char str[32];
   sprintf(str, "hash:%p", value);
   int len = strlen(str);
-  return yap6_bytes_create(str, len);
+  return vroom_bytes_create(str, len);
 
 }
 
 
-static YAP6__CORE__int* hash_dispatcher_ELEMS(YAP6__CORE__Dispatcher* self,
-                                   YAP6__CORE__Value* value) {
-  yap6_value_rdlock(value);
-  int length = ((YAP6__CORE__Hash*)value)->length;
-  yap6_value_unlock(value);
-  return yap6_int_crate(length);
+static VROOM__CORE__int* hash_dispatcher_ELEMS(VROOM__CORE__Dispatcher* self,
+                                   VROOM__CORE__Value* value) {
+  vroom_value_rdlock(value);
+  int length = ((VROOM__CORE__Hash*)value)->length;
+  vroom_value_unlock(value);
+  return vroom_int_crate(length);
 
 }
 
 
 
-static void hash_proxyscalar_dispatcher_DESTR(YAP6__CORE__Dispatcher* self,
-                                          YAP6__CORE__Value* value) {
-  yap6_value_wrlock(value);
-  YAP6__CORE__Value* cell = ((YAP6__CORE__Scalar*)value)->cell;
-  ((YAP6__CORE__Scalar*)value)->cell = NULL;
-  yap6_value_unlock(value);
+static void hash_proxyscalar_dispatcher_DESTR(VROOM__CORE__Dispatcher* self,
+                                          VROOM__CORE__Value* value) {
+  vroom_value_wrlock(value);
+  VROOM__CORE__Value* cell = ((VROOM__CORE__Scalar*)value)->cell;
+  ((VROOM__CORE__Scalar*)value)->cell = NULL;
+  vroom_value_unlock(value);
   if (cell) {
-    yap6_value_refcnt_dec(cell);
+    vroom_value_refcnt_dec(cell);
   }
 }
 
 
-static YAP6__CORE__Value* hash_proxyscalar_dispatcher_FETCH(YAP6__CORE__Dispatcher* self,
-                                          YAP6__CORE__Value* value,
-                                          YAP6__CORE__Value* wants) {
-  yap6_value_wrlock(value);
-  YAP6__CORE__Value* val = ((YAP6__CORE__Scalar*)value)->cell;
-  yap6_value_unlock(value);
-  yap6_value_refcnt_inc(val);
+static VROOM__CORE__Value* hash_proxyscalar_dispatcher_FETCH(VROOM__CORE__Dispatcher* self,
+                                          VROOM__CORE__Value* value,
+                                          VROOM__CORE__Value* wants) {
+  vroom_value_wrlock(value);
+  VROOM__CORE__Value* val = ((VROOM__CORE__Scalar*)value)->cell;
+  vroom_value_unlock(value);
+  vroom_value_refcnt_inc(val);
   return val;
 }
 
-static YAP6__CORE__Value* hash_proxyscalar_dispatcher_STORE(YAP6__CORE__Dispatcher* self,
-                                          YAP6__CORE__Value* value,
-                                          YAP6__CORE__Value* newvalue) {
+static VROOM__CORE__Value* hash_proxyscalar_dispatcher_STORE(VROOM__CORE__Dispatcher* self,
+                                          VROOM__CORE__Value* value,
+                                          VROOM__CORE__Value* newvalue) {
 }
 
-static YAP6__CORE__bytes* hash_proxyscalar_dispatcher_WHICH(YAP6__CORE__Dispatcher* self,
-                                   YAP6__CORE__Value* value) {
-  yap6_value_rdlock(value);
-  YAP6__CORE__Value* val = ((YAP6__CORE__Scalar*)value)->cell;
-  yap6_value_unlock(value);
-  return YAP6_WHICH(val);
+static VROOM__CORE__bytes* hash_proxyscalar_dispatcher_WHICH(VROOM__CORE__Dispatcher* self,
+                                   VROOM__CORE__Value* value) {
+  vroom_value_rdlock(value);
+  VROOM__CORE__Value* val = ((VROOM__CORE__Scalar*)value)->cell;
+  vroom_value_unlock(value);
+  return VROOM_WHICH(val);
   
 }
 
 
-YAP6__CORE__HashDispatcher* yap6_const_hash_dispatcher;
-YAP6__CORE__ScalarDispatcher* yap6_const_hash_proxyscalar_dispatcher;
+VROOM__CORE__HashDispatcher* vroom_const_hash_dispatcher;
+VROOM__CORE__ScalarDispatcher* vroom_const_hash_proxyscalar_dispatcher;
 
-void yap6_hash_dispatcher_init() {
+void vroom_hash_dispatcher_init() {
 
 }
 
-YAP6__CORE__Hash* yap6_hash_create() {
+VROOM__CORE__Hash* vroom_hash_create() {
 }
 
-void yap6_hash_dispatcher_destr() {
+void vroom_hash_dispatcher_destr() {
 }
