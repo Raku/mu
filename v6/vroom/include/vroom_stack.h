@@ -424,18 +424,112 @@ extern VROOM__Object* VROOM__STACK__Node;
 
 /* VROOM__STACK__Node_new
  *
- * This creates a new Node object
+ * This creates a new Node object.
+ *
+ * Signature:
+ *    (:$responder, :$identifier, :$capture, :$debug,
+ *     :$jail, :$lexical, :$outer, :$continuation,
+ *     :$past, :$result)
+ *
+ * Lowlevel C call: (may receive NULL)
+ *     vroom__stack__node_new_capture(
+ *                    VROOM_Object* responder,
+ *                    VROOM_Object* identifier,
+ *                    VROOM_Object* capture,
+ *                    VROOM_Object* debug,
+ *                    VROOM_Object* jail,
+ *                    VROOM_Object* lexical,
+ *                    VROOM_Object* outer,
+ *                    VROOM_Object* continuation,
+ *                    VROOM_Object* past,
+ *                    VROOM_Object* result)
  */
 extern VROOM__Object* VROOM__STACK__Node_new;
-extern VROOM__Object* VROOM__STACK__Node_metaclass;
+VROOM__Object* vroom__stack__node_new_capture(VROOM_Object* responder,
+                                             VROOM_Object* identifier,
+                                             VROOM_Object* capture,
+                                             VROOM_Object* debug,
+                                             VROOM_Object* jail,
+                                             VROOM_Object* lexical,
+                                             VROOM_Object* outer,
+                                             VROOM_Object* continuation,
+                                             VROOM_Object* past,
+                                             VROOM_Object* result);
+
+/* All the Node accessor methods have the same simple signature,
+ * which is:
+ *
+ *  ($node: $newvalue?)
+ *
+ * And the same lowlevel C call (may receive NULL in newvalue):
+ *
+ *  vroom__stack__node_accessor_capture(VROOM__Object* node,
+ *                                      VROOM__Object* newvalue);
+ */
+VROOM__Object* vroom__stack__node_accessor_capture(VROOM__Object* node,
+                                                   VROOM__Object* newvalue);
+
+/* VROOM__STACK__Node_responder
+ *
+ * The responder interface that will answer to this node.
+ */
+extern VROOM__Object* VROOM__STACK__Node_responder;
+
+/* VROOM__STACK__Node_identifier
+ *
+ * The identifier of the message
+ */
 extern VROOM__Object* VROOM__STACK__Node_identifier;
+
+/* VROOM__STACK__Node_capture
+ *
+ * The arguments of the message
+ */
 extern VROOM__Object* VROOM__STACK__Node_capture;
+
+/* VROOM__STACK__Node_debug
+ *
+ * Debug information about the node
+ */
 extern VROOM__Object* VROOM__STACK__Node_debug;
+
+/* VROOM__STACK__Node_jail
+ * 
+ * Jail for exception and other operations that might unwind the
+ * stack. This is not a flag, but an object that may be looked while
+ * unwinding the stack. Nothing says that the operator *must* stop on
+ * any jail.
+ */
 extern VROOM__Object* VROOM__STACK__Node_jail;
+
+/* VROOM__STACK__Node_lexical
+ *
+ * The reference to the lexical scope in this node.
+ */
 extern VROOM__Object* VROOM__STACK__Node_lexical;
+
+/* VROOM__STACK__Node_outer
+ *
+ * The currently selected node in the outer frame.
+ */
 extern VROOM__Object* VROOM__STACK__Node_outer;
+
+/* VROOM__STACK__Node_continuation
+ *
+ * The continuation of this node
+ */
 extern VROOM__Object* VROOM__STACK__Node_continuation;
+
+/* VROOM__STACK__Node_past
+ *
+ * The node that was executed before this one
+ */
 extern VROOM__Object* VROOM__STACK__Node_past;
+
+/* VROOM__STACK__Node_result
+ *
+ * The result evaluation of this node
+ */
 extern VROOM__Object* VROOM__STACK__Node_result;
 
 
