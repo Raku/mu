@@ -421,6 +421,11 @@ VROOM__Object* vroom__stack__stack_loop_capture(VROOM__Object* stack);
  * One way or another, this class is closed and final.
  */
 extern VROOM__Object* VROOM__STACK__Node;
+
+/* VROOM__STACK__Node_new
+ *
+ * This creates a new Node object
+ */
 extern VROOM__Object* VROOM__STACK__Node_new;
 extern VROOM__Object* VROOM__STACK__Node_metaclass;
 extern VROOM__Object* VROOM__STACK__Node_identifier;

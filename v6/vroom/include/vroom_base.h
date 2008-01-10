@@ -14,11 +14,11 @@ struct VROOM__ResponderInterface; typedef struct VROOM__ResponderInterface VROOM
  * doesn't, it is considered itself as one.
  */
 struct VROOM__Object {
-  VROOM__ResponderInterface* WHO;
+  VROOM__ResponderInterface* RI;
 };
 
 /*
- * The VROOM__ResponderInterface represents the WHO of any object. It
+ * The VROOM__ResponderInterface represents the RI of any object. It
  * understands the object layout to know how to access the members
  * defined in the object, dispatching the methods.  This finish the
  * basic set, as the interpreter delegates to the responder interface the
@@ -38,7 +38,7 @@ struct VROOM__Object {
  * methods return the input pointer.
  */
 struct VROOM__ResponderInterface {
-  VROOM__ResponderInterface* WHO;
+  VROOM__ResponderInterface* RI;
   VROOM__Object* (*MESSAGE)  (VROOM__Object* stack,
                               VROOM__ResponderInterface* self,
                               VROOM__Object* identifier,
@@ -63,7 +63,7 @@ struct VROOM__ResponderInterface {
 /* 
  * Here follows the basic macros for that triade.
  */
-#define VROOM_WHO(object) ((VROOM__ResponderInterface*)(((VROOM__Object*)object)->WHO)?(((VROOM__Object*)object)->WHO):(object))
+#define VROOM_RI(object) ((VROOM__ResponderInterface*)(((VROOM__Object*)object)->RI)?(((VROOM__Object*)object)->RI):(object))
 
 #define VROOM_DISPATCH(stack, object, identifier, capture) \
       (((VROOM__ResponderInterface*)object)->MESSAGE(  \
@@ -72,14 +72,14 @@ struct VROOM__ResponderInterface {
       ))
 
 #define VROOM_REFERENCE(object) \
-      (((VROOM__ResponderInterface*)(((VROOM__Object*)object)->WHO)?(((VROOM__Object*)object)->WHO):(object))->REFERENCE(  \
-          ((VROOM__ResponderInterface*)(((VROOM__Object*)object)->WHO)?(((VROOM__Object*)object)->WHO):(object)), \
+      (((VROOM__ResponderInterface*)(((VROOM__Object*)object)->RI)?(((VROOM__Object*)object)->RI):(object))->REFERENCE(  \
+          ((VROOM__ResponderInterface*)(((VROOM__Object*)object)->RI)?(((VROOM__Object*)object)->RI):(object)), \
           object \
       ))
 
 #define VROOM_RELEASE(object) \
-      (((VROOM__ResponderInterface*)(((VROOM__Object*)object)->WHO)?(((VROOM__Object*)object)->WHO):(object))->RELEASE(  \
-          ((VROOM__ResponderInterface*)(((VROOM__Object*)object)->WHO)?(((VROOM__Object*)object)->WHO):(object)), \
+      (((VROOM__ResponderInterface*)(((VROOM__Object*)object)->RI)?(((VROOM__Object*)object)->RI):(object))->RELEASE(  \
+          ((VROOM__ResponderInterface*)(((VROOM__Object*)object)->RI)?(((VROOM__Object*)object)->RI):(object)), \
           object \
       ))
 
