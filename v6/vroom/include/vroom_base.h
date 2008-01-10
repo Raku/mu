@@ -49,7 +49,7 @@ struct VROOM__ResponderInterface {
                               VROOM__Object* object);
 }
 
-/* Every object in YAP6 must be binary compatible with one of these
+/* Every object in VROOM must be binary compatible with one of these
  * two structures. Given that, not necessarly needs to be created by
  * vroom itself, they don't even need to be managed by vroom. Each
  * ResponderInterface implementation can decide how to deal with issues like
