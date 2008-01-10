@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 28 Dec 2007
+   Last Modified: 10 Jan 2008
    Number: 5
-   Version: 69
+   Version: 70
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -190,6 +190,12 @@ The C<:i> (or C<:ignorecase>) modifier causes case distinctions to be
 ignored in its lexical scope, but not in its dynamic scope.  That is,
 subrules always use their own case settings.
 
+The C<:ii> variant may be used on a substitution to change the
+substituted string to the same case pattern as the matched string.
+Case info is carried across on a character by character basis.  If
+the right string is longer than the left one, the case of the final
+character is replicated.
+
 =item *
 
 The C<:b> (or C<:basechar>) modifier scopes exactly like C<:ignorecase>
@@ -201,6 +207,12 @@ mark characters.  The mark characters are ignored only for the purpose
 of determining the truth of the assertion; the actual text matched
 includes all ignored characters, including any that follow the final
 base character.
+
+The C<:bb> variant may be used on a substitution to change the
+substituted string to the same accent pattern as the matched string.
+Accent info is carried across on a character by character basis.  If
+the right string is longer than the left one, the remaining characters
+are substituted without any modification.
 
 =item *
 
