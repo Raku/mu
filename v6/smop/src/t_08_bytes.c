@@ -1,4 +1,4 @@
-#include "vroom.h"
+#include "smop.h"
 #include <stdlib.h>
 #include <assert.h>
 #include <stdio.h>
@@ -6,12 +6,12 @@
 
 int main(int argc, char** argv) {
   printf("1..7\n");
-  vroom_init();
+  smop_init();
 
-  VROOM__CORE__bytes* mybytes = vroom_bytes_create("Hello, World!", 14);
+  SMOP__CORE__bytes* mybytes = smop_bytes_create("Hello, World!", 14);
   int sizeret = 0;
 
-  if (strncmp(vroom_bytes_lowlevel(mybytes,&sizeret),"Hello, World!",14) == 0) {
+  if (strncmp(smop_bytes_lowlevel(mybytes,&sizeret),"Hello, World!",14) == 0) {
     printf("ok");
   } else {
     printf("not ok");
@@ -25,40 +25,40 @@ int main(int argc, char** argv) {
   }
   printf(" 2 - size matches...\n");
 
-  VROOM__CORE__bytes* mywhich = VROOM_WHICH(mybytes);
+  SMOP__CORE__bytes* mywhich = SMOP_WHICH(mybytes);
   if (mybytes == mywhich) {
     printf("ok");
   } else {
     printf("not ok");
   }
   printf(" 3 - WHICH on bytes returns the same object...\n");
-  vroom_value_refcnt_dec((VROOM__CORE__Value*)mywhich);
+  smop_value_refcnt_dec((SMOP__CORE__Value*)mywhich);
 
-  VROOM__CORE__Value* bool = VROOM_BOOLN(mybytes);
-  if (bool == vroom_bool_false) {
+  SMOP__CORE__Value* bool = SMOP_BOOLN(mybytes);
+  if (bool == smop_bool_false) {
     printf("not ok");
   } else {
     printf("ok");
   }
   printf(" 4 - BOOLN is not false for a non-empty bytes...\n");
-  vroom_value_refcnt_dec((VROOM__CORE__Value*)bool);
+  smop_value_refcnt_dec((SMOP__CORE__Value*)bool);
 
-  vroom_value_refcnt_dec((VROOM__CORE__Value*)mybytes);
+  smop_value_refcnt_dec((SMOP__CORE__Value*)mybytes);
   printf("ok 5 - destroying the bytes...\n");
 
-  mybytes = vroom_bytes_create("", 0);
-  bool = VROOM_BOOLN(mybytes);
-  if (bool == vroom_bool_false) {
+  mybytes = smop_bytes_create("", 0);
+  bool = SMOP_BOOLN(mybytes);
+  if (bool == smop_bool_false) {
     printf("ok");
   } else {
     printf("not ok");
   }
   printf(" 6 - BOOLN is false for an empty bytes...\n");
-  vroom_value_refcnt_dec((VROOM__CORE__Value*)bool);
+  smop_value_refcnt_dec((SMOP__CORE__Value*)bool);
 
-  vroom_value_refcnt_dec((VROOM__CORE__Value*)mybytes);
+  smop_value_refcnt_dec((SMOP__CORE__Value*)mybytes);
   printf("ok 7 - destroying the bytes...\n");
 
-  vroom_destr();
+  smop_destr();
   return 0;
 }

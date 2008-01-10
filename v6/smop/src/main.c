@@ -1,10 +1,10 @@
-#include "vroom.h"
+#include "smop.h"
 #include <stdlib.h>
 #include <assert.h>
 #include <stdio.h>
 
 int main(int argc, char** argv) { 
-  vroom_init();
+  smop_init();
   printf("This is just a stub right now...");
   return 0;
 }

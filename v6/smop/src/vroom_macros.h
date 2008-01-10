@@ -1,7 +1,7 @@
 
-#ifndef VROOM_MACROS_H
-#define VROOM_MACROS_H
+#ifndef SMOP_MACROS_H
+#define SMOP_MACROS_H
 
-VROOM_CORE_MESSAGE
+SMOP_CORE_MESSAGE
 
 #endif

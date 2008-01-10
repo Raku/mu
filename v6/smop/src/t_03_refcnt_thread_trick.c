@@ -1,11 +1,11 @@
-#include "vroom.h"
+#include "smop.h"
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
 
-VROOM__CORE__Value* foo;
+SMOP__CORE__Value* foo;
 
 void* threaded_function(void* unused) {
   // this will be the function used by t1, t2 and t3
@@ -13,13 +13,13 @@ void* threaded_function(void* unused) {
 
   // the trick consists in incrementing the reference count when using
   // the value, so the value don't vanish in the meanwhile...
-  vroom_value_refcnt_inc(foo);
+  smop_value_refcnt_inc(foo);
 
   // let's sleep...
   sleep(1);
   sleep(1);
 
-  vroom_value_refcnt_dec(foo);
+  smop_value_refcnt_dec(foo);
   printf("ok - it didn't break while trying to use it\n");
   return NULL;
 }
@@ -30,7 +30,7 @@ void* evil_function(void* unused) {
   sleep(1);
 
   // this thread would destroy the value...
-  vroom_value_refcnt_dec(foo);
+  smop_value_refcnt_dec(foo);
   printf("ok - it didn't break while trying to use it\n");
   return NULL;
 }
@@ -38,11 +38,11 @@ void* evil_function(void* unused) {
 int main(int argc, char** argv) {
   printf("1..5\n");
 
-  vroom_init();
+  smop_init();
 
-  foo = vroom_value_alloc(sizeof(VROOM__CORE__Value));
-  vroom_value_refcnt_inc((VROOM__CORE__Value*)vroom_const_ident_dispatcher);
-  foo->dispatcher = vroom_const_ident_dispatcher;
+  foo = smop_value_alloc(sizeof(SMOP__CORE__Value));
+  smop_value_refcnt_inc((SMOP__CORE__Value*)smop_const_ident_dispatcher);
+  foo->dispatcher = smop_const_ident_dispatcher;
 
   if (foo->ref_cnt == 1) {
     printf("ok");
@@ -62,6 +62,6 @@ int main(int argc, char** argv) {
   pthread_join(t2, NULL);
   pthread_join(t1, NULL);
 
-  vroom_destr();
+  smop_destr();
   return 0;
 }

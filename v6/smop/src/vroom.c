@@ -1,35 +1,35 @@
-#include "vroom.h"
+#include "smop.h"
 #include <stdlib.h>
 #include <assert.h>
 
-void vroom_init() {
+void smop_init() {
 
-  vroom_memory_init();
+  smop_memory_init();
 
   // basic dispatch
-  vroom_ident_dispatcher_init();
-  vroom_const_init();
-  vroom_int_dispatcher_init();
-  vroom_scalar_dispatcher_init();
-  vroom_list_dispatcher_init();
-  vroom_pair_dispatcher_init();
-  vroom_bytes_dispatcher_init();
+  smop_ident_dispatcher_init();
+  smop_const_init();
+  smop_int_dispatcher_init();
+  smop_scalar_dispatcher_init();
+  smop_list_dispatcher_init();
+  smop_pair_dispatcher_init();
+  smop_bytes_dispatcher_init();
 
   // which implementation
-  vroom_int_dispatcher_which_init();
-  vroom_ident_dispatcher_which_init();
+  smop_int_dispatcher_which_init();
+  smop_ident_dispatcher_which_init();
 }
 
-void vroom_destr() {
+void smop_destr() {
 
-  vroom_bytes_dispatcher_destr();
-  vroom_pair_dispatcher_destr();
-  vroom_list_dispatcher_destr();
-  vroom_scalar_dispatcher_destr();
-  vroom_int_dispatcher_destr();
-  vroom_const_destr();
-  vroom_ident_dispatcher_destr();
+  smop_bytes_dispatcher_destr();
+  smop_pair_dispatcher_destr();
+  smop_list_dispatcher_destr();
+  smop_scalar_dispatcher_destr();
+  smop_int_dispatcher_destr();
+  smop_const_destr();
+  smop_ident_dispatcher_destr();
 
-  vroom_memory_destr();
+  smop_memory_destr();
 
 }

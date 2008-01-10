@@ -1,63 +1,63 @@
-#include "vroom.h"
+#include "smop.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
-static void bytes_dispatcher_DESTR(VROOM__CORE__Dispatcher* self,
-                                          VROOM__CORE__Value* value) {
-  vroom_value_wrlock(value);
-  VROOM__CORE__bytes* v = (VROOM__CORE__bytes*)value;
+static void bytes_dispatcher_DESTR(SMOP__CORE__Dispatcher* self,
+                                          SMOP__CORE__Value* value) {
+  smop_value_wrlock(value);
+  SMOP__CORE__bytes* v = (SMOP__CORE__bytes*)value;
   free(v->value);
   v->value = NULL;
-  vroom_value_unlock(value);
+  smop_value_unlock(value);
 }
 
-static VROOM__CORE__Value* bytes_dispatcher_BOOLN(VROOM__CORE__Dispatcher* self,
-                                                 VROOM__CORE__Value* value) {
-  vroom_value_rdlock(value);
-  int l = ((VROOM__CORE__bytes*)value)->size;
-  vroom_value_unlock(value);
+static SMOP__CORE__Value* bytes_dispatcher_BOOLN(SMOP__CORE__Dispatcher* self,
+                                                 SMOP__CORE__Value* value) {
+  smop_value_rdlock(value);
+  int l = ((SMOP__CORE__bytes*)value)->size;
+  smop_value_unlock(value);
   if (l) {
-    return vroom_value_refcnt_inc(value);
+    return smop_value_refcnt_inc(value);
   } else {
-    return vroom_value_refcnt_inc(vroom_bool_false);
+    return smop_value_refcnt_inc(smop_bool_false);
   }
 }
 
-static VROOM__CORE__bytes* bytes_dispatcher_WHICH(VROOM__CORE__Dispatcher* self,
-                                               VROOM__CORE__Value* value) {
-  return (VROOM__CORE__bytes*)vroom_value_refcnt_inc(value);
+static SMOP__CORE__bytes* bytes_dispatcher_WHICH(SMOP__CORE__Dispatcher* self,
+                                               SMOP__CORE__Value* value) {
+  return (SMOP__CORE__bytes*)smop_value_refcnt_inc(value);
 }
 
-VROOM__CORE__Dispatcher* vroom_const_bytes_dispatcher;
+SMOP__CORE__Dispatcher* smop_const_bytes_dispatcher;
 
-void vroom_bytes_dispatcher_init() {
-  vroom_const_bytes_dispatcher = (VROOM__CORE__Dispatcher*)vroom_value_alloc(sizeof(VROOM__CORE__Dispatcher));
-  vroom_const_bytes_dispatcher->dispatcher = vroom_const_ident_dispatcher;
-  vroom_value_refcnt_inc((VROOM__CORE__Value*)vroom_const_ident_dispatcher);
-  vroom_const_bytes_dispatcher->DESTR = &bytes_dispatcher_DESTR;
-  vroom_const_bytes_dispatcher->WHICH = &bytes_dispatcher_WHICH;
-  vroom_const_bytes_dispatcher->BOOLN = &bytes_dispatcher_BOOLN;
+void smop_bytes_dispatcher_init() {
+  smop_const_bytes_dispatcher = (SMOP__CORE__Dispatcher*)smop_value_alloc(sizeof(SMOP__CORE__Dispatcher));
+  smop_const_bytes_dispatcher->dispatcher = smop_const_ident_dispatcher;
+  smop_value_refcnt_inc((SMOP__CORE__Value*)smop_const_ident_dispatcher);
+  smop_const_bytes_dispatcher->DESTR = &bytes_dispatcher_DESTR;
+  smop_const_bytes_dispatcher->WHICH = &bytes_dispatcher_WHICH;
+  smop_const_bytes_dispatcher->BOOLN = &bytes_dispatcher_BOOLN;
 }
 
-VROOM__CORE__bytes* vroom_bytes_create(const char* lowl, int size) {
-  VROOM__CORE__bytes* foo = (VROOM__CORE__bytes*)vroom_value_alloc(sizeof(VROOM__CORE__bytes));
-  vroom_value_refcnt_inc((VROOM__CORE__Value*)vroom_const_bytes_dispatcher);
-  foo->dispatcher = vroom_const_bytes_dispatcher;
+SMOP__CORE__bytes* smop_bytes_create(const char* lowl, int size) {
+  SMOP__CORE__bytes* foo = (SMOP__CORE__bytes*)smop_value_alloc(sizeof(SMOP__CORE__bytes));
+  smop_value_refcnt_inc((SMOP__CORE__Value*)smop_const_bytes_dispatcher);
+  foo->dispatcher = smop_const_bytes_dispatcher;
   foo->value = malloc(size);
   memcpy(foo->value, lowl, size);
   foo->size = size;
   return foo;
 }
 
-char* vroom_bytes_lowlevel(VROOM__CORE__bytes* val, int* size_ret) {
-  vroom_value_rdlock((VROOM__CORE__Value*)val);
+char* smop_bytes_lowlevel(SMOP__CORE__bytes* val, int* size_ret) {
+  smop_value_rdlock((SMOP__CORE__Value*)val);
   char* v = val->value;
   *size_ret = val->size;
-  vroom_value_unlock((VROOM__CORE__Value*)val);
+  smop_value_unlock((SMOP__CORE__Value*)val);
   return v;
 }
 
-void vroom_bytes_dispatcher_destr() {
-  vroom_value_refcnt_dec((VROOM__CORE__Value*)vroom_const_bytes_dispatcher);
+void smop_bytes_dispatcher_destr() {
+  smop_value_refcnt_dec((SMOP__CORE__Value*)smop_const_bytes_dispatcher);
 }

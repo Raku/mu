@@ -1,18 +1,18 @@
-#include "vroom.h"
+#include "smop.h"
 #include <stdlib.h>
 #include <assert.h>
 #include <stdio.h>
 
 int main(int argc, char** argv) {
   printf("1..4\n");
-  vroom_init();
+  smop_init();
 
   // For starts, there will be some functions to
   // wrap the dispatch, after the list is built,
   // we can start to use the dispatcher itself
-  VROOM__CORE__int* myint = vroom_int_create(1234);
+  SMOP__CORE__int* myint = smop_int_create(1234);
   
-  if (vroom_int_lowlevel(myint) == 1234) {
+  if (smop_int_lowlevel(myint) == 1234) {
     printf("ok");
   } else {
     printf("not ok");
@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
   printf(" 1 - init and lowlevel works...\n");
 
 
-  VROOM__CORE__bytes* which = VROOM_WHICH(myint);
+  SMOP__CORE__bytes* which = SMOP_WHICH(myint);
   if (which) {
     printf("ok");
   } else {
@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
   printf(" 2 - WHICH should return a bytes value...\n");
 
   int retsize = 0;
-  char* val = vroom_bytes_lowlevel(which,&retsize);
+  char* val = smop_bytes_lowlevel(which,&retsize);
 
   if (strncmp(val,"1234",4) == 0) {
     printf("ok");
@@ -39,11 +39,11 @@ int main(int argc, char** argv) {
   printf(" 3 - WHICH returns the sprintf representation of the int...\n");
 
 
-  vroom_value_refcnt_dec((VROOM__CORE__Value*)which);
-  vroom_value_refcnt_dec((VROOM__CORE__Value*)myint);
+  smop_value_refcnt_dec((SMOP__CORE__Value*)which);
+  smop_value_refcnt_dec((SMOP__CORE__Value*)myint);
 
   printf("ok 4 - destroying the int...\n");
 
-  vroom_destr();
+  smop_destr();
   return 0;
 }

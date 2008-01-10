@@ -1,22 +1,22 @@
 #include <stdlib.h>
 #include <assert.h>
-#include "vroom.h"
+#include "smop.h"
 
-VROOM__CORE__Value* vroom_const_undef;
-VROOM__CORE__Value* vroom_bool_false;
+SMOP__CORE__Value* smop_const_undef;
+SMOP__CORE__Value* smop_bool_false;
 
-void vroom_const_init() {
+void smop_const_init() {
 
-  vroom_const_undef = vroom_value_alloc(sizeof(VROOM__CORE__Value));
-  vroom_const_undef->dispatcher = vroom_const_ident_dispatcher;
-  vroom_value_refcnt_inc((VROOM__CORE__Value*)vroom_const_ident_dispatcher);
+  smop_const_undef = smop_value_alloc(sizeof(SMOP__CORE__Value));
+  smop_const_undef->dispatcher = smop_const_ident_dispatcher;
+  smop_value_refcnt_inc((SMOP__CORE__Value*)smop_const_ident_dispatcher);
 
-  vroom_bool_false = vroom_value_alloc(sizeof(VROOM__CORE__Value));
-  vroom_bool_false->dispatcher = vroom_const_ident_dispatcher;
-  vroom_value_refcnt_inc((VROOM__CORE__Value*)vroom_const_ident_dispatcher);
+  smop_bool_false = smop_value_alloc(sizeof(SMOP__CORE__Value));
+  smop_bool_false->dispatcher = smop_const_ident_dispatcher;
+  smop_value_refcnt_inc((SMOP__CORE__Value*)smop_const_ident_dispatcher);
 }
 
-void vroom_const_destr() {
-  vroom_value_refcnt_dec(vroom_bool_false);
-  vroom_value_refcnt_dec(vroom_const_undef);
+void smop_const_destr() {
+  smop_value_refcnt_dec(smop_bool_false);
+  smop_value_refcnt_dec(smop_const_undef);
 }
