@@ -10,26 +10,25 @@ KP6).
 So, the basic structure is:
 
 
-         any dispatcher is a value               any metaclass is a dispatcher           
-        ____________________________             _____________________________  
-       |                            |           |                             | 
-       V                            |           V                             | 
-  YAP6__Object*                    YAP6__Prototype*                     YAP6__MetaClass*
-       |                            ^          |                               ^ 
-       |                            |          |                               | 
-        ----------------------------            -------------------------------  
-        any value have a dispatcher             any dispatcher have a metaclass   
+             any responder interface is an object
+                 ____________________________ 
+                |                            |
+                V                            |
+           YAP6__Object*        YAP6__ResponderInterface*
+                |                            ^
+                |                            |
+                 ---------------------------- 
+             any object have a responder interface
 
 
-These three C types (typedef struct) are the three basic elements of
-the YAP6 runtime, and they implement the features that Perl 6 needs.
+These two C types (typedef struct) are the basic elements of the YAP6
+runtime, and they implement the features that Perl 6 needs.
 
 Basic Idea
 ===================================================================
 
-The Object is completely dependant on its prototype, is only a storage
-and the only ones that knows its internal structure are its prototype,
-and, by extension, its metaclass.
+The Object is completely dependant on its Responder Interface, which
+is the only ones that knows its internal structure.
 
 The prototype object is an Object itself and is the return of the
 WHAT call. The important thing in the low-level here, is that if a
