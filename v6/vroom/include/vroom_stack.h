@@ -1,22 +1,23 @@
 
-#ifndef YAP6_STACK_H
-#define YAP6_STACK_H
+#ifndef VROOM_STACK_H
+#define VROOM_STACK_H
 
-#include <yap6_base.h> // this is declared by yap6.h which is the one
-                       // who includes this file, but let's keep this
-                       // here if anyone wants to include only parts
-                       // of yap6.h. It should do no harm because of
-                       // the ifndefs of the beggining of the file.
+#include <vroom_base.h> // this is declared by vroom.h which is the
+                        // one who includes this file, but let's keep
+                        // this here if anyone wants to include only
+                        // parts of vroom.h. It should do no harm
+                        // because of the ifndefs of the beggining of
+                        // the file.
 
 /*
- * In YAP6, every low-level opeator is actually a method call in the
- * metaclass of the lowlevel module. For the stack, the
- * YAP6__STACK__Operators prototype is actually also a metaclass that
- * handles special methods. Calling it from the low-level works the
- * same as calling from the high level. Every operation message is
+ * In VROOM, every low-level opeator is actually a method call in the
+ * responder interface of the lowlevel module. For the stack, the
+ * VROOM__STACK__Operators type is actually also a responder interface
+ * that handles special methods. Calling it from the low-level works
+ * the same as calling from the high level. Every operation message is
  * composed by basically three elements:
  *
- *   metaclass: which metaclass handles this message
+ *   responder: which responder interface handles this message
  *   identifier: the identifier for the message
  *   capture: the arguments to this message
  *
@@ -50,7 +51,7 @@
  * knowledge of what to move, from where and to where is already
  * available when you are building the frame you'll invoke, you can
  * use at that time some specific objects and build the stack. This
- * specifc objects don't use the YAP6 stack, only the C stack which
+ * specifc objects don't use the VROOM stack, only the C stack which
  * makes you free to call them anytime, by using the lowlevel C
  * subroutine, while the prototype will still support a high-level
  * call that builds the same object.
@@ -58,14 +59,14 @@
  */
 
 
-/* YAP6__STACK__Operators
+/* VROOM__STACK__Operators
  *
- * This is the metaclass that support all stack operators as described
- * below.
+ * This is the responder interface that support all stack operators as
+ * described below.
  *
- * This metaclass/prototype is closed and final.
+ * This object is closed and final.
  */
-extern YAP6__Prototype* YAP6__STACK__Operators;
+extern VROOM__Object* VROOM__STACK__Operators;
 
 /* The following 4 operators will allways manipulate the current call
  * stack. It is strongly advised that this should only be called by
@@ -74,13 +75,13 @@ extern YAP6__Prototype* YAP6__STACK__Operators;
  * them. Calling this directly will probably cause a segfault.
  * This operators are:
  *
- * YAP6__STACK__OP_Move_Capturize
- * YAP6__STACK__OP_Move_Identifier
- * YAP6__STACK__OP_Move_MetaClass
- * YAP6__STACK__OP_Move_Copy
+ * VROOM__STACK__OP_Move_Capturize
+ * VROOM__STACK__OP_Move_Identifier
+ * VROOM__STACK__OP_Move_MetaClass
+ * VROOM__STACK__OP_Move_Copy
  *
  */
-/* YAP6__STACK__OP_Move_Capturize
+/* VROOM__STACK__OP_Move_Capturize
  *
  * Creates a low-level capture from previous stack nodes and store it
  * in a continuation node, supporting the invocant, positional and
@@ -92,7 +93,7 @@ extern YAP6__Prototype* YAP6__STACK__Operators;
  * manipulation. If you want to use a result from one node in more
  * than one capture you should use the copy operator.
  *
- * lowlevel C call: yap6__stack__opcapture_move_capturize_new
+ * lowlevel C call: vroom__stack__opcapture_move_capturize_new
  *
  * This subroutine receives a C int pointing to which past node should
  * the invocant be taken, two C int null-terminated arrays pointing
@@ -101,21 +102,21 @@ extern YAP6__Prototype* YAP6__STACK__Operators;
  * operator call yet, it just creates the capture that can be stored
  * in a stack node for a later call.
  *
- * highlevel capture prototype: YAP6__STACK__OPCAPTURE_Move_Capturize
+ * highlevel capture prototype: VROOM__STACK__OPCAPTURE_Move_Capturize
  *
  * This is the prototype that will be able to create this capture
  * object in the high level. The "new" signature to create this should
  * be (int, List of int, List of int, int). But again, this is just
  * the capture creator for the operator and not the operator itself.
  */
-extern YAP6__Object* YAP6__STACK__OP_Move_Capturize;
-YAP6__Object* yap6__stack__opcapture_move_capturize_new(int invocant,
-                                                        int** positional,
-                                                        int** named,
-                                                        int target);
-extern YAP6__Prototype* YAP6__STACK__OPCAPTURE_Move_Capturize;
+extern VROOM__Object* VROOM__STACK__OP_Move_Capturize;
+VROOM__Object* vroom__stack__opcapture_move_capturize_new(int invocant,
+                                                          int** positional,
+                                                          int** named,
+                                                          int target);
+extern VROOM__Object* VROOM__STACK__OPCAPTURE_Move_Capturize;
 
-/* YAP6__STACK__OP_Move_Identifier
+/* VROOM__STACK__OP_Move_Identifier
  *
  * Move the result of a given past node to a target node as the
  * identifier of the message. This operator shouldn't probably be used
@@ -124,23 +125,23 @@ extern YAP6__Prototype* YAP6__STACK__OPCAPTURE_Move_Capturize;
  * operator moves the result, if you want to use a result more than
  * once, use the copy operator.
  *
- * lowlevel C call: yap6__stack__op_move_identifier_new
+ * lowlevel C call: vroom__stack__op_move_identifier_new
  *
  * This subroutine receives two C ints and creates an object that can
  * be used as a capture for the above operator. It doesn't call the
  * operator itself.
  *
- * highlevel capture prototype: YAP6__STACK__OPCAPTURE_Move_Identifier
+ * highlevel capture prototype: VROOM__STACK__OPCAPTURE_Move_Identifier
  *
  * This is the prototype that will be able to create an object
  * compatible with this operator. The "new" signature will be (int,
  * int).
  */
-extern YAP6__Object* YAP6__STACK__OP_Move_Identifier;
-YAP6__Object* yap6__stack__opcapture_move_identifier_new(int source, int target);
-extern YAP6__Prototype* YAP6__STACK__OPCAPTURE_Move_Identifier;
+extern VROOM__Object* VROOM__STACK__OP_Move_Identifier;
+VROOM__Object* vroom__stack__opcapture_move_identifier_new(int source, int target);
+extern VROOM__Object* VROOM__STACK__OPCAPTURE_Move_Identifier;
 
-/* YAP6__STACK__OP_Move_MetaClass
+/* VROOM__STACK__OP_Move_MetaClass
  *
  * Move the result of a given past node to a target node as the
  * metaclass of the message. This operator shouldn't probably be used
@@ -149,48 +150,48 @@ extern YAP6__Prototype* YAP6__STACK__OPCAPTURE_Move_Identifier;
  * moves the result, if you want to use a result more than once, use
  * the copy operator.
  *
- * lowlevel C call: yap6__stack__opcapture_move_metaclass_new
+ * lowlevel C call: vroom__stack__opcapture_move_metaclass_new
  *
  * This subroutine receives two C ints and creates an object that can
  * be used as a capture for the above operator. It doesn't call the
  * operator itself.
  *
- * highlevel capture prototype: YAP6__STACK__OPCAPTURE_Move_MetaClass
+ * highlevel capture prototype: VROOM__STACK__OPCAPTURE_Move_MetaClass
  *
  * This is the prototype that will be able to create an object
  * compatible with this operator. The "new" signature will be (int,
  * int).
  */
-extern YAP6__Object* YAP6__STACK__OP_Move_MetaClass;
-YAP6__Object* yap6__stack__opcapture_move_metaclass_new(int source, int target);
-extern YAP6__Prototype* YAP6__STACK__OPCAPTURE_Move_MetaClass;
+extern VROOM__Object* VROOM__STACK__OP_Move_MetaClass;
+VROOM__Object* vroom__stack__opcapture_move_metaclass_new(int source, int target);
+extern VROOM__Object* VROOM__STACK__OPCAPTURE_Move_MetaClass;
 
-/* YAP6__STACK__OP_Copy
+/* VROOM__STACK__OP_Copy
  *
  * This operator copies the result of some past node and returns
  * it. This is usefull when you want the result of some node to be
  * available to more than one of the move operators. This operator
  * manipulates the current stack.
  *
- * lowlevel C call: yap6__stack__opcapture_copy_new
+ * lowlevel C call: vroom__stack__opcapture_copy_new
  *
  * This subroutine receives a C int and create an object that can be
  * used as a capture for the above operator. It doesn't call the
  * operator itself.
  *
- * highlevel capture prototype: YAP6__STACK__OPCAPTURE_Copy
+ * highlevel capture prototype: VROOM__STACK__OPCAPTURE_Copy
  *
  * This is the prototype that will be able to create an object
  * compatible with this operator. The "new" signature will simply be
  * (int).
  */
-extern YAP6__Object* YAP6__STACK__OP_Copy;
-YAP6__Object* yap6__stack__opcapture_copy_new(int source);
-extern YAP6__Prototype* YAP6__STACK__OPCAPTURE_Copy;
+extern VROOM__Object* VROOM__STACK__OP_Copy;
+VROOM__Object* vroom__stack__opcapture_copy_new(int source);
+extern VROOM__Object* VROOM__STACK__OPCAPTURE_Copy;
 
 
 /*
- * The YAP6__STACK__Stack and the YAP6__STACK__Node prototypes are the
+ * The VROOM__STACK__Stack and the VROOM__STACK__Node prototypes are the
  * ones used to create new stacks and to operate on it. Differently
  * from the lowlevel stack operations that manipulate the currently
  * running stack, these methods are safe to be run without a current
@@ -198,7 +199,7 @@ extern YAP6__Prototype* YAP6__STACK__OPCAPTURE_Copy;
  * invocant in the capture, and not as the stack parameter to the
  * lowlevel MESSAGE call.
  *
- * In fact, when calling the low-level MESSAGE (using YAP6_DISPATCH,
+ * In fact, when calling the low-level MESSAGE (using VROOM_DISPATCH,
  * probably) you can even pass NULL as the current stack. IF this
  * methods need to recurse they will do it using the C stack. The only
  * exception for this rule is the "eval" method on the Stack
@@ -217,7 +218,7 @@ extern YAP6__Prototype* YAP6__STACK__OPCAPTURE_Copy;
  * resolution.
  */
 
-/* YAP6__STACK__Stack
+/* VROOM__STACK__Stack
  *
  * The Stack type is a reference holder to the top-most node in the
  * execution. It works like an iterator on the stack, but it's a live
@@ -240,9 +241,9 @@ extern YAP6__Prototype* YAP6__STACK__OPCAPTURE_Copy;
  * The Stack type is closed and final.
  *
  */
-extern YAP6__Prototype* YAP6__STACK__Stack;
+extern VROOM__Object* VROOM__STACK__Stack;
 
-/* YAP6__STACK__Stack_new
+/* VROOM__STACK__Stack_new
  *
  * This method creates a new Stack object. It doesn't receive any
  * argument and simply returns an empty stack for later manipulation.
@@ -252,9 +253,9 @@ extern YAP6__Prototype* YAP6__STACK__Stack;
  * Lowlevel C call: not necessary, you can actually pass
  * NULL as the capture.
  */
-extern YAP6__Object* YAP6__STACK__Stack_new;
+extern VROOM__Object* VROOM__STACK__Stack_new;
 
-/* YAP6__STACK__Stack_push
+/* VROOM__STACK__Stack_push
  *
  * This method pushes a node to the stack. This will cause the
  * following operation:
@@ -273,17 +274,17 @@ extern YAP6__Object* YAP6__STACK__Stack_new;
  *    Current Frame     1 <- 2 <- 3 -> 4 -> 5
  *
  * Signature:
- *     (YAP6__STACK__Stack $stack: YAP6__STACK__Node $node);
+ *     (VROOM__STACK__Stack $stack: VROOM__STACK__Node $node);
  *
  * Lowlevel C call:
- *     yap6__stack__stack_push_capture(YAP6__Object* stack,
- *                                     YAP6__Object* node);
+ *     vroom__stack__stack_push_capture(VROOM__Object* stack,
+ *                                     VROOM__Object* node);
  */
-extern YAP6__Object* YAP6__STACK__Stack_push;
-YAP6__Object* yap6__stack__stack_push_capture(YAP6__Object* stack,
-                                              YAP6__Object* node);
+extern VROOM__Object* VROOM__STACK__Stack_push;
+VROOM__Object* vroom__stack__stack_push_capture(VROOM__Object* stack,
+                                              VROOM__Object* node);
 
-/* YAP6__STACK__Stack_continues
+/* VROOM__STACK__Stack_continues
  *
  * This method adds a node as the continuation of the currently
  * selected node of the stack.
@@ -297,18 +298,18 @@ YAP6__Object* yap6__stack__stack_push_capture(YAP6__Object* stack,
  *    Current Frame   1 <- 2 <- 3 -> given node -> 4 -> 5
  *
  * Signature:
- *     (YAP6__STACK__Stack $stack: YAP6__STACK__Node $node);
+ *     (VROOM__STACK__Stack $stack: VROOM__STACK__Node $node);
  *
  * Lowlevel C call:
- *     yap6__stack__stack_continues_capture(YAP6__Object* stack,
- *                                          YAP6__Object* node);
+ *     vroom__stack__stack_continues_capture(VROOM__Object* stack,
+ *                                          VROOM__Object* node);
  * 
  */
-extern YAP6__Object* YAP6__STACK__Stack_continues;
-YAP6__Object* yap6__stack__stack_continues_capture(YAP6__Object* stack,
-                                                   YAP6__Object* node);
+extern VROOM__Object* VROOM__STACK__Stack_continues;
+VROOM__Object* vroom__stack__stack_continues_capture(VROOM__Object* stack,
+                                                   VROOM__Object* node);
 
-/* YAP6__STACK__Stack_next
+/* VROOM__STACK__Stack_next
  *
  * This method goes to the next node in the stack, with implied stack
  * droppings being realised.
@@ -331,28 +332,28 @@ YAP6__Object* yap6__stack__stack_continues_capture(YAP6__Object* stack,
  * executable node, unless the stack becomes empty.
  *
  * Signature:
- *     (YAP6__STACK__Stack $stack: )
+ *     (VROOM__STACK__Stack $stack: )
  *
  * Lowlevel C call:
- *     yap6__stack__stack_next_capture(YAP6__Object* stack);
+ *     vroom__stack__stack_next_capture(VROOM__Object* stack);
  */
-extern YAP6__Object* YAP6__STACK__Stack_next;
-YAP6__Object* yap6__stack__stack_next_capture(YAP6__Object* stack);
+extern VROOM__Object* VROOM__STACK__Stack_next;
+VROOM__Object* vroom__stack__stack_next_capture(VROOM__Object* stack);
 
-/* YAP6__STACK__Stack_current
+/* VROOM__STACK__Stack_current
  *
  * Returns the currently selected node.
  *
  * Signature:
- *     (YAP6__STACK__Stack $stack: )
+ *     (VROOM__STACK__Stack $stack: )
  *
  * Lowlevel C call:
- *     yap6__stack__stack_current_capture(YAP6__Object* stack);
+ *     vroom__stack__stack_current_capture(VROOM__Object* stack);
  */
-extern YAP6__Object* YAP6__STACK__Stack_current;
-YAP6__Object* yap6__stack__stack_current_capture(YAP6__Object* stack);
+extern VROOM__Object* VROOM__STACK__Stack_current;
+VROOM__Object* vroom__stack__stack_current_capture(VROOM__Object* stack);
 
-/* YAP6__STACK__Stack_eval
+/* VROOM__STACK__Stack_eval
  *
  * Evaluate the selected node, and only the selected node, storing the
  * result in the node. This method won't recurse in the C stack, it
@@ -362,40 +363,40 @@ YAP6__Object* yap6__stack__stack_current_capture(YAP6__Object* stack);
  * the return value of the node.
  *
  * Signature:
- *     (YAP6__STACK__Stack $stack: )
+ *     (VROOM__STACK__Stack $stack: )
  * Lowlevel C call:
- *     yap6__stack__stack_eval_capture(YAP6__Object* stack);
+ *     vroom__stack__stack_eval_capture(VROOM__Object* stack);
  */
-extern YAP6__Object* YAP6__STACK__Stack_eval;
-YAP6__Object* yap6__stack__stack_current_capture(YAP6__Object* stack);
+extern VROOM__Object* VROOM__STACK__Stack_eval;
+VROOM__Object* vroom__stack__stack_current_capture(VROOM__Object* stack);
 
-/* YAP6__STACK__Stack_result
+/* VROOM__STACK__Stack_result
  *
  * Returns the result of some past node, counting backwards. This
  * means that 1 is the immediate past node, 2 is that nodes past node
  * and so on.
  *
  * Signature:
- *     (YAP6__STACK__Stack $stack: int node)
+ *     (VROOM__STACK__Stack $stack: int node)
  * Lowlevel C call:
- *     yap6__stack__stack_result_capture(YAP6__Object* stack, int node);
+ *     vroom__stack__stack_result_capture(VROOM__Object* stack, int node);
  */
-extern YAP6__Object* YAP6__STACK__Stack_result;
-YAP6__Object* yap6__stack__stack_result_capture(YAP6__Object* stack, int node);
+extern VROOM__Object* VROOM__STACK__Stack_result;
+VROOM__Object* vroom__stack__stack_result_capture(VROOM__Object* stack, int node);
 
-/* YAP6__STACK__Stack_has_next
+/* VROOM__STACK__Stack_has_next
  *
  * Returns true if the stack is not empty and false if it is.
  *
  * Signature:
- *     (YAP6__STACK__Stack $stack: )
+ *     (VROOM__STACK__Stack $stack: )
  * Lowlevel C call:
- *     yap6__stack__stack_has_next_capture(YAP6__Object* stack);
+ *     vroom__stack__stack_has_next_capture(VROOM__Object* stack);
  */
-extern YAP6__Object* YAP6__STACK__Stack_has_next;
-YAP6__Object* yap6__stack__stack_has_next_capture(YAP6__Object* stack);
+extern VROOM__Object* VROOM__STACK__Stack_has_next;
+VROOM__Object* vroom__stack__stack_has_next_capture(VROOM__Object* stack);
 
-/* YAP6__STACK__Stack_loop
+/* VROOM__STACK__Stack_loop
  *
  * This is the only method that will use the C stack. It will return
  * when the stack gets empty, it will iterate in the given stack using
@@ -403,14 +404,14 @@ YAP6__Object* yap6__stack__stack_has_next_capture(YAP6__Object* stack);
  * will be the return value of the last node evaled in the stack.
  *
  * Signature:
- *     (YAP6__STACK__Stack $stack: )
+ *     (VROOM__STACK__Stack $stack: )
  * Lowlevel C call:
- *     yap6__stack__stack_loop_capture(YAP6__Object* stack);
+ *     vroom__stack__stack_loop_capture(VROOM__Object* stack);
  */
-extern YAP6__Object* YAP6__STACK__Stack_loop;
-YAP6__Object* yap6__stack__stack_loop_capture(YAP6__Object* stack);
+extern VROOM__Object* VROOM__STACK__Stack_loop;
+VROOM__Object* vroom__stack__stack_loop_capture(VROOM__Object* stack);
 
-/* YAP6__STACK__Node
+/* VROOM__STACK__Node
  *
  * The node type is just a placeholder for the data operated by the
  * stack. It's a simple object that have simple accessors. These are
@@ -419,18 +420,18 @@ YAP6__Object* yap6__stack__stack_loop_capture(YAP6__Object* stack);
  *
  * One way or another, this class is closed and final.
  */
-extern YAP6__Prototype* YAP6__STACK__Node;
-extern YAP6__Object* YAP6__STACK__Node_new;
-extern YAP6__Object* YAP6__STACK__Node_metaclass;
-extern YAP6__Object* YAP6__STACK__Node_identifier;
-extern YAP6__Object* YAP6__STACK__Node_capture;
-extern YAP6__Object* YAP6__STACK__Node_debug;
-extern YAP6__Object* YAP6__STACK__Node_jail;
-extern YAP6__Object* YAP6__STACK__Node_lexical;
-extern YAP6__Object* YAP6__STACK__Node_outer;
-extern YAP6__Object* YAP6__STACK__Node_continuation;
-extern YAP6__Object* YAP6__STACK__Node_past;
-extern YAP6__Object* YAP6__STACK__Node_result;
+extern VROOM__Object* VROOM__STACK__Node;
+extern VROOM__Object* VROOM__STACK__Node_new;
+extern VROOM__Object* VROOM__STACK__Node_metaclass;
+extern VROOM__Object* VROOM__STACK__Node_identifier;
+extern VROOM__Object* VROOM__STACK__Node_capture;
+extern VROOM__Object* VROOM__STACK__Node_debug;
+extern VROOM__Object* VROOM__STACK__Node_jail;
+extern VROOM__Object* VROOM__STACK__Node_lexical;
+extern VROOM__Object* VROOM__STACK__Node_outer;
+extern VROOM__Object* VROOM__STACK__Node_continuation;
+extern VROOM__Object* VROOM__STACK__Node_past;
+extern VROOM__Object* VROOM__STACK__Node_result;
 
 
 #endif
