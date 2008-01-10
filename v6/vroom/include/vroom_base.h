@@ -1,107 +1,88 @@
 
-#ifndef YAP6_BASE_H
-#define YAP6_BASE_H
+#ifndef VROOM_BASE_H
+#define VROOM_BASE_H
 
 // forward declarations
-struct YAP6__Object; typedef struct YAP6__Object YAP6__Object;
-struct YAP6__Prototype; typedef struct YAP6__Prototype YAP6__Prototype;
-struct YAP6__MetaClass; typedef struct YAP6__MetaClass YAP6__MetaClass;
+struct VROOM__Object; typedef struct VROOM__Object VROOM__Object;
+struct VROOM__ResponderInterface; typedef struct VROOM__ResponderInterface VROOM__ResponderInterface;
 
 /*
- * The YAP6__Object struct represents any object in the YAP6 runtime.
- * The data of this object should be opaque for the users, the only
- * ones that should know about it are the prototype and the
- * metaclass. Every object must have a prototype. If it doesn't, it is
- * considered itself as one. The 'repr' member is where the metaclass
- * handles the object layout in interaction with the prototype to
- * implement the object logic.
+ * The VROOM__Object struct represents any object in the VROOM
+ * runtime.  The data of this object should be opaque for the users,
+ * the only one that should know about it is the responder
+ * interface. Every object must have a responder interface. If it
+ * doesn't, it is considered itself as one.
  */
-struct YAP6__Object {
-  void* repr;
-  YAP6__Prototype* WHAT;
+struct VROOM__Object {
+  VROOM__ResponderInterface* WHO;
 };
 
 /*
- * The YAP6__Prototype struct represents a prototype object. Every
- * object have a prototype unless it is itself one.  The prototype
- * have the object implementation, but only the metaclass knows HOW it
- * is laid out. And the metaclass is the way to fetch it.  A prototype
- * without a metaclass is a metaclass.
+ * The VROOM__ResponderInterface represents the WHO of any object. It
+ * understands the object layout to know how to access the members
+ * defined in the object, dispatching the methods.  This finish the
+ * basic set, as the interpreter delegates to the responder interface the
+ * message.
+ *
+ * MESSAGE is the only low-level definition on a responder interface,
+ * everything else is handled the same way in the low-level as it is
+ * in the high-level.
+ *
+ * REFERENCE is called every time an object is referenced in some
+ * other place.
+ *
+ * RELEASE is called every time an reference is released.
+ *
+ * This doesn't mean that every object need to be refcounted, but
+ * without it it would be impossible to implement a refcount gc. Both
+ * methods return the input pointer.
  */
-struct YAP6__Prototype {
-  void* repr;
-  YAP6__Prototype* WHAT;
-  YAP6__MetaClass* HOW;
-};
-
-/*
- * The YAP6__MetaClass represents the HOW of any object. It
- * understands the object layout to know how to access the methods
- * defined in the prototype, dispatching the methods.  This finish the
- * basic triade, as the interpreter delegates to the metaclass the
- * message.  REFERENCE is called every time an object is referenced in
- * some other place. RELEASE is called every time an reference is
- * released. This doesn't mean that every object need to be
- * refcounted, but without it it would be impossible to implement a
- * refcount gc. Both methods return the input pointer.
- */
-struct YAP6__MetaClass {
-  void* repr;
-  YAP6__Prototype* WHAT;
-  YAP6__MetaClass* HOW;
-  YAP6__Object* (*MESSAGE)   (YAP6__Object* stack,
-                              YAP6__MetaClass* self,
-                              YAP6__Object* identifier,
-                              YAP6__Object* capture);
-  YAP6__Object* (*REFERENCE) (YAP6__MetaClass* self,
-                              YAP6__Object* object);
-  YAP6__Object* (*RELEASE)   (YAP6__MetaClass* self,
-                              YAP6__Object* object);
+struct VROOM__ResponderInterface {
+  VROOM__ResponderInterface* WHO;
+  VROOM__Object* (*MESSAGE)  (VROOM__Object* stack,
+                              VROOM__ResponderInterface* self,
+                              VROOM__Object* identifier,
+                              VROOM__Object* capture);
+  VROOM__Object* (*REFERENCE)(VROOM__ResponderInterface* self,
+                              VROOM__Object* object);
+  VROOM__Object* (*RELEASE)  (VROOM__ResponderInterface* self,
+                              VROOM__Object* object);
 }
 
 /* Every object in YAP6 must be binary compatible with one of these
- * three. Given that, not necessarly needs to be created by yap6
- * itself, they don't even need to be managed by YAP6. Each MetaClass
- * implementation can decide how to deal with issues like garbage
- * collection and so on, as every object interaction is intermediated
- * by a MetaClass MESSAGE. But to support basic refcounting, two other
- * metaclass methods must exist. They can be no-ops for some
- * metaclasses, but the interpreter will always call them.
+ * two structures. Given that, not necessarly needs to be created by
+ * vroom itself, they don't even need to be managed by vroom. Each
+ * ResponderInterface implementation can decide how to deal with issues like
+ * garbage collection and so on, as every object interaction is
+ * intermediated by a ResponderInterface MESSAGE. But to support basic
+ * refcounting, two other metaclass methods must exist. They can be
+ * no-ops for some metaclasses, but the interpreter will always call
+ * them.
  */
 
 /* 
  * Here follows the basic macros for that triade.
  */
-#define YAP6_WHAT(object) ((YAP6__Prototype*)((((YAP6__Object*)object)->WHAT)?(((YAP6__Object*)object)->WHAT):(object)))
+#define VROOM_WHO(object) ((VROOM__ResponderInterface*)(((VROOM__Object*)object)->WHO)?(((VROOM__Object*)object)->WHO):(object))
 
-#define YAP6_HOW(object) ((YAP6__MetaClass*)( \
-                          (((YAP6__Prototype*)((((YAP6__Object*)object)->WHAT)?(((YAP6__Object*)object)->WHAT):(object)))->HOW) ? \
-                          (((YAP6__Prototype*)((((YAP6__Object*)object)->WHAT)?(((YAP6__Object*)object)->WHAT):(object)))->HOW) : \
-                          (object)\
-                         ))
+#define VROOM_DISPATCH(stack, object, identifier, capture) \
+      (((VROOM__ResponderInterface*)(((VROOM__Object*)object)->WHO)?(((VROOM__Object*)object)->WHO):(object))->MESSAGE(  \
+          stack, ((VROOM__ResponderInterface*)(((VROOM__Object*)object)->WHO)?(((VROOM__Object*)object)->WHO):(object)), \
+          identifier, capture \
+      ))
 
-#define YAP6_DISPATCH(stack, metaclass, identifier, capture) ((YAP6__MetaClass*)metaclass)->MESSAGE(stack,(YAP6__MetaClass*)metaclass,\
-                                                                                             (YAP6__Object*)identifier,\
-                                                                                             (YAP6__Object*)capture)
+#define VROOM_REFERENCE(object) \
+      (((VROOM__ResponderInterface*)(((VROOM__Object*)object)->WHO)?(((VROOM__Object*)object)->WHO):(object))->REFERENCE(  \
+          ((VROOM__ResponderInterface*)(((VROOM__Object*)object)->WHO)?(((VROOM__Object*)object)->WHO):(object)), \
+          object \
+      ))
 
-#define YAP6_REFERENCE(object) (((YAP6__MetaClass*)( \
-                          (((YAP6__Prototype*)((((YAP6__Object*)object)->WHAT)?(((YAP6__Object*)object)->WHAT):(object)))->HOW) ? \
-                          (((YAP6__Prototype*)((((YAP6__Object*)object)->WHAT)?(((YAP6__Object*)object)->WHAT):(object)))->HOW) : \
-                          (object)\
-                         ))->REFERENCE(((YAP6__MetaClass*)( \
-                          (((YAP6__Prototype*)((((YAP6__Object*)object)->WHAT)?(((YAP6__Object*)object)->WHAT):(object)))->HOW) ? \
-                          (((YAP6__Prototype*)((((YAP6__Object*)object)->WHAT)?(((YAP6__Object*)object)->WHAT):(object)))->HOW) : \
-                          (object)\
-                         )),object))
+#define VROOM_RELEASE(object) \
+      (((VROOM__ResponderInterface*)(((VROOM__Object*)object)->WHO)?(((VROOM__Object*)object)->WHO):(object))->RELEASE(  \
+          ((VROOM__ResponderInterface*)(((VROOM__Object*)object)->WHO)?(((VROOM__Object*)object)->WHO):(object)), \
+          object \
+      ))
 
-#define YAP6_RELEASE(object) (((YAP6__MetaClass*)( \
-                          (((YAP6__Prototype*)((((YAP6__Object*)object)->WHAT)?(((YAP6__Object*)object)->WHAT):(object)))->HOW) ? \
-                          (((YAP6__Prototype*)((((YAP6__Object*)object)->WHAT)?(((YAP6__Object*)object)->WHAT):(object)))->HOW) : \
-                          (object)\
-                         ))->RELEASE(((YAP6__MetaClass*)( \
-                          (((YAP6__Prototype*)((((YAP6__Object*)object)->WHAT)?(((YAP6__Object*)object)->WHAT):(object)))->HOW) ? \
-                          (((YAP6__Prototype*)((((YAP6__Object*)object)->WHAT)?(((YAP6__Object*)object)->WHAT):(object)))->HOW) : \
-                          (object)\
-                         )),object))
+
 
 #endif
