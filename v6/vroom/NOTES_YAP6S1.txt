@@ -1,0 +1,73 @@
+YAP6S1 => YAP6 Stage 1 Language
+===============================
+
+Considering YAP6 doesn't use the C stack for regular operation, we
+have an important side effect that not even the built-in types can
+recurse in the C stack. They must recurse only using the YAP6 stack,
+and only do C recursion when really needed.
+
+This way, it sounds a little awkward to write C code that doesn't run
+like normal C code. It would tend to be worse than XS. That's why we
+need a Stage 1 language. This language would result in a Code object
+that runs by populating a previously known stack template into the top
+of the current call stack.
+
+This code, by one side, is just plain Perl 6, because the object
+support is the same as Perl 6, but, as a Stage 1 there are some
+limitations of what code can be generated, remembering that this Stage
+1 code must be subject to translation into C code.
+
+Basically, this language will be used to build a stack frame. And to
+do that, it doesn't need:
+
+  * lexical scope - This language can only build a single frame, no
+    blocks inside blocks, if you need to do that, create another code
+    block that is invoked from this block.
+
+  * dynamic name resolution - All the names in the language must be
+    known barewords for both method names and for type names.
+
+This basically means that all lexical information will be translated
+to anonymous stack referencing, as block names, and they will only be
+accessible from the current file. On the other hand, the language will
+be used, at the same time, to describe the built-in types and
+implement them in high level. In order to allow this description,
+while recognizing the limitations, so here we get to a more precise
+description.
+
+The stage 1 language will describe Classes that happens to be built-in
+classes, so the basic syntax will be the same as of a regular Perl 6
+class, the methods will be understood as the class methods, while
+subroutines will be translated to anonymous stack references. If a
+block is just used inside another it means that a code is called
+without parameters. If you want to pass parameters, you may just use a
+pointy sub.
+
+A simple example would be:
+
+# the class declaration will generate the proper CREATE and BUILD
+# methods using the default metaclass to generate a prototype which
+# name Dog must be one of the known name constants.
+class Dog {
+      # foo will be used in the BUILD also, and '.foo' needs to be a
+      # known constant also
+      has $.foo;
+      method bar {
+             # bar must be a known constant
+             if ($.foo > 0) {
+                # this is a frame that doesn't receive parameters
+             }
+             baz(bla);
+      }
+      sub baz {
+          # baz is a local name that will be translated to stack
+          # references
+          my $a = 1;
+          # '$a' is a local name that is anonimized by the translation.
+          $a = bla($a);
+          $a = bla($a);   
+      }
+      sub bla {
+
+      }
+}
