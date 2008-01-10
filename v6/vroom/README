@@ -1,4 +1,6 @@
-This is yap6, a prospective runtime for kp6.
+This is VROOM a ViRtual OO Machine. It started as YAP6, a prospective
+backend to KP6, but at some point it became non-p6-specific. This
+readme is still valid, with some small changes.
 
 Please see the ROADMAP. See also the TODO file for a hacking guide.
 
