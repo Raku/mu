@@ -140,9 +140,6 @@ my Str @proplist_cats = <ASCII_Hex_Digit Bidi_Control Dash Deprecated Diacritic 
 my Str @perl_cats = <alnum alpha ascii cntrl digit graph lower print>,
     <punct space title upper xdigit word vspace hspace>;
 BEGIN {
-    for @gen_cats, @proplist_cats, @perl_cats -> my Str $cat {
-        %category{$cat} = Utable.new;
-    }
     @mktab_subs.push: my sub mktab_proplist(-->) {
         process_file 'ucd/Proplist.txt', rule { $<cr>=<UCD::code_or_range> ';' $<name>=(\w+) }, {
             my $n := $<cr><ord>;
@@ -200,7 +197,7 @@ BEGIN {
 # 3 Canonical_Combining_Class
 my Int %ccc;
 # 4 Bidi_Class
-my Utable $bidi_class.=new;
+my Utable $bidi_class;
 # 5 Decomposition_Mapping
 my Str %compat_decomp;
 my Str %compat_decomp_type;
@@ -210,7 +207,7 @@ my Str %canon_decomp;
 # 8 numeric
 my Hash of Num %numeric;
 # 9 Bidi_Mirrored
-my Utable $bidi_mirrored.=new;
+my Utable $bidi_mirrored;
 # 10 Unicode_1_Name
 #     is this needed for anything other than name lookups?
 # 11 ISO_Comment
@@ -278,6 +275,11 @@ BEGIN {
             %category<space>.add($c);
         }
         %category<word>.add('_'.ord);
+        # most of these aren't listed in UnicodeData.txt.  is there other stuff like this?
+        # AC00;<Hangul Syllable, First>;Lo;0;L;;;;;N;;;;;
+        # D7A3;<Hangul Syllable, Last>;Lo;0;L;;;;;N;;;;;
+        %category<Lo>.add(0xAC00..0xD7A3);
+        $bidi_class.add(0xAC00..0xD7A3, :val<L>);
 
         dumphash(  :%category);
         dumphash(  :%numeric);
@@ -326,7 +328,7 @@ BEGIN {
 # 0 code range
 # 1 block name
 # what do we do with block names?
-my Utable $blockname.=new;
+my Utable $blockname;
 BEGIN {
     @mktab_subs.push: my sub mktab_blocks(-->) {
         process_file 'ucd/Blocks.txt', rule { <r=UCD::code_or_range> ';' $<name>=(\S+\N*) }, {
@@ -337,16 +339,7 @@ BEGIN {
 }
 
 # CompositionExclusions.txt
-# 0 code
-my Bool %compex;
-BEGIN {
-    @mktab_subs.push: my sub mktab_compex(-->) {
-        process_file 'ucd/CompositionExclusions.txt', rule { <c=UCD::code> }, {
-            %compex{$<c><str>}++;
-        }
-        dumphash(:%compex);
-    }
-}
+# DerivedNormalizationProps.txt has the full list
 
 # CaseFolding.txt
 # 0 code
@@ -594,6 +587,22 @@ BEGIN {
 }
 
 # DerivedNormalizationProps.txt
+my Utable $compex;
+my Str %composition;
+BEGIN {
+    @mktab_subs.push: my sub mktab_compex(-->) {
+        process_file 'ucd/DerivedNormalizationProps.txt', -> my Str $line {
+            if $line ~~ rule { <r=UCD::code_or_range> ';' Full_Composition_Exclusion } {
+                $compex.add($<r><ord>);
+            }
+        }
+        for %canon_decomp.keys -> my Str $s {
+            next if $compex.contains($s.ord);
+            %composition{%canon_decomp{$s}.nfd} = $s;
+        }
+        dumphash(:%composition);
+    }
+}
 
 # GraphemeBreakProperty.txt
 
@@ -753,11 +762,13 @@ class Str is also {
     }
     sub hangul_decomp(Str $s --> Str) {
         my Int $o = $s.ord;
-        return $s if $o < 0xAC00 or $o >= 0xD7A4;
+        # just returns $s for most $s
+        return $s if $o !~~ 0xAC00..0xD7A3;
         my Str $ret;
-        $ret ~= ((($o - 0xAC00) / 0x2BA4) + 0x1100).chr;
-        $ret ~= ((((($o - 0xAC00) % 0x2BA4) / 28 ) + 0x1161 ).chr;
-        my Int $t = (($o - 0xAC00) % 28 ) + 0x11A7;
+        $o -= 0xAC00;
+        $ret ~= (($o / 0x2BA4) + 0x1100).chr;
+        $ret ~= (((($o % 0x2BA4) / 28 ) + 0x1161 ).chr;
+        my Int $t = ($o % 28 ) + 0x11A7;
         $ret ~= $t.chr if $t != 0x11A7;
         return $ret;
     }
@@ -781,8 +792,52 @@ class Str is also {
         }
         return $new.reorder;
     }
-    our multi method nfc(Str $string: --> Str) is export {
-        ...;
+    sub compose_hangul(Str $s --> Str) {
+        my Str $ret = $s.code_n(0);
+        my Str $prev = $ret;
+        for 1..$s.codes -> my Int $n {
+            my Str $c = $s.code_n($n);
+            if $prev.ord ~~ 0x1100..0x1112 
+                and $c.ord ~~ 0x1161..0x1175 {
+                    $prev = ((($prev.ord - 0x1100) * 21 + ($c.ord - 0x1161)) * 28) + 0xAC00;
+                    $ret.code_n($ret.codes-1) = $prev;
+                    next;
+            }
+            if $prev.ord ~~ 0xAC00..0xD7A3
+                and ($prev.ord - 0xAC00) % 28 == 0
+                and $c.ord ~~ 0x11A7..0x11C2 {
+                    $prev = ($prev.ord + $c.ord - 0x11A7).chr;
+                    $ret.code_n($ret.codes-1) = $prev;
+                    next;
+                }
+            }
+            $prev = $c;
+            $ret ~= $c;
+        }
+        return $ret;
+    }
+    sub compose_graph(Str $s --> Str) {
+        return %composition{$s} // $s
+            if $s.codes == 1;
+        return compose_hangul($s) if $s ~~ &isGCBHangulSyllable;
+        my Str $ret = $s;
+        startover:
+        if exists %composition{$s.code_n(0)} {
+            $ret = %composition{$s.code_n(0)} ~ $s.substr($s.as_codes[1]);
+            goto startover;
+        }
+        for 1..$ret.codes -> my Int $n {
+            if $ret.code_n(0) ~ $ret.code_n($n) eq any %composition.keys {
+                my Str $new = %composition{$ret.code_n(0) ~ $ret.code_n($n)};
+                for 1..$ret.codes -> my Int $m {
+                    next if $n == $m;
+                    $new ~= $ret.code_n($m);
+                }
+                $ret = $new;
+                goto startover;
+            }
+        }
+        return $ret;
     }
     our multi method nfkd(Str $string: --> Str) is export {
         my Str $old;
@@ -798,8 +853,21 @@ class Str is also {
         }
         return $new.reorder;
     }
+    our multi method nfc(Str $string: --> Str) is export {
+        my Str $ret;
+        for ^$string.nfd.graphs -> my Int $n {
+            $ret ~= compose_graph($string.graph_n($n));
+
+        }
+        return $ret;
+    }
     our multi method nfkc(Str $string: --> Str) is export {
-        ...;
+        my Str $ret;
+        for ^$string.nfkd.graphs -> my Int $n {
+            $ret ~= compose_graph($string.graph_n($n));
+
+        }
+        return $ret;
     }
 
     our multi method ord(Str $string: --> Int|List of Int) is export {
