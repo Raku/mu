@@ -257,11 +257,13 @@ extern SMOP__Object* SMOP__STACK__Stack_new;
 
 /* SMOP__STACK__Stack_push
  *
- * This method pushes a node to the stack. This will cause the
+ * This method pushes a given node to the stack. This will cause the
  * following operation:
  *
  * If the stack is empty, the given node is considered the first
- * frame.
+ * frame. Remember that the interpreter loop won't eval the pushed
+ * node, bacause it calls next before eval, this first node will serve
+ * to give information to the current frame, like a capture object.
  *
  * Before
  *                                *
