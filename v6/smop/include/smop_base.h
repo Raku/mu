@@ -1,24 +1,24 @@
 
-#ifndef VROOM_BASE_H
-#define VROOM_BASE_H
+#ifndef SMOP_BASE_H
+#define SMOP_BASE_H
 
 // forward declarations
-struct VROOM__Object; typedef struct VROOM__Object VROOM__Object;
-struct VROOM__ResponderInterface; typedef struct VROOM__ResponderInterface VROOM__ResponderInterface;
+struct SMOP__Object; typedef struct SMOP__Object SMOP__Object;
+struct SMOP__ResponderInterface; typedef struct SMOP__ResponderInterface SMOP__ResponderInterface;
 
 /*
- * The VROOM__Object struct represents any object in the VROOM
+ * The SMOP__Object struct represents any object in the SMOP
  * runtime.  The data of this object should be opaque for the users,
  * the only one that should know about it is the responder
  * interface. Every object must have a responder interface. If it
  * doesn't, it is considered itself as one.
  */
-struct VROOM__Object {
-  VROOM__ResponderInterface* RI;
+struct SMOP__Object {
+  SMOP__ResponderInterface* RI;
 };
 
 /*
- * The VROOM__ResponderInterface represents the RI of any object. It
+ * The SMOP__ResponderInterface represents the RI of any object. It
  * understands the object layout to know how to access the members
  * defined in the object, dispatching the methods.  This finish the
  * basic set, as the interpreter delegates to the responder interface the
@@ -37,21 +37,21 @@ struct VROOM__Object {
  * without it it would be impossible to implement a refcount gc. Both
  * methods return the input pointer.
  */
-struct VROOM__ResponderInterface {
-  VROOM__ResponderInterface* RI;
-  VROOM__Object* (*MESSAGE)  (VROOM__Object* stack,
-                              VROOM__ResponderInterface* self,
-                              VROOM__Object* identifier,
-                              VROOM__Object* capture);
-  VROOM__Object* (*REFERENCE)(VROOM__ResponderInterface* self,
-                              VROOM__Object* object);
-  VROOM__Object* (*RELEASE)  (VROOM__ResponderInterface* self,
-                              VROOM__Object* object);
+struct SMOP__ResponderInterface {
+  SMOP__ResponderInterface* RI;
+  SMOP__Object* (*MESSAGE)  (SMOP__Object* stack,
+                              SMOP__ResponderInterface* self,
+                              SMOP__Object* identifier,
+                              SMOP__Object* capture);
+  SMOP__Object* (*REFERENCE)(SMOP__ResponderInterface* self,
+                              SMOP__Object* object);
+  SMOP__Object* (*RELEASE)  (SMOP__ResponderInterface* self,
+                              SMOP__Object* object);
 }
 
-/* Every object in VROOM must be binary compatible with one of these
+/* Every object in SMOP must be binary compatible with one of these
  * two structures. Given that, not necessarly needs to be created by
- * vroom itself, they don't even need to be managed by vroom. Each
+ * smop itself, they don't even need to be managed by smop. Each
  * ResponderInterface implementation can decide how to deal with issues like
  * garbage collection and so on, as every object interaction is
  * intermediated by a ResponderInterface MESSAGE. But to support basic
@@ -63,23 +63,23 @@ struct VROOM__ResponderInterface {
 /* 
  * Here follows the basic macros for that triade.
  */
-#define VROOM_RI(object) ((VROOM__ResponderInterface*)(((VROOM__Object*)object)->RI)?(((VROOM__Object*)object)->RI):(object))
+#define SMOP_RI(object) ((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):(object))
 
-#define VROOM_DISPATCH(stack, object, identifier, capture) \
-      (((VROOM__ResponderInterface*)object)->MESSAGE(  \
-          stack, ((VROOM__ResponderInterface*)object), \
+#define SMOP_DISPATCH(stack, object, identifier, capture) \
+      (((SMOP__ResponderInterface*)object)->MESSAGE(  \
+          stack, ((SMOP__ResponderInterface*)object), \
           identifier, capture \
       ))
 
-#define VROOM_REFERENCE(object) \
-      (((VROOM__ResponderInterface*)(((VROOM__Object*)object)->RI)?(((VROOM__Object*)object)->RI):(object))->REFERENCE(  \
-          ((VROOM__ResponderInterface*)(((VROOM__Object*)object)->RI)?(((VROOM__Object*)object)->RI):(object)), \
+#define SMOP_REFERENCE(object) \
+      (((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):(object))->REFERENCE(  \
+          ((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):(object)), \
           object \
       ))
 
-#define VROOM_RELEASE(object) \
-      (((VROOM__ResponderInterface*)(((VROOM__Object*)object)->RI)?(((VROOM__Object*)object)->RI):(object))->RELEASE(  \
-          ((VROOM__ResponderInterface*)(((VROOM__Object*)object)->RI)?(((VROOM__Object*)object)->RI):(object)), \
+#define SMOP_RELEASE(object) \
+      (((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):(object))->RELEASE(  \
+          ((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):(object)), \
           object \
       ))
 

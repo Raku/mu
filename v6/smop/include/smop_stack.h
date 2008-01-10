@@ -1,18 +1,18 @@
 
-#ifndef VROOM_STACK_H
-#define VROOM_STACK_H
+#ifndef SMOP_STACK_H
+#define SMOP_STACK_H
 
-#include <vroom_base.h> // this is declared by vroom.h which is the
+#include <smop_base.h> // this is declared by smop.h which is the
                         // one who includes this file, but let's keep
                         // this here if anyone wants to include only
-                        // parts of vroom.h. It should do no harm
+                        // parts of smop.h. It should do no harm
                         // because of the ifndefs of the beggining of
                         // the file.
 
 /*
- * In VROOM, every low-level opeator is actually a method call in the
+ * In SMOP, every low-level opeator is actually a method call in the
  * responder interface of the lowlevel module. For the stack, the
- * VROOM__STACK__Operators type is actually also a responder interface
+ * SMOP__STACK__Operators type is actually also a responder interface
  * that handles special methods. Calling it from the low-level works
  * the same as calling from the high level. Every operation message is
  * composed by basically three elements:
@@ -51,7 +51,7 @@
  * knowledge of what to move, from where and to where is already
  * available when you are building the frame you'll invoke, you can
  * use at that time some specific objects and build the stack. This
- * specifc objects don't use the VROOM stack, only the C stack which
+ * specifc objects don't use the SMOP stack, only the C stack which
  * makes you free to call them anytime, by using the lowlevel C
  * subroutine, while the prototype will still support a high-level
  * call that builds the same object.
@@ -59,14 +59,14 @@
  */
 
 
-/* VROOM__STACK__Operators
+/* SMOP__STACK__Operators
  *
  * This is the responder interface that support all stack operators as
  * described below.
  *
  * This object is closed and final.
  */
-extern VROOM__Object* VROOM__STACK__Operators;
+extern SMOP__Object* SMOP__STACK__Operators;
 
 /* The following 4 operators will allways manipulate the current call
  * stack. It is strongly advised that this should only be called by
@@ -75,13 +75,13 @@ extern VROOM__Object* VROOM__STACK__Operators;
  * them. Calling this directly will probably cause a segfault.
  * This operators are:
  *
- * VROOM__STACK__OP_Move_Capturize
- * VROOM__STACK__OP_Move_Identifier
- * VROOM__STACK__OP_Move_MetaClass
- * VROOM__STACK__OP_Move_Copy
+ * SMOP__STACK__OP_Move_Capturize
+ * SMOP__STACK__OP_Move_Identifier
+ * SMOP__STACK__OP_Move_MetaClass
+ * SMOP__STACK__OP_Move_Copy
  *
  */
-/* VROOM__STACK__OP_Move_Capturize
+/* SMOP__STACK__OP_Move_Capturize
  *
  * Creates a low-level capture from previous stack nodes and store it
  * in a continuation node, supporting the invocant, positional and
@@ -93,7 +93,7 @@ extern VROOM__Object* VROOM__STACK__Operators;
  * manipulation. If you want to use a result from one node in more
  * than one capture you should use the copy operator.
  *
- * lowlevel C call: vroom__stack__opcapture_move_capturize_new
+ * lowlevel C call: smop__stack__opcapture_move_capturize_new
  *
  * This subroutine receives a C int pointing to which past node should
  * the invocant be taken, two C int null-terminated arrays pointing
@@ -102,21 +102,21 @@ extern VROOM__Object* VROOM__STACK__Operators;
  * operator call yet, it just creates the capture that can be stored
  * in a stack node for a later call.
  *
- * highlevel capture prototype: VROOM__STACK__OPCAPTURE_Move_Capturize
+ * highlevel capture prototype: SMOP__STACK__OPCAPTURE_Move_Capturize
  *
  * This is the prototype that will be able to create this capture
  * object in the high level. The "new" signature to create this should
  * be (int, List of int, List of int, int). But again, this is just
  * the capture creator for the operator and not the operator itself.
  */
-extern VROOM__Object* VROOM__STACK__OP_Move_Capturize;
-VROOM__Object* vroom__stack__opcapture_move_capturize_new(int invocant,
+extern SMOP__Object* SMOP__STACK__OP_Move_Capturize;
+SMOP__Object* smop__stack__opcapture_move_capturize_new(int invocant,
                                                           int** positional,
                                                           int** named,
                                                           int target);
-extern VROOM__Object* VROOM__STACK__OPCAPTURE_Move_Capturize;
+extern SMOP__Object* SMOP__STACK__OPCAPTURE_Move_Capturize;
 
-/* VROOM__STACK__OP_Move_Identifier
+/* SMOP__STACK__OP_Move_Identifier
  *
  * Move the result of a given past node to a target node as the
  * identifier of the message. This operator shouldn't probably be used
@@ -125,23 +125,23 @@ extern VROOM__Object* VROOM__STACK__OPCAPTURE_Move_Capturize;
  * operator moves the result, if you want to use a result more than
  * once, use the copy operator.
  *
- * lowlevel C call: vroom__stack__op_move_identifier_new
+ * lowlevel C call: smop__stack__op_move_identifier_new
  *
  * This subroutine receives two C ints and creates an object that can
  * be used as a capture for the above operator. It doesn't call the
  * operator itself.
  *
- * highlevel capture prototype: VROOM__STACK__OPCAPTURE_Move_Identifier
+ * highlevel capture prototype: SMOP__STACK__OPCAPTURE_Move_Identifier
  *
  * This is the prototype that will be able to create an object
  * compatible with this operator. The "new" signature will be (int,
  * int).
  */
-extern VROOM__Object* VROOM__STACK__OP_Move_Identifier;
-VROOM__Object* vroom__stack__opcapture_move_identifier_new(int source, int target);
-extern VROOM__Object* VROOM__STACK__OPCAPTURE_Move_Identifier;
+extern SMOP__Object* SMOP__STACK__OP_Move_Identifier;
+SMOP__Object* smop__stack__opcapture_move_identifier_new(int source, int target);
+extern SMOP__Object* SMOP__STACK__OPCAPTURE_Move_Identifier;
 
-/* VROOM__STACK__OP_Move_MetaClass
+/* SMOP__STACK__OP_Move_MetaClass
  *
  * Move the result of a given past node to a target node as the
  * metaclass of the message. This operator shouldn't probably be used
@@ -150,48 +150,48 @@ extern VROOM__Object* VROOM__STACK__OPCAPTURE_Move_Identifier;
  * moves the result, if you want to use a result more than once, use
  * the copy operator.
  *
- * lowlevel C call: vroom__stack__opcapture_move_metaclass_new
+ * lowlevel C call: smop__stack__opcapture_move_metaclass_new
  *
  * This subroutine receives two C ints and creates an object that can
  * be used as a capture for the above operator. It doesn't call the
  * operator itself.
  *
- * highlevel capture prototype: VROOM__STACK__OPCAPTURE_Move_MetaClass
+ * highlevel capture prototype: SMOP__STACK__OPCAPTURE_Move_MetaClass
  *
  * This is the prototype that will be able to create an object
  * compatible with this operator. The "new" signature will be (int,
  * int).
  */
-extern VROOM__Object* VROOM__STACK__OP_Move_MetaClass;
-VROOM__Object* vroom__stack__opcapture_move_metaclass_new(int source, int target);
-extern VROOM__Object* VROOM__STACK__OPCAPTURE_Move_MetaClass;
+extern SMOP__Object* SMOP__STACK__OP_Move_MetaClass;
+SMOP__Object* smop__stack__opcapture_move_metaclass_new(int source, int target);
+extern SMOP__Object* SMOP__STACK__OPCAPTURE_Move_MetaClass;
 
-/* VROOM__STACK__OP_Copy
+/* SMOP__STACK__OP_Copy
  *
  * This operator copies the result of some past node and returns
  * it. This is usefull when you want the result of some node to be
  * available to more than one of the move operators. This operator
  * manipulates the current stack.
  *
- * lowlevel C call: vroom__stack__opcapture_copy_new
+ * lowlevel C call: smop__stack__opcapture_copy_new
  *
  * This subroutine receives a C int and create an object that can be
  * used as a capture for the above operator. It doesn't call the
  * operator itself.
  *
- * highlevel capture prototype: VROOM__STACK__OPCAPTURE_Copy
+ * highlevel capture prototype: SMOP__STACK__OPCAPTURE_Copy
  *
  * This is the prototype that will be able to create an object
  * compatible with this operator. The "new" signature will simply be
  * (int).
  */
-extern VROOM__Object* VROOM__STACK__OP_Copy;
-VROOM__Object* vroom__stack__opcapture_copy_new(int source);
-extern VROOM__Object* VROOM__STACK__OPCAPTURE_Copy;
+extern SMOP__Object* SMOP__STACK__OP_Copy;
+SMOP__Object* smop__stack__opcapture_copy_new(int source);
+extern SMOP__Object* SMOP__STACK__OPCAPTURE_Copy;
 
 
 /*
- * The VROOM__STACK__Stack and the VROOM__STACK__Node prototypes are the
+ * The SMOP__STACK__Stack and the SMOP__STACK__Node prototypes are the
  * ones used to create new stacks and to operate on it. Differently
  * from the lowlevel stack operations that manipulate the currently
  * running stack, these methods are safe to be run without a current
@@ -199,7 +199,7 @@ extern VROOM__Object* VROOM__STACK__OPCAPTURE_Copy;
  * invocant in the capture, and not as the stack parameter to the
  * lowlevel MESSAGE call.
  *
- * In fact, when calling the low-level MESSAGE (using VROOM_DISPATCH,
+ * In fact, when calling the low-level MESSAGE (using SMOP_DISPATCH,
  * probably) you can even pass NULL as the current stack. IF this
  * methods need to recurse they will do it using the C stack. The only
  * exception for this rule is the "eval" method on the Stack
@@ -218,7 +218,7 @@ extern VROOM__Object* VROOM__STACK__OPCAPTURE_Copy;
  * resolution.
  */
 
-/* VROOM__STACK__Stack
+/* SMOP__STACK__Stack
  *
  * The Stack type is a reference holder to the top-most node in the
  * execution. It works like an iterator on the stack, but it's a live
@@ -241,9 +241,9 @@ extern VROOM__Object* VROOM__STACK__OPCAPTURE_Copy;
  * The Stack type is closed and final.
  *
  */
-extern VROOM__Object* VROOM__STACK__Stack;
+extern SMOP__Object* SMOP__STACK__Stack;
 
-/* VROOM__STACK__Stack_new
+/* SMOP__STACK__Stack_new
  *
  * This method creates a new Stack object. It doesn't receive any
  * argument and simply returns an empty stack for later manipulation.
@@ -253,9 +253,9 @@ extern VROOM__Object* VROOM__STACK__Stack;
  * Lowlevel C call: not necessary, you can actually pass
  * NULL as the capture.
  */
-extern VROOM__Object* VROOM__STACK__Stack_new;
+extern SMOP__Object* SMOP__STACK__Stack_new;
 
-/* VROOM__STACK__Stack_push
+/* SMOP__STACK__Stack_push
  *
  * This method pushes a node to the stack. This will cause the
  * following operation:
@@ -274,17 +274,17 @@ extern VROOM__Object* VROOM__STACK__Stack_new;
  *    Current Frame     1 <- 2 <- 3 -> 4 -> 5
  *
  * Signature:
- *     (VROOM__STACK__Stack $stack: VROOM__STACK__Node $node);
+ *     (SMOP__STACK__Stack $stack: SMOP__STACK__Node $node);
  *
  * Lowlevel C call:
- *     vroom__stack__stack_push_capture(VROOM__Object* stack,
- *                                     VROOM__Object* node);
+ *     smop__stack__stack_push_capture(SMOP__Object* stack,
+ *                                     SMOP__Object* node);
  */
-extern VROOM__Object* VROOM__STACK__Stack_push;
-VROOM__Object* vroom__stack__stack_push_capture(VROOM__Object* stack,
-                                              VROOM__Object* node);
+extern SMOP__Object* SMOP__STACK__Stack_push;
+SMOP__Object* smop__stack__stack_push_capture(SMOP__Object* stack,
+                                              SMOP__Object* node);
 
-/* VROOM__STACK__Stack_continues
+/* SMOP__STACK__Stack_continues
  *
  * This method adds a node as the continuation of the currently
  * selected node of the stack.
@@ -298,18 +298,18 @@ VROOM__Object* vroom__stack__stack_push_capture(VROOM__Object* stack,
  *    Current Frame   1 <- 2 <- 3 -> given node -> 4 -> 5
  *
  * Signature:
- *     (VROOM__STACK__Stack $stack: VROOM__STACK__Node $node);
+ *     (SMOP__STACK__Stack $stack: SMOP__STACK__Node $node);
  *
  * Lowlevel C call:
- *     vroom__stack__stack_continues_capture(VROOM__Object* stack,
- *                                          VROOM__Object* node);
+ *     smop__stack__stack_continues_capture(SMOP__Object* stack,
+ *                                          SMOP__Object* node);
  * 
  */
-extern VROOM__Object* VROOM__STACK__Stack_continues;
-VROOM__Object* vroom__stack__stack_continues_capture(VROOM__Object* stack,
-                                                   VROOM__Object* node);
+extern SMOP__Object* SMOP__STACK__Stack_continues;
+SMOP__Object* smop__stack__stack_continues_capture(SMOP__Object* stack,
+                                                   SMOP__Object* node);
 
-/* VROOM__STACK__Stack_next
+/* SMOP__STACK__Stack_next
  *
  * This method goes to the next node in the stack, with implied stack
  * droppings being realised.
@@ -332,28 +332,28 @@ VROOM__Object* vroom__stack__stack_continues_capture(VROOM__Object* stack,
  * executable node, unless the stack becomes empty.
  *
  * Signature:
- *     (VROOM__STACK__Stack $stack: )
+ *     (SMOP__STACK__Stack $stack: )
  *
  * Lowlevel C call:
- *     vroom__stack__stack_next_capture(VROOM__Object* stack);
+ *     smop__stack__stack_next_capture(SMOP__Object* stack);
  */
-extern VROOM__Object* VROOM__STACK__Stack_next;
-VROOM__Object* vroom__stack__stack_next_capture(VROOM__Object* stack);
+extern SMOP__Object* SMOP__STACK__Stack_next;
+SMOP__Object* smop__stack__stack_next_capture(SMOP__Object* stack);
 
-/* VROOM__STACK__Stack_current
+/* SMOP__STACK__Stack_current
  *
  * Returns the currently selected node.
  *
  * Signature:
- *     (VROOM__STACK__Stack $stack: )
+ *     (SMOP__STACK__Stack $stack: )
  *
  * Lowlevel C call:
- *     vroom__stack__stack_current_capture(VROOM__Object* stack);
+ *     smop__stack__stack_current_capture(SMOP__Object* stack);
  */
-extern VROOM__Object* VROOM__STACK__Stack_current;
-VROOM__Object* vroom__stack__stack_current_capture(VROOM__Object* stack);
+extern SMOP__Object* SMOP__STACK__Stack_current;
+SMOP__Object* smop__stack__stack_current_capture(SMOP__Object* stack);
 
-/* VROOM__STACK__Stack_eval
+/* SMOP__STACK__Stack_eval
  *
  * Evaluate the selected node, and only the selected node, storing the
  * result in the node. This method won't recurse in the C stack, it
@@ -363,40 +363,40 @@ VROOM__Object* vroom__stack__stack_current_capture(VROOM__Object* stack);
  * the return value of the node.
  *
  * Signature:
- *     (VROOM__STACK__Stack $stack: )
+ *     (SMOP__STACK__Stack $stack: )
  * Lowlevel C call:
- *     vroom__stack__stack_eval_capture(VROOM__Object* stack);
+ *     smop__stack__stack_eval_capture(SMOP__Object* stack);
  */
-extern VROOM__Object* VROOM__STACK__Stack_eval;
-VROOM__Object* vroom__stack__stack_current_capture(VROOM__Object* stack);
+extern SMOP__Object* SMOP__STACK__Stack_eval;
+SMOP__Object* smop__stack__stack_current_capture(SMOP__Object* stack);
 
-/* VROOM__STACK__Stack_result
+/* SMOP__STACK__Stack_result
  *
  * Returns the result of some past node, counting backwards. This
  * means that 1 is the immediate past node, 2 is that nodes past node
  * and so on.
  *
  * Signature:
- *     (VROOM__STACK__Stack $stack: int node)
+ *     (SMOP__STACK__Stack $stack: int node)
  * Lowlevel C call:
- *     vroom__stack__stack_result_capture(VROOM__Object* stack, int node);
+ *     smop__stack__stack_result_capture(SMOP__Object* stack, int node);
  */
-extern VROOM__Object* VROOM__STACK__Stack_result;
-VROOM__Object* vroom__stack__stack_result_capture(VROOM__Object* stack, int node);
+extern SMOP__Object* SMOP__STACK__Stack_result;
+SMOP__Object* smop__stack__stack_result_capture(SMOP__Object* stack, int node);
 
-/* VROOM__STACK__Stack_has_next
+/* SMOP__STACK__Stack_has_next
  *
  * Returns true if the stack is not empty and false if it is.
  *
  * Signature:
- *     (VROOM__STACK__Stack $stack: )
+ *     (SMOP__STACK__Stack $stack: )
  * Lowlevel C call:
- *     vroom__stack__stack_has_next_capture(VROOM__Object* stack);
+ *     smop__stack__stack_has_next_capture(SMOP__Object* stack);
  */
-extern VROOM__Object* VROOM__STACK__Stack_has_next;
-VROOM__Object* vroom__stack__stack_has_next_capture(VROOM__Object* stack);
+extern SMOP__Object* SMOP__STACK__Stack_has_next;
+SMOP__Object* smop__stack__stack_has_next_capture(SMOP__Object* stack);
 
-/* VROOM__STACK__Stack_loop
+/* SMOP__STACK__Stack_loop
  *
  * This is the only method that will use the C stack. It will return
  * when the stack gets empty, it will iterate in the given stack using
@@ -404,14 +404,14 @@ VROOM__Object* vroom__stack__stack_has_next_capture(VROOM__Object* stack);
  * will be the return value of the last node evaled in the stack.
  *
  * Signature:
- *     (VROOM__STACK__Stack $stack: )
+ *     (SMOP__STACK__Stack $stack: )
  * Lowlevel C call:
- *     vroom__stack__stack_loop_capture(VROOM__Object* stack);
+ *     smop__stack__stack_loop_capture(SMOP__Object* stack);
  */
-extern VROOM__Object* VROOM__STACK__Stack_loop;
-VROOM__Object* vroom__stack__stack_loop_capture(VROOM__Object* stack);
+extern SMOP__Object* SMOP__STACK__Stack_loop;
+SMOP__Object* smop__stack__stack_loop_capture(SMOP__Object* stack);
 
-/* VROOM__STACK__Node
+/* SMOP__STACK__Node
  *
  * The node type is just a placeholder for the data operated by the
  * stack. It's a simple object that have simple accessors. These are
@@ -420,9 +420,9 @@ VROOM__Object* vroom__stack__stack_loop_capture(VROOM__Object* stack);
  *
  * One way or another, this class is closed and final.
  */
-extern VROOM__Object* VROOM__STACK__Node;
+extern SMOP__Object* SMOP__STACK__Node;
 
-/* VROOM__STACK__Node_new
+/* SMOP__STACK__Node_new
  *
  * This creates a new Node object.
  *
@@ -432,29 +432,29 @@ extern VROOM__Object* VROOM__STACK__Node;
  *     :$past, :$result)
  *
  * Lowlevel C call: (may receive NULL)
- *     vroom__stack__node_new_capture(
- *                    VROOM_Object* responder,
- *                    VROOM_Object* identifier,
- *                    VROOM_Object* capture,
- *                    VROOM_Object* debug,
- *                    VROOM_Object* jail,
- *                    VROOM_Object* lexical,
- *                    VROOM_Object* outer,
- *                    VROOM_Object* continuation,
- *                    VROOM_Object* past,
- *                    VROOM_Object* result)
+ *     smop__stack__node_new_capture(
+ *                    SMOP_Object* responder,
+ *                    SMOP_Object* identifier,
+ *                    SMOP_Object* capture,
+ *                    SMOP_Object* debug,
+ *                    SMOP_Object* jail,
+ *                    SMOP_Object* lexical,
+ *                    SMOP_Object* outer,
+ *                    SMOP_Object* continuation,
+ *                    SMOP_Object* past,
+ *                    SMOP_Object* result)
  */
-extern VROOM__Object* VROOM__STACK__Node_new;
-VROOM__Object* vroom__stack__node_new_capture(VROOM_Object* responder,
-                                             VROOM_Object* identifier,
-                                             VROOM_Object* capture,
-                                             VROOM_Object* debug,
-                                             VROOM_Object* jail,
-                                             VROOM_Object* lexical,
-                                             VROOM_Object* outer,
-                                             VROOM_Object* continuation,
-                                             VROOM_Object* past,
-                                             VROOM_Object* result);
+extern SMOP__Object* SMOP__STACK__Node_new;
+SMOP__Object* smop__stack__node_new_capture(SMOP_Object* responder,
+                                             SMOP_Object* identifier,
+                                             SMOP_Object* capture,
+                                             SMOP_Object* debug,
+                                             SMOP_Object* jail,
+                                             SMOP_Object* lexical,
+                                             SMOP_Object* outer,
+                                             SMOP_Object* continuation,
+                                             SMOP_Object* past,
+                                             SMOP_Object* result);
 
 /* All the Node accessor methods have the same simple signature,
  * which is:
@@ -463,74 +463,74 @@ VROOM__Object* vroom__stack__node_new_capture(VROOM_Object* responder,
  *
  * And the same lowlevel C call (may receive NULL in newvalue):
  *
- *  vroom__stack__node_accessor_capture(VROOM__Object* node,
- *                                      VROOM__Object* newvalue);
+ *  smop__stack__node_accessor_capture(SMOP__Object* node,
+ *                                      SMOP__Object* newvalue);
  */
-VROOM__Object* vroom__stack__node_accessor_capture(VROOM__Object* node,
-                                                   VROOM__Object* newvalue);
+SMOP__Object* smop__stack__node_accessor_capture(SMOP__Object* node,
+                                                   SMOP__Object* newvalue);
 
-/* VROOM__STACK__Node_responder
+/* SMOP__STACK__Node_responder
  *
  * The responder interface that will answer to this node.
  */
-extern VROOM__Object* VROOM__STACK__Node_responder;
+extern SMOP__Object* SMOP__STACK__Node_responder;
 
-/* VROOM__STACK__Node_identifier
+/* SMOP__STACK__Node_identifier
  *
  * The identifier of the message
  */
-extern VROOM__Object* VROOM__STACK__Node_identifier;
+extern SMOP__Object* SMOP__STACK__Node_identifier;
 
-/* VROOM__STACK__Node_capture
+/* SMOP__STACK__Node_capture
  *
  * The arguments of the message
  */
-extern VROOM__Object* VROOM__STACK__Node_capture;
+extern SMOP__Object* SMOP__STACK__Node_capture;
 
-/* VROOM__STACK__Node_debug
+/* SMOP__STACK__Node_debug
  *
  * Debug information about the node
  */
-extern VROOM__Object* VROOM__STACK__Node_debug;
+extern SMOP__Object* SMOP__STACK__Node_debug;
 
-/* VROOM__STACK__Node_jail
+/* SMOP__STACK__Node_jail
  * 
  * Jail for exception and other operations that might unwind the
  * stack. This is not a flag, but an object that may be looked while
  * unwinding the stack. Nothing says that the operator *must* stop on
  * any jail.
  */
-extern VROOM__Object* VROOM__STACK__Node_jail;
+extern SMOP__Object* SMOP__STACK__Node_jail;
 
-/* VROOM__STACK__Node_lexical
+/* SMOP__STACK__Node_lexical
  *
  * The reference to the lexical scope in this node.
  */
-extern VROOM__Object* VROOM__STACK__Node_lexical;
+extern SMOP__Object* SMOP__STACK__Node_lexical;
 
-/* VROOM__STACK__Node_outer
+/* SMOP__STACK__Node_outer
  *
  * The currently selected node in the outer frame.
  */
-extern VROOM__Object* VROOM__STACK__Node_outer;
+extern SMOP__Object* SMOP__STACK__Node_outer;
 
-/* VROOM__STACK__Node_continuation
+/* SMOP__STACK__Node_continuation
  *
  * The continuation of this node
  */
-extern VROOM__Object* VROOM__STACK__Node_continuation;
+extern SMOP__Object* SMOP__STACK__Node_continuation;
 
-/* VROOM__STACK__Node_past
+/* SMOP__STACK__Node_past
  *
  * The node that was executed before this one
  */
-extern VROOM__Object* VROOM__STACK__Node_past;
+extern SMOP__Object* SMOP__STACK__Node_past;
 
-/* VROOM__STACK__Node_result
+/* SMOP__STACK__Node_result
  *
  * The result evaluation of this node
  */
-extern VROOM__Object* VROOM__STACK__Node_result;
+extern SMOP__Object* SMOP__STACK__Node_result;
 
 
 #endif

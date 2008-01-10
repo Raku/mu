@@ -1,9 +1,9 @@
-#ifndef __VROOM_H
-#define __VROOM_H
+#ifndef __SMOP_H
+#define __SMOP_H
 
-#include <vroom_base.h>
-#include <vroom_native.h>
-#include <vroom_builtin.h>
-#include <vroom_stack.h>
+#include <smop_base.h>
+#include <smop_native.h>
+#include <smop_builtin.h>
+#include <smop_stack.h>
 
 #endif

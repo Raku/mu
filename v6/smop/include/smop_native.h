@@ -1,10 +1,10 @@
-#ifndef VROOM_NATIVE_H
-#define VROOM_NATIVE_H
+#ifndef SMOP_NATIVE_H
+#define SMOP_NATIVE_H
 
 /*
  * Besides the basic structures to which all objects must be
  * binary-compatible with, we also need to have defined which are the
- * native types for VROOM. These types are the key for the VROOM runtime
+ * native types for SMOP. These types are the key for the SMOP runtime
  * being able to actually do something in the low-level. The key to
  * that is in S12:
  *
@@ -35,7 +35,7 @@
  * .^does(Int), the low-level runtime cannot presume to know which is
  * the lowlevel implementation of an object, the only that knows it is
  * the responder interface, so it's natural that this native-type
- * coercion methods reside in the responder interface. This way, VROOM
+ * coercion methods reside in the responder interface. This way, SMOP
  * will count on that to provide a "native" method that receives the
  * prototype of the native-type to convert to and returns a
  * native-type object. One, possibly more important, reason for the
@@ -60,50 +60,50 @@
  * The native types are then declared here for external use.
  */
 #include <complex.h>
-#include <vroom_base.h> // this is declared by vroom.h which is the
+#include <smop_base.h> // this is declared by smop.h which is the
                         // one who includes this file, but let's keep
                         // this here if anyone wants to include only
-                        // parts of vroom.h. It should do no harm
+                        // parts of smop.h. It should do no harm
                         // because of the ifndefs of the beggining of
                         // the file.
 
 // Native operators metaclass proto-object.
-extern VROOM__Object* VROOM__NATIVE__Operators;
+extern SMOP__Object* SMOP__NATIVE__Operators;
 
 // prototypes
-extern VROOM__Object* VROOM__NATIVE__bit;
-extern VROOM__Object* VROOM__NATIVE__int;
-extern VROOM__Object* VROOM__NATIVE__uint;
-extern VROOM__Object* VROOM__NATIVE__buf;
-extern VROOM__Object* VROOM__NATIVE__num;
-extern VROOM__Object* VROOM__NATIVE__complex;
-extern VROOM__Object* VROOM__NATIVE__bool;
+extern SMOP__Object* SMOP__NATIVE__bit;
+extern SMOP__Object* SMOP__NATIVE__int;
+extern SMOP__Object* SMOP__NATIVE__uint;
+extern SMOP__Object* SMOP__NATIVE__buf;
+extern SMOP__Object* SMOP__NATIVE__num;
+extern SMOP__Object* SMOP__NATIVE__complex;
+extern SMOP__Object* SMOP__NATIVE__bool;
 
 // create methods
-extern VROOM__Object*   VROOM__NATIVE__bit_create(int value);
-extern VROOM__Object*   VROOM__NATIVE__int_create(int value);
-extern VROOM__Object*   VROOM__NATIVE__uint_create(unsigned int value);
-extern VROOM__Object*   VROOM__NATIVE__buf_create(int bytesize, char* unicodestr);
-extern VROOM__Object*   VROOM__NATIVE__num_create(double value);
-extern VROOM__Object*   VROOM__NATIVE__complex_create(double complex value);
-extern VROOM__Object*   VROOM__NATIVE__bool_create(int value);
+extern SMOP__Object*   SMOP__NATIVE__bit_create(int value);
+extern SMOP__Object*   SMOP__NATIVE__int_create(int value);
+extern SMOP__Object*   SMOP__NATIVE__uint_create(unsigned int value);
+extern SMOP__Object*   SMOP__NATIVE__buf_create(int bytesize, char* unicodestr);
+extern SMOP__Object*   SMOP__NATIVE__num_create(double value);
+extern SMOP__Object*   SMOP__NATIVE__complex_create(double complex value);
+extern SMOP__Object*   SMOP__NATIVE__bool_create(int value);
 
 // get methods
-extern int              VROOM__NATIVE__bit_fetch(VROOM__Object* value);
-extern int              VROOM__NATIVE__int_fetch(VROOM__Object* value);
-extern unsigned int     VROOM__NATIVE__uint_fetch(VROOM__Object* value);
-extern char*            VROOM__NATIVE__buf_fetch(VROOM__Object* value, int* retsize);
-extern double           VROOM__NATIVE__num_fetch(VROOM__Object* value);
-extern double complex   VROOM__NATIVE__complex_fetch(VROOM__Object* value);
-extern int              VROOM__NATIVE__bool_fetch(VROOM__Object* value);
+extern int              SMOP__NATIVE__bit_fetch(SMOP__Object* value);
+extern int              SMOP__NATIVE__int_fetch(SMOP__Object* value);
+extern unsigned int     SMOP__NATIVE__uint_fetch(SMOP__Object* value);
+extern char*            SMOP__NATIVE__buf_fetch(SMOP__Object* value, int* retsize);
+extern double           SMOP__NATIVE__num_fetch(SMOP__Object* value);
+extern double complex   SMOP__NATIVE__complex_fetch(SMOP__Object* value);
+extern int              SMOP__NATIVE__bool_fetch(SMOP__Object* value);
 
 // set methods
-extern void             VROOM__NATIVE__bit_store(VROOM__Object* value, int newvalue);
-extern void             VROOM__NATIVE__int_store(VROOM__Object* value, int newvalue);
-extern void             VROOM__NATIVE__uint_store(VROOM__Object* value, unsigned int newvalue);
-extern void             VROOM__NATIVE__buf_store(VROOM__Object* value, int newbytesize, char* newvalue);
-extern void             VROOM__NATIVE__num_store(VROOM__Object* value, double newvalue);
-extern void             VROOM__NATIVE__complex_store(VROOM__Object* value, double complex newvalue);
-extern void             VROOM__NATIVE__bool_store(VROOM__Object* value, int newvalue);
+extern void             SMOP__NATIVE__bit_store(SMOP__Object* value, int newvalue);
+extern void             SMOP__NATIVE__int_store(SMOP__Object* value, int newvalue);
+extern void             SMOP__NATIVE__uint_store(SMOP__Object* value, unsigned int newvalue);
+extern void             SMOP__NATIVE__buf_store(SMOP__Object* value, int newbytesize, char* newvalue);
+extern void             SMOP__NATIVE__num_store(SMOP__Object* value, double newvalue);
+extern void             SMOP__NATIVE__complex_store(SMOP__Object* value, double complex newvalue);
+extern void             SMOP__NATIVE__bool_store(SMOP__Object* value, int newvalue);
 
 #endif
