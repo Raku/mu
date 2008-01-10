@@ -192,9 +192,15 @@ subrules always use their own case settings.
 
 The C<:ii> variant may be used on a substitution to change the
 substituted string to the same case pattern as the matched string.
-Case info is carried across on a character by character basis.  If
-the right string is longer than the left one, the case of the final
-character is replicated.
+Case info is carried across on a character by character basis.  If the
+right string is longer than the left one, the case of the final
+character is replicated.  Titlecase is carried across if possible
+regardless of whether the resulting letter is at the beginning of
+a word or not; if there is no titlecase character available, the
+corresponding uppercase character is used.  (This policy can be
+modified within a lexical scope by a language-dependent Unicode
+declaration to substitute titlecase according to the orthographic
+rules of the specified language.)
 
 =item *
 
@@ -212,7 +218,8 @@ The C<:bb> variant may be used on a substitution to change the
 substituted string to the same accent pattern as the matched string.
 Accent info is carried across on a character by character basis.  If
 the right string is longer than the left one, the remaining characters
-are substituted without any modification.
+are substituted without any modification.  (Note that NFD/NFC distinctions
+are usually immaterial, since Perl encapsulates that in grapheme mode.)
 
 =item *
 
