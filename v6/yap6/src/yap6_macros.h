@@ -1,7 +1,0 @@
-
-#ifndef YAP6_MACROS_H
-#define YAP6_MACROS_H
-
-YAP6_CORE_MESSAGE
-
-#endif
