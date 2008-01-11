@@ -32,20 +32,22 @@ S1P - Read it "Swamp"
 
 0.1.1.7 - Multi Sub (lowlevel implementation)
 
-0.1.1.8 - Some operators (the ones kp6 uses?) definition
+0.1.1.8 - Some operators (the ones kp6 uses?)
 
-0.1.2.2 - int type (lowlevel implementation)
+0.1.1.9 - int type (lowlevel implementation)
 
-0.1.2.3 - "Identifier Name Constant" type and the definition
-          of the pool of constants.
+0.1.1.10 - bytes type (lowlevel byte buffer)
 
-0.1.2 - SMOP interpreter loop.
+0.1.1.11 - "Identifier Name Constant" type and the definition
+           of the pool of constants.
 
-0.1.2.3 - say (lowlevel implementation)
+0.1.1.12 - multi sub infix:<~~> ( IdentifierNameConstant, IdentifierNameConstant )
 
-0.1.2.4 - An equivalent to: say 'Hello World';
+0.1.1.13 - multi sub say ( bytes )
 
-0.1.2.5 - S1P language
+0.1.1.14 - An equivalent to: say 'Hello World';
+
+0.1.2 - S1P language
 
 Completing SMOP runtime
 ====================================
