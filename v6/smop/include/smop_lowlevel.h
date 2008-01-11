@@ -21,6 +21,11 @@ extern void smop_lowlevel_destroy();
 
 /* This function is the place from where every allocation should
  * happen.
+ *
+ * The data member on the basic structure is reserved for the lowlevel
+ * management. You should declare a binary-compatible structure for
+ * your objects that extends the basic SMOP__Object to have more
+ * information into your object.
  */
 extern SMOP__Object* smop_lowlevel_alloc(int size);
 
