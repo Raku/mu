@@ -676,6 +676,7 @@ $_.() for @dump_init_subs;
 # From S29 (mostly)
 class Str is also {
     # Cache a copy of ourself as an array of Codepoints and Graphemes
+    #XXX this is wrong
     has StrPos @.as_codes;
     our method to_codes(Str $string: --> List of StrPos) {
         return @.as_codes if defined @.as_codes;
@@ -689,9 +690,22 @@ class Str is also {
     }
     our multi method codes(Str $string: --> Int) is export { +$string.to_codes }
 
+    #XXX this is wrong
     has StrPos @.as_graphs;
     # XXX is this even remotely correct?
-    &STORE.wrap( { @.as_codes = undef; @.as_graphs = undef; callsame; } );
+    &STORE.wrap( method ($new) {
+        given $new {
+            when Str {
+                @.as_codes = $new.as_codes;
+                @.as_graphs = $new.as_graphs;
+            }
+            default {
+                @.as_codes = undef;
+                @.as_graphs = undef;
+            }
+        }
+        callsame;
+    } );
     # Grapheme Cluster Boundary Determination        UAX #29
     token isGCBCR :codes { \x{000D} }
     token isGCBLF :codes { \x{000A} }
@@ -726,6 +740,21 @@ class Str is also {
     }
     our multi method graphs(Str $string: --> Int) is export { +$string.to_graphs }
 
+    token :codes split_graph {
+        $<st>=[ <-isGrapheme_Extend>* ]
+        $<ex>=[ <isGrapheme_Extend>* ]
+    }
+    our multi method samebase (Str $string: Str $pattern --> Str) is export {
+        my Str $ret;
+        for ^$string.graphs -> my Int $n {
+            $string.graph_n($n) ~~ &split_graph;
+            $ret ~= $<st>;
+            $pattern.graph_n($n) ~~ &split_graph;
+            $ret ~= $<ex>;
+        }
+        return $ret;
+    }
+
     our multi method chars(Str $string: --> Int) is export {
         # XXX how does the "current unicode level" work?
         &graphs.callsame;
@@ -745,6 +774,9 @@ class Str is also {
         ...;
     }
     our multi method capitalize(Str $string: --> Str) is export {
+        ...;
+    }
+    our multi method samecase (Str $string: Str $pattern --> Str) is export {
         ...;
     }
 
@@ -799,7 +831,7 @@ class Str is also {
             my Str $c = $s.code_n($n);
             if $prev.ord ~~ 0x1100..0x1112 
                 and $c.ord ~~ 0x1161..0x1175 {
-                    $prev = ((($prev.ord - 0x1100) * 21 + ($c.ord - 0x1161)) * 28) + 0xAC00;
+                    $prev = (((($prev.ord - 0x1100) * 21 + ($c.ord - 0x1161)) * 28) + 0xAC00).chr;
                     $ret.code_n($ret.codes-1) = $prev;
                     next;
             }
@@ -819,7 +851,8 @@ class Str is also {
     sub compose_graph(Str $s --> Str) {
         return %composition{$s} // $s
             if $s.codes == 1;
-        return compose_hangul($s) if $s ~~ &isGCBHangulSyllable;
+        return compose_hangul($s)
+            if $s ~~ &isGCBHangulSyllable;
         my Str $ret = $s;
         startover:
         if exists %composition{$s.code_n(0)} {
@@ -827,7 +860,7 @@ class Str is also {
             goto startover;
         }
         for 1..$ret.codes -> my Int $n {
-            if $ret.code_n(0) ~ $ret.code_n($n) eq any %composition.keys {
+            if exists %composition{$ret.code_n(0) ~ $ret.code_n($n)} {
                 my Str $new = %composition{$ret.code_n(0) ~ $ret.code_n($n)};
                 for 1..$ret.codes -> my Int $m {
                     next if $n == $m;
@@ -870,9 +903,6 @@ class Str is also {
         return $ret;
     }
 
-    our multi method ord(Str $string: --> Int|List of Int) is export {
-        ...;
-    }
 
     our multi method bytes(Str $string: --> Int) is export {
         ...;
