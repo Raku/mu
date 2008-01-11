@@ -15,6 +15,7 @@ struct SMOP__ResponderInterface; typedef struct SMOP__ResponderInterface SMOP__R
  */
 struct SMOP__Object {
   SMOP__ResponderInterface* RI;
+  void* data;
 };
 
 /*
@@ -39,14 +40,17 @@ struct SMOP__Object {
  */
 struct SMOP__ResponderInterface {
   SMOP__ResponderInterface* RI;
+  void* data;
   SMOP__Object* (*MESSAGE)  (SMOP__Object* stack,
-                              SMOP__ResponderInterface* self,
-                              SMOP__Object* identifier,
-                              SMOP__Object* capture);
-  SMOP__Object* (*REFERENCE)(SMOP__ResponderInterface* self,
-                              SMOP__Object* object);
-  SMOP__Object* (*RELEASE)  (SMOP__ResponderInterface* self,
-                              SMOP__Object* object);
+                             SMOP__ResponderInterface* self,
+                             SMOP__Object* identifier,
+                             SMOP__Object* capture);
+  SMOP__Object* (*REFERENCE)(SMOP__Object* stack,
+                             SMOP__ResponderInterface* self,
+                             SMOP__Object* object);
+  SMOP__Object* (*RELEASE)  (SMOP__Object* stack,
+                             SMOP__ResponderInterface* self,
+                             SMOP__Object* object);
 }
 
 /* Every object in SMOP must be binary compatible with one of these
@@ -71,14 +75,14 @@ struct SMOP__ResponderInterface {
           identifier, capture \
       ))
 
-#define SMOP_REFERENCE(object) \
-      (((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):(object))->REFERENCE(  \
+#define SMOP_REFERENCE(stack, object) \
+      (((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):(object))->REFERENCE( (SMOP__Object*)stack, \
           ((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):(object)), \
           object \
       ))
 
-#define SMOP_RELEASE(object) \
-      (((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):(object))->RELEASE(  \
+#define SMOP_RELEASE(stack, object) \
+      (((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):(object))->RELEASE( (SMOP__Object*)stack, \
           ((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):(object)), \
           object \
       ))
