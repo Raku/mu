@@ -548,6 +548,10 @@ To get the number of elements in an array, use the C<.elems> method.  You can
 also ask for the total string length of an array's elements, in bytes,
 codepoints or graphemes, using these methods C<.bytes>, C<.codes> or C<.graphs>
 respectively on the array.  The same methods apply to strings as well.
+(Note that C<.bytes> is not guaranteed to be well-defined when the encoding
+is unknown.  Similarly, C<.codes> is not well-defined unless you know which
+canonicalization is in effect.  Hence, both methods allow an optional argument
+to specify the meaning exactly if it cannot be known from context.)
 
 There is no C<.length> method for either arrays or strings, because C<length>
 does not specify a unit.
