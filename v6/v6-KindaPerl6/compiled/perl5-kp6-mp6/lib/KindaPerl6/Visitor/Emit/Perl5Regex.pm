@@ -74,7 +74,7 @@ sub emit_perl5 {
                                                                 . (
                                                                 '$str = defined($str) ? $str : $_;'
                                                                     . (
-                                                                    'local $_ = ( ref($str) ? DISPATCH.new( $str, "Str" )->{_value} : $str ); '
+                                                                    'local $_ = ( ref($str) ? ::DISPATCH( $str, "Str" )->{_value} : $str ); '
                                                                         . (
                                                                         'pos($_) = (ref $pos) ? ( $pos->{_value} ) : ( 0 + pos($_) );'
                                                                             . (
@@ -259,8 +259,8 @@ sub emit_perl5 {
                                                     . (
                                                     ';} '
                                                         . (
-                                                        'if ( DISPATCH.new( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { '
-                                                            . ( '$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", DISPATCH.new( $GLOBAL::_REGEX_RETURN_, "FETCH" ) ]; ' . ( '}' . ' 1 }' ) )
+                                                        'if ( ::DISPATCH( $GLOBAL::Code_defined, "APPLY", $GLOBAL::_REGEX_RETURN_ )->{_value} ) { '
+                                                            . ( '$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", ::DISPATCH( $GLOBAL::_REGEX_RETURN_, "FETCH" ) ]; ' . ( '}' . ' 1 }' ) )
                                                         )
                                                     )
                                                 )
