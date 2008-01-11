@@ -1,19 +1,22 @@
-This is vroom the ViRtual Object Oriented Machine
+This is SMOP the:
+
+ * Simplistic Meta Object Programming
+ * Simple Matter Of Programming
 
 There follows the ROADMAP mixed with the changelog
 
-YAP6 has undergone a severe refactoring and is now called VROOM. A new
+YAP6 has undergone a severe refactoring and is now called SMOP. A new
 ROADMAP was planned, the old YAP6 changelog is in the end of this
 file.
 
 ROADMAP
 
-Stage 1 VROOM
+S1P - Read it "Swamp"
 =============================
 
-0.1.0 - Port YAP6__CORE__Value code to VROOM__Object code.
+0.1.0 - Port YAP6__CORE__Value code to SMOP__Object code.
 
-0.1.1 - VROOM STACK prototypes and lowlevel operators
+0.1.1 - SMOP STACK prototypes and lowlevel operators
 
 0.1.1.1 - Capture type (lowlevel implementation)
 
@@ -22,7 +25,7 @@ Stage 1 VROOM
 0.1.2.3 - "Method Name Constant" type and the definition
           of the pool of constants.
 
-0.1.2 - VROOM interpreter loop.
+0.1.2 - SMOP interpreter loop.
 
 0.1.2.1 - Code type (lowlevel implementation)
 
@@ -32,12 +35,12 @@ Stage 1 VROOM
 
 0.1.2.4 - An equivalent to: say 'Hello World';
 
-0.1.2.5 - VROOM Stage 1 language
+0.1.2.5 - S1P language
 
-Completing VROOM runtime
+Completing SMOP runtime
 ====================================
 
-0.1.3 - VROOM NATIVE prototypes and lowlevel operators
+0.1.3 - SMOP NATIVE prototypes and lowlevel operators
 
 0.1.4 - Undef builtin types.
 
@@ -47,25 +50,25 @@ Completing VROOM runtime
 
 0.1.7 - Lexical Scope.
 
-Perl 6 VROOM
+Perl 6 SMOP
 ================
 
 0.1.8 - AST types.
 
 0.2.0 - AST -> Stack runtime transformation (real interpreter)
 
-Perl 6 VROOM
+Perl 6 SMOP
 ======================
 
-0.2.1 - KP6 backend to VROOM
+0.2.1 - KP6 backend
 
-0.2.2 - KP6 can compile grammars to VROOM
+0.2.2 - KP6 can compile grammars to SMOP
 
-0.3.0 - KP6 grammar compiled to VROOM
+0.3.0 - KP6 grammar compiled
 
-0.4.0 - KP6 bootstrapped in VROOM
+0.4.0 - KP6 bootstrapped in SMOP
 
-1.0.0 - STD ported to VROOM
+1.0.0 - STD ported to SMOP
 
 Other Features
 ==============
