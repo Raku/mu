@@ -355,6 +355,24 @@ SMOP__Object* smop__stack__stack_next_capture(SMOP__Object* stack);
 extern SMOP__Object* SMOP__STACK__Stack_current;
 SMOP__Object* smop__stack__stack_current_capture(SMOP__Object* stack);
 
+/* SMOP__STACK__Stack_goto
+ *
+ * Sets the currently selected node.
+ *
+ * Note that, inside a interpreter loop, this will change the current
+ * node, which means that the node you're passing will not be
+ * evaluated. Use it to pass information to that frame (like the
+ * return point in case of continuation-passing-style).
+ *
+ * Signature:
+ *     (SMOP__STACK__Stack $stack: SMOP__STACK__Node $node)
+ *
+ * Lowlevel C call:
+ *     smop__stack__stack_goto_capture(SMOP__Object* stack, SMOP__Object* node);
+ */
+extern SMOP__Object* SMOP__STACK__Stack_goto;
+SMOP__Object* smop__stack__stack_goto_capture(SMOP__Object* stack, SMOP__Object* node);
+
 /* SMOP__STACK__Stack_eval
  *
  * Evaluate the selected node, and only the selected node, storing the
