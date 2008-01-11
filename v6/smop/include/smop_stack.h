@@ -461,7 +461,13 @@ SMOP__Object* smop__stack__node_new_capture(SMOP_Object* responder,
 /* All the Node accessor methods have the same simple signature,
  * which is:
  *
- *  ($node: $newvalue?)
+ *  ($node: $newvalue? )
+ *
+ * Usually the accessor methods would have an "is rw" attribute,
+ * instead of optionally receiving the new value. This is a special
+ * case, and is made that way to simplify the usage of this methods in
+ * the stack level, once that "is rw" would have to imply scalar
+ * context.
  *
  * And the same lowlevel C call (may receive NULL in newvalue):
  *

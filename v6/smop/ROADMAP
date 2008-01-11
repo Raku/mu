@@ -20,16 +20,26 @@ S1P - Read it "Swamp"
 
 0.1.1.1 - Capture type (lowlevel implementation)
 
+0.1.1.2 - Signature type (lowlevel implementation)
+
+0.1.1.3 - Code type (lowlevel implementation)
+
+0.1.1.4 - Sub type (lowlevel implementation)
+
+0.1.1.5 - Multi Sub type (definition)
+
+0.1.1.6 - multi sub infix:<~~> ( Signature, Capture )
+
+0.1.1.7 - Multi Sub (lowlevel implementation)
+
+0.1.1.8 - Some operators (the ones kp6 uses?) definition
+
 0.1.2.2 - int type (lowlevel implementation)
 
-0.1.2.3 - "Method Name Constant" type and the definition
+0.1.2.3 - "Identifier Name Constant" type and the definition
           of the pool of constants.
 
 0.1.2 - SMOP interpreter loop.
-
-0.1.2.1 - Code type (lowlevel implementation)
-
-0.1.2.2 - Sub type (lowlevel implementation)
 
 0.1.2.3 - say (lowlevel implementation)
 
@@ -48,7 +58,7 @@ Completing SMOP runtime
 
 0.1.6 - Mutable builtin types.
 
-0.1.7 - Lexical Scope.
+0.1.7 - Lexical Scope / Namespaces.
 
 Perl 6 SMOP
 ================
