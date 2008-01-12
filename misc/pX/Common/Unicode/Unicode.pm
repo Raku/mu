@@ -737,7 +737,7 @@ class Grapheme {
             @old = @new;
             @new = ();
             for @old -> my Int $o {
-                @new.push: (%compat_decomp{$o.chr} // %canon_decomp{$o.chr} // hangul_decomp($o.chr))».ord;
+                @new.push: (%compat_decomp{$o.chr} // %canon_decomp{$o.chr} // hangul_decomp($o.chr)).as_codes;
             }
         }
         return @new;
@@ -825,8 +825,12 @@ class Str is also {
         if defined @!as_codes {
             [~] @!as_codes».chr ~~ token :codes{
                 [ (<grapheme_cluster>)
-                    { my Grapheme $g.=new: $0[*-1];
-                      @!as_graphs.push: $g.id;
+                    { if $0[*-1].codes > 1 {
+                          my Grapheme $g.=new: $0[*-1];
+                          @!as_graphs.push: $g.id;
+                      } else {
+                          @!as_graphs.push: $0[*-1].ord;
+                      }
                     }
                 ]*
             };
@@ -843,7 +847,7 @@ class Str is also {
                     @!as_codes.push: $o;
                     next;
                 }
-                my Grapheme $g := @graph_ids[$o];
+                my Grapheme $g := @graph_ids[$o - ($unicode_max+1)];
                 @!as_codes.push: @$g.norm_form($.norm);
             }
         }
@@ -931,6 +935,7 @@ class Str is also {
         $.norm = 'nfc'  if  $canonical and  $recompose;
         $.norm = 'nfkd' if !$canonical and !$recompose;
         $.norm = 'nfkc' if !$canonical and  $recompose;
+        return $string;
     }
     our multi method nfd(Str $string: --> Str) is export {
         $string.norm = 'nfd';
