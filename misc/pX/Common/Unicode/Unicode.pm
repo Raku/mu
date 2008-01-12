@@ -673,39 +673,65 @@ require ucd_basic_dump;
 # run all the @dump_init_subs here
 $_.() for @dump_init_subs;
 
+my Grapheme @graph_ids;
+my Int %seen_graphs;
+class Grapheme {
+    # a unique number > $unicode_max
+    has Int $.id;
+    has Buf32 @.codes;
+    submethod BUILD(Grapheme $g: Str $s) {
+        $s.=nfd;
+        if exists %seen_graphs{$s} {
+            my Grapheme $samegraph := @graph_ids[%seen_graphs{$s}];
+            $.id = $samegraph.id;
+            @.codes = $samegraph.codes;
+            return;
+        }
+        @.codes = $s.as_codes;
+        $.id = +@graph_ids + $unicode_max+1;
+        @graph_ids[$.id] = $g;
+        %seen_graphs{$s} = $.id;
+    }
+}
+
 # From S29 (mostly)
 class Str is also {
-    # Cache a copy of ourself as an array of Codepoints and Graphemes
-    #XXX this is wrong
-    has StrPos @.as_codes;
-    our method to_codes(Str $string: --> List of StrPos) {
-        return @.as_codes if defined @.as_codes;
-        $string ~~ token :codes{ [ (.) { @.as_codes.push: $0[*-1].from } ]* };
-        return @.as_codes;
+    has Buf32 @!as_graphs;
+    # normalization form can be
+    # nfd, nfc, nfkd, nfkc
+    # 'as-is' (for unnormalized codepoint-level strings)
+    has Str $.norm is rw;
+    has Buf32 @!as_codes;
+    our method as_graphs(--> Buf32) is rw is export {
+        return @!as_graphs if defined @!as_graphs;
+        if defined @!as_codes {
+            [~] @!as_codes».chr ~~ token :codes{
+                [ (<grapheme_cluster>)
+                    { @!as_graphs.push: $0[*-1].from }
+                ]*
+            };
+            return @!as_graphs;
+        }
+        return undef;
     }
-    # access the string as an array of codepoints
-    our method code_n(Int $n --> Str) is rw {
-        my StrPos @c := $.to_codes();
-        return $.substr(@c[$n], @c[$n+1]);
-    }
-    our multi method codes(Str $string: --> Int) is export { +$string.to_codes }
-
-    #XXX this is wrong
-    has StrPos @.as_graphs;
-    # XXX is this even remotely correct?
-    &STORE.wrap( method ($new) {
-        given $new {
-            when Str {
-                @.as_codes = $new.as_codes;
-                @.as_graphs = $new.as_graphs;
-            }
-            default {
-                @.as_codes = undef;
-                @.as_graphs = undef;
+    our multi method graphs(Str $string: --> Int) is export { +$string.as_graphs }
+    our method as_codes(--> Buf32) is rw is export {
+        return @!as_codes if defined @!as_codes;
+        if defined @!as_graphs and defined $.norm and $.norm ne 'as-is' {
+            for @!as_graphs -> Int $o {
+                if $o <= $unicode_max {
+                    @!as_codes.push: $o;
+                    next;
+                }
+                my Grapheme $g := @graph_ids[$o];
+                #XXX make sure normalize supports this
+                @!as_codes.push: @$g.normalize(:form($.norm)).as_codes;
             }
         }
-        callsame;
-    } );
+        return undef;
+    }
+    our multi method codes(Str $string: --> Int) is export { +$string.as_codes }
+
     # Grapheme Cluster Boundary Determination        UAX #29
     token isGCBCR :codes { \x{000D} }
     token isGCBLF :codes { \x{000A} }
@@ -728,17 +754,6 @@ class Str is also {
         | <-isGCBCR-isGCBLF-isGCBControl> <isGrapheme_Extend>*
         | <isGrapheme_Extend>+
     }
-    our method to_graphs(Str $string: --> List of StrPos) {
-        return @.as_graphs if defined @.as_graphs;
-        $string ~~ token :codes{ [ (<grapheme_cluster>) { @.as_graphs.push: $0[*-1].from } ]* };
-        return @.as_graphs;
-    }
-    # access the string as an array of graphemes
-    our method graph_n(Int $n --> Str) is rw {
-        my StrPos @g := $.to_graphs();
-        return $.substr(@g[$n], @g[$n+1]);
-    }
-    our multi method graphs(Str $string: --> Int) is export { +$string.to_graphs }
 
     token :codes split_graph {
         $<st>=[ <-isGrapheme_Extend>* ]
@@ -747,9 +762,9 @@ class Str is also {
     our multi method samebase (Str $string: Str $pattern --> Str) is export {
         my Str $ret;
         for ^$string.graphs -> my Int $n {
-            $string.graph_n($n) ~~ &split_graph;
+            $string.as_graphs[$n].chr ~~ &split_graph;
             $ret ~= $<st>;
-            $pattern.graph_n($n) ~~ &split_graph;
+            $pattern.as_graphs[$n].chr ~~ &split_graph;
             $ret ~= $<ex>;
         }
         return $ret;
@@ -804,6 +819,9 @@ class Str is also {
         $ret ~= $t.chr if $t != 0x11A7;
         return $ret;
     }
+    #XXX this all needs to be changed
+    #    should each Grapheme object know its nfd etc.?
+    #    eagerly or lazily?
     our multi method normalize(Str $string: Bool :$canonical = Bool::True, Bool :$recompose = Bool::False --> Str) is export {
         return $string.nfd  if  $canonical and !$recompose;
         return $string.nfc  if  $canonical and  $recompose;
@@ -824,22 +842,36 @@ class Str is also {
         }
         return $new.reorder;
     }
+    our multi method nfkd(Str $string: --> Str) is export {
+        my Str $old;
+        my Str $new := $string;
+        while $old ne $new {
+            $old := $new;
+            $new = '';
+            $old ~~ token :codes {
+                [
+                    (.) { $new ~= %compat_decomp{$0[*-1]} // %canon_decomp{$0[*-1]} // hangul_decomp($0[*-1]) }
+                ]*
+            };
+        }
+        return $new.reorder;
+    }
     sub compose_hangul(Str $s --> Str) {
-        my Str $ret = $s.code_n(0);
+        my Str $ret = $s.as_codes[0].chr;
         my Str $prev = $ret;
         for 1..$s.codes -> my Int $n {
-            my Str $c = $s.code_n($n);
-            if $prev.ord ~~ 0x1100..0x1112 
-                and $c.ord ~~ 0x1161..0x1175 {
-                    $prev = (((($prev.ord - 0x1100) * 21 + ($c.ord - 0x1161)) * 28) + 0xAC00).chr;
-                    $ret.code_n($ret.codes-1) = $prev;
+            my Str $c = $s.as_codes[$n];
+            if $prev ~~ 0x1100..0x1112 
+                and $c ~~ 0x1161..0x1175 {
+                    $prev = ((($prev - 0x1100) * 21 + ($c - 0x1161)) * 28) + 0xAC00;
+                    $ret.as_codes[$ret.codes-1] = $prev;
                     next;
             }
-            if $prev.ord ~~ 0xAC00..0xD7A3
-                and ($prev.ord - 0xAC00) % 28 == 0
-                and $c.ord ~~ 0x11A7..0x11C2 {
-                    $prev = ($prev.ord + $c.ord - 0x11A7).chr;
-                    $ret.code_n($ret.codes-1) = $prev;
+            if $prev ~~ 0xAC00..0xD7A3
+                and ($prev - 0xAC00) % 28 == 0
+                and $c ~~ 0x11A7..0x11C2 {
+                    $prev = $prev + $c - 0x11A7;
+                    $ret.as_codes[$ret.codes-1] = $prev;
                     next;
                 }
             }
@@ -855,16 +887,19 @@ class Str is also {
             if $s ~~ &isGCBHangulSyllable;
         my Str $ret = $s;
         startover:
-        if exists %composition{$s.code_n(0)} {
-            $ret = %composition{$s.code_n(0)} ~ $s.substr($s.as_codes[1]);
+        my Str $one = $s.as_codes[0].chr;
+        if exists %composition{$one} {
+            $ret = %composition{$one};
+            $ret.as_codes.push: $s.as_codes[1..*];
             goto startover;
         }
         for 1..$ret.codes -> my Int $n {
-            if exists %composition{$ret.code_n(0) ~ $ret.code_n($n)} {
-                my Str $new = %composition{$ret.code_n(0) ~ $ret.code_n($n)};
+            my Str $two = $ret.as_codes[0].chr ~ $ret.as_codes[$n].chr;
+            if exists %composition{$two} {
+                my Str $new = %composition{$two};
                 for 1..$ret.codes -> my Int $m {
                     next if $n == $m;
-                    $new ~= $ret.code_n($m);
+                    $new ~= $ret.as_codes[$m].chr;
                 }
                 $ret = $new;
                 goto startover;
@@ -872,24 +907,10 @@ class Str is also {
         }
         return $ret;
     }
-    our multi method nfkd(Str $string: --> Str) is export {
-        my Str $old;
-        my Str $new := $string;
-        while $old ne $new {
-            $old := $new;
-            $new = '';
-            $old ~~ token :codes {
-                [
-                    (.) { $new ~= %compat_decomp{$0[*-1]} // %canon_decomp{$0[*-1]} // hangul_decomp($0[*-1]) }
-                ]*
-            };
-        }
-        return $new.reorder;
-    }
     our multi method nfc(Str $string: --> Str) is export {
         my Str $ret;
         for ^$string.nfd.graphs -> my Int $n {
-            $ret ~= compose_graph($string.graph_n($n));
+            $ret ~= compose_graph($string.as_graphs[$n].chr);
 
         }
         return $ret;
@@ -897,7 +918,7 @@ class Str is also {
     our multi method nfkc(Str $string: --> Str) is export {
         my Str $ret;
         for ^$string.nfkd.graphs -> my Int $n {
-            $ret ~= compose_graph($string.graph_n($n));
+            $ret ~= compose_graph($string.as_graphs[$n].chr);
 
         }
         return $ret;
