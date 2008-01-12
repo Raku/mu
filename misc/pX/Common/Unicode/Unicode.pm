@@ -678,32 +678,148 @@ my Int %seen_graphs;
 class Grapheme {
     # a unique number > $unicode_max
     has Int $.id;
-    has Buf32 @.codes;
+    # always has @!as_nfd
+    has @.as_nfd is Buf32;
+    # these are generated lazily
+    has @!as_nfc is Buf32;
+    has @!as_nfkd is Buf32;
+    has @!as_nfkc is Buf32;
+    method as_nfc(--> Buf32) {
+        return @!as_nfc //= $.to_nfc;
+    }
+    method as_nfkc(--> Buf32) {
+        return @!as_nfkc //= $.to_nfkc;
+    }
+    method as_nfkd(--> Buf32) {
+        return @!as_nfkd //= $.to_nfkd;
+    }
     submethod BUILD(Grapheme $g: Str $s) {
-        $s.=nfd;
+        $s = nfd_g($s);
         if exists %seen_graphs{$s} {
-            my Grapheme $samegraph := @graph_ids[%seen_graphs{$s}];
-            $.id = $samegraph.id;
-            @.codes = $samegraph.codes;
+            $g := @graph_ids[%seen_graphs{$s}];
             return;
         }
-        @.codes = $s.as_codes;
+        @.as_nfd = $s.as_codes;
         #XXX will this need some kind of STM protection?
         my Int $graph_num = +@graph_ids;
         $.id = $graph_num + $unicode_max+1;
         @graph_ids[$graph_num] = $g;
         %seen_graphs{$s} = $graph_num;
     }
+    sub hangul_decomp(Str $s --> Str) {
+        my Int $o = $s.ord;
+        # just returns $s for most $s
+        return $s if $o !~~ 0xAC00..0xD7A3;
+        my Str $ret;
+        $o -= 0xAC00;
+        $ret ~= (($o / 0x2BA4) + 0x1100).chr;
+        $ret ~= (((($o % 0x2BA4) / 28 ) + 0x1161 ).chr;
+        my Int $t = ($o % 28 ) + 0x11A7;
+        $ret ~= $t.chr if $t != 0x11A7;
+        return $ret;
+    }
+    sub nfd_g(Str $s --> Str) {
+        my Str $old;
+        my Str $new := $s;
+        while $old ne $new {
+            $old = $new;
+            $new = '';
+            for $old.as_codes -> my Int $o {
+                $new ~= %canon_decomp{$o.chr} // hangul_decomp($o.chr);
+            }
+        }
+        return $new.reorder;
+    }
+    method to_nfkd(--> Buf32) {
+        my @old is Buf32;
+        my @new is Buf32 = @.as_nfd;
+        while @old !eqv @new {
+            @old = @new;
+            @new = ();
+            for @old -> my Int $o {
+                @new.push: (%compat_decomp{$o.chr} // %canon_decomp{$o.chr} // hangul_decomp($o.chr))».ord;
+            }
+        }
+        return @new;
+    }
+    sub compose_hangul(Str $s --> Str) {
+        my Str $ret = $s.as_codes[0].chr;
+        my Str $prev = $ret;
+        for 1..$s.codes -> my Int $n {
+            my Str $c = $s.as_codes[$n];
+            if $prev ~~ 0x1100..0x1112 
+                and $c ~~ 0x1161..0x1175 {
+                    $prev = ((($prev - 0x1100) * 21 + ($c - 0x1161)) * 28) + 0xAC00;
+                    $ret.as_codes[$ret.codes-1] = $prev;
+                    next;
+            }
+            if $prev ~~ 0xAC00..0xD7A3
+                and ($prev - 0xAC00) % 28 == 0
+                and $c ~~ 0x11A7..0x11C2 {
+                    $prev = $prev + $c - 0x11A7;
+                    $ret.as_codes[$ret.codes-1] = $prev;
+                    next;
+                }
+            }
+            $prev = $c;
+            $ret ~= $c;
+        }
+        return $ret;
+    }
+    sub compose_graph(Str $s --> Str) {
+        return %composition{$s} // $s
+            if $s.codes == 1;
+        return compose_hangul($s)
+            if $s ~~ &isGCBHangulSyllable;
+        my Str $ret = $s;
+        startover:
+        my Str $one = $s.as_codes[0].chr;
+        if exists %composition{$one} {
+            $ret = %composition{$one};
+            $ret.as_codes.push: $s.as_codes[1..*];
+            goto startover;
+        }
+        for 1..$ret.codes -> my Int $n {
+            my Str $two = $ret.as_codes[0].chr ~ $ret.as_codes[$n].chr;
+            if exists %composition{$two} {
+                my Str $new = %composition{$two};
+                for 1..$ret.codes -> my Int $m {
+                    next if $n == $m;
+                    $new ~= $ret.as_codes[$m].chr;
+                }
+                $ret = $new;
+                goto startover;
+            }
+        }
+        return $ret;
+    }
+    method to_nfc(--> Buf32) {
+        my Str $s = [~] @.as_nfd».chr;
+        return compose_graph($s).as_codes;
+    }
+    method to_nfkd(--> Buf32) {
+        my Str $s = [~] @.as_nfkd».chr;
+        return compose_graph($s).as_codes;
+    }
+    method norm_form(Str $form --> Buf32) {
+        given $form.lc {
+            when 'nfd'  { return @.as_nfd  }
+            when 'nfc'  { return @.as_nfc  }
+            when 'nfkd' { return @.as_nfkd }
+            when 'nfkc' { return @.as_nfkc }
+        }
+        die "Unknown normalization form '$form'\n";
+    }
 }
 
 # From S29 (mostly)
 class Str is also {
-    has Buf32 @!as_graphs;
+    has @!as_graphs is Buf32;
     # normalization form can be
     # nfd, nfc, nfkd, nfkc
     # 'as-is' (for unnormalized codepoint-level strings)
     has Str $.norm is rw;
-    has Buf32 @!as_codes;
+    has @!as_codes is Buf32;
     our method as_graphs(--> Buf32) is rw is export {
         return @!as_graphs if defined @!as_graphs;
         if defined @!as_codes {
@@ -728,8 +844,7 @@ class Str is also {
                     next;
                 }
                 my Grapheme $g := @graph_ids[$o];
-                #XXX make sure normalize supports this
-                @!as_codes.push: @$g.normalize(:form($.norm)).as_codes;
+                @!as_codes.push: @$g.norm_form($.norm);
             }
         }
         return undef;
@@ -811,121 +926,27 @@ class Str is also {
         };
         return $ret;
     }
-    sub hangul_decomp(Str $s --> Str) {
-        my Int $o = $s.ord;
-        # just returns $s for most $s
-        return $s if $o !~~ 0xAC00..0xD7A3;
-        my Str $ret;
-        $o -= 0xAC00;
-        $ret ~= (($o / 0x2BA4) + 0x1100).chr;
-        $ret ~= (((($o % 0x2BA4) / 28 ) + 0x1161 ).chr;
-        my Int $t = ($o % 28 ) + 0x11A7;
-        $ret ~= $t.chr if $t != 0x11A7;
-        return $ret;
-    }
-    #XXX this all needs to be changed
-    #    should each Grapheme object know its nfd etc.?
-    #    eagerly or lazily?
     our multi method normalize(Str $string: Bool :$canonical = Bool::True, Bool :$recompose = Bool::False --> Str) is export {
-        return $string.nfd  if  $canonical and !$recompose;
-        return $string.nfc  if  $canonical and  $recompose;
-        return $string.nfkd if !$canonical and !$recompose;
-        return $string.nfkc if !$canonical and  $recompose;
+        $.norm = 'nfd'  if  $canonical and !$recompose;
+        $.norm = 'nfc'  if  $canonical and  $recompose;
+        $.norm = 'nfkd' if !$canonical and !$recompose;
+        $.norm = 'nfkc' if !$canonical and  $recompose;
     }
     our multi method nfd(Str $string: --> Str) is export {
-        my Str $old;
-        my Str $new := $string;
-        while $old ne $new {
-            $old := $new;
-            $new = '';
-            $old ~~ token :codes {
-                [
-                    (.) { $new ~= %canon_decomp{$0[*-1]} // hangul_decomp($0[*-1]) }
-                ]*
-            };
-        }
-        return $new.reorder;
+        $string.norm = 'nfd';
+        return $string;
     }
     our multi method nfkd(Str $string: --> Str) is export {
-        my Str $old;
-        my Str $new := $string;
-        while $old ne $new {
-            $old := $new;
-            $new = '';
-            $old ~~ token :codes {
-                [
-                    (.) { $new ~= %compat_decomp{$0[*-1]} // %canon_decomp{$0[*-1]} // hangul_decomp($0[*-1]) }
-                ]*
-            };
-        }
-        return $new.reorder;
-    }
-    sub compose_hangul(Str $s --> Str) {
-        my Str $ret = $s.as_codes[0].chr;
-        my Str $prev = $ret;
-        for 1..$s.codes -> my Int $n {
-            my Str $c = $s.as_codes[$n];
-            if $prev ~~ 0x1100..0x1112 
-                and $c ~~ 0x1161..0x1175 {
-                    $prev = ((($prev - 0x1100) * 21 + ($c - 0x1161)) * 28) + 0xAC00;
-                    $ret.as_codes[$ret.codes-1] = $prev;
-                    next;
-            }
-            if $prev ~~ 0xAC00..0xD7A3
-                and ($prev - 0xAC00) % 28 == 0
-                and $c ~~ 0x11A7..0x11C2 {
-                    $prev = $prev + $c - 0x11A7;
-                    $ret.as_codes[$ret.codes-1] = $prev;
-                    next;
-                }
-            }
-            $prev = $c;
-            $ret ~= $c;
-        }
-        return $ret;
-    }
-    sub compose_graph(Str $s --> Str) {
-        return %composition{$s} // $s
-            if $s.codes == 1;
-        return compose_hangul($s)
-            if $s ~~ &isGCBHangulSyllable;
-        my Str $ret = $s;
-        startover:
-        my Str $one = $s.as_codes[0].chr;
-        if exists %composition{$one} {
-            $ret = %composition{$one};
-            $ret.as_codes.push: $s.as_codes[1..*];
-            goto startover;
-        }
-        for 1..$ret.codes -> my Int $n {
-            my Str $two = $ret.as_codes[0].chr ~ $ret.as_codes[$n].chr;
-            if exists %composition{$two} {
-                my Str $new = %composition{$two};
-                for 1..$ret.codes -> my Int $m {
-                    next if $n == $m;
-                    $new ~= $ret.as_codes[$m].chr;
-                }
-                $ret = $new;
-                goto startover;
-            }
-        }
-        return $ret;
+        $string.norm = 'nfkd';
+        return $string;
     }
     our multi method nfc(Str $string: --> Str) is export {
-        my Str $ret;
-        for ^$string.nfd.graphs -> my Int $n {
-            $ret ~= compose_graph($string.as_graphs[$n].chr);
-
-        }
-        return $ret;
+        $string.norm = 'nfc';
+        return $string;
     }
     our multi method nfkc(Str $string: --> Str) is export {
-        my Str $ret;
-        for ^$string.nfkd.graphs -> my Int $n {
-            $ret ~= compose_graph($string.as_graphs[$n].chr);
-
-        }
-        return $ret;
+        $string.norm = 'nfkc';
+        return $string;
     }
 
 
