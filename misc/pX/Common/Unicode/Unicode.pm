@@ -688,9 +688,11 @@ class Grapheme {
             return;
         }
         @.codes = $s.as_codes;
-        $.id = +@graph_ids + $unicode_max+1;
-        @graph_ids[$.id] = $g;
-        %seen_graphs{$s} = $.id;
+        #XXX will this need some kind of STM protection?
+        my Int $graph_num = +@graph_ids;
+        $.id = $graph_num + $unicode_max+1;
+        @graph_ids[$graph_num] = $g;
+        %seen_graphs{$s} = $graph_num;
     }
 }
 
@@ -707,7 +709,9 @@ class Str is also {
         if defined @!as_codes {
             [~] @!as_codes».chr ~~ token :codes{
                 [ (<grapheme_cluster>)
-                    { @!as_graphs.push: $0[*-1].from }
+                    { my Grapheme $g.=new: $0[*-1];
+                      @!as_graphs.push: $g.id;
+                    }
                 ]*
             };
             return @!as_graphs;
