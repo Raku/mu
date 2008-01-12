@@ -801,15 +801,6 @@ class Grapheme {
         my Str $s = [~] @.as_nfkd».chr;
         return compose_graph($s).as_codes;
     }
-    method norm_form(Str $form --> Buf32) {
-        given $form.lc {
-            when 'nfd'  { return @.as_nfd  }
-            when 'nfc'  { return @.as_nfc  }
-            when 'nfkd' { return @.as_nfkd }
-            when 'nfkc' { return @.as_nfkc }
-        }
-        die "Unknown normalization form '$form'\n";
-    }
 }
 
 # From S29 (mostly)
@@ -848,7 +839,7 @@ class Str is also {
                     next;
                 }
                 my Grapheme $g := @graph_ids[$o - ($unicode_max+1)];
-                @!as_codes.push: @$g.norm_form($.norm);
+                @!as_codes.push: @$g.$.norm;
             }
         }
         return undef;
@@ -931,26 +922,26 @@ class Str is also {
         return $ret;
     }
     our multi method normalize(Str $string: Bool :$canonical = Bool::True, Bool :$recompose = Bool::False --> Str) is export {
-        $.norm = 'nfd'  if  $canonical and !$recompose;
-        $.norm = 'nfc'  if  $canonical and  $recompose;
-        $.norm = 'nfkd' if !$canonical and !$recompose;
-        $.norm = 'nfkc' if !$canonical and  $recompose;
+        $.norm = 'as_nfd'  if  $canonical and !$recompose;
+        $.norm = 'as_nfc'  if  $canonical and  $recompose;
+        $.norm = 'as_nfkd' if !$canonical and !$recompose;
+        $.norm = 'as_nfkc' if !$canonical and  $recompose;
         return $string;
     }
     our multi method nfd(Str $string: --> Str) is export {
-        $string.norm = 'nfd';
+        $string.norm = 'as_nfd';
         return $string;
     }
     our multi method nfkd(Str $string: --> Str) is export {
-        $string.norm = 'nfkd';
+        $string.norm = 'as_nfkd';
         return $string;
     }
     our multi method nfc(Str $string: --> Str) is export {
-        $string.norm = 'nfc';
+        $string.norm = 'as_nfc';
         return $string;
     }
     our multi method nfkc(Str $string: --> Str) is export {
-        $string.norm = 'nfkc';
+        $string.norm = 'as_nfkc';
         return $string;
     }
 
