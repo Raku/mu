@@ -115,6 +115,8 @@ token term {
     | do <.opt_ws> <block1>
         # block1 is defined in the Grammar::Control module
         { make Do.new( 'block' => $$<block1> ) }
+    | '::' <full_ident>
+        { make Proto.new('name' => $$<full_ident>) }
     | use <.ws> <full_ident> <use_from_perl5> [ - <ident> | '' ]
         { make Use.new( 'mod' => $$<full_ident>,'perl5' => $$<use_from_perl5> ) }
     | <val>      { make $$<val> }     # 'value'

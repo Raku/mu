@@ -6,7 +6,7 @@ class Main {
 
     say "1..1";
 
-    my $x = ::X();
+    my $x = ::X;
     if  $x.WHAT ne "X"  {
         print "not " 
     }
