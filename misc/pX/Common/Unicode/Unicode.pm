@@ -673,46 +673,48 @@ require ucd_basic_dump;
 # run all the @dump_init_subs here
 $_.() for @dump_init_subs;
 
+class UBuf is Buf of int32 { }
 my Grapheme @graph_ids;
 my Int %seen_graphs;
 class Grapheme {
     # a unique number > $unicode_max
     has Int $.id;
     # always has @!as_nfd
-    has @.as_nfd is Buf32;
+    has @.as_nfd is UBuf;
     # these are generated lazily
-    has @!as_nfc is Buf32;
-    has @!as_nfkd is Buf32;
-    has @!as_nfkc is Buf32;
-    method as_nfc(--> Buf32) {
+    has @!as_nfc is UBuf;
+    has @!as_nfkd is UBuf;
+    has @!as_nfkc is UBuf;
+    method as_nfc(--> UBuf) {
         return @!as_nfc //= $.to_nfc;
     }
-    method as_nfkc(--> Buf32) {
+    method as_nfkc(--> UBuf) {
         return @!as_nfkc //= $.to_nfkc;
     }
-    method as_nfkd(--> Buf32) {
+    method as_nfkd(--> UBuf) {
         return @!as_nfkd //= $.to_nfkd;
     }
     submethod BUILD(Grapheme $g: Str $s) {
-        $s = nfd_g($s);
-        if $s.codes == 1 {
-            $.id = $s.ord;
-            @.as_nfd = $.id;
+        my @b is UBuf = nfd_g($s.as_codes);
+        if +@b == 1 {
+            $.id = @b[0];
+            @.as_nfd = @b;
             return;
         }
         if exists %seen_graphs{$s} {
             $g := @graph_ids[%seen_graphs{$s}];
             return;
         }
-        @.as_nfd = $s.as_codes;
+        @.as_nfd = @b;
         #XXX will this need some kind of STM protection?
         my Int $graph_num = +@graph_ids;
         $.id = $graph_num + $unicode_max+1;
+        die 'Too many unique graphemes' if $.id >= 2 ** 32;
         @graph_ids[$graph_num] = $g;
         %seen_graphs{$s} = $graph_num;
     }
     # Normalization Algorithm                        UAX #15
-    sub reorder(@b is Buf32 --> Buf32) {
+    sub reorder(@b is UBuf --> UBuf) {
         my Str $ret;
         my Str $string = [~] @b».chr;
         $string ~~ token :codes {
@@ -736,9 +738,9 @@ class Grapheme {
         $ret ~= $t.chr if $t != 0x11A7;
         return $ret;
     }
-    sub nfd_g(@b is Buf32 --> Buf32) {
-        my @old is Buf32;
-        my @new is Buf32 = @b;
+    sub nfd_g(@b is UBuf --> UBuf) {
+        my @old is UBuf;
+        my @new is UBuf = @b;
         while @old !eqv @new {
             @old = @new;
             @new = ();
@@ -748,9 +750,9 @@ class Grapheme {
         }
         return reorder @new;
     }
-    method to_nfkd(--> Buf32) {
-        my @old is Buf32;
-        my @new is Buf32 = @.as_nfd;
+    method to_nfkd(--> UBuf) {
+        my @old is UBuf;
+        my @new is UBuf = @.as_nfd;
         while @old !eqv @new {
             @old = @new;
             @new = ();
@@ -811,11 +813,11 @@ class Grapheme {
         }
         return $ret;
     }
-    method to_nfc(--> Buf32) {
+    method to_nfc(--> UBuf) {
         my Str $s = [~] @.as_nfd».chr;
         return compose_graph($s).as_codes;
     }
-    method to_nfkd(--> Buf32) {
+    method to_nfkd(--> UBuf) {
         my Str $s = [~] @.as_nfkd».chr;
         return compose_graph($s).as_codes;
     }
@@ -823,13 +825,13 @@ class Grapheme {
 
 # From S29 (mostly)
 class Str is also {
-    has @!as_graphs is Buf32;
+    has @!as_graphs is UBuf;
     # normalization form can be
     # nfd, nfc, nfkd, nfkc
     # 'as-is' (for unnormalized codepoint-level strings)
     has Str $.norm is rw;
-    has @!as_codes is Buf32;
-    our method as_graphs(--> Buf32) is rw is export {
+    has @!as_codes is UBuf;
+    our method as_graphs(--> UBuf) is rw is export {
         return @!as_graphs if defined @!as_graphs;
         if defined @!as_codes {
             [~] @!as_codes».chr ~~ token :codes{
@@ -845,7 +847,7 @@ class Str is also {
         return undef;
     }
     our multi method graphs(Str $string: --> Int) is export { +$string.as_graphs }
-    our method as_codes(--> Buf32) is rw is export {
+    our method as_codes(--> UBuf) is rw is export {
         return @!as_codes if defined @!as_codes;
         if defined @!as_graphs and defined $.norm and $.norm ne 'as-is' {
             for @!as_graphs -> Int $o {
