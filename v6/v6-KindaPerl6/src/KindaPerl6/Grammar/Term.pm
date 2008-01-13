@@ -4,6 +4,28 @@ use v6-alpha;
 grammar KindaPerl6::Grammar {
 
 token term {
+    |   <full_ident> <.dot> <hyper_op> <ident>
+                [ \( <.opt_ws> <exp_parameter_list> <.opt_ws> \)
+                    # { say 'found parameter list: ', $<exp_parameter_list>.perl }
+                | \: <.ws> <exp_parameter_list> <.opt_ws>
+                |
+                    {
+                        make Call.new(
+                            'invocant'  => Proto.new( 'name' => ~$<full_ident> ),
+                            'method'    => $$<ident>,
+                            'arguments' => undef,
+                            'hyper'     => $$<hyper_op>,
+                        )
+                    }
+                ]
+                {
+                    make Call.new(
+                        'invocant'  => Proto.new( 'name' => ~$<full_ident> ),
+                        'method'    => $$<ident>,
+                        'arguments' => $$<exp_parameter_list>,
+                        'hyper'     => $$<hyper_op>,
+                    )
+                }
     | '...'
         { make Apply.new(
             'code'      => Var.new( 'sigil' => '&', 'twigil' => '', 'name' => 'die', namespace => [ ] ),
