@@ -10,8 +10,11 @@ This visitor desugars OO into Object Meta Model calls.
 class KindaPerl6::Visitor::MetaClass {
 
     method visit ( $node, $node_name ) {
-        if    ( $node_name eq 'CompUnit' )
+        if    ( $node_name eq 'CompUnit')
         {
+            if ($node.unit_type eq 'module') {
+                return;
+            }
             my $module := [ ];
 
             # calls GLOBAL::import
@@ -22,7 +25,7 @@ class KindaPerl6::Visitor::MetaClass {
             #    ],
             #);
 
-            # role or class/grammar/module ?
+            # role or class/grammar?
             if $node.unit_type eq 'role' {
                 push @$module, Call.new(
                     'hyper'     => '',

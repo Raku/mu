@@ -15,6 +15,10 @@ sub visit {
     do { $node = $List__->[0]; $node_name = $List__->[1]; [ $node, $node_name ] };
     do {
         if ( ( $node_name eq 'CompUnit' ) ) {
+            do {
+                if ( ( $node->unit_type() eq 'module' ) ) { return ( (undef) ) }
+                else                                      { }
+            };
             my $module = [];
             do {
                 if ( ( $node->unit_type() eq 'role' ) ) { push( @{$module}, Call->new( 'hyper' => '', 'arguments' => [ Val::Buf->new( 'buf' => $node->name(), ) ], 'method' => 'new', 'invocant' => Proto->new( 'name' => 'KindaPerl6::Role', ), ) ) }

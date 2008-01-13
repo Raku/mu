@@ -1,4 +1,4 @@
-class Main {
+module Main {
     say '1..3';
 
     my sub sort_sub ($a, $b) {

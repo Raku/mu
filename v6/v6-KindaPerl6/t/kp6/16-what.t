@@ -2,7 +2,7 @@
 class X {
 }
 
-class Main {
+module Main {
 
     say "1..1";
 

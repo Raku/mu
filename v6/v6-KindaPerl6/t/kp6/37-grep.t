@@ -1,4 +1,4 @@
-class Main {
+module Main {
     say '1..4';
 
     sub grep_sub ($a) {
