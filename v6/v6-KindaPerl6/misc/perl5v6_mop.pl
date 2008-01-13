@@ -1,4 +1,5 @@
 #my $sub = sub ($a) {};
+module MOP {
 use Class::MOP;
 ::Class::MOP::Attribute := 'Class::MOP::Attribute';
 ::Class::MOP::Class := 'Class::MOP::Class';
@@ -34,7 +35,7 @@ $Class_metaobject.add_method('HOW',sub ($self) {
 });
 #say (($Class_metaobject).cache).get_method_list;
 
-#####
+##### Examples
 
 ::Foo := (::Class.new).PROTOTYPE;
 (::Foo.HOW).add_method('new',sub ($self) {
@@ -45,3 +46,15 @@ $Class_metaobject.add_method('HOW',sub ($self) {
 });
 my $foo = Foo.new();
 $foo.foo();
+}
+class Bar {
+    method bar() {
+        say "bar!";
+    }
+    method new() {
+        return (self.HOW).new_object();
+    }
+}
+my $bar = Bar.new();
+$bar.bar;
+ 
