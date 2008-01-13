@@ -1,4 +1,5 @@
 package KindaPerl6::Runtime::Perl5V6::Runtime;
+use KindaPerl6::Runtime::Perl5V6::MOP;
 use Exporter 'import';
 our @EXPORT=qw($Code_say $Code_print $Code_substr $Code_prefix_58__60__43__43__62_ $Code_prefix_58__60__126__62_ $Code_VAR_defined);
 our $Code_say = sub {
