@@ -695,6 +695,11 @@ class Grapheme {
     }
     submethod BUILD(Grapheme $g: Str $s) {
         $s = nfd_g($s);
+        if $s.codes == 1 {
+            $.id = $s.ord;
+            @.as_nfd = $.id;
+            return;
+        }
         if exists %seen_graphs{$s} {
             $g := @graph_ids[%seen_graphs{$s}];
             return;
@@ -705,6 +710,19 @@ class Grapheme {
         $.id = $graph_num + $unicode_max+1;
         @graph_ids[$graph_num] = $g;
         %seen_graphs{$s} = $graph_num;
+    }
+    # Normalization Algorithm                        UAX #15
+    sub reorder(@b is Buf32 --> Buf32) {
+        my Str $ret;
+        my Str $string = [~] @b».chr;
+        $string ~~ token :codes {
+            [ $<ns>=[ <isccc(0)>+ ]
+                { $ret ~= $<ns>[*-1] }
+            | @<s>=<isccc(1..*)>*
+                { $ret ~= [~] @@<s>[*-1].sort: { %ccc{$^c} } }
+            ]*
+        };
+        return $ret.as_codes;
     }
     sub hangul_decomp(Str $s --> Str) {
         my Int $o = $s.ord;
@@ -718,17 +736,17 @@ class Grapheme {
         $ret ~= $t.chr if $t != 0x11A7;
         return $ret;
     }
-    sub nfd_g(Str $s --> Str) {
-        my Str $old;
-        my Str $new := $s;
-        while $old ne $new {
-            $old = $new;
-            $new = '';
-            for $old.as_codes -> my Int $o {
-                $new ~= %canon_decomp{$o.chr} // hangul_decomp($o.chr);
+    sub nfd_g(@b is Buf32 --> Buf32) {
+        my @old is Buf32;
+        my @new is Buf32 = @b;
+        while @old !eqv @new {
+            @old = @new;
+            @new = ();
+            for @old -> my Int $o {
+                @new.push: (%canon_decomp{$o.chr} // hangul_decomp($o.chr)).as_codes;
             }
         }
-        return $new.reorder;
+        return reorder @new;
     }
     method to_nfkd(--> Buf32) {
         my @old is Buf32;
@@ -816,11 +834,8 @@ class Str is also {
         if defined @!as_codes {
             [~] @!as_codes».chr ~~ token :codes{
                 [ (<grapheme_cluster>)
-                    { if $0[*-1].codes > 1 {
-                          my Grapheme $g.=new: $0[*-1];
-                          @!as_graphs.push: $g.id;
-                      } else {
-                          @!as_graphs.push: $0[*-1].ord;
+                    { my Grapheme $g.=new: $0[*-1];
+                      @!as_graphs.push: $g.id;
                       }
                     }
                 ]*
@@ -909,18 +924,6 @@ class Str is also {
         ...;
     }
 
-    # Normalization Algorithm                        UAX #15
-    our method reorder(Str $string: --> Str) is export {
-        my Str $ret;
-        $string ~~ token :codes {
-            [ $<ns>=[ <isccc(0)>+ ]
-                { $ret ~= $<ns>[*-1] }
-            | @<s>=<isccc(1..*)>*
-                { $ret ~= [~] @@<s>[*-1].sort: { %ccc{$^c} } }
-            ]*
-        };
-        return $ret;
-    }
     our multi method normalize(Str $string: Bool :$canonical = Bool::True, Bool :$recompose = Bool::False --> Str) is export {
         $.norm = 'as_nfd'  if  $canonical and !$recompose;
         $.norm = 'as_nfc'  if  $canonical and  $recompose;
