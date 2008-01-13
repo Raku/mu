@@ -305,7 +305,7 @@ my @visitors;
             unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Perl5Regex';
     }
     elsif ( grep { $_ eq 'perl5v6' } @opt{qw(C B)} ) {
-        push @visitor_sequence, qw( Emit::Perl5V6 );
+        push @visitor_sequence, qw( MetaClass Emit::Perl5V6 );
     }
     elsif ( !@visitor_sequence ) {
 
