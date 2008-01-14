@@ -31,9 +31,9 @@
  *
  * As in smop_lowlevel.h, the equivalent code for that is:
  *
- * my $continuation = __STACK__.current();
+ * my $continuation = ___STACK___.current();
  * my $first_node = Node.new(result => $continuation);
- * my $second_node = Node.new(responder => __RI__($obj),
+ * my $second_node = Node.new(responder => ___RI___($obj),
  *                            identifier => "DESTROYALL",
  *                            capture => \($obj: ));
  * $first_node.continuation($second_node);
@@ -41,16 +41,16 @@
  *                           identifier => "FREE",
  *                           capture => \($obj ));
  * $second_node.continuation($third_node);
- * my $fourth_node = Node.new(result => __STACK__);
+ * my $fourth_node = Node.new(result => ___STACK___);
  * $third_node.continuation($fourth_node);
  * my $fifth_node = Node.new(responder => SMOP__STACK__Operators,
  *                           identifier => SMOP__STACK__OP_Move_Capturize,
  *        capture => SMOP__STACK__OPCAPTURE_Move_Capturize.new(1,(4),(),1));
  * $fourth_node.continuation($fifth_node);
- * my $sixth_node = Node.new(responder => __RI__(__STACK__),
+ * my $sixth_node = Node.new(responder => ___RI___(___STACK___),
  *                           identifier => "goto");
  * $fifth_node.continuation($sixth_node);
- * __STACK__.goto($first_node);
+ * ___STACK___.goto($first_node);
  *
  */
 
