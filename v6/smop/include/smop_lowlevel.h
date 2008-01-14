@@ -45,6 +45,32 @@ extern SMOP__Object* smop_lowlevel_refcnt_inc(SMOP__Object* stack, SMOP__Object*
  *
  * One other interesting thing is, when several objects loose the last
  * reference, the continuations will be chained for the destruction.
+ *
+ * For the sake of documentation, here goes the code equivalent to
+ * what happens with the stack during destruction. Considering $?STACK
+ * as the current stack and $obj as the object being destroyed.
+ *
+ * my $continuation = __STACK__.current();
+ * my $first_node = Node.new(result => $continuation);
+ * my $second_node = Node.new(responder => __RI__($obj),
+ *                            identifier => "DESTROYALL",
+ *                            capture => \($obj: ));
+ * $first_node.continuation($second_node);
+ * my $third_node = Node.new(responder => SMOP_LOWLEVEL,
+ *                           identifier => "FREE",
+ *                           capture => \($obj ));
+ * $second_node.continuation($third_node);
+ * my $fourth_node = Node.new(result => __STACK__);
+ * $third_node.continuation($fourth_node);
+ * my $fifth_node = Node.new(responder => SMOP__STACK__Operators,
+ *                           identifier => SMOP__STACK__OP_Move_Capturize,
+ *        capture => SMOP__STACK__OPCAPTURE_Move_Capturize.new(1,(4),(),1));
+ * $fourth_node.continuation($fifth_node);
+ * my $sixth_node = Node.new(responder => __RI__(__STACK__),
+ *                           identifier => "goto");
+ * $fifth_node.continuation($sixth_node);
+ * __STACK__.goto($first_node);
+ *
  */
 extern SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* stack, SMOP__Object* value);
 

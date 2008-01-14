@@ -5,6 +5,7 @@
  * your custom responder interfaces.
  */
 
+#include <smop.h>
 #include <smop_lowlevel.h>
 #include <stdlib.h>
 #include <assert.h>

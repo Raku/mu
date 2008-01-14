@@ -333,6 +333,10 @@ SMOP__Object* smop__stack__stack_continues_capture(SMOP__Object* stack,
  * else. This method should always leave the selected node as an
  * executable node, unless the stack becomes empty.
  *
+ * Nodes without a responder are considered NO-OPs. They are usefull
+ * for boxing arguments to capturize in future nodes. You just need to
+ * store it as the return value.
+ *
  * Signature:
  *     (SMOP__STACK__Stack $stack: )
  *
