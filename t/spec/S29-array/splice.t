@@ -136,4 +136,5 @@ is +@a, 0, '... empty arrays are not fatal anymore';
 # But this should generate a warning, but unfortunately we can't test for
 # warnings yet.
 
-dies_ok({ 42.splice }, '.splice should not work on scalars', :todo<bug>);
+#?pugs: todo('bug', 1);
+dies_ok({ 42.splice }, '.splice should not work on scalars');
