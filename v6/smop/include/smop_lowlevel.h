@@ -58,7 +58,7 @@ extern SMOP__Object* smop_lowlevel_refcnt_inc(SMOP__Object* stack, SMOP__Object*
  * $first_node.continuation($second_node);
  * my $third_node = Node.new(responder => SMOP_LOWLEVEL,
  *                           identifier => "FREE",
- *                           capture => \($obj ));
+ *                           capture => ___POINTER___($obj) );
  * $second_node.continuation($third_node);
  * my $fourth_node = Node.new(result => ___STACK___);
  * $third_node.continuation($fourth_node);
@@ -84,5 +84,24 @@ extern void smop_lowlevel_rdlock(SMOP__Object* value);
 extern void smop_lowlevel_wrlock(SMOP__Object* value);
 extern void smop_lowlevel_unlock(SMOP__Object* value);
 
+/*
+ * In order to enable the working of some features, Some lowlevel
+ * methods need to be exposed to the high-level. At this point, only
+ * the FREE method appears to be needed, as to implement the CPS
+ * object destruction.
+ *
+ * Following the other operators, we'll have a responder interface and
+ * some constant names to implement it.
+ */
+extern SMOP__Object* SMOP__LOWLEVEL__Operators;
+
+/*
+ * This operator make a pointer freed. This is an extremely low-level
+ * operator that is only available as the destroy code can be called
+ * using the stack. It receives an object that must not have its
+ * refcount increased (the ___POINTER___ macro handles it). After this
+ * call, no other reference to the freed object may be made.
+ */
+extern SMOP__Object* SMOP__LOWLEVEL__OP__Free;
 
 #endif

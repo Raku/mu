@@ -39,7 +39,7 @@
  * $first_node.continuation($second_node);
  * my $third_node = Node.new(responder => SMOP_LOWLEVEL,
  *                           identifier => "FREE",
- *                           capture => \($obj ));
+ *                           capture => \(___POINTER___($obj)));
  * $second_node.continuation($third_node);
  * my $fourth_node = Node.new(result => ___STACK___);
  * $third_node.continuation($fourth_node);
