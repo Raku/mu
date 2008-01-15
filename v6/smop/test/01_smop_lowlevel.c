@@ -52,6 +52,19 @@
  * $fifth_node.continuation($sixth_node);
  * ___STACK___.goto($first_node);
  *
+ *
+ * This is one of the most intriging tests, because it is a lowlevel
+ * test that depends on the high-level, at the same time that this
+ * high-level is implemented using the same lowlevel that depends on
+ * it. So here is what this test will do:
+ *
+ * Alloc a new object, which happens to be a ResponderInterface
+ * also. This responder interface will know the method
+ * "DESTROYALL". We will implement the DESTROYALL as printing "ok 2",
+ * while we'll have another dumb method returning "ok 1".
+ *
+ * We won't have a stack here, so the code inside the lowlevel should
+ * create a new stack and loop through it before returning.
  */
 
 int main(int argc, char** argv) {
