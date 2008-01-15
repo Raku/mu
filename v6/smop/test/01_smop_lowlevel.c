@@ -37,9 +37,9 @@
  *                            identifier => "DESTROYALL",
  *                            capture => \($obj: ));
  * $first_node.continuation($second_node);
- * my $third_node = Node.new(responder => SMOP_LOWLEVEL,
- *                           identifier => "FREE",
- *                           capture => \(___POINTER___($obj)));
+ * my $third_node = Node.new(responder => SMOP__LOWLEVEL__Operators,
+ *                           identifier => SMOP__LOWLEVEL__OP__Free,
+ *                           capture => ___POINTER___($obj) );
  * $second_node.continuation($third_node);
  * my $fourth_node = Node.new(result => ___STACK___);
  * $third_node.continuation($fourth_node);
