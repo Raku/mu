@@ -480,7 +480,16 @@ for (@COMPILER::CHECK) {
             # Execute!
             #run_piped_command("$EXECUTABLE_NAME -I$lib - -- @ARGV");
 	    $lib =~ s/perl5-kp6-mp6\/lib/ruby-kp6-mp6/ or die "assert failed";
-	    run_piped_command("ruby1.9 -I$lib - -- @ARGV");
+	    my $ruby = "ruby1.9"; # Use debian's naming.
+	    my $version = `$ruby --version`;
+	    die "A ruby version >= 1.9.0, and called '$ruby', is required.\n"
+		if($version !~ /^ruby (1\.9|2)/);
+	    # There seem to be some old versions around.
+	    die("$ruby looks like a pre-release development snapshot of 1.9.0."
+		."\nPlease upgrade to something more recent.")
+		if($version =~ /^ruby 1\.9.*\((20\d\d)-(\d+)-(\d+)/
+		   && ($1 < 2007 || $2 < 12 || $3 < 25));
+	    run_piped_command("$ruby -I$lib - -- @ARGV");
         }
         elsif ( $opt{C} ) {
             if ( 0 && $opt{perltidy} ) {
