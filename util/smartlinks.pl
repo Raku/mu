@@ -526,20 +526,18 @@ sub gen_code_snippet ($) {
         s{L\&lt;(http://.*?)\&gt;}{L\&lt;<a href="$1">$1</a>\&gt;}g;
         s{L\&lt;\&quot;(http://.*?)\&quot;\&gt;}
          {L\&lt;<a href="$1">\&quot;$1\&quot;</a>\&gt;}g;
-        if (!$file_info) {
-            $src .= $_;
-            next;
-        }
-        chomp;
-        my $mark;
-        if (!exists $file_info->{$i}) {
-            $mark = '';
-        } elsif ($file_info->{$i}) {
-            $mark = qq{<span class="ok"> √ </span>};
-            $ok_count++;
-        } else {
-            $mark = qq{<span class="nok"> × </span>};
-            $failed_count++;
+        my $mark = '';
+        if ($file_info) {
+            chomp;
+            if (!exists $file_info->{$i}) {
+                $mark = '';
+            } elsif ($file_info->{$i}) {
+                $mark = qq{<span class="ok"> √ </span>};
+                $ok_count++;
+            } else {
+                $mark = qq{<span class="nok"> × </span>};
+                $failed_count++;
+            }
         }
         $src .= qq{<tr><td><code>$mark</code></td><td><code>$_</code></td></tr>\n};
     } continue { $i++ }
@@ -556,7 +554,7 @@ sub gen_code_snippet ($) {
 
     my $snippet;
     if (!$test_result) {
-	#warn "No test results for $file $from to $to";
+        #warn "No test results for $file $from to $to";
         $snippet = qq{<pre class="snip">$src</pre>};
     } else {
         $snippet = qq{
@@ -959,7 +957,7 @@ sub create_index($) {
     my @my_t_files;
     sub list_t_files($) {
         my ($dir) = @_;
-	#warn "DIR is ", $dir, "\n";
+        #warn "DIR is ", $dir, "\n";
         find(\&_list_t_files, $dir);
         return @my_t_files;
     }
