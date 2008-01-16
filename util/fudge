@@ -17,7 +17,7 @@ fudgeblock();
 
 sub fudgeblock {
     while (<>) {
-	if (/^\#\? (\w+) \: \s* (.*)/x and $1 eq $ME) {
+	if (/^\s*\#\? (\w+) \: \s* (.*)/x and $1 eq $ME) {
 	    $ARGS = $2;
 	    if ($ARGS =~ s/^(\d+)\s*//) {
 		$PENDING = $1;
