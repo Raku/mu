@@ -56,9 +56,13 @@ extern SMOP__Object* smop_lowlevel_refcnt_inc(SMOP__Object* stack, SMOP__Object*
  *                            identifier => "DESTROYALL",
  *                            capture => \($obj: ));
  * $first_node.continuation($second_node);
+ * ___POINTER___($obj); # this macro releases the real responder
+ *                      # interface of the object, putting a dumb one
+ *                      # as for the object to not have its refcount
+ *                      # changed anymore. This dumb RI is a NO-OP.
  * my $third_node = Node.new(responder => SMOP__LOWLEVEL__Operators,
  *                           identifier => SMOP__LOWLEVEL__OP__Free,
- *                           capture => ___POINTER___($obj) );
+ *                           capture => $obj );
  * $second_node.continuation($third_node);
  * my $fourth_node = Node.new(result => ___STACK___);
  * $third_node.continuation($fourth_node);
