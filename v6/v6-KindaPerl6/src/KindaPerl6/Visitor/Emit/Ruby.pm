@@ -6,7 +6,7 @@ class KindaPerl6::Visitor::Emit::Ruby {
     # This visitor is a perl5 emitter
 
     method visit ( $node ) {
-        $node.emit_perl5($.visitor_args{'secure'});
+        $node.emit_ruby($.visitor_args{'secure'});
     };
 
 }
@@ -17,11 +17,11 @@ class CompUnit {
         if ($args_secure) { $value := '1' };
         return 'use constant KP6_DISABLE_INSECURE_CODE => ' ~ $value ~ ';' ~ Main::newline();
     };
-    method emit_perl5( $args_secure ) {
+    method emit_ruby( $args_secure ) {
         $KindaPerl6::Visitor::Emit::Ruby::current_compunit := $.name;
         my $source := '';
         if ($.body) {
-            $source := $.body.emit_perl5;
+            $source := $.body.emit_ruby;
         };
 
           '{ package ' ~ $.name ~ '; ' ~ Main::newline()
@@ -46,106 +46,106 @@ class CompUnit {
 }
 
 class Val::Int {
-    method emit_perl5 {
+    method emit_ruby {
         # $.int
         '::DISPATCH( $::Int, \'new\', ' ~ $.int ~ ' )' ~ Main::newline();
     }
 }
 
 class Val::Bit {
-    method emit_perl5 {
+    method emit_ruby {
         # $.bit
         '::DISPATCH( $::Bit, \'new\', ' ~ $.bit ~ ' )' ~ Main::newline();
     }
 }
 
 class Val::Num {
-    method emit_perl5 {
+    method emit_ruby {
         #$.num
         '::DISPATCH( $::Num, \'new\', ' ~ $.num ~ ' )' ~ Main::newline();
     }
 }
 
 class Val::Buf {
-    method emit_perl5 {
+    method emit_ruby {
         # '\'' ~ $.buf ~ '\''
         '::DISPATCH( $::Str, \'new\', ' ~ Main::singlequote() ~ Main::mangle_string( $.buf ) ~ Main::singlequote ~ ' )' ~ Main::newline();
     }
 }
 
 class Val::Char {
-    method emit_perl5 {
+    method emit_ruby {
         '::DISPATCH( $::Str, \'new\', chr( ' ~ $.char ~ ' ) )' ~ Main::newline();
     }
 }
 
 class Val::Undef {
-    method emit_perl5 {
+    method emit_ruby {
         #'(undef)'
         '$::Undef'
     }
 }
 
 class Val::Object {
-    method emit_perl5 {
+    method emit_ruby {
         die 'Emitting of Val::Object not implemented';
         # 'bless(' ~ %.fields.perl ~ ', ' ~ $.class.perl ~ ')';
     }
 }
 
 class Native::Buf {
-    method emit_perl5 {
+    method emit_ruby {
         die 'Emitting of Native::Buf not implemented';
         # '\'' ~ $.buf ~ '\''
     }
 }
 
 class Lit::Seq {
-    method emit_perl5 {
-        '(' ~ (@.seq.>>emit_perl5).join(', ') ~ ')';
+    method emit_ruby {
+        '(' ~ (@.seq.>>emit_ruby).join(', ') ~ ')';
     }
 }
 
 class Lit::Array {
-    method emit_perl5 {
+    method emit_ruby {
         # this is not a Perl 6 object, objects are created with a high-level Array.new or List.new
-        '{ _array => [' ~ (@.array.>>emit_perl5).join(', ') ~ '] }' ~ Main::newline();
+        '{ _array => [' ~ (@.array.>>emit_ruby).join(', ') ~ '] }' ~ Main::newline();
     }
 }
 
 class Lit::Hash {
-    method emit_perl5 {
+    method emit_ruby {
         # this is not a Perl 6 object, objects are created with a high-level Hash.new
         my $fields := @.hash;
         my $str := '';
         my $field;
         for @$fields -> $field {
-            $str := $str ~ '[ ' ~ ($field[0]).emit_perl5 ~ ', ' ~ ($field[1]).emit_perl5 ~ ' ],';
+            $str := $str ~ '[ ' ~ ($field[0]).emit_ruby ~ ', ' ~ ($field[1]).emit_ruby ~ ' ],';
         };
         $str ~ Main::newline();
     }
 }
 
 class Lit::Pair {
-    method emit_perl5 {
+    method emit_ruby {
         '::DISPATCH( $::Pair, \'new\', '
-        ~ '{ key => '   ~ $.key.emit_perl5
-        ~ ', value => ' ~ $.value.emit_perl5
+        ~ '{ key => '   ~ $.key.emit_ruby
+        ~ ', value => ' ~ $.value.emit_ruby
         ~ ' } )' ~ Main::newline();
     }
 }
 
 class Lit::NamedArgument {
-    method emit_perl5 {
+    method emit_ruby {
         '::DISPATCH( $::NamedArgument, \'new\', '
-        ~ '{ _argument_name_ => '   ~ $.key.emit_perl5
-        ~ ', value => ' ~ ( defined($.value) ?? $.value.emit_perl5 !! 'undef' )   # XXX
+        ~ '{ _argument_name_ => '   ~ $.key.emit_ruby
+        ~ ', value => ' ~ ( defined($.value) ?? $.value.emit_ruby !! 'undef' )   # XXX
         ~ ' } )' ~ Main::newline();
     }
 }
 
 class Lit::SigArgument {
-    method emit_perl5 {
+    method emit_ruby {
 
         '::DISPATCH( $::Signature::Item, \'new\', '
         ~ '{ '
@@ -154,36 +154,36 @@ class Lit::SigArgument {
         ~     'twigil => \'' ~ $.key.twigil ~ '\', '
         ~     'name   => \'' ~ $.key.name   ~ '\', '
 
-        ~     'value  => ' ~ ( defined($.value) ?? $.value.emit_perl5 !! 'undef' ) ~ ', '  # XXX
+        ~     'value  => ' ~ ( defined($.value) ?? $.value.emit_ruby !! 'undef' ) ~ ', '  # XXX
 
-        ~     'has_default    => ' ~ $.has_default.emit_perl5  ~ ', '
-        ~     'is_named_only  => ' ~ $.is_named_only.emit_perl5  ~ ', '
-        ~     'is_optional    => ' ~ $.is_optional.emit_perl5    ~ ', '
-        ~     'is_slurpy      => ' ~ $.is_slurpy.emit_perl5      ~ ', '
-        ~     'is_multidimensional  => ' ~ $.is_multidimensional.emit_perl5  ~ ', '
-        ~     'is_rw          => ' ~ $.is_rw.emit_perl5          ~ ', '
-        ~     'is_copy        => ' ~ $.is_copy.emit_perl5        ~ ', '
+        ~     'has_default    => ' ~ $.has_default.emit_ruby  ~ ', '
+        ~     'is_named_only  => ' ~ $.is_named_only.emit_ruby  ~ ', '
+        ~     'is_optional    => ' ~ $.is_optional.emit_ruby    ~ ', '
+        ~     'is_slurpy      => ' ~ $.is_slurpy.emit_ruby      ~ ', '
+        ~     'is_multidimensional  => ' ~ $.is_multidimensional.emit_ruby  ~ ', '
+        ~     'is_rw          => ' ~ $.is_rw.emit_ruby          ~ ', '
+        ~     'is_copy        => ' ~ $.is_copy.emit_ruby        ~ ', '
 
         ~ ' } )' ~ Main::newline();
     }
 }
 
 class Lit::Code {
-    method emit_perl5 {
+    method emit_ruby {
         if ($.CATCH) {
           'do { eval {'
         ~ self.emit_declarations ~ self.emit_body
-        ~ '};if ($@) {' ~ $.CATCH.emit_perl5 ~ '}}';
+        ~ '};if ($@) {' ~ $.CATCH.emit_ruby ~ '}}';
         }
         else {
             'do {' ~ self.emit_declarations ~ self.emit_body ~ '}'
         }
     };
     method emit_body {
-        (@.body.>>emit_perl5).join('; ');
+        (@.body.>>emit_ruby).join('; ');
     };
     method emit_signature {
-        $.sig.emit_perl5
+        $.sig.emit_ruby
     };
     method emit_declarations {
         my $s;
@@ -199,7 +199,7 @@ class Lit::Code {
                     namespace => [ ],
                 ),
             );
-            $s := $s ~ $name.emit_perl5 ~ ';' ~ Main::newline();
+            $s := $s ~ $name.emit_ruby ~ ';' ~ Main::newline();
         };
         return $s;
     };
@@ -209,18 +209,18 @@ class Lit::Code {
         my $CAPTURE := Var.new( sigil => '$', twigil => '', name => 'CAPTURE', namespace => [ ],);
         my $CAPTURE_decl := Decl.new(decl=>'my',type=>'',var=>$CAPTURE);
         my $str := '';
-        $str := $str ~ $CAPTURE_decl.emit_perl5;
-        $str := $str ~ (Decl.new(decl=>'my',type=>'',var=>$array_)).emit_perl5;
+        $str := $str ~ $CAPTURE_decl.emit_ruby;
+        $str := $str ~ (Decl.new(decl=>'my',type=>'',var=>$array_)).emit_ruby;
         $str := $str ~ '::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));';
 
         # XXX s/assign/bind/ ?
         my $bind_array :=
                     Assign.new(parameters=>$array_,arguments=> Call.new(invocant => $CAPTURE,method => 'array',arguments => []));
-        $str := $str ~ $bind_array.emit_perl5 ~ ';';
+        $str := $str ~ $bind_array.emit_ruby ~ ';';
 
         my $bind_hash :=
                     Bind.new(parameters=>$hash_, arguments=> Call.new(invocant => $CAPTURE,method => 'hash', arguments => []));
-        $str := $str ~ $bind_hash.emit_perl5 ~ ';';
+        $str := $str ~ $bind_hash.emit_ruby ~ ';';
 
         my $i := 0;
         my $field;
@@ -249,7 +249,7 @@ class Lit::Code {
                     ~   ' ) )->{_value} '
                     ~ ' ) '
                     ~ ' { '
-                    ~     $bind_named.emit_perl5
+                    ~     $bind_named.emit_ruby
                     ~ ' } '
                     ~ ' elsif ( ::DISPATCH( $GLOBAL::Code_exists, '
                     ~   ' \'APPLY\', '
@@ -259,7 +259,7 @@ class Lit::Code {
                     ~   ' ) )->{_value} '
                     ~ ' ) '
                     ~ ' { '
-                    ~     ($field.key).emit_perl5
+                    ~     ($field.key).emit_ruby
                     ~         ' = ::DISPATCH( '
                     ~       ' $List__, \'INDEX\', '
                     ~       ' ::DISPATCH( $::Int, \'new\', $_param_index++ ) '
@@ -268,7 +268,7 @@ class Lit::Code {
             if ($field.has_default).bit {
                 $str := $str
                     ~ ' else { '
-                    ~     $bind_default.emit_perl5
+                    ~     $bind_default.emit_ruby
                     ~ ' } ';
             }
             $i := $i + 1;
@@ -280,18 +280,18 @@ class Lit::Code {
 }
 
 class Lit::Object {
-    method emit_perl5 {
-        # $.class ~ '->new( ' ~ @.fields.>>emit_perl5.join(', ') ~ ' )';
+    method emit_ruby {
+        # $.class ~ '->new( ' ~ @.fields.>>emit_ruby.join(', ') ~ ' )';
         my $fields := @.fields;
         my $str := '';
-        # say @fields.map(sub { $_[0].emit_perl5 ~ ' => ' ~ $_[1].emit_perl5}).join(', ') ~ ')';
+        # say @fields.map(sub { $_[0].emit_ruby ~ ' => ' ~ $_[1].emit_ruby}).join(', ') ~ ')';
         my $field;
         for @$fields -> $field {
             $str := $str
                 ~ '::DISPATCH( $::NamedArgument, "new", '
                 ~ '{ '
-                ~    '_argument_name_ => ' ~ ($field[0]).emit_perl5 ~ ', '
-                ~    'value           => ' ~ ($field[1]).emit_perl5 ~ ', '
+                ~    '_argument_name_ => ' ~ ($field[0]).emit_ruby ~ ', '
+                ~    'value           => ' ~ ($field[1]).emit_ruby ~ ', '
                 ~ ' } ), '
                 ;
         };
@@ -301,7 +301,7 @@ class Lit::Object {
 
 
 class Assign {
-    method emit_perl5 {
+    method emit_ruby {
         # TODO - same as ::Bind
 
         my $node := $.parameters;
@@ -338,12 +338,12 @@ class Assign {
 
         };
 
-        '::DISPATCH_VAR( ' ~ $node.emit_perl5 ~ ', \'STORE\', ' ~ $.arguments.emit_perl5 ~ ' )' ~ Main::newline();
+        '::DISPATCH_VAR( ' ~ $node.emit_ruby ~ ', \'STORE\', ' ~ $.arguments.emit_ruby ~ ' )' ~ Main::newline();
     }
 }
 
 class Var {
-    method emit_perl5 {
+    method emit_ruby {
         # Normalize the sigil here into $
         # $x    => $x
         # @x    => $List_x
@@ -406,7 +406,7 @@ class Var {
 }
 
 class Bind {
-    method emit_perl5 {
+    method emit_ruby {
 
         # XXX - replace Bind with .BIND
         if      $.parameters.isa('Call')
@@ -416,32 +416,32 @@ class Bind {
         {
             return
                   '::DISPATCH_VAR( '
-                ~   $.parameters.emit_perl5
+                ~   $.parameters.emit_ruby
                 ~   ', "BIND", '
-                ~   $.arguments.emit_perl5
+                ~   $.arguments.emit_ruby
                 ~ ' )'
         };
 
         # XXX - replace Bind with Assign
         #if $.parameters.isa('Call')
         #{
-        #    return Assign.new(parameters=>$.parameters,arguments=>$.arguments).emit_perl5;
+        #    return Assign.new(parameters=>$.parameters,arguments=>$.arguments).emit_ruby;
         #};
 
-        my $str := '::MODIFIED(' ~ $.parameters.emit_perl5 ~ ');' ~ Main::newline();
-        $str := $str ~ $.parameters.emit_perl5 ~ ' = ' ~ $.arguments.emit_perl5;
+        my $str := '::MODIFIED(' ~ $.parameters.emit_ruby ~ ');' ~ Main::newline();
+        $str := $str ~ $.parameters.emit_ruby ~ ' = ' ~ $.arguments.emit_ruby;
         return 'do {'~$str~'}';
     }
 }
 
 class Proto {
-    method emit_perl5 {
+    method emit_ruby {
         return '$::'~$.name;
     }
 }
 
 class Call {
-    method emit_perl5 {
+    method emit_ruby {
         my $invocant;
         if $.invocant.isa( 'Proto' ) {
 
@@ -449,12 +449,12 @@ class Call {
                 $invocant := '$self';
             }
             else {
-                $invocant := $.invocant.emit_perl5;
+                $invocant := $.invocant.emit_ruby;
             }
 
         }
         else {
-            $invocant := $.invocant.emit_perl5;
+            $invocant := $.invocant.emit_ruby;
         };
         if $invocant eq 'self' {
             $invocant := '$self';
@@ -465,7 +465,7 @@ class Call {
              $meth := '';
         };
 
-        my $call := (@.arguments.>>emit_perl5).join(', ');
+        my $call := (@.arguments.>>emit_ruby).join(', ');
         if ($.hyper) {
             # TODO - hyper + role
               '::DISPATCH( $::List, "new", { _array => [ '
@@ -493,7 +493,7 @@ class Call {
 }
 
 class Apply {
-    method emit_perl5 {
+    method emit_ruby {
 
 
         if  ( $.code.isa('Var') ) && ( $.code.name eq 'self' )
@@ -514,9 +514,9 @@ class Apply {
             # hack for shortcircuiting "&&"
             # as an alternative hack, see Visitor::ShortCircuit
             return  'do { '
-                        ~ 'my $_tmp1 = ' ~ ((@.arguments[0]).emit_perl5) ~ '; '
+                        ~ 'my $_tmp1 = ' ~ ((@.arguments[0]).emit_ruby) ~ '; '
                         ~ '::DISPATCH( $_tmp1, "true" )->{_value} '
-                        ~ '? ' ~ ((@.arguments[1]).emit_perl5)
+                        ~ '? ' ~ ((@.arguments[1]).emit_ruby)
                         ~ ': ::DISPATCH( $::Bit, "new", 0 )'
                 ~ ' }' ~ Main::newline();
         }
@@ -526,10 +526,10 @@ class Apply {
             # hack for shortcircuiting "||"
             # as an alternative hack, see Visitor::ShortCircuit
             return  'do { '
-                        ~ 'my $_tmp1 = ' ~ ((@.arguments[0]).emit_perl5) ~ '; '
+                        ~ 'my $_tmp1 = ' ~ ((@.arguments[0]).emit_ruby) ~ '; '
                         ~ '::DISPATCH( $_tmp1, "true" )->{_value} '
                         ~ '? $_tmp1'
-                        ~ ': ' ~ ((@.arguments[1]).emit_perl5)
+                        ~ ': ' ~ ((@.arguments[1]).emit_ruby)
                 ~ ' }' ~ Main::newline();
         }
 
@@ -537,33 +537,33 @@ class Apply {
         {
             # hack for "make" (S05)
             return  '::DISPATCH_VAR( '
-                        ~ '$GLOBAL::_REGEX_RETURN_, "STORE", ' ~ ((@.arguments[0]).emit_perl5) ~ ''
+                        ~ '$GLOBAL::_REGEX_RETURN_, "STORE", ' ~ ((@.arguments[0]).emit_ruby) ~ ''
                 ~ ' )' ~ Main::newline();
         }
 
-        return  '::DISPATCH( ' ~ $.code.emit_perl5 ~ ', \'APPLY\', ' ~ (@.arguments.>>emit_perl5).join(', ') ~ ' )' ~ Main::newline();
+        return  '::DISPATCH( ' ~ $.code.emit_ruby ~ ', \'APPLY\', ' ~ (@.arguments.>>emit_ruby).join(', ') ~ ' )' ~ Main::newline();
     }
 }
 
 class Return {
-    method emit_perl5 {
+    method emit_ruby {
         # call .FETCH just in case it's a Container
-        # 'return( ::DISPATCH(' ~ $.result.emit_perl5 ~ ', "FETCH" ) )' ~ Main::newline();
+        # 'return( ::DISPATCH(' ~ $.result.emit_ruby ~ ', "FETCH" ) )' ~ Main::newline();
 
-        #'do { print Main::perl(caller(),' ~ $.result.emit_perl5 ~ '); return(' ~ $.result.emit_perl5 ~ ') }';
-        'return(' ~ $.result.emit_perl5 ~ ')' ~ Main::newline();
+        #'do { print Main::perl(caller(),' ~ $.result.emit_ruby ~ '); return(' ~ $.result.emit_ruby ~ ') }';
+        'return(' ~ $.result.emit_ruby ~ ')' ~ Main::newline();
     }
 }
 
 class If {
-    method emit_perl5 {
-        'do { if (::DISPATCH(::DISPATCH(' ~ $.cond.emit_perl5 ~ ',"true"),"p5landish") ) '
+    method emit_ruby {
+        'do { if (::DISPATCH(::DISPATCH(' ~ $.cond.emit_ruby ~ ',"true"),"p5landish") ) '
         ~ ( $.body
-            ?? '{ ' ~ $.body.emit_perl5 ~ ' } '
+            ?? '{ ' ~ $.body.emit_ruby ~ ' } '
             !! '{ } '
           )
         ~ ( $.otherwise
-            ?? ' else { ' ~ $.otherwise.emit_perl5 ~ ' }'
+            ?? ' else { ' ~ $.otherwise.emit_ruby ~ ' }'
             !! ' else { ::DISPATCH($::Bit, "new", 0) }'
           )
         ~ ' }' ~ Main::newline();
@@ -571,7 +571,7 @@ class If {
 }
 
 class While {
-    method emit_perl5 {
+    method emit_ruby {
         my $cond := $.cond;
         if   $cond.isa( 'Var' )
           && $cond.sigil eq '@'
@@ -579,16 +579,16 @@ class While {
         } else {
             $cond := Apply.new( code => Var.new(sigil=>'&',twigil=>'',name=>'prefix:<@>',namespace => [ 'GLOBAL' ],), arguments => [$cond] );
         }
-        'do { while (::DISPATCH(::DISPATCH(' ~ $.cond.emit_perl5 ~ ',"true"),"p5landish") ) '
+        'do { while (::DISPATCH(::DISPATCH(' ~ $.cond.emit_ruby ~ ',"true"),"p5landish") ) '
         ~ ' { '
-        ~     $.body.emit_perl5
+        ~     $.body.emit_ruby
         ~ ' } }'
         ~ Main::newline();
     }
 }
 
 class Decl {
-    method emit_perl5 {
+    method emit_ruby {
         my $decl := $.decl;
         my $name := $.var.name;
         if $decl eq 'has' {
@@ -599,49 +599,49 @@ class Decl {
                 ': ( $_[0]->{' ~ $name ~ '} = $_[1] ) ' ~
             '}';
         };
-        my $create := ', \'new\', { modified => $_MODIFIED, name => \'' ~ $.var.emit_perl5 ~ '\' } ) ';
+        my $create := ', \'new\', { modified => $_MODIFIED, name => \'' ~ $.var.emit_ruby ~ '\' } ) ';
         if $decl eq 'our' {
             my $s;
             # ??? use vars --> because compile-time scope is too tricky to use 'our'
-            # ??? $s := 'use vars \'' ~ $.var.emit_perl5 ~ '\'; ';
+            # ??? $s := 'use vars \'' ~ $.var.emit_ruby ~ '\'; ';
             $s := 'our ';
 
             if ($.var).sigil eq '$' {
                 return $s
-                    ~ $.var.emit_perl5
+                    ~ $.var.emit_ruby
                     ~ ' = ::DISPATCH( $::Scalar' ~ $create
-                    ~ ' unless defined ' ~ $.var.emit_perl5 ~ '; '
+                    ~ ' unless defined ' ~ $.var.emit_ruby ~ '; '
                     ~ 'INIT { '
-                    ~     $.var.emit_perl5
+                    ~     $.var.emit_ruby
                     ~     ' = ::DISPATCH( $::Scalar' ~ $create
-                    ~     ' unless defined ' ~ $.var.emit_perl5 ~ '; '
+                    ~     ' unless defined ' ~ $.var.emit_ruby ~ '; '
                     ~ '}' ~ Main::newline()
             };
             if ($.var).sigil eq '&' {
                 return $s
-                    ~ $.var.emit_perl5
+                    ~ $.var.emit_ruby
                     ~ ' = ::DISPATCH( $::Routine' ~ $create ~ ';' ~ Main::newline();
             };
             if ($.var).sigil eq '%' {
-                return $s ~ $.var.emit_perl5
+                return $s ~ $.var.emit_ruby
                     ~ ' = ::DISPATCH( $::HashContainer' ~ $create ~ ';' ~ Main::newline();
             };
             if ($.var).sigil eq '@' {
-                return $s ~ $.var.emit_perl5
+                return $s ~ $.var.emit_ruby
                     ~ ' = ::DISPATCH( $::ArrayContainer' ~ $create ~ ';' ~ Main::newline();
             };
-            return $s ~ $.var.emit_perl5 ~ Main::newline();
+            return $s ~ $.var.emit_ruby ~ Main::newline();
         };
         if ($.var).sigil eq '$' {
             return
                   $.decl ~ ' '
                 # ~ $.type ~ ' '
-                ~ $.var.emit_perl5 ~ '; '
-                ~ $.var.emit_perl5
+                ~ $.var.emit_ruby ~ '; '
+                ~ $.var.emit_ruby
                 ~ ' = ::DISPATCH( $::Scalar' ~ $create
-                ~ ' unless defined ' ~ $.var.emit_perl5 ~ '; '
+                ~ ' unless defined ' ~ $.var.emit_ruby ~ '; '
                 ~ 'INIT { '
-                ~     $.var.emit_perl5
+                ~     $.var.emit_ruby
                 ~     ' = ::DISPATCH( $::Scalar' ~ $create
                 ~ '}'
                 ~ Main::newline()
@@ -651,12 +651,12 @@ class Decl {
             return
                   $.decl ~ ' '
                 # ~ $.type ~ ' '
-                ~ $.var.emit_perl5 ~ '; '
-                ~ $.var.emit_perl5
+                ~ $.var.emit_ruby ~ '; '
+                ~ $.var.emit_ruby
                 ~ ' = ::DISPATCH( $::Routine' ~ $create
-                ~ ' unless defined ' ~ $.var.emit_perl5 ~ '; '
+                ~ ' unless defined ' ~ $.var.emit_ruby ~ '; '
                 ~ 'INIT { '
-                ~     $.var.emit_perl5
+                ~     $.var.emit_ruby
                 ~     ' = ::DISPATCH( $::Routine' ~ $create
                 ~ '}'
                 ~ Main::newline()
@@ -665,25 +665,25 @@ class Decl {
         if ($.var).sigil eq '%' {
             return $.decl ~ ' '
                 # ~ $.type
-                ~ ' ' ~ $.var.emit_perl5
+                ~ ' ' ~ $.var.emit_ruby
                 ~ ' = ::DISPATCH( $::HashContainer' ~ $create ~ '; '
                 ~ Main::newline();
         };
         if ($.var).sigil eq '@' {
             return $.decl ~ ' '
                 # ~ $.type
-                ~ ' ' ~ $.var.emit_perl5
+                ~ ' ' ~ $.var.emit_ruby
                 ~ ' = ::DISPATCH( $::ArrayContainer' ~ $create ~ '; '
                 ~ Main::newline();
         };
         return $.decl ~ ' '
             # ~ $.type ~ ' '
-            ~ $.var.emit_perl5;
+            ~ $.var.emit_ruby;
     }
 }
 
 class Sig {
-    method emit_perl5 {
+    method emit_ruby {
         my $inv := '$::Undef';
         if $.invocant.isa( 'Var' ) {
             $inv := $.invocant.perl;
@@ -692,7 +692,7 @@ class Sig {
         my $pos;
         my $decl;
         for @($.positional) -> $decl {
-            $pos := $pos ~ $decl.emit_perl5 ~ ', ';
+            $pos := $pos ~ $decl.emit_ruby ~ ', ';
         };
 
         my $named := '';  # TODO
@@ -708,10 +708,10 @@ class Sig {
 }
 
 class Lit::Capture {
-    method emit_perl5 {
+    method emit_ruby {
         my $s := '::DISPATCH( $::Capture, "new", { ';
         if defined $.invocant {
-           $s := $s ~ 'invocant => ' ~ $.invocant.emit_perl5 ~ ', ';
+           $s := $s ~ 'invocant => ' ~ $.invocant.emit_ruby ~ ', ';
         }
         else {
             $s := $s ~ 'invocant => $::Undef, '
@@ -720,7 +720,7 @@ class Lit::Capture {
            $s := $s ~ 'array => ::DISPATCH( $::List, "new", { _array => [ ';
                             my $item;
            for @.array -> $item {
-                $s := $s ~ $item.emit_perl5 ~ ', ';
+                $s := $s ~ $item.emit_ruby ~ ', ';
             }
             $s := $s ~ ' ] } ),';
         };
@@ -728,7 +728,7 @@ class Lit::Capture {
             $s := $s ~ 'hash => ::DISPATCH( $::Hash, "new", ';
             my $item;
             for @.hash -> $item {
-                $s := $s ~ '[ ' ~ ($item[0]).emit_perl5 ~ ', ' ~ ($item[1]).emit_perl5 ~ ' ], ';
+                $s := $s ~ '[ ' ~ ($item[0]).emit_ruby ~ ', ' ~ ($item[1]).emit_ruby ~ ' ], ';
             }
             $s := $s ~ ' ),';
         };
@@ -737,18 +737,18 @@ class Lit::Capture {
 }
 
 class Lit::Subset {
-    method emit_perl5 {
+    method emit_ruby {
           '::DISPATCH( $::Subset, "new", { '
-        ~ 'base_class => ' ~ $.base_class.emit_perl5
+        ~ 'base_class => ' ~ $.base_class.emit_ruby
         ~ ', '
         ~ 'block => '
-        ~       'sub { local $_ = shift; ' ~ ($.block.block).emit_perl5 ~ ' } '    # XXX
+        ~       'sub { local $_ = shift; ' ~ ($.block.block).emit_ruby ~ ' } '    # XXX
         ~ ' } )' ~ Main::newline();
     }
 }
 
 class Method {
-    method emit_perl5 {
+    method emit_ruby {
           '::DISPATCH( $::Code, \'new\', { '
         ~   'code => sub { '                 ~ Main::newline()
         ~     '# emit_declarations'          ~ Main::newline()
@@ -769,7 +769,7 @@ class Method {
 }
 
 class Sub {
-    method emit_perl5 {
+    method emit_ruby {
           '::DISPATCH( $::Code, \'new\', { '
         ~   'code => sub { '
         ~       $.block.emit_declarations
@@ -785,7 +785,7 @@ class Sub {
 }
 
 class Macro {
-    method emit_perl5 {
+    method emit_ruby {
           '::DISPATCH( $::Macro, \'new\', { '
         ~   'code => sub { '
         ~       $.block.emit_declarations
@@ -801,24 +801,24 @@ class Macro {
 }
 
 class Do {
-    method emit_perl5 {
+    method emit_ruby {
         'do { ' ~
-          $.block.emit_perl5 ~
+          $.block.emit_ruby ~
         ' }'
         ~ Main::newline();
     }
 }
 
 class BEGIN {
-    method emit_perl5 {
+    method emit_ruby {
         'INIT { ' ~
-          $.block.emit_perl5 ~
+          $.block.emit_ruby ~
         ' }'
     }
 }
 
 class Use {
-    method emit_perl5 {
+    method emit_ruby {
         if ($.mod eq 'v6') {
             return Main::newline() ~ '#use v6' ~ Main::newline();
         }
