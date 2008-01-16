@@ -6,9 +6,6 @@ src/KindaPerl6/Runtime/Ruby
 src/KindaPerl6/Visitor/Emit/Ruby.pm
 
 TODO:
-- add ruby backend option to script/kp6
-Emit/Ruby.pm is currently a copy of Perl5.pm,
-so the ruby backend should generate working kp6-p5 code.
 - walk though Emit/Ruby.pm, deciding, creating, and documenting runtime apis.
 - do Runtime/Ruby.  Should be much simpler and smaller than Runtime/Perl5/.
 
