@@ -52,7 +52,7 @@ package Evalbot;
             pugs    => \&exec_pugs,
             perl6   => \&exec_eval,
             nqp     => \&exec_nqp,
-            p6      => \&exec_p6,
+            rakudo  => \&exec_p6,
             );
     my $regex = $prefix . '(' . join('|',  keys %executer) . ")$postfix";
 
