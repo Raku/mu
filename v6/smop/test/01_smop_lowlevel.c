@@ -10,73 +10,80 @@
  * also. Which basically means that we know that at the time we need
  * the high-level features, they will be already available.
  *
- * The point where we need it is in the refcnt_dec function, which, on
- * the case of destroying an object, it will take the stack parameter
- * and build a Continuation-Passing-Style call to the object's
- * DESTROYALL method, just before the actual object destruction (by
- * calling free).
- *
- * This way, we must provide a fake stack and node objects and fake
- * method identifiers so the refcnt_dec can actually postpone the
- * object destruction properly. We also need to implement a fake
- * DESTROYALL method on the object itself.
- *
- * The methods we need to fake in this test are:
- *
- *   $obj.DESTROYALL
- *   Node.new
- *   $stack.current
- *   $stack.goto
- *   $stack.continues
- *
- * As in smop_lowlevel.h, the equivalent code for that is:
- *
- * my $continuation = ___STACK___.current();
- * my $first_node = Node.new(result => $continuation);
- * my $second_node = Node.new(responder => ___RI___($obj),
- *                            identifier => "DESTROYALL",
- *                            capture => \($obj: ));
- * $first_node.continuation($second_node);
- * my $third_node = Node.new(responder => SMOP__LOWLEVEL__Operators,
- *                           identifier => SMOP__LOWLEVEL__OP__Free,
- *                           capture => ___POINTER___($obj) );
- * $second_node.continuation($third_node);
- * my $fourth_node = Node.new(result => ___STACK___);
- * $third_node.continuation($fourth_node);
- * my $fifth_node = Node.new(responder => SMOP__STACK__Operators,
- *                           identifier => SMOP__STACK__OP_Move_Capturize,
- *        capture => SMOP__STACK__OPCAPTURE_Move_Capturize.new(1,(4),(),1));
- * $fourth_node.continuation($fifth_node);
- * my $sixth_node = Node.new(responder => ___RI___(___STACK___),
- *                           identifier => "goto");
- * $fifth_node.continuation($sixth_node);
- * ___STACK___.goto($first_node);
- *
- *
- * This is one of the most intriging tests, because it is a lowlevel
- * test that depends on the high-level, at the same time that this
- * high-level is implemented using the same lowlevel that depends on
- * it. So here is what this test will do:
- *
- * Alloc a new object, which happens to be a ResponderInterface
- * also. This responder interface will know the method
- * "DESTROYALL". We will implement the DESTROYALL as printing "ok 2",
- * while we'll have another dumb method returning "ok 1".
- *
- * We won't have a stack here, so the code inside the lowlevel should
- * create a new stack and loop through it before returning.
+ * This test, even testing the lowlevel features of SMOP depends on
+ * some features of the high-level smop.
  */
 
+/* In this test, we're going to define a object that is its own
+ * responder interface, and that have three methods (one of them being
+ * DESTROYALL). Each one will print to the standard output the "ok"
+ * message in the expected order.
+ */
+static SMOP__Object* custom_MESSAGE(SMOP__Object* stack,
+                                    SMOP__ResponderInterface* self,
+                                    SMOP__Object* identifier,
+                                    SMOP__Object* capture) {
+  if ((int)identifier == 1) {
+    printf("ok 3 - method 1 should be called early.\n");
+  } else if ((int)identifier == 2) {
+    printf("ok 4 - method 2 should be called immediatly afterwards.\n");
+  } else if (identifier == SMOP__ID__DESTROYALL) {
+    printf("ok 5 - DESTROYALL should be the last one called.\n");
+  } else {
+    printf("not ok - Unknown identifier given %p.\n", identifier);
+  }
+  return NULL;
+}
+
+/* It works like:
+ * 1 - boot smop,
+ * 2 - init a new object, and set the methods
+ * 3 - get a stack
+ * 4 - call method 1
+ * 5 - lower the refcount (should init destruction)
+ * 6 - call method 2
+ * 7 - call stack loop
+ */
 int main(int argc, char** argv) {
+  printf("1..6\n");
 
-  // Let's fake the identifiers.
-  
+  smop_init();
 
-  printf("1..2\n");
+  SMOP__Object* obj = smop_lowlevel_alloc(sizeof(SMOP__ResponderInterface));
+  if (!obj) {
+    printf("not ");
+  }
+  printf("ok 1 - object allocated successfully.\n");
 
+  SMOP__ResponderInterface* ri = (SMOP__ResponderInterface*)obj;
+  ri->MESSAGE = custom_MESSAGE;
+  ri->REFERENCE = smop_lowlevel_refcnt_inc;
+  ri->RELEASE = smop_lowlevel_refcnt_dec;
 
+  SMOP__Object* stack = SMOP_DISPATCH(NULL, SMOP_RI(SMOP__STACK__Stack),
+                                      SMOP__STACK__Stack_new, NULL);
+  if (!stack) {
+    printf("not ");
+  }
+  printf("ok 2 - got new stack successfully.\n");
+
+  SMOP_DISPATCH(NULL, ri, (SMOP__Object*)1, NULL);
+
+  SMOP_RELEASE(stack, obj);
+
+  SMOP_DISPATCH(NULL, ri, (SMOP__Object*)2, NULL);
+
+  SMOP__Object* loop_capture = smop__stack__stack_loop_capture(stack);
+  SMOP_DISPATCH(NULL, SMOP_RI(stack),
+                SMOP__STACK__Stack_loop, loop_capture);
+
+  SMOP_RELEASE(NULL, stack);
+
+  printf("ok 6 - finished succesfully.\n");
+
+  smop_destr();
 
   return 0;
 }
 
-static SMOP__Object* 
+

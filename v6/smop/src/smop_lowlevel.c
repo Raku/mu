@@ -115,14 +115,14 @@ SMOP__Object* smop_lowlevel_alloc(int size) {
   return y;
 }
 
-SMOP__Object* smop_lowlevel_refcnt_inc(SMOP__Object* stack, SMOP__Object* value) {
+SMOP__Object* smop_lowlevel_refcnt_inc(SMOP__Object* stack, SMOP__ResponderInterface* ri, SMOP__Object* value) {
   smop_lowlevel_wrlock(value);
   ((SMOP_LOWLEVEL_INTERNAL)value->data)->ref_cnt++;
   smop_lowlevel_unlock(value);
   return value;
 }
 
-SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* stack, SMOP__Object* value) {
+SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* stack, SMOP__ResponderInterface* ri, SMOP__Object* value) {
   smop_lowlevel_wrlock(value);
   ((SMOP_LOWLEVEL_INTERNAL)value->data)->ref_cnt--;
   if (((SMOP_LOWLEVEL_INTERNAL)value->data)->ref_cnt <= 0) {

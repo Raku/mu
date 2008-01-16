@@ -33,7 +33,7 @@ extern SMOP__Object* smop_lowlevel_alloc(int size);
  * be called whenever the value is referenced by another value, and
  * always return the input pointer.
  */
-extern SMOP__Object* smop_lowlevel_refcnt_inc(SMOP__Object* stack, SMOP__Object* value);
+extern SMOP__Object* smop_lowlevel_refcnt_inc(SMOP__Object* stack, SMOP__ResponderInterface* ri, SMOP__Object* value);
 
 /* This functions decrements the reference count of a value, it should
  * be called whenever one reference to this value is destroyed. It
@@ -48,6 +48,7 @@ extern SMOP__Object* smop_lowlevel_refcnt_inc(SMOP__Object* stack, SMOP__Object*
  *
  * For the sake of documentation, here goes the code equivalent to
  * what happens with the stack during destruction.
+ *
 
 # sm0p quoting returns the first node of the literal translation of
 # the code to a set of nodes. (one statement = one node). Here no new
@@ -74,7 +75,7 @@ goto ___STACK___: q:sm0p {
  * the Stack and the Node have custom Responder Interfaces that
  * doesn't call this code.
  */
-extern SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* stack, SMOP__Object* value);
+extern SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* stack, SMOP__ResponderInterface* ri, SMOP__Object* value);
 
 /* This functions synchronizes the access to this value. It should be
  * called whenever some pointer in the low-level details (some
