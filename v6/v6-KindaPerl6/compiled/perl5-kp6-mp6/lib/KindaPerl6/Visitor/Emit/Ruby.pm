@@ -42,8 +42,7 @@ sub emit_ruby {
         if ( $self->{body} ) { $source = $self->{body}->emit_ruby() }
         else                 { }
     };
-    ( '# Machine-generated ruby code '
-            . ( Main::newline() . ( 'require \'kp6_runtime\'' . ( Main::newline() . ( 'if RUBY_VERSION < "1.9"; raise "ruby version must be >= 1.9.0"; end' . ( Main::newline() . ( Main::newline() . ( $source . Main::newline() ) ) ) ) ) ) ) );
+    ( '# Machine-generated ruby code.' . ( Main::newline() . ( '# Ruby version >= 1.9.0 2007-12-25 is needed.' . ( Main::newline() . ( 'require \'kp6_runtime\'' . ( Main::newline() . ( Main::newline() . ( $source . Main::newline() ) ) ) ) ) ) ) );
 }
 
 package Val::Int;
