@@ -56,10 +56,6 @@ extern SMOP__Object* smop_lowlevel_refcnt_inc(SMOP__Object* stack, SMOP__Object*
  *                            identifier => "DESTROYALL",
  *                            capture => \($obj: ));
  * $first_node.continuation($second_node);
- * ___POINTER___($obj); # this macro releases the real responder
- *                      # interface of the object, putting a dumb one
- *                      # as for the object to not have its refcount
- *                      # changed anymore. This dumb RI is a NO-OP.
  * my $third_node = Node.new(responder => SMOP__LOWLEVEL__Operators,
  *                           identifier => SMOP__LOWLEVEL__OP__Free,
  *                           capture => $obj );
@@ -102,9 +98,13 @@ extern SMOP__Object* SMOP__LOWLEVEL__Operators;
 /*
  * This operator make a pointer freed. This is an extremely low-level
  * operator that is only available as the destroy code can be called
- * using the stack. It receives an object that must not have its
- * refcount increased (the ___POINTER___ macro handles it). After this
- * call, no other reference to the freed object may be made.
+ * using the stack. It **IGNORES** the current refcount of an object,
+ * you should only call it after being sure this object can be really
+ * freed.
+ *
+ * This special operator will explicitly manipulate the stack to
+ * remove the reference to the object in the capture member of the
+ * node, as no call to RELEASE should be tried afterwards.
  */
 extern SMOP__Object* SMOP__LOWLEVEL__OP__Free;
 
