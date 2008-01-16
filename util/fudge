@@ -1,0 +1,101 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+unless (@ARGV) {
+    die "Usage: $0 implname testfilename";
+}
+my $ME = shift;
+
+my $FUDGE = "";
+our $PENDING = 0;
+my $ARGS = '';
+my $IS = '\\b(?:is|ok|is_deeply|isnt|like|unlike|eval_dies_ok|cmp_ok|isa_ok|use_ok|throws_ok|dies_ok|pass|flunk)\\b';
+
+fudgeblock();
+
+sub fudgeblock {
+    while (<>) {
+	if (/^\#\? (\w+) \: \s* (.*)/x and $1 eq $ME) {
+	    $ARGS = $2;
+	    if ($ARGS =~ s/^(\d+)\s*//) {
+		$PENDING = $1;
+	    }
+	    else {
+		$PENDING = 1;
+	    }
+	    $ARGS =~ s/^(\w+)//;
+	    $FUDGE = $1;
+	}
+
+	next unless $PENDING > 0;
+
+	next if /^\s*#/;
+	next if /^\s*$/;
+
+	if (/^\{/) {
+	    $PENDING--;
+	    if ($FUDGE eq 'todo') {
+		local $PENDING = 999999;	# do all in block as one action
+		fudgeblock();
+	    }
+	    else {
+		my $more;
+		while (defined($more = <>)) {
+		    $_ .= $more;
+		    last if $more =~ /^\}/;
+		}
+		my $numtests = () = m/^(\s*$IS)/mgx;
+		if ($FUDGE eq 'skip') {
+		    s/^/# /mg;
+		    $_ = "skip($numtests, $ARGS);" . $_;
+		}
+		elsif ($FUDGE eq 'try') {
+		    $_ = "try " . $_;
+		}
+		elsif ($FUDGE eq 'eval') {
+		    chomp;
+		    s/(['\\])/\\$1/g;
+		    $_ = "eval '$_' // skip($numtests, $ARGS);\n";
+		}
+		else {
+		    warn "Don't know how to mark block for $FUDGE!\n";
+		}
+	    }
+	}
+	else {
+	    if ($FUDGE eq 'todo') {
+		$PENDING -= s/^/todo$ARGS; / if /^\s*$IS/;
+	    }
+	    else {
+		while ($_ !~ /;[ \t]*(#.*)?$/) {
+		    my $more = <>;
+		    last unless $more;
+		    $_ .= $more;
+		}
+		next unless /^\s*$IS/;
+		$_ = "{ " . $_ . " };\n";
+		if ($FUDGE eq 'skip') {
+		    s/^/# /mg;
+		    $_ = "skip(1,$ARGS); " . $_;
+		}
+		elsif ($FUDGE eq 'try') {
+		    $_ = "try " . $_;
+		}
+		elsif ($FUDGE eq 'eval') {
+		    chomp;
+		    s/(['\\])/\\$1/g;
+		    $_ = "eval '$_' // skip(1,$ARGS);\n";
+		}
+		else {
+		    warn "Don't know how to mark statement for $FUDGE!\n";
+		}
+	    }
+	}
+    }
+    continue {
+	print $_;
+	return if /^\}/ and $PENDING > 0;
+    }
+}
