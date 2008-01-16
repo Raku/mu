@@ -69,6 +69,11 @@ int main(int argc, char** argv) {
 
   SMOP_DISPATCH(NULL, ri, (SMOP__Object*)1, NULL);
 
+  /* At this point, the destruction code for the object will be put in
+   * the stack. That's why we still can call the second method just
+   * below that. The object will only be invalidated when the stack
+   * loop is called.
+   */
   SMOP_RELEASE(stack, obj);
 
   SMOP_DISPATCH(NULL, ri, (SMOP__Object*)2, NULL);
