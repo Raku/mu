@@ -1,0 +1,34 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+my $platform = shift;
+
+use Cwd;
+my $dir = getcwd;
+
+my $SPEC = $dir =~ /\bspec\b/;
+while (not -f "$dir/util/fudge") {
+    die "Not inside pugs directory\n" unless $dir;
+    $dir =~ s!(.*)/(.*)!!;
+}
+
+print join(' ',
+    map {
+	if ($SPEC or m!\bspec\b!) {
+	    my $fud;
+	    if (($fud = $_) =~ s/\.t/.fud/) {
+		warn "$dir/util/fudge $platform $_ >$fud\n";
+		system "$dir/util/fudge $platform $_ >$fud";
+		$fud;
+	    }
+	    else {
+		$_;
+	    }
+	}
+	else {
+	    $_;
+	}
+    } @ARGV
+), "\n";
