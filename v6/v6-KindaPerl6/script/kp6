@@ -475,6 +475,26 @@ for (@COMPILER::CHECK) {
             }
         }
     }
+    elsif ( grep { $_ eq 'ruby' } @opt{qw(C B)} ) {
+        if ( $opt{B} ) {
+
+            # Execute!
+            run_piped_command("$EXECUTABLE_NAME -I$lib - -- @ARGV");
+        }
+        elsif ( $opt{C} ) {
+            if ( $opt{perltidy} ) {
+                Perl::Tidy::perltidy(
+                    source      => \$out,
+                    destination => $output,
+                    perltidyrc  => $opt{perltidyrc},
+                    argv        => '',
+                );
+            }
+            else {
+                print $output $out;
+            }
+        }
+    }
     else {
         print $output $out;
     }
