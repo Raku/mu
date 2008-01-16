@@ -68,19 +68,33 @@
  */
 extern SMOP__Object* SMOP__STACK__Operators;
 
-/* The following 4 operators will allways manipulate the current call
+/* The following 5 operators will allways manipulate the current call
  * stack. It is strongly advised that this should only be called by
  * the interpreter loop itself, with a running stack. They are exposed
  * to the high-level space so you can build a new stack referencing
  * them. Calling this directly will probably cause a segfault.
  * This operators are:
  *
+ * SMOP__STACK__OP_Forget
  * SMOP__STACK__OP_Move_Capturize
  * SMOP__STACK__OP_Move_Identifier
  * SMOP__STACK__OP_Move_MetaClass
  * SMOP__STACK__OP_Move_Copy
  *
  */
+
+/* SMOP__STACK__OP_Forget
+ *
+ * This operator simply drop the past nodes of the current stack and
+ * let them be destroyed. Can be used by optimizers when return values
+ * are no longer needed in a stack frame, causing non-lexical values
+ * to be destroyed even before the end of the block.
+ *
+ * This operator does not receive any parameter. It have a empty
+ * signature and may receive a NULL capture.
+ */
+extern SMOP__Object* SMOP__STACK__OP_Forget;
+
 /* SMOP__STACK__OP_Move_Capturize
  *
  * Creates a low-level capture from previous stack nodes and store it

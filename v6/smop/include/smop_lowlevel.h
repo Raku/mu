@@ -47,30 +47,32 @@ extern SMOP__Object* smop_lowlevel_refcnt_inc(SMOP__Object* stack, SMOP__Object*
  * reference, the continuations will be chained for the destruction.
  *
  * For the sake of documentation, here goes the code equivalent to
- * what happens with the stack during destruction. Considering $?STACK
- * as the current stack and $obj as the object being destroyed.
+ * what happens with the stack during destruction.
+
+# sm0p quoting returns the first node of the literal translation of
+# the code to a set of nodes. (one statement = one node). Here no new
+# stack is defined, and all symbols means the symbol in the outer
+# stack.
+
+my $obj = shift; # object being freed.
+my $current = ___STACK___.current;
+goto ___STACK___: q:sm0p {
+   $current;
+   ___STACK___;
+   $obj.DESTROYALL();
+   SMOP__STACK__Operators.SMOP__STACK__OP_Move_Capturize(
+       |SMOP__STACK__OPCAPTURE_Move_Capturize.new(2,(3),(),3));
+   SMOP__STACK__Operators.SMOP__STACK__OP_Forget();
+   SMOP__STACK__Operators.SMOP__STACK__OP_Free(|$obj);
+   ___STACK___.goto()
+};
+
  *
- * my $continuation = ___STACK___.current();
- * my $first_node = Node.new(result => $continuation);
- * my $second_node = Node.new(responder => ___RI___($obj),
- *                            identifier => "DESTROYALL",
- *                            capture => \($obj: ));
- * $first_node.continuation($second_node);
- * my $third_node = Node.new(responder => SMOP__LOWLEVEL__Operators,
- *                           identifier => SMOP__LOWLEVEL__OP__Free,
- *                           capture => $obj );
- * $second_node.continuation($third_node);
- * my $fourth_node = Node.new(result => ___STACK___);
- * $third_node.continuation($fourth_node);
- * my $fifth_node = Node.new(responder => SMOP__STACK__Operators,
- *                           identifier => SMOP__STACK__OP_Move_Capturize,
- *        capture => SMOP__STACK__OPCAPTURE_Move_Capturize.new(1,(4),(),1));
- * $fourth_node.continuation($fifth_node);
- * my $sixth_node = Node.new(responder => ___RI___(___STACK___),
- *                           identifier => "goto");
- * $fifth_node.continuation($sixth_node);
- * ___STACK___.goto($first_node);
- *
+ * One important thing to notice here is that this would create a deep
+ * recursion, as the object destruction code cause the destruction of
+ * the node objects (the forget op). But this doesn't happen because
+ * the Stack and the Node have custom Responder Interfaces that
+ * doesn't call this code.
  */
 extern SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* stack, SMOP__Object* value);
 
