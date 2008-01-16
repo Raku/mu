@@ -77,7 +77,7 @@ package Evalbot;
                 my $kp6_out  = EvalbotExecuter::run($str, $executer{kp6});
                 my $p6_out   = EvalbotExecuter::run($str, $executer{p6});
 #                my $nqp_out  = EvalbotExecuter::run($str, $executer{nqp});
-                return "kp6: $kp6_out\npugs: $pugs_out\np6: $p6_out";
+                return "kp6: $kp6_out\npugs: $pugs_out\nrakudo: $p6_out";
             } else {
                 return EvalbotExecuter::run($str, $e);
             }
