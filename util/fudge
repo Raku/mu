@@ -52,12 +52,13 @@ sub fudgeblock {
 		    $_ = "skip($numtests, $ARGS);" . $_;
 		}
 		elsif ($FUDGE eq 'try') {
-		    $_ = "try " . $_;
+		    chomp;
+		    $_ = "try($_) // fail($ARGS);\n";
 		}
 		elsif ($FUDGE eq 'eval') {
 		    chomp;
 		    s/(['\\])/\\$1/g;
-		    $_ = "eval '$_' // skip($numtests, $ARGS);\n";
+		    $_ = "eval('$_') // skip($numtests, $ARGS);\n";
 		}
 		else {
 		    warn "Don't know how to mark block for $FUDGE!\n";
@@ -75,18 +76,18 @@ sub fudgeblock {
 		    $_ .= $more;
 		}
 		next unless /^\s*$IS/;
-		$_ = "{ " . $_ . " };\n";
+		$PENDING--;
+		$_ = "{ " . $_ . " }";
 		if ($FUDGE eq 'skip') {
 		    s/^/# /mg;
-		    $_ = "skip(1,$ARGS); " . $_;
+		    $_ = "skip(1,$ARGS); $_\n";
 		}
 		elsif ($FUDGE eq 'try') {
-		    $_ = "try " . $_;
+		    $_ = "try($_) // fail($ARGS)\n";
 		}
 		elsif ($FUDGE eq 'eval') {
-		    chomp;
 		    s/(['\\])/\\$1/g;
-		    $_ = "eval '$_' // skip(1,$ARGS);\n";
+		    $_ = "eval('$_') // skip(1,$ARGS);\n";
 		}
 		else {
 		    warn "Don't know how to mark statement for $FUDGE!\n";
