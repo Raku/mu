@@ -477,12 +477,13 @@ for (@COMPILER::CHECK) {
     }
     elsif ( grep { $_ eq 'ruby' } @opt{qw(C B)} ) {
         if ( $opt{B} ) {
-
             # Execute!
-            run_piped_command("$EXECUTABLE_NAME -I$lib - -- @ARGV");
+            #run_piped_command("$EXECUTABLE_NAME -I$lib - -- @ARGV");
+	    $lib =~ s/perl5-kp6-mp6\/lib/ruby-kp6-mp6/ or die "assert failed";
+	    run_piped_command("ruby -I$lib - -- @ARGV");
         }
         elsif ( $opt{C} ) {
-            if ( $opt{perltidy} ) {
+            if ( 0 && $opt{perltidy} ) {
                 Perl::Tidy::perltidy(
                     source      => \$out,
                     destination => $output,

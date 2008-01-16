@@ -227,6 +227,31 @@ sub mangle_name_lisp {
     return 'kp6-' . CORE::join( '::', @name );    # XXX - no twigil
 }
 
+sub mangle_name_ruby {
+    my ( $sigil, $twigil, $name, $namespace ) = @_;
+
+    my %table = (
+        '$' => 's_',
+        '@' => 'a_',
+        '%' => 'h_',
+        '&' => 'c_',
+        );
+
+    #print "mangle: ($sigil, $twigil, $name, [ @$namespace ] )\n" if $namespace;
+    $name = CORE::join( '::', @$namespace, $name ) if $namespace;
+    $name =~ s/ ([^a-zA-Z0-9_:] | (?<!:):(?!:)) / '_'.ord($1).'_' /xge;
+    my @name = split( /::/, $name );
+    $name[-1] = $table{$sigil} . $name[-1];
+
+    #print "name: @name \n";
+    if (   $twigil eq '*'
+        && @name == 1 )
+    {
+        unshift @name, 'GLOBAL';
+    }
+    return '' . CORE::join( '::', @name );    # XXX - no twigil
+}
+
 sub mangle_ident {
     my ($name) = @_;
     $name =~ s/ ([^a-zA-Z0-9_]) / '_'.ord($1).'_' /xge;
