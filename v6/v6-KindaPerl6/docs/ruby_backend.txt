@@ -14,3 +14,4 @@ so the ruby backend should generate working kp6-p5 code.
 
 LATER:
 - create script/kp6.pl? a p6 version of the p5 script/kp6.
+- rename ruby backend to ruddy (after acceptance).

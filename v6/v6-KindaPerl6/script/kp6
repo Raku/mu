@@ -55,7 +55,7 @@ May be used to enter one line of program.
 
 execute use the compiler backend.
 
-(valid backends are: ast, perl5, perl6, nqp, cl (add -sbcl, -clisp, -ecl under -B)
+(valid backends are: ast, perl5, perl6, nqp, cl (add -sbcl, -clisp, -ecl under -B), ruby)
 
 =item -C[backend]
 
@@ -306,6 +306,10 @@ my @visitors;
     }
     elsif ( grep { $_ eq 'perl5v6' } @opt{qw(C B)} ) {
         push @visitor_sequence, qw( MetaClass Emit::Perl5V6 );
+    }
+    elsif ( grep { $_ eq 'ruby' } @opt{qw(C B)} ) {
+        push @visitor_sequence, qw( Emit::Ruby )
+            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Ruby';
     }
     elsif ( !@visitor_sequence ) {
 
@@ -649,4 +653,8 @@ Emit PIR via L<KindaPerl6::Visitor::Parrot>, currently broken.
 =item --lisp
 
 Emit Common Lisp via L<KindaPerl6::Visitor::Emit::Lisp>.
+
+=item --ruby
+
+Emit Ruby via L<KindaPerl6::Visitor::Emit::Ruby>.
 
