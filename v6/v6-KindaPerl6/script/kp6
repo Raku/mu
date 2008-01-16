@@ -488,7 +488,7 @@ for (@COMPILER::CHECK) {
 	    die("$ruby looks like a pre-release development snapshot of 1.9.0."
 		."\nPlease upgrade to something more recent.")
 		if($version =~ /^ruby 1\.9.*\((20\d\d)-(\d+)-(\d+)/
-		   && ($1 < 2007 || $2 < 12 || $3 < 25));
+		   && ($1 < 2007 || ($1 == 2007 && ($2 < 12 || $3 < 25))));
 	    run_piped_command("$ruby -I$lib - -- @ARGV");
         }
         elsif ( $opt{C} ) {
