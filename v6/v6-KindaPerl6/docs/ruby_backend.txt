@@ -15,3 +15,12 @@ so the ruby backend should generate working kp6-p5 code.
 LATER:
 - create script/kp6.pl? a p6 version of the p5 script/kp6.
 - rename ruby backend to ruddy (after acceptance).
+
+
+To get Emit/Ruby.pm built.
+  # get svn file timestamps correct
+  rm -rf v6-KindaPerl6/compiled
+  svn up
+  # make
+  perl Makefile.PL
+  make kp6_mp6
