@@ -814,7 +814,7 @@ sub main () {
         'index'       => \$index,
         'dir=s'       => \$dir,
         'line-anchor' => \$line_anchor,
-    );
+    ) or help();
 
     if ($help || !@ARGV && !$dir) {
         help();
