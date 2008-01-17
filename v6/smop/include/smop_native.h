@@ -71,6 +71,8 @@
 extern SMOP__Object* SMOP__NATIVE__Operators;
 
 // prototypes
+extern SMOP__Object* SMOP__NATIVE__idconst;
+extern SMOP__Object* SMOP__NATIVE__bytes;
 extern SMOP__Object* SMOP__NATIVE__bit;
 extern SMOP__Object* SMOP__NATIVE__int;
 extern SMOP__Object* SMOP__NATIVE__uint;
@@ -80,6 +82,8 @@ extern SMOP__Object* SMOP__NATIVE__complex;
 extern SMOP__Object* SMOP__NATIVE__bool;
 
 // create methods
+extern SMOP__Object*   SMOP__NATIVE__idconst_create(char* value);
+extern SMOP__Object*   SMOP__NATIVE__bytes_create(char* value, int size);
 extern SMOP__Object*   SMOP__NATIVE__bit_create(int value);
 extern SMOP__Object*   SMOP__NATIVE__int_create(int value);
 extern SMOP__Object*   SMOP__NATIVE__uint_create(unsigned int value);
@@ -89,6 +93,8 @@ extern SMOP__Object*   SMOP__NATIVE__complex_create(double complex value);
 extern SMOP__Object*   SMOP__NATIVE__bool_create(int value);
 
 // get methods
+extern char*            SMOP__NATIVE__idconst_fetch(SMOP__Object* value);
+extern char*            SMOP__NATIVE__bytes_fetch(SMOP__Object* value, int* retsize);
 extern int              SMOP__NATIVE__bit_fetch(SMOP__Object* value);
 extern int              SMOP__NATIVE__int_fetch(SMOP__Object* value);
 extern unsigned int     SMOP__NATIVE__uint_fetch(SMOP__Object* value);
@@ -96,14 +102,5 @@ extern char*            SMOP__NATIVE__buf_fetch(SMOP__Object* value, int* retsiz
 extern double           SMOP__NATIVE__num_fetch(SMOP__Object* value);
 extern double complex   SMOP__NATIVE__complex_fetch(SMOP__Object* value);
 extern int              SMOP__NATIVE__bool_fetch(SMOP__Object* value);
-
-// set methods
-extern void             SMOP__NATIVE__bit_store(SMOP__Object* value, int newvalue);
-extern void             SMOP__NATIVE__int_store(SMOP__Object* value, int newvalue);
-extern void             SMOP__NATIVE__uint_store(SMOP__Object* value, unsigned int newvalue);
-extern void             SMOP__NATIVE__buf_store(SMOP__Object* value, int newbytesize, char* newvalue);
-extern void             SMOP__NATIVE__num_store(SMOP__Object* value, double newvalue);
-extern void             SMOP__NATIVE__complex_store(SMOP__Object* value, double complex newvalue);
-extern void             SMOP__NATIVE__bool_store(SMOP__Object* value, int newvalue);
 
 #endif
