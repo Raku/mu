@@ -46,20 +46,14 @@ int main(int argc, char** argv) {
 
   SMOP__Object* node;
 
-  /*#!# sm0p code
-   *
-
   node = q:sm0p {
-     ;
-     obj.method1();
-     obj.method2();
-     obj.method3();
-     obj.method4();
+    ;
+    $obj.method1();
+    $obj.method2();
+    $obj.method3();
+    $obj.method4();
   };
-
-   *
-   */
-
+  
   SMOP__Object* push_capture = smop__stack__stack_push_capture(stack, node);
   SMOP_DISPATCH(NULL, SMOP_RI(stack),
                 SMOP__STACK__Stack_push, push_capture);
