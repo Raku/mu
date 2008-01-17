@@ -24,18 +24,19 @@ ok(roundrobin(1..3) eqv 1..3, 'roundrobin list identity');
 ok(roundrobin([1..3]) eqv 1..3, 'roundrobin array identity');
 
 # Next 2 work.  Just waiting on eqv.
-
+#
+#?pugs: 2 todo 'These tests depend on eqv'
 ok(roundrobin({'a'=>1,'b'=>2,'c'=>3}) eqv ('a'=>1,'b'=>2,'c'=>3),
-    'roundrobin hash identity', :todo<feature>, depends<eqv>);
+    'roundrobin hash identity';
 
 ok(roundrobin((); 1; 2..4; [5..7]; {'a'=>1,'b'=>2})
-    eqv (1, 2, 5, 'a'=>1, 3, 6, 'b'=>2, 4, 7), 'basic roundrobin',
-    :todo<feature>, :depends<eqv>);
+    eqv (1, 2, 5, 'a'=>1, 3, 6, 'b'=>2, 4, 7), 'basic roundrobin');
 
-ok(roundrobin(:shortest, 1; 1..2; 1..3) eqv (1), 'roundrobin :shortest',
-    :todo<feature>);
+#?pugs: todo 'feature'
+ok(roundrobin(:shortest, 1; 1..2; 1..3) eqv (1), 'roundrobin :shortest');
 
-flunk('roundrobin :finite', :todo<feature>, :depends<lazy roundrobin>);
+#?pugs: todo 'these tests depend on lazy roundrobin'
+flunk('roundrobin :finite');
 
 =begin lazy_roundrobin
 

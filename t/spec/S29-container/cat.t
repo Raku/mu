@@ -24,8 +24,9 @@ ok(cat([1..3]) eqv 1..3, 'cat array identity');
 
 # These below work.  Just waiting on eqv.
 
+#?pugs: 2 todo 'These tests depend on eqv'
 ok(cat({'a'=>1,'b'=>2,'c'=>3}) eqv ('a'=>1, 'b'=>2, 'c'=>3),
-    'cat hash identity', :todo<feature>, :depends<eqv>);
+    'cat hash identity');
 
-ok(cat((); 1; 2..4; [5..7], {'a'=>1,'b'=>2}) eqv (1..7, 'a'=>1, 'b'=>2),
-    'basic cat', :todo<feature>, :depends<eqv>);
+ok(cat((); 1; 2..4; [5..7], {'a'=>1,'b'=>2}) eqv (1..7, 'a'=>1, 'b'=>2)
+    'basic cat');
