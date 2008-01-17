@@ -38,7 +38,8 @@ try {
     is( $foo.WHAT, Pair, 'arg to be given as die() arg contains a Pair value' );
     die $foo;
 };
-is( $!.WHAT, Pair, 'following try { die() } with Pair arg, $! contains a Pair value', :todo<bug> );
+#?pugs: todo 'bug'
+is( $!.WHAT, Pair, 'following try { die() } with Pair arg, $! contains a Pair value');
 
 try {
     my Object $foo .= new();
