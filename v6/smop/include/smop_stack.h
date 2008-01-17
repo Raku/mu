@@ -125,8 +125,8 @@ extern SMOP__Object* SMOP__STACK__Operators;
  */
 #define SMOP__STACK__OP_Move_Capturize SMOP__ID__move_capturize
 SMOP__Object* smop__stack__opcapture_move_capturize_new(int invocant,
-                                                          int** positional,
-                                                          int** named,
+                                                          int* positional,
+                                                          int* named,
                                                           int target);
 extern SMOP__Object* SMOP__STACK__OPCAPTURE_Move_Capturize;
 
