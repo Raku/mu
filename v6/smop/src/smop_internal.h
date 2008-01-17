@@ -5,15 +5,13 @@
  */
 
 #define SMOP_INTERNAL_INIT_SEQUENCE   \
-     smop_idconst_init()
+     smop_idconst_init();
 
 #define SMOP_INTERNAL_DESTR_SEQUENCE  \
-     smop_idconst_destr()
+     smop_idconst_destr();
 
 // idconst
 void smop_idconst_init();
-vodd smop_idconst_destr();
-
-
+void smop_idconst_destr();
 
 #endif
