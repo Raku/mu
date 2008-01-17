@@ -61,10 +61,10 @@ goto ___STACK___: q:sm0p {
    $current;
    ___STACK___;
    $obj.DESTROYALL();
-   SMOP__STACK__Operators.SMOP__STACK__OP_Move_Capturize(
+   SMOP__STACK__Operators.move_capturize(
        |SMOP__STACK__OPCAPTURE_Move_Capturize.new(2,(3),(),3));
-   SMOP__STACK__Operators.SMOP__STACK__OP_Forget();
-   SMOP__STACK__Operators.SMOP__STACK__OP_Free(|$obj);
+   SMOP__STACK__Operators.forget();
+   SMOP__STACK__Operators.free(|$obj);
    ___STACK___.goto()
 };
 
