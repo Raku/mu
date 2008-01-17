@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 10 Jan 2008
+  Last Modified: 17 Jan 2008
   Number: 2
-  Version: 125
+  Version: 126
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -3014,6 +3014,29 @@ which of their values are true and which are false.  Individual objects
 can override the class definition:
 
     return 0 but True;
+
+=item *
+
+The definition of C<.true> for the most ancestral type (that is, the
+C<Object> type) is equivalent to C<.defined>.  Since protoobjects are
+considered undefined, all protoobjects (including C<Object> itself)
+are false unless the type overrides the definition of C<.true>
+to include undefined values.  Instantiated objects default to true
+unless the class overrides the definition.  Note that if you could
+instantiate an C<Object> it would be considered defined, and thus true.
+(It is not clear that this is allowed, however.)
+
+=item *
+
+In general any container types should return false if they are empty,
+and true otherwise.  This is true of all the standard container types
+except Scalar, which always defers the definition of truth to its
+contents.  Non-container types define truthiness much as Perl 5 does.
+
+Just as with the standard types, user-defined types should feel free
+to partition their defined values into true and false values if such
+a partition makes sense in control flow using boolean contexts, since
+the separate C<.defined> method is always there if you need it.
 
 =back
 
