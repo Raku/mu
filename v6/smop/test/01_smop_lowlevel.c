@@ -81,6 +81,7 @@ int main(int argc, char** argv) {
   SMOP__Object* loop_capture = smop__stack__stack_loop_capture(stack);
   SMOP_DISPATCH(NULL, SMOP_RI(stack),
                 SMOP__STACK__Stack_loop, loop_capture);
+  SMOP_RELEASE(NULL, loop_capture);
 
   SMOP_RELEASE(NULL, stack);
 
