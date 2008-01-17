@@ -11,11 +11,6 @@ Tests for the eval() builtin
 =cut
 
 
-if $?PUGS_BACKEND ne "BACKEND_PUGS" {
-  skip_rest "PIL2JS and PIL-Run do not support eval() yet.";
-  exit;
-}
-
 # eval should evaluate the code in the lexical scope of eval's caller
 sub make_eval_closure { my $a = 5; sub ($s) { eval $s } };
 is(make_eval_closure()('$a'), 5);
@@ -35,4 +30,3 @@ sub v { 123 }
 ok(v() == 123, "a plain subroutine");
 eval 'sub v { 456 }';
 ok(v() == 456, "eval can overwrite a subroutine");
-
