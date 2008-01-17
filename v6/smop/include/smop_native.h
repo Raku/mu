@@ -82,25 +82,29 @@ extern SMOP__Object* SMOP__NATIVE__complex;
 extern SMOP__Object* SMOP__NATIVE__bool;
 
 // create methods
-extern SMOP__Object*   SMOP__NATIVE__idconst_create(char* value);
-extern SMOP__Object*   SMOP__NATIVE__bytes_create(char* value, int size);
-extern SMOP__Object*   SMOP__NATIVE__bit_create(int value);
-extern SMOP__Object*   SMOP__NATIVE__int_create(int value);
-extern SMOP__Object*   SMOP__NATIVE__uint_create(unsigned int value);
-extern SMOP__Object*   SMOP__NATIVE__buf_create(int bytesize, char* unicodestr);
-extern SMOP__Object*   SMOP__NATIVE__num_create(double value);
-extern SMOP__Object*   SMOP__NATIVE__complex_create(double complex value);
-extern SMOP__Object*   SMOP__NATIVE__bool_create(int value);
+SMOP__Object*   SMOP__NATIVE__idconst_create(char* value);
+SMOP__Object*   SMOP__NATIVE__bytes_create(char* value, int size);
+SMOP__Object*   SMOP__NATIVE__bit_create(int value);
+SMOP__Object*   SMOP__NATIVE__int_create(int value);
+SMOP__Object*   SMOP__NATIVE__uint_create(unsigned int value);
+SMOP__Object*   SMOP__NATIVE__buf_create(int bytesize, char* unicodestr);
+SMOP__Object*   SMOP__NATIVE__num_create(double value);
+SMOP__Object*   SMOP__NATIVE__complex_create(double complex value);
+SMOP__Object*   SMOP__NATIVE__bool_create(int value);
 
 // get methods
-extern char*            SMOP__NATIVE__idconst_fetch(SMOP__Object* value);
-extern char*            SMOP__NATIVE__bytes_fetch(SMOP__Object* value, int* retsize);
-extern int              SMOP__NATIVE__bit_fetch(SMOP__Object* value);
-extern int              SMOP__NATIVE__int_fetch(SMOP__Object* value);
-extern unsigned int     SMOP__NATIVE__uint_fetch(SMOP__Object* value);
-extern char*            SMOP__NATIVE__buf_fetch(SMOP__Object* value, int* retsize);
-extern double           SMOP__NATIVE__num_fetch(SMOP__Object* value);
-extern double complex   SMOP__NATIVE__complex_fetch(SMOP__Object* value);
-extern int              SMOP__NATIVE__bool_fetch(SMOP__Object* value);
+char*           SMOP__NATIVE__idconst_fetch(SMOP__Object* value);
+char*           SMOP__NATIVE__bytes_fetch(SMOP__Object* value, int* retsize);
+int             SMOP__NATIVE__bit_fetch(SMOP__Object* value);
+int             SMOP__NATIVE__int_fetch(SMOP__Object* value);
+unsigned int    SMOP__NATIVE__uint_fetch(SMOP__Object* value);
+char*           SMOP__NATIVE__buf_fetch(SMOP__Object* value, int* retsize);
+double          SMOP__NATIVE__num_fetch(SMOP__Object* value);
+double complex  SMOP__NATIVE__complex_fetch(SMOP__Object* value);
+int             SMOP__NATIVE__bool_fetch(SMOP__Object* value);
+
+// idconst isn't subject to gc, you need a explicit free
+void            SMOP__NATIVE__idconst_free(SMOP__Object* value);
+
 
 #endif

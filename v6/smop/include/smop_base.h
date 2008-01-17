@@ -13,9 +13,12 @@ struct SMOP__ResponderInterface; typedef struct SMOP__ResponderInterface SMOP__R
  * interface. Every object must have a responder interface. If it
  * doesn't, it is considered itself as one.
  */
-struct SMOP__Object {
-  SMOP__ResponderInterface* RI;
+#define SMOP__Object__BASE        \
+  SMOP__ResponderInterface* RI;   \
   void* data;
+
+struct SMOP__Object {
+  SMOP__Object__BASE
 };
 
 /*
@@ -38,19 +41,22 @@ struct SMOP__Object {
  * without it it would be impossible to implement a refcount gc. Both
  * methods return the input pointer.
  */
+#define SMOP__ResponderInterface__BASE                            \
+  SMOP__Object* (*MESSAGE)  (SMOP__Object* stack,                 \
+                             SMOP__ResponderInterface* self,      \
+                             SMOP__Object* identifier,            \
+                             SMOP__Object* capture);              \
+  SMOP__Object* (*REFERENCE)(SMOP__Object* stack,                 \ 
+                             SMOP__ResponderInterface* self,      \
+                             SMOP__Object* object);               \
+  SMOP__Object* (*RELEASE)  (SMOP__Object* stack,                 \ 
+                             SMOP__ResponderInterface* self,      \
+                             SMOP__Object* object);
+
+
 struct SMOP__ResponderInterface {
-  SMOP__ResponderInterface* RI;
-  void* data;
-  SMOP__Object* (*MESSAGE)  (SMOP__Object* stack,
-                             SMOP__ResponderInterface* self,
-                             SMOP__Object* identifier,
-                             SMOP__Object* capture);
-  SMOP__Object* (*REFERENCE)(SMOP__Object* stack,
-                             SMOP__ResponderInterface* self,
-                             SMOP__Object* object);
-  SMOP__Object* (*RELEASE)  (SMOP__Object* stack,
-                             SMOP__ResponderInterface* self,
-                             SMOP__Object* object);
+  SMOP__Object__BASE
+  SMOP__ResponderInterface__BASE
 }
 
 /* Every object in SMOP must be binary compatible with one of these
