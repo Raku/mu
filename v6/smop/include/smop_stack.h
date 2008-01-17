@@ -93,7 +93,7 @@ extern SMOP__Object* SMOP__STACK__Operators;
  * This operator does not receive any parameter. It have a empty
  * signature and may receive a NULL capture.
  */
-extern SMOP__Object* SMOP__STACK__OP_Forget;
+#define SMOP__STACK__OP_Forget SMOP__ID__forget
 
 /* SMOP__STACK__OP_Move_Capturize
  *
@@ -123,7 +123,7 @@ extern SMOP__Object* SMOP__STACK__OP_Forget;
  * be (int, List of int, List of int, int). But again, this is just
  * the capture creator for the operator and not the operator itself.
  */
-extern SMOP__Object* SMOP__STACK__OP_Move_Capturize;
+#define SMOP__STACK__OP_Move_Capturize SMOP__ID__move_capturize
 SMOP__Object* smop__stack__opcapture_move_capturize_new(int invocant,
                                                           int** positional,
                                                           int** named,
@@ -151,34 +151,34 @@ extern SMOP__Object* SMOP__STACK__OPCAPTURE_Move_Capturize;
  * compatible with this operator. The "new" signature will be (int,
  * int).
  */
-extern SMOP__Object* SMOP__STACK__OP_Move_Identifier;
+#define SMOP__STACK__OP_Move_Identifier SMOP__ID__move_identifier
 SMOP__Object* smop__stack__opcapture_move_identifier_new(int source, int target);
 extern SMOP__Object* SMOP__STACK__OPCAPTURE_Move_Identifier;
 
-/* SMOP__STACK__OP_Move_MetaClass
+/* SMOP__STACK__OP_Move_Responder
  *
  * Move the result of a given past node to a target node as the
- * metaclass of the message. This operator shouldn't probably be used
+ * responder of the message. This operator shouldn't probably be used
  * directly from the high-level as it operates on the current stack,
  * being only referenced in nodes for future evaluation. This operator
  * moves the result, if you want to use a result more than once, use
  * the copy operator.
  *
- * lowlevel C call: smop__stack__opcapture_move_metaclass_new
+ * lowlevel C call: smop__stack__opcapture_move_responder_new
  *
  * This subroutine receives two C ints and creates an object that can
  * be used as a capture for the above operator. It doesn't call the
  * operator itself.
  *
- * highlevel capture prototype: SMOP__STACK__OPCAPTURE_Move_MetaClass
+ * highlevel capture prototype: SMOP__STACK__OPCAPTURE_Move_Responder
  *
  * This is the prototype that will be able to create an object
  * compatible with this operator. The "new" signature will be (int,
  * int).
  */
-extern SMOP__Object* SMOP__STACK__OP_Move_MetaClass;
-SMOP__Object* smop__stack__opcapture_move_metaclass_new(int source, int target);
-extern SMOP__Object* SMOP__STACK__OPCAPTURE_Move_MetaClass;
+#define SMOP__STACK__OP_Move_Responder SMOP__ID__move_responder
+SMOP__Object* smop__stack__opcapture_move_responder_new(int source, int target);
+extern SMOP__Object* SMOP__STACK__OPCAPTURE_Move_Responder;
 
 /* SMOP__STACK__OP_Copy
  *
@@ -199,7 +199,7 @@ extern SMOP__Object* SMOP__STACK__OPCAPTURE_Move_MetaClass;
  * compatible with this operator. The "new" signature will simply be
  * (int).
  */
-extern SMOP__Object* SMOP__STACK__OP_Copy;
+#define SMOP__STACK__OP_Copy SMOP__ID__copy
 SMOP__Object* smop__stack__opcapture_copy_new(int source);
 extern SMOP__Object* SMOP__STACK__OPCAPTURE_Copy;
 
@@ -267,7 +267,7 @@ extern SMOP__Object* SMOP__STACK__Stack;
  * Lowlevel C call: not necessary, you can actually pass
  * NULL as the capture.
  */
-extern SMOP__Object* SMOP__STACK__Stack_new;
+#define SMOP__STACK__Stack_new SMOP__ID__new
 
 /* SMOP__STACK__Stack_push
  *
@@ -296,7 +296,7 @@ extern SMOP__Object* SMOP__STACK__Stack_new;
  *     smop__stack__stack_push_capture(SMOP__Object* stack,
  *                                     SMOP__Object* node);
  */
-extern SMOP__Object* SMOP__STACK__Stack_push;
+#define SMOP__STACK__Stack_push SMOP__ID__push
 SMOP__Object* smop__stack__stack_push_capture(SMOP__Object* stack,
                                               SMOP__Object* node);
 
@@ -321,7 +321,7 @@ SMOP__Object* smop__stack__stack_push_capture(SMOP__Object* stack,
  *                                          SMOP__Object* node);
  * 
  */
-extern SMOP__Object* SMOP__STACK__Stack_continues;
+#define SMOP__STACK__Stack_continues SMOP__ID__continues
 SMOP__Object* smop__stack__stack_continues_capture(SMOP__Object* stack,
                                                    SMOP__Object* node);
 
@@ -357,7 +357,7 @@ SMOP__Object* smop__stack__stack_continues_capture(SMOP__Object* stack,
  * Lowlevel C call:
  *     smop__stack__stack_next_capture(SMOP__Object* stack);
  */
-extern SMOP__Object* SMOP__STACK__Stack_next;
+#define SMOP__STACK__Stack_next SMOP__ID__next
 SMOP__Object* smop__stack__stack_next_capture(SMOP__Object* stack);
 
 /* SMOP__STACK__Stack_current
@@ -370,7 +370,7 @@ SMOP__Object* smop__stack__stack_next_capture(SMOP__Object* stack);
  * Lowlevel C call:
  *     smop__stack__stack_current_capture(SMOP__Object* stack);
  */
-extern SMOP__Object* SMOP__STACK__Stack_current;
+#define SMOP__STACK__Stack_current SMOP__ID__current
 SMOP__Object* smop__stack__stack_current_capture(SMOP__Object* stack);
 
 /* SMOP__STACK__Stack_goto
@@ -388,7 +388,7 @@ SMOP__Object* smop__stack__stack_current_capture(SMOP__Object* stack);
  * Lowlevel C call:
  *     smop__stack__stack_goto_capture(SMOP__Object* stack, SMOP__Object* node);
  */
-extern SMOP__Object* SMOP__STACK__Stack_goto;
+#define SMOP__STACK__Stack_goto SMOP__ID__goto
 SMOP__Object* smop__stack__stack_goto_capture(SMOP__Object* stack, SMOP__Object* node);
 
 /* SMOP__STACK__Stack_eval
@@ -405,7 +405,7 @@ SMOP__Object* smop__stack__stack_goto_capture(SMOP__Object* stack, SMOP__Object*
  * Lowlevel C call:
  *     smop__stack__stack_eval_capture(SMOP__Object* stack);
  */
-extern SMOP__Object* SMOP__STACK__Stack_eval;
+#define SMOP__STACK__Stack_eval SMOP__ID__eval
 SMOP__Object* smop__stack__stack_current_capture(SMOP__Object* stack);
 
 /* SMOP__STACK__Stack_result
@@ -419,7 +419,7 @@ SMOP__Object* smop__stack__stack_current_capture(SMOP__Object* stack);
  * Lowlevel C call:
  *     smop__stack__stack_result_capture(SMOP__Object* stack, int node);
  */
-extern SMOP__Object* SMOP__STACK__Stack_result;
+#define SMOP__STACK__Stack_result SMOP__ID__result
 SMOP__Object* smop__stack__stack_result_capture(SMOP__Object* stack, int node);
 
 /* SMOP__STACK__Stack_has_next
@@ -431,7 +431,7 @@ SMOP__Object* smop__stack__stack_result_capture(SMOP__Object* stack, int node);
  * Lowlevel C call:
  *     smop__stack__stack_has_next_capture(SMOP__Object* stack);
  */
-extern SMOP__Object* SMOP__STACK__Stack_has_next;
+#define SMOP__STACK__Stack_has_next SMOP__ID__has_next
 SMOP__Object* smop__stack__stack_has_next_capture(SMOP__Object* stack);
 
 /* SMOP__STACK__Stack_loop
@@ -446,7 +446,7 @@ SMOP__Object* smop__stack__stack_has_next_capture(SMOP__Object* stack);
  * Lowlevel C call:
  *     smop__stack__stack_loop_capture(SMOP__Object* stack);
  */
-extern SMOP__Object* SMOP__STACK__Stack_loop;
+#define SMOP__STACK__Stack_loop SMOP__ID__loop
 SMOP__Object* smop__stack__stack_loop_capture(SMOP__Object* stack);
 
 /* SMOP__STACK__Node
@@ -482,7 +482,7 @@ extern SMOP__Object* SMOP__STACK__Node;
  *                    SMOP_Object* past,
  *                    SMOP_Object* result)
  */
-extern SMOP__Object* SMOP__STACK__Node_new;
+#define SMOP__STACK__Node_new SMOP__ID__new
 SMOP__Object* smop__stack__node_new_capture(SMOP_Object* responder,
                                              SMOP_Object* identifier,
                                              SMOP_Object* capture,
@@ -517,25 +517,25 @@ SMOP__Object* smop__stack__node_accessor_capture(SMOP__Object* node,
  *
  * The responder interface that will answer to this node.
  */
-extern SMOP__Object* SMOP__STACK__Node_responder;
+#define SMOP__STACK__Node_responder SMOP__ID__responder
 
 /* SMOP__STACK__Node_identifier
  *
  * The identifier of the message
  */
-extern SMOP__Object* SMOP__STACK__Node_identifier;
+#define SMOP__STACK__Node_identifier SMOP__ID__identifier
 
 /* SMOP__STACK__Node_capture
  *
  * The arguments of the message
  */
-extern SMOP__Object* SMOP__STACK__Node_capture;
+#define SMOP__STACK__Node_capture SMOP__ID__capture
 
 /* SMOP__STACK__Node_debug
  *
  * Debug information about the node
  */
-extern SMOP__Object* SMOP__STACK__Node_debug;
+#define SMOP__STACK__Node_debug SMOP__ID__debug
 
 /* SMOP__STACK__Node_jail
  * 
@@ -544,37 +544,37 @@ extern SMOP__Object* SMOP__STACK__Node_debug;
  * unwinding the stack. Nothing says that the operator *must* stop on
  * any jail.
  */
-extern SMOP__Object* SMOP__STACK__Node_jail;
+#define SMOP__STACK__Node_jail SMOP__ID__jail
 
 /* SMOP__STACK__Node_lexical
  *
  * The reference to the lexical scope in this node.
  */
-extern SMOP__Object* SMOP__STACK__Node_lexical;
+#define SMOP__STACK__Node_lexical SMOP__ID__lexical
 
 /* SMOP__STACK__Node_outer
  *
  * The currently selected node in the outer frame.
  */
-extern SMOP__Object* SMOP__STACK__Node_outer;
+#define SMOP__STACK__Node_outer SMOP__ID__outer
 
 /* SMOP__STACK__Node_continuation
  *
  * The continuation of this node
  */
-extern SMOP__Object* SMOP__STACK__Node_continuation;
+#define SMOP__STACK__Node_continuation SMOP__ID__continuation
 
 /* SMOP__STACK__Node_past
  *
  * The node that was executed before this one
  */
-extern SMOP__Object* SMOP__STACK__Node_past;
+#define SMOP__STACK__Node_past SMOP__ID__past
 
 /* SMOP__STACK__Node_result
  *
  * The result evaluation of this node
  */
-extern SMOP__Object* SMOP__STACK__Node_result;
+#define SMOP__STACK__Node_result SMOP__ID__result
 
 
 #endif

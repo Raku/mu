@@ -109,6 +109,6 @@ extern SMOP__Object* SMOP__LOWLEVEL__Operators;
  * remove the reference to the object in the capture member of the
  * node, as no call to RELEASE should be tried afterwards.
  */
-extern SMOP__Object* SMOP__LOWLEVEL__OP__Free;
+#define SMOP__LOWLEVEL__OP__Free SMOP__ID__free
 
 #endif

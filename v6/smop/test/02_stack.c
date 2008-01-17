@@ -18,13 +18,13 @@ static SMOP__Object* custom_MESSAGE(SMOP__Object* stack,
   if (identifier == method1) {
     printf("ok 1 - method1 called.\n");
   } else if (identifier == method2) {
-    printf("ok 2 - method1 called.\n");
+    printf("ok 2 - method2 called.\n");
   } else if (identifier == method3) {
-    printf("ok 3 - method1 called.\n");
+    printf("ok 3 - method3 called.\n");
   } else if (identifier == method4) {
-    printf("ok 4 - method1 called.\n");
+    printf("ok 4 - method4 called.\n");
   } else if (identifier == DESTROYALL) {
-    printf("ok 5 - method1 called.\n");
+    printf("ok 5 - DESTROYALL called.\n");
   } else {
     printf("not ok - unknown method called %p.\n",identifier);
   }
@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
   SMOP__Object* node;
 
   node = q:sm0p {
-    ;
+    ; # keep an empty node at the start, as this node will not be evaluated.
     $obj.method1();
     $obj.method2();
     $obj.method3();
