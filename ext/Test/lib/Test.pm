@@ -187,12 +187,12 @@ sub version_lt (Str $version1, Str $version2) returns Bool {
     return False;
 }
 
-sub todo (*%deadline) returns Bool is export {
+sub todo (Str $reason = "fix", *%deadline) returns Bool is export {
     #warn "!!!", %deadline;
     return if ! $?COMPILER.defined;
-    my $spec_ver = %deadline{lc($?COMPILER)};
-    if (!$spec_ver.defined or $spec_ver eq '1' or Test::version_lt($?VERSION, $spec_ver)) {
-        $Test::todo_next_test = True;
+    my $spec_ver = %deadline{lc($?COMPILER)} // %deadline<by> // "Christmas";
+    if (!$spec_ver.defined or $spec_ver eq '1' or $spec_ver gt '9' or Test::version_lt($?VERSION, $spec_ver)) {
+        $Test::todo_next_test = "$reason by $spec_ver" // True;
         return True;
     }
     return False;
@@ -251,7 +251,7 @@ sub proclaim (Bool $cond, Str $desc? is copy, $todo?, Str $got?, Str $expected?,
 
     #warn "todo_next_test: $Test::todo_next_test";
     if $Test::todo_next_test {
-        $context =  "TODO" ~ ($todo.isa('Str') ?? " $todo" !! '');
+        $context =  "TODO " ~ ($todo.isa('Str') ?? $todo !!  $Test::todo_next_test // '');
         $Test::todo_next_test = False;
     } elsif $todo {
         if (substr($todo, 0, 4) eq 'skip') {

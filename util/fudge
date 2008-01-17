@@ -25,7 +25,7 @@ sub fudgeblock {
 	    else {
 		$PENDING = 1;
 	    }
-	    $ARGS =~ s/^(\w+)//;
+	    $ARGS =~ s/^(\w+)\s*//;
 	    $FUDGE = $1;
 	}
 
@@ -38,7 +38,9 @@ sub fudgeblock {
 	    $PENDING--;
 	    if ($FUDGE eq 'todo') {
 		local $PENDING = 999999;	# do all in block as one action
+		print $_;
 		fudgeblock();
+		$_ = '';
 	    }
 	    else {
 		my $more;
@@ -67,7 +69,7 @@ sub fudgeblock {
 	}
 	else {
 	    if ($FUDGE eq 'todo') {
-		$PENDING -= s/^/todo$ARGS; / if /^\s*$IS/;
+		$PENDING -= s/^(\s*)/${1}todo($ARGS); / if /^\s*$IS/;
 	    }
 	    else {
 		while ($_ !~ /;[ \t]*(#.*)?$/) {
