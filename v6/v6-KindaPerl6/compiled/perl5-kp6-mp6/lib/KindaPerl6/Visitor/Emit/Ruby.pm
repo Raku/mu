@@ -82,7 +82,7 @@ sub emit_ruby {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( '::DISPATCH( $::Str, \'new\', ' . ( Main::singlequote() . ( Main::mangle_string( $self->{buf} ) . ( Main::singlequote() . ( ' )' . Main::newline() ) ) ) ) );
+    ( ' ' . ( Main::singlequote() . ( Main::mangle_string( $self->{buf} ) . Main::singlequote() ) ) );
 }
 
 package Val::Char;
