@@ -10,27 +10,14 @@ Testing regex modifiers.  There are a bunch of these, and I have only
 just started the list.  Please fill in more, preferably in the order
 they are listed in the synopsis, and with accurate links.
 
+These tests are being migrated away to t/spec/S05-modifier/*.t
+
 =cut
 
 if !eval('("a" ~~ /a/)') {
   skip_rest "skipped tests - rules support appears to be missing";
   exit;
 }
-
-#L<S05/Modifiers/"The :i">
-
-{
-  regex mixedcase { Hello };
-  "Hello" ~~ m/<mixedcase>/;
-  is(~$/, "Hello", "match mixed case");
-  "hello" ~~ m/<mixedcase>/;
-  is(~$/, "", "do not match lowercase");
-  "hello" ~~ m:i/<mixedcase>/;
-  is(~$/, "hello", "match with :i");
-  "hello" ~~ m:ignorecase/<mixedcase>/;
-  is(~$/, "hello", "match with :ignorecase");
-  ok('Δ' ~~ m:i/δ/, ':i with greek chars');
-};
 
 #L<S05/Modifiers/"The :c">
 

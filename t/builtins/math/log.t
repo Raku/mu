@@ -34,12 +34,12 @@ is_approx(log10(0.1), -0.9999999999999998, 'got the log10 of 0.1');
 # I use 1i instead of i since I don't know if a bare i will be supported
  
 # log(exp(i pi)) = i pi log(exp(1)) = i pi
-ok(approx(log(-1,), 0 + 1i * pi), "got the log of -1", :todo<feature>);
-ok(approx(log10(-1), 0 + 1i * pi), "got the log10 of -1", :todo<feature>);
+ok(approx(log(-1 + 0i,), 0 + 1i * pi), "got the log of -1", :todo<feature>);
+ok(approx(log10(-1 + 0i), 0 + 1i * pi), "got the log10 of -1", :todo<feature>);
 
 # log(exp(1+i pi)) = 1 + i pi
-ok(approx(log(-exp(1)), 1 + 1i * pi), "got the log of -e", :todo<feature>);
-ok(approx(log10(-10), 1 + 1i * pi), "got the log10 of -10", :todo<feature>);
+ok(approx(log(-exp(1)) + 0i, 1 + 1i * pi), "got the log of -e", :todo<feature>);
+ok(approx(log10(-10 + 0i), 1 + 1i * pi), "got the log10 of -10", :todo<feature>);
 
 ok(approx(log((1+1i) / sqrt(2)), 1 + 1i * pi / 4), "got log of exp(i pi/4)", :todo<feature>);
 ok(approx(log(1i), 1i * pi / 2), "got the log of i (complex unit)");
