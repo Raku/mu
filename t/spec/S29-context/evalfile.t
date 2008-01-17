@@ -1,5 +1,6 @@
 use v6-alpha;
 use Test;
+
 plan 1;
 
 # L<S29/Context/"=item evalfile">
@@ -7,8 +8,8 @@ plan 1;
 sub nonce () { return (".$*PID." ~ int rand 1000) }
 
 if $*OS eq "browser" {
-  skip_rest "Programs running in browsers don't have access to regular IO.";
-  exit;
+    skip_rest "Programs running in browsers don't have access to regular IO.";
+    exit;
 }
 
 my $tmpfile = "temp-evalfile" ~ nonce();
