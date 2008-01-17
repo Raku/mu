@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 10 Jan 2008
+   Last Modified: 17 Jan 2008
    Number: 5
-   Version: 70
+   Version: 71
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -192,7 +192,9 @@ subrules always use their own case settings.
 
 The C<:ii> variant may be used on a substitution to change the
 substituted string to the same case pattern as the matched string.
-Case info is carried across on a character by character basis.  If the
+
+If the pattern is matched without the C<:sigspace> modifier, case
+info is carried across on a character by character basis.  If the
 right string is longer than the left one, the case of the final
 character is replicated.  Titlecase is carried across if possible
 regardless of whether the resulting letter is at the beginning of
@@ -200,7 +202,28 @@ a word or not; if there is no titlecase character available, the
 corresponding uppercase character is used.  (This policy can be
 modified within a lexical scope by a language-dependent Unicode
 declaration to substitute titlecase according to the orthographic
-rules of the specified language.)
+rules of the specified language.)  Characters that carry no case
+information leave their corresponding replacement character unchanged.
+
+If the pattern is matched with C<:sigspace>, then a slightly smarter
+algorithm is used which attempts to determine if there is a uniform
+capitalization policy over each matched word, and applies the same
+policy to each replacement word.  If there doesn't seem to be a uniform
+policy on the left, the policy for each word is carried over word by
+word, with the last pattern word replicated if necessary.  If a word
+does not appear to have a recognizable policy, the replacement word
+is translated character for character as in the non-sigspace case.
+Recognized policies include:
+
+    lc()
+    uc()
+    ucfirst(lc())
+    lcfirst(uc())
+    capitalize()
+
+In any case, only the officially matched string part of the pattern
+match counts, so any sort of lookahead or contextual matching is not
+included in the analysis.
 
 =item *
 
@@ -220,6 +243,7 @@ Accent info is carried across on a character by character basis.  If
 the right string is longer than the left one, the remaining characters
 are substituted without any modification.  (Note that NFD/NFC distinctions
 are usually immaterial, since Perl encapsulates that in grapheme mode.)
+Under C<:sigspace> the preceding rules are applied word by word.
 
 =item *
 
