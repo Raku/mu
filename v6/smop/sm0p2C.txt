@@ -51,28 +51,28 @@ continuation = Stack.new(
 and should be translated to:
 
 continuation =
- SMOP_MESSAGE(NULL, SMOP__STACK__Stack, SMOP__ID__new, 
+ SMOP_DISPATCH(NULL, SMOP__STACK__Stack, SMOP__ID__new, 
    smop__stack__stack_new_capture(SMOP__STACK__Stack,
-     SMOP_MESSAGE(NULL, SMOP__STACK__Node, SMOP__ID__new, 
+     SMOP_DISPATCH(NULL, SMOP__STACK__Node, SMOP__ID__new, 
        smop__stack__node_new_capture(
          NULL, NULL, NULL, NULL, NULL, NULL, NULL, (
-           SMOP_MESSAGE(NULL, SMOP__STACK__Node, SMOP__ID__new,
+           SMOP_DISPATCH(NULL, SMOP__STACK__Node, SMOP__ID__new,
              smop__stack__node_new_capture(
                NULL, NULL, NULL, NULL, NULL, NULL, NULL, (
-                 SMOP_MESSAGE(NULL, SMOP__STACK__Node, SMOP__ID__new,
+                 SMOP_DISPATCH(NULL, SMOP__STACK__Node, SMOP__ID__new,
                    smop__stack__node_new_capture(
                      SMOP_RI(obj), DESTROYALL, smop__capture_new_capture(obj, NULL, NULL), NULL, NULL, NULL, NULL, (
-                       SMOP_MESSAGE(NULL, SMOP__STACK__Node, SMOP__ID__new,
+                       SMOP_DISPATCH(NULL, SMOP__STACK__Node, SMOP__ID__new,
                          smop__stack__node_new_capture(
                            SMOP_RI(SMOP__STACK__Operators), MOP__ID__move_capturize,
                            smop__stack__opcapture_move_capturize_new(2, (int[]){3,0}, NULL, 3), NULL, NULL, NULL, NULL, (
-                             SMOP_MESSAGE(NULL, SMOP__STACK__Node, SMOP__ID__new,
+                             SMOP_DISPATCH(NULL, SMOP__STACK__Node, SMOP__ID__new,
                                smop__stack__node_new_capture(
                                  SMOP_RI(SMOP__STACK__Operators), SMOP__ID__forget, NULL, NULL, NULL, NULL, NULL, (
-                                   SMOP_MESSAGE(NULL, SMOP__STACK__Node, SMOP__ID__new,
+                                   SMOP_DISPATCH(NULL, SMOP__STACK__Node, SMOP__ID__new,
                                      smop__stack__node_new_capture(
                                        SMOP_RI(SMOP__STACK__Operators), SMOP__ID__free, obj, NULL, NULL, NULL, NULL, (
-                                         SMOP_MESSAGE(NULL, SMOP__STACK__Node, SMOP__ID__new,
+                                         SMOP_DISPATCH(NULL, SMOP__STACK__Node, SMOP__ID__new,
                                            smop__stack__node_new_capture(
                                              SMOP__RI(___STACK___), goto, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
                                            )
