@@ -46,10 +46,10 @@ struct SMOP__Object {
                              SMOP__ResponderInterface* self,      \
                              SMOP__Object* identifier,            \
                              SMOP__Object* capture);              \
-  SMOP__Object* (*REFERENCE)(SMOP__Object* interpreter,           \ 
+  SMOP__Object* (*REFERENCE)(SMOP__Object* interpreter,           \
                              SMOP__ResponderInterface* self,      \
                              SMOP__Object* object);               \
-  SMOP__Object* (*RELEASE)  (SMOP__Object* interpreter,           \ 
+  SMOP__Object* (*RELEASE)  (SMOP__Object* interpreter,           \
                              SMOP__ResponderInterface* self,      \
                              SMOP__Object* object);
 
@@ -57,7 +57,7 @@ struct SMOP__Object {
 struct SMOP__ResponderInterface {
   SMOP__Object__BASE
   SMOP__ResponderInterface__BASE
-}
+};
 
 /* Every object in SMOP must be binary compatible with one of these
  * two structures. Given that, not necessarly needs to be created by
@@ -92,7 +92,6 @@ struct SMOP__ResponderInterface {
           ((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):(object)), \
           object \
       ))
-
 
 
 #endif
