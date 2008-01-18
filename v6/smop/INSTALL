@@ -10,7 +10,7 @@ make
 make test
 
 
-# there's quite no point in installing vroom right now...
+# there's quite no point in installing smop right now...
 make install
 
 to install
