@@ -60,12 +60,14 @@ int main(int argc, char** argv) {
   ri->REFERENCE = smop_lowlevel_refcnt_inc;
   ri->RELEASE = smop_lowlevel_refcnt_dec;
 
-  SMOP__Object* stack = SMOP_DISPATCH(NULL, SMOP_RI(SMOP__STACK__Stack),
-                                      SMOP__STACK__Stack_new, NULL);
-  if (!stack) {
+  SMOP__Object* intrp = SMOP_DISPATCH(NULL, SMOP_RI(SMOP__INTPTR__InterpreterInstance),
+                                      SMOP__ID__new, smop__intptr__invocant_capture_new
+                                      (SMOP__INTPTR__InterpreterInstance,NULL));
+  
+  if (!intrp) {
     printf("not ");
   }
-  printf("ok 2 - got new stack successfully.\n");
+  printf("ok 2 - got new interp successfully.\n");
 
   SMOP_DISPATCH(NULL, ri, (SMOP__Object*)1, NULL);
 
@@ -74,16 +76,17 @@ int main(int argc, char** argv) {
    * below that. The object will only be invalidated when the stack
    * loop is called.
    */
-  SMOP_RELEASE(stack, obj);
+  SMOP_RELEASE(intrp, obj);
 
   SMOP_DISPATCH(NULL, ri, (SMOP__Object*)2, NULL);
 
-  SMOP__Object* loop_capture = smop__stack__stack_loop_capture(stack);
-  SMOP_DISPATCH(NULL, SMOP_RI(stack),
-                SMOP__STACK__Stack_loop, loop_capture);
+  SMOP__Object* loop_capture = smop__intptr__invocant_capture_new(intrp);
+  SMOP_DISPATCH(NULL, SMOP_RI(intrp),
+                SMOP__ID__loop, loop_capture);
+
   SMOP_RELEASE(NULL, loop_capture);
 
-  SMOP_RELEASE(NULL, stack);
+  SMOP_RELEASE(NULL, intrp);
 
   printf("ok 6 - finished succesfully.\n");
 

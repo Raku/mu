@@ -43,10 +43,12 @@ SMOP__Object* SMOP__INTPTR__InterpreterInstance;
  * from the smop_identifiers.h to be used.
  *
  * For all the methods that the signature only means the invocant,
- * this call should do the trick.
- * smop__intptr__invocant_capture_new(SMOP__Object* obj);
+ * this call should do the trick. You can pass null to the second
+ * argument if you don't want to have a initialized continuation.
+ * smop__intptr__invocant_capture_new(SMOP__Object* obj, SMOP__Object*
+ * cont);
  */
-SMOP__Object* smop__intptr__invocant_capture_new(SMOP__Object* obj);
+SMOP__Object* smop__intptr__invocant_capture_new(SMOP__Object* proto, SMOP__Object* continuation);
 
 /* new()
  *
