@@ -137,10 +137,10 @@ SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* interpreter, SMOP__Responde
     SMOP__Object* continuation = q:sm0p {
       $current;
       $interpreter;
-      $obj.DESTROYALL();
+      $value.DESTROYALL();
       SMOP__STACK__Operators.move_capturize(|SMOP__STACK__OPCAPTURE_Move_Capturize.new(2,(3),(),3));
       SMOP__STACK__Operators.forget();
-      SMOP__STACK__Operators.free(|$obj);
+      SMOP__STACK__Operators.free(|$value);
       $interpreter.goto()
     };
     SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__goto, smop__intptr__goto_capture_new(interpreter, continuation));
