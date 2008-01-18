@@ -2,7 +2,8 @@
 #ifndef SMOP_LOWLEVEL_H
 #define SMOP_LOWLEVEL_H
 
-#include <smop_base.h>
+#include <smop.h>
+#include <smop_stack.h>
 
 /* The lowlevel SMOP API is an additional API that is not included by
  * the smop.h file, because this functions only need to be seen by
@@ -33,39 +34,40 @@ extern SMOP__Object* smop_lowlevel_alloc(int size);
  * be called whenever the value is referenced by another value, and
  * always return the input pointer.
  */
-extern SMOP__Object* smop_lowlevel_refcnt_inc(SMOP__Object* stack, SMOP__ResponderInterface* ri, SMOP__Object* value);
+extern SMOP__Object* smop_lowlevel_refcnt_inc(SMOP__Object* interpreter, SMOP__ResponderInterface* ri, SMOP__Object* value);
 
 /* This functions decrements the reference count of a value, it should
  * be called whenever one reference to this value is destroyed. It
  * will call DESTROYALL and free() the pointer when appropriate. It
  * always return the input pointer. Note that the call to DESTROYALL
- * will be made using the given stack, so this will use a
+ * will be made using the given interpreter, so this will use a
  * continuation-passing-style to 1) call DESTROYALL, 2) free the
- * pointer and 3) return the stack to where it was.
+ * pointer and 3) return the interpreter to where it was.
  *
  * One other interesting thing is, when several objects loose the last
  * reference, the continuations will be chained for the destruction.
  *
  * For the sake of documentation, here goes the code equivalent to
- * what happens with the stack during destruction.
+ * what happens with the interpreter during an lowlevel based object
+ * destruction.
  *
 
-# sm0p quoting returns the first node of the literal translation of
-# the code to a set of nodes. (one statement = one node). Here no new
-# stack is defined, and all symbols means the symbol in the outer
-# stack.
+# sm0p quoting returns a smop stack of the literal translation of the
+# code to a set of nodes. (one statement = one node). The
+# implementation used here and set as the continuation is the one
+# defined in smop_stack.h
 
 my $obj = shift; # object being freed.
-my $current = ___STACK___.current;
-goto ___STACK___: q:sm0p {
+my $current = ___INTERPRETER___.current;
+goto ___INTERPRETER___: q:sm0p {
    $current;
-   ___STACK___;
+   ___INTERPRETER___;
    $obj.DESTROYALL();
    SMOP__STACK__Operators.move_capturize(
        |SMOP__STACK__OPCAPTURE_Move_Capturize.new(2,(3),(),3));
    SMOP__STACK__Operators.forget();
    SMOP__STACK__Operators.free(|$obj);
-   ___STACK___.goto()
+   ___INTERPRETER___.goto()
 };
 
  *
@@ -75,7 +77,7 @@ goto ___STACK___: q:sm0p {
  * the Stack and the Node have custom Responder Interfaces that
  * doesn't call this code.
  */
-extern SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* stack, SMOP__ResponderInterface* ri, SMOP__Object* value);
+extern SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* interpreter, SMOP__ResponderInterface* ri, SMOP__Object* value);
 
 /* This functions synchronizes the access to this value. It should be
  * called whenever some pointer in the low-level details (some

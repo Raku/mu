@@ -2,12 +2,7 @@
 #ifndef SMOP_STACK_H
 #define SMOP_STACK_H
 
-#include <smop_base.h> // this is declared by smop.h which is the
-                        // one who includes this file, but let's keep
-                        // this here if anyone wants to include only
-                        // parts of smop.h. It should do no harm
-                        // because of the ifndefs of the beggining of
-                        // the file.
+#include <smop.h>
 
 /*
  * In SMOP, every low-level opeator is actually a method call in the
@@ -262,12 +257,13 @@ extern SMOP__Object* SMOP__STACK__Stack;
  * This method creates a new Stack object. It doesn't receive any
  * argument and simply returns an empty stack for later manipulation.
  *
- * Signature: ()
+ * Signature: (SMOP__STACK__Stack: $current_node?)
  *
- * Lowlevel C call: not necessary, you can actually pass
- * NULL as the capture.
+ * Lowlevel C call:
  */
 #define SMOP__STACK__Stack_new SMOP__ID__new
+SMOP__Object* smop__stack__stack_new_capture(SMOP__Object* proto,
+                                             SMOP__Object* node);
 
 /* SMOP__STACK__Stack_push
  *

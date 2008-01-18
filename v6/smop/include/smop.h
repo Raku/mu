@@ -5,6 +5,6 @@
 #include <smop_identifiers.h>
 #include <smop_native.h>
 #include <smop_builtin.h>
-#include <smop_stack.h>
+#include <smop_interpreter.h>
 
 #endif
