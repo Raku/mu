@@ -115,14 +115,14 @@ SMOP__Object* smop_lowlevel_alloc(int size) {
   return y;
 }
 
-SMOP__Object* smop_lowlevel_refcnt_inc(SMOP__Object* stack, SMOP__ResponderInterface* ri, SMOP__Object* value) {
+SMOP__Object* smop_lowlevel_refcnt_inc(SMOP__Object* interpreter, SMOP__ResponderInterface* ri, SMOP__Object* value) {
   smop_lowlevel_wrlock(value);
   ((SMOP_LOWLEVEL_INTERNAL*)value->data)->ref_cnt++;
   smop_lowlevel_unlock(value);
   return value;
 }
 
-SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* stack, SMOP__ResponderInterface* ri, SMOP__Object* value) {
+SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* interpreter, SMOP__ResponderInterface* ri, SMOP__Object* value) {
   smop_lowlevel_wrlock(value);
   ((SMOP_LOWLEVEL_INTERNAL*)value->data)->ref_cnt--;
   if (((SMOP_LOWLEVEL_INTERNAL*)value->data)->ref_cnt <= 0) {
@@ -130,16 +130,20 @@ SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* stack, SMOP__ResponderInter
     smop_mem_trace_del(value);
 #endif
     smop_lowlevel_unlock(value);
-    //SMOP_DESTR(value);
-    // This is where the stack will be manipulated as described in the .h file.
-    smop_lowlevel_wrlock(value);
-    if (value->RI) {
-      SMOP_RELEASE(stack, value->RI);
-    }
-    pthread_rwlock_destroy(((SMOP_LOWLEVEL_INTERNAL*)value->data)->rwlock);
-    free(((SMOP_LOWLEVEL_INTERNAL*)value->data)->rwlock);
-    free(value->data);
-    free(value);
+
+    // This is where the continuation will be manipulated as described in the .h file.
+    SMOP__Object* current = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__current,
+                                          smop__intptr__invocant_capture_new(interpreter));
+    SMOP__Object* continuation = q:sm0p {
+      $current;
+      $interpreter;
+      $obj.DESTROYALL();
+      SMOP__STACK__Operators.move_capturize(|SMOP__STACK__OPCAPTURE_Move_Capturize.new(2,(3),(),3));
+      SMOP__STACK__Operators.forget();
+      SMOP__STACK__Operators.free(|$obj);
+      $interpreter.goto()
+    };
+    SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__goto, smop__intptr__goto_capture_new(interpreter, continuation));
     return NULL;
   } else {
     smop_lowlevel_unlock(value);
