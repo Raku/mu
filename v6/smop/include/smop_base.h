@@ -73,24 +73,24 @@ struct SMOP__ResponderInterface {
 /* 
  * Here follows the basic macros for that triade.
  */
-#define SMOP_RI(object) ((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):(object))
+#define SMOP_RI(object) ((SMOP__ResponderInterface*)((((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):((SMOP__ResponderInterface*)object)))
 
 #define SMOP_DISPATCH(interpreter, object, identifier, capture) \
       (((SMOP__ResponderInterface*)object)->MESSAGE(  \
-          interpreter, ((SMOP__ResponderInterface*)object), \
+          (SMOP__Object*)interpreter, ((SMOP__ResponderInterface*)object), \
           identifier, capture \
       ))
 
 #define SMOP_REFERENCE(interpreter, object) \
-      (((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):(object))->REFERENCE( (SMOP__Object*)interpreter, \
-          ((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):(object)), \
-          object \
+      (((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):((SMOP__ResponderInterface*)object))->REFERENCE( (SMOP__Object*)interpreter, \
+          ((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):((SMOP__ResponderInterface*)object)), \
+          (SMOP__Object*)object \
       ))
 
 #define SMOP_RELEASE(interpreter, object) \
-      (((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):(object))->RELEASE( (SMOP__Object*)interpreter, \
-          ((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):(object)), \
-          object \
+      (((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):((SMOP__ResponderInterface*)object))->RELEASE( (SMOP__Object*)interpreter, \
+          ((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):((SMOP__ResponderInterface*)object)), \
+          (SMOP__Object*)object \
       ))
 
 

@@ -1,3 +1,5 @@
+#include <stdlib.h>
+#include <stdio.h>
 #include <smop.h>
 #include <smop_lowlevel.h>
 
@@ -61,8 +63,8 @@ int main(int argc, char** argv) {
   ri->RELEASE = smop_lowlevel_refcnt_dec;
 
   SMOP__Object* intrp = SMOP_DISPATCH(NULL, SMOP_RI(SMOP__INTPTR__InterpreterInstance),
-                                      SMOP__ID__new, smop__intptr__invocant_capture_new
-                                      (SMOP__INTPTR__InterpreterInstance,NULL));
+                                      SMOP__ID__new,
+                                      smop__intptr__invocant_capture_new(SMOP__INTPTR__InterpreterInstance));
   
   if (!intrp) {
     printf("not ");

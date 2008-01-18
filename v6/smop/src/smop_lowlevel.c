@@ -11,7 +11,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
-
+#include <pthread.h>
 
 /* The SMOP_LOWLEVEL_MEM_TRACE define will enable a trace on the
  * allocs and frees of your objecs, and should give you a warning when
@@ -102,7 +102,7 @@ typedef struct SMOP_LOWLEVEL_INTERNAL {
 SMOP__Object* smop_lowlevel_alloc(int size) {
   SMOP__Object* y = calloc(1,size);
   assert(y);
-  SMOP_LOWLEVEL_INTERNAL internal = calloc(1,sizeof(SMOP_LOWLEVEL_INTERNAL));
+  SMOP_LOWLEVEL_INTERNAL* internal = calloc(1,sizeof(SMOP_LOWLEVEL_INTERNAL));
   assert(internal);
   y->data = internal;
   internal->ref_cnt = 1;
@@ -117,15 +117,15 @@ SMOP__Object* smop_lowlevel_alloc(int size) {
 
 SMOP__Object* smop_lowlevel_refcnt_inc(SMOP__Object* stack, SMOP__ResponderInterface* ri, SMOP__Object* value) {
   smop_lowlevel_wrlock(value);
-  ((SMOP_LOWLEVEL_INTERNAL)value->data)->ref_cnt++;
+  ((SMOP_LOWLEVEL_INTERNAL*)value->data)->ref_cnt++;
   smop_lowlevel_unlock(value);
   return value;
 }
 
 SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* stack, SMOP__ResponderInterface* ri, SMOP__Object* value) {
   smop_lowlevel_wrlock(value);
-  ((SMOP_LOWLEVEL_INTERNAL)value->data)->ref_cnt--;
-  if (((SMOP_LOWLEVEL_INTERNAL)value->data)->ref_cnt <= 0) {
+  ((SMOP_LOWLEVEL_INTERNAL*)value->data)->ref_cnt--;
+  if (((SMOP_LOWLEVEL_INTERNAL*)value->data)->ref_cnt <= 0) {
 #ifdef SMOP_LOWLEVEL_MEM_TRACE
     smop_mem_trace_del(value);
 #endif
@@ -134,10 +134,10 @@ SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* stack, SMOP__ResponderInter
     // This is where the stack will be manipulated as described in the .h file.
     smop_lowlevel_wrlock(value);
     if (value->RI) {
-      SMOP_RELEASE(stack, value->RI, (SMOP__Object*)value->RI);
+      SMOP_RELEASE(stack, value->RI);
     }
-    pthread_rwlock_destroy(((SMOP_LOWLEVEL_INTERNAL)value->data)->rwlock);
-    free(((SMOP_LOWLEVEL_INTERNAL)value->data)->rwlock);
+    pthread_rwlock_destroy(((SMOP_LOWLEVEL_INTERNAL*)value->data)->rwlock);
+    free(((SMOP_LOWLEVEL_INTERNAL*)value->data)->rwlock);
     free(value->data);
     free(value);
     return NULL;
@@ -148,11 +148,11 @@ SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* stack, SMOP__ResponderInter
 }
 
 void smop_lowlevel_rdlock(SMOP__Object* value) {
-  assert(pthread_rwlock_rdlock(value->rwlock) == 0);
+  assert(pthread_rwlock_rdlock(((SMOP_LOWLEVEL_INTERNAL*)value->data)->rwlock) == 0);
 }
 void smop_lowlevel_wrlock(SMOP__Object* value) {
-  assert(pthread_rwlock_wrlock(value->rwlock) == 0);
+  assert(pthread_rwlock_wrlock(((SMOP_LOWLEVEL_INTERNAL*)value->data)->rwlock) == 0);
 }
 void smop_lowlevel_unlock(SMOP__Object* value) {
-  assert(pthread_rwlock_unlock(value->rwlock) == 0);
+  assert(pthread_rwlock_unlock(((SMOP_LOWLEVEL_INTERNAL*)value->data)->rwlock) == 0);
 }

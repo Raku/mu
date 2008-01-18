@@ -33,7 +33,7 @@
  * not much point in having another interpreter instance
  * implementation.
  */
-SMOP__Object* SMOP__INTPTR__InterpreterInstance;
+extern SMOP__Object* SMOP__INTPTR__InterpreterInstance;
 
 
 /* The interpreter instance have the following methods (invocant implied):
@@ -48,7 +48,7 @@ SMOP__Object* SMOP__INTPTR__InterpreterInstance;
  * smop__intptr__invocant_capture_new(SMOP__Object* obj, SMOP__Object*
  * cont);
  */
-SMOP__Object* smop__intptr__invocant_capture_new(SMOP__Object* proto, SMOP__Object* continuation);
+SMOP__Object* smop__intptr__invocant_capture_new(SMOP__Object* proto);
 
 /* new()
  *

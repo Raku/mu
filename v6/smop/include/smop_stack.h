@@ -479,16 +479,11 @@ extern SMOP__Object* SMOP__STACK__Node;
  *                    SMOP_Object* result)
  */
 #define SMOP__STACK__Node_new SMOP__ID__new
-SMOP__Object* smop__stack__node_new_capture(SMOP_Object* responder,
-                                             SMOP_Object* identifier,
-                                             SMOP_Object* capture,
-                                             SMOP_Object* debug,
-                                             SMOP_Object* jail,
-                                             SMOP_Object* lexical,
-                                             SMOP_Object* outer,
-                                             SMOP_Object* continuation,
-                                             SMOP_Object* past,
-                                             SMOP_Object* result);
+SMOP__Object* smop__stack__node_new_capture(SMOP__Object* responder, SMOP__Object* identifier,
+                                            SMOP__Object* capture, SMOP__Object* debug,
+                                            SMOP__Object* jail, SMOP__Object* lexical,
+                                            SMOP__Object* outer, SMOP__Object* continuation,
+                                            SMOP__Object* past, SMOP__Object* result);
 
 /* All the Node accessor methods have the same simple signature,
  * which is:

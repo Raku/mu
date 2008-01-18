@@ -7,4 +7,7 @@
 #include <smop_builtin.h>
 #include <smop_interpreter.h>
 
+void smop_init();
+void smop_destr();
+
 #endif

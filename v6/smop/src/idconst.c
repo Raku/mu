@@ -2,10 +2,13 @@
  * create the pool of constant identifiers that are needed to
  * bootstrap smop.
  */
-
+#include <stdlib.h>
+#include <string.h>
 #include <smop.h>
 #include <assert.h>
 #include "smop_internal.h"
+
+#include "idconst_decl_all.h"
 
 /* The constant identifiers are not subject to garbage collection,
  * they are used as-is all the time. In fact, the string is saved on
@@ -22,11 +25,11 @@ static SMOP__Object* idconst_message(SMOP__Object* stack,
   return NULL;
 }
 
-static SMOP__Object* idconst_reference(SMOP__Object* stack, SMOP__Object* obj) {
+static SMOP__Object* idconst_reference(SMOP__Object* stack, SMOP__ResponderInterface* responder, SMOP__Object* obj) {
   return obj;
 }
 
-static SMOP__Object* idconst_release(SMOP__Object* stack, SMOP__Object* obj) {
+static SMOP__Object* idconst_release(SMOP__Object* stack, SMOP__ResponderInterface* responder, SMOP__Object* obj) {
   return obj;
 }
 
@@ -63,10 +66,10 @@ void SMOP__NATIVE__idconst_free(SMOP__Object* value) {
 }
 
 SMOP__Object* SMOP__NATIVE__idconst_create(char* value) {
-  SOMP__Object* ret = calloc(1,sizeof(SMOP__Object*));
+  SMOP__Object* ret = calloc(1,sizeof(SMOP__Object*));
   assert(ret);
   ret->RI = SMOP__NATIVE__idconst_RI;
-  ret->data = calloc(strlen(value));
+  ret->data = calloc(1,strlen(value));
   assert(ret->data);
   strcpy(ret->data, value);
   return ret;
