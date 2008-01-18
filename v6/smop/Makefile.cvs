@@ -17,6 +17,8 @@ clean:
 	rm install-sh
 	rm depcomp
 	rm -f src/Makefile.in
+	rm -f include/Makefile.in
+	rm -f test/Makefile.in
 
 build-world:
 	make -f Makefile.cvs
