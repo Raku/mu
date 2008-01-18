@@ -62,7 +62,7 @@ sub emit_ruby {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( '::DISPATCH( $::Bit, \'new\', ' . ( $self->{bit} . ( ' )' . Main::newline() ) ) );
+    ( ' Bit.new(' . ( ( $self->{bit} ? 'true' : 'false' ) . ')' ) );
 }
 
 package Val::Num;
@@ -72,7 +72,7 @@ sub emit_ruby {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( '::DISPATCH( $::Num, \'new\', ' . ( $self->{num} . ( ' )' . Main::newline() ) ) );
+    ( ' ' . ( $self->{num} . '' ) );
 }
 
 package Val::Buf;
@@ -92,7 +92,7 @@ sub emit_ruby {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( '::DISPATCH( $::Str, \'new\', chr( ' . ( $self->{char} . ( ' ) )' . Main::newline() ) ) );
+    ( ' ' . ( $self->{char} . '.chr()' ) );
 }
 
 package Val::Undef;
@@ -102,7 +102,7 @@ sub emit_ruby {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    '$::Undef';
+    ' Undef.new()';
 }
 
 package Val::Object;
@@ -142,7 +142,7 @@ sub emit_ruby {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( '{ _array => [' . ( Main::join( [ map { $_->emit_ruby() } @{ $self->{array} } ], ', ' ) . ( '] }' . Main::newline() ) ) );
+    ( '[' . ( Main::join( [ map { $_->emit_ruby() } @{ $self->{array} } ], ', ' ) . ']' ) );
 }
 
 package Lit::Hash;
@@ -156,9 +156,10 @@ sub emit_ruby {
     my $str    = '';
     my $field;
     do {
-        for my $field ( @{$fields} ) { $str = ( $str . ( '[ ' . ( $field->[0]->emit_ruby() . ( ', ' . ( $field->[1]->emit_ruby() . ' ],' ) ) ) ) ) }
+        for my $field ( @{$fields} ) { $str = ( $str . ( ', ' . ( $field->[0]->emit_ruby() . ( ': ' . ( $field->[1]->emit_ruby() . '' ) ) ) ) ) }
     };
-    ( $str . Main::newline() );
+    $str = substr( $str, 1 );
+    ( '{' . ( $str . ( ' }' . Main::newline() ) ) );
 }
 
 package Lit::Pair;
@@ -168,7 +169,7 @@ sub emit_ruby {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( '::DISPATCH( $::Pair, \'new\', ' . ( '{ key => ' . ( $self->{key}->emit_ruby() . ( ', value => ' . ( $self->{value}->emit_ruby() . ( ' } )' . Main::newline() ) ) ) ) ) );
+    ( ' Pair.new(' . ( $self->{key}->emit_ruby() . ( ', ' . ( $self->{value}->emit_ruby() . ')' ) ) ) );
 }
 
 package Lit::NamedArgument;
@@ -178,7 +179,7 @@ sub emit_ruby {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( '::DISPATCH( $::NamedArgument, \'new\', ' . ( '{ _argument_name_ => ' . ( $self->{key}->emit_ruby() . ( ', value => ' . ( ( defined( $self->{value} ) ? $self->{value}->emit_ruby() : 'undef' ) . ( ' } )' . Main::newline() ) ) ) ) ) );
+    ( ' NamedArgument.new(' . ( $self->{key}->emit_ruby() . ( ', ' . ( ( defined( $self->{value} ) ? $self->{value}->emit_ruby() : 'Undef.new' ) . ')' ) ) ) );
 }
 
 package Lit::SigArgument;
@@ -291,7 +292,14 @@ sub emit_ruby {
     do { [] };
     do {
         if ( $self->{CATCH} ) { ( 'do { eval {' . ( $self->emit_declarations() . ( $self->emit_body() . ( '};if ($@) {' . ( $self->{CATCH}->emit_ruby() . '}}' ) ) ) ) ) }
-        else                  { ( '' . ( $self->emit_declarations() . ( $self->emit_body() . '' ) ) ) }
+        else {
+            my $vars;
+            do {
+                for my $name ( @{ $self->{pad}->lexicals() } ) { $vars = ( $vars . ',Variable.new' ) }
+            };
+            $vars = substr( $vars, 1 );
+            ( '(->(' . ( Main::join( [ map { $_->emit_ruby() } @{ @{ $self->{pad}->lexicals() } } ], ', ' ) . ( '){ ' . ( Main::newline() . ( $self->emit_body() . ( '}).(' . ( $vars . ( ')' . Main::newline() ) ) ) ) ) ) ) );
+        }
         }
 }
 
@@ -464,7 +472,7 @@ sub emit_ruby {
         }
         else { }
     };
-    ( '::DISPATCH_VAR( ' . ( $node->emit_ruby() . ( ', \'STORE\', ' . ( $self->{arguments}->emit_ruby() . ( ' )' . Main::newline() ) ) ) ) );
+    ( ' ' . ( $node->emit_ruby() . ( '._(' . ( $self->{arguments}->emit_ruby() . ')' ) ) ) );
 }
 
 package Var;
@@ -527,9 +535,7 @@ sub emit_ruby {
         }
         else { }
     };
-    my $str = ( '::MODIFIED(' . ( $self->{parameters}->emit_ruby() . ( ');' . Main::newline() ) ) );
-    $str = ( $str . ( $self->{parameters}->emit_ruby() . ( ' = ' . $self->{arguments}->emit_ruby() ) ) );
-    return ( ( 'do {' . ( $str . '}' ) ) );
+    ( $self->{parameters}->emit_ruby() . ( ' = ' . ( $self->{arguments}->emit_ruby() . Main::newline() ) ) );
 }
 
 package Proto;
@@ -644,14 +650,17 @@ sub emit_ruby {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    (   'do { if (::DISPATCH(::DISPATCH('
+    (   'if ('
             . (
             $self->{cond}->emit_ruby()
                 . (
-                ',"true"),"p5landish") ) '
+                ')'
                     . (
-                      ( $self->{body} ? ( '{ ' . ( $self->{body}->emit_ruby() . ' } ' ) ) : '{ } ' )
-                    . ( ( $self->{otherwise} ? ( ' else { ' . ( $self->{otherwise}->emit_ruby() . ' }' ) ) : ' else { ::DISPATCH($::Bit, "new", 0) }' ) . ( ' }' . Main::newline() ) )
+                    Main::newline()
+                        . (
+                          ( $self->{body} ? ( ' ' . ( $self->{body}->emit_ruby() . '' ) ) : '' )
+                        . ( ( $self->{otherwise} ? ( ' else ' . ( Main::newline() . ( $self->{otherwise}->emit_ruby() . ' ' ) ) ) : ' else; false; ' ) . ( Main::newline() . ( 'end' . Main::newline() ) ) )
+                        )
                     )
                 )
             )
@@ -682,6 +691,7 @@ sub emit_ruby {
     do { [] };
     my $decl = $self->{decl};
     my $name = $self->{var}->name();
+    return ( $self->{var}->emit_ruby() );
     do {
         if ( ( $decl eq 'has' ) ) { return ( ( 'sub ' . ( $name . ( ' { ' . ( '@_ == 1 ' . ( '? ( $_[0]->{' . ( $name . ( '} ) ' . ( ': ( $_[0]->{' . ( $name . ( '} = $_[1] ) ' . '}' ) ) ) ) ) ) ) ) ) ) ) }
         else                      { }
@@ -943,12 +953,7 @@ sub emit_ruby {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    (   '::DISPATCH( $::Macro, \'new\', { '
-            . (
-            'code => sub { '
-                . ( $self->{block}->emit_declarations() . ( $self->{block}->emit_arguments() . ( $self->{block}->emit_body() . ( ' }, ' . ( 'signature => ' . ( $self->{block}->emit_signature() . ( ', ' . ( ' } )' . Main::newline() ) ) ) ) ) ) ) )
-            )
-    );
+    die('Macros are not currently supported by the ruby backend.');
 }
 
 package Do;
@@ -958,7 +963,7 @@ sub emit_ruby {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( 'do { ' . ( $self->{block}->emit_ruby() . ( ' }' . Main::newline() ) ) );
+    ( Main::newline() . ( 'begin; ' . ( $self->{block}->emit_ruby() . ( Main::newline() . ( 'end' . Main::newline() ) ) ) ) );
 }
 
 package BEGIN;
@@ -968,7 +973,7 @@ sub emit_ruby {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( 'INIT { ' . ( $self->{block}->emit_ruby() . ' }' ) );
+    ( ' ' . ( $self->{block}->emit_ruby() . ' ' ) );
 }
 
 package Use;

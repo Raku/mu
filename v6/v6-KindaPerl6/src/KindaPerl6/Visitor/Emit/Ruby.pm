@@ -41,14 +41,14 @@ class Val::Int {
 class Val::Bit {
     method emit_ruby {
         # $.bit
-        '::DISPATCH( $::Bit, \'new\', ' ~ $.bit ~ ' )' ~ Main::newline();
+        ' Bit.new(' ~ ($.bit ?? 'true' !! 'false') ~ ')'
     }
 }
 
 class Val::Num {
     method emit_ruby {
         #$.num
-        '::DISPATCH( $::Num, \'new\', ' ~ $.num ~ ' )' ~ Main::newline();
+        ' ' ~ $.num ~ '';
     }
 }
 
@@ -61,14 +61,13 @@ class Val::Buf {
 
 class Val::Char {
     method emit_ruby {
-        '::DISPATCH( $::Str, \'new\', chr( ' ~ $.char ~ ' ) )' ~ Main::newline();
+        ' ' ~ $.char ~ '.chr()';
     }
 }
 
 class Val::Undef {
     method emit_ruby {
-        #'(undef)'
-        '$::Undef'
+        ' Undef.new()'
     }
 }
 
@@ -94,39 +93,41 @@ class Lit::Seq {
 
 class Lit::Array {
     method emit_ruby {
-        # this is not a Perl 6 object, objects are created with a high-level Array.new or List.new
-        '{ _array => [' ~ (@.array.>>emit_ruby).join(', ') ~ '] }' ~ Main::newline();
+        # # this is not a Perl 6 object, objects are created with a high-level Array.new or List.new
+        # '{ _array => [' ~ (@.array.>>emit_ruby).join(', ') ~ '] }' ~ Main::newline();
+	'[' ~ (@.array.>>emit_ruby).join(', ') ~ ']';
     }
 }
 
 class Lit::Hash {
     method emit_ruby {
-        # this is not a Perl 6 object, objects are created with a high-level Hash.new
+        # # this is not a Perl 6 object, objects are created with a high-level Hash.new
         my $fields := @.hash;
         my $str := '';
         my $field;
         for @$fields -> $field {
-            $str := $str ~ '[ ' ~ ($field[0]).emit_ruby ~ ', ' ~ ($field[1]).emit_ruby ~ ' ],';
+            $str := $str ~ ', ' ~ ($field[0]).emit_ruby ~ ': ' ~ ($field[1]).emit_ruby ~ '';
         };
-        $str ~ Main::newline();
+	$str := substr( $str , 1 )
+        '{' ~ $str ~ ' }' ~ Main::newline();
     }
 }
 
 class Lit::Pair {
     method emit_ruby {
-        '::DISPATCH( $::Pair, \'new\', '
-        ~ '{ key => '   ~ $.key.emit_ruby
-        ~ ', value => ' ~ $.value.emit_ruby
-        ~ ' } )' ~ Main::newline();
+        ' Pair.new('
+	~ $.key.emit_ruby
+	~ ', '
+	~ $.value.emit_ruby
+	~ ')';
     }
 }
 
 class Lit::NamedArgument {
     method emit_ruby {
-        '::DISPATCH( $::NamedArgument, \'new\', '
-        ~ '{ _argument_name_ => '   ~ $.key.emit_ruby
-        ~ ', value => ' ~ ( defined($.value) ?? $.value.emit_ruby !! 'undef' )   # XXX
-        ~ ' } )' ~ Main::newline();
+	' NamedArgument.new(' ~ $.key.emit_ruby ~ ', '
+	~ ( defined($.value) ?? $.value.emit_ruby !! 'Undef.new' )
+	~ ')'
     }
 }
 
@@ -162,7 +163,16 @@ class Lit::Code {
         ~ '};if ($@) {' ~ $.CATCH.emit_ruby ~ '}}';
         }
         else {
-            '' ~ self.emit_declarations ~ self.emit_body ~ ''
+            my $vars;
+            for @($.pad.lexicals) -> $name {
+                $vars := $vars ~ ',Variable.new'
+            }
+            $vars := substr( $vars, 1 );
+            '(->('
+            ~ ((@($.pad.lexicals)).>>emit_ruby).join(', ')
+            ~ '){ ' ~ Main::newline()
+            ~ self.emit_body
+            ~ '}).(' ~ $vars ~ ')' ~ Main::newline();
         }
     };
     method emit_body {
@@ -324,7 +334,7 @@ class Assign {
 
         };
 
-        '::DISPATCH_VAR( ' ~ $node.emit_ruby ~ ', \'STORE\', ' ~ $.arguments.emit_ruby ~ ' )' ~ Main::newline();
+        ' ' ~ $node.emit_ruby ~ '._(' ~ $.arguments.emit_ruby ~ ')';
     }
 }
 
@@ -414,9 +424,12 @@ class Bind {
         #    return Assign.new(parameters=>$.parameters,arguments=>$.arguments).emit_ruby;
         #};
 
-        my $str := '::MODIFIED(' ~ $.parameters.emit_ruby ~ ');' ~ Main::newline();
-        $str := $str ~ $.parameters.emit_ruby ~ ' = ' ~ $.arguments.emit_ruby;
-        return 'do {'~$str~'}';
+        #my $str := '::MODIFIED(' ~ $.parameters.emit_ruby ~ ');' ~ Main::newline();
+        #$str := $str ~ $.parameters.emit_ruby ~ ' = ' ~ $.arguments.emit_ruby;
+        #return 'do {'~$str~'}';
+        $.parameters.emit_ruby
+        ~ ' = ' ~ $.arguments.emit_ruby
+        ~ Main::newline();
     }
 }
 
@@ -544,16 +557,16 @@ class Return {
 
 class If {
     method emit_ruby {
-        'do { if (::DISPATCH(::DISPATCH(' ~ $.cond.emit_ruby ~ ',"true"),"p5landish") ) '
+        'if (' ~ $.cond.emit_ruby ~ ')' ~ Main::newline()
         ~ ( $.body
-            ?? '{ ' ~ $.body.emit_ruby ~ ' } '
-            !! '{ } '
+            ?? ' ' ~ $.body.emit_ruby ~ ''
+            !! ''
           )
         ~ ( $.otherwise
-            ?? ' else { ' ~ $.otherwise.emit_ruby ~ ' }'
-            !! ' else { ::DISPATCH($::Bit, "new", 0) }'
+            ?? ' else ' ~ Main::newline() ~ $.otherwise.emit_ruby ~ ' '
+            !! ' else; false; ' #Bit
           )
-        ~ ' }' ~ Main::newline();
+        ~ Main::newline() ~ 'end' ~ Main::newline();
     }
 }
 
@@ -578,6 +591,7 @@ class Decl {
     method emit_ruby {
         my $decl := $.decl;
         my $name := $.var.name;
+        return $.var.emit_ruby;
         if $decl eq 'has' {
             # obsolete - "has" is handled by Visitor::MetaClass / Perl5::MOP
             return 'sub ' ~ $name ~ ' { ' ~
@@ -773,34 +787,26 @@ class Sub {
 
 class Macro {
     method emit_ruby {
-          '::DISPATCH( $::Macro, \'new\', { '
-        ~   'code => sub { '
-        ~       $.block.emit_declarations
-        ~       $.block.emit_arguments
-        ~       $.block.emit_body
-        ~    ' }, '
-        ~   'signature => '
-        ~       $.block.emit_signature
-        ~    ', '
-        ~ ' } )'
-        ~ Main::newline();
+        die 'Macros are not currently supported by the ruby backend.';
     }
 }
 
 class Do {
     method emit_ruby {
-        'do { ' ~
-          $.block.emit_ruby ~
-        ' }'
+        Main::newline()
+        ~ 'begin; '
+        ~ $.block.emit_ruby
+        ~ Main::newline()
+        ~ 'end'
         ~ Main::newline();
     }
 }
 
 class BEGIN {
     method emit_ruby {
-        'INIT { ' ~
+        ' ' ~
           $.block.emit_ruby ~
-        ' }'
+        ' '
     }
 }
 
