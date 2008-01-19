@@ -15,7 +15,12 @@ while (not -f "$top/util/fudge") {
 
 print join(' ',
     map {
-	chomp(my $pick = `$^X $top/util/fudge $platform $_`);
-	$pick;
+        my $pick;
+        if ( $_ !~ m/\.$platform$/ ) {
+            chomp( $pick = `$^X $top/util/fudge $platform $_` );
+        }
+        defined $pick ? $pick : ();
     } @ARGV
 ), "\n";
+
+
