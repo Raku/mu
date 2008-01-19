@@ -4,6 +4,30 @@ use v6-alpha;
 
 module Test-0.0.7;
 
+#if substr($*PROGRAM_NAME, -2) eq '.t' {
+#    my $script = slurp($*PROGRAM_NAME);
+#    my $comp = lc $?COMPILER;
+#    if $script ~~ /^^ '#?' 'pugs' ':'/ {	# s/b $comp
+#	my $fud = $*PROGRAM_NAME;
+#	$fud ~~ s/t$/fud/ or die "oops";
+#	my $fudge;
+#	for 0..10 -> $x {
+#	    $fudge = '../' x $x ~ 'util/fudge';
+#	    last if $fudge ~~ :f;
+#	}
+#	system("$fudge $comp $*PROGRAM_NAME >$fud");
+#	try {
+#	    evalfile $fud;
+#	}
+#	say "# Fudged!";
+#	fail;
+#	exit(1);
+#	abort();
+#	kill -9, $*PID;
+#	die "Fudged";
+#    }
+#}
+
 ### CONSTANTS
 
 # some options available through the environment

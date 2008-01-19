@@ -3,21 +3,56 @@
 use strict;
 use warnings;
 
-unless (@ARGV) {
-    die "Usage: $0 implname testfilename";
-}
 my $ME = shift;
+my $IN = shift;
+my $OUT = shift;
 
+if (!$OUT) {
+    ($OUT = $IN) =~ s/\.t$/.$ME/ or $OUT .= ".$ME";
+}
+unless ($ME and $IN and -e $IN and $OUT) {
+    die "Usage: $0 implname testfilename [fudgedtestfilename]";
+}
+
+if (-e $OUT) {
+    if (-M $IN > -M $OUT) {
+	print "$OUT\n";		# unchanged, so no need to refudge
+	exit(0);
+    }
+    else {
+	unlink $OUT;		# old fudged version, may or may not regenerate...
+    }
+}
+
+my $REALLY_FUDGED = 0;
+my $OUTPUT = "";
 my $FUDGE = "";
 our $PENDING = 0;
 my $ARGS = '';
 my $IS = '\\b(?:is|ok|is_deeply|isnt|like|unlike|eval_dies_ok|cmp_ok|isa_ok|use_ok|throws_ok|dies_ok|pass|flunk)(?:\\b|_)';
 
+@ARGV = ($IN);
 fudgeblock();
+
+if ($REALLY_FUDGED) {
+    open OUT, ">", $OUT or die "Can't create $OUT: $!";
+    print OUT $OUTPUT;
+    print OUT <<'END';
+
+say "# FUDGED!";
+exit(1);	# hopefully reported as "dubious"
+END
+    close OUT;
+    print "$OUT\n";	# pick the output file to run
+}
+else {
+    print "$IN\n";	# pick the input file to run
+}
 
 sub fudgeblock {
     while (<>) {
 	if (/^\s*\#\? (\w+) \: \s* (.*)/x and $1 eq $ME) {
+	    $REALLY_FUDGED = 1;
 	    $ARGS = $2;
 	    if ($ARGS =~ s/^(\d+)\s*//) {
 		$PENDING = $1;
@@ -38,7 +73,7 @@ sub fudgeblock {
 	    $PENDING--;
 	    if ($FUDGE eq 'todo') {
 		local $PENDING = 999999;	# do all in block as one action
-		print $_;
+		$OUTPUT .= $_;
 		fudgeblock();
 		$_ = '';
 	    }
@@ -98,7 +133,7 @@ sub fudgeblock {
 	}
     }
     continue {
-	print $_;
+	$OUTPUT .= $_;
 	return if /^\}/ and $PENDING > 0;
     }
 }

@@ -17,15 +17,8 @@ while (not -f "$dir/util/fudge") {
 print join(' ',
     map {
 	if ($SPEC or m!\bspec\b!) {
-	    my $fud;
-	    if (($fud = $_) =~ s/\.t/.fud/) {
-		warn "$dir/util/fudge $platform $_ >$fud\n";
-		system "$dir/util/fudge $platform $_ >$fud";
-		$fud;
-	    }
-	    else {
-		$_;
-	    }
+	    chomp(my $pick = `$dir/util/fudge $platform $_`);
+	    $pick;
 	}
 	else {
 	    $_;

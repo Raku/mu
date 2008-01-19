@@ -8,6 +8,13 @@ use warnings;
 use Getopt::Long;
 use Test::Harness;
 use File::Spec;
+use Cwd;
+my $top = getcwd;
+
+while (not -f "$top/util/prove6") {
+    die "Not inside pugs directory\n" unless $top;
+    $top =~ s!(.*)/(.*)!!;
+}
 
 my ($pugs, $pir, $perl5, $help, $inc);
 my $blib = 0;
@@ -97,8 +104,12 @@ $ext_regex = qr/\.($ext_regex)$/;
 my $sum = do { no warnings; $pugs + $perl5 + $pir };
 if ($sum > 1) { die "error: you can't specify multiple implementations/backends.\n"; }
 if ($sum == 0) { $pugs = 1 } # default to pugs
+my $impl = "pugs";
+# $impl = "smop" if $smop;
+# etc.
 
 my @tfiles = sort map { -d $_ ? all_in($_) : $_ } map glob, @ARGV;
+@tfiles = split ' ', `$^X $top/util/fudgeall $impl @tfiles`;
 
 $ENV{PERL6LIB} ||= 'blib6/lib';
 my $sep = ($^O eq 'MSWin32')? ';' : ':';
@@ -126,7 +137,7 @@ if ( $lib ) {
 if ($update_yml) {
     warn "$pugs_exec -CParse-YAML ext/Test/lib/Test.pm > blib6/lib/Test.pm.yml\n";
     system("$pugs_exec -CParse-YAML ext/Test/lib/Test.pm > blib6/lib/Test.pm.yml");
-    system("$^X util/gen_prelude.pl -v -i src/perl6/Prelude.pm -p pugs " .
+    system("$^X $top/util/gen_prelude.pl -v -i src/perl6/Prelude.pm -p pugs " .
         "--output blib6/lib/Prelude.pm.yml");
 }
 

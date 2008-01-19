@@ -9,6 +9,13 @@ use Getopt::Long;
 use List::Util 'shuffle';
 use Test::Harness;
 use Test::TAP::Model;
+use Cwd;
+my $top = getcwd;
+
+while (not -f "$top/util/prove6") {
+    die "Not inside pugs directory\n" unless $top;
+    $top =~ s!(.*)/(.*)!!;
+}
 
 # Package and global declarations
 our @ISA = qw(Test::TAP::Model);
@@ -82,7 +89,10 @@ sub fix_config {
 
 get_config();
 
+my $impl = "pugs";
+
 @ARGV = sort map glob, "t/*/*.t", "t/*/*/*.t", "ext/*/t/*.t" unless @ARGV;
+@ARGV = split ' ', `$^X $top/util/fudgeall $impl @ARGV`;
 
 my $s = __PACKAGE__->new;
 $s->run;
