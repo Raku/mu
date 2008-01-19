@@ -189,67 +189,67 @@ sub emit_ruby {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    (   '::DISPATCH( $::Signature::Item, \'new\', '
+    (   ' Signature::Item.new('
             . (
             '{ '
                 . (
-                'sigil  => \''
+                'sigil:  \''
                     . (
                     $self->{key}->sigil()
                         . (
                         '\', '
                             . (
-                            'twigil => \''
+                            'twigil: \''
                                 . (
                                 $self->{key}->twigil()
                                     . (
                                     '\', '
                                         . (
-                                        'name   => \''
+                                        'name:   \''
                                             . (
                                             $self->{key}->name()
                                                 . (
                                                 '\', '
                                                     . (
-                                                    'value  => '
+                                                    'value:   '
                                                         . (
                                                         ( defined( $self->{value} ) ? $self->{value}->emit_ruby() : 'undef' )
                                                         . ( ', '
                                                                 . (
-                                                                'has_default    => '
+                                                                'has_default:     '
                                                                     . (
                                                                     $self->{has_default}->emit_ruby()
                                                                         . (
                                                                         ', '
                                                                             . (
-                                                                            'is_named_only  => '
+                                                                            'is_named_only:   '
                                                                                 . (
                                                                                 $self->{is_named_only}->emit_ruby()
                                                                                     . (
                                                                                     ', '
                                                                                         . (
-                                                                                        'is_optional    => '
+                                                                                        'is_optional:     '
                                                                                             . (
                                                                                             $self->{is_optional}->emit_ruby()
                                                                                                 . (
                                                                                                 ', '
                                                                                                     . (
-                                                                                                    'is_slurpy      => '
+                                                                                                    'is_slurpy:       '
                                                                                                         . (
                                                                                                         $self->{is_slurpy}->emit_ruby()
                                                                                                             . (
                                                                                                             ', '
                                                                                                                 . (
-                                                                                                                'is_multidimensional  => '
+                                                                                                                'is_multidimensional:  '
                                                                                                                     . (
                                                                                                                     $self->{is_multidimensional}->emit_ruby()
                                                                                                                         . (
                                                                                                                         ', '
                                                                                                                             . (
-                                                                                                                            'is_rw          => '
+                                                                                                                            'is_rw:   '
                                                                                                                                 . (
                                                                                                                                 $self->{is_rw}->emit_ruby()
-                                                                                                                                    . ( ', ' . ( 'is_copy        => ' . ( $self->{is_copy}->emit_ruby() . ( ', ' . ( ' } )' . Main::newline() ) ) ) ) )
+                                                                                                                                    . ( ', ' . ( 'is_copy: ' . ( $self->{is_copy}->emit_ruby() . ( ', ' . ( ' } )' . Main::newline() ) ) ) ) )
                                                                                                                                 )
                                                                                                                             )
                                                                                                                         )
@@ -445,11 +445,10 @@ sub emit_ruby {
     my $str    = '';
     my $field;
     do {
-        for my $field ( @{$fields} ) {
-            $str = ( $str . ( '::DISPATCH( $::NamedArgument, "new", ' . ( '{ ' . ( '_argument_name_ => ' . ( $field->[0]->emit_ruby() . ( ', ' . ( 'value           => ' . ( $field->[1]->emit_ruby() . ( ', ' . ' } ), ' ) ) ) ) ) ) ) ) );
-        }
+        for my $field ( @{$fields} ) { $str = ( $str . ( ', NamedArgument.new(' . ( $field->[0]->emit_ruby() . ( ', ' . ( $field->[1]->emit_ruby() . ')' ) ) ) ) ) }
     };
-    ( '::DISPATCH( $::' . ( $self->{class} . ( ', \'new\', ' . ( $str . ( ' )' . Main::newline() ) ) ) ) );
+    $str = substr( $str, 1 );
+    ( ' ' . ( $self->{class} . ( '.m_new(nil,nil,[ ' . ( $str . ( ' ])' . Main::newline() ) ) ) ) );
 }
 
 package Assign;
@@ -545,7 +544,7 @@ sub emit_ruby {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    return ( ( '$::' . $self->{name} ) );
+    return ( ( ' ' . $self->{name} ) );
 }
 
 package Call;
@@ -654,12 +653,12 @@ sub emit_ruby {
             . (
             $self->{cond}->emit_ruby()
                 . (
-                ')'
+                ').is_true6? '
                     . (
                     Main::newline()
                         . (
                           ( $self->{body} ? ( ' ' . ( $self->{body}->emit_ruby() . '' ) ) : '' )
-                        . ( ( $self->{otherwise} ? ( ' else ' . ( Main::newline() . ( $self->{otherwise}->emit_ruby() . ' ' ) ) ) : ' else; false; ' ) . ( Main::newline() . ( 'end' . Main::newline() ) ) )
+                        . ( ( $self->{otherwise} ? ( ' else ' . ( Main::newline() . ( $self->{otherwise}->emit_ruby() . ' ' ) ) ) : ' else; Bit.new(false); ' ) . ( Main::newline() . ( 'end' . Main::newline() ) ) )
                         )
                     )
                 )
@@ -679,7 +678,7 @@ sub emit_ruby {
         if   ( ( Main::isa( $cond, 'Var' ) && ( $cond->sigil() eq '@' ) ) ) { }
         else                                                                { $cond = Apply->new( 'code' => Var->new( 'sigil' => '&', 'twigil' => '', 'name' => 'prefix:<@>', 'namespace' => ['GLOBAL'], ), 'arguments' => [$cond], ) }
     };
-    ( 'do { while (::DISPATCH(::DISPATCH(' . ( $self->{cond}->emit_ruby() . ( ',"true"),"p5landish") ) ' . ( ' { ' . ( $self->{body}->emit_ruby() . ( ' } }' . Main::newline() ) ) ) ) ) );
+    ( ' while (' . ( $self->{cond}->emit_ruby() . ( ').is_true6? ' . ( Main::newline() . ( $self->{body}->emit_ruby() . ( 'end' . Main::newline() ) ) ) ) ) );
 }
 
 package Decl;
@@ -812,7 +811,7 @@ sub emit_ruby {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    my $inv = '$::Undef';
+    my $inv = ' Undef.new';
     do {
         if ( Main::isa( $self->{invocant}, 'Var' ) ) { $inv = Main::perl( $self->{invocant}, ) }
         else                                         { }
@@ -823,7 +822,7 @@ sub emit_ruby {
         for my $decl ( @{ $self->{positional} } ) { $pos = ( $pos . ( $decl->emit_ruby() . ', ' ) ) }
     };
     my $named = '';
-    ( '::DISPATCH( $::Signature, "new", { ' . ( 'invocant => ' . ( $inv . ( ', ' . ( 'array    => ::DISPATCH( $::List, "new", { _array => [ ' . ( $pos . ( ' ] } ), ' . ( 'return   => $::Undef, ' . ( '} )' . Main::newline() ) ) ) ) ) ) ) ) );
+    ( ' Signature.new( { ' . ( 'invocant: ' . ( $inv . ( ', ' . ( 'array:    List.new( [ ' . ( $pos . ( ' ] ), ' . ( 'return: Undef.new ' . ( '} )' . Main::newline() ) ) ) ) ) ) ) ) );
 }
 
 package Lit::Capture;
@@ -833,28 +832,28 @@ sub emit_ruby {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    my $s = '::DISPATCH( $::Capture, "new", { ';
+    my $s = ' Capture.new( { ';
     do {
-        if ( defined( $self->{invocant} ) ) { $s = ( $s . ( 'invocant => ' . ( $self->{invocant}->emit_ruby() . ', ' ) ) ) }
-        else                                { $s = ( $s . 'invocant => $::Undef, ' ) }
+        if ( defined( $self->{invocant} ) ) { $s = ( $s . ( 'invocant: ' . ( $self->{invocant}->emit_ruby() . ', ' ) ) ) }
+        else                                { $s = ( $s . 'invocant: Undef.new, ' ) }
     };
     do {
         if ( defined( $self->{array} ) ) {
-            $s = ( $s . 'array => ::DISPATCH( $::List, "new", { _array => [ ' );
+            $s = ( $s . 'array: List.new( [ ' );
             my $item;
             do {
                 for my $item ( @{ $self->{array} } ) { $s = ( $s . ( $item->emit_ruby() . ', ' ) ) }
             };
-            $s = ( $s . ' ] } ),' );
+            $s = ( $s . ' ] ),' );
         }
         else { }
     };
     do {
         if ( defined( $self->{hash} ) ) {
-            $s = ( $s . 'hash => ::DISPATCH( $::Hash, "new", ' );
+            $s = ( $s . 'hash: Hash.new( ' );
             my $item;
             do {
-                for my $item ( @{ $self->{hash} } ) { $s = ( $s . ( '[ ' . ( $item->[0]->emit_ruby() . ( ', ' . ( $item->[1]->emit_ruby() . ' ], ' ) ) ) ) ) }
+                for my $item ( @{ $self->{hash} } ) { $s = ( $s . ( ' ' . ( $item->[0]->emit_ruby() . ( ': ' . ( $item->[1]->emit_ruby() . ', ' ) ) ) ) ) }
             };
             $s = ( $s . ' ),' );
         }
@@ -870,8 +869,7 @@ sub emit_ruby {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( '::DISPATCH( $::Subset, "new", { '
-            . ( 'base_class => ' . ( $self->{base_class}->emit_ruby() . ( ', ' . ( 'block => ' . ( 'sub { local $_ = shift; ' . ( $self->{block}->block()->emit_ruby() . ( ' } ' . ( ' } )' . Main::newline() ) ) ) ) ) ) ) ) );
+    ( ' Subset.new({ ' . ( 'base_class: ' . ( $self->{base_class}->emit_ruby() . ( ', ' . ( 'block: ' . ( '->(s__){ ' . ( $self->{block}->block()->emit_ruby() . ( ' }' . ( ' } )' . Main::newline() ) ) ) ) ) ) ) ) );
 }
 
 package Method;
@@ -988,8 +986,8 @@ sub emit_ruby {
         else                            { }
     };
     do {
-        if ( $self->{perl5} ) { return ( ( 'use ' . ( $self->{mod} . ( ';$::' . ( $self->{mod} . ( '= KindaPerl6::Runtime::Perl5::Wrap::use5(\'' . ( $self->{mod} . '\')' ) ) ) ) ) ) ) }
-        else                  { return ( ( 'use ' . $self->{mod} ) ) }
+        if   ( $self->{perl5} ) { die('ruby backend does not currently implement  use perl5') }
+        else                    { return ( ( 'require ' . ( Main::singlequote() . ( $self->{mod} . ( Main::singlequote() . Main::newline() ) ) ) ) ) }
         }
 }
 

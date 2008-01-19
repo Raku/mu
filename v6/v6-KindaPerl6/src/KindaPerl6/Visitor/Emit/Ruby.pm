@@ -93,63 +93,61 @@ class Lit::Seq {
 
 class Lit::Array {
     method emit_ruby {
-        # # this is not a Perl 6 object, objects are created with a high-level Array.new or List.new
-        # '{ _array => [' ~ (@.array.>>emit_ruby).join(', ') ~ '] }' ~ Main::newline();
-	'[' ~ (@.array.>>emit_ruby).join(', ') ~ ']';
+        # # this is not a Perl 6 object,
+        # # objects are created with a high-level Array.new or List.new
+        '[' ~ (@.array.>>emit_ruby).join(', ') ~ ']';
     }
 }
 
 class Lit::Hash {
     method emit_ruby {
-        # # this is not a Perl 6 object, objects are created with a high-level Hash.new
+        # # this is not a Perl 6 object,
+        # # objects are created with a high-level Hash.new
         my $fields := @.hash;
         my $str := '';
         my $field;
         for @$fields -> $field {
-            $str := $str ~ ', ' ~ ($field[0]).emit_ruby ~ ': ' ~ ($field[1]).emit_ruby ~ '';
+            $str := $str ~ ', ' ~ ($field[0]).emit_ruby
+                         ~ ': ' ~ ($field[1]).emit_ruby ~ '';
         };
-	$str := substr( $str , 1 )
+        $str := substr( $str , 1 )
         '{' ~ $str ~ ' }' ~ Main::newline();
     }
 }
 
 class Lit::Pair {
     method emit_ruby {
-        ' Pair.new('
-	~ $.key.emit_ruby
-	~ ', '
-	~ $.value.emit_ruby
-	~ ')';
+        ' Pair.new(' ~ $.key.emit_ruby ~ ', ' ~ $.value.emit_ruby ~ ')';
     }
 }
 
 class Lit::NamedArgument {
     method emit_ruby {
-	' NamedArgument.new(' ~ $.key.emit_ruby ~ ', '
-	~ ( defined($.value) ?? $.value.emit_ruby !! 'Undef.new' )
-	~ ')'
+        ' NamedArgument.new(' ~ $.key.emit_ruby ~ ', '
+        ~ ( defined($.value) ?? $.value.emit_ruby !! 'Undef.new' )
+        ~ ')'
     }
 }
 
 class Lit::SigArgument {
     method emit_ruby {
 
-        '::DISPATCH( $::Signature::Item, \'new\', '
+        ' Signature::Item.new('
         ~ '{ '
 
-        ~     'sigil  => \'' ~ $.key.sigil  ~ '\', '
-        ~     'twigil => \'' ~ $.key.twigil ~ '\', '
-        ~     'name   => \'' ~ $.key.name   ~ '\', '
+        ~     'sigil:  \'' ~ $.key.sigil  ~ '\', '
+        ~     'twigil: \'' ~ $.key.twigil ~ '\', '
+        ~     'name:   \'' ~ $.key.name   ~ '\', '
 
-        ~     'value  => ' ~ ( defined($.value) ?? $.value.emit_ruby !! 'undef' ) ~ ', '  # XXX
+        ~     'value:   ' ~ ( defined($.value) ?? $.value.emit_ruby !! 'undef' ) ~ ', '  # XXX
 
-        ~     'has_default    => ' ~ $.has_default.emit_ruby  ~ ', '
-        ~     'is_named_only  => ' ~ $.is_named_only.emit_ruby  ~ ', '
-        ~     'is_optional    => ' ~ $.is_optional.emit_ruby    ~ ', '
-        ~     'is_slurpy      => ' ~ $.is_slurpy.emit_ruby      ~ ', '
-        ~     'is_multidimensional  => ' ~ $.is_multidimensional.emit_ruby  ~ ', '
-        ~     'is_rw          => ' ~ $.is_rw.emit_ruby          ~ ', '
-        ~     'is_copy        => ' ~ $.is_copy.emit_ruby        ~ ', '
+        ~     'has_default:     ' ~ $.has_default.emit_ruby  ~ ', '
+        ~     'is_named_only:   ' ~ $.is_named_only.emit_ruby  ~ ', '
+        ~     'is_optional:     ' ~ $.is_optional.emit_ruby    ~ ', '
+        ~     'is_slurpy:       ' ~ $.is_slurpy.emit_ruby      ~ ', '
+        ~     'is_multidimensional:  ' ~ $.is_multidimensional.emit_ruby  ~ ', '
+        ~     'is_rw:   ' ~ $.is_rw.emit_ruby          ~ ', '
+        ~     'is_copy: ' ~ $.is_copy.emit_ruby        ~ ', '
 
         ~ ' } )' ~ Main::newline();
     }
@@ -284,14 +282,14 @@ class Lit::Object {
         my $field;
         for @$fields -> $field {
             $str := $str
-                ~ '::DISPATCH( $::NamedArgument, "new", '
-                ~ '{ '
-                ~    '_argument_name_ => ' ~ ($field[0]).emit_ruby ~ ', '
-                ~    'value           => ' ~ ($field[1]).emit_ruby ~ ', '
-                ~ ' } ), '
+                ~ ', NamedArgument.new('
+                ~ ($field[0]).emit_ruby ~ ', '
+                ~ ($field[1]).emit_ruby
+                ~ ')'
                 ;
         };
-        '::DISPATCH( $::' ~ $.class ~ ', \'new\', ' ~ $str ~ ' )' ~ Main::newline();
+	$str := substr( $str , 1 );
+        ' ' ~ $.class ~ '.m_new(nil,nil,[ ' ~ $str ~ ' ])' ~ Main::newline();
     }
 }
 
@@ -435,7 +433,7 @@ class Bind {
 
 class Proto {
     method emit_ruby {
-        return '$::'~$.name;
+        return ' '~$.name;
     }
 }
 
@@ -557,14 +555,14 @@ class Return {
 
 class If {
     method emit_ruby {
-        'if (' ~ $.cond.emit_ruby ~ ')' ~ Main::newline()
+        'if (' ~ $.cond.emit_ruby ~ ').is_true6? ' ~ Main::newline()
         ~ ( $.body
             ?? ' ' ~ $.body.emit_ruby ~ ''
             !! ''
           )
         ~ ( $.otherwise
             ?? ' else ' ~ Main::newline() ~ $.otherwise.emit_ruby ~ ' '
-            !! ' else; false; ' #Bit
+            !! ' else; Bit.new(false); '
           )
         ~ Main::newline() ~ 'end' ~ Main::newline();
     }
@@ -579,10 +577,9 @@ class While {
         } else {
             $cond := Apply.new( code => Var.new(sigil=>'&',twigil=>'',name=>'prefix:<@>',namespace => [ 'GLOBAL' ],), arguments => [$cond] );
         }
-        'do { while (::DISPATCH(::DISPATCH(' ~ $.cond.emit_ruby ~ ',"true"),"p5landish") ) '
-        ~ ' { '
+        ' while (' ~ $.cond.emit_ruby ~ ').is_true6? ' ~ Main::newline()
         ~     $.body.emit_ruby
-        ~ ' } }'
+        ~ 'end'
         ~ Main::newline();
     }
 }
@@ -685,7 +682,7 @@ class Decl {
 
 class Sig {
     method emit_ruby {
-        my $inv := '$::Undef';
+        my $inv := ' Undef.new';
         if $.invocant.isa( 'Var' ) {
             $inv := $.invocant.perl;
         }
@@ -698,11 +695,11 @@ class Sig {
 
         my $named := '';  # TODO
 
-          '::DISPATCH( $::Signature, "new", { '
-        ~     'invocant => ' ~ $inv ~ ', '
-        ~     'array    => ::DISPATCH( $::List, "new", { _array => [ ' ~ $pos   ~ ' ] } ), '
+          ' Signature.new( { '
+        ~     'invocant: ' ~ $inv ~ ', '
+        ~     'array:    List.new( [ ' ~ $pos   ~ ' ] ), '
         # ~     'hash     => ::DISPATCH( $::Hash,  "new", { _hash  => { ' ~ $named ~ ' } } ), '
-        ~     'return   => $::Undef, '
+        ~     'return: Undef.new '
         ~ '} )'
         ~ Main::newline();
     };
@@ -710,26 +707,26 @@ class Sig {
 
 class Lit::Capture {
     method emit_ruby {
-        my $s := '::DISPATCH( $::Capture, "new", { ';
+        my $s := ' Capture.new( { ';
         if defined $.invocant {
-           $s := $s ~ 'invocant => ' ~ $.invocant.emit_ruby ~ ', ';
+           $s := $s ~ 'invocant: ' ~ $.invocant.emit_ruby ~ ', ';
         }
         else {
-            $s := $s ~ 'invocant => $::Undef, '
+            $s := $s ~ 'invocant: Undef.new, '
         };
         if defined $.array {
-           $s := $s ~ 'array => ::DISPATCH( $::List, "new", { _array => [ ';
+           $s := $s ~ 'array: List.new( [ ';
                             my $item;
            for @.array -> $item {
                 $s := $s ~ $item.emit_ruby ~ ', ';
             }
-            $s := $s ~ ' ] } ),';
+            $s := $s ~ ' ] ),';
         };
         if defined $.hash {
-            $s := $s ~ 'hash => ::DISPATCH( $::Hash, "new", ';
+            $s := $s ~ 'hash: Hash.new( ';
             my $item;
             for @.hash -> $item {
-                $s := $s ~ '[ ' ~ ($item[0]).emit_ruby ~ ', ' ~ ($item[1]).emit_ruby ~ ' ], ';
+                $s := $s ~ ' ' ~ ($item[0]).emit_ruby ~ ': ' ~ ($item[1]).emit_ruby ~ ', ';
             }
             $s := $s ~ ' ),';
         };
@@ -739,11 +736,11 @@ class Lit::Capture {
 
 class Lit::Subset {
     method emit_ruby {
-          '::DISPATCH( $::Subset, "new", { '
-        ~ 'base_class => ' ~ $.base_class.emit_ruby
+          ' Subset.new({ '
+        ~ 'base_class: ' ~ $.base_class.emit_ruby
         ~ ', '
-        ~ 'block => '
-        ~       'sub { local $_ = shift; ' ~ ($.block.block).emit_ruby ~ ' } '    # XXX
+        ~ 'block: '
+        ~       '->(s__){ ' ~ ($.block.block).emit_ruby ~ ' }'    # XXX
         ~ ' } )' ~ Main::newline();
     }
 }
@@ -816,9 +813,11 @@ class Use {
             return Main::newline() ~ '#use v6' ~ Main::newline();
         }
         if ( $.perl5 ) {
-            return 'use ' ~ $.mod ~ ';$::' ~ $.mod ~ '= KindaPerl6::Runtime::Perl5::Wrap::use5(\'' ~ $.mod ~ '\')';
+	    die "ruby backend does not currently implement  use perl5";
         } else {
-            return 'use ' ~ $.mod;
+            return ('require '
+                    ~ Main::singlequote() ~ $.mod ~ Main::singlequote()
+		    ~ Main::newline());
         }
     }
 }

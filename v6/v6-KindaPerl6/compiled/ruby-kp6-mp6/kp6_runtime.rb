@@ -27,6 +27,13 @@ class Array
   def m_map; ->(f){self.map_n(f)}; end
 end
 
+#
+
+class Object
+  def is_true6?; (not self or self == 0) ? false : true; end
+end
+
+
 # random cruft
 
 class Undef; end
