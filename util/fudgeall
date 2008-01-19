@@ -4,24 +4,19 @@ use strict;
 use warnings;
 
 my $platform = shift;
+@ARGV = <@ARGV> if $^O eq 'MSWin32';
 
 use Cwd;
-my $dir = getcwd;
+my $top = getcwd;
 
-my $SPEC = $dir =~ /\bspec\b/;
-while (not -f "$dir/util/fudge") {
-    die "Not inside pugs directory\n" unless $dir;
-    $dir =~ s!(.*)/(.*)!!;
+while (not -f "$top/util/fudge") {
+    die "Not inside appropriate directory\n" unless $top;
+    $top =~ s!(.*)/(.*)!!;
 }
 
 print join(' ',
     map {
-	if ($SPEC or m!\bspec\b!) {
-	    chomp(my $pick = `$dir/util/fudge $platform $_`);
-	    $pick;
-	}
-	else {
-	    $_;
-	}
+	chomp(my $pick = `$top/util/fudge $platform $_`);
+	$pick;
     } @ARGV
 ), "\n";
