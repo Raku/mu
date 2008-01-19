@@ -25,11 +25,11 @@ static SMOP__Object* idconst_message(SMOP__Object* stack,
   return NULL;
 }
 
-static SMOP__Object* idconst_reference(SMOP__Object* stack, SMOP__ResponderInterface* responder, SMOP__Object* obj) {
+static SMOP__Object* idconst_reference(SMOP__Object* interpreter, SMOP__ResponderInterface* responder, SMOP__Object* obj) {
   return obj;
 }
 
-static SMOP__Object* idconst_release(SMOP__Object* stack, SMOP__ResponderInterface* responder, SMOP__Object* obj) {
+static SMOP__Object* idconst_release(SMOP__Object* interpreter, SMOP__ResponderInterface* responder, SMOP__Object* obj) {
   return obj;
 }
 
