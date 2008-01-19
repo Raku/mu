@@ -4,7 +4,6 @@ use strict;
 use warnings;
 
 my $platform = shift;
-@ARGV = <@ARGV> if $^O eq 'MSWin32';
 
 use Cwd;
 my $top = getcwd;
