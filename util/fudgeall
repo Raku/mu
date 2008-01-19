@@ -16,7 +16,7 @@ while (not -f "$top/util/fudge") {
 
 print join(' ',
     map {
-	chomp(my $pick = `$top/util/fudge $platform $_`);
+	chomp(my $pick = `$^X $top/util/fudge $platform $_`);
 	$pick;
     } @ARGV
 ), "\n";
