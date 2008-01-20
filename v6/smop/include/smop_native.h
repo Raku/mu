@@ -57,7 +57,8 @@ double complex  SMOP__NATIVE__complex_fetch(SMOP__Object* value);
 int             SMOP__NATIVE__bool_fetch(SMOP__Object* value);
 SMOP__Object*   SMOP__NATIVE__capture_invocant(SMOP__Object* capture);
 SMOP__Object*   SMOP__NATIVE__capture_positional(SMOP__Object* capture, 1);
-SMOP__Object*   SMOP__NATIVE__capture_named(SMOP__Object* capture, SMOP__Object* identifier);
+SMOP__Object*   SMOP__NATIVE__capture_named(SMOP__Object* capture,
+                                            SMOP__Object* identifier);
 
 // idconst isn't subject to gc, you need a explicit free
 void            SMOP__NATIVE__idconst_free(SMOP__Object* value);
