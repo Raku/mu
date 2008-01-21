@@ -23,4 +23,5 @@ SMOP__Object* SMOP__ID__past;
 SMOP__Object* SMOP__ID__push;
 SMOP__Object* SMOP__ID__responder;
 SMOP__Object* SMOP__ID__result;
+SMOP__Object* SMOP__ID__setr;
 SMOP__Object* SMOP__ID__outer;

@@ -67,6 +67,14 @@ SMOP__Object* smop__intptr__invocant_capture_new(SMOP__Object* proto);
  */
 SMOP__Object* smop__intptr__goto_capture_new(SMOP__Object* invocant, SMOP__Object* continuation);
 
+/* setr($new_value)
+ *
+ * As in
+ * http://www.perlfoundation.org/perl6/index.cgi?smop_inter_continuation_communication
+ * This sets the evaluation result of the current execution
+ * point. This is a delegated call also.
+ */
+
 /* eval()
  *
  * This method delegates to the current continuation.

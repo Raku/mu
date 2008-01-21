@@ -23,4 +23,5 @@ SMOP__NATIVE__idconst_free( SMOP__ID__past );
 SMOP__NATIVE__idconst_free( SMOP__ID__push );
 SMOP__NATIVE__idconst_free( SMOP__ID__responder );
 SMOP__NATIVE__idconst_free( SMOP__ID__result );
+SMOP__NATIVE__idconst_free( SMOP__ID__setr );
 SMOP__NATIVE__idconst_free( SMOP__ID__outer );

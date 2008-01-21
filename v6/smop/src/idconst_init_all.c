@@ -23,4 +23,5 @@ SMOP__ID__past = SMOP__NATIVE__idconst_create( "past" );
 SMOP__ID__push = SMOP__NATIVE__idconst_create( "push" );
 SMOP__ID__responder = SMOP__NATIVE__idconst_create( "responder" );
 SMOP__ID__result = SMOP__NATIVE__idconst_create( "result" );
+SMOP__ID__setr = SMOP__NATIVE__idconst_create( "setr" );
 SMOP__ID__outer = SMOP__NATIVE__idconst_create( "outer" );
