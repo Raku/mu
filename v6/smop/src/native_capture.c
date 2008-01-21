@@ -107,7 +107,8 @@ static int cmp_opt_named(const void* p1, const void* p2) {
   }
 }
 
-SMOP__Object*   SMOP__NATIVE__capture_create(SMOP__Object* invocant,
+SMOP__Object*   SMOP__NATIVE__capture_create(SMOP__Object* interpreter,
+                                             SMOP__Object* invocant,
                                              SMOP__Object** positional,
                                              SMOP__Object** named) {
 
@@ -184,28 +185,33 @@ SMOP__Object*   SMOP__NATIVE__capture_create(SMOP__Object* invocant,
   return ret;
 }
 
-SMOP__Object*   SMOP__NATIVE__capture_invocant(SMOP__Object* capture) {
+SMOP__Object*   SMOP__NATIVE__capture_invocant(SMOP__Object* interpreter,
+                                               SMOP__Object* capture) {
+  // TODO: locking
   if (capture) {
-    return SMOP_REFERENCE(((native_capture_struct*)capture)->invocant);
+    return SMOP_REFERENCE(interpreter, ((native_capture_struct*)capture)->invocant);
   } else {
     return NULL;
   }
 }
 
-SMOP__Object*   SMOP__NATIVE__capture_positional(SMOP__Object* capture, int p) {
+SMOP__Object*   SMOP__NATIVE__capture_positional(SMOP__Object* interpreter,
+                                                 SMOP__Object* capture, int p) {
+  // TODO: locking.
   if (capture) {
     native_capture_struct* self = ((native_capture_struct*)capture);
     if (p > self->count_positional) {
       return NULL;
     } else {
-      return SMOP_REFERENCE(self->positional[p]);
+      return SMOP_REFERENCE(interpreter, self->positional[p]);
     }
   } else {
     return NULL;
   }
 }
 
-SMOP__Object*   SMOP__NATIVE__capture_named(SMOP__Object* capture,
+SMOP__Object*   SMOP__NATIVE__capture_named(SMOP__Object* interpreter,
+                                            SMOP__Object* capture,
                                             SMOP__Object* identifier) {
 
 }

@@ -41,7 +41,8 @@ SMOP__Object*   SMOP__NATIVE__buf_create(int bytesize, char* unicodestr);
 SMOP__Object*   SMOP__NATIVE__num_create(double value);
 SMOP__Object*   SMOP__NATIVE__complex_create(double complex value);
 SMOP__Object*   SMOP__NATIVE__bool_create(int value);
-SMOP__Object*   SMOP__NATIVE__capture_create(SMOP__Object* invocant,
+SMOP__Object*   SMOP__NATIVE__capture_create(SMOP__Object* interpreter,
+                                             SMOP__Object* invocant,
                                              SMOP__Object** positional,
                                              SMOP__Object** named);
 
@@ -55,9 +56,12 @@ char*           SMOP__NATIVE__buf_fetch(SMOP__Object* value, int* retsize);
 double          SMOP__NATIVE__num_fetch(SMOP__Object* value);
 double complex  SMOP__NATIVE__complex_fetch(SMOP__Object* value);
 int             SMOP__NATIVE__bool_fetch(SMOP__Object* value);
-SMOP__Object*   SMOP__NATIVE__capture_invocant(SMOP__Object* capture);
-SMOP__Object*   SMOP__NATIVE__capture_positional(SMOP__Object* capture, 1);
-SMOP__Object*   SMOP__NATIVE__capture_named(SMOP__Object* capture,
+SMOP__Object*   SMOP__NATIVE__capture_invocant(SMOP__Object* interpreter,
+                                               SMOP__Object* capture);
+SMOP__Object*   SMOP__NATIVE__capture_positional(SMOP__Object* interpreter,
+                                                 SMOP__Object* capture, int p);
+SMOP__Object*   SMOP__NATIVE__capture_named(SMOP__Object* interpreter,
+                                            SMOP__Object* capture,
                                             SMOP__Object* identifier);
 
 // idconst isn't subject to gc, you need a explicit free
