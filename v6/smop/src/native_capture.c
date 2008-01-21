@@ -73,6 +73,7 @@ void smop_native_capture_init() {
   SMOP__NATIVE__capture->REFERENCE = capture_reference;
   SMOP__NATIVE__capture->RELEASE = capture_release;
 
+  // initialize the constant empty capture
   smop_native_empty_capture = calloc(1, sizeof(native_capture_struct));
   assert(smop_native_empty_capture);
   smop_native_empty_capture->RI = SMOP__NATIVE__capture;
@@ -81,8 +82,9 @@ void smop_native_capture_init() {
 
 void smop_native_capture_destr() {
 
-  // destroy the capture prototype
+  // destroy the constant empty capture
   free(smop_native_empty_capture);
+  // destroy the capture prototype
   free(SMOP__NATIVE__capture);
  
 }
@@ -187,9 +189,11 @@ SMOP__Object*   SMOP__NATIVE__capture_create(SMOP__Object* interpreter,
 
 SMOP__Object*   SMOP__NATIVE__capture_invocant(SMOP__Object* interpreter,
                                                SMOP__Object* capture) {
-  // TODO: locking
   if (capture) {
-    return SMOP_REFERENCE(interpreter, ((native_capture_struct*)capture)->invocant);
+    smop_lowlevel_rdlock(capture);
+    SMOP__Object* invocant = ((native_capture_struct*)capture)->invocant;
+    smop_lowlevel_unlock(capture);
+    return SMOP_REFERENCE(interpreter, invocant);
   } else {
     return NULL;
   }
@@ -197,13 +201,17 @@ SMOP__Object*   SMOP__NATIVE__capture_invocant(SMOP__Object* interpreter,
 
 SMOP__Object*   SMOP__NATIVE__capture_positional(SMOP__Object* interpreter,
                                                  SMOP__Object* capture, int p) {
-  // TODO: locking.
   if (capture) {
+    SMOP__Object* arg;
     native_capture_struct* self = ((native_capture_struct*)capture);
-    if (p > self->count_positional) {
-      return NULL;
-    } else {
+    smop_lowlevel_rdlock(capture);
+    if (p < self->count_positional) {
+      arg = self->positional[p];
+      smop_lowlevel_unlock(capture);
       return SMOP_REFERENCE(interpreter, self->positional[p]);
+    } else 
+      smop_lowlevel_unlock(capture);
+      return NULL;
     }
   } else {
     return NULL;
