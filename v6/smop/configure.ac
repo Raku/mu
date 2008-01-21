@@ -1,7 +1,7 @@
 AC_INIT(configure.ac)
 
 AM_CONFIG_HEADER(config.h)
-AM_INIT_AUTOMAKE(smop, 0.1.0)
+AM_INIT_AUTOMAKE(smop, 0.1.1)
 
 AC_PROG_LIBTOOL
 AC_PROG_CC

@@ -48,6 +48,37 @@ static SMOP__Object* capture_message(SMOP__Object* interpreter,
     ret = smop_native_empty_capture;
     break;
   SMOP__ID__DESTROYALL:
+    if (capture && capture != self && capture != smop_native_empty_capture) {
+      native_capture_struct* self = (native_capture_struct*)capture;
+      smop_lowlevel_wrlock(capture);
+      SMOP__Object* invocant = self->invocant; self->invocant = NULL;
+      SMOP__Object** positional = self->positional; self->positional = NULL; self->count_positional = 0;
+      named_argument* o_named = self->o_named; self->o_named = NULL; self->count_o_named = 0;
+      named_argument* named = self->named; self->named = NULL; self->count_named = 0;
+      smop_lowlevel_unlock(capture);
+
+      if (invocant) SMOP_RELEASE(interpreter, invocant);
+      int count = 0;
+      while (positional[count]) {
+        SMOP_RELEASE(interpreter, positional[count]);
+        count++;
+      }
+      count = 0;
+      while (o_named[count]) {
+        SMOP_RELEASE(interpreter, o_named[count]->key);
+        SMOP_RELEASE(interpreter, o_named[count]->value);
+        count++;
+      }
+      count = 0;
+      while (named[count]) {
+        SMOP_RELEASE(interpreter, named[count]->key);
+        SMOP_RELEASE(interpreter, named[count]->value);
+        count++;
+      }
+      free(positional);
+      free(o_named);
+      free(named);
+    }
     ret = NULL;
     break;
   }
