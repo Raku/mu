@@ -186,10 +186,36 @@ from redsix.  Someone else might pursue it, if the current approach
 bogs down, of if keeping the ruby and p5 backends synced becomes
 burdensome at some future time.
 
+Regards signature architecture.  The p6 signature language is, even
+more so than usual, a non-trivial language.  While it would be compact
+to pass to the runtime, a p6 sig string '$x,$y', then the parsing
+would have to be redone in the runtime.  Even if the parse/emit was
+used to cannonicallize the form, there's still such richness as would
+be a pain to duplicate.  So we basically pass an ast instead.  But
+it's a runtime ast, rather than a p6 one.  While a p6 one might
+facilitate p6 reflection, signature processing seems likely to be a
+hot spot.  And for bootstrap, a rt ast is also simpler.  It can always
+be easily changed later.  I believe in this choice, the ruby backend
+differs from the p5 backend.
+
 
 TODO:
+- what does capture emit look like?
+- how did redsix handle methods?
+- write Ruddy::Signature
 - get say() working with new calling convention
+- and rest of existing runtime
 - emit simple subs
+- get method-based say() working
+- micro benchmark calling convention - performance check
+  fib method running time on kp6/p5, kp6/ruby,
+    extras: rb1.8, rb1.9, mp6, p5, p5/moose, 
+    make sure to use same arithmetic calls (ie, infix:+).
+- emit methods
+- emit class decls
+
+- start creating mp6_runtime.rb.  will need it for Ruddy::Sig.
+
 - flesh out todos
 
 OLD FUZZY TODO LIST:
