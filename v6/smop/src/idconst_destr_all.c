@@ -1,9 +1,11 @@
+SMOP__NATIVE__idconst_free( SMOP__ID__back );
 SMOP__NATIVE__idconst_free( SMOP__ID__capture );
 SMOP__NATIVE__idconst_free( SMOP__ID__continuation );
 SMOP__NATIVE__idconst_free( SMOP__ID__continues );
 SMOP__NATIVE__idconst_free( SMOP__ID__copy );
 SMOP__NATIVE__idconst_free( SMOP__ID__current );
 SMOP__NATIVE__idconst_free( SMOP__ID__debug );
+SMOP__NATIVE__idconst_free( SMOP__ID__drop );
 SMOP__NATIVE__idconst_free( SMOP__ID__DESTROYALL );
 SMOP__NATIVE__idconst_free( SMOP__ID__eval );
 SMOP__NATIVE__idconst_free( SMOP__ID__forget );

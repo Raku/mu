@@ -1,9 +1,11 @@
+SMOP__Object* SMOP__ID__back;
 SMOP__Object* SMOP__ID__capture;
 SMOP__Object* SMOP__ID__continuation;
 SMOP__Object* SMOP__ID__continues;
 SMOP__Object* SMOP__ID__copy;
 SMOP__Object* SMOP__ID__current;
 SMOP__Object* SMOP__ID__debug;
+SMOP__Object* SMOP__ID__drop;
 SMOP__Object* SMOP__ID__DESTROYALL;
 SMOP__Object* SMOP__ID__eval;
 SMOP__Object* SMOP__ID__forget;

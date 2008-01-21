@@ -7,12 +7,14 @@
  * point both to the same value.
  */
 
+extern SMOP__Object* SMOP__ID__back;              /* "back" */
 extern SMOP__Object* SMOP__ID__capture;           /* "capture" */
 extern SMOP__Object* SMOP__ID__continuation;      /* "continuation" */
 extern SMOP__Object* SMOP__ID__continues;         /* "continues" */
 extern SMOP__Object* SMOP__ID__copy;              /* "copy" */
 extern SMOP__Object* SMOP__ID__current;           /* "current" */
 extern SMOP__Object* SMOP__ID__debug;             /* "debug" */
+extern SMOP__Object* SMOP__ID__drop;              /* "drop" */
 extern SMOP__Object* SMOP__ID__DESTROYALL;        /* "DESTROYALL" */
 extern SMOP__Object* SMOP__ID__eval;              /* "eval" */
 extern SMOP__Object* SMOP__ID__forget;            /* "forget" */

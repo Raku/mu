@@ -1,9 +1,11 @@
+SMOP__ID__back = SMOP__NATIVE__idconst_create( "back" );
 SMOP__ID__capture = SMOP__NATIVE__idconst_create( "capture" );
 SMOP__ID__continuation = SMOP__NATIVE__idconst_create( "continuation" );
 SMOP__ID__continues = SMOP__NATIVE__idconst_create( "continues" );
 SMOP__ID__copy = SMOP__NATIVE__idconst_create( "copy" );
 SMOP__ID__current = SMOP__NATIVE__idconst_create( "current" );
 SMOP__ID__debug = SMOP__NATIVE__idconst_create( "debug" );
+SMOP__ID__drop = SMOP__NATIVE__idconst_create( "drop" );
 SMOP__ID__DESTROYALL = SMOP__NATIVE__idconst_create( "DESTROYALL" );
 SMOP__ID__eval = SMOP__NATIVE__idconst_create( "eval" );
 SMOP__ID__forget = SMOP__NATIVE__idconst_create( "forget" );
