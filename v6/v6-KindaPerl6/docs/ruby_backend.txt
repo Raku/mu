@@ -76,7 +76,7 @@ Calling convention:
  sig = Ruddy::Signature.new(...)
  ->(cap){
    ->(the,formal,arguments) {
-     sig.mumble(cap,binding)
+     sig.bind(cap,binding)
    }.(nil,nil,nil)
  }
 
@@ -149,7 +149,7 @@ Examples:
      sig = Ruddy::Signature.new(...)
      ->(cap){
        ->(s_x){
-         sig.mumble(cap,binding)
+         sig.bind(cap,binding)
 	 42 * s_x
        }.(nil)
      }
@@ -162,7 +162,7 @@ Examples:
      sig = Ruddy::Signature.new(...)
      ->(cap){
        ->(){
-         sig.mumble(cap,binding)
+         sig.bind(cap,binding)
 	 42
        }.()
      }
