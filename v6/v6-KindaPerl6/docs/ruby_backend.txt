@@ -200,7 +200,6 @@ differs from the p5 backend.
 
 
 TODO:
-- what does capture emit look like?
 - how did redsix handle methods?
 - write Ruddy::Signature
 - get say() working with new calling convention

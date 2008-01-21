@@ -123,7 +123,7 @@ class Lit::Pair {
 
 class Lit::NamedArgument {
     method emit_ruby {
-        ' NamedArgument.new(' ~ $.key.emit_ruby ~ ', '
+        ' Ruddy::NamedArgument.new(' ~ $.key.emit_ruby ~ ', '
         ~ ( defined($.value) ?? $.value.emit_ruby !! 'Undef.new' )
         ~ ')'
     }
@@ -282,7 +282,7 @@ class Lit::Object {
         my $field;
         for @$fields -> $field {
             $str := $str
-                ~ ', NamedArgument.new('
+                ~ ', Ruddy::NamedArgument.new('
                 ~ ($field[0]).emit_ruby ~ ', '
                 ~ ($field[1]).emit_ruby
                 ~ ')'
@@ -539,7 +539,7 @@ class Apply {
         }
 
         #return  '::DISPATCH( ' ~ $.code.emit_ruby ~ ', \'APPLY\', ' ~ (@.arguments.>>emit_ruby).join(', ') ~ ' )' ~ Main::newline();
-        return  ' ' ~ $.code.emit_ruby ~ '.(' ~ (@.arguments.>>emit_ruby).join(', ') ~ ')' ~ Main::newline();
+        return  ' ' ~ $.code.emit_ruby ~ '.(cx(' ~ (@.arguments.>>emit_ruby).join(', ') ~ '))' ~ Main::newline();
     }
 }
 
@@ -707,30 +707,44 @@ class Sig {
 
 class Lit::Capture {
     method emit_ruby {
-        my $s := ' Capture.new( { ';
-        if defined $.invocant {
-           $s := $s ~ 'invocant: ' ~ $.invocant.emit_ruby ~ ', ';
+        my $s := ' c(';
+
+	my $sa := '';
+        if defined $.array {
+           $sa := $sa ~ '[';
+           my $item;
+           for @.array -> $item {
+                $sa := $sa ~ $item.emit_ruby ~ ', ';
+           }
+           $sa := $sa ~ ']';
+	   $s := $s ~ $sa ~ ',';
         }
         else {
-            $s := $s ~ 'invocant: Undef.new, '
+           $s := $s ~ 'nil,'
         };
-        if defined $.array {
-           $s := $s ~ 'array: List.new( [ ';
-                            my $item;
-           for @.array -> $item {
-                $s := $s ~ $item.emit_ruby ~ ', ';
-            }
-            $s := $s ~ ' ] ),';
-        };
+
+	my $sh := '';
         if defined $.hash {
-            $s := $s ~ 'hash: Hash.new( ';
-            my $item;
-            for @.hash -> $item {
-                $s := $s ~ ' ' ~ ($item[0]).emit_ruby ~ ': ' ~ ($item[1]).emit_ruby ~ ', ';
-            }
-            $s := $s ~ ' ),';
+           $sh := $sh ~ '{';
+           my $item;
+           for @.hash -> $item {
+               $sh := $sh ~ ' ' ~ ($item[0]).emit_ruby ~ ': ' ~ ($item[1]).emit_ruby ~ ', ';
+           }
+           $sh := $sh ~ '}';
+	   $s := $s ~ $sh ~ ',';
+        }
+        else {
+            $s := $s ~ 'nil,'
         };
-        return $s ~ ' } )' ~ Main::newline();
+
+        if defined $.invocant {
+           $s := $s ~ $.invocant.emit_ruby ~ '';
+        }
+        else {
+            $s := $s ~ 'nil'
+        };
+
+        return $s ~ ')' ~ Main::newline();
     };
 }
 

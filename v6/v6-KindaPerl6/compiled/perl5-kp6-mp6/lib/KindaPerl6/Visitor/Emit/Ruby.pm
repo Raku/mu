@@ -179,7 +179,7 @@ sub emit_ruby {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( ' NamedArgument.new(' . ( $self->{key}->emit_ruby() . ( ', ' . ( ( defined( $self->{value} ) ? $self->{value}->emit_ruby() : 'Undef.new' ) . ')' ) ) ) );
+    ( ' Ruddy::NamedArgument.new(' . ( $self->{key}->emit_ruby() . ( ', ' . ( ( defined( $self->{value} ) ? $self->{value}->emit_ruby() : 'Undef.new' ) . ')' ) ) ) );
 }
 
 package Lit::SigArgument;
@@ -445,7 +445,7 @@ sub emit_ruby {
     my $str    = '';
     my $field;
     do {
-        for my $field ( @{$fields} ) { $str = ( $str . ( ', NamedArgument.new(' . ( $field->[0]->emit_ruby() . ( ', ' . ( $field->[1]->emit_ruby() . ')' ) ) ) ) ) }
+        for my $field ( @{$fields} ) { $str = ( $str . ( ', Ruddy::NamedArgument.new(' . ( $field->[0]->emit_ruby() . ( ', ' . ( $field->[1]->emit_ruby() . ')' ) ) ) ) ) }
     };
     $str = substr( $str, 1 );
     ( ' ' . ( $self->{class} . ( '.m_new(nil,nil,[ ' . ( $str . ( ' ])' . Main::newline() ) ) ) ) );
@@ -629,7 +629,7 @@ sub emit_ruby {
         }
         else { }
     };
-    return ( ( ' ' . ( $self->{code}->emit_ruby() . ( '.(' . ( Main::join( [ map { $_->emit_ruby() } @{ $self->{arguments} } ], ', ' ) . ( ')' . Main::newline() ) ) ) ) ) );
+    return ( ( ' ' . ( $self->{code}->emit_ruby() . ( '.(cx(' . ( Main::join( [ map { $_->emit_ruby() } @{ $self->{arguments} } ], ', ' ) . ( '))' . Main::newline() ) ) ) ) ) );
 }
 
 package Return;
@@ -832,34 +832,38 @@ sub emit_ruby {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    my $s = ' Capture.new( { ';
-    do {
-        if ( defined( $self->{invocant} ) ) { $s = ( $s . ( 'invocant: ' . ( $self->{invocant}->emit_ruby() . ', ' ) ) ) }
-        else                                { $s = ( $s . 'invocant: Undef.new, ' ) }
-    };
+    my $s  = ' c(';
+    my $sa = '';
     do {
         if ( defined( $self->{array} ) ) {
-            $s = ( $s . 'array: List.new( [ ' );
+            $sa = ( $sa . '[' );
             my $item;
             do {
-                for my $item ( @{ $self->{array} } ) { $s = ( $s . ( $item->emit_ruby() . ', ' ) ) }
+                for my $item ( @{ $self->{array} } ) { $sa = ( $sa . ( $item->emit_ruby() . ', ' ) ) }
             };
-            $s = ( $s . ' ] ),' );
+            $sa = ( $sa . ']' );
+            $s = ( $s . ( $sa . ',' ) );
         }
-        else { }
+        else { $s = ( $s . 'nil,' ) }
     };
+    my $sh = '';
     do {
         if ( defined( $self->{hash} ) ) {
-            $s = ( $s . 'hash: Hash.new( ' );
+            $sh = ( $sh . '{' );
             my $item;
             do {
-                for my $item ( @{ $self->{hash} } ) { $s = ( $s . ( ' ' . ( $item->[0]->emit_ruby() . ( ': ' . ( $item->[1]->emit_ruby() . ', ' ) ) ) ) ) }
+                for my $item ( @{ $self->{hash} } ) { $sh = ( $sh . ( ' ' . ( $item->[0]->emit_ruby() . ( ': ' . ( $item->[1]->emit_ruby() . ', ' ) ) ) ) ) }
             };
-            $s = ( $s . ' ),' );
+            $sh = ( $sh . '}' );
+            $s = ( $s . ( $sh . ',' ) );
         }
-        else { }
+        else { $s = ( $s . 'nil,' ) }
     };
-    return ( ( $s . ( ' } )' . Main::newline() ) ) );
+    do {
+        if ( defined( $self->{invocant} ) ) { $s = ( $s . ( $self->{invocant}->emit_ruby() . '' ) ) }
+        else                                { $s = ( $s . 'nil' ) }
+    };
+    return ( ( $s . ( ')' . Main::newline() ) ) );
 }
 
 package Lit::Subset;

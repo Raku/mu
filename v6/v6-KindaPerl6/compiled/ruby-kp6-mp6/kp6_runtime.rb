@@ -1,3 +1,41 @@
+# Runtime
+module Ruddy; end
+
+def cx(*args)
+  Ruddy::Capture.new(args)
+end
+def na(k,v)
+  Ruddy::NamedArgument.new(k,v)
+end
+
+class Ruddy::NamedArgument
+  attr_accessor :key, :value
+  def initialize(key,value)
+    @key,@value = key,value
+  end
+end
+
+class Ruddy::Capture
+  attr_accessor :args
+  def initialize(args)
+    @args=args
+  end
+  def positional
+    @args.find_all {|a| !a.is_a?(Ruddy::NamedArgument) }
+  end
+  def named
+    @args.find_all {|a|  a.is_a?(Ruddy::NamedArgument) }
+  end
+  def pos(n=nil)
+    p = positional
+    n = @args.length if not n
+    if p.length != n
+      raise "boom"
+    end
+    p
+  end
+end
+
 
 # Runtime/Perl5/Array
 class Array
@@ -64,17 +102,14 @@ class Pair
   end
 end
 
-class NamedArgument < Pair
-end
 
-
-def c_say; ->(*a){print *a,"\n"}; end
+def c_say; ->(c){print *c.pos,"\n"}; end
 #infix:<~>
-def c_infix_58__60__126__62_; ->(*a){a.join("")}; end
+def c_infix_58__60__126__62_; ->(c){c.pos.join("")}; end
 #infix:<+>
-def c_infix_58__60__43__62_; ->(a,b){a+b}; end
+def c_infix_58__60__43__62_; ->(c){a=c.pos;a[0]+a[1]}; end
 #infix:<==>
-def c_infix_58__60__61__61__62_; ->(a,b){a==b}; end
+def c_infix_58__60__61__61__62_; ->(c){a=c.pos;a[0]==a[1]}; end
 
 
 
