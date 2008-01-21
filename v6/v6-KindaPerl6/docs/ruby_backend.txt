@@ -100,8 +100,8 @@ Variables
  s_x._(v)
  s_x = v
 
- f()
- c_f.()
+ f(...)
+ c_f.(...)
 
 Lexical vars
  ->(x1,x2){...}.(v1,v2)  === (let ((x1 v1) (x2 v2)) ...)
@@ -120,26 +120,22 @@ Package vars
 OO
  p6 classes are similarly named ruby classes.
  p6 modules and packages are ruby modules.(?)
- methods... good question.
-
-   it would be a pain to have to duplicate the binding of self.
-   perhaps special-case method calls?
-   how costly are bound methods?
-   What did redsix do?
+ methods:
 
    $o.m()
-   s_o.c_m.()
+   s_o.c_m.(...)
 
-   def c_m
-     self.method(:c_m_real)
-   def c_m
-     s_self = self
-     ...lambda...
-   def c_m        
-     @cached_c_m ||= ->(){
-       s_self = self
-       ...lambda...
-     }.()
+   current_class.def_pkg_var(:c_m, ...)
+   where ... is
+   ->(){
+     sig = ...
+     ->(c){
+       ->(s_self,...){
+         sig.bind(c)
+	 ...
+       }  
+     }
+   }.()
 
 
 Examples:
@@ -196,20 +192,20 @@ it's a runtime ast, rather than a p6 one.  While a p6 one might
 facilitate p6 reflection, signature processing seems likely to be a
 hot spot.  And for bootstrap, a rt ast is also simpler.  It can always
 be easily changed later.  I believe in this choice, the ruby backend
-differs from the p5 backend.
+differs from the p5 backend.  Another alternative is to generate
+inline code at compile time.  At least for bootstrap, that doesn't
+seem worth the clutter.
 
 
 TODO:
-- how did redsix handle methods?
 - write Ruddy::Signature
-- get say() working with new calling convention
-- and rest of existing runtime
+- get Sig-based say() working
 - emit simple subs
-- get method-based say() working
 - micro benchmark calling convention - performance check
   fib method running time on kp6/p5, kp6/ruby,
     extras: rb1.8, rb1.9, mp6, p5, p5/moose, 
     make sure to use same arithmetic calls (ie, infix:+).
+- get method saym() working
 - emit methods
 - emit class decls
 
