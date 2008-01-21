@@ -1,23 +1,200 @@
 kp6 ruby backend
 
-docs/ruby_backend.txt
-compiled/ruby
-src/KindaPerl6/Runtime/Ruby
-src/KindaPerl6/Visitor/Emit/Ruby.pm
+MISSION
 
-TODO:
-- walk though Emit/Ruby.pm, deciding, creating, and documenting runtime apis.
-- do Runtime/Ruby.  Should be much simpler and smaller than Runtime/Perl5/.
+As of January 2008, kp6 is the most-advanced actively-developed
+non-parrot perl6 implementation.  It is written in a subset of
+perl6, and runs on the more limited, but faster, mp6.
 
-LATER:
-- create script/kp6.pl? a p6 version of the p5 script/kp6.
-- rename ruby backend to ruddy (after acceptance).
+kp6 is designed to be capable of running on itself.  But the
+performance of kp6 on kp6 is currently too slow to be usable.
+By a couple of orders of magnitude.
+
+This performance obstacle has severely hampered using bootstrapped
+kp6 as a development path towards the implementation of perl6.
+
+The objective of this kp6 ruby backend is to provide sufficient
+performance for bootstrapped kp6 to be usable, thus unblocking
+the development path.
 
 
-To get Emit/Ruby.pm built.
+DEVELOPMENT TIPS
+
+ perl script/kp6 -Cruby -e 'say 3'  # show the emitted ruby code
+ perl script/kp6 -Bruby -e 'say 3'  # run the emitted ruby code
+
+ perl script/kp6 -Cast -e 'say 3'   # show the AST
+ perl script/kp6 -Cperl5 -e 'say 3' # show the emitted perl5
+
+
+If you change Emit/Ruby.pm,
   # get svn file timestamps correct
   rm -rf v6-KindaPerl6/compiled
   svn up
   # make
   perl Makefile.PL
   make kp6_mp6
+
+make kp6_mp6 runs
+ perl script/mp6.pl \
+  -o compiled/perl5-kp6-mp6/lib/KindaPerl6/Visitor/Emit/Ruby.pm \
+  src/KindaPerl6/Visitor/Emit/Ruby.pm
+
+
+Files:
+ docs/ruby_backend.txt
+ src/KindaPerl6/Visitor/Emit/Ruby.pm
+ compiled/ruby-kp6-mp6/kp6_runtime.rb
+ compiled/ruby-kp6-mp6
+ src/KindaPerl6/Runtime/Ruby
+
+
+SCOPE OF OBJECTIVES
+
+Performance.  Obj: kp6 on kp6 should run with at least the speed of
+kp6 on mp6, and ideally of pugs.  Non-obj: performance on anything
+other than kp6, eg, numerics.
+
+Ability to run kp6 without significant mofication.
+
+Simplicity.  Obj: simplicity for reducing development cost and risk.
+Non-obj: simplicity for elegance, long-term maintainability, or
+anything else.
+
+Correctness.  Just enough correctness to make kp6 happy, and support
+it's near term further development.  While stronger correctness will
+likely exist, it's not a project objective.
+Non-obj: Unneeded p6 spec-wise correctness, neither short or long term.
+
+Readable emitted ruby code.  Obj: easily readable for debugging.
+Non-obj: easily hand writiable.
+
+
+DESIGN
+
+Calling convention:
+ sig = Ruddy::Signature.new(...)
+ ->(cap){
+   ->(the,formal,arguments) {
+     sig.mumble(cap,binding)
+   }.(nil,nil,nil)
+ }
+
+ cap may be an array (positional args only), a hash (named args only),
+ or a Ruddy::Capture.
+
+Name encoding
+ base type - a prefix.  $x -> s_x, @%& -> a_ h_ c_
+ characters - follow kp6.
+ categories - follow kp6?
+   but kp6's including <> in the encoding of infix:<x> seems unfortunate.
+
+Variables
+ Lookup is done using normal ruby lookup on zero-ary accessors which
+ return p6 Containers.
+
+ $x
+ $x = v
+ $x := v
+ s_x
+ s_x._(v)
+ s_x = v
+
+ f()
+ c_f.()
+
+Lexical vars
+ ->(x1,x2){...}.(v1,v2)  === (let ((x1 v1) (x2 v2)) ...)
+ The absence of a real lambda in ruby 1.8 is what forces us to use 1.9.
+
+Package vars
+ Done with class vars.
+
+ our $.x
+ ===
+ our :s_x
+ ==>
+ def s_x; @@x ||= ...; end  where ... is the optional default, or undef.
+ def s_x=(v); @@x = v; end  
+
+OO
+ p6 classes are similarly named ruby classes.
+ p6 modules and packages are ruby modules.(?)
+ methods... good question.
+
+   it would be a pain to have to duplicate the binding of self.
+   perhaps special-case method calls?
+   how costly are bound methods?
+
+   $o.m()
+   s_o.c_m.()
+
+   def c_m
+     self.method(:c_m_real)
+   def c_m
+     s_self = self
+     ...lambda...
+   def c_m        
+     @cached_c_m ||= ->(){
+       s_self = self
+       ...lambda...
+     }.()
+
+
+Examples:
+ my sub f(x) { 42 * x }
+ ==>
+ ->(c_f){
+   c_f = ->(){
+     sig = Ruddy::Signature.new(...)
+     ->(cap){
+       ->(s_x){
+         sig.mumble(cap,binding)
+	 42 * s_x
+       }.(nil)
+     }
+   }.()
+ }.(nil)
+
+ sub g() { 42 }
+ ==>
+ our :c_g, ->(){
+     sig = Ruddy::Signature.new(...)
+     ->(cap){
+       ->(){
+         sig.mumble(cap,binding)
+	 42
+       }.()
+     }
+   }.()
+
+
+
+DESIGN DISCUSSION
+
+A high-level alternate approach would be to more closely mimic the
+perl5 backend.  Just do a transliteration.  Speedup would come from
+running more or less directly on fast ruby oo, instead of the p5
+backend's running on an oo layer (Moose) sitting on top of slow p5 oo.
+This approach would in some ways be simpler.  And the performance gain
+may well be sufficient to achieve a usably fast bootstrapped kp6.  I
+didn't take this path because it required greater understanding of the
+perl5 backend, and the assorted libraries it uses.  Which seemed a
+higher cost and risk approach, for me, than reusing the architecture
+from redsix.  Someone else might pursue it, if the current approach
+bogs down, of if keeping the ruby and p5 backends synced becomes
+burdensome at some future time.
+
+
+TODO:
+- get say() working with new calling convention
+- emit simple subs
+- flesh out todos
+
+OLD FUZZY TODO LIST:
+- walk though Emit/Ruby.pm, deciding, creating, and documenting runtime apis.
+- do Runtime/Ruby.  Should be much simpler and smaller than Runtime/Perl5/.
+
+LATER:
+- create script/kp6.pl? a p6 version of the p5 script/kp6.
+- rename ruby backend to ruddy (after acceptance).
