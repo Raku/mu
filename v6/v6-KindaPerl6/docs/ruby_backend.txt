@@ -64,10 +64,10 @@ anything else.
 Correctness.  Just enough correctness to make kp6 happy, and support
 it's near term further development.  While stronger correctness will
 likely exist, it's not a project objective.
-Non-obj: Unneeded p6 spec-wise correctness, neither short or long term.
+Non-obj: Unneeded p6 spec-wise correctness, either short or long term.
 
 Readable emitted ruby code.  Obj: easily readable for debugging.
-Non-obj: easily hand writiable.
+Non-obj: easily hand writiable.  No hairy ruby games.
 
 
 DESIGN
@@ -125,6 +125,7 @@ OO
    it would be a pain to have to duplicate the binding of self.
    perhaps special-case method calls?
    how costly are bound methods?
+   What did redsix do?
 
    $o.m()
    s_o.c_m.()
