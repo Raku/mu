@@ -109,7 +109,7 @@ my $impl = "pugs";
 # etc.
 
 my @tfiles = sort map { -d $_ ? all_in($_) : $_ } map glob, @ARGV;
-@tfiles = split ' ', `$^X $top/util/fudgeall $impl @tfiles`;
+@tfiles = split ' ', `$^X $top/t/spec/fudgeall $impl @tfiles`;
 
 $ENV{PERL6LIB} ||= 'blib6/lib';
 my $sep = ($^O eq 'MSWin32')? ';' : ':';

@@ -92,7 +92,7 @@ get_config();
 my $impl = "pugs";
 
 @ARGV = sort map glob, "t/*/*.t", "t/*/*/*.t", "ext/*/t/*.t" unless @ARGV;
-@ARGV = split ' ', `$^X $top/util/fudgeall $impl @ARGV`;
+@ARGV = split ' ', `$^X $top/t/spec/fudgeall $impl @ARGV`;
 
 my $s = __PACKAGE__->new;
 $s->run;

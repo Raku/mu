@@ -136,7 +136,7 @@ $version =~ s{6\.(\d{3})(\d{3})?}{join '.', 6, int($1), int($2||0)}e;
 version($version);
 
 makemaker_args  (
-    test => { TESTS => "`util/fudgeall pugs t/*/*.t t/*/*/*.t`" }, # , "perl5/*/t/*.t" },
+    test => { TESTS => "`perl t/spec/fudgeall pugs t/*/*.t t/*/*/*.t`" }, # , "perl5/*/t/*.t" },
     MAN1PODS => {},
 );
 
