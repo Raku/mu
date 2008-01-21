@@ -9,7 +9,7 @@ built-in grep tests
 
 =cut
 
-plan 27;
+plan 29;
 
 my @list = (1 .. 10);
 
@@ -59,3 +59,23 @@ my @list = (1 .. 10);
   dies_ok { "str".grep:{ $_ } }, "method form of grep should not work on strings", :todo<bug>;
   is ~(42,).grep:{ 1 }, "42",    "method form of grep should work on arrays";
 }
+
+#
+# Grep with mutating block
+#
+
+# Dubious: According to S29's definition, neither map nor grep allows for
+# mutation.  On the other hand, it seems useful to preserve the bugward
+# behaviour.  Marking :todo<unspecced>, pending p6l discussion (see thread
+# "[S29] Mutating map and grep" on p6l started by Ingo Blechschmidt
+# L<"http://www.nntp.perl.org/group/perl.perl6.language/22553">) and S29 patch.
+
+#?rakudo: todo 'unspecced'
+{
+  my @array = <a b c d>;
+  is ~(try { @array.grep:{ $_ ~= "c"; 1 } }), "ac bc cc dc",
+    'mutating $_ in grep works (1)';
+  is ~@array, "ac bc cc dc",
+    'mutating $_ in grep works (2)';
+}
+

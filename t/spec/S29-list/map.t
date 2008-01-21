@@ -1,6 +1,6 @@
 use v6-alpha;
 use Test;
-plan 58;
+plan 60;
 
 # L<S29/"List"/"=item map">
 
@@ -139,5 +139,24 @@ should be equivalent to
 
   my @c = map { {"v"=>$_, "d" => $_*2} }, @a;
   is(+@c,3, "should be 3 elemens without the hash keyword as well", :todo);
+}
+
+#
+# Map with mutating block
+#
+
+# Dubious: According to S29's definition, neither map nor grep allows for
+# mutation.  On the other hand, it seems useful to preserve the bugward
+# behaviour.  Marking :todo<unspecced>, pending p6l discussion (see thread
+# "[S29] Mutating map and grep" on p6l started by Ingo Blechschmidt
+# L<"http://www.nntp.perl.org/group/perl.perl6.language/22553">) and S29 patch.
+
+#?rakudo: todo 'unspecced'
+{
+  my @array = <a b c d>;
+  is ~(try { @array.map:{ $_ ~= "c"; $_ ~ "d" } }), "acd bcd ccd dcd",
+    'mutating $_ in map works (1)';
+  is ~@array, "ac bc cc dc",
+    'mutating $_ in map works (2)';
 }
 
