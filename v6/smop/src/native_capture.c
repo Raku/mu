@@ -1,3 +1,6 @@
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
 #include <smop.h>
 #include <smop_lowlevel.h>
 
@@ -35,7 +38,7 @@ typedef struct native_capture_struct {
  */
 static SMOP__Object* smop_native_empty_capture;
 
-static SMOP__Object* capture_message(SMOP__Object* stack,
+static SMOP__Object* capture_message(SMOP__Object* interpreter,
                                      SMOP__ResponderInterface* self,
                                      SMOP__Object* identifier,
                                      SMOP__Object* capture) {
@@ -43,6 +46,9 @@ static SMOP__Object* capture_message(SMOP__Object* stack,
   swtich (identifier) {
   SMOP__ID__new:
     ret = smop_native_empty_capture;
+    break;
+  SMOP__ID__DESTROYALL:
+    ret = NULL;
     break;
   }
   return ret;
@@ -131,7 +137,7 @@ SMOP__Object*   SMOP__NATIVE__capture_create(SMOP__Object* interpreter,
   }
 
   if (named) {
-     int length = 0;
+    int length = 0;
     int l_opt = 0;
     int l_nor = 0;
     while (named[length]) {
@@ -172,7 +178,7 @@ SMOP__Object*   SMOP__NATIVE__capture_create(SMOP__Object* interpreter,
      * be able to do binary searchs later.
      */
     if (l_opt) {
-      qsort(ret->named, l_opt, sizeof(named_argument), cmp_opt_named);
+      qsort(ret->o_named, l_opt, sizeof(named_argument), cmp_opt_named);
     }
 
     /* The same would apply here, but we still don't have the string
@@ -209,7 +215,7 @@ SMOP__Object*   SMOP__NATIVE__capture_positional(SMOP__Object* interpreter,
       arg = self->positional[p];
       smop_lowlevel_unlock(capture);
       return SMOP_REFERENCE(interpreter, self->positional[p]);
-    } else 
+    } else {
       smop_lowlevel_unlock(capture);
       return NULL;
     }
@@ -221,5 +227,26 @@ SMOP__Object*   SMOP__NATIVE__capture_positional(SMOP__Object* interpreter,
 SMOP__Object*   SMOP__NATIVE__capture_named(SMOP__Object* interpreter,
                                             SMOP__Object* capture,
                                             SMOP__Object* identifier) {
-
+  if (capture) {
+    if (identifier->RI == SMOP__ID__new->RI) {
+      native_capture_struct* self = (native_capture_struct*)capture;
+      smop_lowlevel_rdlock(capture);
+      SMOP__Object* ret = bsearch(identifier, self->o_named, self->count_o_named, sizeof(named_argument), cmp_opt_named);
+      if (ret) {
+        smop_lowlevel_unlock(capture);
+        return SMOP_REFERENCE(ret);
+      } else {
+        if (self->count_named) {
+          fprintf(sdterr, "Native capture still don't support non-constant-identifiers as key for named arguments.\n");
+        }
+        smop_lowlevel_unlock(capture);
+        return NULL;
+      }
+    } else {
+      fprintf(sdterr, "Native capture still don't support non-constant-identifiers as key for named arguments.\n");
+      return NULL;
+    }
+  } else {
+    return NULL;
+  }
 }
