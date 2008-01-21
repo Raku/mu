@@ -236,6 +236,8 @@ SMOP__Object*   SMOP__NATIVE__capture_invocant(SMOP__Object* interpreter,
   }
 }
 
+
+
 SMOP__Object*   SMOP__NATIVE__capture_positional(SMOP__Object* interpreter,
                                                  SMOP__Object* capture, int p) {
   if (capture) {
@@ -280,4 +282,43 @@ SMOP__Object*   SMOP__NATIVE__capture_named(SMOP__Object* interpreter,
   } else {
     return NULL;
   }
+}
+
+int SMOP__NATIVE__capture_may_recurse(SMOP__Object* interpreter,
+                                      SMOP__Object* capture) {
+  if (capture) {
+    if (capture == smop_native_empty_capture) {
+      return 0;
+    } else {
+      native_capture_struct* self = (native_capture_struct*)capture;
+      smop_lowlevel_rdlock(capture);
+      int c = self->count_named;
+      smop_lowlevel_unlock(caputre);
+      if (c) {
+        return 1;
+      } else {
+        return 0;
+      }
+    }
+  } else {
+    return 0;
+  }
+}
+
+int SMOP__NATIVE__capture_positional_count(SMOP__Object* interpreter,
+                                           SMOP__Object* capture) {
+  if (capture) {
+    if (capture == smop_native_empty_capture) {
+      return 0;
+    } else {
+      native_capture_struct* self = (native_capture_struct*)capture;
+      smop_lowlevel_rdlock(capture);
+      int c = self->count_positional;
+      smop_lowlevel_unlock(caputre);
+      return c;
+    }
+  } else {
+    return 0;
+  }
+
 }

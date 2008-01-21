@@ -17,9 +17,24 @@ static SMOP__Object* frame_message(SMOP__Object* stack,
                                    SMOP__ResponderInterface* self,
                                    SMOP__Object* identifier,
                                    SMOP__Object* capture) {
+  assert(!SMOP__NATIVE__capture_may_recurse(interpreter, capture));
   SMOP__Object* ret = NULL;
   swtich (identifier) {
-    
+  SMOP__ID__new:
+    ret = smop_lowlevel_alloc(sizeof(smop_slime_frame_struct));
+    smop_slime_frame_struct* frame = (smop_slime_frame_struct*)ret;
+    frame->lexical = SMOP__NATIVE__capture_named(interpreter, capture, SMOP__ID__lexical);
+    frame->back = SMOP__NATIVE__capture_named(interpreter, capture, SMOP__ID__back);
+    frame->node_count = SMOP__NATIVE__capture_positional_count(interpreter, capture);
+    frame->nodes = malloc(frame->node_count * sizeof(SMOP__Object*));
+    assert(frame->nodes);
+    int i;
+    for (i = 0; i < frame->node_count; i++) {
+      frame->nodes[i] = SMOP__NATIVE__capture_positional(interpreter, capture, i);
+    }
+    break;
+  SMOP__ID__has_next:
+    break;
   };
   return ret;
 }
