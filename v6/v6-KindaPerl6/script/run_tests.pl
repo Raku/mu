@@ -202,8 +202,9 @@ else {
 
                     # in 3.03, the verbose is properly stated as verbosity
                     # See: vi +66 /usr/local/share/perl/5.8.8/TAP/Harness.pm
-                    verbosity => $opt{verbose},
-                    exec      => $opt{exec},
+#                    verbosity => $opt{verbose},
+                    color   => 1,
+#                    exec      => $opt{exec},
                 },
             }
         );

@@ -480,7 +480,7 @@ for (@COMPILER::CHECK) {
             # Execute!
             #run_piped_command("$EXECUTABLE_NAME -I$lib - -- @ARGV");
 	    $lib =~ s/perl5-kp6-mp6\/lib/ruby-kp6-mp6/ or die "assert failed";
-	    my $ruby = "ruby1.9"; # Use debian's naming.
+	    my $ruby = "ruby"; # Use debian's naming.
 	    my $version = `$ruby --version`;
 	    die "A ruby version >= 1.9.0, and called '$ruby', is required.\n"
 		if($version !~ /^ruby (1\.9|2)/);
