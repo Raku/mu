@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 2 Jan 2008
+  Last Modified: 22 Jan 2008
   Number: 3
-  Version: 126
+  Version: 127
 
 =head1 Overview
 
@@ -3580,8 +3580,7 @@ to include:
 
 Variable declarators such as C<my> now take a I<signature> as their
 argument.  (The syntax of function signatures is described more fully in S06.)
-
-The parentheses around the signature may be omitted for a
+As in the examples above, the parentheses around the signature may be omitted for a
 simple declaration that declares a single variable, along with its
 associated type, traits and the initializer:
 
@@ -3590,7 +3589,28 @@ associated type, traits and the initializer:
     constant :($foo = 123); # same thing (full Signature form)
     constant ($foo) = 123;  # wrong: constants cannot be assigned to
 
-List-context assignment is supported for simple declarations:
+Each declarator can take an initializer following an equals
+sign (which should not be confused with a normal assignment, because
+the timing of the initialization depends on the natural lifetime of the
+container, which in turn depends on which declarator you use).
+
+    my $foo = 1;         # happens at the same time as normal assignment
+    our $foo = 1;        # happens at INIT time
+    has $foo = 1;        # happens at BUILD time
+    state $foo = 1;      # happens at START time
+    constant $foo = 1;   # happens at BEGIN time
+
+If you do not initialize a container, it starts out undefined at the
+beginning of its natural lifetime.  (In other words, you can't use
+the old Perl 5 trick of "C<my $foo if 0>" to get a static variable,
+because a C<my> variable starts out uninitialized every time through
+in Perl 6 rather than retaining its previous value.)  Native integer
+containers that do not support the concept of undefined should be
+initialized to 0 instead.  (Native floating-point containers are
+by default initialized to C<NaN>.)  Typed object containers start
+out containing an undefined protoobject of the correct type.
+
+List-context pseudo-assignment is supported for simple declarations:
 
     constant @foo = 1,2,3;      # okay: initializes @foo to (1,2,3)
     constant (@foo = 1,2,3);    # wrong: 2 and 3 are not variable names
