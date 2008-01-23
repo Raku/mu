@@ -1,3 +1,4 @@
+
 # Runtime
 module Ruddy; end
 
@@ -27,6 +28,7 @@ class Ruddy::Capture
     @args.find_all {|a|  a.is_a?(Ruddy::NamedArgument) }
   end
   def pos(n=nil)
+    #return @args
     p = positional
     n = @args.length if not n
     if p.length != n
@@ -36,6 +38,19 @@ class Ruddy::Capture
   end
 end
 
+class Ruddy::Signature
+  attr_accessor :binder
+  def initialize(*ignore)
+    @binder = ->(env,cap){
+      v = cap.pos[0]
+      id = v.object_id
+      eval("s_n._(ObjectSpace._id2ref(#{id}))",env)
+    }
+  end
+  def bind(env,cap)
+    @binder.(env,cap)
+  end
+end  
 
 # Runtime/Perl5/Array
 class Array
@@ -115,6 +130,7 @@ def c_infix_58__60__61__61__62_; ->(c){a=c.pos;a[0]==a[1]}; end
 class Object; def __getobj__; self end end
 
 # Is there now a better alternative to this?
+# BUG: funcall doesn't seem to be working on released ruby 1.9.0.
 require 'delegate'
 class BetterDelegator < Delegator; end
 class << Object
@@ -147,74 +163,4 @@ class Variable < BetterDelegator
 end
 
 
-
-# fib() MICROBENCHMARK
-# fake fib using Ruddy::FakeSignature
-
-class Ruddy::FakeSignature
-  attr_accessor :binder
-  def initialize(*ignore)
-    @binder = ->(env,cap){
-      v = cap.pos[0]
-      id = v.object_id
-      eval("s_n._(ObjectSpace._id2ref(#{id}))",env)
-    }
-  end
-  def bind(env,cap)
-    @binder.(env,cap)
-  end
-end  
-
-def c_minus
-  sig = Ruddy::FakeSignature.new()
-  ->(c){
-    ->(s_n,s_a){
-      sig.bind(binding,c)
-      eval("s_a._(c.pos[1])")
-      s_n - s_a
-    }.(Variable.new,Variable.new)
-  }
-end
-def c_plus
-  sig = Ruddy::FakeSignature.new()
-  ->(c){
-    ->(s_n,s_a){
-      sig.bind(binding,c)
-      eval("s_a._(c.pos[1])")
-      s_n + s_a
-    }.(Variable.new,Variable.new)
-  }
-end
-
-def c_fib
-  sig = Ruddy::FakeSignature.new()
-  ->(c){
-    ->(s_n){
-      sig.bind(binding,c)
-      if s_n == 0
-        0
-      elsif s_n == 1
-        1
-      else
-        n1 = c_minus.(cx(s_n,1))
-        n2 = c_minus.(cx(s_n,2))
-        f1 = c_fib.(cx(n1))
-        f2 = c_fib.(cx(n2))
-        c_plus.(cx(f1,f2))
-      end
-    }.(Variable.new)
-  }
-end
-
-def real_fib(n)
-  if n == 0
-    0
-  elsif n == 1
-    1
-  else
-    real_fib(n-1) + real_fib(n-2)
-  end
-end
-  
-# end of fib() microbenchmark
 

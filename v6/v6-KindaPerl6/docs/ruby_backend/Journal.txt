@@ -1,0 +1,266 @@
+2008-Jan-22 19:53
+
+FUNCTION CALL MICROBENCHMARK
+
+Objective was to reality check the performance of the proposed ruby
+backend calling convention.
+
+
+Source:
+ for kp6/p5, and pugs:
+sub fib($n) {
+    if $n == 0 { 0; }
+    else {
+        if $n == 1 { 1; }
+        else { fib($n-1) + fib($n-2); };
+    };
+}
+say fib(0);
+
+ for fake kp6/ruby:
+
+def cx(*args)
+  Ruddy::Capture.new(args)
+end
+class Ruddy::NamedArgument
+  attr_accessor :key, :value
+  def initialize(key,value)
+    @key,@value = key,value
+  end
+end
+class Ruddy::Capture
+  attr_accessor :args
+  def initialize(args)
+    @args=args
+  end
+  def positional
+    @args.find_all {|a| !a.is_a?(Ruddy::NamedArgument) }
+  end
+  def named
+    @args.find_all {|a|  a.is_a?(Ruddy::NamedArgument) }
+  end
+  def pos(n=nil)
+    #return @args # <== pos as noop
+    p = positional
+    n = @args.length if not n
+    if p.length != n
+      raise "boom"
+    end
+    p
+  end
+end
+# fib() MICROBENCHMARK
+# fake fib using Ruddy::FakeSignature
+module Ruddy; end
+
+class Ruddy::FakeSignature
+  attr_accessor :binder
+  def initialize(*ignore)
+    @binder = ->(env,cap){
+      v = cap.pos[0]
+      id = v.object_id
+      eval("s_n._(ObjectSpace._id2ref(#{id}))",env)
+    }
+  end
+  def bind(env,cap)
+    @binder.(env,cap)
+  end
+end  
+
+def c_minus
+  #sig = Ruddy::FakeSignature.new()
+  @cached_c_minus ||=
+  ->(c){
+    ->(s_n,s_a){
+      #sig.bind(binding,c)
+      #eval("s_a._(c.pos[1])")
+      v = c.pos
+      s_n._(v[0]); s_a._(v[1])
+      #s_n = v[0]; s_a = v[1]
+      s_n - s_a
+    }.(Variable.new,Variable.new)#nil,nil)
+  }
+end
+def c_plus
+  #sig = Ruddy::FakeSignature.new()
+  @cached_c_plus ||=
+  ->(c){
+    ->(s_n,s_a){
+      #sig.bind(binding,c)
+      #eval("s_a._(c.pos[1])")
+      v = c.pos
+      s_n._(v[0]); s_a._(v[1])
+      #s_n = v[0]; s_a = v[1]
+      s_n + s_a
+    }.(Variable.new,Variable.new) #nil,nil) 
+  }
+end
+
+def c_fib
+  #sig = Ruddy::FakeSignature.new()
+  @cached_c_fib ||=
+  ->(c){
+    ->(s_n){
+      #sig.bind(binding,c)
+      v = c.pos
+      s_n._(v[0])
+      #s_n = v[0]
+      if s_n == 0
+        0
+      elsif s_n == 1
+        1
+      else
+        n1 = c_minus.(cx(s_n,1))
+        n2 = c_minus.(cx(s_n,2))
+        f1 = c_fib.(cx(n1))
+        f2 = c_fib.(cx(n2))
+        c_plus.(cx(f1,f2))
+      end
+    }.(Variable.new)#nil) 
+  }
+end
+
+p c_fib.(cx(19))
+
+ for mp6:
+see v6-KindaPerl6/examples/fib.mp6
+
+ for rb:
+def real_fib(n)
+  if n == 0
+    0
+  elsif n == 1
+    1
+  else
+    real_fib(n-1) + real_fib(n-2)
+  end
+end
+p real_fib(27)
+
+ for p5:
+sub fib {
+    my($n)=@_;
+    if($n == 0) { 0 }
+    elsif($n == 1) { 1 }
+    else { fib($n-1) + fib($n-2) }
+}
+print fib(27),"\n";
+
+
+kp6/p5:
+compilation overhead:
+ time perl script/kp6 -Bperl5
+ user: 0m4.208s 0m4.423s 0m4.259s 0m4.381s
+
+with overhead included:
+fib(10) 0m6.061s 0m6.047s
+fib(15) 0m22.619s 0m22.427s
+fib(17) 0m51.969s 0m51.820s
+ fib(18) 1m21.460s 1m21.453s
+ fib(19) 2m9.022s 2m8.968s
+
+fake kp6/ruby:
+fib(0) 0m0.022s
+fib(10) 0m0.072s
+fib(15) 0m0.499s 0m0.566s
+fib(17) 0m1.428s 0m1.072s 0m0.975s 0m1.411s 0m1.238s
+ fib(18) 0m1.745s 0m1.797s
+ fib(19) 0m2.449s 0m2.053s 0m2.103s
+fib(25) 0m37.528s 0m37.346s
+fib(27) 1m37.204s 1m37.421s
+
+mp6
+fib(0) 0m0.036s 0m0.031s
+fib(10) -
+fib(15)
+fib(17)
+fib(27) 0m2.070s 0m2.255s 0m2.479s
+
+pugs
+fib(0) 0m1.142s 0m0.676s 0m0.659s
+fib(17) 0m7.558s 0m7.631s 0m7.696s
+fib(25) 5m21.544s
+fib(27) -
+
+rb1.9:
+fib(0) 0m0.012s 0m0.013s
+fib(25) 0m0.095s 0m0.093s
+fib(27) 0m0.223s 0m0.222s 0m0.222s
+
+rb 1.8:
+fib(0) 0m0.008s 0m0.005s
+fib(25) 0m0.549s 0m0.278s 0m0.554s 0m0.555s
+fib(27) 0m1.161s 0m0.716s 0m1.114s
+
+p5.8.8:
+fib(0) 0m0.002s 0m0.000s
+fib(25) 0m0.531s 0m0.417s 0m0.543s 0m0.550s
+fib(27) 0m1.194s 0m0.752s 0m0.678s
+
+Summary:
+ fake kp6/ruby was
+  100-1000x slower than ruby and perl
+  10x slower than mp6
+  10x faster than pugs
+  50x faster than kp6/p5
+
+approx seconds:
+1 p5
+2 mp6
+100 kp6/rb
+5000 kp6/p5
+
+Playing briefly with ruby performance tweaks.
+fib(27)
+1m37.204s  baseline
+# plausible optimization
+0m27.469s  simple inline v=c.pos;s_n._(v[0]).  so no eval("")s.
+# less so
+0m22.706s  pos is noop, returning array
+# not anytime soon
+0m15.134s  s_n = v[0]
+0m8.926s   Variable's not new'ed.
+0m7.673s   oops, inline missed a FakeSig alloc.
+
+pos is nop|normal pos
+1m37.204s            baseline
+          0m21.179s  simple inline v=c.pos;s_n._(v[0]) (fixed-no missed alloc)
+0m23.540s 0m19.360s  @cached ||= ->(){...}
+
+So there's a max 3x to be had from inline code.
+Everything else uninteresting at present.
+
+
+From #perl6:
+
+ mp6's running of fib is wizzy.  mp6's running of kp6 itself is ok.
+ kp6/p5's running of kp6 is said to be glacial.  kp6/rb's running of
+ fib is ok.  kp6/p5's running of fib is rather slow.  so the question
+ is, if kp6/rb's fib is merely ok to mp6's fib wizziness, is there any
+ hope for kp6/rb's kp6 being at least ok?  let alone any hope of
+ kp6/rb's kp6 being non-glacial?
+
+ The hope for kp6/rb's kp6 being at least ok, that is, running no
+ slower than script/kp6 does at present, would have to lie in the mp6
+ performance on fib being non-representative of its overall performance
+ on kp6.  eg, but its not using any p5 oo.
+
+ The hope for kp6/rb's kp6 being non-glacial, that is, that a
+ bootstrapped kp6 on a ruby backend is usable, which is the objective
+ of this exercise, lies in the ruby runtime being closer in performance
+ to the mp6 runtime than to the kp6/p5 runtime.
+
+ After fiddling briefly, it doesn't look like there are any low-hanging
+ (easy and >=10x) optimizations on the calling convention.  While the
+ microbench doesn't confirm we can win, nor did it motivate any
+ interesting optimizations, but at least it leaves winning as a
+ possibility.  given the existence proof of redsix, it still seems
+ plausible.  So I'm just going to putter ahead with the backend, and
+ we'll see how it all falls out.
+
+Timing a mp6 fib() implemented as a method might be interesting.
+Not clear it's worth pursuing at this point.
+
+Nice to have some numbers.
+Draft calling convention looks at least vaguely plausible.
+Results are too uncertain to do a performance projection.
