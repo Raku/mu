@@ -73,15 +73,13 @@ Non-obj: easily hand writiable.  No hairy ruby games.
 DESIGN
 
 Calling convention:
- sig = Ruddy::Signature.new(...)
  ->(cap){
    ->(the,formal,arguments) {
-     sig.bind(cap,binding)
+     ...inline argment processing...
+     ...body...
    }.(nil,nil,nil)
  }
-
- cap may be an array (positional args only), a hash (named args only),
- or a Ruddy::Capture.
+ cap is a Ruddy::Capture.
 
 Name encoding
  base type - a prefix.  $x -> s_x, @%& -> a_ h_ c_
@@ -127,43 +125,34 @@ OO
 
    current_class.def_pkg_var(:c_m, ...)
    where ... is
-   ->(){
-     sig = ...
      ->(c){
        ->(s_self,...){
-         sig.bind(c)
 	 ...
        }  
      }
-   }.()
+
 
 
 Examples:
  my sub f(x) { 42 * x }
  ==>
  ->(c_f){
-   c_f = ->(){
-     sig = Ruddy::Signature.new(...)
+   c_f =
      ->(cap){
        ->(s_x){
-         sig.bind(cap,binding)
+         cap.mumble(1)
+         s_x._(cap.frotz(0))
 	 42 * s_x
-       }.(nil)
+       }.(Scalar.new)
      }
    }.()
  }.(nil)
 
  sub g() { 42 }
  ==>
- our :c_g, ->(){
-     sig = Ruddy::Signature.new(...)
-     ->(cap){
-       ->(){
-         sig.bind(cap,binding)
-	 42
-       }.()
-     }
-   }.()
+ our :c_g, ->(c){
+   ...
+   }
 
 
 
@@ -183,31 +172,55 @@ bogs down, of if keeping the ruby and p5 backends synced becomes
 burdensome at some future time.
 
 Regards signature architecture.  The p6 signature language is, even
-more so than usual, a non-trivial language.  While it would be compact
-to pass to the runtime, a p6 sig string '$x,$y', then the parsing
-would have to be redone in the runtime.  Even if the parse/emit was
-used to cannonicallize the form, there's still such richness as would
-be a pain to duplicate.  So we basically pass an ast instead.  But
-it's a runtime ast, rather than a p6 one.  While a p6 one might
-facilitate p6 reflection, signature processing seems likely to be a
-hot spot.  And for bootstrap, a rt ast is also simpler.  It can always
-be easily changed later.  I believe in this choice, the ruby backend
-differs from the p5 backend.  Another alternative is to generate
-inline code at compile time.  At least for bootstrap, that doesn't
-seem worth the clutter.
+more so than usual, a non-trivial language.  Options:
+(1) pass to the runtime, a p6 sig string '$x,$y', then parse in the
+runtime.  Even if the parse/emit was used to cannonicallize the form,
+there's still such richness as would be a pain to duplicate.
+(2) pass to the runtime, an ast instead.
+(2a) an ast composed of runtime objects, which are not p6 objects.
+(2b) an ast composed of p6 objects.  Facilitates p6 reflection.
+(3) at compile-time, generate inline code for parameter processing.
+Currently the backend is using (3), but there is unfinished code for (2a).
+
+Here's the unused (2a) convention:
+ sig = Ruddy::Signature.new(...)
+ ->(cap){
+   ->(the,formal,arguments) {
+     sig.bind(cap,binding)
+     ...body...
+   }.(nil,nil,nil)
+ }
+ cap may be an array (positional args only), a hash (named args only),
+ or a Ruddy::Capture.
+
+ my sub f(x) { 42 * x }
+ ==>
+ ->(c_f){
+   c_f = ->(){
+     sig = Ruddy::Signature.new(...)
+     ->(cap){
+       ->(s_x){
+         sig.bind(cap,binding)
+	 42 * s_x
+       }.(nil)
+     }
+   }.()
+ }.(nil)
+
+
+
 
 Note to self: don't forget Method .receiver and .owner. :)
 
 
 TODO:
-- write Ruddy::Signature
-- get Sig-based say() working
 - emit simple subs
+- bind the sub name properly, instead of everything being lexical
 - get method saym() working
 - emit methods
 - emit class decls
 
-- start creating mp6_runtime.rb.  will need it for Ruddy::Sig.
+- start creating mp6_runtime.rb.
 
 - flesh out todos
 
