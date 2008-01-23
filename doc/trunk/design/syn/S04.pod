@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 7 Dec 2007
+  Last Modified: 22 Jan 2008
   Number: 4
-  Version: 62
+  Version: 63
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -999,6 +999,8 @@ mainline code, while C<START> puts off the initialization till the
 last possible moment, then runs exactly once, and caches its value
 for all subsequent calls (assuming it wasn't called in void context,
 in which case the C<START> is evaluated once only for its side effects).
+In particular, this means that C<START> can make use of any parameters
+passed in on the first call, whereas C<INIT> cannot.
 
 All of these trait blocks can see any previously declared lexical
 variables, even if those variables have not been elaborated yet when
