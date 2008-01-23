@@ -1,6 +1,7 @@
 
 #include <smop.h>
 #include <smop_slime.h>
+#include <smop_lowlevel.h>
 
 SMOP__Object* SMOP__SLIME__Frame;
 
@@ -34,7 +35,24 @@ static SMOP__Object* frame_message(SMOP__Object* stack,
     }
     break;
   SMOP__ID__has_next:
-    
+    SMOP__Object* frame = SMOP__NATIVE__capture_invocant(interpreter, capture);
+    if (frame && frame != SMOP__SLIME__Frame) {
+      smop_lowlevel_rdlock(frame);
+      int pc = ((smop_slime_frame_struct*)frame)->pc;
+      int nc = ((smop_slime_frame_struct*)frame)->node_count;
+      void* back = ((smop_slime_frame_struct*)frame)->back;
+      smop_lowlevel_unlock(frame);
+      if ((nc > pc + 1) || back) {
+        ret = SMOP__NATIVE__bool_create(1);
+      } else {
+        ret = SMOP__NATIVE__bool_create(0);
+      }
+    } else {
+      ret = SMOP__NATIVE__bool_create(0);
+    }
+    SMOP_RELEASE(interpreter,frame);
+    break;
+  SMOP__ID__next:
     break;
   };
   return ret;
