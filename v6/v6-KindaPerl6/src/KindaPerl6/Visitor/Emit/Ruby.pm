@@ -131,26 +131,39 @@ class Lit::NamedArgument {
 
 class Lit::SigArgument {
     method emit_ruby {
+        ' si('
+        ~     '\'' ~ $.key.sigil  ~ '\','
+        ~     '\'' ~ $.key.twigil ~ '\','
+        ~     '\'' ~ $.key.name   ~ '\','
 
-        ' Signature::Item.new('
-        ~ '{ '
+        ~     ( ($.has_default &&
+                 $.has_default.bit)
+                ?? $.value.emit_ruby !! 'nil') ~ ''
 
-        ~     'sigil:  \'' ~ $.key.sigil  ~ '\', '
-        ~     'twigil: \'' ~ $.key.twigil ~ '\', '
-        ~     'name:   \'' ~ $.key.name   ~ '\', '
-
-        ~     'value:   ' ~ ( defined($.value) ?? $.value.emit_ruby !! 'undef' ) ~ ', '  # XXX
-
-        ~     'has_default:     ' ~ $.has_default.emit_ruby  ~ ', '
-        ~     'is_named_only:   ' ~ $.is_named_only.emit_ruby  ~ ', '
-        ~     'is_optional:     ' ~ $.is_optional.emit_ruby    ~ ', '
-        ~     'is_slurpy:       ' ~ $.is_slurpy.emit_ruby      ~ ', '
-        ~     'is_multidimensional:  ' ~ $.is_multidimensional.emit_ruby  ~ ', '
-        ~     'is_rw:   ' ~ $.is_rw.emit_ruby          ~ ', '
-        ~     'is_copy: ' ~ $.is_copy.emit_ruby        ~ ', '
-
-        ~ ' } )' ~ Main::newline();
-    }
+        ~     ( ($.is_named_only &&
+                 $.is_named_only.bit)
+                ?? ',:is_named_only' !! '')
+        ~     ( ($.is_optional_only &&
+                 $.is_optional_only.bit)
+                ?? ',:is_optional_only' !! '')
+        ~     ( ($.is_slurpy &&
+                 $.is_slurpy.bit)
+                ?? ',:is_slurpy' !! '')
+        ~     ( ($.is_multidimensional &&
+                 $.is_multidimensional.bit)
+                ?? ',:is_multidimensional' !! '')
+        ~     ( ($.is_rw &&
+                 $.is_rw.bit)
+                ?? ',:is_rw' !! '')
+        ~     ( ($.is_copy &&
+                 $.is_copy.bit)
+                ?? ',:is_copy' !! '')
+        ~ ')';
+    };
+    method emit_ruby_name {
+	my $namespace := [ ];
+	Main::mangle_name_ruby( $.key.sigil, $.key.twigil, $.key.name, $namespace );
+    };
 }
 
 class Lit::Code {
@@ -178,6 +191,25 @@ class Lit::Code {
     };
     method emit_signature {
         $.sig.emit_ruby
+    };
+    method emit_comma_separated_names {
+        my $s := '';
+        my $decl;
+        for @($.pad.lexicals) -> $decl {
+            $s := $s ~ ',' ~ $decl.emit_ruby;
+        };
+        $s := substr( $s , 1 );
+        return $s;
+    };
+    method emit_comma_separated_containers {
+        my $s := '';
+        my $decl;
+        for @($.pad.lexicals) -> $decl {
+            my $var := $decl.var;
+            $s := $s ~ ',' ~ $var.emit_ruby_container ~ '.new';
+        };
+        $s := substr( $s , 1 );
+        return $s;
     };
     method emit_declarations {
         my $s;
@@ -288,7 +320,7 @@ class Lit::Object {
                 ~ ')'
                 ;
         };
-	$str := substr( $str , 1 );
+        $str := substr( $str , 1 );
         ' ' ~ $.class ~ '.m_new(nil,nil,[ ' ~ $str ~ ' ])' ~ Main::newline();
     }
 }
@@ -397,6 +429,22 @@ class Var {
     #    ~     'namespace => [ ], '
     #    ~ '} )' ~ Main::newline()
     #}
+    method emit_ruby_container {
+        my $s;
+        if $.sigil eq '$' {
+            $s := 'Scalar';
+        };
+        if $.sigil eq '&' {
+            $s := 'Routine';
+        };
+        if $.sigil eq '%' {
+            $s := 'HashContainer';
+        };
+        if $.sigil eq '@' {
+            $s := 'ArrayContainer';
+        };
+        return $s;
+    };
 }
 
 class Bind {
@@ -682,26 +730,42 @@ class Decl {
 
 class Sig {
     method emit_ruby {
-        my $inv := ' Undef.new';
+          ' Signature.new('
+        ~ $.emit_ruby_spec
+        ~ ')'
+        ~ Main::newline();
+    };
+    method emit_ruby_spec {
+        my $inv := ' nil';
         if $.invocant.isa( 'Var' ) {
-            $inv := $.invocant.perl;
+            $inv := $.invocant.emit_ruby;
         }
 
         my $pos;
-        my $decl;
-        for @($.positional) -> $decl {
-            $pos := $pos ~ $decl.emit_ruby ~ ', ';
+        my $item;
+        for @($.positional) -> $item {
+            $pos := $pos ~ ', ' ~ $item.emit_ruby ~ '';
         };
+        $pos := substr( $pos, 1 );
 
         my $named := '';  # TODO
 
-          ' Signature.new( { '
-        ~     'invocant: ' ~ $inv ~ ', '
-        ~     'array:    List.new( [ ' ~ $pos   ~ ' ] ), '
+        '' ~ $inv ~ ','
+        ~ '[' ~ $pos   ~ ' ],'
         # ~     'hash     => ::DISPATCH( $::Hash,  "new", { _hash  => { ' ~ $named ~ ' } } ), '
-        ~     'return: Undef.new '
-        ~ '} )'
-        ~ Main::newline();
+        ~ ' nil';
+    };
+    method emit_ruby_bind_cap {
+	my $s := '';
+	$s := $s ~ 'p = cap.pos' ~ Main::newline();
+	my $idx := 0;
+        my $item;
+        for @($.positional) -> $item {
+	    $s := $s ~ $item.emit_ruby_name ~ '._(p[' ~ $idx ~ ']); ';
+	    $idx := $idx + 1;
+        };
+	$s := $s ~ Main::newline();
+	return $s;
     };
 }
 
@@ -709,7 +773,7 @@ class Lit::Capture {
     method emit_ruby {
         my $s := ' c(';
 
-	my $sa := '';
+        my $sa := '';
         if defined $.array {
            $sa := $sa ~ '[';
            my $item;
@@ -717,13 +781,13 @@ class Lit::Capture {
                 $sa := $sa ~ $item.emit_ruby ~ ', ';
            }
            $sa := $sa ~ ']';
-	   $s := $s ~ $sa ~ ',';
+           $s := $s ~ $sa ~ ',';
         }
         else {
            $s := $s ~ 'nil,'
         };
 
-	my $sh := '';
+        my $sh := '';
         if defined $.hash {
            $sh := $sh ~ '{';
            my $item;
@@ -731,7 +795,7 @@ class Lit::Capture {
                $sh := $sh ~ ' ' ~ ($item[0]).emit_ruby ~ ': ' ~ ($item[1]).emit_ruby ~ ', ';
            }
            $sh := $sh ~ '}';
-	   $s := $s ~ $sh ~ ',';
+           $s := $s ~ $sh ~ ',';
         }
         else {
             $s := $s ~ 'nil,'
@@ -782,17 +846,23 @@ class Method {
 
 class Sub {
     method emit_ruby {
-          '::DISPATCH( $::Code, \'new\', { '
-        ~   'code => sub { '
-        ~       $.block.emit_declarations
-        ~       $.block.emit_arguments
-        ~       $.block.emit_body
-        ~    ' }, '
-        ~   'signature => '
-        ~       $.block.emit_signature
-        ~    ', '
-        ~ ' } )'
-        ~ Main::newline();
+        my $sig := $.block.sig;
+	''
+	#~ '->(sig){ sig = Ruddy::Signature.new(' ~ Main::newline()
+        #~       $sig.emit_ruby_spec ~ ')' ~ Main::newline()
+        ~   '->(cap){->('
+        ~     $.block.emit_comma_separated_names
+        ~   '){' ~ Main::newline()
+        #~     'sig.bind(binding,cap)' ~ Main::newline()
+	~ $sig.emit_ruby_bind_cap
+        #~       $.block.emit_declarations
+        #~       $.block.emit_arguments
+        ~     $.block.emit_body ~ Main::newline()
+        ~   '}.('
+        ~     $.block.emit_comma_separated_containers
+        ~   ')}'
+        #~ '}.(nil)'
+        ;#~ Main::newline();
     }
 }
 
@@ -827,11 +897,11 @@ class Use {
             return Main::newline() ~ '#use v6' ~ Main::newline();
         }
         if ( $.perl5 ) {
-	    die "ruby backend does not currently implement  use perl5";
+            die "ruby backend does not currently implement  use perl5";
         } else {
             return ('require '
                     ~ Main::singlequote() ~ $.mod ~ Main::singlequote()
-		    ~ Main::newline());
+                    ~ Main::newline());
         }
     }
 }

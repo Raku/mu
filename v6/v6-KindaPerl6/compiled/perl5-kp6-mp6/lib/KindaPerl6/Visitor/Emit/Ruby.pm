@@ -189,87 +189,39 @@ sub emit_ruby {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    (   ' Signature::Item.new('
+    (   ' si('
             . (
-            '{ '
+            '\''
                 . (
-                'sigil:  \''
+                $self->{key}->sigil()
                     . (
-                    $self->{key}->sigil()
+                    '\','
                         . (
-                        '\', '
+                        '\''
                             . (
-                            'twigil: \''
+                            $self->{key}->twigil()
                                 . (
-                                $self->{key}->twigil()
+                                '\','
                                     . (
-                                    '\', '
+                                    '\''
                                         . (
-                                        'name:   \''
+                                        $self->{key}->name()
                                             . (
-                                            $self->{key}->name()
+                                            '\','
                                                 . (
-                                                '\', '
-                                                    . (
-                                                    'value:   '
+                                                ( ( $self->{has_default} && $self->{has_default}->bit() ) ? $self->{value}->emit_ruby() : 'nil' )
+                                                . ( ''
                                                         . (
-                                                        ( defined( $self->{value} ) ? $self->{value}->emit_ruby() : 'undef' )
-                                                        . ( ', '
-                                                                . (
-                                                                'has_default:     '
-                                                                    . (
-                                                                    $self->{has_default}->emit_ruby()
-                                                                        . (
-                                                                        ', '
-                                                                            . (
-                                                                            'is_named_only:   '
-                                                                                . (
-                                                                                $self->{is_named_only}->emit_ruby()
-                                                                                    . (
-                                                                                    ', '
-                                                                                        . (
-                                                                                        'is_optional:     '
-                                                                                            . (
-                                                                                            $self->{is_optional}->emit_ruby()
-                                                                                                . (
-                                                                                                ', '
-                                                                                                    . (
-                                                                                                    'is_slurpy:       '
-                                                                                                        . (
-                                                                                                        $self->{is_slurpy}->emit_ruby()
-                                                                                                            . (
-                                                                                                            ', '
-                                                                                                                . (
-                                                                                                                'is_multidimensional:  '
-                                                                                                                    . (
-                                                                                                                    $self->{is_multidimensional}->emit_ruby()
-                                                                                                                        . (
-                                                                                                                        ', '
-                                                                                                                            . (
-                                                                                                                            'is_rw:   '
-                                                                                                                                . (
-                                                                                                                                $self->{is_rw}->emit_ruby()
-                                                                                                                                    . ( ', ' . ( 'is_copy: ' . ( $self->{is_copy}->emit_ruby() . ( ', ' . ( ' } )' . Main::newline() ) ) ) ) )
-                                                                                                                                )
-                                                                                                                            )
-                                                                                                                        )
-                                                                                                                    )
-                                                                                                                )
-                                                                                                            )
-                                                                                                        )
-                                                                                                    )
-                                                                                                )
-                                                                                            )
-                                                                                        )
-                                                                                    )
-                                                                                )
-                                                                            )
-                                                                        )
-                                                                    )
+                                                        ( ( $self->{is_named_only} && $self->{is_named_only}->bit() ) ? ',:is_named_only' : '' )
+                                                        . ( ( ( $self->{is_optional_only} && $self->{is_optional_only}->bit() ) ? ',:is_optional_only' : '' )
+                                                            . ( ( ( $self->{is_slurpy} && $self->{is_slurpy}->bit() ) ? ',:is_slurpy' : '' )
+                                                                . (   ( ( $self->{is_multidimensional} && $self->{is_multidimensional}->bit() ) ? ',:is_multidimensional' : '' )
+                                                                    . ( ( ( $self->{is_rw} && $self->{is_rw}->bit() ) ? ',:is_rw' : '' ) . ( ( ( $self->{is_copy} && $self->{is_copy}->bit() ) ? ',:is_copy' : '' ) . ')' ) )
                                                                 )
+                                                            )
                                                         )
                                                         )
-                                                    )
+                                                )
                                                 )
                                             )
                                         )
@@ -281,6 +233,14 @@ sub emit_ruby {
                 )
             )
     );
+}
+
+sub emit_ruby_name {
+    my $self   = shift;
+    my $List__ = \@_;
+    do { [] };
+    my $namespace = [];
+    Main::mangle_name_ruby( $self->{key}->sigil(), $self->{key}->twigil(), $self->{key}->name(), $namespace );
 }
 
 package Lit::Code;
@@ -315,6 +275,32 @@ sub emit_signature {
     my $List__ = \@_;
     do { [] };
     $self->{sig}->emit_ruby();
+}
+
+sub emit_comma_separated_names {
+    my $self   = shift;
+    my $List__ = \@_;
+    do { [] };
+    my $s = '';
+    my $decl;
+    do {
+        for my $decl ( @{ $self->{pad}->lexicals() } ) { $s = ( $s . ( ',' . $decl->emit_ruby() ) ) }
+    };
+    $s = substr( $s, 1 );
+    return ($s);
+}
+
+sub emit_comma_separated_containers {
+    my $self   = shift;
+    my $List__ = \@_;
+    do { [] };
+    my $s = '';
+    my $decl;
+    do {
+        for my $decl ( @{ $self->{pad}->lexicals() } ) { my $var = $decl->var(); $s = ( $s . ( ',' . ( $var->emit_ruby_container() . '.new' ) ) ) }
+    };
+    $s = substr( $s, 1 );
+    return ($s);
 }
 
 sub emit_declarations {
@@ -519,6 +505,30 @@ sub emit_ruby {
         else { }
     };
     return ( Main::mangle_name_ruby( $self->{sigil}, $self->{twigil}, $self->{name}, $self->{namespace} ) );
+}
+
+sub emit_ruby_container {
+    my $self   = shift;
+    my $List__ = \@_;
+    do { [] };
+    my $s;
+    do {
+        if ( ( $self->{sigil} eq '$' ) ) { $s = 'Scalar' }
+        else                             { }
+    };
+    do {
+        if ( ( $self->{sigil} eq '&' ) ) { $s = 'Routine' }
+        else                             { }
+    };
+    do {
+        if ( ( $self->{sigil} eq '%' ) ) { $s = 'HashContainer' }
+        else                             { }
+    };
+    do {
+        if ( ( $self->{sigil} eq '@' ) ) { $s = 'ArrayContainer' }
+        else                             { }
+    };
+    return ($s);
 }
 
 package Bind;
@@ -811,18 +821,41 @@ sub emit_ruby {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    my $inv = ' Undef.new';
+    ( ' Signature.new(' . ( $self->{emit_ruby_spec} . ( ')' . Main::newline() ) ) );
+}
+
+sub emit_ruby_spec {
+    my $self   = shift;
+    my $List__ = \@_;
+    do { [] };
+    my $inv = ' nil';
     do {
-        if ( Main::isa( $self->{invocant}, 'Var' ) ) { $inv = Main::perl( $self->{invocant}, ) }
+        if ( Main::isa( $self->{invocant}, 'Var' ) ) { $inv = $self->{invocant}->emit_ruby() }
         else                                         { }
     };
     my $pos;
-    my $decl;
+    my $item;
     do {
-        for my $decl ( @{ $self->{positional} } ) { $pos = ( $pos . ( $decl->emit_ruby() . ', ' ) ) }
+        for my $item ( @{ $self->{positional} } ) { $pos = ( $pos . ( ', ' . ( $item->emit_ruby() . '' ) ) ) }
     };
+    $pos = substr( $pos, 1 );
     my $named = '';
-    ( ' Signature.new( { ' . ( 'invocant: ' . ( $inv . ( ', ' . ( 'array:    List.new( [ ' . ( $pos . ( ' ] ), ' . ( 'return: Undef.new ' . ( '} )' . Main::newline() ) ) ) ) ) ) ) ) );
+    ( '' . ( $inv . ( ',' . ( '[' . ( $pos . ( ' ],' . ' nil' ) ) ) ) ) );
+}
+
+sub emit_ruby_bind_cap {
+    my $self   = shift;
+    my $List__ = \@_;
+    do { [] };
+    my $s = '';
+    $s = ( $s . ( 'p = cap.pos' . Main::newline() ) );
+    my $idx = 0;
+    my $item;
+    do {
+        for my $item ( @{ $self->{positional} } ) { $s = ( $s . ( $item->emit_ruby_name() . ( '._(p[' . ( $idx . ']); ' ) ) ) ); $idx = ( $idx + 1 ) }
+    };
+    $s = ( $s . Main::newline() );
+    return ($s);
 }
 
 package Lit::Capture;
@@ -940,10 +973,14 @@ sub emit_ruby {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    (   '::DISPATCH( $::Code, \'new\', { '
+    my $sig = $self->{block}->sig();
+    (   ''
             . (
-            'code => sub { '
-                . ( $self->{block}->emit_declarations() . ( $self->{block}->emit_arguments() . ( $self->{block}->emit_body() . ( ' }, ' . ( 'signature => ' . ( $self->{block}->emit_signature() . ( ', ' . ( ' } )' . Main::newline() ) ) ) ) ) ) ) )
+            '->(cap){->('
+                . (
+                $self->{block}->emit_comma_separated_names()
+                    . ( '){' . ( Main::newline() . ( $sig->emit_ruby_bind_cap() . ( $self->{block}->emit_body() . ( Main::newline() . ( '}.(' . ( $self->{block}->emit_comma_separated_containers() . ')}' ) ) ) ) ) ) )
+                )
             )
     );
 }

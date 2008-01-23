@@ -38,9 +38,26 @@ class Ruddy::Capture
   end
 end
 
+def si(sigil,twigle,name,default,*options_list)
+  options = {}
+  options_list.each {|e| options[e] = true}
+  Ruddy::SignatureItem.new(sigil,twigle,name,default,options)
+end
+class Ruddy::SignatureItem
+  attr_accessor :sigil,:twigle,:name,:default,:options
+  def initialize(sigil,twigle,name,default,options)
+    @sigil,@twigle,@name,@default,@options = sigil,twigle,name,default,options
+  end
+  def encoded_name
+    {'$'=>'s_','@'=>'a_','%'=>'h_','&'=>'c_'}[@sigil] + @name #'
+  end
+end
 class Ruddy::Signature
   attr_accessor :binder
-  def initialize(*ignore)
+  def initialize(invocant,args,returns)
+    code = "->(env,cap){"
+    code += "}"
+    #@binder = eval(code)
     @binder = ->(env,cap){
       v = cap.pos[0]
       id = v.object_id
@@ -162,5 +179,7 @@ class Variable < BetterDelegator
   end
 end
 
-
-
+class Scalar < Variable; end
+class ArrayContainer < Variable; end
+class HashContainer < Variable; end
+class Routine < Variable; end
