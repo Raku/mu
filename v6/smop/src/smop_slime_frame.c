@@ -34,6 +34,7 @@ static SMOP__Object* frame_message(SMOP__Object* stack,
     }
     break;
   SMOP__ID__has_next:
+    
     break;
   };
   return ret;
