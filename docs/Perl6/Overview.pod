@@ -480,7 +480,7 @@ Many of the operators can be combined with an "=" as follows:
 
 =head2 Rules
 
-Perl's rules are called regular expression's in other languges.
+Perl's rules are called regular expressions in other languges.
 Perl's regular expression support is both broad and deep, and is the
 subject of lengthy documentation in L<XXX>, and
 elsewhere.  However, in short:
@@ -542,8 +542,8 @@ Some brief examples:
 
     /^\d+/              string starts with one or more digits
     /^$/                nothing in the string (start and end are adjacent)
-    /[\d\s]{3}/         a three digits, each followed by a whitespace 
-                        character (eg "3 4 5 ")
+    /[\d\s]{3}/         string contains three digits, each followed by a
+                        whitespace character (eg "3 4 5 ")
     /[a.]+/             matches a string in which every odd-numbered letter 
                         is a (eg "abacadaf")
 
@@ -569,7 +569,7 @@ Note that those variables are numbered from 0 not 1;
 
 =item Other regexp features
 
-Perl rules also support named rules,grammars,backreferences, lookaheads, and
+Perl rules also support named rules, grammars, backreferences, lookaheads, and
 all kinds of other complex details.  Read all about them in L<XXX>.
 
 =back
