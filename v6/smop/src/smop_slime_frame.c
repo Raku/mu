@@ -153,10 +153,6 @@ static SMOP__Object* frame_message(SMOP__Object* stack,
     }    
     break;
 
-  SMOP__ID__lexical:
-    
-    break;
-
   SMOP__ID__back:
     SMOP__Object* frame = SMOP__NATIVE__capture_invocant(interpreter, capture);
     if (frame && frame != SMOP__SLIME__Frame) {
