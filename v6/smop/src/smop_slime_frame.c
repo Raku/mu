@@ -250,6 +250,21 @@ static SMOP__Object* frame_message(SMOP__Object* stack,
     }
     break;
     
+  SMOP__ID__goto:
+    SMOP__Object* frame = SMOP__NATIVE__capture_invocant(interpreter, capture);
+    if (frame && frame != SMOP__SLIME__Frame) {
+      SMOP__Object* count = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
+      assert(SMOP_RI(count) == SMOP__NATIVE__int);
+      int c = SMOP__NATIVE__int_fetch(count);
+      smop_lowlevel_wrlock(frame);
+      ((smop_slime_frame_struct*)frame)->pc += c;
+      smop_lowlevel_unlock(frame);
+      ret = SMOP__NATIVE__bool_create(1);
+    } else {
+      ret = SMOP__NATIVE__bool_create(0);
+    }
+    break;
+
   SMOP__ID__move_identifier:
     SMOP__Object* frame = SMOP__NATIVE__capture_invocant(interpreter, capture);
     if (frame && frame != SMOP__SLIME__Frame) {
