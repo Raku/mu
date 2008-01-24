@@ -225,22 +225,41 @@ class Numeric;  def is_true6?; self == 0 ? false : true; end end
 class Array;    def is_true6?; not self.empty?; end end
 class Hash;     def is_true6?; not self.empty?; end end
 
+class Object; def mc_true; ->(cap){self.is_true6?} end end
+class Fixnum; def mc_true; ->(cap){self.is_true6? ? 1 : 0} end end
+
+
+# operators
 def def_infix_op(op)
   encoded_name = op.gsub(/[^a-zA-Z0-9_:]/){|c|"_#{c.ord}_"}
-  code = "module Kernel; def c_infix_58__60_#{encoded_name}_62_; ->(cap){a=cap.pos; a[0] #{op} a[1]}; end end"
+  code = "def c_infix_58__60_#{encoded_name}_62_; ->(cap){a=cap.pos; a[0] #{op} a[1]}; end"
   eval(code)
 end
-'+ - * / < > <= >= =='.split.map{|op| def_infix_op op}
+'+ - * / < > <= >= == !='.split.map{|op| def_infix_op op}
 
-module Kernel
-  def c_say; ->(c){print *c.pos,"\n"}; end
+def c_say; ->(c){print *c.pos,"\n"}; end
 
-  #infix:<~>
-  def c_infix_58__60__126__62_; ->(cap){cap.pos.join("")}; end
-  def c_infix_58__60_eq_62_; ->(cap){a=cap.pos; a[0] == a[1]}; end
-  def c_infix_58__60_ne_62_; ->(cap){a=cap.pos; a[0] != a[1]}; end
+#infix:<~>
+def c_infix_58__60__126__62_; ->(cap){cap.pos.join("")}; end
+def c_infix_58__60_eq_62_; ->(cap){a=cap.pos; a[0] == a[1]}; end
+def c_infix_58__60_ne_62_; ->(cap){a=cap.pos; a[0] != a[1]}; end
+
+def c_prefix_58__60__126__62_; ->(cap){a=cap.pos; a[0].to_s}; end
+def c_prefix_58__60__43__43__62_; ->(cap){a=cap.pos; a[0]._(a[0]+1); a[0]}; end
+
+# misc
+class Object
+  def mc_WHAT;->(c){self.to_s} end
 end
+def c_chars; ->(cap){a=cap.pos; s=a[0]; s.length} end
+def c_substr; ->(cap){a=cap.pos; s=a[0]; s.slice(a[1],a[2]||s.length)} end
+def c_print; ->(cap){print *c.pos} end
+def c_Inf; ->(cap){1.0/0.0} end
+def c_NaN; ->(cap){0.0/0.0} end
 
+
+
+## OO
 module Kernel
   def current_class; self.is_a?(Class) ? self : self.class end #X
   def def_our(*args)
@@ -256,7 +275,10 @@ class Module
     }
   end
   def def_has(name,initializer)
-    self.send(:attr_accessor,name)
+    varname = name
+    basename = name.to_s.sub(/^cis_/,'')
+    self.send(:attr_accessor,varname)
+    class_eval("def mc_#{basename}; ->(cap){#{varname}} end")
   end
 end
 
@@ -276,13 +298,4 @@ class Object
 end
 
 
-
-## misc
-class Object
-  def mc_WHAT;->(c){self.to_s} end
-end
-def c_substr; ->(cap){a=cap.pos; s=a[0]; s.slice(a[1],a[2]||s.length)} end
-def c_print; ->(cap){print *c.pos} end
-def c_Inf; ->(cap){1.0/0.0} end
-def c_NaN; ->(cap){0.0/0.0} end
 

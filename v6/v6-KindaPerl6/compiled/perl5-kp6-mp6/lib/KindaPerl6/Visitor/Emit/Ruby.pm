@@ -594,14 +594,14 @@ sub emit_ruby {
     do {
         if ( Main::isa( $self->{invocant}, 'Proto' ) ) {
             do {
-                if   ( ( $self->{invocant}->name() eq 'self' ) ) { $invocant = '$self' }
+                if   ( ( $self->{invocant}->name() eq 'self' ) ) { $invocant = 's_self' }
                 else                                             { $invocant = $self->{invocant}->emit_ruby() }
                 }
         }
         else { $invocant = $self->{invocant}->emit_ruby() }
     };
     do {
-        if ( ( $invocant eq 'self' ) ) { $invocant = '$self' }
+        if ( ( $invocant eq 'self' ) ) { $invocant = 's_self' }
         else                           { }
     };
     my $meth = $self->{method};
@@ -638,13 +638,8 @@ sub emit_ruby {
     do {
         if ( ( Main::isa( $self->{code}, 'Var' ) && ( $self->{code}->name() eq 'infix:<&&>' ) ) ) {
             return (
-                (   'do { '
-                        . (
-                        'my $_tmp1 = '
-                            . (
-                            $self->{arguments}->[0]->emit_ruby() . ( '; ' . ( '::DISPATCH( $_tmp1, "true" )->{_value} ' . ( '? ' . ( $self->{arguments}->[1]->emit_ruby() . ( ': ::DISPATCH( $::Bit, "new", 0 )' . ( ' }' . Main::newline() ) ) ) ) ) )
-                            )
-                        )
+                (   '->(tmp1){ '
+                        . ( 'tmp1 = ' . ( $self->{arguments}->[0]->emit_ruby() . ( '; ' . ( 'tmp1.mc_true.(cx()).is_true6? ' . ( '? ' . ( $self->{arguments}->[1]->emit_ruby() . ( ': Bit.new(false)' . ( '}.(nil)' . Main::newline() ) ) ) ) ) ) ) )
                 )
             );
         }
@@ -653,9 +648,7 @@ sub emit_ruby {
     do {
         if ( ( Main::isa( $self->{code}, 'Var' ) && ( $self->{code}->name() eq 'infix:<||>' ) ) ) {
             return (
-                (   'do { ' . ( 'my $_tmp1 = ' . ( $self->{arguments}->[0]->emit_ruby() . ( '; ' . ( '::DISPATCH( $_tmp1, "true" )->{_value} ' . ( '? $_tmp1' . ( ': ' . ( $self->{arguments}->[1]->emit_ruby() . ( ' }' . Main::newline() ) ) ) ) ) ) ) )
-                )
-            );
+                ( '->(tmp1){ ' . ( 'tmp1 = ' . ( $self->{arguments}->[0]->emit_ruby() . ( '; ' . ( 'tmp1.mc_true.(cx()).is_true6? ' . ( '? tmp1' . ( ': ' . ( $self->{arguments}->[1]->emit_ruby() . ( '}.(nil)' . Main::newline() ) ) ) ) ) ) ) ) ) );
         }
         else { }
     };
@@ -914,7 +907,7 @@ sub emit_ruby {
     };
     do {
         if   ( $self->{perl5} ) { die('ruby backend does not currently implement  use perl5') }
-        else                    { return ( ( 'require ' . ( Main::singlequote() . ( $self->{mod} . ( Main::singlequote() . Main::newline() ) ) ) ) ) }
+        else                    { return ( ( '#require ' . ( Main::singlequote() . ( $self->{mod} . ( Main::singlequote() . Main::newline() ) ) ) ) ) }
         }
 }
 

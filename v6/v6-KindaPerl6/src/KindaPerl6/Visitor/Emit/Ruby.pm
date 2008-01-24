@@ -526,7 +526,7 @@ class Call {
         if $.invocant.isa( 'Proto' ) {
 
             if $.invocant.name eq 'self' {
-                $invocant := '$self';
+                $invocant := 's_self';
             }
             else {
                 $invocant := $.invocant.emit_ruby;
@@ -537,7 +537,7 @@ class Call {
             $invocant := $.invocant.emit_ruby;
         };
         if $invocant eq 'self' {
-            $invocant := '$self';
+            $invocant := 's_self';
         };
 
         my $meth := $.method;
@@ -592,24 +592,24 @@ class Apply {
         {
             # hack for shortcircuiting "&&"
             # as an alternative hack, see Visitor::ShortCircuit
-            return  'do { '
-                        ~ 'my $_tmp1 = ' ~ ((@.arguments[0]).emit_ruby) ~ '; '
-                        ~ '::DISPATCH( $_tmp1, "true" )->{_value} '
+            return  '->(tmp1){ '
+                        ~ 'tmp1 = ' ~ ((@.arguments[0]).emit_ruby) ~ '; '
+                        ~ 'tmp1.mc_true.(cx()).is_true6? '
                         ~ '? ' ~ ((@.arguments[1]).emit_ruby)
-                        ~ ': ::DISPATCH( $::Bit, "new", 0 )'
-                ~ ' }' ~ Main::newline();
+                        ~ ': Bit.new(false)'
+                ~ '}.(nil)' ~ Main::newline();
         }
 
         if  ( $.code.isa('Var') ) && ( $.code.name eq 'infix:<||>' )
         {
             # hack for shortcircuiting "||"
             # as an alternative hack, see Visitor::ShortCircuit
-            return  'do { '
-                        ~ 'my $_tmp1 = ' ~ ((@.arguments[0]).emit_ruby) ~ '; '
-                        ~ '::DISPATCH( $_tmp1, "true" )->{_value} '
-                        ~ '? $_tmp1'
+            return  '->(tmp1){ '
+                        ~ 'tmp1 = ' ~ ((@.arguments[0]).emit_ruby) ~ '; '
+                        ~ 'tmp1.mc_true.(cx()).is_true6? '
+                        ~ '? tmp1'
                         ~ ': ' ~ ((@.arguments[1]).emit_ruby)
-                ~ ' }' ~ Main::newline();
+                ~ '}.(nil)' ~ Main::newline();
         }
 
         if  ( $.code.isa('Var') ) && ( $.code.name eq 'make' )
@@ -847,7 +847,7 @@ class Use {
         if ( $.perl5 ) {
             die "ruby backend does not currently implement  use perl5";
         } else {
-            return ('require '
+            return ('#require '
                     ~ Main::singlequote() ~ $.mod ~ Main::singlequote()
                     ~ Main::newline());
         }
