@@ -274,6 +274,68 @@ static SMOP__Object* frame_message(SMOP__Object* stack,
     }
     break;
 
+  SMOP__ID__move_capturize:
+    SMOP__Object* frame = SMOP__NATIVE__capture_invocant(interpreter, capture);
+    if (frame && frame != SMOP__SLIME__Frame) {
+      SMOP__Object* capturize = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
+      SMOP__Object* target = SMOP__NATIVE__capture_positional(interpreter, capture, 1);
+      assert(SMOP_RI(capturize) == SMOP__SLIME__Capturize);
+      assert(SMOP_RI(target) == SMOP__NATIVE__int);
+
+      int i_invocant = SMOP__SLIME__Capturize_invocant(capturize);
+      int n_pos = 0;
+      int* i_positional = SMOP__SLIME__Capturize_positional(capturize, &n_pos);
+      int n_nam = 0;
+      int* i_named = SMOP__SLIME__Capturize_named(capturize, &n_nam);
+
+      SMOP_RELEASE(capturize); capturize = NULL;
+
+      int t = SMOP__NATIVE__int_fetch(target);
+
+      SMOP__Object** nodes_positional_arr = malloc(sizeof(SMOP__Object*) * n_pos);
+      assert(nodes_positional_arr);
+      SMOP__Object** nodes_named_arr = malloc(sizeof(SMOP__Object*) * n_nam);
+      assert(nodes_named_arr);
+
+      smop_lowlevel_rdlock(frame);
+
+      int pc = ((smop_slime_frame_struct*)frame)->pc;
+
+      SMOP__Object* node_invocant = ((smop_slime_frame_struct*)frame)->nodes[pc - i_invocant];
+      int i;
+      for (i = 0; i < n_pos; i++) nodes_positional_arr[i] = ((smop_slime_frame_struct*)frame)->nodes[pc - i_positional[i]];
+      for (i = 0; i < n_nam; i++) nodes_named_arr[i] = ((smop_slime_frame_struct*)frame)->nodes[pc - i_named[i]];
+
+      SMOP__Object* thisnode = ((smop_slime_frame_struct*)frame)->nodes[pc + t];
+
+      smop_lowlevel_unlock(frame);
+
+      free(i_positional); free(i_named);
+
+      SMOP__Object** result_positional_arr = calloc(sizeof(SMOP__Object*) * (n_pos + 1));
+      assert(result_positional_arr);
+      SMOP__Object** result_named_arr = calloc(sizeof(SMOP__Object*) * (n_nam + 1));
+      assert(result_named_arr);
+
+      SMOP__Object* result_invocant = SMOP_DISPATCH(interpreter,SMOP_RI(node_invocant),
+                                                    SMOP__ID__result,SMOP__NATIVE__capture_create(node_invocat));
+      
+      for (i = 0; i < n_pos; i++) result_positional_arr[i] =
+                                    SMOP_DISPATCH(interpreter,SMOP_RI(nodes_positional_arr[i]),
+                                                  SMOP__ID__result,SMOP__NATIVE__capture_create(nodes_positional_arr[i]));
+      for (i = 0; i < n_nam; i++) result_named_arr[i] = 
+                                    SMOP_DISPATCH(interpreter,SMOP_RI(nodes_named_arr[i]),
+                                                  SMOP__ID__result,SMOP__NATIVE__capture_create(nodes_named_arr[i]));
+      
+      SMOP__Object* res = SMOP__NATIVE__capture_create(result_invocant, result_positional_arr, result_named_arr)
+      SMOP_DISPATCH(interpreter,SMOP_RI(thisnode),SMOP__ID__capture,
+                    SMOP__NATIVE__capture_create(thisnode,res,NULL));
+      ret = SMOP__NATIVE__bool_create(1);
+    } else {
+      ret = SMOP__NATIVE__bool_create(0);
+    }
+    break;
+
   SMOP__ID__DESTROYALL:
     smop_slime_frame_struct* frame = (smop_slime_frame_struct*)capture;
     if (frame && frame != SMOP__SLIME__Frame) {
