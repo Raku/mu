@@ -99,11 +99,14 @@ static SMOP__Object* frame_message(SMOP__Object* stack,
     break;
 
   SMOP__ID__result:
-    SMOP__Object* frame = SMOP__NATIVE__capture_invocant(inetrpreter, capture);
+    SMOP__Object* frame = SMOP__NATIVE__capture_invocant(interpreter, capture);
     if (frame && frame != SMOP__SLIME__Frame) {
+      SMOP__Object* count = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
+      assert(SMOP_RI(count) == SMOP__NATIVE__int);
+      int c = SMOP__NATIVE__int_fetch(count);
       smop_lowlevel_rdlock(frame);
       int pc = ((smop_slime_frame_struct*)frame)->pc;
-      SMOP__Object* node = ((smop_slime_frame_struct*)frame)->nodes[pc];
+      SMOP__Object* node = ((smop_slime_frame_struct*)frame)->nodes[pc - count];
       smop_lowlevel_unlock(frame);
       ret = SMOP_DISPATCH(interpreter,SMOP_RI(node),SMOP__ID__result,
                           SMOP__NATIVE__capture_create(node,NULL,NULL));
@@ -177,6 +180,100 @@ static SMOP__Object* frame_message(SMOP__Object* stack,
     }
     break;
 
+  SMOP__ID__forget:
+    smop_slime_frame_struct* frame = (smop_slime_frame_struct*)capture;
+    if (frame && frame != SMOP__SLIME__Frame) {
+      smop_lowlevel_wrlock(frame);
+      SMOP__Object** nodes = frame->nodes;
+      int pc = frame->pc;
+      int ncount = frame->node_count;
+      int newcount = ncount - pc;
+      SMOP__Object** nodes = frame->nodes;
+      SMOP__Object** newnodes = malloc(sizeof(SMOP__Object*) * newcount);
+      assert(newnodes);
+      int i;
+      for (i = pc; i < ncount; i++) newnodes[i] = frame->nodes[i];
+      frame->pc = 0;
+      frame->node_count = newcount;
+      frame->nodes = newnodes;
+      smop_lowlevel_unlock(frame);
+      for (i = 0; i < pc; i++) SMOP_RELEASE(nodes[i]);
+      free(nodes);
+      ret = SMOP__NATIVE__bool_create(0);
+    } else {
+      ret = SMOP__NATIVE__bool_create(0);
+    }
+    break;
+
+  SMOP__ID__copy:
+    SMOP__Object* frame = SMOP__NATIVE__capture_invocant(interpreter, capture);
+    if (frame && frame != SMOP__SLIME__Frame) {
+      SMOP__Object* count = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
+      assert(SMOP_RI(count) == SMOP__NATIVE__int);
+      int c = SMOP__NATIVE__int_fetch(count);
+      smop_lowlevel_rdlock(frame);
+      int pc = ((smop_slime_frame_struct*)frame)->pc;
+      SMOP__Object* node = ((smop_slime_frame_struct*)frame)->nodes[pc - count];
+      SMOP__Object* thisnode = ((smop_slime_frame_struct*)frame)->nodes[pc];
+      smop_lowlevel_unlock(frame);
+      SMOP__Object* res = SMOP_DISPATCH(interpreter,SMOP_RI(node),SMOP__ID__result,
+                                        SMOP__NATIVE__capture_create(node,NULL,NULL));
+      SMOP_DISPATCH(interpreter,SMOP_RI(thisnode),SMOP__ID__result,
+                    SMOP__NATIVE__capture_create(thisnode,res,NULL));
+      ret = SMOP__NATIVE__bool_create(1);
+    } else {
+      ret = SMOP__NATIVE__bool_create(0);
+    }
+    break;
+
+  SMOP__ID__move_responder:
+    SMOP__Object* frame = SMOP__NATIVE__capture_invocant(interpreter, capture);
+    if (frame && frame != SMOP__SLIME__Frame) {
+      SMOP__Object* count = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
+      SMOP__Object* target = SMOP__NATIVE__capture_positional(interpreter, capture, 1);
+      assert(SMOP_RI(count) == SMOP__NATIVE__int);
+      assert(SMOP_RI(target) == SMOP__NATIVE__int);
+      int c = SMOP__NATIVE__int_fetch(count);
+      int t = SMOP__NATIVE__int_fetch(target);
+      smop_lowlevel_rdlock(frame);
+      int pc = ((smop_slime_frame_struct*)frame)->pc;
+      SMOP__Object* node = ((smop_slime_frame_struct*)frame)->nodes[pc - count];
+      SMOP__Object* thisnode = ((smop_slime_frame_struct*)frame)->nodes[pc + t];
+      smop_lowlevel_unlock(frame);
+      SMOP__Object* res = SMOP_DISPATCH(interpreter,SMOP_RI(node),SMOP__ID__result,
+                                        SMOP__NATIVE__capture_create(node,NULL,NULL));
+      SMOP_DISPATCH(interpreter,SMOP_RI(thisnode),SMOP__ID__responder,
+                    SMOP__NATIVE__capture_create(thisnode,res,NULL));
+      ret = SMOP__NATIVE__bool_create(1);
+    } else {
+      ret = SMOP__NATIVE__bool_create(0);
+    }
+    break;
+    
+  SMOP__ID__move_identifier:
+    SMOP__Object* frame = SMOP__NATIVE__capture_invocant(interpreter, capture);
+    if (frame && frame != SMOP__SLIME__Frame) {
+      SMOP__Object* count = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
+      SMOP__Object* target = SMOP__NATIVE__capture_positional(interpreter, capture, 1);
+      assert(SMOP_RI(count) == SMOP__NATIVE__int);
+      assert(SMOP_RI(target) == SMOP__NATIVE__int);
+      int c = SMOP__NATIVE__int_fetch(count);
+      int t = SMOP__NATIVE__int_fetch(target);
+      smop_lowlevel_rdlock(frame);
+      int pc = ((smop_slime_frame_struct*)frame)->pc;
+      SMOP__Object* node = ((smop_slime_frame_struct*)frame)->nodes[pc - count];
+      SMOP__Object* thisnode = ((smop_slime_frame_struct*)frame)->nodes[pc + t];
+      smop_lowlevel_unlock(frame);
+      SMOP__Object* res = SMOP_DISPATCH(interpreter,SMOP_RI(node),SMOP__ID__result,
+                                        SMOP__NATIVE__capture_create(node,NULL,NULL));
+      SMOP_DISPATCH(interpreter,SMOP_RI(thisnode),SMOP__ID__identifier,
+                    SMOP__NATIVE__capture_create(thisnode,res,NULL));
+      ret = SMOP__NATIVE__bool_create(1);
+    } else {
+      ret = SMOP__NATIVE__bool_create(0);
+    }
+    break;
+
   SMOP__ID__DESTROYALL:
     smop_slime_frame_struct* frame = (smop_slime_frame_struct*)capture;
     if (frame && frame != SMOP__SLIME__Frame) {
@@ -192,12 +289,17 @@ static SMOP__Object* frame_message(SMOP__Object* stack,
       int i;
       for (i = 0; i < ncount; i++)
         SMOP_RELEASE(interpreter, nodes[i]);
+      
+      if (nodes) free(nodes);
 
       ret = SMOP__NATIVE__bool_create(0);
     } else {
       ret = SMOP__NATIVE__bool_create(0);
     }
+    break;
+
   };
+
 
   return ret;
 }
