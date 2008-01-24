@@ -249,7 +249,11 @@ sub mangle_name_ruby {
     {
         unshift @name, 'GLOBAL';
     }
-    return '' . CORE::join( '::', @name );    # XXX - no twigil
+    if (   $twigil eq '.' )
+    {
+	$name[-1] = 'ci' . $name[-1];
+    }
+    return CORE::join( '::', @name );
 }
 
 sub mangle_ident {

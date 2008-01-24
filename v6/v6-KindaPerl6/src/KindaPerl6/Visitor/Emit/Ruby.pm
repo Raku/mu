@@ -23,6 +23,12 @@ class CompUnit {
         if ($.body) {
             $source := $.body.emit_ruby;
         };
+	if $.unit_type eq 'class' {
+	    $source := ('class ' ~ $.name ~ Main::newline()
+			~ $source
+			~ Main::newline()
+			~ 'end' ~ Main::newline());
+	};
         my $src := '# Machine-generated ruby code.' ~ Main::newline()
         ~ '# Ruby version >= 1.9.0 2007-12-25 is needed.' ~ Main::newline()
         ~ 'require \'kp6_runtime\'' ~ Main::newline()
@@ -183,7 +189,7 @@ class Lit::Code {
 		if $scope eq 'our' {
 		    $our_declarations :=
 			($our_declarations
-			 ~ 'current_class.def_pkg_var(:'
+			 ~ 'def_our(:'
 			 ~ $aDecl.emit_ruby
 			 ~ ',Variable.new)' ~ Main::newline());
 		}
@@ -194,12 +200,22 @@ class Lit::Code {
             }
             $my_names := substr( $my_names, 1 );
             $my_containers := substr( $my_containers, 1 );
-	    $our_declarations
-	    ~ '(->('
-            ~ $my_names
-            ~ '){ ' ~ Main::newline()
-            ~ self.emit_body
-            ~ '}).(' ~ $my_containers ~ ')' ~ Main::newline();
+	    my $before_body := '';
+	    my $after_body := '';
+	    if $my_names ne '' {
+		$before_body :=
+		    ('(->('
+		     ~ $my_names
+		     ~ '){ ' ~ Main::newline());
+		$after_body :=
+		    ('}).(' ~ $my_containers ~ ')' ~ Main::newline());
+	    }
+	    my $result :=
+		($our_declarations
+		 ~ $before_body
+		 ~ self.emit_body
+		 ~ $after_body);
+	    return $result;
         }
     };
     method emit_body {
@@ -398,13 +414,6 @@ class Var {
             '&' => '$Code_',
         };
 
-        if $.twigil eq '.' {
-            return '::DISPATCH( $self, "' ~ $.name ~ '" )'  ~ Main::newline()
-        };
-        if $.twigil eq '!' {
-            return '$self->{_value}{"' ~ $.name ~ '"}'  ~ Main::newline()
-        };
-
         if $.name eq '/' {
             return $table{$.sigil} ~ 'MATCH'
         };
@@ -548,12 +557,11 @@ class Call {
                 '::DISPATCH( ' ~ $invocant ~ ', \'APPLY\', ' ~ $call ~ ' )' ~ Main::newline()
             }
             else {
-                  '::DISPATCH( '
-                ~ $invocant ~ ', '
-                ~ '\'' ~ $meth ~ '\', '
-                ~ $call
-                ~ ' )'
-                ~ Main::newline()
+		$invocant
+		~ '.'
+		~ 'mc_' ~ $meth
+		~ '.(cx(' ~ $call ~ '))';
+		# Must _not_ end in a newline.
             };
         };
 
@@ -660,7 +668,16 @@ class Decl {
     method emit_ruby {
         my $decl := $.decl;
         my $name := $.var.name;
-        return $.var.emit_ruby;
+	my $s;
+	if $decl eq 'has' {
+	    $s := ('def_has(:' ~  $.var.emit_ruby ~ ','
+		   ~ '->(){Variable.new})'
+		   ~ Main::newline());
+	}
+	else {
+	    $s := $.var.emit_ruby;
+	}
+        return $s;
     }
 }
 
@@ -761,22 +778,22 @@ class Lit::Subset {
 
 class Method {
     method emit_ruby {
-          '::DISPATCH( $::Code, \'new\', { '
-        ~   'code => sub { '                 ~ Main::newline()
-        ~     '# emit_declarations'          ~ Main::newline()
-        ~     $.block.emit_declarations      ~ Main::newline()
-        ~     '# get $self'                  ~ Main::newline()
-        ~     '$self = shift; '              ~ Main::newline()
-        ~     '# emit_arguments'             ~ Main::newline()
-        ~     $.block.emit_arguments         ~ Main::newline()
-        ~     '# emit_body'                  ~ Main::newline()
-        ~     $.block.emit_body
-        ~    ' }, '
-        ~   'signature => '
-        ~       $.block.emit_signature
-        ~    ', '
-        ~ ' } )'
-        ~ Main::newline();
+        my $sig := $.block.sig;
+        my $routine :=
+            '->(cap){->('
+	~     's_self){s_self = self; ->(' # for s_self
+        ~     $.block.emit_comma_separated_names
+        ~   '){' ~ Main::newline()
+        ~ $sig.emit_ruby_bind_cap
+        ~     $.block.emit_body ~ Main::newline()
+        ~   '}.('
+        ~     $.block.emit_comma_separated_containers
+	~   ')}.(nil' # for s_self
+        ~   ')}';
+	my $name := Main::mangle_name_ruby( '&', '', $.name, undef);
+	$name := 'm' ~ $name; # mc_foo
+	'def ' ~ $name ~ '; ' ~ $routine ~ Main::newline()
+	    ~ 'end' ~ Main::newline()
     }
 }
 
@@ -784,21 +801,14 @@ class Sub {
     method emit_ruby {
         my $sig := $.block.sig;
         ''
-        #~ '->(sig){ sig = Ruddy::Signature.new(' ~ Main::newline()
-        #~       $sig.emit_ruby_spec ~ ')' ~ Main::newline()
         ~   '->(cap){->('
         ~     $.block.emit_comma_separated_names
         ~   '){' ~ Main::newline()
-        #~     'sig.bind(binding,cap)' ~ Main::newline()
         ~ $sig.emit_ruby_bind_cap
-        #~       $.block.emit_declarations
-        #~       $.block.emit_arguments
         ~     $.block.emit_body ~ Main::newline()
         ~   '}.('
         ~     $.block.emit_comma_separated_containers
-        ~   ')}'
-        #~ '}.(nil)'
-        ;#~ Main::newline();
+        ~   ')}';
     }
 }
 

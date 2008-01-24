@@ -42,6 +42,10 @@ sub emit_ruby {
         if ( $self->{body} ) { $source = $self->{body}->emit_ruby() }
         else                 { }
     };
+    do {
+        if ( ( $self->{unit_type} eq 'class' ) ) { $source = ( 'class ' . ( $self->{name} . ( Main::newline() . ( $source . ( Main::newline() . ( 'end' . Main::newline() ) ) ) ) ) ) }
+        else                                     { }
+    };
     my $src = (
         '# Machine-generated ruby code.' . ( Main::newline() . ( '# Ruby version >= 1.9.0 2007-12-25 is needed.' . ( Main::newline() . ( 'require \'kp6_runtime\'' . ( Main::newline() . ( Main::newline() . ( $source . Main::newline() ) ) ) ) ) ) ) );
     Main::emit_ruby_kludge_commas($src);
@@ -262,7 +266,7 @@ sub emit_ruby {
                 for my $aDecl ( @{ $self->{pad}->lexicals() } ) {
                     my $scope = $aDecl->decl();
                     do {
-                        if ( ( $scope eq 'our' ) ) { $our_declarations = ( $our_declarations . ( 'current_class.def_pkg_var(:' . ( $aDecl->emit_ruby() . ( ',Variable.new)' . Main::newline() ) ) ) ) }
+                        if ( ( $scope eq 'our' ) ) { $our_declarations = ( $our_declarations . ( 'def_our(:' . ( $aDecl->emit_ruby() . ( ',Variable.new)' . Main::newline() ) ) ) ) }
                         else                       { }
                     };
                     do {
@@ -273,7 +277,14 @@ sub emit_ruby {
             };
             $my_names      = substr( $my_names,      1 );
             $my_containers = substr( $my_containers, 1 );
-            ( $our_declarations . ( '(->(' . ( $my_names . ( '){ ' . ( Main::newline() . ( $self->emit_body() . ( '}).(' . ( $my_containers . ( ')' . Main::newline() ) ) ) ) ) ) ) ) );
+            my $s1 = '';
+            my $s2 = '';
+            do {
+                if ( ( $my_names ne '' ) ) { $s1 = ( '(->(' . ( $my_names . ( '){ ' . Main::newline() ) ) ); $s2 = ( '}).(' . ( $my_containers . ( ')' . Main::newline() ) ) ) }
+                else                       { }
+            };
+            my $result = ( $our_declarations . ( $s1 . ( $self->emit_body() . $s2 ) ) );
+            return ($result);
         }
         }
 }
@@ -484,14 +495,6 @@ sub emit_ruby {
     do { [] };
     my $table = { '$' => '$', '@' => '$List_', '%' => '$Hash_', '&' => '$Code_', };
     do {
-        if ( ( $self->{twigil} eq '.' ) ) { return ( ( '::DISPATCH( $self, "' . ( $self->{name} . ( '" )' . Main::newline() ) ) ) ) }
-        else                              { }
-    };
-    do {
-        if ( ( $self->{twigil} eq '!' ) ) { return ( ( '$self->{_value}{"' . ( $self->{name} . ( '"}' . Main::newline() ) ) ) ) }
-        else                              { }
-    };
-    do {
         if ( ( $self->{name} eq '/' ) ) { return ( ( $table->{ $self->{sigil} } . 'MATCH' ) ) }
         else                            { }
     };
@@ -613,7 +616,7 @@ sub emit_ruby {
         else {
             do {
                 if ( ( $meth eq '' ) ) { ( '::DISPATCH( ' . ( $invocant . ( ', \'APPLY\', ' . ( $call . ( ' )' . Main::newline() ) ) ) ) ) }
-                else                   { ( '::DISPATCH( ' . ( $invocant . ( ', ' . ( '\'' . ( $meth . ( '\', ' . ( $call . ( ' )' . Main::newline() ) ) ) ) ) ) ) ) }
+                else                   { ( $invocant . ( '.' . ( 'mc_' . ( $meth . ( '.(cx(' . ( $call . '))' ) ) ) ) ) ) }
                 }
         }
         }
@@ -721,7 +724,12 @@ sub emit_ruby {
     do { [] };
     my $decl = $self->{decl};
     my $name = $self->{var}->name();
-    return ( $self->{var}->emit_ruby() );
+    my $s;
+    do {
+        if ( ( $decl eq 'has' ) ) { $s = ( 'def_has(:' . ( $self->{var}->emit_ruby() . ( ',' . ( '->(){Variable.new})' . Main::newline() ) ) ) ) }
+        else                      { $s = $self->{var}->emit_ruby() }
+    };
+    return ($s);
 }
 
 package Sig;
@@ -826,54 +834,20 @@ sub emit_ruby {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    (   '::DISPATCH( $::Code, \'new\', { '
+    my $sig     = $self->{block}->sig();
+    my $routine = (
+        '->(cap){->('
             . (
-            'code => sub { '
+            's_self){s_self = self; ->('
                 . (
-                Main::newline()
-                    . (
-                    '# emit_declarations'
-                        . (
-                        Main::newline()
-                            . (
-                            $self->{block}->emit_declarations()
-                                . (
-                                Main::newline()
-                                    . (
-                                    '# get $self'
-                                        . (
-                                        Main::newline()
-                                            . (
-                                            '$self = shift; '
-                                                . (
-                                                Main::newline()
-                                                    . (
-                                                    '# emit_arguments'
-                                                        . (
-                                                        Main::newline()
-                                                            . (
-                                                            $self->{block}->emit_arguments()
-                                                                . (
-                                                                Main::newline()
-                                                                    . (
-                                                                    '# emit_body'
-                                                                        . ( Main::newline() . ( $self->{block}->emit_body() . ( ' }, ' . ( 'signature => ' . ( $self->{block}->emit_signature() . ( ', ' . ( ' } )' . Main::newline() ) ) ) ) ) ) )
-                                                                    )
-                                                                )
-                                                            )
-                                                        )
-                                                    )
-                                                )
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
+                $self->{block}->emit_comma_separated_names()
+                    . ( '){' . ( Main::newline() . ( $sig->emit_ruby_bind_cap() . ( $self->{block}->emit_body() . ( Main::newline() . ( '}.(' . ( $self->{block}->emit_comma_separated_containers() . ( ')}.(nil' . ')}' ) ) ) ) ) ) ) )
                 )
             )
     );
+    my $name = Main::mangle_name_ruby( '&', '', $self->{name}, (undef) );
+    $name = ( 'm' . $name );
+    ( 'def ' . ( $name . ( '; ' . ( $routine . ( Main::newline() . ( 'end' . Main::newline() ) ) ) ) ) );
 }
 
 package Sub;

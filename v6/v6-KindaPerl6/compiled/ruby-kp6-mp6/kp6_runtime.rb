@@ -99,8 +99,6 @@ class Array
   def m_map; ->(f){self.map_n(f)}; end
 end
 
-## Truth
-
 
 ## random cruft created while getting started
 
@@ -152,6 +150,9 @@ def c_infix_58__60__126__62_; ->(c){c.pos.join("")}; end
 
 module Kernel
   def current_class; self.is_a?(Class) ? self : self.class end #X
+  def def_our(*args)
+    current_class.def_pkg_var(*args)
+  end
 end
 class Module
   def def_pkg_var(sym,val)
@@ -161,8 +162,25 @@ class Module
       @@#{sym} = ObjectSpace._id2ref(#{val.object_id})
     }
   end
+  def def_has(name,initializer)
+    self.send(:attr_accessor,name)
+  end
 end
 
+class Class
+  def mc_new
+    @cached_mc_new ||=
+      (->(*ignored){
+         o = new()
+         o.initialize6(*ignored)
+         o
+       })
+  end
+end
+class Object
+  def initialize6(*ignored)
+  end
+end
 
 
 ## Containers
