@@ -2,7 +2,7 @@
 # this is needed by v6.pm (perl6-in-perl5)
 use v6-alpha;
 
-module Test-0.0.7;
+module Test-0.0.8;
 
 #if substr($*PROGRAM_NAME, -2) eq '.t' {
 #    my $script = slurp($*PROGRAM_NAME);
@@ -52,6 +52,13 @@ $Test::testing_started = 1;
 
 ### FUNCTIONS
 
+# Compare numeric values with approximation
+
+sub approx (Num $a, Num $b) returns Bool is export {
+    my $EPSILON = 0.00001;
+    (abs($a - $b) < $EPSILON);
+}
+
 ## plan
 
 sub plan (Int $number_of_tests) returns Void is export {
@@ -86,6 +93,12 @@ sub is_deeply(Any $got, Any $expected, Str $desc?, :$todo, :$depends) returns Bo
     Test::proclaim($test, $desc, $todo, $got_perl, $expected_perl, $depends);
 }
 
+## is_approx   Approximately compare two Nums
+
+sub is_approx(Num $got, Num $expected, Str $desc?, :$todo, $:depends) returns Bool is export {
+    my $test := Test::approx($got, $expected);
+    Test::proclaim($test, $desc, $todo, $got, $expected, $depends);
+}
 
 ## isnt
 
@@ -388,6 +401,7 @@ Test - Test support module for perl6
 
   ok(2 + 2 == 5, '2 and 2 make 5', :todo(1));
   is(2 + 2, 5, desc => '2 and 2 make 5', todo => 1);
+  is_approx(pi(), 3.141562, 'approximate compare');
   isa_ok({'one' => 1}, 'Hash', :todo(1));
 
   use_ok('My::Module');
@@ -508,6 +522,13 @@ value with the C<$expected> value.
 These functions both take blocks of code, and test whether they live or die using C<try>
 
 The code must at least be parsable. If the code might not parse, wrap it in C<eval>.
+
+=head3 is_approx
+
+  is_approx (Num $got, Num $expected, Str $desc?, Bool :$todo, Str :$depends) returns Bool
+
+Similar to is(), but compares approximately, to account for floating point
+precision errors.
 
 =head3 is_deeply
 
@@ -678,6 +699,8 @@ Gaal Yahas <gaal@forum2.org>
 Mark Stosberg
 
 Simon Sun <dolmens@gmail.com>
+
+Cosimo Streppone <cosimo@cpan.org>
 
 =head1 COPYRIGHT
 
