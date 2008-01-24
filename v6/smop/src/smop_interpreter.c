@@ -25,16 +25,90 @@ typedef struct interpreter_instance_struct {
   SMOP__Object* continuation;
 } interpreter_instance_struct;
 
-static SMOP__Object* interpreter_message(SMOP__Object* stack,
+static SMOP__Object* interpreter_message(SMOP__Object* interpreter,
                                      SMOP__ResponderInterface* self,
                                      SMOP__Object* identifier,
                                      SMOP__Object* capture) {
   SMOP__Object* ret = NULL;
   swtich (identifier) {
+
   SMOP__ID__new:
     ret = smop_lowlevel_alloc(sizeof(interpreter_instance_struct));
     ret->RI = self;
     break;
+
+  SMOP__ID__goto:
+    SMOP__Object* intr = SMOP__NATIVE__capture_invocant(interpreter, capture);
+    SMOP__Object* targ = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
+    smop_lowlelevel_wrlock(capture);
+    SMOP__Object* cont = inst->continuation; inst->continuation = targ;
+    smop_lowlelevel_unlock(capture);
+    if (cont) SMOP_RELEASE(cont);
+    break;
+
+  SMOP__ID__setr:
+    SMOP__Object* intr = SMOP__NATIVE__capture_invocant(interpreter, capture);
+    SMOP__Object* targ = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
+    smop_lowlevel_rdlock(intr);
+    SMOP__Object* cont = ((interpreter_instance_struct*)intr)->continuation;
+    smop_lowlevel_unlock(intr);
+    ret = SMOP_DISPATCH(intr, SMOP_RI(cont), SMOP__ID__has_next,
+                        SMOP__NATIVE__capture_create(cont,(SMOP__Object*[]){targ, NULL},NULL));
+    break;
+
+  SMOP__ID__has_next:
+    SMOP__Object* intr = SMOP__NATIVE__capture_invocant(interpreter, capture);
+    smop_lowlevel_rdlock(intr);
+    SMOP__Object* cont = ((interpreter_instance_struct*)intr)->continuation;
+    smop_lowlevel_unlock(intr);
+    ret = SMOP_DISPATCH(interpreter, SMOP_RI(cont), SMOP__ID__has_next,
+                        SMOP__NATIVE__capture_create(cont,NULL,NULL));
+    break;
+
+  SMOP__ID__next:
+    SMOP__Object* intr = SMOP__NATIVE__capture_invocant(interpreter, capture);
+    smop_lowlevel_rdlock(intr);
+    SMOP__Object* cont = ((interpreter_instance_struct*)intr)->continuation;
+    smop_lowlevel_unlock(intr);
+    ret = SMOP_DISPATCH(interpreter, SMOP_RI(cont), SMOP__ID__next,
+                        SMOP__NATIVE__capture_create(cont,NULL,NULL));
+    break;
+
+  SMOP__ID__eval:
+    SMOP__Object* intr = SMOP__NATIVE__capture_invocant(interpreter, capture);
+    smop_lowlevel_rdlock(intr);
+    SMOP__Object* cont = ((interpreter_instance_struct*)intr)->continuation;
+    smop_lowlevel_unlock(intr);
+    ret = SMOP_DISPATCH(intr, SMOP_RI(cont), SMOP__ID__eval,
+                        SMOP__NATIVE__capture_create(cont,NULL,NULL));
+    break;
+
+  SMOP__ID__debug:
+    SMOP__Object* intr = SMOP__NATIVE__capture_invocant(interpreter, capture);
+    smop_lowlevel_rdlock(intr);
+    SMOP__Object* cont = ((interpreter_instance_struct*)intr)->continuation;
+    smop_lowlevel_unlock(intr);
+    ret = SMOP_DISPATCH(interpreter, SMOP_RI(cont), SMOP__ID__debug,
+                        SMOP__NATIVE__capture_create(cont,NULL,NULL));
+    break;
+
+  SMOP__ID__jail:
+    SMOP__Object* intr = SMOP__NATIVE__capture_invocant(interpreter, capture);
+    smop_lowlevel_rdlock(intr);
+    SMOP__Object* cont = ((interpreter_instance_struct*)intr)->continuation;
+    smop_lowlevel_unlock(intr);
+    ret = SMOP_DISPATCH(interpreter, SMOP_RI(cont), SMOP__ID__jail,
+                        SMOP__NATIVE__capture_create(cont,NULL,NULL));
+    break;
+
+  SMOP__ID__DESTROYALL:
+    interpreter_instance_struct* inst = (interpreter_instance_struct*)capture;
+    smop_lowlelevel_wrlock(capture);
+    SMOP__Object* cont = inst->continuation; inst->continuation = NULL;
+    smop_lowlelevel_unlock(capture);
+    SMOP_RELEASE(cont);
+    break;
+
   }
   return ret;
 }
