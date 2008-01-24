@@ -45,6 +45,13 @@ SMOP__Object*   SMOP__NATIVE__capture_create(SMOP__Object* interpreter,
                                              SMOP__Object* invocant,
                                              SMOP__Object** positional,
                                              SMOP__Object** named);
+/* The delegate method is a helper that takes a capture, creates a
+ * clone of it, and then sets the passed invocant as the capture's
+ * invocant and returns it.
+ */
+SMOP__Object*   SMOP__NATIVE__capture_delegate(SMOP__Object* interpreter,
+                                               SMOP__Object* invocant,
+                                               SMOP__Object* original_capture);
 
 // get methods
 char*           SMOP__NATIVE__idconst_fetch(SMOP__Object* value);

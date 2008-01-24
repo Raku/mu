@@ -11,6 +11,7 @@ http://www.perlfoundation.org/perl6/index.cgi?default_smop_interpreter_implement
 extern SMOP__Object* SMOP__SLIME__Frame;
 extern SMOP__Object* SMOP__SLIME__Node;
 
+extern SMOP__Object* SMOP__SLIME__CurrentFrame;
 extern SMOP__Object* SMOP__SLIME__Capturize;
 SMOP__Object* SMOP__SLIME__Capturize_create(int invocant, int* positional, int* named);
 int SMOP__SLIME__Capturize_invocant(SMOP__Object* obj);
