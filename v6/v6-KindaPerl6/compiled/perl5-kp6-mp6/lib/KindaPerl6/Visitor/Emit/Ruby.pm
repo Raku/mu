@@ -257,7 +257,7 @@ sub emit_ruby {
     my $List__ = \@_;
     do { [] };
     do {
-        if ( $self->{CATCH} ) { ( 'do { eval {' . ( $self->emit_declarations() . ( $self->emit_body() . ( '};if ($@) {' . ( $self->{CATCH}->emit_ruby() . '}}' ) ) ) ) ) }
+        if ( $self->{CATCH} ) { ( 'do { eval {' . ( $self->emit_ruby_declarations() . ( $self->emit_ruby_body() . ( '};if ($@) {' . ( $self->{CATCH}->emit_ruby() . '}}' ) ) ) ) ) }
         else {
             my $our_declarations = '';
             my $my_names         = '';
@@ -285,27 +285,27 @@ sub emit_ruby {
                 if ( ( $my_names ne '' ) ) { $before_body = ( '(->(' . ( $my_names . ( '){ ' . Main::newline() ) ) ); $after_body = ( '}).(' . ( $my_containers . ( ')' . Main::newline() ) ) ) }
                 else                       { }
             };
-            my $result = ( $our_declarations . ( $before_body . ( $self->emit_body() . $after_body ) ) );
+            my $result = ( $our_declarations . ( $before_body . ( $self->emit_ruby_body() . $after_body ) ) );
             return ($result);
         }
         }
 }
 
-sub emit_body {
+sub emit_ruby_body {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
     Main::join( [ map { $_->emit_ruby() } @{ $self->{body} } ], '; ' );
 }
 
-sub emit_signature {
+sub emit_ruby_signature {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
     $self->{sig}->emit_ruby();
 }
 
-sub emit_comma_separated_names {
+sub emit_ruby_comma_separated_names {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -318,7 +318,7 @@ sub emit_comma_separated_names {
     return ($s);
 }
 
-sub emit_comma_separated_containers {
+sub emit_ruby_comma_separated_containers {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -331,7 +331,7 @@ sub emit_comma_separated_containers {
     return ($s);
 }
 
-sub emit_declarations {
+sub emit_ruby_declarations {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -346,7 +346,7 @@ sub emit_declarations {
     return ($s);
 }
 
-sub emit_arguments {
+sub emit_ruby_arguments {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -842,8 +842,8 @@ sub emit_ruby {
             . (
             's_self){s_self = self; ->('
                 . (
-                $self->{block}->emit_comma_separated_names()
-                    . ( '){' . ( Main::newline() . ( $sig->emit_ruby_bind_cap() . ( $self->{block}->emit_body() . ( Main::newline() . ( '}.(' . ( $self->{block}->emit_comma_separated_containers() . ( ')}.(nil' . ')}' ) ) ) ) ) ) ) )
+                $self->{block}->emit_ruby_comma_separated_names()
+                    . ( '){' . ( Main::newline() . ( $sig->emit_ruby_bind_cap() . ( $self->{block}->emit_ruby_body() . ( Main::newline() . ( '}.(' . ( $self->{block}->emit_ruby_comma_separated_containers() . ( ')}.(nil' . ')}' ) ) ) ) ) ) ) )
                 )
             )
     );
@@ -864,8 +864,8 @@ sub emit_ruby {
             . (
             '->(cap){->('
                 . (
-                $self->{block}->emit_comma_separated_names()
-                    . ( '){' . ( Main::newline() . ( $sig->emit_ruby_bind_cap() . ( $self->{block}->emit_body() . ( Main::newline() . ( '}.(' . ( $self->{block}->emit_comma_separated_containers() . ')}' ) ) ) ) ) ) )
+                $self->{block}->emit_ruby_comma_separated_names()
+                    . ( '){' . ( Main::newline() . ( $sig->emit_ruby_bind_cap() . ( $self->{block}->emit_ruby_body() . ( Main::newline() . ( '}.(' . ( $self->{block}->emit_ruby_comma_separated_containers() . ')}' ) ) ) ) ) ) )
                 )
             )
     );

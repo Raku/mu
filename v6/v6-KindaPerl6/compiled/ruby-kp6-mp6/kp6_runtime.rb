@@ -20,9 +20,11 @@ end
 
 class Variable < BetterDelegator
   attr_accessor :__getobj__
-  def initialize(*ignored)
+  def initialize(*args)
     super(nil)
-    __setobj__(default_value)
+    o, = args
+    o ||= default_value
+    __setobj__(o)
   end
   def _(*opt)
     o, = *opt
@@ -223,19 +225,21 @@ class Numeric;  def is_true6?; self == 0 ? false : true; end end
 class Array;    def is_true6?; not self.empty?; end end
 class Hash;     def is_true6?; not self.empty?; end end
 
-def c_say; ->(c){print *c.pos,"\n"}; end
-
 def def_infix_op(op)
   encoded_name = op.gsub(/[^a-zA-Z0-9_:]/){|c|"_#{c.ord}_"}
-  code = "def c_infix_58__60_#{encoded_name}_62_; ->(cap){a=cap.pos; a[0] #{op} a[1]}; end"
+  code = "module Kernel; def c_infix_58__60_#{encoded_name}_62_; ->(cap){a=cap.pos; a[0] #{op} a[1]}; end end"
   eval(code)
 end
 '+ - * / < > <= >= =='.split.map{|op| def_infix_op op}
-#infix:<~>
-def c_infix_58__60__126__62_; ->(cap){cap.pos.join("")}; end
-def c_infix_58__60_eq_62_; ->(cap){a=cap.pos; a[0] == a[1]}; end
-def c_infix_58__60_ne_62_; ->(cap){a=cap.pos; a[0] != a[1]}; end
 
+module Kernel
+  def c_say; ->(c){print *c.pos,"\n"}; end
+
+  #infix:<~>
+  def c_infix_58__60__126__62_; ->(cap){cap.pos.join("")}; end
+  def c_infix_58__60_eq_62_; ->(cap){a=cap.pos; a[0] == a[1]}; end
+  def c_infix_58__60_ne_62_; ->(cap){a=cap.pos; a[0] != a[1]}; end
+end
 
 module Kernel
   def current_class; self.is_a?(Class) ? self : self.class end #X

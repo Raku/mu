@@ -177,7 +177,7 @@ class Lit::Code {
     method emit_ruby {
         if ($.CATCH) {
           'do { eval {'
-        ~ self.emit_declarations ~ self.emit_body
+        ~ self.emit_ruby_declarations ~ self.emit_ruby_body
         ~ '};if ($@) {' ~ $.CATCH.emit_ruby ~ '}}';
         }
         else {
@@ -215,18 +215,18 @@ class Lit::Code {
 	    my $result :=
 		($our_declarations
 		 ~ $before_body
-		 ~ self.emit_body
+		 ~ self.emit_ruby_body
 		 ~ $after_body);
 	    return $result;
         }
     };
-    method emit_body {
+    method emit_ruby_body {
         (@.body.>>emit_ruby).join('; ');
     };
-    method emit_signature {
+    method emit_ruby_signature {
         $.sig.emit_ruby
     };
-    method emit_comma_separated_names {
+    method emit_ruby_comma_separated_names {
         my $s := '';
         my $decl;
         for @($.pad.lexicals) -> $decl {
@@ -235,7 +235,7 @@ class Lit::Code {
         $s := substr( $s , 1 );
         return $s;
     };
-    method emit_comma_separated_containers {
+    method emit_ruby_comma_separated_containers {
         my $s := '';
         my $decl;
         for @($.pad.lexicals) -> $decl {
@@ -245,7 +245,7 @@ class Lit::Code {
         $s := substr( $s , 1 );
         return $s;
     };
-    method emit_declarations {
+    method emit_ruby_declarations {
         my $s;
         my $name;
         for @($.pad.lexicals) -> $name {
@@ -263,7 +263,7 @@ class Lit::Code {
         };
         return $s;
     };
-    method emit_arguments {
+    method emit_ruby_arguments {
         my $array_  := Var.new( sigil => '@', twigil => '', name => '_',       namespace => [ ], );
         my $hash_   := Var.new( sigil => '%', twigil => '', name => '_',       namespace => [ ], );
         my $CAPTURE := Var.new( sigil => '$', twigil => '', name => 'CAPTURE', namespace => [ ],);
@@ -784,12 +784,12 @@ class Method {
         my $routine :=
             '->(cap){->('
 	~     's_self){s_self = self; ->(' # for s_self
-        ~     $.block.emit_comma_separated_names
+        ~     $.block.emit_ruby_comma_separated_names
         ~   '){' ~ Main::newline()
         ~ $sig.emit_ruby_bind_cap
-        ~     $.block.emit_body ~ Main::newline()
+        ~     $.block.emit_ruby_body ~ Main::newline()
         ~   '}.('
-        ~     $.block.emit_comma_separated_containers
+        ~     $.block.emit_ruby_comma_separated_containers
 	~   ')}.(nil' # for s_self
         ~   ')}';
 	my $name := Main::mangle_name_ruby( '&', '', $.name, undef);
@@ -804,12 +804,12 @@ class Sub {
         my $sig := $.block.sig;
         ''
         ~   '->(cap){->('
-        ~     $.block.emit_comma_separated_names
+        ~     $.block.emit_ruby_comma_separated_names
         ~   '){' ~ Main::newline()
         ~ $sig.emit_ruby_bind_cap
-        ~     $.block.emit_body ~ Main::newline()
+        ~     $.block.emit_ruby_body ~ Main::newline()
         ~   '}.('
-        ~     $.block.emit_comma_separated_containers
+        ~     $.block.emit_ruby_comma_separated_containers
         ~   ')}';
     }
 }
