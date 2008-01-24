@@ -498,7 +498,7 @@ class Bind {
 	~   $var ~ ' = value;'
 	~ 'else; '
         ~   'self.' ~ $var ~ ' = value; end'
-	~ '}.(defined? ' ~ $var ~', ' ~ $val ~ ')'
+	~ '}.(defined? ' ~ $var ~', ' ~ $val ~ '.containerize)'
         ~ Main::newline();
     }
 }

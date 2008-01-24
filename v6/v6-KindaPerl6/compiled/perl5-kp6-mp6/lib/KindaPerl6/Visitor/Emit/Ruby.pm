@@ -561,8 +561,11 @@ sub emit_ruby {
     };
     my $var = $self->{parameters}->emit_ruby();
     my $val = $self->{arguments}->emit_ruby();
-    ( '->(defined,value){'
-            . ( 'if not defined or defined == "local-variable"; ' . ( $var . ( ' = value;' . ( 'else; ' . ( 'self.' . ( $var . ( ' = value; end' . ( '}.(defined? ' . ( $var . ( ', ' . ( $val . ( ')' . Main::newline() ) ) ) ) ) ) ) ) ) ) ) ) );
+    (   '->(defined,value){'
+            . (
+            'if not defined or defined == "local-variable"; ' . ( $var . ( ' = value;' . ( 'else; ' . ( 'self.' . ( $var . ( ' = value; end' . ( '}.(defined? ' . ( $var . ( ', ' . ( $val . ( '.containerize)' . Main::newline() ) ) ) ) ) ) ) ) ) ) )
+            )
+    );
 }
 
 package Proto;

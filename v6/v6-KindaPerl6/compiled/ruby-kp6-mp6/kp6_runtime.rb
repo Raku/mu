@@ -1,5 +1,6 @@
 
-# Runtime
+## Captures and Signatures
+
 module Ruddy; end
 
 def cx(*args)
@@ -69,6 +70,7 @@ class Ruddy::Signature
   end
 end  
 
+## The crufty work in progress of porting Runtime/Perl5/*.pm
 # Runtime/Perl5/Array
 class Array
   def map_n(f,n=nil)
@@ -97,14 +99,10 @@ class Array
   def m_map; ->(f){self.map_n(f)}; end
 end
 
-#
-
-class Object
-  def is_true6?; (not self or self == 0) ? false : true; end
-end
+## Truth
 
 
-# random cruft
+## random cruft created while getting started
 
 class Undef; end
 
@@ -135,8 +133,12 @@ class Pair
 end
 
 
-def c_say; ->(c){print *c.pos,"\n"}; end
+class Object
+  def is_true6?; (not self or self == 0) ? false : true; end
+end
 
+
+def c_say; ->(c){print *c.pos,"\n"}; end
 
 def def_infix_op(op)
   encoded_name = op.split(//).map{|c|"_#{c.ord}_"}.join
@@ -161,6 +163,9 @@ class Module
   end
 end
 
+
+
+## Containers
 
 class Object; def __getobj__; self end end
 
@@ -200,3 +205,11 @@ class Scalar < Variable; end
 class ArrayContainer < Variable; end
 class HashContainer < Variable; end
 class Routine < Variable; end
+
+# obj.containerize(), for implementing bind.
+class Object;   def containerize; Scalar.new(self); end end
+class Array;    def containerize; ArrayContainer.new(self); end end
+class Hash;     def containerize; HashContainer.new(self); end end
+class Variable; def containerize; self; end end
+class Proc; def containerize; self; end end #X
+

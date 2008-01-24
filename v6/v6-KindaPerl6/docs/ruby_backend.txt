@@ -215,8 +215,6 @@ Note to self: don't forget Method .receiver and .owner. :)
 
 
 TODO:
-- emit simple subs
-- bind the sub name properly, instead of everything being lexical
 - get method saym() working
 - emit methods
 - emit class decls
