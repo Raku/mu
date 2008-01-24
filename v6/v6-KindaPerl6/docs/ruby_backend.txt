@@ -26,6 +26,8 @@ DEVELOPMENT TIPS
  perl script/kp6 -Cast -e 'say 3'   # show the AST
  perl script/kp6 -Cperl5 -e 'say 3' # show the emitted perl5
 
+ ./script/run_tests.pl --backend=ruby
+
 
 If you change Emit/Ruby.pm,
   # get svn file timestamps correct

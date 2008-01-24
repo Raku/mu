@@ -248,8 +248,10 @@ def c_prefix_58__60__126__62_; ->(cap){a=cap.pos; a[0].to_s}; end
 def c_prefix_58__60__43__43__62_; ->(cap){a=cap.pos; a[0]._(a[0]+1); a[0]}; end
 
 # misc
+Str = String
 class Object
-  def mc_WHAT;->(c){self.to_s} end
+  def mc_WHAT; ->(cap){self.to_s} end
+  def mc_isa; ->(cap){a=cap.pos; x=eval(a[0]); self.is_a?(x)} end #XXX SECURITY
 end
 def c_chars; ->(cap){a=cap.pos; s=a[0]; s.length} end
 def c_substr; ->(cap){a=cap.pos; s=a[0]; s.slice(a[1],a[2]||s.length)} end
