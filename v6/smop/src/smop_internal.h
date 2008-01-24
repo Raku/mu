@@ -14,11 +14,9 @@
      smop_interpreter_init();         \
      smop_slime_frame_init();         \
      smop_slime_currentframe_init();  \
-     smop_slime_node_init();          \
-     smop_slime_operators_init();
+     smop_slime_node_init();
 
 #define SMOP_INTERNAL_DESTR_SEQUENCE  \
-     smop_slime_operators_destr();    \
      smop_slime_node_destr();         \
      smop_slime_currentframe_destr(); \
      smop_slime_frame_destr();        \
@@ -40,8 +38,6 @@ void smop_slime_currentframe_init();
 void smop_slime_currentframe_destr();
 void smop_slime_node_init();
 void smop_slime_node_destr();
-void smop_slime_operators_init();
-void smop_slime_operators_destr();
 void smop_native_bool_init();
 void smop_native_bool_destr();
 

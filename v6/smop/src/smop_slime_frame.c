@@ -98,6 +98,34 @@ static SMOP__Object* frame_message(SMOP__Object* stack,
     }
     break;
 
+  SMOP__ID__jail:
+    SMOP__Object* frame = SMOP__NATIVE__capture_invocant(inetrpreter, capture);
+    if (frame && frame != SMOP__SLIME__Frame) {
+      smop_lowlevel_rdlock(frame);
+      int pc = ((smop_slime_frame_struct*)frame)->pc;
+      SMOP__Object* node = ((smop_slime_frame_struct*)frame)->nodes[pc];
+      smop_lowlevel_unlock(frame);
+      ret = SMOP_DISPATCH(interpreter,SMOP_RI(node),SMOP__ID__jail,
+                          SMOP__NATIVE__capture_create(node,NULL,NULL));
+    } else {
+      ret = SMOP__NATIVE__bool_create(0);
+    }
+    break;
+
+  SMOP__ID__debug:
+    SMOP__Object* frame = SMOP__NATIVE__capture_invocant(inetrpreter, capture);
+    if (frame && frame != SMOP__SLIME__Frame) {
+      smop_lowlevel_rdlock(frame);
+      int pc = ((smop_slime_frame_struct*)frame)->pc;
+      SMOP__Object* node = ((smop_slime_frame_struct*)frame)->nodes[pc];
+      smop_lowlevel_unlock(frame);
+      ret = SMOP_DISPATCH(interpreter,SMOP_RI(node),SMOP__ID__debug,
+                          SMOP__NATIVE__capture_create(node,NULL,NULL));
+    } else {
+      ret = SMOP__NATIVE__bool_create(0);
+    }
+    break;
+
   SMOP__ID__result:
     SMOP__Object* frame = SMOP__NATIVE__capture_invocant(interpreter, capture);
     if (frame && frame != SMOP__SLIME__Frame) {
