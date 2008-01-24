@@ -36,20 +36,6 @@
 extern SMOP__Object* SMOP__INTPTR__InterpreterInstance;
 
 
-/* The interpreter instance have the following methods (invocant implied):
- *
- * For every method, there's a low-level c call to create a valid
- * capture to that call. The identifiers for the methods can be taken
- * from the smop_identifiers.h to be used.
- *
- * For all the methods that the signature only means the invocant,
- * this call should do the trick. You can pass null to the second
- * argument if you don't want to have a initialized continuation.
- * smop__intptr__invocant_capture_new(SMOP__Object* obj, SMOP__Object*
- * cont);
- */
-SMOP__Object* smop__intptr__invocant_capture_new(SMOP__Object* proto);
-
 /* new()
  *
  * This method creates a new interpreter instance with no continuation
@@ -61,11 +47,7 @@ SMOP__Object* smop__intptr__invocant_capture_new(SMOP__Object* proto);
  * This method sets the continuation of this instance. It's important
  * to remember that the interpreter loop is "next(); eval();", so most
  * of the cases the first operation is never called.
- *
- * lowlevel C call:
- * smop__intptr__goto_capture_new(SMOP__Object* invocant, SMOP__Object* continuation);
  */
-SMOP__Object* smop__intptr__goto_capture_new(SMOP__Object* invocant, SMOP__Object* continuation);
 
 /* setr($new_value)
  *

@@ -1,4 +1,4 @@
-
+#include <stdio.h>
 #include <smop.h>
 #include <smop_lowlevel.h>
 
@@ -23,11 +23,12 @@ static SMOP__Object* custom_MESSAGE(SMOP__Object* stack,
     printf("ok 3 - method3 called.\n");
   } else if (identifier == method4) {
     printf("ok 4 - method4 called.\n");
-  } else if (identifier == DESTROYALL) {
+  } else if (identifier == SMOP__ID__DESTROYALL) {
     printf("ok 5 - DESTROYALL called.\n");
   } else {
     printf("not ok - unknown method called %p.\n",identifier);
   }
+  return NULL;
 }
 
 int main(int argc, char** argv) {
@@ -36,8 +37,8 @@ int main(int argc, char** argv) {
   smop_init();
 
   SMOP__Object* intrp = SMOP_DISPATCH(NULL, SMOP_RI(SMOP__INTPTR__InterpreterInstance),
-                                      SMOP__ID__new, smop__intptr__invocant_capture_new
-                                      (SMOP__INTPTR__InterpreterInstance,NULL));
+                                      SMOP__ID__new, 
+                                      SMOP__NATIVE__capture_create(NULL,SMOP__INTPTR__InterpreterInstance,NULL,NULL));
 
   SMOP__Object* obj = smop_lowlevel_alloc(sizeof(SMOP__ResponderInterface));
   SMOP__ResponderInterface* ri = (SMOP__ResponderInterface*)obj;
@@ -46,7 +47,7 @@ int main(int argc, char** argv) {
   ri->RELEASE = smop_lowlevel_refcnt_dec;
 
 
-  SMOP__Object* node;
+  SMOP__Object* node = NULL;
 
   node = q:sm0p {
     ; # keep an empty node at the start, as this node will not be evaluated.
@@ -56,13 +57,13 @@ int main(int argc, char** argv) {
     $obj.method4();
   };
   
-  SMOP__Object* goto_capture = smop__intptr__goto_capture_new(intrp, node);
+  SMOP__Object* goto_capture = SMOP__NATIVE__capture_create(intrp, intrp, (SMOP__Object*[]){node,NULL}, NULL);
   SMOP_DISPATCH(NULL, SMOP_RI(intrp),
                 SMOP__ID__goto, goto_capture);
   SMOP_RELEASE(NULL,goto_capture);
 
 
-  SMOP__Object* loop_capture = smop__intptr__invocant_capture_new(intrp);
+  SMOP__Object* loop_capture = SMOP__NATIVE__capture_create(intrp, intrp, NULL, NULL);
   SMOP_DISPATCH(NULL, SMOP_RI(intrp),
                 SMOP__ID__loop, loop_capture);
   SMOP_RELEASE(NULL, loop_capture);

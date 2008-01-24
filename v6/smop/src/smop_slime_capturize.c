@@ -1,4 +1,8 @@
+#include <string.h>
+#include <assert.h>
+#include <stdlib.h>
 #include <smop.h>
+#include <smop_lowlevel.h>
 #include <smop_slime.h>
 
 SMOP__Object* SMOP__SLIME__Capturize;
@@ -10,15 +14,14 @@ typedef struct smop_slime_capturize_struct {
   int* positional;
   int n_named;
   int* named;
-}
+} smop_slime_capturize_struct;
 
 static SMOP__Object* capturize_message(SMOP__Object* interpreter,
                                      SMOP__ResponderInterface* self,
                                      SMOP__Object* identifier,
                                      SMOP__Object* capture) {
   // todo
-  switch(identifier) {
-  SMOP__ID__DESTROYALL:
+  if (identifier == SMOP__ID__DESTROYALL) {
     smop_lowlevel_wrlock(capture);
     ((smop_slime_capturize_struct*)capture)->n_positional = 0;
     ((smop_slime_capturize_struct*)capture)->n_named = 0;
@@ -28,39 +31,38 @@ static SMOP__Object* capturize_message(SMOP__Object* interpreter,
     ((smop_slime_capturize_struct*)capture)->named = NULL;
     smop_lowlevel_unlock(capture);
     free(p); free(n);
-    break;
   }
 
-  return self;
+  return capture;
 }
 
 static SMOP__Object* capturize_reference(SMOP__Object* interpreter, SMOP__ResponderInterface* responder, SMOP__Object* obj) {
-  if (responder != obj) {
+  if ((SMOP__Object*)responder != obj) {
     smop_lowlevel_refcnt_inc(interpreter, responder, obj);
   }
   return obj;
 }
 
 static SMOP__Object* capturize_release(SMOP__Object* interpreter, SMOP__ResponderInterface* responder, SMOP__Object* obj) {
-  if (responder != obj) {
+  if ((SMOP__Object*)responder != obj) {
     smop_lowlevel_refcnt_dec(interpreter, responder, obj);
   }
   return obj;
 }
 
-void smop_slime_currentframe_init() {
-  SMOP__SLIME__Capturize = calloc(sizeof(SMOP__ResponderInterface));
-  SMOP__SLIME__Capturize->MESSAGE = capturize_message;
-  SMOP__SLIME__Capturize->REFERENCE = capturize_reference;
-  SMOP__SLIME__Capturize->RELEASE = capturize_release;
+void smop_slime_capturize_init() {
+  SMOP__SLIME__Capturize = calloc(1,sizeof(SMOP__ResponderInterface));
+  ((SMOP__ResponderInterface*)SMOP__SLIME__Capturize)->MESSAGE = capturize_message;
+  ((SMOP__ResponderInterface*)SMOP__SLIME__Capturize)->REFERENCE = capturize_reference;
+  ((SMOP__ResponderInterface*)SMOP__SLIME__Capturize)->RELEASE = capturize_release;
 }
 
-void smop_slime_currentframe_destr() {
+void smop_slime_capturize_destr() {
   free(SMOP__SLIME__CurrentFrame);
 }
 
 SMOP__Object* SMOP__SLIME__Capturize_create(int invocant, int* positional, int* named) {
-  SMOP__Object* ret = smop_lowlevel_alloc(sizeof(smop_slime_currentframe_destr));
+  SMOP__Object* ret = smop_lowlevel_alloc(sizeof(smop_slime_capturize_struct));
   assert(ret);
   smop_slime_capturize_struct* cap = (smop_slime_capturize_struct*)ret;
   cap->invocant = invocant;

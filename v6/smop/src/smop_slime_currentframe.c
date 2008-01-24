@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <smop.h>
 #include <smop_slime.h>
 
@@ -13,7 +14,7 @@ static SMOP__Object* currentframe_message(SMOP__Object* interpreter,
   SMOP__Object* delegated = SMOP__NATIVE__capture_delegate(interpreter,
                                                            frame,
                                                            capture);
-  return SMOP_DISAPTCH(interpreter, SMOP_RI(frame),
+  return SMOP_DISPATCH(interpreter, SMOP_RI(frame),
                        identifier, delegated);
 }
 
@@ -27,10 +28,10 @@ static SMOP__Object* currentframe_release(SMOP__Object* interpreter, SMOP__Respo
 
 
 void smop_slime_currentframe_init() {
-  SMOP__SLIME__CurrentFrame = calloc(sizeof(SMOP__ResponderInterface));
-  SMOP__SLIME__CurrentFrame->MESSAGE = currentframe_message;
-  SMOP__SLIME__CurrentFrame->REFERENCE = currentframe_reference;
-  SMOP__SLIME__CurrentFrame->RELEASE = currentframe_release;
+  SMOP__SLIME__CurrentFrame = calloc(1,sizeof(SMOP__ResponderInterface));
+  ((SMOP__ResponderInterface*)SMOP__SLIME__CurrentFrame)->MESSAGE = currentframe_message;
+  ((SMOP__ResponderInterface*)SMOP__SLIME__CurrentFrame)->REFERENCE = currentframe_reference;
+  ((SMOP__ResponderInterface*)SMOP__SLIME__CurrentFrame)->RELEASE = currentframe_release;
 }
 
 void smop_slime_currentframe_destr() {

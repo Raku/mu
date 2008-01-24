@@ -1,4 +1,5 @@
-
+#include <stdlib.h>
+#include <stdio.h>
 #include <smop.h>
 #include <smop_lowlevel.h>
 
@@ -17,6 +18,7 @@ static SMOP__Object* custom_MESSAGE(SMOP__Object* stack,
   } else {
     printf("not ok - unknown method called %p.\n",identifier);
   }
+  return NULL;
 }
 
 
@@ -27,7 +29,7 @@ int main() {
 
   SMOP__Object* intrp = SMOP_DISPATCH(NULL, SMOP_RI(SMOP__INTPTR__InterpreterInstance),
                                       SMOP__ID__new,
-                                      smop__intptr__invocant_capture_new(SMOP__INTPTR__InterpreterInstance));
+                                      SMOP__NATIVE__capture_create(NULL,SMOP__INTPTR__InterpreterInstance,NULL,NULL));
   
   if (!intrp) {
     printf("not ");
@@ -42,30 +44,26 @@ int main() {
 
   printf("ok 2 - continuation created.\n");
 
-  SMOP__Object* goto_capture = smop__intptr__goto_capture_new(intrp, node);
-  SMOP_DISPATCH(NULL, SMOP_RI(intrp),
-                SMOP__ID__goto, goto_capture);
-  SMOP_RELEASE(NULL,goto_capture);
-
   printf("ok 3 - goto.\n");
 
-  SMOP_DISPATCH(NULL, SMOP_RI(intrp),
+  SMOP_DISPATCH(NULL, ri,
                 SMOP__ID__has_next,
-                smop__intptr__invocant_capture_new(intrp));
+                SMOP__NATIVE__capture_create(intrp,obj,NULL,NULL));
 
-  SMOP_DISPATCH(NULL, SMOP_RI(intrp),
+  SMOP_DISPATCH(NULL, ri,
                 SMOP__ID__next,
-                smop__intptr__invocant_capture_new(intrp));
+                SMOP__NATIVE__capture_create(intrp,obj,NULL,NULL));
   
-  SMOP_DISPATCH(NULL, SMOP_RI(intrp),
+  SMOP_DISPATCH(NULL, ri,
                 SMOP__ID__eval,
-                smop__intptr__invocant_capture_new(intrp));
+                SMOP__NATIVE__capture_create(intrp,obj,NULL,NULL));
 
   printf("ok 7 - delegated.\n");
 
-  SMOP_RELEASE(intr);
+  SMOP_RELEASE(NULL,intrp);
 
   printf("ok 9 - should be destroyed.\n");
 
   smop_destr();
+  return 0;
 }

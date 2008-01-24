@@ -18,7 +18,7 @@
  */
 
 extern void smop_lowlevel_init();
-extern void smop_lowlevel_destroy();
+extern void smop_lowlevel_destr();
 
 /* This function is the place from where every allocation should
  * happen.

@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <assert.h>
 #include <smop.h>
 #include <smop_lowlevel.h>
 
@@ -43,12 +44,11 @@ static SMOP__Object* capture_message(SMOP__Object* interpreter,
                                      SMOP__Object* identifier,
                                      SMOP__Object* capture) {
   SMOP__Object* ret = NULL;
-  swtich (identifier) {
-  SMOP__ID__new:
+
+  if (identifier == SMOP__ID__new) {
     ret = smop_native_empty_capture;
-    break;
-  SMOP__ID__DESTROYALL:
-    if (capture && capture != self && capture != smop_native_empty_capture) {
+  } else if (identifier == SMOP__ID__DESTROYALL) {
+    if (capture && capture != (SMOP__Object*)self && capture != smop_native_empty_capture) {
       native_capture_struct* self = (native_capture_struct*)capture;
       smop_lowlevel_wrlock(capture);
       SMOP__Object* invocant = self->invocant; self->invocant = NULL;
@@ -63,37 +63,36 @@ static SMOP__Object* capture_message(SMOP__Object* interpreter,
         SMOP_RELEASE(interpreter, positional[count]);
         count++;
       }
-      count = 0;
-      while (o_named[count]) {
-        SMOP_RELEASE(interpreter, o_named[count]->key);
-        SMOP_RELEASE(interpreter, o_named[count]->value);
-        count++;
+      int i = 0;
+      while (i < count) {
+        SMOP_RELEASE(interpreter, o_named[i].key);
+        SMOP_RELEASE(interpreter, o_named[i].value);
+        i++;
       }
-      count = 0;
-      while (named[count]) {
-        SMOP_RELEASE(interpreter, named[count]->key);
-        SMOP_RELEASE(interpreter, named[count]->value);
-        count++;
+      i = 0;
+      while (i < count) {
+        SMOP_RELEASE(interpreter, named[i].key);
+        SMOP_RELEASE(interpreter, named[i].value);
+        i++;
       }
       free(positional);
       free(o_named);
       free(named);
     }
     ret = NULL;
-    break;
   }
   return ret;
 }
 
 static SMOP__Object* capture_reference(SMOP__Object* interpreter, SMOP__ResponderInterface* responder, SMOP__Object* obj) {
-  if (responder != obj && smop_native_empty_capture != obj) {
+  if ((SMOP__Object*)responder != obj && smop_native_empty_capture != obj) {
     smop_lowlevel_refcnt_inc(interpreter, responder, obj);
   }
   return obj;
 }
 
 static SMOP__Object* capture_release(SMOP__Object* interpreter, SMOP__ResponderInterface* responder, SMOP__Object* obj) {
-  if (responder != obj && smop_native_empty_capture != obj) {
+  if ((SMOP__Object*)responder != obj && smop_native_empty_capture != obj) {
     smop_lowlevel_refcnt_dec(interpreter, responder, obj);
   }
   return obj;
@@ -106,14 +105,14 @@ void smop_native_capture_init() {
   // initialize the capture prototype
   SMOP__NATIVE__capture = calloc(1, sizeof(SMOP__ResponderInterface));
   assert(SMOP__NATIVE__capture);
-  SMOP__NATIVE__capture->MESSAGE = capture_message;
-  SMOP__NATIVE__capture->REFERENCE = capture_reference;
-  SMOP__NATIVE__capture->RELEASE = capture_release;
+  ((SMOP__ResponderInterface*)SMOP__NATIVE__capture)->MESSAGE = capture_message;
+  ((SMOP__ResponderInterface*)SMOP__NATIVE__capture)->REFERENCE = capture_reference;
+  ((SMOP__ResponderInterface*)SMOP__NATIVE__capture)->RELEASE = capture_release;
 
   // initialize the constant empty capture
   smop_native_empty_capture = calloc(1, sizeof(native_capture_struct));
   assert(smop_native_empty_capture);
-  smop_native_empty_capture->RI = SMOP__NATIVE__capture;
+  smop_native_empty_capture->RI = (SMOP__ResponderInterface*)SMOP__NATIVE__capture;
 
 }
 
@@ -182,11 +181,13 @@ SMOP__Object*   SMOP__NATIVE__capture_create(SMOP__Object* interpreter,
 
     int s_opt = sizeof(named_argument) * (l_opt + 1);
     ret->o_named = malloc(s_opt);
-    ret->o_named[l_opt] = NULL;
+    ret->o_named[l_opt].key = NULL;
+    ret->o_named[l_opt].value = NULL;
     ret->count_o_named = l_opt;
     int s_nor = sizeof(named_argument) * (l_nor + 1);
     ret->named = malloc(s_nor);
-    ret->named[l_nor] = NULL;
+    ret->named[l_nor].key = NULL;
+    ret->named[l_nor].value = NULL;
     ret->count_named = l_nor;
 
     length = 0;
@@ -194,12 +195,12 @@ SMOP__Object*   SMOP__NATIVE__capture_create(SMOP__Object* interpreter,
     l_nor = 0;
     while (named[length]) {
       if (named[length]->RI == SMOP__ID__new->RI) {
-        ret->o_named[l_opt]->key = named[length];
-        ret->o_named[l_opt]->value = named[length + 1];
+        ret->o_named[l_opt].key = named[length];
+        ret->o_named[l_opt].value = named[length + 1];
         l_opt++;
       } else {
-        ret->named[l_nor]->key = named[length];
-        ret->named[l_nor]->value = named[length + 1];
+        ret->named[l_nor].key = named[length];
+        ret->named[l_nor].value = named[length + 1];
         l_nor++;
       }
       length += 2;
@@ -216,12 +217,12 @@ SMOP__Object*   SMOP__NATIVE__capture_create(SMOP__Object* interpreter,
      * code to call WHICH.
      */
     if (l_nor) {
-      fprintf(sdterr, "Native capture still don't support non-constant-identifiers as key for named arguments.\n");
+      fprintf(stderr, "Native capture still don't support non-constant-identifiers as key for named arguments.\n");
     }
     
   }
   
-  return ret;
+  return (SMOP__Object*)ret;
 }
 
 SMOP__Object*   SMOP__NATIVE__capture_invocant(SMOP__Object* interpreter,
@@ -267,16 +268,16 @@ SMOP__Object*   SMOP__NATIVE__capture_named(SMOP__Object* interpreter,
       SMOP__Object* ret = bsearch(identifier, self->o_named, self->count_o_named, sizeof(named_argument), cmp_opt_named);
       if (ret) {
         smop_lowlevel_unlock(capture);
-        return SMOP_REFERENCE(ret);
+        return SMOP_REFERENCE(interpreter,ret);
       } else {
         if (self->count_named) {
-          fprintf(sdterr, "Native capture still don't support non-constant-identifiers as key for named arguments.\n");
+          fprintf(stderr, "Native capture still don't support non-constant-identifiers as key for named arguments.\n");
         }
         smop_lowlevel_unlock(capture);
         return NULL;
       }
     } else {
-      fprintf(sdterr, "Native capture still don't support non-constant-identifiers as key for named arguments.\n");
+      fprintf(stderr, "Native capture still don't support non-constant-identifiers as key for named arguments.\n");
       return NULL;
     }
   } else {
@@ -293,7 +294,7 @@ int SMOP__NATIVE__capture_may_recurse(SMOP__Object* interpreter,
       native_capture_struct* self = (native_capture_struct*)capture;
       smop_lowlevel_rdlock(capture);
       int c = self->count_named;
-      smop_lowlevel_unlock(caputre);
+      smop_lowlevel_unlock(capture);
       if (c) {
         return 1;
       } else {
@@ -314,11 +315,21 @@ int SMOP__NATIVE__capture_positional_count(SMOP__Object* interpreter,
       native_capture_struct* self = (native_capture_struct*)capture;
       smop_lowlevel_rdlock(capture);
       int c = self->count_positional;
-      smop_lowlevel_unlock(caputre);
+      smop_lowlevel_unlock(capture);
       return c;
     }
   } else {
     return 0;
   }
 
+}
+
+SMOP__Object*   SMOP__NATIVE__capture_delegate(SMOP__Object* interpreter,
+                                               SMOP__Object* invocant,
+                                               SMOP__Object* original_capture) {
+  smop_lowlevel_rdlock(original_capture);
+  SMOP__Object** positional = ((native_capture_struct*)original_capture)->positional;
+  SMOP__Object** named = ((native_capture_struct*)original_capture)->named;
+  smop_lowlevel_unlock(original_capture);
+  return SMOP__NATIVE__capture_create(interpreter,invocant,positional,named);
 }

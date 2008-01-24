@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
 
   SMOP__Object* intrp = SMOP_DISPATCH(NULL, SMOP_RI(SMOP__INTPTR__InterpreterInstance),
                                       SMOP__ID__new,
-                                      smop__intptr__invocant_capture_new(SMOP__INTPTR__InterpreterInstance));
+                                      SMOP__NATIVE__capture_create(NULL, SMOP__INTPTR__InterpreterInstance, NULL, NULL));
   
   if (!intrp) {
     printf("not ");
@@ -82,7 +82,7 @@ int main(int argc, char** argv) {
 
   SMOP_DISPATCH(NULL, ri, (SMOP__Object*)2, NULL);
 
-  SMOP__Object* loop_capture = smop__intptr__invocant_capture_new(intrp);
+  SMOP__Object* loop_capture = SMOP__NATIVE__capture_create(NULL, SMOP__INTPTR__InterpreterInstance, NULL, NULL);
   SMOP_DISPATCH(NULL, SMOP_RI(intrp),
                 SMOP__ID__loop, loop_capture);
 

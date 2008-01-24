@@ -133,8 +133,9 @@ SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* interpreter, SMOP__Responde
 
     // This is where the continuation will be manipulated as described in the .h file.
     SMOP__Object* current = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__current,
-                                          smop__intptr__invocant_capture_new(interpreter));
-    SMOP__Object* continuation = q:sm0p {
+                                          SMOP__NATIVE__capture_create(interpreter,interpreter,NULL,NULL));
+    SMOP__Object* continuation = NULL;
+    continuation = q:sm0p {
       $current;
       $interpreter;
       $value.DESTROYALL();
@@ -143,7 +144,8 @@ SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* interpreter, SMOP__Responde
       SMOP__STACK__Operators.free(|$value);
       $interpreter.goto()
     };
-    SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__goto, smop__intptr__goto_capture_new(interpreter, continuation));
+    SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__goto,
+                  SMOP__NATIVE__capture_create(interpreter, interpreter, (SMOP__Object*[]){continuation,NULL},NULL));
     return NULL;
   } else {
     smop_lowlevel_unlock(value);

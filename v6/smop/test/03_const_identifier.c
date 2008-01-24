@@ -1,4 +1,5 @@
-
+#include <stdlib.h>
+#include <stdio.h>
 #include <smop.h>
 #include <smop_lowlevel.h>
 
@@ -9,7 +10,7 @@
  */
 
 int main(int argc, char** argv) {
-  printf("1..4\n");
+  printf("1..3\n");
 
   smop_init();
 
@@ -28,14 +29,6 @@ int main(int argc, char** argv) {
   SMOP_RELEASE(NULL,mine);
   printf("ok 3 - release should work, even if the object is not subject to gc.\n");
 
-  char* val = SMOP__NATIVE__idconst_fetch(mine);
-
-  if (strcmp(val,"hello") != 0) {
-    printf("not ");
-  }
-  printf("ok 4 - the value can be fetched in the lowlevel successfully.\n");
-
-  free(val);
 
   smop_destr();
 
