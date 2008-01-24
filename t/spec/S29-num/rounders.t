@@ -7,11 +7,14 @@ plan 36;
 # L<S29/Num/"=item truncate">
 # L<S29/Num/"=item ceiling">
 
+#?rakudo skip 'Cannot parse pod'
+{
 =pod
 
 Basic tests for the round(), floor(), truncate() and ceil() built-ins
 
 =cut
+}
 
 my %tests =
     ( ceiling => [ [ 1.5, 2 ], [ 2, 2 ], [ 1.4999, 2 ],
@@ -39,7 +42,8 @@ for %tests.keys.sort -> $type {
         my $code = "{$type}($test[0])";
             my $res = eval($code);
         if ($!) {
-            flunk("failed to parse $code ($!)", :todo<feature>);
+            #?pugs todo 'feature'
+            flunk("failed to parse $code ($!)");
         } else {
             is($res, $test[1], "$code == $test[1]");
         }

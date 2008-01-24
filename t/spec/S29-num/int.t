@@ -6,11 +6,14 @@ plan 53;
 # truncate and int() are synonynms. 
 # Possibly more tests for truncate should be added here, too. 
 
+#?rakudo skip 'Cannot parse pod'
+{
 =pod
 
 Basic tests for the int() builtin
 
 =cut
+}
 
 is(int(-1), -1, "int(-1) is -1");
 is(int(0), 0, "int(0) is 0");
@@ -62,7 +65,8 @@ for(0, 0.0, 1, 50, 60.0, 99.99, 0.4, 0.6,
 # Special values
 
 is(int(1.9e3), 1900, "int 1.9e3 is 1900");
-is(int(Inf),    Inf, "int Inf is Inf", :todo<bug>);
-is(int(-Inf),  -Inf, "int -Inf is -Inf", :todo<bug>);
-is(int(NaN),    NaN, "int NaN is NaN", :todo<bug>);
+#?pugs 3 todo 'bug'
+is(int(Inf),    Inf, "int Inf is Inf");
+is(int(-Inf),  -Inf, "int -Inf is -Inf");
+is(int(NaN),    NaN, "int NaN is NaN");
 

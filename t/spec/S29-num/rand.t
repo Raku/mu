@@ -4,11 +4,14 @@ use Test;
 
 plan 2 + 2*10 + 4;
 
+#?rakudo skip 'Cannot parse pod'
+{
 =pod 
 
 Basic tests for the rand() builtin
 
 =cut
+}
 
 # L<S29/Num/"=item rand">
 
