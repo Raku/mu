@@ -1,4 +1,59 @@
 
+## Containers
+
+class Object; def __getobj__; self end end
+
+# Is there now a better alternative to this?
+require 'delegate'
+class BetterDelegator < Delegator; end
+class << Object
+  alias :pre_BetterDelegator_method_added :method_added
+  def method_added(id)
+    #print "method_added(#{id.id2name}) on #{self}\n"
+    ##if self == Object
+    ##  #print "punting #{id.id2name}\n"
+    ##  BetterDelegator.send(:remove_method,id)
+    ##end
+    pre_BetterDelegator_method_added(id)
+  end
+end
+
+class Variable < BetterDelegator
+  attr_accessor :__getobj__
+  def initialize(*ignored)
+    super(nil)
+    __setobj__(default_value)
+  end
+  def _(*opt)
+    o, = *opt
+    __setobj__(o)
+  end
+  def __setobj__(o)
+    @__getobj__= o
+  end
+  def default_value; Undef.new; end
+end
+
+class Scalar < Variable; end
+class ArrayContainer < Variable; end
+class HashContainer < Variable; end
+class Routine < Variable; end
+
+class ArrayContainer
+  def default_value; []; end
+end
+class HashContainer
+  def default_value; {}; end
+end
+
+# obj.containerize(), for implementing bind.
+class Object;   def containerize; Scalar.new(self); end end
+class Array;    def containerize; ArrayContainer.new(self); end end
+class Hash;     def containerize; HashContainer.new(self); end end
+class Variable; def containerize; self; end end
+class Proc; def containerize; self; end end #X
+
+
 ## Captures and Signatures
 
 module Ruddy; end
@@ -74,31 +129,59 @@ end
 # Runtime/Perl5/Array
 class Array
   def map_n(f,n=nil)
-    n ||= f.arity
+    n ||= 1 #f.arity
     i = 0
     result = []
+    len = self.length
     while true
+      return result if i >= len
       s = self.slice(i,n)
-      return result if not s
       if n > s.length
         s.push(*Array.new(n - s.length){|i|Undef.new})
       end
-      result.push(*f.(*s))
+      result.push(*f.(cx(*s)))
+      i += n
     end
   end
 
-  # new
-  def m_values; ->(){self.values}; end
-  # FETCH eager INDEX
-  def m_elems; ->(){self.length}; end
-  def m_push; end
-  def m_pop; ->(){self.pop}; end
-  def m_shift; ->(){self.shift}; end
-  def m_unshift; end
-  def m_sort; ->(f){}; end
-  def m_map; ->(f){self.map_n(f)}; end
+  def mc_values; ->(cap){self.values} end
+  # FETCH eager
+  def mc_INDEX; ->(cap){a=cap.pos;
+      n = a[0]
+      v = self[n]
+      vc = v.containerize
+      if v.object_id != vc.object_id
+        self[n] = vc
+      end
+      vc
+    }
+  end
+  def mc_elems; ->(cap){self.length} end
+  def mc_push; ->(cap){a=cap.pos; self.push(*a)} end
+  def mc_pop; ->(cap){self.pop} end
+  def mc_shift; ->(cap){self.shift} end
+  def mc_unshift; ->(cap){a=cap.pos; self.unshift(*a)} end
+  def mc_sort; ->(cap){a=cap.pos; self.sort(a[0])} end
+  def mc_map; ->(cap){a=cap.pos; self.map_n(a[0])} end
+  #
+  def mc_join; ->(cap){a=cap.pos; self.join(a[0])} end
 end
 
+# Runtime/Perl5/Hash
+class Hash
+  def mc_LOOKUP; ->(cap){a=cap.pos;
+      n = a[0]
+      v = self[n]
+      vc = v.containerize
+      if v.object_id != vc.object_id
+        self[n] = vc
+      end
+      vc
+    }
+  end
+  def mc_elems; ->(cap){self.length} end
+  def mc_pairs; ->(cap){self.each{|k,v|Pair.new(k,v)}} end
+end
 
 ## random cruft created while getting started
 
@@ -130,22 +213,28 @@ class Pair
   end
 end
 
-
-class Object
-  def is_true6?; (not self or self == 0) ? false : true; end
-end
-
+# Truth
+class Variable; def is_true6?; __getobj__.is_true6?; end end
+class Object;   def is_true6?; true; end end
+class Undef;    def is_true6?; false; end end
+class NilClass; def is_true6?; false; end end
+class FalseClass; def is_true6?; false; end end
+class Numeric;  def is_true6?; self == 0 ? false : true; end end
+class Array;    def is_true6?; not self.empty?; end end
+class Hash;     def is_true6?; not self.empty?; end end
 
 def c_say; ->(c){print *c.pos,"\n"}; end
 
 def def_infix_op(op)
-  encoded_name = op.split(//).map{|c|"_#{c.ord}_"}.join
+  encoded_name = op.gsub(/[^a-zA-Z0-9_:]/){|c|"_#{c.ord}_"}
   code = "def c_infix_58__60_#{encoded_name}_62_; ->(cap){a=cap.pos; a[0] #{op} a[1]}; end"
   eval(code)
 end
 '+ - * / < > <= >= =='.split.map{|op| def_infix_op op}
 #infix:<~>
-def c_infix_58__60__126__62_; ->(c){c.pos.join("")}; end
+def c_infix_58__60__126__62_; ->(cap){cap.pos.join("")}; end
+def c_infix_58__60_eq_62_; ->(cap){a=cap.pos; a[0] == a[1]}; end
+def c_infix_58__60_ne_62_; ->(cap){a=cap.pos; a[0] != a[1]}; end
 
 
 module Kernel
@@ -183,51 +272,13 @@ class Object
 end
 
 
-## Containers
 
-class Object; def __getobj__; self end end
-
-# Is there now a better alternative to this?
-require 'delegate'
-class BetterDelegator < Delegator; end
-class << Object
-  alias :pre_BetterDelegator_method_added :method_added
-  def method_added(id)
-    #print "method_added(#{id.id2name}) on #{self}\n"
-    ##if self == Object
-    ##  #print "punting #{id.id2name}\n"
-    ##  BetterDelegator.send(:remove_method,id)
-    ##end
-    pre_BetterDelegator_method_added(id)
-  end
+## misc
+class Object
+  def mc_WHAT;->(c){self.to_s} end
 end
-
-class Variable < BetterDelegator
-  attr_accessor :__getobj__
-  def initialize(*args)
-    super(nil)
-    _(*args)
-  end
-  def _(*opt)
-    o, = *opt
-    #o = *o.to_a if o.listy?
-    o ||= Undef.new
-    __setobj__(o)
-  end
-  def __setobj__(o)
-    @__getobj__= o
-  end
-end
-
-class Scalar < Variable; end
-class ArrayContainer < Variable; end
-class HashContainer < Variable; end
-class Routine < Variable; end
-
-# obj.containerize(), for implementing bind.
-class Object;   def containerize; Scalar.new(self); end end
-class Array;    def containerize; ArrayContainer.new(self); end end
-class Hash;     def containerize; HashContainer.new(self); end end
-class Variable; def containerize; self; end end
-class Proc; def containerize; self; end end #X
+def c_substr; ->(cap){a=cap.pos; s=a[0]; s.slice(a[1],a[2]||s.length)} end
+def c_print; ->(cap){print *c.pos} end
+def c_Inf; ->(cap){1.0/0.0} end
+def c_NaN; ->(cap){0.0/0.0} end
 

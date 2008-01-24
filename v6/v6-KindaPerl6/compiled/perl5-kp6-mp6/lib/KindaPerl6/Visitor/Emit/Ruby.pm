@@ -264,26 +264,28 @@ sub emit_ruby {
             my $my_containers    = '';
             do {
                 for my $aDecl ( @{ $self->{pad}->lexicals() } ) {
-                    my $scope = $aDecl->decl();
+                    my $var       = $aDecl->var();
+                    my $container = $var->emit_ruby_container();
+                    my $scope     = $aDecl->decl();
                     do {
-                        if ( ( $scope eq 'our' ) ) { $our_declarations = ( $our_declarations . ( 'def_our(:' . ( $aDecl->emit_ruby() . ( ',Variable.new)' . Main::newline() ) ) ) ) }
+                        if ( ( $scope eq 'our' ) ) { $our_declarations = ( $our_declarations . ( 'def_our(:' . ( $aDecl->emit_ruby() . ( ',' . ( $container . ( '.new)' . Main::newline() ) ) ) ) ) ) }
                         else                       { }
                     };
                     do {
-                        if ( ( $scope eq 'my' ) ) { $my_names = ( ',' . $aDecl->emit_ruby() ); $my_containers = ( $my_containers . ',Variable.new' ) }
+                        if ( ( $scope eq 'my' ) ) { $my_names = ( $my_names . ( ',' . $aDecl->emit_ruby() ) ); $my_containers = ( $my_containers . ( ',' . ( $container . '.new' ) ) ) }
                         else                      { }
                         }
                 }
             };
             $my_names      = substr( $my_names,      1 );
             $my_containers = substr( $my_containers, 1 );
-            my $s1 = '';
-            my $s2 = '';
+            my $before_body = '';
+            my $after_body  = '';
             do {
-                if ( ( $my_names ne '' ) ) { $s1 = ( '(->(' . ( $my_names . ( '){ ' . Main::newline() ) ) ); $s2 = ( '}).(' . ( $my_containers . ( ')' . Main::newline() ) ) ) }
+                if ( ( $my_names ne '' ) ) { $before_body = ( '(->(' . ( $my_names . ( '){ ' . Main::newline() ) ) ); $after_body = ( '}).(' . ( $my_containers . ( ')' . Main::newline() ) ) ) }
                 else                       { }
             };
-            my $result = ( $our_declarations . ( $s1 . ( $self->emit_body() . $s2 ) ) );
+            my $result = ( $our_declarations . ( $before_body . ( $self->emit_body() . $after_body ) ) );
             return ($result);
         }
         }
@@ -726,7 +728,7 @@ sub emit_ruby {
     my $name = $self->{var}->name();
     my $s;
     do {
-        if ( ( $decl eq 'has' ) ) { $s = ( 'def_has(:' . ( $self->{var}->emit_ruby() . ( ',' . ( '->(){Variable.new})' . Main::newline() ) ) ) ) }
+        if ( ( $decl eq 'has' ) ) { $s = ( 'def_has(:' . ( $self->{var}->emit_ruby() . ( ',' . ( '->(){' . ( $self->{var}->emit_ruby_container() . ( '.new})' . Main::newline() ) ) ) ) ) ) }
         else                      { $s = $self->{var}->emit_ruby() }
     };
     return ($s);

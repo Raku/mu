@@ -185,17 +185,19 @@ class Lit::Code {
 	    my $my_names := '';
             my $my_containers := '';
             for @($.pad.lexicals) -> $aDecl {
-		my $scope := $aDecl.decl
+		my $var := $aDecl.var;
+		my $container := $var.emit_ruby_container;
+		my $scope := $aDecl.decl;
 		if $scope eq 'our' {
 		    $our_declarations :=
 			($our_declarations
 			 ~ 'def_our(:'
 			 ~ $aDecl.emit_ruby
-			 ~ ',Variable.new)' ~ Main::newline());
+			 ~ ',' ~ $container ~ '.new)' ~ Main::newline());
 		}
 		if $scope eq 'my' {
-		    $my_names := ',' ~ $aDecl.emit_ruby
-		    $my_containers := $my_containers ~ ',Variable.new'
+		    $my_names := $my_names ~ ',' ~ $aDecl.emit_ruby;
+		    $my_containers := $my_containers ~ ',' ~ $container ~ '.new';
 		}
             }
             $my_names := substr( $my_names, 1 );
@@ -671,7 +673,7 @@ class Decl {
 	my $s;
 	if $decl eq 'has' {
 	    $s := ('def_has(:' ~  $.var.emit_ruby ~ ','
-		   ~ '->(){Variable.new})'
+		   ~ '->(){' ~ $.var.emit_ruby_container ~ '.new})'
 		   ~ Main::newline());
 	}
 	else {
@@ -833,7 +835,7 @@ class BEGIN {
     method emit_ruby {
         ' ' ~
           $.block.emit_ruby ~
-        ' '
+	' ';
     }
 }
 
