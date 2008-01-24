@@ -172,20 +172,20 @@ class Lit::Code {
     method emit_perl5 {
         if ($.CATCH) {
           'do { eval {'
-        ~ self.emit_declarations ~ self.emit_body
+        ~ self.emit_perl5_declarations ~ self.emit_perl5_body
         ~ '};if ($@) {' ~ $.CATCH.emit_perl5 ~ '}}';
         }
         else {
-            'do {' ~ self.emit_declarations ~ self.emit_body ~ '}'
+            'do {' ~ self.emit_perl5_declarations ~ self.emit_perl5_body ~ '}'
         }
     };
-    method emit_body {
+    method emit_perl5_body {
         (@.body.>>emit_perl5).join('; ');
     };
-    method emit_signature {
+    method emit_perl5_signature {
         $.sig.emit_perl5
     };
-    method emit_declarations {
+    method emit_perl5_declarations {
         my $s;
         my $name;
         for @($.pad.lexicals) -> $name {
@@ -203,7 +203,7 @@ class Lit::Code {
         };
         return $s;
     };
-    method emit_arguments {
+    method emit_perl5_arguments {
         my $array_  := Var.new( sigil => '@', twigil => '', name => '_',       namespace => [ ], );
         my $hash_   := Var.new( sigil => '%', twigil => '', name => '_',       namespace => [ ], );
         my $CAPTURE := Var.new( sigil => '$', twigil => '', name => 'CAPTURE', namespace => [ ],);
@@ -751,17 +751,17 @@ class Method {
     method emit_perl5 {
           '::DISPATCH( $::Code, \'new\', { '
         ~   'code => sub { '                 ~ Main::newline()
-        ~     '# emit_declarations'          ~ Main::newline()
-        ~     $.block.emit_declarations      ~ Main::newline()
+        ~     '# emit_perl5_declarations'          ~ Main::newline()
+        ~     $.block.emit_perl5_declarations      ~ Main::newline()
         ~     '# get $self'                  ~ Main::newline()
         ~     '$self = shift; '              ~ Main::newline()
-        ~     '# emit_arguments'             ~ Main::newline()
-        ~     $.block.emit_arguments         ~ Main::newline()
-        ~     '# emit_body'                  ~ Main::newline()
-        ~     $.block.emit_body
+        ~     '# emit_perl5_arguments'             ~ Main::newline()
+        ~     $.block.emit_perl5_arguments         ~ Main::newline()
+        ~     '# emit_perl5_body'                  ~ Main::newline()
+        ~     $.block.emit_perl5_body
         ~    ' }, '
         ~   'signature => '
-        ~       $.block.emit_signature
+        ~       $.block.emit_perl5_signature
         ~    ', '
         ~ ' } )'
         ~ Main::newline();
@@ -772,12 +772,12 @@ class Sub {
     method emit_perl5 {
           '::DISPATCH( $::Code, \'new\', { '
         ~   'code => sub { '
-        ~       $.block.emit_declarations
-        ~       $.block.emit_arguments
-        ~       $.block.emit_body
+        ~       $.block.emit_perl5_declarations
+        ~       $.block.emit_perl5_arguments
+        ~       $.block.emit_perl5_body
         ~    ' }, '
         ~   'signature => '
-        ~       $.block.emit_signature
+        ~       $.block.emit_perl5_signature
         ~    ', '
         ~ ' } )'
         ~ Main::newline();
@@ -788,12 +788,12 @@ class Macro {
     method emit_perl5 {
           '::DISPATCH( $::Macro, \'new\', { '
         ~   'code => sub { '
-        ~       $.block.emit_declarations
-        ~       $.block.emit_arguments
-        ~       $.block.emit_body
+        ~       $.block.emit_perl5_declarations
+        ~       $.block.emit_perl5_arguments
+        ~       $.block.emit_perl5_body
         ~    ' }, '
         ~   'signature => '
-        ~       $.block.emit_signature
+        ~       $.block.emit_perl5_signature
         ~    ', '
         ~ ' } )'
         ~ Main::newline();

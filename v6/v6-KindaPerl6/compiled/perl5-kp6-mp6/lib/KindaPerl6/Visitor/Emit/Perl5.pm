@@ -361,26 +361,26 @@ sub emit_perl5 {
     my $List__ = \@_;
     do { [] };
     do {
-        if ( $self->{CATCH} ) { ( 'do { eval {' . ( $self->emit_declarations() . ( $self->emit_body() . ( '};if ($@) {' . ( $self->{CATCH}->emit_perl5() . '}}' ) ) ) ) ) }
-        else                  { ( 'do {' . ( $self->emit_declarations() . ( $self->emit_body() . '}' ) ) ) }
+        if ( $self->{CATCH} ) { ( 'do { eval {' . ( $self->emit_perl5_declarations() . ( $self->emit_perl5_body() . ( '};if ($@) {' . ( $self->{CATCH}->emit_perl5() . '}}' ) ) ) ) ) }
+        else                  { ( 'do {' . ( $self->emit_perl5_declarations() . ( $self->emit_perl5_body() . '}' ) ) ) }
         }
 }
 
-sub emit_body {
+sub emit_perl5_body {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
     Main::join( [ map { $_->emit_perl5() } @{ $self->{body} } ], '; ' );
 }
 
-sub emit_signature {
+sub emit_perl5_signature {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
     $self->{sig}->emit_perl5();
 }
 
-sub emit_declarations {
+sub emit_perl5_declarations {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -395,7 +395,7 @@ sub emit_declarations {
     return ($s);
 }
 
-sub emit_arguments {
+sub emit_perl5_arguments {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
@@ -950,11 +950,11 @@ sub emit_perl5 {
                 . (
                 Main::newline()
                     . (
-                    '# emit_declarations'
+                    '# emit_perl5_declarations'
                         . (
                         Main::newline()
                             . (
-                            $self->{block}->emit_declarations()
+                            $self->{block}->emit_perl5_declarations()
                                 . (
                                 Main::newline()
                                     . (
@@ -966,16 +966,18 @@ sub emit_perl5 {
                                                 . (
                                                 Main::newline()
                                                     . (
-                                                    '# emit_arguments'
+                                                    '# emit_perl5_arguments'
                                                         . (
                                                         Main::newline()
                                                             . (
-                                                            $self->{block}->emit_arguments()
+                                                            $self->{block}->emit_perl5_arguments()
                                                                 . (
                                                                 Main::newline()
                                                                     . (
-                                                                    '# emit_body'
-                                                                        . ( Main::newline() . ( $self->{block}->emit_body() . ( ' }, ' . ( 'signature => ' . ( $self->{block}->emit_signature() . ( ', ' . ( ' } )' . Main::newline() ) ) ) ) ) ) )
+                                                                    '# emit_perl5_body'
+                                                                        . (
+                                                                        Main::newline() . ( $self->{block}->emit_perl5_body() . ( ' }, ' . ( 'signature => ' . ( $self->{block}->emit_perl5_signature() . ( ', ' . ( ' } )' . Main::newline() ) ) ) ) ) )
+                                                                        )
                                                                     )
                                                                 )
                                                             )
@@ -1004,7 +1006,10 @@ sub emit_perl5 {
     (   '::DISPATCH( $::Code, \'new\', { '
             . (
             'code => sub { '
-                . ( $self->{block}->emit_declarations() . ( $self->{block}->emit_arguments() . ( $self->{block}->emit_body() . ( ' }, ' . ( 'signature => ' . ( $self->{block}->emit_signature() . ( ', ' . ( ' } )' . Main::newline() ) ) ) ) ) ) ) )
+                . (
+                $self->{block}->emit_perl5_declarations()
+                    . ( $self->{block}->emit_perl5_arguments() . ( $self->{block}->emit_perl5_body() . ( ' }, ' . ( 'signature => ' . ( $self->{block}->emit_perl5_signature() . ( ', ' . ( ' } )' . Main::newline() ) ) ) ) ) ) )
+                )
             )
     );
 }
@@ -1019,7 +1024,10 @@ sub emit_perl5 {
     (   '::DISPATCH( $::Macro, \'new\', { '
             . (
             'code => sub { '
-                . ( $self->{block}->emit_declarations() . ( $self->{block}->emit_arguments() . ( $self->{block}->emit_body() . ( ' }, ' . ( 'signature => ' . ( $self->{block}->emit_signature() . ( ', ' . ( ' } )' . Main::newline() ) ) ) ) ) ) ) )
+                . (
+                $self->{block}->emit_perl5_declarations()
+                    . ( $self->{block}->emit_perl5_arguments() . ( $self->{block}->emit_perl5_body() . ( ' }, ' . ( 'signature => ' . ( $self->{block}->emit_perl5_signature() . ( ', ' . ( ' } )' . Main::newline() ) ) ) ) ) ) )
+                )
             )
     );
 }
