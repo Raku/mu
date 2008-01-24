@@ -136,28 +136,45 @@ end
 
 
 def c_say; ->(c){print *c.pos,"\n"}; end
+
+
+def def_infix_op(op)
+  encoded_name = op.split(//).map{|c|"_#{c.ord}_"}.join
+  code = "def c_infix_58__60_#{encoded_name}_62_; ->(cap){a=cap.pos; a[0] #{op} a[1]}; end"
+  eval(code)
+end
+'+ - * / < > <= >= =='.split.map{|op| def_infix_op op}
 #infix:<~>
 def c_infix_58__60__126__62_; ->(c){c.pos.join("")}; end
-#infix:<+>
-def c_infix_58__60__43__62_; ->(c){a=c.pos;a[0]+a[1]}; end
-#infix:<==>
-def c_infix_58__60__61__61__62_; ->(c){a=c.pos;a[0]==a[1]}; end
+
+
+module Kernel
+  def current_class; self.is_a?(Class) ? self : self.class end #X
+end
+class Module
+  def def_pkg_var(sym,val)
+    class_eval %{
+      def #{sym}; @@#{sym} end
+      def #{sym}=(v); @@#{sym} = v end
+      @@#{sym} = ObjectSpace._id2ref(#{val.object_id})
+    }
+  end
+end
 
 
 class Object; def __getobj__; self end end
 
 # Is there now a better alternative to this?
-# BUG: funcall doesn't seem to be working on released ruby 1.9.0.
 require 'delegate'
 class BetterDelegator < Delegator; end
 class << Object
   alias :pre_BetterDelegator_method_added :method_added
   def method_added(id)
     #print "method_added(#{id.id2name}) on #{self}\n"
-    if self == Object
-      #print "punting #{id.id2name}\n"
-      BetterDelegator.funcall(:undef_method,id)
-    end
+    ##if self == Object
+    ##  #print "punting #{id.id2name}\n"
+    ##  BetterDelegator.send(:remove_method,id)
+    ##end
     pre_BetterDelegator_method_added(id)
   end
 end

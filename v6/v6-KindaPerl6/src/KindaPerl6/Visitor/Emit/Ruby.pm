@@ -23,11 +23,12 @@ class CompUnit {
         if ($.body) {
             $source := $.body.emit_ruby;
         };
-        '# Machine-generated ruby code.' ~ Main::newline()
+        my $src := '# Machine-generated ruby code.' ~ Main::newline()
         ~ '# Ruby version >= 1.9.0 2007-12-25 is needed.' ~ Main::newline()
         ~ 'require \'kp6_runtime\'' ~ Main::newline()
         ~ Main::newline()
         ~ $source ~ Main::newline();
+        Main::emit_ruby_kludge_commas($src)
     }
 }
 
@@ -87,7 +88,7 @@ class Native::Buf {
 
 class Lit::Seq {
     method emit_ruby {
-        '(' ~ (@.seq.>>emit_ruby).join(', ') ~ ')';
+        '(' ~ (@.seq.>>emit_ruby).join(',,, ') ~ ')';
     }
 }
 
@@ -95,7 +96,7 @@ class Lit::Array {
     method emit_ruby {
         # # this is not a Perl 6 object,
         # # objects are created with a high-level Array.new or List.new
-        '[' ~ (@.array.>>emit_ruby).join(', ') ~ ']';
+        '[' ~ (@.array.>>emit_ruby).join(',,, ') ~ ']';
     }
 }
 
@@ -161,8 +162,8 @@ class Lit::SigArgument {
         ~ ')';
     };
     method emit_ruby_name {
-	my $namespace := [ ];
-	Main::mangle_name_ruby( $.key.sigil, $.key.twigil, $.key.name, $namespace );
+        my $namespace := [ ];
+        Main::mangle_name_ruby( $.key.sigil, $.key.twigil, $.key.name, $namespace );
     };
 }
 
@@ -174,16 +175,31 @@ class Lit::Code {
         ~ '};if ($@) {' ~ $.CATCH.emit_ruby ~ '}}';
         }
         else {
-            my $vars;
-            for @($.pad.lexicals) -> $name {
-                $vars := $vars ~ ',Variable.new'
+	    my $our_declarations := '';
+	    my $my_names := '';
+            my $my_containers := '';
+            for @($.pad.lexicals) -> $aDecl {
+		my $scope := $aDecl.decl
+		if $scope eq 'our' {
+		    $our_declarations :=
+			($our_declarations
+			 ~ 'current_class.def_pkg_var(:'
+			 ~ $aDecl.emit_ruby
+			 ~ ',Variable.new)' ~ Main::newline());
+		}
+		if $scope eq 'my' {
+		    $my_names := ',' ~ $aDecl.emit_ruby
+		    $my_containers := $my_containers ~ ',Variable.new'
+		}
             }
-            $vars := substr( $vars, 1 );
-            '(->('
-            ~ ((@($.pad.lexicals)).>>emit_ruby).join(', ')
+            $my_names := substr( $my_names, 1 );
+            $my_containers := substr( $my_containers, 1 );
+	    $our_declarations
+	    ~ '(->('
+            ~ $my_names
             ~ '){ ' ~ Main::newline()
             ~ self.emit_body
-            ~ '}).(' ~ $vars ~ ')' ~ Main::newline();
+            ~ '}).(' ~ $my_containers ~ ')' ~ Main::newline();
         }
     };
     method emit_body {
@@ -473,8 +489,16 @@ class Bind {
         #my $str := '::MODIFIED(' ~ $.parameters.emit_ruby ~ ');' ~ Main::newline();
         #$str := $str ~ $.parameters.emit_ruby ~ ' = ' ~ $.arguments.emit_ruby;
         #return 'do {'~$str~'}';
-        $.parameters.emit_ruby
-        ~ ' = ' ~ $.arguments.emit_ruby
+
+	# ruby backend currently only works for single literal variables.
+        my $var := $.parameters.emit_ruby;
+	my $val := $.arguments.emit_ruby;
+	'->(defined,value){'
+	~ 'if not defined or defined == "local-variable"; '
+	~   $var ~ ' = value;'
+	~ 'else; '
+        ~   'self.' ~ $var ~ ' = value; end'
+	~ '}.(defined? ' ~ $var ~', ' ~ $val ~ ')'
         ~ Main::newline();
     }
 }
@@ -510,7 +534,7 @@ class Call {
              $meth := '';
         };
 
-        my $call := (@.arguments.>>emit_ruby).join(', ');
+        my $call := (@.arguments.>>emit_ruby).join(',,, ');
         if ($.hyper) {
             # TODO - hyper + role
               '::DISPATCH( $::List, "new", { _array => [ '
@@ -587,7 +611,7 @@ class Apply {
         }
 
         #return  '::DISPATCH( ' ~ $.code.emit_ruby ~ ', \'APPLY\', ' ~ (@.arguments.>>emit_ruby).join(', ') ~ ' )' ~ Main::newline();
-        return  ' ' ~ $.code.emit_ruby ~ '.(cx(' ~ (@.arguments.>>emit_ruby).join(', ') ~ '))' ~ Main::newline();
+        return  ' ' ~ $.code.emit_ruby ~ '.(cx(' ~ (@.arguments.>>emit_ruby).join(',,, ') ~ '))' ~ Main::newline();
     }
 }
 
@@ -637,94 +661,6 @@ class Decl {
         my $decl := $.decl;
         my $name := $.var.name;
         return $.var.emit_ruby;
-        if $decl eq 'has' {
-            # obsolete - "has" is handled by Visitor::MetaClass / Perl5::MOP
-            return 'sub ' ~ $name ~ ' { ' ~
-            '@_ == 1 ' ~
-                '? ( $_[0]->{' ~ $name ~ '} ) ' ~
-                ': ( $_[0]->{' ~ $name ~ '} = $_[1] ) ' ~
-            '}';
-        };
-        my $create := ', \'new\', { modified => $_MODIFIED, name => \'' ~ $.var.emit_ruby ~ '\' } ) ';
-        if $decl eq 'our' {
-            my $s;
-            # ??? use vars --> because compile-time scope is too tricky to use 'our'
-            # ??? $s := 'use vars \'' ~ $.var.emit_ruby ~ '\'; ';
-            $s := 'our ';
-
-            if ($.var).sigil eq '$' {
-                return $s
-                    ~ $.var.emit_ruby
-                    ~ ' = ::DISPATCH( $::Scalar' ~ $create
-                    ~ ' unless defined ' ~ $.var.emit_ruby ~ '; '
-                    ~ 'INIT { '
-                    ~     $.var.emit_ruby
-                    ~     ' = ::DISPATCH( $::Scalar' ~ $create
-                    ~     ' unless defined ' ~ $.var.emit_ruby ~ '; '
-                    ~ '}' ~ Main::newline()
-            };
-            if ($.var).sigil eq '&' {
-                return $s
-                    ~ $.var.emit_ruby
-                    ~ ' = ::DISPATCH( $::Routine' ~ $create ~ ';' ~ Main::newline();
-            };
-            if ($.var).sigil eq '%' {
-                return $s ~ $.var.emit_ruby
-                    ~ ' = ::DISPATCH( $::HashContainer' ~ $create ~ ';' ~ Main::newline();
-            };
-            if ($.var).sigil eq '@' {
-                return $s ~ $.var.emit_ruby
-                    ~ ' = ::DISPATCH( $::ArrayContainer' ~ $create ~ ';' ~ Main::newline();
-            };
-            return $s ~ $.var.emit_ruby ~ Main::newline();
-        };
-        if ($.var).sigil eq '$' {
-            return
-                  $.decl ~ ' '
-                # ~ $.type ~ ' '
-                ~ $.var.emit_ruby ~ '; '
-                ~ $.var.emit_ruby
-                ~ ' = ::DISPATCH( $::Scalar' ~ $create
-                ~ ' unless defined ' ~ $.var.emit_ruby ~ '; '
-                ~ 'INIT { '
-                ~     $.var.emit_ruby
-                ~     ' = ::DISPATCH( $::Scalar' ~ $create
-                ~ '}'
-                ~ Main::newline()
-                ;
-        };
-        if ($.var).sigil eq '&' {
-            return
-                  $.decl ~ ' '
-                # ~ $.type ~ ' '
-                ~ $.var.emit_ruby ~ '; '
-                ~ $.var.emit_ruby
-                ~ ' = ::DISPATCH( $::Routine' ~ $create
-                ~ ' unless defined ' ~ $.var.emit_ruby ~ '; '
-                ~ 'INIT { '
-                ~     $.var.emit_ruby
-                ~     ' = ::DISPATCH( $::Routine' ~ $create
-                ~ '}'
-                ~ Main::newline()
-                ;
-        };
-        if ($.var).sigil eq '%' {
-            return $.decl ~ ' '
-                # ~ $.type
-                ~ ' ' ~ $.var.emit_ruby
-                ~ ' = ::DISPATCH( $::HashContainer' ~ $create ~ '; '
-                ~ Main::newline();
-        };
-        if ($.var).sigil eq '@' {
-            return $.decl ~ ' '
-                # ~ $.type
-                ~ ' ' ~ $.var.emit_ruby
-                ~ ' = ::DISPATCH( $::ArrayContainer' ~ $create ~ '; '
-                ~ Main::newline();
-        };
-        return $.decl ~ ' '
-            # ~ $.type ~ ' '
-            ~ $.var.emit_ruby;
     }
 }
 
@@ -756,16 +692,16 @@ class Sig {
         ~ ' nil';
     };
     method emit_ruby_bind_cap {
-	my $s := '';
-	$s := $s ~ 'p = cap.pos' ~ Main::newline();
-	my $idx := 0;
+        my $s := '';
+        $s := $s ~ 'p = cap.pos' ~ Main::newline();
+        my $idx := 0;
         my $item;
         for @($.positional) -> $item {
-	    $s := $s ~ $item.emit_ruby_name ~ '._(p[' ~ $idx ~ ']); ';
-	    $idx := $idx + 1;
+            $s := $s ~ $item.emit_ruby_name ~ '._(p[' ~ $idx ~ ']); ';
+            $idx := $idx + 1;
         };
-	$s := $s ~ Main::newline();
-	return $s;
+        $s := $s ~ Main::newline();
+        return $s;
     };
 }
 
@@ -847,14 +783,14 @@ class Method {
 class Sub {
     method emit_ruby {
         my $sig := $.block.sig;
-	''
-	#~ '->(sig){ sig = Ruddy::Signature.new(' ~ Main::newline()
+        ''
+        #~ '->(sig){ sig = Ruddy::Signature.new(' ~ Main::newline()
         #~       $sig.emit_ruby_spec ~ ')' ~ Main::newline()
         ~   '->(cap){->('
         ~     $.block.emit_comma_separated_names
         ~   '){' ~ Main::newline()
         #~     'sig.bind(binding,cap)' ~ Main::newline()
-	~ $sig.emit_ruby_bind_cap
+        ~ $sig.emit_ruby_bind_cap
         #~       $.block.emit_declarations
         #~       $.block.emit_arguments
         ~     $.block.emit_body ~ Main::newline()

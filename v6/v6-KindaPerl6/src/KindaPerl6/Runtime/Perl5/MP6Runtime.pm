@@ -299,6 +299,14 @@ sub expand_macro {
     #GLOBAL::say( ::DISPATCH( $_[0], 'WHAT' ) );
 }
 
+sub emit_ruby_kludge_commas {
+    my $src = shift;
+    $src =~ s/\n([\s\t]*),,,/,\n$1/g;
+    $src =~ s/,,,/,/g;
+    $src;
+}
+
+
 1;
 
 =head1 AUTHORS

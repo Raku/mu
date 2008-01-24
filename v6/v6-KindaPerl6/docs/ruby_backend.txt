@@ -96,7 +96,8 @@ Variables
  $x := v
  s_x
  s_x._(v)
- s_x = v
+ s_x = v       # for binding lexical variables
+ self.s_x = v  # for binding package variables
 
  f(...)
  c_f.(...)

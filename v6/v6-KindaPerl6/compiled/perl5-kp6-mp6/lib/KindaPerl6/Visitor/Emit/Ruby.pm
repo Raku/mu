@@ -42,7 +42,9 @@ sub emit_ruby {
         if ( $self->{body} ) { $source = $self->{body}->emit_ruby() }
         else                 { }
     };
-    ( '# Machine-generated ruby code.' . ( Main::newline() . ( '# Ruby version >= 1.9.0 2007-12-25 is needed.' . ( Main::newline() . ( 'require \'kp6_runtime\'' . ( Main::newline() . ( Main::newline() . ( $source . Main::newline() ) ) ) ) ) ) ) );
+    my $src = (
+        '# Machine-generated ruby code.' . ( Main::newline() . ( '# Ruby version >= 1.9.0 2007-12-25 is needed.' . ( Main::newline() . ( 'require \'kp6_runtime\'' . ( Main::newline() . ( Main::newline() . ( $source . Main::newline() ) ) ) ) ) ) ) );
+    Main::emit_ruby_kludge_commas($src);
 }
 
 package Val::Int;
@@ -132,7 +134,7 @@ sub emit_ruby {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( '(' . ( Main::join( [ map { $_->emit_ruby() } @{ $self->{seq} } ], ', ' ) . ')' ) );
+    ( '(' . ( Main::join( [ map { $_->emit_ruby() } @{ $self->{seq} } ], ',,, ' ) . ')' ) );
 }
 
 package Lit::Array;
@@ -142,7 +144,7 @@ sub emit_ruby {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( '[' . ( Main::join( [ map { $_->emit_ruby() } @{ $self->{array} } ], ', ' ) . ']' ) );
+    ( '[' . ( Main::join( [ map { $_->emit_ruby() } @{ $self->{array} } ], ',,, ' ) . ']' ) );
 }
 
 package Lit::Hash;
@@ -253,12 +255,25 @@ sub emit_ruby {
     do {
         if ( $self->{CATCH} ) { ( 'do { eval {' . ( $self->emit_declarations() . ( $self->emit_body() . ( '};if ($@) {' . ( $self->{CATCH}->emit_ruby() . '}}' ) ) ) ) ) }
         else {
-            my $vars;
+            my $our_declarations = '';
+            my $my_names         = '';
+            my $my_containers    = '';
             do {
-                for my $name ( @{ $self->{pad}->lexicals() } ) { $vars = ( $vars . ',Variable.new' ) }
+                for my $aDecl ( @{ $self->{pad}->lexicals() } ) {
+                    my $scope = $aDecl->decl();
+                    do {
+                        if ( ( $scope eq 'our' ) ) { $our_declarations = ( $our_declarations . ( 'current_class.def_pkg_var(:' . ( $aDecl->emit_ruby() . ( ',Variable.new)' . Main::newline() ) ) ) ) }
+                        else                       { }
+                    };
+                    do {
+                        if ( ( $scope eq 'my' ) ) { $my_names = ( ',' . $aDecl->emit_ruby() ); $my_containers = ( $my_containers . ',Variable.new' ) }
+                        else                      { }
+                        }
+                }
             };
-            $vars = substr( $vars, 1 );
-            ( '(->(' . ( Main::join( [ map { $_->emit_ruby() } @{ @{ $self->{pad}->lexicals() } } ], ', ' ) . ( '){ ' . ( Main::newline() . ( $self->emit_body() . ( '}).(' . ( $vars . ( ')' . Main::newline() ) ) ) ) ) ) ) );
+            $my_names      = substr( $my_names,      1 );
+            $my_containers = substr( $my_containers, 1 );
+            ( $our_declarations . ( '(->(' . ( $my_names . ( '){ ' . ( Main::newline() . ( $self->emit_body() . ( '}).(' . ( $my_containers . ( ')' . Main::newline() ) ) ) ) ) ) ) ) );
         }
         }
 }
@@ -544,7 +559,10 @@ sub emit_ruby {
         }
         else { }
     };
-    ( $self->{parameters}->emit_ruby() . ( ' = ' . ( $self->{arguments}->emit_ruby() . Main::newline() ) ) );
+    my $var = $self->{parameters}->emit_ruby();
+    my $val = $self->{arguments}->emit_ruby();
+    ( '->(defined,value){'
+            . ( 'if not defined or defined == "local-variable"; ' . ( $var . ( ' = value;' . ( 'else; ' . ( 'self.' . ( $var . ( ' = value; end' . ( '}.(defined? ' . ( $var . ( ', ' . ( $val . ( ')' . Main::newline() ) ) ) ) ) ) ) ) ) ) ) ) );
 }
 
 package Proto;
@@ -583,7 +601,7 @@ sub emit_ruby {
         if ( ( $meth eq 'postcircumfix:<( )>' ) ) { $meth = '' }
         else                                      { }
     };
-    my $call = Main::join( [ map { $_->emit_ruby() } @{ $self->{arguments} } ], ', ' );
+    my $call = Main::join( [ map { $_->emit_ruby() } @{ $self->{arguments} } ], ',,, ' );
     do {
         if ( $self->{hyper} ) {
             ( '::DISPATCH( $::List, "new", { _array => [ '
@@ -639,7 +657,7 @@ sub emit_ruby {
         }
         else { }
     };
-    return ( ( ' ' . ( $self->{code}->emit_ruby() . ( '.(cx(' . ( Main::join( [ map { $_->emit_ruby() } @{ $self->{arguments} } ], ', ' ) . ( '))' . Main::newline() ) ) ) ) ) );
+    return ( ( ' ' . ( $self->{code}->emit_ruby() . ( '.(cx(' . ( Main::join( [ map { $_->emit_ruby() } @{ $self->{arguments} } ], ',,, ' ) . ( '))' . Main::newline() ) ) ) ) ) );
 }
 
 package Return;
@@ -701,117 +719,6 @@ sub emit_ruby {
     my $decl = $self->{decl};
     my $name = $self->{var}->name();
     return ( $self->{var}->emit_ruby() );
-    do {
-        if ( ( $decl eq 'has' ) ) { return ( ( 'sub ' . ( $name . ( ' { ' . ( '@_ == 1 ' . ( '? ( $_[0]->{' . ( $name . ( '} ) ' . ( ': ( $_[0]->{' . ( $name . ( '} = $_[1] ) ' . '}' ) ) ) ) ) ) ) ) ) ) ) }
-        else                      { }
-    };
-    my $create = ( ', \'new\', { modified => $_MODIFIED, name => \'' . ( $self->{var}->emit_ruby() . '\' } ) ' ) );
-    do {
-        if ( ( $decl eq 'our' ) ) {
-            my $s;
-            $s = 'our ';
-            do {
-                if ( ( $self->{var}->sigil() eq '$' ) ) {
-                    return (
-                        (   $s
-                                . (
-                                $self->{var}->emit_ruby()
-                                    . (
-                                    ' = ::DISPATCH( $::Scalar'
-                                        . (
-                                        $create
-                                            . (
-                                            ' unless defined '
-                                                . (
-                                                $self->{var}->emit_ruby()
-                                                    . (
-                                                    '; ' . ( 'INIT { ' . ( $self->{var}->emit_ruby() . ( ' = ::DISPATCH( $::Scalar' . ( $create . ( ' unless defined ' . ( $self->{var}->emit_ruby() . ( '; ' . ( '}' . Main::newline() ) ) ) ) ) ) ) )
-                                                    )
-                                                )
-                                            )
-                                        )
-                                    )
-                                )
-                        )
-                    );
-                }
-                else { }
-            };
-            do {
-                if ( ( $self->{var}->sigil() eq '&' ) ) { return ( ( $s . ( $self->{var}->emit_ruby() . ( ' = ::DISPATCH( $::Routine' . ( $create . ( ';' . Main::newline() ) ) ) ) ) ) }
-                else                                    { }
-            };
-            do {
-                if ( ( $self->{var}->sigil() eq '%' ) ) { return ( ( $s . ( $self->{var}->emit_ruby() . ( ' = ::DISPATCH( $::HashContainer' . ( $create . ( ';' . Main::newline() ) ) ) ) ) ) }
-                else                                    { }
-            };
-            do {
-                if ( ( $self->{var}->sigil() eq '@' ) ) { return ( ( $s . ( $self->{var}->emit_ruby() . ( ' = ::DISPATCH( $::ArrayContainer' . ( $create . ( ';' . Main::newline() ) ) ) ) ) ) }
-                else                                    { }
-            };
-            return ( ( $s . ( $self->{var}->emit_ruby() . Main::newline() ) ) );
-        }
-        else { }
-    };
-    do {
-        if ( ( $self->{var}->sigil() eq '$' ) ) {
-            return (
-                (   $self->{decl}
-                        . (
-                        ' '
-                            . (
-                            $self->{var}->emit_ruby()
-                                . (
-                                '; '
-                                    . (
-                                    $self->{var}->emit_ruby()
-                                        . (
-                                        ' = ::DISPATCH( $::Scalar'
-                                            . ( $create . ( ' unless defined ' . ( $self->{var}->emit_ruby() . ( '; ' . ( 'INIT { ' . ( $self->{var}->emit_ruby() . ( ' = ::DISPATCH( $::Scalar' . ( $create . ( '}' . Main::newline() ) ) ) ) ) ) ) ) )
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                )
-            );
-        }
-        else { }
-    };
-    do {
-        if ( ( $self->{var}->sigil() eq '&' ) ) {
-            return (
-                (   $self->{decl}
-                        . (
-                        ' '
-                            . (
-                            $self->{var}->emit_ruby()
-                                . (
-                                '; '
-                                    . (
-                                    $self->{var}->emit_ruby()
-                                        . (
-                                        ' = ::DISPATCH( $::Routine'
-                                            . ( $create . ( ' unless defined ' . ( $self->{var}->emit_ruby() . ( '; ' . ( 'INIT { ' . ( $self->{var}->emit_ruby() . ( ' = ::DISPATCH( $::Routine' . ( $create . ( '}' . Main::newline() ) ) ) ) ) ) ) ) )
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                )
-            );
-        }
-        else { }
-    };
-    do {
-        if ( ( $self->{var}->sigil() eq '%' ) ) { return ( ( $self->{decl} . ( ' ' . ( ' ' . ( $self->{var}->emit_ruby() . ( ' = ::DISPATCH( $::HashContainer' . ( $create . ( '; ' . Main::newline() ) ) ) ) ) ) ) ) }
-        else                                    { }
-    };
-    do {
-        if ( ( $self->{var}->sigil() eq '@' ) ) { return ( ( $self->{decl} . ( ' ' . ( ' ' . ( $self->{var}->emit_ruby() . ( ' = ::DISPATCH( $::ArrayContainer' . ( $create . ( '; ' . Main::newline() ) ) ) ) ) ) ) ) }
-        else                                    { }
-    };
-    return ( ( $self->{decl} . ( ' ' . $self->{var}->emit_ruby() ) ) );
 }
 
 package Sig;
