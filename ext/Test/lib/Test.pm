@@ -95,7 +95,7 @@ sub is_deeply(Any $got, Any $expected, Str $desc?, :$todo, :$depends) returns Bo
 
 ## is_approx   Approximately compare two Nums
 
-sub is_approx(Num $got, Num $expected, Str $desc?, :$todo, $:depends) returns Bool is export {
+sub is_approx(Num $got, Num $expected, Str $desc?, :$todo, :$depends) returns Bool is export {
     my $test := Test::approx($got, $expected);
     Test::proclaim($test, $desc, $todo, $got, $expected, $depends);
 }
