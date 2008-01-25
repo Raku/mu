@@ -60,7 +60,7 @@ int main() {
 
   printf("ok 7 - delegated.\n");
 
-  SMOP_RELEASE(NULL,intrp);
+  SMOP_RELEASE(intrp,intrp);
 
   printf("ok 9 - should be destroyed.\n");
 
