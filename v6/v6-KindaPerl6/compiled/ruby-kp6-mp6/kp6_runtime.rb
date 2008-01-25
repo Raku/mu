@@ -269,6 +269,7 @@ module Kernel
     current_class.def_pkg_var(*args)
   end
 end
+
 class Module
   def def_pkg_var(sym,val)
     class_eval %{
@@ -280,42 +281,57 @@ class Module
   def def_has(name,initializer)
     varname = name
     basename = name.to_s.sub(/^ci._/,'')
-    self.send(:attr_accessor,varname)
-    class_eval("def mc_#{basename}; ->(cap){#{varname}} end")
-    eval("@init6_#{varname} = ObjectSpace._id2ref(#{initializer.object_id})")
+    class_eval %{
+      def #{varname}=(v); @#{varname} = v; end
+      def mc_#{basename}; ->(cap){#{varname}} end
+    }
+    # What's the real way to do this?
+    # Can't wrap the method def in a closure, so...?
+    id = initializer.object_id
+    $avoid_gc.incr_refcount(id)
+    class_eval %{
+      def #{varname}
+        if not @#{varname}
+          @#{varname} = ObjectSpace._id2ref(#{id}).()
+          $avoid_gc.decr_refcount(#{id})
+        end
+        @#{varname}
+      end
+    }
   end
 end
+
+#eep
+class AvoidGC
+  attr_accessor :counts, :objects
+  def initialize
+    @counts = {}
+    @objects = {}
+  end
+  def incr_refcount(id)
+    if not @counts.key?(id)
+      @counts[id] = 0
+      @objects[id] = ObjectSpace._id2ref(id)
+    end
+    @counts[id] += 1
+  end
+  def decr_refcount(id)
+    count = @counts[id] -= 1
+    if count == 0
+      @counts.delete(id)
+      @objects.delete(id)
+    end
+  end
+end
+$avoid_gc = AvoidGC.new
+
 
 class Class
   def mc_new
     @cached_mc_new ||=
       (->(*ignored){
          o = new()
-         o.initialize6(*ignored)
          o
        })
   end
 end
-class Object
-  def initialize6(*ignored)
-    cls = self.class
-    if not cls.instance_variable_defined? :@cached_init
-      inits = self.class.instance_variables.grep(/^@init6_/)
-      code = ""
-      inits.each{|vn|
-        varname = /init6_(.+)/.match(vn)[1] or raise("boom")
-        code += %{
-           val = obj.class.instance_variable_get(:#{vn}).()
-           obj.instance_variable_set(:@#{varname},val)
-        }
-      }
-      code = "->(obj){#{code}}"
-      initer = eval(code)
-      cls.instance_variable_set(:@cached_init,initer)
-    end
-    cls.instance_variable_get(:@cached_init).(self)
-  end
-end
-
-
-
