@@ -310,10 +310,11 @@ class AvoidGC
   end
   def incr_refcount(id)
     if not @counts.key?(id)
-      @counts[id] = 0
+      @counts[id] = 1
       @objects[id] = ObjectSpace._id2ref(id)
+    else
+      @counts[id] += 1
     end
-    @counts[id] += 1
   end
   def decr_refcount(id)
     count = @counts[id] -= 1
