@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <smop.h>
 
 int main() {
@@ -36,4 +37,5 @@ int main() {
 
   smop_destr();
 
+  return 0;
 }

@@ -328,8 +328,22 @@ SMOP__Object*   SMOP__NATIVE__capture_delegate(SMOP__Object* interpreter,
                                                SMOP__Object* invocant,
                                                SMOP__Object* original_capture) {
   smop_lowlevel_rdlock(original_capture);
+  int n_positional = ((native_capture_struct*)original_capture)->count_positional;
   SMOP__Object** positional = ((native_capture_struct*)original_capture)->positional;
-  SMOP__Object** named = ((native_capture_struct*)original_capture)->named;
+  int n_named = ((native_capture_struct*)original_capture)->count_named;
+  named_argument* named = ((native_capture_struct*)original_capture)->named;
+  int n_o_named = ((native_capture_struct*)original_capture)->count_o_named;
+  named_argument* o_named = ((native_capture_struct*)original_capture)->o_named;
   smop_lowlevel_unlock(original_capture);
-  return SMOP__NATIVE__capture_create(interpreter,invocant,positional,named);
+
+  SMOP__Object** pos = malloc(sizeof(SMOP__Object*) * (n_positional+1));
+  memcpy(pos, positional, sizeof(SMOP__Object*) * n_positional);
+  pos[n_positional] = NULL;
+
+  SMOP__Object** nam = malloc(sizeof(SMOP__Object*) * (n_named + n_o_named + 1));
+  memcpy(pos, named, sizeof(SMOP__Object*) * n_named);
+  memcpy(pos[n_named], o_named, sizeof(SMOP__Object*) * n_o_named);
+  pos[n_named + n_o_named] = NULL;
+   
+  return SMOP__NATIVE__capture_create(interpreter,invocant,pos,nam);
 }
