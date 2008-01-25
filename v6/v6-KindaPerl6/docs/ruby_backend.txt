@@ -217,7 +217,6 @@ Note to self: don't forget Method .receiver and .owner. :)
 
 
 TODO:
-- get class attributes working
 - continue to work through failing tests
 - try compilation of kp6 p6 files
 

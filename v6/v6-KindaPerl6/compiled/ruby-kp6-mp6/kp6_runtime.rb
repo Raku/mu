@@ -96,6 +96,7 @@ class Ruddy::Capture
   end
 end
 
+# none of this is actually used at the moment.
 def si(sigil,twigle,name,default,*options_list)
   options = {}
   options_list.each {|e| options[e] = true}
@@ -278,9 +279,10 @@ class Module
   end
   def def_has(name,initializer)
     varname = name
-    basename = name.to_s.sub(/^cis_/,'')
+    basename = name.to_s.sub(/^ci._/,'')
     self.send(:attr_accessor,varname)
     class_eval("def mc_#{basename}; ->(cap){#{varname}} end")
+    eval("@init6_#{varname} = ObjectSpace._id2ref(#{initializer.object_id})")
   end
 end
 
@@ -296,6 +298,22 @@ class Class
 end
 class Object
   def initialize6(*ignored)
+    cls = self.class
+    if not cls.instance_variable_defined? :@cached_init
+      inits = self.class.instance_variables.grep(/^@init6_/)
+      code = ""
+      inits.each{|vn|
+        varname = /init6_(.+)/.match(vn)[1] or raise("boom")
+        code += %{
+           val = obj.class.instance_variable_get(:#{vn}).()
+           obj.instance_variable_set(:@#{varname},val)
+        }
+      }
+      code = "->(obj){#{code}}"
+      initer = eval(code)
+      cls.instance_variable_set(:@cached_init,initer)
+    end
+    cls.instance_variable_get(:@cached_init).(self)
   end
 end
 
