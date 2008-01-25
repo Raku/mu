@@ -617,8 +617,8 @@ sub emit_ruby {
         }
         else {
             do {
-                if ( ( $meth eq '' ) ) { ( '::DISPATCH( ' . ( $invocant . ( ', \'APPLY\', ' . ( $call . ( ' )' . Main::newline() ) ) ) ) ) }
-                else                   { ( $invocant . ( '.' . ( 'mc_' . ( $meth . ( '.(cx(' . ( $call . '))' ) ) ) ) ) ) }
+                if   ( ( $meth eq '' ) ) { ( $invocant . ( '.(cx(' . ( $call . '))' ) ) ) }
+                else                     { ( $invocant . ( '.' .     ( 'mc_' . ( $meth . ( '.(cx(' . ( $call . '))' ) ) ) ) ) ) }
                 }
         }
         }

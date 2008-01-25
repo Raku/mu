@@ -556,12 +556,13 @@ class Call {
         else {
             if ( $meth eq '' ) {
                 # $var.()
-                '::DISPATCH( ' ~ $invocant ~ ', \'APPLY\', ' ~ $call ~ ' )' ~ Main::newline()
+                $invocant
+		~ '.(cx(' ~ $call ~ '))';
+		# Must _not_ end in a newline.
             }
             else {
 		$invocant
-		~ '.'
-		~ 'mc_' ~ $meth
+		~ '.mc_' ~ $meth
 		~ '.(cx(' ~ $call ~ '))';
 		# Must _not_ end in a newline.
             };
