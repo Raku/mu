@@ -1,0 +1,575 @@
+::CompUnit(
+    body => ::Lit::Code(
+        body => [
+            ::Token(
+                regex => ::Rule::Or(
+                    or => [
+                        ::Rule::Concat(
+                            concat => [
+                                ::Rule::Subrule( capture_to_array => '', metasyntax => 'ident', ident => '', ),
+                                ::Rule::SubruleNoCapture( metasyntax => 'opt_ws', ),
+                                ::Rule::Constant( constant => '=>', ),
+                                ::Rule::SubruleNoCapture( metasyntax => 'opt_ws', ),
+                                ::Rule::Subrule( capture_to_array => '', metasyntax => 'exp', ident => '', ),
+                                ::Rule::Block(
+                                    closure => ::Lit::Code(
+                                        body => [
+                                            ::Apply(
+                                                arguments => [
+                                                    ::Call(
+                                                        hyper     => '',
+                                                        arguments => [
+                                                            ::Lit::Array(
+                                                                array => [
+                                                                    ::Call(
+                                                                        hyper     => '',
+                                                                        arguments => [
+                                                                            ::Lit::Pair(
+                                                                                value => ::Apply(
+                                                                                    arguments => [
+                                                                                        ::Call(
+                                                                                            hyper     => '',
+                                                                                            arguments => [ ::Val::Buf( buf => 'ident', ), ],
+                                                                                            method    => 'LOOKUP',
+                                                                                            invocant  => ::Var( namespace => [], name => '/', twigil => '', sigil => '$', ),
+                                                                                        ),
+                                                                                    ],
+                                                                                    code => ::Var( namespace => [], name => 'prefix:<~>', twigil => '', sigil => '&', ),
+                                                                                ),
+                                                                                key => ::Val::Buf( buf => 'buf', ),
+                                                                            ),
+                                                                        ],
+                                                                        method   => 'new',
+                                                                        invocant => ::Proto( name => 'Val::Buf', ),
+                                                                    ),
+                                                                    ::Apply(
+                                                                        arguments => [
+                                                                            ::Call( hyper => '', arguments => [ ::Val::Buf( buf => 'exp', ), ], method => 'LOOKUP', invocant => ::Var( namespace => [], name => '/', twigil => '', sigil => '$', ), ),
+                                                                        ],
+                                                                        code => ::Var( namespace => [], name => 'prefix:<$>', twigil => '', sigil => '&', ),
+                                                                    ),
+                                                                ],
+                                                            ),
+                                                        ],
+                                                        method   => 'new',
+                                                        invocant => ::Proto( name => 'Array', ),
+                                                    ),
+                                                ],
+                                                code => ::Var( namespace => [], name => 'make', twigil => '', sigil => '&', ),
+                                            ),
+                                        ],
+                                        sig => ::Sig( invocant => '', positional => [], ),
+                                        pad   => ::Pad( lexicals => [], namespace => "KindaPerl6::Grammar", parent => ::Pad(...), evaluator => ::Sub(...), ),
+                                        CATCH => '',
+                                        state => {},
+                                    ),
+                                ),
+                            ],
+                        ),
+                        ::Rule::Concat(
+                            concat => [
+                                ::Rule::Subrule( capture_to_array => '', metasyntax => 'exp2', ident => '', ),
+                                ::Rule::SubruleNoCapture( metasyntax => 'opt_ws', ),
+                                ::Rule::Constant( constant => '=>', ),
+                                ::Rule::SubruleNoCapture( metasyntax => 'opt_ws', ),
+                                ::Rule::Subrule( capture_to_array => '', metasyntax => 'exp', ident => '', ),
+                                ::Rule::Block(
+                                    closure => ::Lit::Code(
+                                        body => [
+                                            ::Apply(
+                                                arguments => [
+                                                    ::Call(
+                                                        hyper     => '',
+                                                        arguments => [
+                                                            ::Lit::Array(
+                                                                array => [
+                                                                    ::Apply(
+                                                                        arguments => [
+                                                                            ::Call( hyper => '', arguments => [ ::Val::Buf( buf => 'exp2', ), ], method => 'LOOKUP', invocant => ::Var( namespace => [], name => '/', twigil => '', sigil => '$', ), ),
+                                                                        ],
+                                                                        code => ::Var( namespace => [], name => 'prefix:<$>', twigil => '', sigil => '&', ),
+                                                                    ),
+                                                                    ::Apply(
+                                                                        arguments => [
+                                                                            ::Call( hyper => '', arguments => [ ::Val::Buf( buf => 'exp', ), ], method => 'LOOKUP', invocant => ::Var( namespace => [], name => '/', twigil => '', sigil => '$', ), ),
+                                                                        ],
+                                                                        code => ::Var( namespace => [], name => 'prefix:<$>', twigil => '', sigil => '&', ),
+                                                                    ),
+                                                                ],
+                                                            ),
+                                                        ],
+                                                        method   => 'new',
+                                                        invocant => ::Proto( name => 'Array', ),
+                                                    ),
+                                                ],
+                                                code => ::Var( namespace => [], name => 'make', twigil => '', sigil => '&', ),
+                                            ),
+                                        ],
+                                        sig => ::Sig( invocant => '', positional => [], ),
+                                        pad   => ::Pad( lexicals => [], namespace => "KindaPerl6::Grammar", parent => ::Pad(...), evaluator => ::Sub(...), ),
+                                        CATCH => '',
+                                        state => {},
+                                    ),
+                                ),
+                            ],
+                        ),
+                        ::Rule::Concat(
+                            concat => [
+                                ::Rule::SpecialChar( char => ':', ),
+                                ::Rule::Subrule( capture_to_array => '', metasyntax => 'ident', ident => '', ),
+                                ::Rule::SpecialChar( char => '<', ),
+                                ::Rule::Subrule( capture_to_array => '', metasyntax => 'angle_quoted', ident => '', ),
+                                ::Rule::SpecialChar( char => '>', ),
+                                ::Rule::Block(
+                                    closure => ::Lit::Code(
+                                        body => [
+                                            ::Apply(
+                                                arguments => [
+                                                    ::Call(
+                                                        hyper     => '',
+                                                        arguments => [
+                                                            ::Lit::Array(
+                                                                array => [
+                                                                    ::Call(
+                                                                        hyper     => '',
+                                                                        arguments => [
+                                                                            ::Lit::Pair(
+                                                                                value => ::Apply(
+                                                                                    arguments => [
+                                                                                        ::Call(
+                                                                                            hyper     => '',
+                                                                                            arguments => [ ::Val::Buf( buf => 'ident', ), ],
+                                                                                            method    => 'LOOKUP',
+                                                                                            invocant  => ::Var( namespace => [], name => '/', twigil => '', sigil => '$', ),
+                                                                                        ),
+                                                                                    ],
+                                                                                    code => ::Var( namespace => [], name => 'prefix:<~>', twigil => '', sigil => '&', ),
+                                                                                ),
+                                                                                key => ::Val::Buf( buf => 'buf', ),
+                                                                            ),
+                                                                        ],
+                                                                        method   => 'new',
+                                                                        invocant => ::Proto( name => 'Val::Buf', ),
+                                                                    ),
+                                                                    ::Call(
+                                                                        hyper     => '',
+                                                                        arguments => [
+                                                                            ::Lit::Pair(
+                                                                                value => ::Apply(
+                                                                                    arguments => [
+                                                                                        ::Call(
+                                                                                            hyper     => '',
+                                                                                            arguments => [ ::Val::Buf( buf => 'angle_quoted', ), ],
+                                                                                            method    => 'LOOKUP',
+                                                                                            invocant  => ::Var( namespace => [], name => '/', twigil => '', sigil => '$', ),
+                                                                                        ),
+                                                                                    ],
+                                                                                    code => ::Var( namespace => [], name => 'prefix:<~>', twigil => '', sigil => '&', ),
+                                                                                ),
+                                                                                key => ::Val::Buf( buf => 'buf', ),
+                                                                            ),
+                                                                        ],
+                                                                        method   => 'new',
+                                                                        invocant => ::Proto( name => 'Val::Buf', ),
+                                                                    ),
+                                                                ],
+                                                            ),
+                                                        ],
+                                                        method   => 'new',
+                                                        invocant => ::Proto( name => 'Array', ),
+                                                    ),
+                                                ],
+                                                code => ::Var( namespace => [], name => 'make', twigil => '', sigil => '&', ),
+                                            ),
+                                        ],
+                                        sig => ::Sig( invocant => '', positional => [], ),
+                                        pad   => ::Pad( lexicals => [], namespace => "KindaPerl6::Grammar", parent => ::Pad(...), evaluator => ::Sub(...), ),
+                                        CATCH => '',
+                                        state => {},
+                                    ),
+                                ),
+                            ],
+                        ),
+                        ::Rule::Concat(
+                            concat => [
+                                ::Rule::SpecialChar( char => ':', ),
+                                ::Rule::Subrule( capture_to_array => '', metasyntax => 'ident', ident => '', ),
+                                ::Rule::SpecialChar( char => '(', ),
+                                ::Rule::SubruleNoCapture( metasyntax => 'opt_ws', ),
+                                ::Rule::Subrule( capture_to_array => '', metasyntax => 'exp', ident => '', ),
+                                ::Rule::SubruleNoCapture( metasyntax => 'opt_ws', ),
+                                ::Rule::SpecialChar( char => ')', ),
+                                ::Rule::Block(
+                                    closure => ::Lit::Code(
+                                        body => [
+                                            ::Apply(
+                                                arguments => [
+                                                    ::Call(
+                                                        hyper     => '',
+                                                        arguments => [
+                                                            ::Lit::Array(
+                                                                array => [
+                                                                    ::Call(
+                                                                        hyper     => '',
+                                                                        arguments => [
+                                                                            ::Lit::Pair(
+                                                                                value => ::Apply(
+                                                                                    arguments => [
+                                                                                        ::Call(
+                                                                                            hyper     => '',
+                                                                                            arguments => [ ::Val::Buf( buf => 'ident', ), ],
+                                                                                            method    => 'LOOKUP',
+                                                                                            invocant  => ::Var( namespace => [], name => '/', twigil => '', sigil => '$', ),
+                                                                                        ),
+                                                                                    ],
+                                                                                    code => ::Var( namespace => [], name => 'prefix:<~>', twigil => '', sigil => '&', ),
+                                                                                ),
+                                                                                key => ::Val::Buf( buf => 'buf', ),
+                                                                            ),
+                                                                        ],
+                                                                        method   => 'new',
+                                                                        invocant => ::Proto( name => 'Val::Buf', ),
+                                                                    ),
+                                                                    ::Apply(
+                                                                        arguments => [
+                                                                            ::Call( hyper => '', arguments => [ ::Val::Buf( buf => 'exp', ), ], method => 'LOOKUP', invocant => ::Var( namespace => [], name => '/', twigil => '', sigil => '$', ), ),
+                                                                        ],
+                                                                        code => ::Var( namespace => [], name => 'prefix:<$>', twigil => '', sigil => '&', ),
+                                                                    ),
+                                                                ],
+                                                            ),
+                                                        ],
+                                                        method   => 'new',
+                                                        invocant => ::Proto( name => 'Array', ),
+                                                    ),
+                                                ],
+                                                code => ::Var( namespace => [], name => 'make', twigil => '', sigil => '&', ),
+                                            ),
+                                        ],
+                                        sig => ::Sig( invocant => '', positional => [], ),
+                                        pad   => ::Pad( lexicals => [], namespace => "KindaPerl6::Grammar", parent => ::Pad(...), evaluator => ::Sub(...), ),
+                                        CATCH => '',
+                                        state => {},
+                                    ),
+                                ),
+                            ],
+                        ),
+                        ::Rule::Concat(
+                            concat => [
+                                ::Rule::SpecialChar( char => ':', ),
+                                ::Rule::Subrule( capture_to_array => '', metasyntax => 'ident', ident => '', ),
+                                ::Rule::Block(
+                                    closure => ::Lit::Code(
+                                        body => [
+                                            ::Apply(
+                                                arguments => [
+                                                    ::Call(
+                                                        hyper     => '',
+                                                        arguments => [
+                                                            ::Lit::Array(
+                                                                array => [
+                                                                    ::Call(
+                                                                        hyper     => '',
+                                                                        arguments => [
+                                                                            ::Lit::Pair(
+                                                                                value => ::Apply(
+                                                                                    arguments => [
+                                                                                        ::Call(
+                                                                                            hyper     => '',
+                                                                                            arguments => [ ::Val::Buf( buf => 'ident', ), ],
+                                                                                            method    => 'LOOKUP',
+                                                                                            invocant  => ::Var( namespace => [], name => '/', twigil => '', sigil => '$', ),
+                                                                                        ),
+                                                                                    ],
+                                                                                    code => ::Var( namespace => [], name => 'prefix:<~>', twigil => '', sigil => '&', ),
+                                                                                ),
+                                                                                key => ::Val::Buf( buf => 'buf', ),
+                                                                            ),
+                                                                        ],
+                                                                        method   => 'new',
+                                                                        invocant => ::Proto( name => 'Val::Buf', ),
+                                                                    ),
+                                                                    ::Call(
+                                                                        hyper     => '',
+                                                                        arguments => [ ::Lit::Pair( value => ::Val::Int( int => '1', ), key => ::Val::Buf( buf => 'bit', ), ), ],
+                                                                        method    => 'new',
+                                                                        invocant => ::Proto( name => 'Val::Bit', ),
+                                                                    ),
+                                                                ],
+                                                            ),
+                                                        ],
+                                                        method   => 'new',
+                                                        invocant => ::Proto( name => 'Array', ),
+                                                    ),
+                                                ],
+                                                code => ::Var( namespace => [], name => 'make', twigil => '', sigil => '&', ),
+                                            ),
+                                        ],
+                                        sig => ::Sig( invocant => '', positional => [], ),
+                                        pad   => ::Pad( lexicals => [], namespace => "KindaPerl6::Grammar", parent => ::Pad(...), evaluator => ::Sub(...), ),
+                                        CATCH => '',
+                                        state => {},
+                                    ),
+                                ),
+                            ],
+                        ),
+                        ::Rule::Concat(
+                            concat => [
+                                ::Rule::SpecialChar( char => ':', ),
+                                ::Rule::Subrule( capture_to_array => '', metasyntax => 'sigil', ident => '', ),
+                                ::Rule::Subrule( capture_to_array => '', metasyntax => 'ident', ident => '', ),
+                                ::Rule::Block(
+                                    closure => ::Lit::Code(
+                                        body => [
+                                            ::Apply(
+                                                arguments => [
+                                                    ::Call(
+                                                        hyper     => '',
+                                                        arguments => [
+                                                            ::Lit::Array(
+                                                                array => [
+                                                                    ::Call(
+                                                                        hyper     => '',
+                                                                        arguments => [
+                                                                            ::Lit::Pair(
+                                                                                value => ::Apply(
+                                                                                    arguments => [
+                                                                                        ::Call(
+                                                                                            hyper     => '',
+                                                                                            arguments => [ ::Val::Buf( buf => 'ident', ), ],
+                                                                                            method    => 'LOOKUP',
+                                                                                            invocant  => ::Var( namespace => [], name => '/', twigil => '', sigil => '$', ),
+                                                                                        ),
+                                                                                    ],
+                                                                                    code => ::Var( namespace => [], name => 'prefix:<~>', twigil => '', sigil => '&', ),
+                                                                                ),
+                                                                                key => ::Val::Buf( buf => 'buf', ),
+                                                                            ),
+                                                                        ],
+                                                                        method   => 'new',
+                                                                        invocant => ::Proto( name => 'Val::Buf', ),
+                                                                    ),
+                                                                    ::Call(
+                                                                        hyper     => '',
+                                                                        arguments => [
+                                                                            ::Lit::Pair(
+                                                                                value => ::Apply(
+                                                                                    arguments => [
+                                                                                        ::Apply(
+                                                                                            arguments => [
+                                                                                                ::Call(
+                                                                                                    hyper     => '',
+                                                                                                    arguments => [ ::Val::Buf( buf => 'sigil', ), ],
+                                                                                                    method    => 'LOOKUP',
+                                                                                                    invocant  => ::Var( namespace => [], name => '/', twigil => '', sigil => '$', ),
+                                                                                                ),
+                                                                                            ],
+                                                                                            code => ::Var( namespace => [], name => 'prefix:<$>', twigil => '', sigil => '&', ),
+                                                                                        ),
+                                                                                    ],
+                                                                                    code => ::Var( namespace => [], name => 'prefix:<~>', twigil => '', sigil => '&', ),
+                                                                                ),
+                                                                                key => ::Val::Buf( buf => 'sigil', ),
+                                                                            ),
+                                                                            ::Lit::Pair( value => ::Val::Buf( buf => '', ), key => ::Val::Buf( buf => 'twigil', ), ),
+                                                                            ::Lit::Pair(
+                                                                                value => ::Apply(
+                                                                                    arguments => [
+                                                                                        ::Call(
+                                                                                            hyper     => '',
+                                                                                            arguments => [ ::Val::Buf( buf => 'ident', ), ],
+                                                                                            method    => 'LOOKUP',
+                                                                                            invocant  => ::Var( namespace => [], name => '/', twigil => '', sigil => '$', ),
+                                                                                        ),
+                                                                                    ],
+                                                                                    code => ::Var( namespace => [], name => 'prefix:<$>', twigil => '', sigil => '&', ),
+                                                                                ),
+                                                                                key => ::Val::Buf( buf => 'name', ),
+                                                                            ),
+                                                                            ::Lit::NamedArgument(
+                                                                                value => ::Call( hyper   => '', arguments => [ ::Lit::Array( array => [], ), ], method => 'new', invocant => ::Proto( name => 'Array', ), ),
+                                                                                key   => ::Val::Buf( buf => 'namespace', ),
+                                                                            ),
+                                                                        ],
+                                                                        method   => 'new',
+                                                                        invocant => ::Proto( name => 'Var', ),
+                                                                    ),
+                                                                ],
+                                                            ),
+                                                        ],
+                                                        method   => 'new',
+                                                        invocant => ::Proto( name => 'Array', ),
+                                                    ),
+                                                ],
+                                                code => ::Var( namespace => [], name => 'make', twigil => '', sigil => '&', ),
+                                            ),
+                                        ],
+                                        sig => ::Sig( invocant => '', positional => [], ),
+                                        pad   => ::Pad( lexicals => [], namespace => "KindaPerl6::Grammar", parent => ::Pad(...), evaluator => ::Sub(...), ),
+                                        CATCH => '',
+                                        state => {},
+                                    ),
+                                ),
+                            ],
+                        ),
+                    ],
+                ),
+                sym  => '',
+                name => 'pair',
+            ),
+            ::Token(
+                regex => ::Rule::Or(
+                    or => [
+                        ::Rule::Concat(
+                            concat => [
+                                ::Rule::Subrule( capture_to_array => '', metasyntax => 'pair', ident => '', ),
+                                ::Rule::Or(
+                                    or => [
+                                        ::Rule::Concat(
+                                            concat => [
+                                                ::Rule::SubruleNoCapture( metasyntax => 'opt_ws', ),
+                                                ::Rule::SpecialChar( char => ',', ),
+                                                ::Rule::SubruleNoCapture( metasyntax => 'opt_ws', ),
+                                                ::Rule::Subrule( capture_to_array => '', metasyntax => 'exp_mapping', ident => '', ),
+                                                ::Rule::Block(
+                                                    closure => ::Lit::Code(
+                                                        body => [
+                                                            ::Apply(
+                                                                arguments => [
+                                                                    ::Call(
+                                                                        hyper     => '',
+                                                                        arguments => [
+                                                                            ::Lit::Array(
+                                                                                array => [
+                                                                                    ::Apply(
+                                                                                        arguments => [
+                                                                                            ::Call(
+                                                                                                hyper     => '',
+                                                                                                arguments => [ ::Val::Buf( buf => 'pair', ), ],
+                                                                                                method    => 'LOOKUP',
+                                                                                                invocant  => ::Var( namespace => [], name => '/', twigil => '', sigil => '$', ),
+                                                                                            ),
+                                                                                        ],
+                                                                                        code => ::Var( namespace => [], name => 'prefix:<$>', twigil => '', sigil => '&', ),
+                                                                                    ),
+                                                                                    ::Call(
+                                                                                        hyper     => '',
+                                                                                        arguments => '',
+                                                                                        method    => 'values',
+                                                                                        invocant  => ::Apply(
+                                                                                            arguments => [
+                                                                                                ::Call(
+                                                                                                    hyper     => '',
+                                                                                                    arguments => [ ::Val::Buf( buf => 'exp_mapping', ), ],
+                                                                                                    method    => 'LOOKUP',
+                                                                                                    invocant  => ::Var( namespace => [], name => '/', twigil => '', sigil => '$', ),
+                                                                                                ),
+                                                                                            ],
+                                                                                            code => ::Var( namespace => [], name => 'prefix:<$>', twigil => '', sigil => '&', ),
+                                                                                        ),
+                                                                                    ),
+                                                                                ],
+                                                                            ),
+                                                                        ],
+                                                                        method   => 'new',
+                                                                        invocant => ::Proto( name => 'Array', ),
+                                                                    ),
+                                                                ],
+                                                                code => ::Var( namespace => [], name => 'make', twigil => '', sigil => '&', ),
+                                                            ),
+                                                        ],
+                                                        sig => ::Sig( invocant => '', positional => [], ),
+                                                        pad   => ::Pad( lexicals => [], namespace => "KindaPerl6::Grammar", parent => ::Pad(...), evaluator => ::Sub(...), ),
+                                                        CATCH => '',
+                                                        state => {},
+                                                    ),
+                                                ),
+                                            ],
+                                        ),
+                                        ::Rule::Concat(
+                                            concat => [
+                                                ::Rule::SubruleNoCapture( metasyntax => 'opt_ws', ),
+                                                ::Rule::Or(
+                                                    or => [
+                                                        ::Rule::Concat( concat => [ ::Rule::SpecialChar( char  => ',', ), ::Rule::SubruleNoCapture( metasyntax => 'opt_ws', ), ], ),
+                                                        ::Rule::Concat( concat => [ ::Rule::Constant( constant => '', ), ], ),
+                                                    ],
+                                                ),
+                                                ::Rule::Block(
+                                                    closure => ::Lit::Code(
+                                                        body => [
+                                                            ::Apply(
+                                                                arguments => [
+                                                                    ::Call(
+                                                                        hyper     => '',
+                                                                        arguments => [
+                                                                            ::Lit::Array(
+                                                                                array => [
+                                                                                    ::Apply(
+                                                                                        arguments => [
+                                                                                            ::Call(
+                                                                                                hyper     => '',
+                                                                                                arguments => [ ::Val::Buf( buf => 'pair', ), ],
+                                                                                                method    => 'LOOKUP',
+                                                                                                invocant  => ::Var( namespace => [], name => '/', twigil => '', sigil => '$', ),
+                                                                                            ),
+                                                                                        ],
+                                                                                        code => ::Var( namespace => [], name => 'prefix:<$>', twigil => '', sigil => '&', ),
+                                                                                    ),
+                                                                                ],
+                                                                            ),
+                                                                        ],
+                                                                        method   => 'new',
+                                                                        invocant => ::Proto( name => 'Array', ),
+                                                                    ),
+                                                                ],
+                                                                code => ::Var( namespace => [], name => 'make', twigil => '', sigil => '&', ),
+                                                            ),
+                                                        ],
+                                                        sig => ::Sig( invocant => '', positional => [], ),
+                                                        pad   => ::Pad( lexicals => [], namespace => "KindaPerl6::Grammar", parent => ::Pad(...), evaluator => ::Sub(...), ),
+                                                        CATCH => '',
+                                                        state => {},
+                                                    ),
+                                                ),
+                                            ],
+                                        ),
+                                    ],
+                                ),
+                            ],
+                        ),
+                        ::Rule::Concat(
+                            concat => [
+                                ::Rule::Block(
+                                    closure => ::Lit::Code(
+                                        body => [
+                                            ::Apply(
+                                                arguments => [ ::Call( hyper  => '', arguments => [ ::Lit::Array( array => [], ), ], method => 'new', invocant => ::Proto( name => 'Array', ), ), ],
+                                                code      => ::Var( namespace => [], name      => 'make',               twigil       => '', sigil     => '&', ),
+                                            ),
+                                        ],
+                                        sig => ::Sig( invocant => '', positional => [], ),
+                                        pad   => ::Pad( lexicals => [], namespace => "KindaPerl6::Grammar", parent => ::Pad(...), evaluator => ::Sub(...), ),
+                                        CATCH => '',
+                                        state => {},
+                                    ),
+                                ),
+                            ],
+                        ),
+                    ],
+                ),
+                sym  => '',
+                name => 'exp_mapping',
+            ),
+        ],
+        sig => ::Sig( invocant => '', positional => [], ),
+        pad   => ::Pad( lexicals => [], namespace => "KindaPerl6::Grammar", parent => ::Pad(...), evaluator => ::Sub(...), ),
+        CATCH => '',
+        state => {},
+    ),
+    methods    => {},
+    name       => 'KindaPerl6::Grammar',
+    attributes => {},
+    traits     => [],
+    unit_type  => 'grammar',
+    )

@@ -1,0 +1,91 @@
+::CompUnit(
+    body => ::Lit::Code(
+        body => [
+            ::Token( regex => ::Rule::Or( or => [ ::Rule::Concat( concat => [ ::Rule::Constant( constant => ':P5', ), ], ), ::Rule::Concat( concat => [ ::Rule::Constant( constant => ':Perl5', ), ], ), ], ), sym => '', name => 'token_p5_modifier', ),
+            ::Token(
+                regex => ::Rule::Or(
+                    or => [
+                        ::Rule::Concat(
+                            concat => [
+                                ::Rule::SpecialChar(
+                                    char => '\', ) , ::Rule::Dot( ) , ::Rule::Subrule(  capture_to_array => '',  metasyntax => ' token_p5_body ',  ident => '', ) ,  ], ) , ::Rule::Concat(  concat => [ ::Rule::Before(  assertion_modifier => ' !
+                                        ',  capture_to_array => '',  rule => ::Rule::Or(  or => [ ::Rule::Concat(  concat => [ ::Rule::SpecialChar(  char => '
+                                }
+                                ', ) ,  ], ) ,  ], ) , ) , ::Rule::Dot( ) , ::Rule::Subrule(  capture_to_array => '',  metasyntax => ' token_p5_body ',  ident => '', ) ,  ], ) , ::Rule::Concat(  concat => [ ::Rule::Constant(  constant => '
+                                    ', ) ,  ], ) ,  ], ) ,  sym => '',  name => ' token_p5_body ', ) , ::Token(  regex => ::Rule::Or(  or => [ ::Rule::Concat(  concat => [ ::Rule::Constant(  constant => ' t ', ) , ::Rule::Constant(  constant => ' o
+                                    ', ) , ::Rule::Constant(  constant => ' k ', ) , ::Rule::Constant(  constant => ' e ', ) , ::Rule::Constant(  constant => ' n ', ) , ::Rule::SubruleNoCapture(  metasyntax => ' ws
+                                    ', ) , ::Rule::Subrule(  capture_to_array => '',  metasyntax => ' opt_name ',  ident => '', ) , ::Rule::SubruleNoCapture(  metasyntax => ' opt_ws ', ) , ::Rule::Subrule(  capture_to_array => '
+                                    ',  metasyntax => ' token_p5_modifier ',  ident => '', ) , ::Rule::SubruleNoCapture(  metasyntax => ' opt_ws
+                                    ', ) , ::Rule::SpecialChar(  char => ' { ', ) , ::Rule::Subrule(  capture_to_array => '',  metasyntax => ' token_p5_body ',  ident => '', ) , ::Rule::SpecialChar(  char => ' }
+                                    ', ) , ::Rule::Block(  closure => ::Lit::Code(  body => [ ::Apply(  arguments => [ ::Call(  hyper => '',  arguments => [ ::Lit::Pair(  value => ::Apply(  arguments => [ ::Call(  hyper => '
+                                    ',  arguments => [ ::Val::Buf(  buf => ' opt_name ', ) ,  ],  method => ' LOOKUP ',  invocant => ::Var(  namespace => [  ],  name => ' / ',  twigil => '',  sigil => '$',
+                                ),
+                        ),
+                            ],
+                    code => ::Var( namespace => [], name => 'prefix:<$>', twigil => '', sigil => '&', ),
+                ),
+                key => ::Val::Buf( buf => 'name', ),
+            ),
+            ::Lit::Pair(
+                value => ::Call(
+                    hyper     => '',
+                    arguments => [
+                        ::Lit::NamedArgument(
+                            value => ::Apply(
+                                arguments => [ ::Call( hyper  => '', arguments => [ ::Val::Buf( buf => 'token_p5_body', ), ], method => 'LOOKUP', invocant => ::Var( namespace => [], name => '/', twigil => '', sigil => '$', ), ), ],
+                                code      => ::Var( namespace => [], name      => 'prefix:<$>',     twigil                    => '', sigil        => '&', ),
+                            ),
+                            key => ::Val::Buf( buf => 'regex', ),
+                        ),
+                    ],
+                    method   => 'new',
+                    invocant => ::Proto( name => 'P5Token', ),
+                ),
+                key => ::Val::Buf( buf => 'regex', ),
+            ),
+            ::Lit::Pair( value => ::Val::Undef(), key => ::Val::Buf( buf => 'sym', ), ),
+                    ],
+        method   => 'new',
+        invocant => ::Proto( name => 'Token', ),
+    ),
+        ],
+    code => ::Var( namespace => [], name => 'make', twigil => '', sigil => '&', ),
+    ),
+    ],
+    sig        => ::Sig(
+    invocant   => '',
+    positional => [],
+    ),
+    pad       => ::Pad(
+    lexicals  => [],
+    namespace => "KindaPerl6::Grammar",
+    parent    => ::Pad(...),
+    evaluator => ::Sub(...),
+    ),
+    CATCH => '',
+    state => {}, ),
+    ),
+    ],
+    ),
+    ],
+    ),
+    sym  => '',
+    name => 'token_P5', ),
+    ],
+    sig        => ::Sig(
+    invocant   => '',
+    positional => [],
+    ),
+    pad       => ::Pad(
+    lexicals  => [],
+    namespace => "KindaPerl6::Grammar",
+    parent    => ::Pad(...),
+    evaluator => ::Sub(...),
+    ),
+    CATCH      => '',
+    state      => {}, ),
+    methods    => {},
+    name       => 'KindaPerl6::Grammar',
+    attributes => {},
+    traits     => [],
+    unit_type  => 'grammar', )

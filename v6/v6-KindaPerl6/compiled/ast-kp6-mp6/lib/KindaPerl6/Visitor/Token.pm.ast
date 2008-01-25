@@ -1,0 +1,1623 @@
+::CompUnit(
+    body => ::Lit::Code(
+        body => [
+            ::Method(
+                name  => 'visit',
+                block => ::Lit::Code(
+                    body => [
+                        ::If(
+                            body => ::Lit::Code(
+                                body => [
+                                    ::Bind(
+                                        parameters => ::Var( namespace => [], name => 'perl6_source', twigil => '', sigil => '$', ),
+                                        arguments  => ::Call(
+                                            hyper     => '',
+                                            arguments => '',
+                                            method    => 'emit_token',
+                                            invocant  => ::Call( hyper => '', arguments => '', method => 'regex', invocant => ::Var( namespace => [], name => 'node', twigil => '', sigil => '$', ), ),
+                                        ),
+                                    ),
+                                    ::Bind(
+                                        parameters => ::Var( namespace => [], name => 'source', twigil => '', sigil => '$', ),
+                                        arguments  => ::Apply(
+                                            arguments => [
+                                                ::Val::Buf( buf => 'method ', ),
+                                                ::Apply(
+                                                    arguments => [
+                                                        ::Call( hyper => '', arguments => '', method => 'name', invocant => ::Var( namespace => [], name => 'node', twigil => '', sigil => '$', ), ),
+                                                        ::Apply(
+                                                            arguments => [
+                                                                ::Val::Buf( buf => ' ( $str, $pos ) { ', ),
+                                                                ::Apply(
+                                                                    arguments => [
+                                                                        ::Val::Buf( buf => 'if (%*ENV{"KP6_TOKEN_DEBUGGER"}) { say ">>> token ', ),
+                                                                        ::Apply(
+                                                                            arguments => [
+                                                                                ::Call( hyper => '', arguments => '', method => 'name', invocant => ::Var( namespace => [], name => 'node', twigil => '', sigil => '$', ), ),
+                                                                                ::Apply(
+                                                                                    arguments => [
+                                                                                        ::Val::Buf( buf => ' at " ~ $pos ~ " of (" ~ $str ~ ")"; };', ),
+                                                                                        ::Apply(
+                                                                                            arguments => [
+                                                                                                ::Val::Buf( buf => 'if (!(defined($str))) { $str = $_; };  my $MATCH;', ),
+                                                                                                ::Apply(
+                                                                                                    arguments => [
+                                                                                                        ::Val::Buf( buf => '$MATCH = Match.new(); $MATCH.match_str = $str; $MATCH.from = $pos; $MATCH.to = ($pos + 0); $MATCH.bool = 1; ', ),
+                                                                                                        ::Apply(
+                                                                                                            arguments => [
+                                                                                                                ::Val::Buf( buf => '$MATCH.bool = ', ),
+                                                                                                                ::Apply(
+                                                                                                                    arguments => [
+                                                                                                                        ::Var( namespace => [], name => 'perl6_source', twigil => '', sigil => '$', ),
+                                                                                                                        ::Apply(
+                                                                                                                            arguments => [
+                                                                                                                                ::Val::Buf( buf => '; ', ),
+                                                                                                                                ::Apply(
+                                                                                                                                    arguments => [
+                                                                                                                                        ::Val::Buf( buf => 'if (%*ENV{"KP6_TOKEN_DEBUGGER"}) { if ($MATCH.bool) { say "<<< token ', ),
+                                                                                                                                        ::Apply(
+                                                                                                                                            arguments => [
+                                                                                                                                                ::Call(
+                                                                                                                                                    hyper     => '',
+                                                                                                                                                    arguments => '',
+                                                                                                                                                    method    => 'name',
+                                                                                                                                                    invocant  => ::Var( namespace => [], name => 'node', twigil => '', sigil => '$', ),
+                                                                                                                                                ),
+                                                                                                                                                ::Apply(
+                                                                                                                                                    arguments => [
+                                                                                                                                                        ::Val::Buf( buf => ' returned true to ("~$MATCH.to~")"; } else {say "<<< token ', ),
+                                                                                                                                                        ::Apply(
+                                                                                                                                                            arguments => [
+                                                                                                                                                                ::Call(
+                                                                                                                                                                    hyper     => '',
+                                                                                                                                                                    arguments => '',
+                                                                                                                                                                    method    => 'name',
+                                                                                                                                                                    invocant  => ::Var( namespace => [], name => 'node', twigil => '', sigil => '$', ),
+                                                                                                                                                                ),
+                                                                                                                                                                ::Apply(
+                                                                                                                                                                    arguments => [
+                                                                                                                                                                        ::Val::Buf( buf => ' returned false "; } };', ),
+                                                                                                                                                                        ::Val::Buf( buf => 'return $MATCH }', ),
+                                                                                                                                                                    ],
+                                                                                                                                                                    code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                                                                                                                ),
+                                                                                                                                                            ],
+                                                                                                                                                            code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                                                                                                        ),
+                                                                                                                                                    ],
+                                                                                                                                                    code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                                                                                                ),
+                                                                                                                                            ],
+                                                                                                                                            code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                                                                                        ),
+                                                                                                                                    ],
+                                                                                                                                    code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                                                                                ),
+                                                                                                                            ],
+                                                                                                                            code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                                                                        ),
+                                                                                                                    ],
+                                                                                                                    code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                                                                ),
+                                                                                                            ],
+                                                                                                            code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                                                        ),
+                                                                                                    ],
+                                                                                                    code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                                                ),
+                                                                                            ],
+                                                                                            code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                                        ),
+                                                                                    ],
+                                                                                    code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                                ),
+                                                                            ],
+                                                                            code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                        ),
+                                                                    ],
+                                                                    code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                ),
+                                                            ],
+                                                            code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                        ),
+                                                    ],
+                                                    code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                ),
+                                            ],
+                                            code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                        ),
+                                    ),
+                                    ::Bind(
+                                        parameters => ::Var( namespace => [], name => 'ast', twigil => '', sigil => '$', ),
+                                        arguments => ::Call( hyper => '', arguments => [ ::Var( namespace => [], name => 'source', twigil => '', sigil => '$', ), ], method => 'term', invocant => ::Proto( name => 'KindaPerl6::Grammar', ), ),
+                                    ),
+                                    ::Return( result => ::Apply( arguments => [ ::Var( namespace => [], name => 'ast', twigil => '', sigil => '$', ), ], code => ::Var( namespace => [], name => 'prefix:<$>', twigil => '', sigil => '&', ), ), ),
+                                ],
+                                sig => ::Sig( invocant => '', positional => [], ),
+                                pad => ::Pad(
+                                    lexicals => [
+                                        ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'perl6_source', twigil => '', sigil => '$', ), type => '', ),
+                                        ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'source',       twigil => '', sigil => '$', ), type => '', ),
+                                        ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'ast',          twigil => '', sigil => '$', ), type => '', )
+                                    ],
+                                    namespace => "KindaPerl6::Visitor::Token",
+                                    parent    => ::Pad(...),
+                                    evaluator => ::Sub(...),
+                                ),
+                                CATCH => '',
+                                state => {},
+                            ),
+                            cond => ::Apply(
+                                arguments => [ ::Var( namespace => [], name => 'node_name',  twigil => '', sigil => '$', ), ::Val::Buf( buf => 'Token', ), ],
+                                code      => ::Var( namespace   => [], name => 'infix:<eq>', twigil => '', sigil => '&', ),
+                            ),
+                            otherwise => '',
+                        ),
+                        ::Val::Int( int => '0', ),
+                    ],
+                    sig => ::Sig(
+                        invocant   => '',
+                        positional => [
+                            ::Lit::SigArgument(
+                                is_multidimensional => ::Val::Bit( bit => '0', ),
+                                has_default         => ::Val::Bit( bit => '0', ),
+                                value               => ::Val::Undef(),
+                                is_slurpy           => ::Val::Bit( bit => '0', ),
+                                is_optional         => ::Val::Bit( bit => '0', ),
+                                key           => ::Var( namespace => [], name => 'node', twigil => '', sigil => '$', ),
+                                is_copy       => ::Val::Bit( bit  => '0', ),
+                                is_named_only => ::Val::Bit( bit  => '0', ),
+                                type          => '',
+                                is_rw => ::Val::Bit( bit => '0', ),
+                            ),
+                            ::Lit::SigArgument(
+                                is_multidimensional => ::Val::Bit( bit => '0', ),
+                                has_default         => ::Val::Bit( bit => '0', ),
+                                value               => ::Val::Undef(),
+                                is_slurpy           => ::Val::Bit( bit => '0', ),
+                                is_optional         => ::Val::Bit( bit => '0', ),
+                                key           => ::Var( namespace => [], name => 'node_name', twigil => '', sigil => '$', ),
+                                is_copy       => ::Val::Bit( bit  => '0', ),
+                                is_named_only => ::Val::Bit( bit  => '0', ),
+                                type          => '',
+                                is_rw => ::Val::Bit( bit => '0', ),
+                            ),
+                        ],
+                    ),
+                    pad => ::Pad(
+                        lexicals => [
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => '_',         twigil => '', sigil => '@', ), type => '', ),
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'node',      twigil => '', sigil => '$', ), type => '', ),
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'node_name', twigil => '', sigil => '$', ), type => '', )
+                        ],
+                        namespace => "KindaPerl6::Visitor::Token",
+                        parent    => ::Pad(...),
+                        evaluator => ::Sub(...),
+                    ),
+                    CATCH => '',
+                    state => {},
+                ),
+            ),
+        ],
+        sig => ::Sig( invocant => '', positional => [], ),
+        pad   => ::Pad( lexicals => [], namespace => "KindaPerl6::Visitor::Token", parent => ::Pad(...), evaluator => ::Sub(...), ),
+        CATCH => '',
+        state => {},
+    ),
+    methods    => {},
+    name       => 'KindaPerl6::Visitor::Token',
+    attributes => {},
+    traits     => [],
+    unit_type  => 'class',
+    ) ::CompUnit(
+    body => ::Lit::Code(
+        body => [
+            ::Bind(
+                parameters => ::Var( namespace => [], name => 'constant', twigil => '', sigil => '&', ),
+                arguments  => ::Sub(
+                    name  => 'constant',
+                    block => ::Lit::Code(
+                        body => [
+                            ::Bind(
+                                parameters => ::Var( namespace => [], name => 'len', twigil => '', sigil => '$', ),
+                                arguments => ::Call( hyper => '', arguments => '', method => 'chars', invocant => ::Var( namespace => [], name => 'str', twigil => '', sigil => '$', ), ),
+                            ),
+                            ::If(
+                                body => ::Lit::Code(
+                                    body => [
+                                        ::Bind(
+                                            parameters => ::Var( namespace => [], name => 'str', twigil => '', sigil => '$', ),
+                                            arguments  => ::Apply(
+                                                arguments => [
+                                                    ::Apply( arguments => [], code => ::Var( namespace => [ 'Main', ], name => 'backslash', twigil => '', sigil => '&', ), ),
+                                                    ::Apply( arguments => [], code => ::Var( namespace => [ 'Main', ], name => 'backslash', twigil => '', sigil => '&', ), ),
+                                                ],
+                                                code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                            ),
+                                        ),
+                                    ],
+                                    sig => ::Sig( invocant => '', positional => [], ),
+                                    pad   => ::Pad( lexicals => [], namespace => "Rule", parent => ::Pad(...), evaluator => ::Sub(...), ),
+                                    CATCH => '',
+                                    state => {},
+                                ),
+                                cond => ::Apply(
+                                    arguments => [ ::Var( namespace => [], name => 'str', twigil => '', sigil => '$', ), ::Apply( arguments => [], code => ::Var( namespace => [ 'Main', ], name => 'backslash', twigil => '', sigil => '&', ), ), ],
+                                    code => ::Var( namespace => [], name => 'infix:<eq>', twigil => '', sigil => '&', ),
+                                ),
+                                otherwise => '',
+                            ),
+                            ::If(
+                                body => ::Lit::Code(
+                                    body => [
+                                        ::Bind(
+                                            parameters => ::Var( namespace => [], name => 'str', twigil => '', sigil => '$', ),
+                                            arguments  => ::Apply(
+                                                arguments => [
+                                                    ::Apply( arguments => [], code => ::Var( namespace => [ 'Main', ], name => 'backslash',   twigil => '', sigil => '&', ), ),
+                                                    ::Apply( arguments => [], code => ::Var( namespace => [ 'Main', ], name => 'singlequote', twigil => '', sigil => '&', ), ),
+                                                ],
+                                                code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                            ),
+                                        ),
+                                    ],
+                                    sig => ::Sig( invocant => '', positional => [], ),
+                                    pad   => ::Pad( lexicals => [], namespace => "Rule", parent => ::Pad(...), evaluator => ::Sub(...), ),
+                                    CATCH => '',
+                                    state => {},
+                                ),
+                                cond => ::Apply(
+                                    arguments => [ ::Var( namespace => [], name => 'str', twigil => '', sigil => '$', ), ::Apply( arguments => [], code => ::Var( namespace => [ 'Main', ], name => 'singlequote', twigil => '', sigil => '&', ), ), ],
+                                    code => ::Var( namespace => [], name => 'infix:<eq>', twigil => '', sigil => '&', ),
+                                ),
+                                otherwise => '',
+                            ),
+                            ::If(
+                                body => ::Lit::Code(
+                                    body => [
+                                        ::Apply(
+                                            arguments => [
+                                                ::Val::Buf( buf => 'do {if (chars($str) <  ', ),
+                                                ::Apply(
+                                                    arguments => [
+                                                        ::Var( namespace => [], name => 'len', twigil => '', sigil => '$', ),
+                                                        ::Apply(
+                                                            arguments => [
+                                                                ::Val::Buf( buf => ') {(0)} else { if (', ),
+                                                                ::Apply(
+                                                                    arguments => [
+                                                                        ::Apply( arguments => [], code => ::Var( namespace => [ 'Main', ], name => 'singlequote', twigil => '', sigil => '&', ), ),
+                                                                        ::Apply(
+                                                                            arguments => [
+                                                                                ::Var( namespace => [], name => 'str', twigil => '', sigil => '$', ),
+                                                                                ::Apply(
+                                                                                    arguments => [
+                                                                                        ::Apply( arguments => [], code => ::Var( namespace => [ 'Main', ], name => 'singlequote', twigil => '', sigil => '&', ), ),
+                                                                                        ::Apply(
+                                                                                            arguments => [
+                                                                                                ::Val::Buf( buf => ' eq substr($str, $MATCH.to, ', ),
+                                                                                                ::Apply(
+                                                                                                    arguments => [
+                                                                                                        ::Var( namespace => [], name => 'len', twigil => '', sigil => '$', ),
+                                                                                                        ::Apply(
+                                                                                                            arguments => [
+                                                                                                                ::Val::Buf( buf => ')) {', ),
+                                                                                                                ::Apply(
+                                                                                                                    arguments => [
+                                                                                                                        ::Val::Buf( buf => '$MATCH.to = (', ),
+                                                                                                                        ::Apply(
+                                                                                                                            arguments => [
+                                                                                                                                ::Var( namespace => [], name => 'len', twigil => '', sigil => '$', ),
+                                                                                                                                ::Val::Buf( buf => ' + $MATCH.to);  1;} else {(0)}}}', ),
+                                                                                                                            ],
+                                                                                                                            code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                                                                        ),
+                                                                                                                    ],
+                                                                                                                    code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                                                                ),
+                                                                                                            ],
+                                                                                                            code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                                                        ),
+                                                                                                    ],
+                                                                                                    code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                                                ),
+                                                                                            ],
+                                                                                            code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                                        ),
+                                                                                    ],
+                                                                                    code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                                ),
+                                                                            ],
+                                                                            code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                        ),
+                                                                    ],
+                                                                    code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                ),
+                                                            ],
+                                                            code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                        ),
+                                                    ],
+                                                    code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                ),
+                                            ],
+                                            code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                        ),
+                                    ],
+                                    sig => ::Sig( invocant => '', positional => [], ),
+                                    pad   => ::Pad( lexicals => [], namespace => "Rule", parent => ::Pad(...), evaluator => ::Sub(...), ),
+                                    CATCH => '',
+                                    state => {},
+                                ),
+                                cond      => ::Var( namespace => [], name => 'len', twigil => '', sigil => '$', ),
+                                otherwise => ::Lit::Code(
+                                    body => [ ::Return( result => ::Val::Buf( buf => '1', ), ), ],
+                                    sig => ::Sig( invocant => '', positional => [], ),
+                                    pad   => ::Pad( lexicals => [], namespace => "Rule", parent => ::Pad(...), evaluator => ::Sub(...), ),
+                                    CATCH => '',
+                                    state => {},
+                                ),
+                            ),
+                        ],
+                        sig => ::Sig(
+                            invocant   => '',
+                            positional => [
+                                ::Lit::SigArgument(
+                                    is_multidimensional => ::Val::Bit( bit => '0', ),
+                                    has_default         => ::Val::Bit( bit => '0', ),
+                                    value               => ::Val::Undef(),
+                                    is_slurpy           => ::Val::Bit( bit => '0', ),
+                                    is_optional         => ::Val::Bit( bit => '0', ),
+                                    key           => ::Var( namespace => [], name => 'str', twigil => '', sigil => '$', ),
+                                    is_copy       => ::Val::Bit( bit  => '0', ),
+                                    is_named_only => ::Val::Bit( bit  => '0', ),
+                                    type          => '',
+                                    is_rw => ::Val::Bit( bit => '0', ),
+                                ),
+                            ],
+                        ),
+                        pad => ::Pad(
+                            lexicals => [
+                                ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'len', twigil => '', sigil => '$', ), type => '', ),
+                                ::Decl( decl => 'my', var => ::Var( namespace => [], name => '_',   twigil => '', sigil => '@', ), type => '', ),
+                                ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'str', twigil => '', sigil => '$', ), type => '', )
+                            ],
+                            namespace => "Rule",
+                            parent    => ::Pad(...),
+                            evaluator => ::Sub(...),
+                        ),
+                        CATCH => '',
+                        state => {},
+                    ),
+                ),
+            ),
+        ],
+        sig => ::Sig( invocant => '', positional => [], ),
+        pad   => ::Pad( lexicals => [ ::Decl( decl => 'our', var => ::Var( namespace => [], name => 'constant', twigil => '', sigil => '&', ), type => '', ) ], namespace => "Rule", parent => ::Pad(...), evaluator => ::Sub(...), ),
+        CATCH => '',
+        state => {},
+    ),
+    methods    => {},
+    name       => 'Rule',
+    attributes => {},
+    traits     => [],
+    unit_type  => 'class',
+    ) ::CompUnit(
+    body => ::Lit::Code(
+        body => [
+            ::Method(
+                name  => 'emit_token',
+                block => ::Lit::Code(
+                    body => [ ::Call( hyper => '',              arguments => '', method     => 'emit_token', invocant => ::Var( namespace => [],     name       => 'term', twigil => '.', sigil => '$', ), ), ],
+                    sig  => ::Sig( invocant => ::Var( namespace => [],    name   => 'self', twigil           => '',   sigil               => '$', ), positional => [], ),
+                    pad  => ::Pad(
+                        lexicals => [
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => '_',    twigil => '', sigil => '@', ), type => '', ),
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'self', twigil => '', sigil => '$', ), type => '', )
+                        ],
+                        namespace => "Rule::Quantifier",
+                        parent    => ::Pad(...),
+                        evaluator => ::Sub(...),
+                    ),
+                    CATCH => '',
+                    state => {},
+                ),
+            ),
+        ],
+        sig => ::Sig( invocant => '', positional => [], ),
+        pad   => ::Pad( lexicals => [], namespace => "Rule::Quantifier", parent => ::Pad(...), evaluator => ::Sub(...), ),
+        CATCH => '',
+        state => {},
+    ),
+    methods    => {},
+    name       => 'Rule::Quantifier',
+    attributes => {},
+    traits     => [],
+    unit_type  => 'class',
+    ) ::CompUnit(
+    body => ::Lit::Code(
+        body => [
+            ::Method(
+                name  => 'emit_token',
+                block => ::Lit::Code(
+                    body => [
+                        ::Apply(
+                            arguments => [
+                                ::Val::Buf( buf => 'do { ', ),
+                                ::Apply(
+                                    arguments => [
+                                        ::Val::Buf( buf => 'my $pos1 = ($MATCH.to + 0); do{ ', ),
+                                        ::Apply(
+                                            arguments => [
+                                                ::Call(
+                                                    hyper     => '',
+                                                    arguments => [ ::Val::Buf( buf => '} || do { $MATCH.to = ($pos1 + 0); ', ), ],
+                                                    method    => 'join',
+                                                    invocant  => ::Call( hyper => '>>', arguments => '', method => 'emit_token', invocant => ::Var( namespace => [], name => 'or', twigil => '.', sigil => '@', ), ),
+                                                ),
+                                                ::Val::Buf( buf => '} }', ),
+                                            ],
+                                            code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                        ),
+                                    ],
+                                    code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                ),
+                            ],
+                            code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                        ),
+                    ],
+                    sig => ::Sig( invocant => ::Var( namespace => [], name => 'self', twigil => '', sigil => '$', ), positional => [], ),
+                    pad => ::Pad(
+                        lexicals => [
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => '_',    twigil => '', sigil => '@', ), type => '', ),
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'self', twigil => '', sigil => '$', ), type => '', )
+                        ],
+                        namespace => "Rule::Or",
+                        parent    => ::Pad(...),
+                        evaluator => ::Sub(...),
+                    ),
+                    CATCH => '',
+                    state => {},
+                ),
+            ),
+        ],
+        sig => ::Sig( invocant => '', positional => [], ),
+        pad   => ::Pad( lexicals => [], namespace => "Rule::Or", parent => ::Pad(...), evaluator => ::Sub(...), ),
+        CATCH => '',
+        state => {},
+    ),
+    methods    => {},
+    name       => 'Rule::Or',
+    attributes => {},
+    traits     => [],
+    unit_type  => 'class',
+    ) ::CompUnit(
+    body => ::Lit::Code(
+        body => [
+            ::Method(
+                name  => 'emit_token',
+                block => ::Lit::Code(
+                    body => [
+                        ::Apply(
+                            arguments => [
+                                ::Val::Buf( buf => 'do { my $m2 = match_p5rx("', ),
+                                ::Apply(
+                                    arguments => [ ::Var( namespace => [], name => 'regex',     twigil => '.', sigil => '$', ), ::Val::Buf( buf => '",$str,($pos+0)); if ($m2) { $MATCH.to = $m2.to + 0; 1 } else { 0 } }', ), ],
+                                    code      => ::Var( namespace   => [], name => 'infix:<~>', twigil => '',  sigil => '&', ),
+                                ),
+                            ],
+                            code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                        ),
+                    ],
+                    sig => ::Sig( invocant => ::Var( namespace => [], name => 'self', twigil => '', sigil => '$', ), positional => [], ),
+                    pad => ::Pad(
+                        lexicals => [
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => '_',    twigil => '', sigil => '@', ), type => '', ),
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'self', twigil => '', sigil => '$', ), type => '', )
+                        ],
+                        namespace => "P5Token",
+                        parent    => ::Pad(...),
+                        evaluator => ::Sub(...),
+                    ),
+                    CATCH => '',
+                    state => {},
+                ),
+            ),
+        ],
+        sig => ::Sig( invocant => '', positional => [], ),
+        pad   => ::Pad( lexicals => [], namespace => "P5Token", parent => ::Pad(...), evaluator => ::Sub(...), ),
+        CATCH => '',
+        state => {},
+    ),
+    methods    => {},
+    name       => 'P5Token',
+    attributes => {},
+    traits     => [],
+    unit_type  => 'class',
+    ) ::CompUnit(
+    body => ::Lit::Code(
+        body => [
+            ::Method(
+                name  => 'emit_token',
+                block => ::Lit::Code(
+                    body => [
+                        ::Apply(
+                            arguments => [
+                                ::Val::Buf( buf => '(', ),
+                                ::Apply(
+                                    arguments => [
+                                        ::Call(
+                                            hyper     => '',
+                                            arguments => [ ::Val::Buf( buf => ' && ', ), ],
+                                            method    => 'join',
+                                            invocant  => ::Call( hyper => '>>', arguments => '', method => 'emit_token', invocant => ::Var( namespace => [], name => 'concat', twigil => '.', sigil => '@', ), ),
+                                        ),
+                                        ::Val::Buf( buf => ')', ),
+                                    ],
+                                    code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                ),
+                            ],
+                            code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                        ),
+                    ],
+                    sig => ::Sig( invocant => ::Var( namespace => [], name => 'self', twigil => '', sigil => '$', ), positional => [], ),
+                    pad => ::Pad(
+                        lexicals => [
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => '_',    twigil => '', sigil => '@', ), type => '', ),
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'self', twigil => '', sigil => '$', ), type => '', )
+                        ],
+                        namespace => "Rule::Concat",
+                        parent    => ::Pad(...),
+                        evaluator => ::Sub(...),
+                    ),
+                    CATCH => '',
+                    state => {},
+                ),
+            ),
+        ],
+        sig => ::Sig( invocant => '', positional => [], ),
+        pad   => ::Pad( lexicals => [], namespace => "Rule::Concat", parent => ::Pad(...), evaluator => ::Sub(...), ),
+        CATCH => '',
+        state => {},
+    ),
+    methods    => {},
+    name       => 'Rule::Concat',
+    attributes => {},
+    traits     => [],
+    unit_type  => 'class',
+    ) ::CompUnit(
+    body => ::Lit::Code(
+        body => [
+            ::Method(
+                name  => 'emit_token',
+                block => ::Lit::Code(
+                    body => [
+                        ::If(
+                            body => ::Lit::Code(
+                                body => [
+                                    ::Return(
+                                        result => ::Apply(
+                                            arguments => [
+                                                ::Apply(
+                                                    arguments => [
+                                                        ::Apply(
+                                                            arguments => [ ::Var( namespace => [], name => 'metasyntax', twigil => '.', sigil => '$', ), ::Val::Int( int => '1', ), ],
+                                                            code      => ::Var( namespace   => [], name => 'substr',     twigil => '',  sigil => '&', ),
+                                                        ),
+                                                        ::Val::Int( int => '0', ),
+                                                        ::Apply(
+                                                            arguments =>
+                                                                [ ::Call( hyper => '', arguments => '', method => 'chars', invocant => ::Var( namespace => [], name => 'metasyntax', twigil => '.', sigil => '$', ), ), ::Val::Int( int => '2', ), ],
+                                                            code => ::Var( namespace => [], name => 'infix:<->', twigil => '', sigil => '&', ),
+                                                        ),
+                                                    ],
+                                                    code => ::Var( namespace => [], name => 'substr', twigil => '', sigil => '&', ),
+                                                ),
+                                            ],
+                                            code => ::Var( namespace => [ 'Rule', ], name => 'constant', twigil => '', sigil => '&', ),
+                                        ),
+                                    ),
+                                ],
+                                sig => ::Sig( invocant => '', positional => [], ),
+                                pad   => ::Pad( lexicals => [], namespace => "Rule::Subrule", parent => ::Pad(...), evaluator => ::Sub(...), ),
+                                CATCH => '',
+                                state => {},
+                            ),
+                            cond => ::Apply(
+                                arguments => [
+                                    ::Apply(
+                                        arguments => [ ::Var( namespace => [], name => 'metasyntax', twigil => '.', sigil => '$', ), ::Val::Int( int => '0', ), ::Val::Int( int => '1', ), ],
+                                        code      => ::Var( namespace   => [], name => 'substr',     twigil => '',  sigil => '&', ),
+                                    ),
+                                    ::Apply( arguments => [], code => ::Var( namespace => [ 'Main', ], name => 'singlequote', twigil => '', sigil => '&', ), ),
+                                ],
+                                code => ::Var( namespace => [], name => 'infix:<eq>', twigil => '', sigil => '&', ),
+                            ),
+                            otherwise => '',
+                        ),
+                        ::Bind(
+                            parameters => ::Var( namespace => [], name => 'meth', twigil => '', sigil => '$', ),
+                            arguments  => ::Apply(
+                                arguments => [
+                                    ::Apply(
+                                        arguments => [
+                                            ::Val::Int( int => '1', ),
+                                            ::Apply(
+                                                arguments => [ ::Var( namespace => [], name => 'metasyntax', twigil => '.', sigil => '$', ), ::Val::Buf( buf => '.', ), ],
+                                                code      => ::Var( namespace   => [], name => 'index',      twigil => '',  sigil => '&', ),
+                                            ),
+                                        ],
+                                        code => ::Var( namespace => [], name => 'infix:<+>', twigil => '', sigil => '&', ),
+                                    ),
+                                    ::Var( namespace => [], name => 'metasyntax', twigil => '.', sigil => '$', ),
+                                    ::Apply(
+                                        arguments => [ ::Val::Buf( buf => 'self.', ), ::Var( namespace => [],          name   => 'metasyntax', twigil => '.', sigil => '$', ), ],
+                                        code      => ::Var( namespace  => [],         name             => 'infix:<~>', twigil => '',           sigil  => '&', ),
+                                    ),
+                                ],
+                                code => ::Var( namespace => [], name => 'ternary:<?? !!>', twigil => '', sigil => '&', ),
+                            ),
+                        ),
+                        ::Return(
+                            result => ::Apply(
+                                arguments => [
+                                    ::Val::Buf( buf => 'do { ', ),
+                                    ::Apply(
+                                        arguments => [
+                                            ::Val::Buf( buf => 'my $m2 = ', ),
+                                            ::Apply(
+                                                arguments => [
+                                                    ::Var( namespace => [], name => 'meth', twigil => '', sigil => '$', ),
+                                                    ::Apply(
+                                                        arguments => [
+                                                            ::Val::Buf( buf => '($str, $MATCH.to); ', ),
+                                                            ::Apply(
+                                                                arguments => [
+                                                                    ::Apply(
+                                                                        arguments => [ ::Val::Buf( buf => 'if $m2 { $MATCH.to = ($m2.to + 0); $MATCH{', ), ::Val::Char( char => '39', ), ],
+                                                                        code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                    ),
+                                                                    ::Apply(
+                                                                        arguments => [
+                                                                            ::Var( namespace => [], name => 'metasyntax', twigil => '.', sigil => '$', ),
+                                                                            ::Apply(
+                                                                                arguments => [
+                                                                                    ::Apply(
+                                                                                        arguments => [ ::Val::Char( char => '39', ), ::Val::Buf( buf => '} = $m2; 1 } else { 0 } ', ), ],
+                                                                                        code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                                    ),
+                                                                                    ::Val::Buf( buf => '}', ),
+                                                                                ],
+                                                                                code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                            ),
+                                                                        ],
+                                                                        code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                    ),
+                                                                ],
+                                                                code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                            ),
+                                                        ],
+                                                        code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                    ),
+                                                ],
+                                                code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                            ),
+                                        ],
+                                        code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                    ),
+                                ],
+                                code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                            ),
+                        ),
+                    ],
+                    sig => ::Sig( invocant => ::Var( namespace => [], name => 'self', twigil => '', sigil => '$', ), positional => [], ),
+                    pad => ::Pad(
+                        lexicals => [
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'meth', twigil => '', sigil => '$', ), type => '', ),
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => '_',    twigil => '', sigil => '@', ), type => '', ),
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'self', twigil => '', sigil => '$', ), type => '', )
+                        ],
+                        namespace => "Rule::Subrule",
+                        parent    => ::Pad(...),
+                        evaluator => ::Sub(...),
+                    ),
+                    CATCH => '',
+                    state => {},
+                ),
+            ),
+        ],
+        sig => ::Sig( invocant => '', positional => [], ),
+        pad   => ::Pad( lexicals => [], namespace => "Rule::Subrule", parent => ::Pad(...), evaluator => ::Sub(...), ),
+        CATCH => '',
+        state => {},
+    ),
+    methods    => {},
+    name       => 'Rule::Subrule',
+    attributes => {},
+    traits     => [],
+    unit_type  => 'class',
+    ) ::CompUnit(
+    body => ::Lit::Code(
+        body => [
+            ::Method(
+                name  => 'emit_token',
+                block => ::Lit::Code(
+                    body => [
+                        ::Bind(
+                            parameters => ::Var( namespace => [], name => 'meth', twigil => '', sigil => '$', ),
+                            arguments  => ::Apply(
+                                arguments => [
+                                    ::Apply(
+                                        arguments => [
+                                            ::Val::Int( int => '1', ),
+                                            ::Apply(
+                                                arguments => [ ::Var( namespace => [], name => 'metasyntax', twigil => '.', sigil => '$', ), ::Val::Buf( buf => '.', ), ],
+                                                code      => ::Var( namespace   => [], name => 'index',      twigil => '',  sigil => '&', ),
+                                            ),
+                                        ],
+                                        code => ::Var( namespace => [], name => 'infix:<+>', twigil => '', sigil => '&', ),
+                                    ),
+                                    ::Var( namespace => [], name => 'metasyntax', twigil => '.', sigil => '$', ),
+                                    ::Apply(
+                                        arguments => [ ::Val::Buf( buf => 'self.', ), ::Var( namespace => [],          name   => 'metasyntax', twigil => '.', sigil => '$', ), ],
+                                        code      => ::Var( namespace  => [],         name             => 'infix:<~>', twigil => '',           sigil  => '&', ),
+                                    ),
+                                ],
+                                code => ::Var( namespace => [], name => 'ternary:<?? !!>', twigil => '', sigil => '&', ),
+                            ),
+                        ),
+                        ::Apply(
+                            arguments => [
+                                ::Val::Buf( buf => 'do { ', ),
+                                ::Apply(
+                                    arguments => [
+                                        ::Val::Buf( buf => 'my $m2 = ', ),
+                                        ::Apply(
+                                            arguments => [
+                                                ::Var( namespace => [], name => 'meth', twigil => '', sigil => '$', ),
+                                                ::Apply(
+                                                    arguments => [
+                                                        ::Val::Buf( buf => '($str, $MATCH.to); ', ),
+                                                        ::Apply(
+                                                            arguments => [ ::Val::Buf( buf => 'if $m2 { $MATCH.to = ($m2.to + 0); 1 } else { 0 } ', ), ::Val::Buf( buf => '}', ), ],
+                                                            code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                        ),
+                                                    ],
+                                                    code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                ),
+                                            ],
+                                            code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                        ),
+                                    ],
+                                    code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                ),
+                            ],
+                            code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                        ),
+                    ],
+                    sig => ::Sig( invocant => ::Var( namespace => [], name => 'self', twigil => '', sigil => '$', ), positional => [], ),
+                    pad => ::Pad(
+                        lexicals => [
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'meth', twigil => '', sigil => '$', ), type => '', ),
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => '_',    twigil => '', sigil => '@', ), type => '', ),
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'self', twigil => '', sigil => '$', ), type => '', )
+                        ],
+                        namespace => "Rule::SubruleNoCapture",
+                        parent    => ::Pad(...),
+                        evaluator => ::Sub(...),
+                    ),
+                    CATCH => '',
+                    state => {},
+                ),
+            ),
+        ],
+        sig => ::Sig( invocant => '', positional => [], ),
+        pad   => ::Pad( lexicals => [], namespace => "Rule::SubruleNoCapture", parent => ::Pad(...), evaluator => ::Sub(...), ),
+        CATCH => '',
+        state => {},
+    ),
+    methods    => {},
+    name       => 'Rule::SubruleNoCapture',
+    attributes => {},
+    traits     => [],
+    unit_type  => 'class',
+    ) ::CompUnit(
+    body => ::Lit::Code(
+        body => [
+            ::Method(
+                name  => 'emit_token',
+                block => ::Lit::Code(
+                    body => [
+                        ::Bind(
+                            parameters => ::Var( namespace => [], name => 'table', twigil => '', sigil => '$', ),
+                            arguments  => ::Call(
+                                hyper     => '',
+                                arguments => [
+                                    ::Lit::Hash(
+                                        hash => [
+                                            [ ::Val::Buf( buf => '$', ), ::Val::Buf( buf => '$', ), ],
+                                            [ ::Val::Buf( buf => '@', ), ::Val::Buf( buf => '$List_', ), ],
+                                            [ ::Val::Buf( buf => '%', ), ::Val::Buf( buf => '$Hash_', ), ],
+                                            [ ::Val::Buf( buf => '&', ), ::Val::Buf( buf => '$Code_', ), ],
+                                        ],
+                                    ),
+                                ],
+                                method   => 'new',
+                                invocant => ::Proto( name => 'Hash', ),
+                            ),
+                        ),
+                        ::Apply(
+                            arguments => [
+                                ::Call( hyper => '', arguments => [ ::Var( namespace => [], name => 'sigil', twigil => '.', sigil => '$', ), ], method => 'LOOKUP', invocant => ::Var( namespace => [], name => 'table', twigil => '', sigil => '$', ), ),
+                                ::Var( namespace => [], name => 'name', twigil => '.', sigil => '$', ),
+                            ],
+                            code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                        ),
+                    ],
+                    sig => ::Sig( invocant => ::Var( namespace => [], name => 'self', twigil => '', sigil => '$', ), positional => [], ),
+                    pad => ::Pad(
+                        lexicals => [
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'table', twigil => '', sigil => '$', ), type => '', ),
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => '_',     twigil => '', sigil => '@', ), type => '', ),
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'self',  twigil => '', sigil => '$', ), type => '', )
+                        ],
+                        namespace => "Rule::Var",
+                        parent    => ::Pad(...),
+                        evaluator => ::Sub(...),
+                    ),
+                    CATCH => '',
+                    state => {},
+                ),
+            ),
+        ],
+        sig => ::Sig( invocant => '', positional => [], ),
+        pad   => ::Pad( lexicals => [], namespace => "Rule::Var", parent => ::Pad(...), evaluator => ::Sub(...), ),
+        CATCH => '',
+        state => {},
+    ),
+    methods    => {},
+    name       => 'Rule::Var',
+    attributes => {},
+    traits     => [],
+    unit_type  => 'class',
+    ) ::CompUnit(
+    body => ::Lit::Code(
+        body => [
+            ::Method(
+                name  => 'emit_token',
+                block => ::Lit::Code(
+                    body => [
+                        ::Bind( parameters => ::Var( namespace => [], name => 'str', twigil => '', sigil => '$', ), arguments => ::Var( namespace => [], name => 'constant', twigil => '.', sigil => '$', ), ),
+                        ::Apply( arguments => [ ::Var( namespace => [], name => 'str', twigil => '', sigil => '$', ), ], code => ::Var( namespace => [ 'Rule', ], name => 'constant', twigil => '', sigil => '&', ), ),
+                    ],
+                    sig => ::Sig( invocant => ::Var( namespace => [], name => 'self', twigil => '', sigil => '$', ), positional => [], ),
+                    pad => ::Pad(
+                        lexicals => [
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'str',  twigil => '', sigil => '$', ), type => '', ),
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => '_',    twigil => '', sigil => '@', ), type => '', ),
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'self', twigil => '', sigil => '$', ), type => '', )
+                        ],
+                        namespace => "Rule::Constant",
+                        parent    => ::Pad(...),
+                        evaluator => ::Sub(...),
+                    ),
+                    CATCH => '',
+                    state => {},
+                ),
+            ),
+        ],
+        sig => ::Sig( invocant => '', positional => [], ),
+        pad   => ::Pad( lexicals => [], namespace => "Rule::Constant", parent => ::Pad(...), evaluator => ::Sub(...), ),
+        CATCH => '',
+        state => {},
+    ),
+    methods    => {},
+    name       => 'Rule::Constant',
+    attributes => {},
+    traits     => [],
+    unit_type  => 'class',
+    ) ::CompUnit(
+    body => ::Lit::Code(
+        body => [
+            ::Method(
+                name  => 'emit_token',
+                block => ::Lit::Code(
+                    body => [
+                        ::Apply(
+                            arguments => [
+                                ::Apply(
+                                    arguments => [
+                                        ::Val::Buf( buf => 'do { if (', ),
+                                        ::Apply(
+                                            arguments => [
+                                                ::Val::Char( char => '39', ),
+                                                ::Apply(
+                                                    arguments => [ ::Val::Char( char => '39', ), ::Val::Buf( buf => ' ne substr( $str, $MATCH.to, 1 )) {', ), ],
+                                                    code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                ),
+                                            ],
+                                            code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                        ),
+                                    ],
+                                    code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                ),
+                                ::Apply(
+                                    arguments => [
+                                        ::Val::Buf( buf => '   ($MATCH.to = (1 + $MATCH.to )); 1 } else {', ),
+                                        ::Apply( arguments => [ ::Val::Buf( buf => '   0 } ', ), ::Val::Buf( buf => '}', ), ], code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ), ),
+                                    ],
+                                    code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                ),
+                            ],
+                            code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                        ),
+                    ],
+                    sig => ::Sig( invocant => ::Var( namespace => [], name => 'self', twigil => '', sigil => '$', ), positional => [], ),
+                    pad => ::Pad(
+                        lexicals => [
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => '_',    twigil => '', sigil => '@', ), type => '', ),
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'self', twigil => '', sigil => '$', ), type => '', )
+                        ],
+                        namespace => "Rule::Dot",
+                        parent    => ::Pad(...),
+                        evaluator => ::Sub(...),
+                    ),
+                    CATCH => '',
+                    state => {},
+                ),
+            ),
+        ],
+        sig => ::Sig( invocant => '', positional => [], ),
+        pad   => ::Pad( lexicals => [], namespace => "Rule::Dot", parent => ::Pad(...), evaluator => ::Sub(...), ),
+        CATCH => '',
+        state => {},
+    ),
+    methods    => {},
+    name       => 'Rule::Dot',
+    attributes => {},
+    traits     => [],
+    unit_type  => 'class',
+    ) ::CompUnit(
+    body => ::Lit::Code(
+        body => [
+            ::Method(
+                name  => 'emit_token',
+                block => ::Lit::Code(
+                    body => [
+                        ::Bind( parameters => ::Var( namespace => [], name => 'char', twigil => '', sigil => '$', ), arguments => ::Var( namespace => [], name => 'char', twigil => '.', sigil => '$', ), ),
+                        ::If(
+                            body => ::Lit::Code(
+                                body => [
+                                    ::Bind(
+                                        parameters => ::Var( namespace => [], name => 'rul', twigil => '', sigil => '$', ),
+                                        arguments  => ::Call(
+                                            hyper     => '',
+                                            arguments => [ ::Lit::Pair( value => ::Val::Buf( buf => 'newline', ), key => ::Val::Buf( buf => 'metasyntax', ), ), ],
+                                            method    => 'new',
+                                            invocant => ::Proto( name => 'Rule::SubruleNoCapture', ),
+                                        ),
+                                    ),
+                                    ::Bind(
+                                        parameters => ::Var( namespace => [], name => 'rul', twigil => '', sigil => '$', ),
+                                        arguments => ::Call( hyper => '', arguments => '', method => 'emit_token', invocant => ::Var( namespace => [], name => 'rul', twigil => '', sigil => '$', ), ),
+                                    ),
+                                    ::Return( result => ::Var( namespace => [], name => 'rul', twigil => '', sigil => '$', ), ),
+                                ],
+                                sig => ::Sig( invocant => '', positional => [], ),
+                                pad => ::Pad(
+                                    lexicals  => [ ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'rul', twigil => '', sigil => '$', ), type => '', ) ],
+                                    namespace => "Rule::SpecialChar",
+                                    parent    => ::Pad(...),
+                                    evaluator => ::Sub(...),
+                                ),
+                                CATCH => '',
+                                state => {},
+                            ),
+                            cond => ::Apply( arguments => [ ::Var( namespace => [], name => 'char', twigil => '', sigil => '$', ), ::Val::Buf( buf => 'n', ), ], code => ::Var( namespace => [], name => 'infix:<eq>', twigil => '', sigil => '&', ), ),
+                            otherwise => '',
+                        ),
+                        ::If(
+                            body => ::Lit::Code(
+                                body => [
+                                    ::Bind(
+                                        parameters => ::Var( namespace => [], name => 'rul', twigil => '', sigil => '$', ),
+                                        arguments  => ::Call(
+                                            hyper     => '',
+                                            arguments => [ ::Lit::Pair( value => ::Val::Buf( buf => 'not_newline', ), key => ::Val::Buf( buf => 'metasyntax', ), ), ],
+                                            method    => 'new',
+                                            invocant => ::Proto( name => 'Rule::SubruleNoCapture', ),
+                                        ),
+                                    ),
+                                    ::Bind(
+                                        parameters => ::Var( namespace => [], name => 'rul', twigil => '', sigil => '$', ),
+                                        arguments => ::Call( hyper => '', arguments => '', method => 'emit_token', invocant => ::Var( namespace => [], name => 'rul', twigil => '', sigil => '$', ), ),
+                                    ),
+                                    ::Return( result => ::Var( namespace => [], name => 'rul', twigil => '', sigil => '$', ), ),
+                                ],
+                                sig => ::Sig( invocant => '', positional => [], ),
+                                pad => ::Pad(
+                                    lexicals  => [ ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'rul', twigil => '', sigil => '$', ), type => '', ) ],
+                                    namespace => "Rule::SpecialChar",
+                                    parent    => ::Pad(...),
+                                    evaluator => ::Sub(...),
+                                ),
+                                CATCH => '',
+                                state => {},
+                            ),
+                            cond => ::Apply( arguments => [ ::Var( namespace => [], name => 'char', twigil => '', sigil => '$', ), ::Val::Buf( buf => 'N', ), ], code => ::Var( namespace => [], name => 'infix:<eq>', twigil => '', sigil => '&', ), ),
+                            otherwise => '',
+                        ),
+                        ::If(
+                            body => ::Lit::Code(
+                                body => [
+                                    ::Bind(
+                                        parameters => ::Var( namespace => [], name => 'rul', twigil => '', sigil => '$', ),
+                                        arguments  => ::Call(
+                                            hyper     => '',
+                                            arguments => [ ::Lit::Pair( value => ::Val::Buf( buf => 'digit', ), key => ::Val::Buf( buf => 'metasyntax', ), ), ],
+                                            method    => 'new',
+                                            invocant => ::Proto( name => 'Rule::SubruleNoCapture', ),
+                                        ),
+                                    ),
+                                    ::Bind(
+                                        parameters => ::Var( namespace => [], name => 'rul', twigil => '', sigil => '$', ),
+                                        arguments => ::Call( hyper => '', arguments => '', method => 'emit_token', invocant => ::Var( namespace => [], name => 'rul', twigil => '', sigil => '$', ), ),
+                                    ),
+                                    ::Return( result => ::Var( namespace => [], name => 'rul', twigil => '', sigil => '$', ), ),
+                                ],
+                                sig => ::Sig( invocant => '', positional => [], ),
+                                pad => ::Pad(
+                                    lexicals  => [ ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'rul', twigil => '', sigil => '$', ), type => '', ) ],
+                                    namespace => "Rule::SpecialChar",
+                                    parent    => ::Pad(...),
+                                    evaluator => ::Sub(...),
+                                ),
+                                CATCH => '',
+                                state => {},
+                            ),
+                            cond => ::Apply( arguments => [ ::Var( namespace => [], name => 'char', twigil => '', sigil => '$', ), ::Val::Buf( buf => 'd', ), ], code => ::Var( namespace => [], name => 'infix:<eq>', twigil => '', sigil => '&', ), ),
+                            otherwise => '',
+                        ),
+                        ::If(
+                            body => ::Lit::Code(
+                                body => [
+                                    ::Bind(
+                                        parameters => ::Var( namespace => [], name => 'rul', twigil => '', sigil => '$', ),
+                                        arguments  => ::Call(
+                                            hyper     => '',
+                                            arguments => [ ::Lit::Pair( value => ::Val::Buf( buf => 'space', ), key => ::Val::Buf( buf => 'metasyntax', ), ), ],
+                                            method    => 'new',
+                                            invocant => ::Proto( name => 'Rule::SubruleNoCapture', ),
+                                        ),
+                                    ),
+                                    ::Bind(
+                                        parameters => ::Var( namespace => [], name => 'rul', twigil => '', sigil => '$', ),
+                                        arguments => ::Call( hyper => '', arguments => '', method => 'emit_token', invocant => ::Var( namespace => [], name => 'rul', twigil => '', sigil => '$', ), ),
+                                    ),
+                                    ::Return( result => ::Var( namespace => [], name => 'rul', twigil => '', sigil => '$', ), ),
+                                ],
+                                sig => ::Sig( invocant => '', positional => [], ),
+                                pad => ::Pad(
+                                    lexicals  => [ ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'rul', twigil => '', sigil => '$', ), type => '', ) ],
+                                    namespace => "Rule::SpecialChar",
+                                    parent    => ::Pad(...),
+                                    evaluator => ::Sub(...),
+                                ),
+                                CATCH => '',
+                                state => {},
+                            ),
+                            cond => ::Apply( arguments => [ ::Var( namespace => [], name => 'char', twigil => '', sigil => '$', ), ::Val::Buf( buf => 's', ), ], code => ::Var( namespace => [], name => 'infix:<eq>', twigil => '', sigil => '&', ), ),
+                            otherwise => '',
+                        ),
+                        ::Return( result => ::Apply( arguments => [ ::Var( namespace => [], name => 'char', twigil => '', sigil => '$', ), ], code => ::Var( namespace => [ 'Rule', ], name => 'constant', twigil => '', sigil => '&', ), ), ),
+                    ],
+                    sig => ::Sig( invocant => ::Var( namespace => [], name => 'self', twigil => '', sigil => '$', ), positional => [], ),
+                    pad => ::Pad(
+                        lexicals => [
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'char', twigil => '', sigil => '$', ), type => '', ),
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => '_',    twigil => '', sigil => '@', ), type => '', ),
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'self', twigil => '', sigil => '$', ), type => '', )
+                        ],
+                        namespace => "Rule::SpecialChar",
+                        parent    => ::Pad(...),
+                        evaluator => ::Sub(...),
+                    ),
+                    CATCH => '',
+                    state => {},
+                ),
+            ),
+        ],
+        sig => ::Sig( invocant => '', positional => [], ),
+        pad   => ::Pad( lexicals => [], namespace => "Rule::SpecialChar", parent => ::Pad(...), evaluator => ::Sub(...), ),
+        CATCH => '',
+        state => {},
+    ),
+    methods    => {},
+    name       => 'Rule::SpecialChar',
+    attributes => {},
+    traits     => [],
+    unit_type  => 'class',
+    ) ::CompUnit(
+    body => ::Lit::Code(
+        body => [
+            ::Method(
+                name  => 'emit_token',
+                block => ::Lit::Code(
+                    body => [
+                        ::Return(
+                            result => ::Apply(
+                                arguments => [
+                                    ::Val::Buf( buf => 'do { ', ),
+                                    ::Apply(
+                                        arguments => [
+                                            ::Val::Buf( buf => 'my $ret = self.', ),
+                                            ::Apply(
+                                                arguments => [
+                                                    ::Var( namespace => [], name => 'closure', twigil => '.', sigil => '$', ),
+                                                    ::Apply(
+                                                        arguments => [
+                                                            ::Val::Buf( buf => '($MATCH); ', ),
+                                                            ::Apply(
+                                                                arguments => [
+                                                                    ::Val::Buf( buf => 'if defined( $GLOBAL::_REGEX_RETURN_ ) { ', ),
+                                                                    ::Apply(
+                                                                        arguments => [
+                                                                            ::Val::Buf( buf => '$MATCH.result = $GLOBAL::_REGEX_RETURN_; ', ),
+                                                                            ::Apply(
+                                                                                arguments => [
+                                                                                    ::Val::Buf( buf => '$MATCH.bool = 1; ', ),
+                                                                                    ::Apply(
+                                                                                        arguments => [
+                                                                                            ::Val::Buf( buf => '$GLOBAL::_REGEX_RETURN_ = undef; ', ),
+                                                                                            ::Apply(
+                                                                                                arguments => [
+                                                                                                    ::Val::Buf( buf => '}; ', ),
+                                                                                                    ::Apply(
+                                                                                                        arguments => [
+                                                                                                            ::Val::Buf( buf => 'if $ret ne "sTrNgE V4l" {', ),
+                                                                                                            ::Apply(
+                                                                                                                arguments => [
+                                                                                                                    ::Val::Buf( buf => 'if (%*ENV{"KP6_TOKEN_DEBUGGER"}) { say "<<< some closure returning... " }; ', ),
+                                                                                                                    ::Apply(
+                                                                                                                        arguments => [
+                                                                                                                            ::Val::Buf( buf => '$MATCH.result = $ret; ', ),
+                                                                                                                            ::Apply(
+                                                                                                                                arguments => [
+                                                                                                                                    ::Val::Buf( buf => '$MATCH.bool = 1; ', ),
+                                                                                                                                    ::Apply(
+                                                                                                                                        arguments => [
+                                                                                                                                            ::Val::Buf( buf => 'return $MATCH;', ),
+                                                                                                                                            ::Apply(
+                                                                                                                                                arguments => [
+                                                                                                                                                    ::Val::Buf( buf => '};', ),
+                                                                                                                                                    ::Apply(
+                                                                                                                                                        arguments => [ ::Val::Buf( buf => '1', ), ::Val::Buf( buf => '}', ), ],
+                                                                                                                                                        code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                                                                                                    ),
+                                                                                                                                                ],
+                                                                                                                                                code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                                                                                            ),
+                                                                                                                                        ],
+                                                                                                                                        code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                                                                                    ),
+                                                                                                                                ],
+                                                                                                                                code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                                                                            ),
+                                                                                                                        ],
+                                                                                                                        code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                                                                    ),
+                                                                                                                ],
+                                                                                                                code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                                                            ),
+                                                                                                        ],
+                                                                                                        code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                                                    ),
+                                                                                                ],
+                                                                                                code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                                            ),
+                                                                                        ],
+                                                                                        code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                                    ),
+                                                                                ],
+                                                                                code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                            ),
+                                                                        ],
+                                                                        code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                    ),
+                                                                ],
+                                                                code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                            ),
+                                                        ],
+                                                        code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                    ),
+                                                ],
+                                                code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                            ),
+                                        ],
+                                        code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                    ),
+                                ],
+                                code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                            ),
+                        ),
+                    ],
+                    sig => ::Sig( invocant => ::Var( namespace => [], name => 'self', twigil => '', sigil => '$', ), positional => [], ),
+                    pad => ::Pad(
+                        lexicals => [
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => '_',    twigil => '', sigil => '@', ), type => '', ),
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'self', twigil => '', sigil => '$', ), type => '', )
+                        ],
+                        namespace => "Rule::Block",
+                        parent    => ::Pad(...),
+                        evaluator => ::Sub(...),
+                    ),
+                    CATCH => '',
+                    state => {},
+                ),
+            ),
+        ],
+        sig => ::Sig( invocant => '', positional => [], ),
+        pad   => ::Pad( lexicals => [], namespace => "Rule::Block", parent => ::Pad(...), evaluator => ::Sub(...), ),
+        CATCH => '',
+        state => {},
+    ),
+    methods    => {},
+    name       => 'Rule::Block',
+    attributes => {},
+    traits     => [],
+    unit_type  => 'class',
+    ) ::CompUnit(
+    body => ::Lit::Code(
+        body => [
+            ::Method(
+                name  => 'emit_token',
+                block => ::Lit::Code(
+                    body => [
+                        ::Apply(
+                            arguments => [
+                                ::Apply(
+                                    arguments => [
+                                        ::Val::Buf( buf => '# TODO: interpolate var ', ),
+                                        ::Apply(
+                                            arguments => [ ::Call( hyper  => '', arguments => '',          method => 'emit_token', invocant => ::Var( namespace => [], name => 'var', twigil => '.', sigil => '$', ), ), ::Val::Buf( buf => '', ), ],
+                                            code      => ::Var( namespace => [], name      => 'infix:<~>', twigil => '',           sigil    => '&', ),
+                                        ),
+                                    ],
+                                    code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                ),
+                            ],
+                            code => ::Var( namespace => [], name => 'say', twigil => '', sigil => '&', ),
+                        ),
+                        ::Apply( arguments => [], code => ::Var( namespace => [], name => 'die', twigil => '', sigil => '&', ), ),
+                    ],
+                    sig => ::Sig( invocant => ::Var( namespace => [], name => 'self', twigil => '', sigil => '$', ), positional => [], ),
+                    pad => ::Pad(
+                        lexicals => [
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => '_',    twigil => '', sigil => '@', ), type => '', ),
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'self', twigil => '', sigil => '$', ), type => '', )
+                        ],
+                        namespace => "Rule::InterpolateVar",
+                        parent    => ::Pad(...),
+                        evaluator => ::Sub(...),
+                    ),
+                    CATCH => '',
+                    state => {},
+                ),
+            ),
+        ],
+        sig => ::Sig( invocant => '', positional => [], ),
+        pad   => ::Pad( lexicals => [], namespace => "Rule::InterpolateVar", parent => ::Pad(...), evaluator => ::Sub(...), ),
+        CATCH => '',
+        state => {},
+    ),
+    methods    => {},
+    name       => 'Rule::InterpolateVar',
+    attributes => {},
+    traits     => [],
+    unit_type  => 'class',
+    ) ::CompUnit(
+    body => ::Lit::Code(
+        body => [
+            ::Method(
+                name  => 'emit_token',
+                block => ::Lit::Code(
+                    body => [
+                        ::Apply(
+                            arguments => [
+                                ::Apply(
+                                    arguments => [
+                                        ::Val::Buf( buf => '# TODO: named capture ', ),
+                                        ::Apply(
+                                            arguments => [
+                                                ::Var( namespace => [], name => 'ident', twigil => '.', sigil => '$', ),
+                                                ::Apply(
+                                                    arguments => [
+                                                        ::Val::Buf( buf => ' := ', ),
+                                                        ::Apply(
+                                                            arguments =>
+                                                                [ ::Call( hyper => '', arguments => '', method => 'emit_token', invocant => ::Var( namespace => [], name => 'rule', twigil => '.', sigil => '$', ), ), ::Val::Buf( buf => '', ), ],
+                                                            code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                        ),
+                                                    ],
+                                                    code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                ),
+                                            ],
+                                            code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                        ),
+                                    ],
+                                    code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                ),
+                            ],
+                            code => ::Var( namespace => [], name => 'say', twigil => '', sigil => '&', ),
+                        ),
+                        ::Apply( arguments => [], code => ::Var( namespace => [], name => 'die', twigil => '', sigil => '&', ), ),
+                    ],
+                    sig => ::Sig( invocant => ::Var( namespace => [], name => 'self', twigil => '', sigil => '$', ), positional => [], ),
+                    pad => ::Pad(
+                        lexicals => [
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => '_',    twigil => '', sigil => '@', ), type => '', ),
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'self', twigil => '', sigil => '$', ), type => '', )
+                        ],
+                        namespace => "Rule::NamedCapture",
+                        parent    => ::Pad(...),
+                        evaluator => ::Sub(...),
+                    ),
+                    CATCH => '',
+                    state => {},
+                ),
+            ),
+        ],
+        sig => ::Sig( invocant => '', positional => [], ),
+        pad   => ::Pad( lexicals => [], namespace => "Rule::NamedCapture", parent => ::Pad(...), evaluator => ::Sub(...), ),
+        CATCH => '',
+        state => {},
+    ),
+    methods    => {},
+    name       => 'Rule::NamedCapture',
+    attributes => {},
+    traits     => [],
+    unit_type  => 'class',
+    ) ::CompUnit(
+    body => ::Lit::Code(
+        body => [
+            ::Method(
+                name  => 'emit_token',
+                block => ::Lit::Code(
+                    body => [
+                        ::If(
+                            body => ::Lit::Code(
+                                body => [
+                                    ::Return(
+                                        result => ::Apply(
+                                            arguments => [
+                                                ::Val::Buf( buf => 'do { ', ),
+                                                ::Apply(
+                                                    arguments => [
+                                                        ::Val::Buf( buf => 'my $MATCH; ', ),
+                                                        ::Apply(
+                                                            arguments => [
+                                                                ::Val::Buf( buf => '$MATCH = Match.new(); $MATCH.match_str = $str; $MATCH.from = $pos; $MATCH.to = ($pos + 0); $MATCH.bool = 1; ', ),
+                                                                ::Apply(
+                                                                    arguments => [
+                                                                        ::Val::Buf( buf => '$MATCH.bool = !(', ),
+                                                                        ::Apply(
+                                                                            arguments => [
+                                                                                ::Call( hyper => '', arguments => '', method => 'emit_token', invocant => ::Var( namespace => [], name => 'rule', twigil => '.', sigil => '$', ), ),
+                                                                                ::Apply(
+                                                                                    arguments => [
+                                                                                        ::Val::Buf( buf => '); $MATCH.to = ($MATCH.from + 0); ', ),
+                                                                                        ::Apply(
+                                                                                            arguments => [ ::Val::Buf( buf => '$MATCH.bool; ', ), ::Val::Buf( buf => '}', ), ],
+                                                                                            code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                                        ),
+                                                                                    ],
+                                                                                    code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                                ),
+                                                                            ],
+                                                                            code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                        ),
+                                                                    ],
+                                                                    code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                ),
+                                                            ],
+                                                            code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                        ),
+                                                    ],
+                                                    code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                ),
+                                            ],
+                                            code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                        ),
+                                    ),
+                                ],
+                                sig => ::Sig( invocant => '', positional => [], ),
+                                pad   => ::Pad( lexicals => [], namespace => "Rule::Before", parent => ::Pad(...), evaluator => ::Sub(...), ),
+                                CATCH => '',
+                                state => {},
+                            ),
+                            cond => ::Apply(
+                                arguments => [ ::Var( namespace => [], name => 'assertion_modifier', twigil => '.', sigil => '$', ), ::Val::Buf( buf => '!', ), ],
+                                code      => ::Var( namespace   => [], name => 'infix:<eq>',         twigil => '',  sigil => '&', ),
+                            ),
+                            otherwise => ::Lit::Code(
+                                body => [
+                                    ::Return(
+                                        result => ::Apply(
+                                            arguments => [
+                                                ::Val::Buf( buf => 'do { ', ),
+                                                ::Apply(
+                                                    arguments => [
+                                                        ::Val::Buf( buf => 'my $MATCH; ', ),
+                                                        ::Apply(
+                                                            arguments => [
+                                                                ::Val::Buf( buf => '$MATCH = Match.new(); $MATCH.match_str = $str; $MATCH.from = $pos; $MATCH.to = ($pos + 0); $MATCH.bool = 1; ', ),
+                                                                ::Apply(
+                                                                    arguments => [
+                                                                        ::Val::Buf( buf => '$MATCH.bool =  ', ),
+                                                                        ::Apply(
+                                                                            arguments => [
+                                                                                ::Call( hyper => '', arguments => '', method => 'emit_token', invocant => ::Var( namespace => [], name => 'rule', twigil => '.', sigil => '$', ), ),
+                                                                                ::Apply(
+                                                                                    arguments => [
+                                                                                        ::Val::Buf( buf => '; $MATCH.to = ($MATCH.from + 0); ', ),
+                                                                                        ::Apply(
+                                                                                            arguments => [ ::Val::Buf( buf => '$MATCH.bool; ', ), ::Val::Buf( buf => '}', ), ],
+                                                                                            code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                                        ),
+                                                                                    ],
+                                                                                    code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                                ),
+                                                                            ],
+                                                                            code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                        ),
+                                                                    ],
+                                                                    code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                                ),
+                                                            ],
+                                                            code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                        ),
+                                                    ],
+                                                    code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                                ),
+                                            ],
+                                            code => ::Var( namespace => [], name => 'infix:<~>', twigil => '', sigil => '&', ),
+                                        ),
+                                    ),
+                                ],
+                                sig => ::Sig( invocant => '', positional => [], ),
+                                pad   => ::Pad( lexicals => [], namespace => "Rule::Before", parent => ::Pad(...), evaluator => ::Sub(...), ),
+                                CATCH => '',
+                                state => {},
+                            ),
+                        ),
+                    ],
+                    sig => ::Sig( invocant => ::Var( namespace => [], name => 'self', twigil => '', sigil => '$', ), positional => [], ),
+                    pad => ::Pad(
+                        lexicals => [
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => '_',    twigil => '', sigil => '@', ), type => '', ),
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'self', twigil => '', sigil => '$', ), type => '', )
+                        ],
+                        namespace => "Rule::Before",
+                        parent    => ::Pad(...),
+                        evaluator => ::Sub(...),
+                    ),
+                    CATCH => '',
+                    state => {},
+                ),
+            ),
+        ],
+        sig => ::Sig( invocant => '', positional => [], ),
+        pad   => ::Pad( lexicals => [], namespace => "Rule::Before", parent => ::Pad(...), evaluator => ::Sub(...), ),
+        CATCH => '',
+        state => {},
+    ),
+    methods    => {},
+    name       => 'Rule::Before',
+    attributes => {},
+    traits     => [],
+    unit_type  => 'class',
+    ) ::CompUnit(
+    body => ::Lit::Code(
+        body => [
+            ::Method(
+                name  => 'emit_token',
+                block => ::Lit::Code(
+                    body => [
+                        ::Apply( arguments => [ ::Val::Buf( buf => 'TODO NegateCharClass', ), ], code                => ::Var( namespace => [], name      => 'say', twigil => '', sigil => '&', ), ),
+                        ::Apply( arguments => [],               code                             => ::Var( namespace => [],              name   => 'die', twigil    => '', sigil  => '&', ), ),
+                    ],
+                    sig => ::Sig( invocant => ::Var( namespace => [], name => 'self', twigil => '', sigil => '$', ), positional => [], ),
+                    pad => ::Pad(
+                        lexicals => [
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => '_',    twigil => '', sigil => '@', ), type => '', ),
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'self', twigil => '', sigil => '$', ), type => '', )
+                        ],
+                        namespace => "Rule::NegateCharClass",
+                        parent    => ::Pad(...),
+                        evaluator => ::Sub(...),
+                    ),
+                    CATCH => '',
+                    state => {},
+                ),
+            ),
+        ],
+        sig => ::Sig( invocant => '', positional => [], ),
+        pad   => ::Pad( lexicals => [], namespace => "Rule::NegateCharClass", parent => ::Pad(...), evaluator => ::Sub(...), ),
+        CATCH => '',
+        state => {},
+    ),
+    methods    => {},
+    name       => 'Rule::NegateCharClass',
+    attributes => {},
+    traits     => [],
+    unit_type  => 'class',
+    ) ::CompUnit(
+    body => ::Lit::Code(
+        body => [
+            ::Method(
+                name  => 'emit_token',
+                block => ::Lit::Code(
+                    body => [
+                        ::Apply( arguments => [ ::Val::Buf( buf => 'TODO CharClass', ), ], code                => ::Var( namespace => [], name      => 'say', twigil => '', sigil => '&', ), ),
+                        ::Apply( arguments => [],               code                       => ::Var( namespace => [],              name   => 'die', twigil    => '', sigil  => '&', ), ),
+                    ],
+                    sig => ::Sig( invocant => ::Var( namespace => [], name => 'self', twigil => '', sigil => '$', ), positional => [], ),
+                    pad => ::Pad(
+                        lexicals => [
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => '_',    twigil => '', sigil => '@', ), type => '', ),
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'self', twigil => '', sigil => '$', ), type => '', )
+                        ],
+                        namespace => "Rule::CharClass",
+                        parent    => ::Pad(...),
+                        evaluator => ::Sub(...),
+                    ),
+                    CATCH => '',
+                    state => {},
+                ),
+            ),
+        ],
+        sig => ::Sig( invocant => '', positional => [], ),
+        pad   => ::Pad( lexicals => [], namespace => "Rule::CharClass", parent => ::Pad(...), evaluator => ::Sub(...), ),
+        CATCH => '',
+        state => {},
+    ),
+    methods    => {},
+    name       => 'Rule::CharClass',
+    attributes => {},
+    traits     => [],
+    unit_type  => 'class',
+    ) ::CompUnit(
+    body => ::Lit::Code(
+        body => [
+            ::Method(
+                name  => 'emit_token',
+                block => ::Lit::Code(
+                    body => [
+                        ::Apply( arguments => [ ::Val::Buf( buf => 'TODO RuleCapture', ), ], code                => ::Var( namespace => [], name      => 'say', twigil => '', sigil => '&', ), ),
+                        ::Apply( arguments => [],               code                         => ::Var( namespace => [],              name   => 'die', twigil    => '', sigil  => '&', ), ),
+                    ],
+                    sig => ::Sig( invocant => ::Var( namespace => [], name => 'self', twigil => '', sigil => '$', ), positional => [], ),
+                    pad => ::Pad(
+                        lexicals => [
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => '_',    twigil => '', sigil => '@', ), type => '', ),
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'self', twigil => '', sigil => '$', ), type => '', )
+                        ],
+                        namespace => "Rule::Capture",
+                        parent    => ::Pad(...),
+                        evaluator => ::Sub(...),
+                    ),
+                    CATCH => '',
+                    state => {},
+                ),
+            ),
+        ],
+        sig => ::Sig( invocant => '', positional => [], ),
+        pad   => ::Pad( lexicals => [], namespace => "Rule::Capture", parent => ::Pad(...), evaluator => ::Sub(...), ),
+        CATCH => '',
+        state => {},
+    ),
+    methods    => {},
+    name       => 'Rule::Capture',
+    attributes => {},
+    traits     => [],
+    unit_type  => 'class',
+    )

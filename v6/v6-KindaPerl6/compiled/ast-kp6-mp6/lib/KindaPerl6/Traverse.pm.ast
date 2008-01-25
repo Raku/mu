@@ -1,0 +1,591 @@
+::CompUnit(
+    body => ::Lit::Code(
+        body => [
+            ::Bind(
+                parameters => ::Var( namespace => [], name => 'visit', twigil => '', sigil => '&', ),
+                arguments  => ::Sub(
+                    name  => 'visit',
+                    block => ::Lit::Code(
+                        body => [
+                            ::If(
+                                body => ::Lit::Code(
+                                    body => [
+                                        ::Bind(
+                                            parameters => ::Var( namespace => [], name => 'path', twigil => '', sigil => '$', ),
+                                            arguments => ::Call( hyper => '', arguments => [ ::Lit::Array( array => [], ), ], method => 'new', invocant => ::Proto( name => 'Array', ), ),
+                                        ),
+                                    ],
+                                    sig => ::Sig( invocant => '', positional => [], ),
+                                    pad   => ::Pad( lexicals => [], namespace => "KindaPerl6::Traverse", parent => ::Pad(...), evaluator => ::Sub(...), ),
+                                    CATCH => '',
+                                    state => {},
+                                ),
+                                cond => ::Apply(
+                                    arguments => [ ::Apply( arguments => [ ::Var( namespace => [], name => 'path', twigil => '', sigil => '$', ), ], code => ::Var( namespace => [], name => 'defined', twigil => '', sigil => '&', ), ), ],
+                                    code => ::Var( namespace => [], name => 'prefix:<!>', twigil => '', sigil => '&', ),
+                                ),
+                                otherwise => '',
+                            ),
+                            ::If(
+                                body => ::Lit::Code(
+                                    body => [
+                                        ::Bind(
+                                            parameters => ::Var( namespace => [], name => 'result', twigil => '', sigil => '$', ),
+                                            arguments => ::Call( hyper => '', arguments => [ ::Lit::Array( array => [], ), ], method => 'new', invocant => ::Proto( name => 'Array', ), ),
+                                        ),
+                                        ::Var( namespace => [], name => 'subitem', twigil => '', sigil => '$', ),
+                                        ::Call(
+                                            hyper     => '',
+                                            arguments => [
+                                                ::Sub(
+                                                    name  => '',
+                                                    block => ::Lit::Code(
+                                                        body => [
+                                                            ::Apply(
+                                                                arguments => [
+                                                                    ::Apply(
+                                                                        arguments => [ ::Var( namespace => [], name => 'result',     twigil => '', sigil => '$', ), ],
+                                                                        code      => ::Var( namespace   => [], name => 'prefix:<@>', twigil => '', sigil => '&', ),
+                                                                    ),
+                                                                    ::Apply(
+                                                                        arguments => [
+                                                                            ::Var( namespace => [], name => 'visitor', twigil => '', sigil => '$', ),
+                                                                            ::Var( namespace => [], name => 'subitem', twigil => '', sigil => '$', ),
+                                                                            ::Var( namespace => [], name => 'path',    twigil => '', sigil => '$', ),
+                                                                        ],
+                                                                        code => ::Var( namespace => [], name => 'visit_subnode', twigil => '', sigil => '&', ),
+                                                                    ),
+                                                                ],
+                                                                code => ::Var( namespace => [], name => 'push', twigil => '', sigil => '&', ),
+                                                            ),
+                                                        ],
+                                                        sig => ::Sig(
+                                                            invocant   => ::Val::Undef(),
+                                                            positional => [
+                                                                ::Lit::SigArgument(
+                                                                    is_multidimensional => ::Val::Bit( bit => '0', ),
+                                                                    has_default         => ::Val::Bit( bit => '0', ),
+                                                                    value               => ::Val::Undef(),
+                                                                    is_slurpy           => ::Val::Bit( bit => '0', ),
+                                                                    is_optional         => ::Val::Bit( bit => '0', ),
+                                                                    key           => ::Var( namespace => [], name => 'subitem', twigil => '', sigil => '$', ),
+                                                                    is_copy       => ::Val::Bit( bit  => '0', ),
+                                                                    is_named_only => ::Val::Bit( bit  => '0', ),
+                                                                    type          => '',
+                                                                    is_rw => ::Val::Bit( bit => '0', ),
+                                                                ),
+                                                            ],
+                                                        ),
+                                                        pad => ::Pad(
+                                                            lexicals => [
+                                                                ::Decl( decl => 'my', var => ::Var( namespace => [], name => '_',       twigil => '', sigil => '@', ), type => '', ),
+                                                                ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'subitem', twigil => '', sigil => '$', ), type => '', )
+                                                            ],
+                                                            namespace => "KindaPerl6::Traverse",
+                                                            parent    => ::Pad(...),
+                                                            evaluator => ::Sub(...),
+                                                        ),
+                                                        CATCH => '',
+                                                        state => {},
+                                                    ),
+                                                ),
+                                            ],
+                                            method   => 'map',
+                                            invocant => ::Apply( arguments => [ ::Var( namespace => [], name => 'node', twigil => '', sigil => '$', ), ], code => ::Var( namespace => [], name => 'prefix:<@>', twigil => '', sigil => '&', ), ),
+                                        ),
+                                        ::Return( result => ::Var( namespace => [], name => 'result', twigil => '', sigil => '$', ), ),
+                                    ],
+                                    sig => ::Sig( invocant => '', positional => [], ),
+                                    pad => ::Pad(
+                                        lexicals => [
+                                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'result',  twigil => '', sigil => '$', ), type => '', ),
+                                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'subitem', twigil => '', sigil => '$', ), type => '', )
+                                        ],
+                                        namespace => "KindaPerl6::Traverse",
+                                        parent    => ::Pad(...),
+                                        evaluator => ::Sub(...),
+                                    ),
+                                    CATCH => '',
+                                    state => {},
+                                ),
+                                cond => ::Apply(
+                                    arguments => [
+                                        ::Call( hyper => '', arguments => [ ::Val::Buf( buf => 'Array', ), ], method => 'isa', invocant => ::Var( namespace => [], name => 'node', twigil => '', sigil => '$', ), ),
+                                        ::Call( hyper => '', arguments => [ ::Val::Buf( buf => 'List', ), ],  method => 'isa', invocant => ::Var( namespace => [], name => 'node', twigil => '', sigil => '$', ), ),
+                                    ],
+                                    code => ::Var( namespace => [], name => 'infix:<||>', twigil => '', sigil => '&', ),
+                                ),
+                                otherwise => '',
+                            ),
+                            ::If(
+                                body => ::Lit::Code(
+                                    body => [
+                                        ::Bind(
+                                            parameters => ::Var( namespace => [], name => 'result', twigil => '', sigil => '$', ),
+                                            arguments => ::Call( hyper => '', arguments => [ ::Lit::Hash( hash => [], ), ], method => 'new', invocant => ::Proto( name => 'Hash', ), ),
+                                        ),
+                                        ::Var( namespace => [], name => 'subitem', twigil => '', sigil => '$', ),
+                                        ::Call(
+                                            hyper     => '',
+                                            arguments => [
+                                                ::Sub(
+                                                    name  => '',
+                                                    block => ::Lit::Code(
+                                                        body => [
+                                                            ::Bind(
+                                                                parameters => ::Call(
+                                                                    hyper     => '',
+                                                                    arguments => [ ::Var( namespace => [], name => 'subitem', twigil => '', sigil => '$', ), ],
+                                                                    method    => 'LOOKUP',
+                                                                    invocant  => ::Var( namespace => [], name => 'result', twigil => '', sigil => '$', ),
+                                                                ),
+                                                                arguments => ::Apply(
+                                                                    arguments => [
+                                                                        ::Var( namespace => [], name => 'visitor', twigil => '', sigil => '$', ),
+                                                                        ::Call(
+                                                                            hyper     => '',
+                                                                            arguments => [ ::Var( namespace => [], name => 'subitem', twigil => '', sigil => '$', ), ],
+                                                                            method    => 'LOOKUP',
+                                                                            invocant  => ::Var( namespace => [], name => 'node', twigil => '', sigil => '$', ),
+                                                                        ),
+                                                                        ::Var( namespace => [], name => 'path', twigil => '', sigil => '$', ),
+                                                                    ],
+                                                                    code => ::Var( namespace => [], name => 'visit_subnode', twigil => '', sigil => '&', ),
+                                                                ),
+                                                            ),
+                                                        ],
+                                                        sig => ::Sig(
+                                                            invocant   => ::Val::Undef(),
+                                                            positional => [
+                                                                ::Lit::SigArgument(
+                                                                    is_multidimensional => ::Val::Bit( bit => '0', ),
+                                                                    has_default         => ::Val::Bit( bit => '0', ),
+                                                                    value               => ::Val::Undef(),
+                                                                    is_slurpy           => ::Val::Bit( bit => '0', ),
+                                                                    is_optional         => ::Val::Bit( bit => '0', ),
+                                                                    key           => ::Var( namespace => [], name => 'subitem', twigil => '', sigil => '$', ),
+                                                                    is_copy       => ::Val::Bit( bit  => '0', ),
+                                                                    is_named_only => ::Val::Bit( bit  => '0', ),
+                                                                    type          => '',
+                                                                    is_rw => ::Val::Bit( bit => '0', ),
+                                                                ),
+                                                            ],
+                                                        ),
+                                                        pad => ::Pad(
+                                                            lexicals => [
+                                                                ::Decl( decl => 'my', var => ::Var( namespace => [], name => '_',       twigil => '', sigil => '@', ), type => '', ),
+                                                                ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'subitem', twigil => '', sigil => '$', ), type => '', )
+                                                            ],
+                                                            namespace => "KindaPerl6::Traverse",
+                                                            parent    => ::Pad(...),
+                                                            evaluator => ::Sub(...),
+                                                        ),
+                                                        CATCH => '',
+                                                        state => {},
+                                                    ),
+                                                ),
+                                            ],
+                                            method   => 'map',
+                                            invocant => ::Apply(
+                                                arguments =>
+                                                    [ ::Apply( arguments => [ ::Var( namespace => [], name => 'node', twigil => '', sigil => '$', ), ], code => ::Var( namespace => [], name => 'prefix:<%>', twigil => '', sigil => '&', ), ), ],
+                                                code => ::Var( namespace => [], name => 'keys', twigil => '', sigil => '&', ),
+                                            ),
+                                        ),
+                                        ::Return( result => ::Var( namespace => [], name => 'result', twigil => '', sigil => '$', ), ),
+                                    ],
+                                    sig => ::Sig( invocant => '', positional => [], ),
+                                    pad => ::Pad(
+                                        lexicals => [
+                                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'result',  twigil => '', sigil => '$', ), type => '', ),
+                                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'subitem', twigil => '', sigil => '$', ), type => '', )
+                                        ],
+                                        namespace => "KindaPerl6::Traverse",
+                                        parent    => ::Pad(...),
+                                        evaluator => ::Sub(...),
+                                    ),
+                                    CATCH => '',
+                                    state => {},
+                                ),
+                                cond      => ::Call( hyper => '', arguments => [ ::Val::Buf( buf => 'Hash', ), ], method => 'isa', invocant => ::Var( namespace => [], name => 'node', twigil => '', sigil => '$', ), ),
+                                otherwise => '',
+                            ),
+                            ::If(
+                                body => ::Lit::Code(
+                                    body => [ ::Return( result => ::Var( namespace => [],     name => 'node', twigil => '', sigil => '$', ), ), ],
+                                    sig  => ::Sig( invocant    => '',              positional => [], ),
+                                    pad   => ::Pad( lexicals => [], namespace => "KindaPerl6::Traverse", parent => ::Pad(...), evaluator => ::Sub(...), ),
+                                    CATCH => '',
+                                    state => {},
+                                ),
+                                cond      => ::Call( hyper => '', arguments => [ ::Val::Buf( buf => 'Str', ), ], method => 'isa', invocant => ::Var( namespace => [], name => 'node', twigil => '', sigil => '$', ), ),
+                                otherwise => '',
+                            ),
+                            ::If(
+                                body => ::Lit::Code(
+                                    body => [ ::Return( result => ::Var( namespace => [],     name => 'node', twigil => '', sigil => '$', ), ), ],
+                                    sig  => ::Sig( invocant    => '',              positional => [], ),
+                                    pad   => ::Pad( lexicals => [], namespace => "KindaPerl6::Traverse", parent => ::Pad(...), evaluator => ::Sub(...), ),
+                                    CATCH => '',
+                                    state => {},
+                                ),
+                                cond      => ::Call( hyper => '', arguments => [ ::Val::Buf( buf => 'Pad', ), ], method => 'isa', invocant => ::Var( namespace => [], name => 'node', twigil => '', sigil => '$', ), ),
+                                otherwise => '',
+                            ),
+                            ::Bind(
+                                parameters => ::Var( namespace => [], name => 'path', twigil => '', sigil => '$', ),
+                                arguments  => ::Call(
+                                    hyper     => '',
+                                    arguments => [
+                                        ::Lit::Array(
+                                            array => [
+                                                ::Var( namespace => [], name => 'node', twigil => '', sigil => '$', ),
+                                                ::Apply( arguments => [ ::Var( namespace => [], name => 'path', twigil => '', sigil => '$', ), ], code => ::Var( namespace => [], name => 'prefix:<@>', twigil => '', sigil => '&', ), ),
+                                            ],
+                                        ),
+                                    ],
+                                    method   => 'new',
+                                    invocant => ::Proto( name => 'Array', ),
+                                ),
+                            ),
+                            ::Bind(
+                                parameters => ::Var( namespace => [], name => 'result', twigil => '', sigil => '$', ),
+                                arguments  => ::Call(
+                                    hyper     => '',
+                                    arguments => [
+                                        ::Var( namespace => [], name => 'node',      twigil => '', sigil => '$', ),
+                                        ::Var( namespace => [], name => 'node_name', twigil => '', sigil => '$', ),
+                                        ::Var( namespace => [], name => 'path',      twigil => '', sigil => '$', ),
+                                    ],
+                                    method   => 'visit',
+                                    invocant => ::Var( namespace => [], name => 'visitor', twigil => '', sigil => '$', ),
+                                ),
+                            ),
+                            ::If(
+                                body => ::Lit::Code(
+                                    body => [ ::Return( result => ::Var( namespace => [],     name => 'result', twigil => '', sigil => '$', ), ), ],
+                                    sig  => ::Sig( invocant    => '',              positional => [], ),
+                                    pad   => ::Pad( lexicals => [], namespace => "KindaPerl6::Traverse", parent => ::Pad(...), evaluator => ::Sub(...), ),
+                                    CATCH => '',
+                                    state => {},
+                                ),
+                                cond      => ::Var( namespace => [], name => 'result', twigil => '', sigil => '$', ),
+                                otherwise => '',
+                            ),
+                            ::Bind(
+                                parameters => ::Var( namespace => [], name => 'result', twigil => '', sigil => '$', ),
+                                arguments => ::Call( hyper => '', arguments => [ ::Lit::Hash( hash => [], ), ], method => 'new', invocant => ::Proto( name => 'Hash', ), ),
+                            ),
+                            ::Bind(
+                                parameters => ::Var( namespace => [], name => 'data', twigil => '', sigil => '$', ),
+                                arguments => ::Call( hyper => '', arguments => '', method => 'attribs', invocant => ::Var( namespace => [], name => 'node', twigil => '', sigil => '$', ), ),
+                            ),
+                            ::Var( namespace => [], name => 'item', twigil => '', sigil => '$', ),
+                            ::Call(
+                                hyper     => '',
+                                arguments => [
+                                    ::Sub(
+                                        name  => '',
+                                        block => ::Lit::Code(
+                                            body => [
+                                                ::Bind(
+                                                    parameters => ::Call(
+                                                        hyper     => '',
+                                                        arguments => [ ::Var( namespace => [], name => 'item', twigil => '', sigil => '$', ), ],
+                                                        method    => 'LOOKUP',
+                                                        invocant  => ::Var( namespace => [], name => 'result', twigil => '', sigil => '$', ),
+                                                    ),
+                                                    arguments => ::Apply(
+                                                        arguments => [
+                                                            ::Var( namespace => [], name => 'visitor', twigil => '', sigil => '$', ),
+                                                            ::Call(
+                                                                hyper     => '',
+                                                                arguments => [ ::Var( namespace => [], name => 'item', twigil => '', sigil => '$', ), ],
+                                                                method    => 'LOOKUP',
+                                                                invocant  => ::Var( namespace => [], name => 'data', twigil => '', sigil => '$', ),
+                                                            ),
+                                                            ::Var( namespace => [], name => 'path', twigil => '', sigil => '$', ),
+                                                        ],
+                                                        code => ::Var( namespace => [], name => 'visit_subnode', twigil => '', sigil => '&', ),
+                                                    ),
+                                                ),
+                                            ],
+                                            sig => ::Sig(
+                                                invocant   => ::Val::Undef(),
+                                                positional => [
+                                                    ::Lit::SigArgument(
+                                                        is_multidimensional => ::Val::Bit( bit => '0', ),
+                                                        has_default         => ::Val::Bit( bit => '0', ),
+                                                        value               => ::Val::Undef(),
+                                                        is_slurpy           => ::Val::Bit( bit => '0', ),
+                                                        is_optional         => ::Val::Bit( bit => '0', ),
+                                                        key           => ::Var( namespace => [], name => 'item', twigil => '', sigil => '$', ),
+                                                        is_copy       => ::Val::Bit( bit  => '0', ),
+                                                        is_named_only => ::Val::Bit( bit  => '0', ),
+                                                        type          => '',
+                                                        is_rw => ::Val::Bit( bit => '0', ),
+                                                    ),
+                                                ],
+                                            ),
+                                            pad => ::Pad(
+                                                lexicals => [
+                                                    ::Decl( decl => 'my', var => ::Var( namespace => [], name => '_',    twigil => '', sigil => '@', ), type => '', ),
+                                                    ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'item', twigil => '', sigil => '$', ), type => '', )
+                                                ],
+                                                namespace => "KindaPerl6::Traverse",
+                                                parent    => ::Pad(...),
+                                                evaluator => ::Sub(...),
+                                            ),
+                                            CATCH => '',
+                                            state => {},
+                                        ),
+                                    ),
+                                ],
+                                method   => 'map',
+                                invocant => ::Apply(
+                                    arguments => [ ::Apply( arguments => [ ::Var( namespace => [], name       => 'data', twigil => '', sigil => '$', ), ], code => ::Var( namespace => [], name => 'prefix:<%>', twigil => '', sigil => '&', ), ), ],
+                                    code      => ::Var( namespace     => [],                name   => 'keys', twigil     => '', sigil  => '&', ),
+                                ),
+                            ),
+                            ::Return(
+                                result => ::Call(
+                                    hyper     => '',
+                                    arguments => [ ::Apply( arguments => [ ::Var( namespace => [], name => 'result', twigil => '', sigil => '$', ), ], code => ::Var( namespace => [], name => 'prefix:<%>', twigil => '', sigil => '&', ), ), ],
+                                    method    => 'new',
+                                    invocant => ::Var( namespace => [], name => 'node', twigil => '', sigil => '$', ),
+                                ),
+                            ),
+                        ],
+                        sig => ::Sig(
+                            invocant   => '',
+                            positional => [
+                                ::Lit::SigArgument(
+                                    is_multidimensional => ::Val::Bit( bit => '0', ),
+                                    has_default         => ::Val::Bit( bit => '0', ),
+                                    value               => ::Val::Undef(),
+                                    is_slurpy           => ::Val::Bit( bit => '0', ),
+                                    is_optional         => ::Val::Bit( bit => '0', ),
+                                    key           => ::Var( namespace => [], name => 'visitor', twigil => '', sigil => '$', ),
+                                    is_copy       => ::Val::Bit( bit  => '0', ),
+                                    is_named_only => ::Val::Bit( bit  => '0', ),
+                                    type          => '',
+                                    is_rw => ::Val::Bit( bit => '0', ),
+                                ),
+                                ::Lit::SigArgument(
+                                    is_multidimensional => ::Val::Bit( bit => '0', ),
+                                    has_default         => ::Val::Bit( bit => '0', ),
+                                    value               => ::Val::Undef(),
+                                    is_slurpy           => ::Val::Bit( bit => '0', ),
+                                    is_optional         => ::Val::Bit( bit => '0', ),
+                                    key           => ::Var( namespace => [], name => 'node', twigil => '', sigil => '$', ),
+                                    is_copy       => ::Val::Bit( bit  => '0', ),
+                                    is_named_only => ::Val::Bit( bit  => '0', ),
+                                    type          => '',
+                                    is_rw => ::Val::Bit( bit => '0', ),
+                                ),
+                                ::Lit::SigArgument(
+                                    is_multidimensional => ::Val::Bit( bit => '0', ),
+                                    has_default         => ::Val::Bit( bit => '0', ),
+                                    value               => ::Val::Undef(),
+                                    is_slurpy           => ::Val::Bit( bit => '0', ),
+                                    is_optional         => ::Val::Bit( bit => '0', ),
+                                    key           => ::Var( namespace => [], name => 'node_name', twigil => '', sigil => '$', ),
+                                    is_copy       => ::Val::Bit( bit  => '0', ),
+                                    is_named_only => ::Val::Bit( bit  => '0', ),
+                                    type          => '',
+                                    is_rw => ::Val::Bit( bit => '0', ),
+                                ),
+                                ::Lit::SigArgument(
+                                    is_multidimensional => ::Val::Bit( bit => '0', ),
+                                    has_default         => ::Val::Bit( bit => '0', ),
+                                    value               => ::Val::Undef(),
+                                    is_slurpy           => ::Val::Bit( bit => '0', ),
+                                    is_optional         => ::Val::Bit( bit => '0', ),
+                                    key           => ::Var( namespace => [], name => 'path', twigil => '', sigil => '$', ),
+                                    is_copy       => ::Val::Bit( bit  => '0', ),
+                                    is_named_only => ::Val::Bit( bit  => '0', ),
+                                    type          => '',
+                                    is_rw => ::Val::Bit( bit => '0', ),
+                                ),
+                            ],
+                        ),
+                        pad => ::Pad(
+                            lexicals => [
+                                ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'result',    twigil => '', sigil => '$', ), type => '', ),
+                                ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'data',      twigil => '', sigil => '$', ), type => '', ),
+                                ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'item',      twigil => '', sigil => '$', ), type => '', ),
+                                ::Decl( decl => 'my', var => ::Var( namespace => [], name => '_',         twigil => '', sigil => '@', ), type => '', ),
+                                ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'visitor',   twigil => '', sigil => '$', ), type => '', ),
+                                ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'node',      twigil => '', sigil => '$', ), type => '', ),
+                                ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'node_name', twigil => '', sigil => '$', ), type => '', ),
+                                ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'path',      twigil => '', sigil => '$', ), type => '', )
+                            ],
+                            namespace => "KindaPerl6::Traverse",
+                            parent    => ::Pad(...),
+                            evaluator => ::Sub(...),
+                        ),
+                        CATCH => '',
+                        state => {},
+                    ),
+                ),
+            ),
+            ::Bind(
+                parameters => ::Var( namespace => [], name => 'visit_subnode', twigil => '', sigil => '&', ),
+                arguments  => ::Sub(
+                    name  => 'visit_subnode',
+                    block => ::Lit::Code(
+                        body => [
+                            ::If(
+                                body => ::Lit::Code(
+                                    body => [ ::Return( result => ::Val::Undef(), ), ],
+                                    sig => ::Sig( invocant => '', positional => [], ),
+                                    pad   => ::Pad( lexicals => [], namespace => "KindaPerl6::Traverse", parent => ::Pad(...), evaluator => ::Sub(...), ),
+                                    CATCH => '',
+                                    state => {},
+                                ),
+                                cond => ::Apply(
+                                    arguments => [ ::Apply( arguments => [ ::Var( namespace => [], name => 'subnode', twigil => '', sigil => '$', ), ], code => ::Var( namespace => [], name => 'defined', twigil => '', sigil => '&', ), ), ],
+                                    code => ::Var( namespace => [], name => 'prefix:<!>', twigil => '', sigil => '&', ),
+                                ),
+                                otherwise => '',
+                            ),
+                            ::If(
+                                body => ::Lit::Code(
+                                    body => [
+                                        ::Return(
+                                            result => ::Apply(
+                                                arguments => [
+                                                    ::Var( namespace => [], name => 'visitor', twigil => '', sigil => '$', ),
+                                                    ::Var( namespace => [], name => 'subnode', twigil => '', sigil => '$', ),
+                                                    ::Val::Undef(),
+                                                    ::Var( namespace => [], name => 'path', twigil => '', sigil => '$', ),
+                                                ],
+                                                code => ::Var( namespace => [], name => 'visit', twigil => '', sigil => '&', ),
+                                            ),
+                                        ),
+                                    ],
+                                    sig => ::Sig( invocant => '', positional => [], ),
+                                    pad   => ::Pad( lexicals => [], namespace => "KindaPerl6::Traverse", parent => ::Pad(...), evaluator => ::Sub(...), ),
+                                    CATCH => '',
+                                    state => {},
+                                ),
+                                cond => ::Apply(
+                                    arguments => [
+                                        ::Call( hyper => '', arguments => [ ::Val::Buf( buf => 'Array', ), ], method => 'isa', invocant => ::Var( namespace => [], name => 'subnode', twigil => '', sigil => '$', ), ),
+                                        ::Apply(
+                                            arguments => [
+                                                ::Call( hyper => '', arguments => [ ::Val::Buf( buf => 'List', ), ], method => 'isa', invocant => ::Var( namespace => [], name => 'subnode', twigil => '', sigil => '$', ), ),
+                                                ::Apply(
+                                                    arguments => [
+                                                        ::Call( hyper => '', arguments => [ ::Val::Buf( buf => 'Hash', ), ], method => 'isa', invocant => ::Var( namespace => [], name => 'subnode', twigil => '', sigil => '$', ), ),
+                                                        ::Apply(
+                                                            arguments => [
+                                                                ::Call( hyper => '', arguments => [ ::Val::Buf( buf => 'Str', ), ], method => 'isa', invocant => ::Var( namespace => [], name => 'subnode', twigil => '', sigil => '$', ), ),
+                                                                ::Call( hyper => '', arguments => [ ::Val::Buf( buf => 'Pad', ), ], method => 'isa', invocant => ::Var( namespace => [], name => 'subnode', twigil => '', sigil => '$', ), ),
+                                                            ],
+                                                            code => ::Var( namespace => [], name => 'infix:<||>', twigil => '', sigil => '&', ),
+                                                        ),
+                                                    ],
+                                                    code => ::Var( namespace => [], name => 'infix:<||>', twigil => '', sigil => '&', ),
+                                                ),
+                                            ],
+                                            code => ::Var( namespace => [], name => 'infix:<||>', twigil => '', sigil => '&', ),
+                                        ),
+                                    ],
+                                    code => ::Var( namespace => [], name => 'infix:<||>', twigil => '', sigil => '&', ),
+                                ),
+                                otherwise => ::Lit::Code(
+                                    body => [
+                                        ::Return(
+                                            result => ::Call(
+                                                hyper     => '',
+                                                arguments => [ ::Var( namespace => [], name => 'visitor', twigil => '', sigil => '$', ), ::Var( namespace => [], name => 'path', twigil => '', sigil => '$', ), ],
+                                                method    => 'emit',
+                                                invocant => ::Var( namespace => [], name => 'subnode', twigil => '', sigil => '$', ),
+                                            ),
+                                        ),
+                                    ],
+                                    sig => ::Sig( invocant => '', positional => [], ),
+                                    pad   => ::Pad( lexicals => [], namespace => "KindaPerl6::Traverse", parent => ::Pad(...), evaluator => ::Sub(...), ),
+                                    CATCH => '',
+                                    state => {},
+                                ),
+                            ),
+                        ],
+                        sig => ::Sig(
+                            invocant   => '',
+                            positional => [
+                                ::Lit::SigArgument(
+                                    is_multidimensional => ::Val::Bit( bit => '0', ),
+                                    has_default         => ::Val::Bit( bit => '0', ),
+                                    value               => ::Val::Undef(),
+                                    is_slurpy           => ::Val::Bit( bit => '0', ),
+                                    is_optional         => ::Val::Bit( bit => '0', ),
+                                    key           => ::Var( namespace => [], name => 'visitor', twigil => '', sigil => '$', ),
+                                    is_copy       => ::Val::Bit( bit  => '0', ),
+                                    is_named_only => ::Val::Bit( bit  => '0', ),
+                                    type          => '',
+                                    is_rw => ::Val::Bit( bit => '0', ),
+                                ),
+                                ::Lit::SigArgument(
+                                    is_multidimensional => ::Val::Bit( bit => '0', ),
+                                    has_default         => ::Val::Bit( bit => '0', ),
+                                    value               => ::Val::Undef(),
+                                    is_slurpy           => ::Val::Bit( bit => '0', ),
+                                    is_optional         => ::Val::Bit( bit => '0', ),
+                                    key           => ::Var( namespace => [], name => 'subnode', twigil => '', sigil => '$', ),
+                                    is_copy       => ::Val::Bit( bit  => '0', ),
+                                    is_named_only => ::Val::Bit( bit  => '0', ),
+                                    type          => '',
+                                    is_rw => ::Val::Bit( bit => '0', ),
+                                ),
+                                ::Lit::SigArgument(
+                                    is_multidimensional => ::Val::Bit( bit => '0', ),
+                                    has_default         => ::Val::Bit( bit => '0', ),
+                                    value               => ::Val::Undef(),
+                                    is_slurpy           => ::Val::Bit( bit => '0', ),
+                                    is_optional         => ::Val::Bit( bit => '0', ),
+                                    key           => ::Var( namespace => [], name => 'path', twigil => '', sigil => '$', ),
+                                    is_copy       => ::Val::Bit( bit  => '0', ),
+                                    is_named_only => ::Val::Bit( bit  => '0', ),
+                                    type          => '',
+                                    is_rw => ::Val::Bit( bit => '0', ),
+                                ),
+                            ],
+                        ),
+                        pad => ::Pad(
+                            lexicals => [
+                                ::Decl( decl => 'my', var => ::Var( namespace => [], name => '_',       twigil => '', sigil => '@', ), type => '', ),
+                                ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'visitor', twigil => '', sigil => '$', ), type => '', ),
+                                ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'subnode', twigil => '', sigil => '$', ), type => '', ),
+                                ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'path',    twigil => '', sigil => '$', ), type => '', )
+                            ],
+                            namespace => "KindaPerl6::Traverse",
+                            parent    => ::Pad(...),
+                            evaluator => ::Sub(...),
+                        ),
+                        CATCH => '',
+                        state => {},
+                    ),
+                ),
+            ),
+        ],
+        sig => ::Sig( invocant => '', positional => [], ),
+        pad => ::Pad(
+            lexicals => [
+                ::Decl( decl => 'our', var => ::Var( namespace => [], name => 'visit',         twigil => '', sigil => '&', ), type => '', ),
+                ::Decl( decl => 'our', var => ::Var( namespace => [], name => 'visit_subnode', twigil => '', sigil => '&', ), type => '', )
+            ],
+            namespace => "KindaPerl6::Traverse",
+            parent    => ::Pad(...),
+            evaluator => ::Sub(...),
+        ),
+        CATCH => '',
+        state => {},
+    ),
+    methods    => {},
+    name       => 'KindaPerl6::Traverse',
+    attributes => {},
+    traits     => [],
+    unit_type  => 'class',
+    )

@@ -1,0 +1,226 @@
+::CompUnit(
+    body => ::Lit::Code(
+        body => [
+            ::Method(
+                name  => 'visit',
+                block => ::Lit::Code(
+                    body => [
+                        ::If(
+                            body => ::Lit::Code(
+                                body => [
+                                    ::Return(
+                                        result => ::Call(
+                                            hyper     => '',
+                                            arguments => [
+                                                ::Lit::NamedArgument(
+                                                    value => ::Call( hyper   => '', arguments => '', method => 'pad', invocant => ::Var( namespace => [], name => 'node', twigil => '', sigil => '$', ), ),
+                                                    key   => ::Val::Buf( buf => 'pad', ),
+                                                ),
+                                                ::Lit::NamedArgument(
+                                                    value => ::Call( hyper   => '', arguments => '', method => 'state', invocant => ::Var( namespace => [], name => 'node', twigil => '', sigil => '$', ), ),
+                                                    key   => ::Val::Buf( buf => 'state', ),
+                                                ),
+                                                ::Lit::NamedArgument(
+                                                    value => ::Call( hyper   => '', arguments => '', method => 'sig', invocant => ::Var( namespace => [], name => 'node', twigil => '', sigil => '$', ), ),
+                                                    key   => ::Val::Buf( buf => 'sig', ),
+                                                ),
+                                                ::Lit::NamedArgument(
+                                                    value => ::Call(
+                                                        hyper     => '',
+                                                        arguments => [
+                                                            ::Lit::Array(
+                                                                array => [
+                                                                    ::Call(
+                                                                        hyper     => '',
+                                                                        arguments => [
+                                                                            ::Lit::NamedArgument(
+                                                                                value => ::Call(
+                                                                                    hyper     => '',
+                                                                                    arguments => [
+                                                                                        ::Lit::NamedArgument(
+                                                                                            value => ::Call( hyper   => '', arguments => [ ::Lit::Array( array => [], ), ], method => 'new', invocant => ::Proto( name => 'Array', ), ),
+                                                                                            key   => ::Val::Buf( buf => 'namespace', ),
+                                                                                        ),
+                                                                                        ::Lit::NamedArgument( value => ::Val::Buf( buf => 'MY', ), key => ::Val::Buf( buf => 'name', ), ),
+                                                                                        ::Lit::NamedArgument( value => ::Val::Buf( buf => '', ),   key => ::Val::Buf( buf => 'twigil', ), ),
+                                                                                        ::Lit::NamedArgument( value => ::Val::Buf( buf => '$', ),  key => ::Val::Buf( buf => 'sigil', ), ),
+                                                                                    ],
+                                                                                    method   => 'new',
+                                                                                    invocant => ::Proto( name => 'Var', ),
+                                                                                ),
+                                                                                key => ::Val::Buf( buf => 'parameters', ),
+                                                                            ),
+                                                                            ::Lit::NamedArgument(
+                                                                                value => ::Call(
+                                                                                    hyper     => '',
+                                                                                    arguments => [
+                                                                                        ::Lit::NamedArgument( value => ::Val::Undef(), key => ::Val::Buf( buf => 'hyper', ), ),
+                                                                                        ::Lit::NamedArgument( value => ::Val::Undef(), key => ::Val::Buf( buf => 'arguments', ), ),
+                                                                                        ::Lit::NamedArgument( value => ::Val::Buf( buf => 'inner', ), key => ::Val::Buf( buf => 'method', ), ),
+                                                                                        ::Lit::NamedArgument(
+                                                                                            value => ::Call(
+                                                                                                hyper     => '',
+                                                                                                arguments => [
+                                                                                                    ::Lit::NamedArgument(
+                                                                                                        value => ::Call( hyper => '', arguments => [ ::Lit::Array( array => [], ), ], method => 'new', invocant => ::Proto( name => 'Array', ), ),
+                                                                                                        key => ::Val::Buf( buf => 'namespace', ),
+                                                                                                    ),
+                                                                                                    ::Lit::NamedArgument( value => ::Val::Buf( buf => 'MY', ), key => ::Val::Buf( buf => 'name', ), ),
+                                                                                                    ::Lit::NamedArgument( value => ::Val::Buf( buf => '', ),   key => ::Val::Buf( buf => 'twigil', ), ),
+                                                                                                    ::Lit::NamedArgument( value => ::Val::Buf( buf => '$', ),  key => ::Val::Buf( buf => 'sigil', ), ),
+                                                                                                ],
+                                                                                                method   => 'new',
+                                                                                                invocant => ::Proto( name => 'Var', ),
+                                                                                            ),
+                                                                                            key => ::Val::Buf( buf => 'invocant', ),
+                                                                                        ),
+                                                                                    ],
+                                                                                    method   => 'new',
+                                                                                    invocant => ::Proto( name => 'Call', ),
+                                                                                ),
+                                                                                key => ::Val::Buf( buf => 'arguments', ),
+                                                                            ),
+                                                                        ],
+                                                                        method   => 'new',
+                                                                        invocant => ::Proto( name => 'Assign', ),
+                                                                    ),
+                                                                    ::Apply(
+                                                                        arguments => [ ::Call( hyper  => '', arguments => '',           method => 'body', invocant => ::Var( namespace => [], name => 'node', twigil => '', sigil => '$', ), ), ],
+                                                                        code      => ::Var( namespace => [], name      => 'prefix:<@>', twigil => '',     sigil    => '&', ),
+                                                                    ),
+                                                                    ::Call(
+                                                                        hyper     => '',
+                                                                        arguments => [
+                                                                            ::Lit::NamedArgument(
+                                                                                value => ::Call(
+                                                                                    hyper     => '',
+                                                                                    arguments => [
+                                                                                        ::Lit::NamedArgument(
+                                                                                            value => ::Call( hyper   => '', arguments => [ ::Lit::Array( array => [], ), ], method => 'new', invocant => ::Proto( name => 'Array', ), ),
+                                                                                            key   => ::Val::Buf( buf => 'namespace', ),
+                                                                                        ),
+                                                                                        ::Lit::NamedArgument( value => ::Val::Buf( buf => 'MY', ), key => ::Val::Buf( buf => 'name', ), ),
+                                                                                        ::Lit::NamedArgument( value => ::Val::Buf( buf => '', ),   key => ::Val::Buf( buf => 'twigil', ), ),
+                                                                                        ::Lit::NamedArgument( value => ::Val::Buf( buf => '$', ),  key => ::Val::Buf( buf => 'sigil', ), ),
+                                                                                    ],
+                                                                                    method   => 'new',
+                                                                                    invocant => ::Proto( name => 'Var', ),
+                                                                                ),
+                                                                                key => ::Val::Buf( buf => 'parameters', ),
+                                                                            ),
+                                                                            ::Lit::NamedArgument(
+                                                                                value => ::Call(
+                                                                                    hyper     => '',
+                                                                                    arguments => [
+                                                                                        ::Lit::NamedArgument( value => ::Val::Undef(), key => ::Val::Buf( buf => 'hyper', ), ),
+                                                                                        ::Lit::NamedArgument( value => ::Val::Undef(), key => ::Val::Buf( buf => 'arguments', ), ),
+                                                                                        ::Lit::NamedArgument( value => ::Val::Buf( buf => 'outer', ), key => ::Val::Buf( buf => 'method', ), ),
+                                                                                        ::Lit::NamedArgument(
+                                                                                            value => ::Call(
+                                                                                                hyper     => '',
+                                                                                                arguments => [
+                                                                                                    ::Lit::NamedArgument(
+                                                                                                        value => ::Call( hyper => '', arguments => [ ::Lit::Array( array => [], ), ], method => 'new', invocant => ::Proto( name => 'Array', ), ),
+                                                                                                        key => ::Val::Buf( buf => 'namespace', ),
+                                                                                                    ),
+                                                                                                    ::Lit::NamedArgument( value => ::Val::Buf( buf => 'MY', ), key => ::Val::Buf( buf => 'name', ), ),
+                                                                                                    ::Lit::NamedArgument( value => ::Val::Buf( buf => '', ),   key => ::Val::Buf( buf => 'twigil', ), ),
+                                                                                                    ::Lit::NamedArgument( value => ::Val::Buf( buf => '$', ),  key => ::Val::Buf( buf => 'sigil', ), ),
+                                                                                                ],
+                                                                                                method   => 'new',
+                                                                                                invocant => ::Proto( name => 'Var', ),
+                                                                                            ),
+                                                                                            key => ::Val::Buf( buf => 'invocant', ),
+                                                                                        ),
+                                                                                    ],
+                                                                                    method   => 'new',
+                                                                                    invocant => ::Proto( name => 'Call', ),
+                                                                                ),
+                                                                                key => ::Val::Buf( buf => 'arguments', ),
+                                                                            ),
+                                                                        ],
+                                                                        method   => 'new',
+                                                                        invocant => ::Proto( name => 'Assign', ),
+                                                                    ),
+                                                                ],
+                                                            ),
+                                                        ],
+                                                        method   => 'new',
+                                                        invocant => ::Proto( name => 'Array', ),
+                                                    ),
+                                                    key => ::Val::Buf( buf => 'body', ),
+                                                ),
+                                            ],
+                                            method   => 'new',
+                                            invocant => ::Proto( name => 'Lit::Code', ),
+                                        ),
+                                    ),
+                                ],
+                                sig => ::Sig( invocant => '', positional => [], ),
+                                pad   => ::Pad( lexicals => [], namespace => "KindaPerl6::Visitor::Scope", parent => ::Pad(...), evaluator => ::Sub(...), ),
+                                CATCH => '',
+                                state => {},
+                            ),
+                            cond => ::Apply(
+                                arguments => [ ::Var( namespace => [], name => 'node_name',  twigil => '', sigil => '$', ), ::Val::Buf( buf => 'Lit::Code', ), ],
+                                code      => ::Var( namespace   => [], name => 'infix:<eq>', twigil => '', sigil => '&', ),
+                            ),
+                            otherwise => '',
+                        ),
+                        ::Return( result => ::Val::Undef(), ),
+                    ],
+                    sig => ::Sig(
+                        invocant   => '',
+                        positional => [
+                            ::Lit::SigArgument(
+                                is_multidimensional => ::Val::Bit( bit => '0', ),
+                                has_default         => ::Val::Bit( bit => '0', ),
+                                value               => ::Val::Undef(),
+                                is_slurpy           => ::Val::Bit( bit => '0', ),
+                                is_optional         => ::Val::Bit( bit => '0', ),
+                                key           => ::Var( namespace => [], name => 'node', twigil => '', sigil => '$', ),
+                                is_copy       => ::Val::Bit( bit  => '0', ),
+                                is_named_only => ::Val::Bit( bit  => '0', ),
+                                type          => '',
+                                is_rw => ::Val::Bit( bit => '0', ),
+                            ),
+                            ::Lit::SigArgument(
+                                is_multidimensional => ::Val::Bit( bit => '0', ),
+                                has_default         => ::Val::Bit( bit => '0', ),
+                                value               => ::Val::Undef(),
+                                is_slurpy           => ::Val::Bit( bit => '0', ),
+                                is_optional         => ::Val::Bit( bit => '0', ),
+                                key           => ::Var( namespace => [], name => 'node_name', twigil => '', sigil => '$', ),
+                                is_copy       => ::Val::Bit( bit  => '0', ),
+                                is_named_only => ::Val::Bit( bit  => '0', ),
+                                type          => '',
+                                is_rw => ::Val::Bit( bit => '0', ),
+                            ),
+                        ],
+                    ),
+                    pad => ::Pad(
+                        lexicals => [
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => '_',         twigil => '', sigil => '@', ), type => '', ),
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'node',      twigil => '', sigil => '$', ), type => '', ),
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'node_name', twigil => '', sigil => '$', ), type => '', )
+                        ],
+                        namespace => "KindaPerl6::Visitor::Scope",
+                        parent    => ::Pad(...),
+                        evaluator => ::Sub(...),
+                    ),
+                    CATCH => '',
+                    state => {},
+                ),
+            ),
+        ],
+        sig => ::Sig( invocant => '', positional => [], ),
+        pad   => ::Pad( lexicals => [], namespace => "KindaPerl6::Visitor::Scope", parent => ::Pad(...), evaluator => ::Sub(...), ),
+        CATCH => '',
+        state => {},
+    ),
+    methods    => {},
+    name       => 'KindaPerl6::Visitor::Scope',
+    attributes => {},
+    traits     => [],
+    unit_type  => 'class',
+    )

@@ -1,0 +1,303 @@
+::CompUnit(
+    body => ::Lit::Code(
+        body => [
+            ::Bind(
+                parameters => ::Var( namespace => [], name => 'thunk', twigil => '', sigil => '&', ),
+                arguments  => ::Sub(
+                    name  => 'thunk',
+                    block => ::Lit::Code(
+                        body => [
+                            ::Call(
+                                hyper     => '',
+                                arguments => [
+                                    ::Lit::NamedArgument(
+                                        value => ::Call(
+                                            hyper     => '',
+                                            arguments => [
+                                                ::Lit::NamedArgument(
+                                                    value => ::Apply(
+                                                        arguments => [ ::Var( namespace => [ 'KindaPerl6',  'Visitor', 'ShortCircuit', ], name   => 'last_pad', twigil => '', sigil => '$', ), ],
+                                                        code      => ::Var( namespace   => [ 'COMPILER', ], name       => 'inner_pad',    twigil => '',         sigil  => '&', ),
+                                                    ),
+                                                    key => ::Val::Buf( buf => 'pad', ),
+                                                ),
+                                                ::Lit::NamedArgument(
+                                                    value => ::Call(
+                                                        hyper     => '',
+                                                        arguments => [ ::Lit::Array( array => [ ::Var( namespace => [], name => 'value', twigil => '', sigil => '$', ), ], ), ],
+                                                        method    => 'new',
+                                                        invocant => ::Proto( name => 'Array', ),
+                                                    ),
+                                                    key => ::Val::Buf( buf => 'body', ),
+                                                ),
+                                                ::Lit::NamedArgument(
+                                                    value => ::Call(
+                                                        hyper     => '',
+                                                        arguments => [
+                                                            ::Lit::NamedArgument( value => ::Val::Undef(), key => ::Val::Buf( buf => 'invocant', ), ),
+                                                            ::Lit::NamedArgument(
+                                                                value => ::Call( hyper   => '', arguments => [ ::Lit::Array( array => [], ), ], method => 'new', invocant => ::Proto( name => 'Array', ), ),
+                                                                key   => ::Val::Buf( buf => 'positional', ),
+                                                            ),
+                                                        ],
+                                                        method   => 'new',
+                                                        invocant => ::Proto( name => 'Sig', ),
+                                                    ),
+                                                    key => ::Val::Buf( buf => 'sig', ),
+                                                ),
+                                            ],
+                                            method   => 'new',
+                                            invocant => ::Proto( name => 'Lit::Code', ),
+                                        ),
+                                        key => ::Val::Buf( buf => 'block', ),
+                                    ),
+                                ],
+                                method   => 'new',
+                                invocant => ::Proto( name => 'Sub', ),
+                            ),
+                        ],
+                        sig => ::Sig(
+                            invocant   => '',
+                            positional => [
+                                ::Lit::SigArgument(
+                                    is_multidimensional => ::Val::Bit( bit => '0', ),
+                                    has_default         => ::Val::Bit( bit => '0', ),
+                                    value               => ::Val::Undef(),
+                                    is_slurpy           => ::Val::Bit( bit => '0', ),
+                                    is_optional         => ::Val::Bit( bit => '0', ),
+                                    key           => ::Var( namespace => [], name => 'value', twigil => '', sigil => '$', ),
+                                    is_copy       => ::Val::Bit( bit  => '0', ),
+                                    is_named_only => ::Val::Bit( bit  => '0', ),
+                                    type          => '',
+                                    is_rw => ::Val::Bit( bit => '0', ),
+                                ),
+                                ::Lit::SigArgument(
+                                    is_multidimensional => ::Val::Bit( bit => '0', ),
+                                    has_default         => ::Val::Bit( bit => '0', ),
+                                    value               => ::Val::Undef(),
+                                    is_slurpy           => ::Val::Bit( bit => '0', ),
+                                    is_optional         => ::Val::Bit( bit => '0', ),
+                                    key           => ::Var( namespace => [], name => 'pad', twigil => '', sigil => '$', ),
+                                    is_copy       => ::Val::Bit( bit  => '0', ),
+                                    is_named_only => ::Val::Bit( bit  => '0', ),
+                                    type          => '',
+                                    is_rw => ::Val::Bit( bit => '0', ),
+                                ),
+                            ],
+                        ),
+                        pad => ::Pad(
+                            lexicals => [
+                                ::Decl( decl => 'my', var => ::Var( namespace => [], name => '_',     twigil => '', sigil => '@', ), type => '', ),
+                                ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'value', twigil => '', sigil => '$', ), type => '', ),
+                                ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'pad',   twigil => '', sigil => '$', ), type => '', )
+                            ],
+                            namespace => "KindaPerl6::Visitor::ShortCircuit",
+                            parent    => ::Pad(...),
+                            evaluator => ::Sub(...),
+                        ),
+                        CATCH => '',
+                        state => {},
+                    ),
+                ),
+            ),
+            ::Method(
+                name  => 'visit',
+                block => ::Lit::Code(
+                    body => [
+                        ::Bind(
+                            parameters => ::Var( namespace => [], name => 'pass_thunks', twigil => '', sigil => '$', ),
+                            arguments  => ::Call(
+                                hyper     => '',
+                                arguments => [
+                                    ::Lit::Hash(
+                                        hash => [
+                                            [ ::Val::Buf( buf => 'infix:<&&>', ), ::Val::Int( int => '1', ), ],
+                                            [ ::Val::Buf( buf => 'infix:<||>', ), ::Val::Int( int => '1', ), ],
+                                            [ ::Val::Buf( buf => 'infix:<//>', ), ::Val::Int( int => '1', ), ],
+                                        ],
+                                    ),
+                                ],
+                                method   => 'new',
+                                invocant => ::Proto( name => 'Hash', ),
+                            ),
+                        ),
+                        ::If(
+                            body => ::Lit::Code(
+                                body => [
+                                    ::Bind(
+                                        parameters => ::Var( namespace => [], name => 'left', twigil => '', sigil => '$', ),
+                                        arguments  => ::Call(
+                                            hyper     => '',
+                                            arguments => [ ::Apply( arguments => [], code => ::Var( namespace => [], name => 'self', twigil => '', sigil => '&', ), ), ],
+                                            method    => 'emit',
+                                            invocant  => ::Call(
+                                                hyper     => '',
+                                                arguments => [ ::Val::Int( int => '0', ), ],
+                                                method    => 'INDEX',
+                                                invocant  => ::Call( hyper => '', arguments => '', method => 'arguments', invocant => ::Var( namespace => [], name => 'node', twigil => '', sigil => '$', ), ),
+                                            ),
+                                        ),
+                                    ),
+                                    ::Bind(
+                                        parameters => ::Var( namespace => [], name => 'right', twigil => '', sigil => '$', ),
+                                        arguments  => ::Call(
+                                            hyper     => '',
+                                            arguments => [ ::Apply( arguments => [], code => ::Var( namespace => [], name => 'self', twigil => '', sigil => '&', ), ), ],
+                                            method    => 'emit',
+                                            invocant  => ::Call(
+                                                hyper     => '',
+                                                arguments => [ ::Val::Int( int => '1', ), ],
+                                                method    => 'INDEX',
+                                                invocant  => ::Call( hyper => '', arguments => '', method => 'arguments', invocant => ::Var( namespace => [], name => 'node', twigil => '', sigil => '$', ), ),
+                                            ),
+                                        ),
+                                    ),
+                                    ::Return(
+                                        result => ::Call(
+                                            hyper     => '',
+                                            arguments => [
+                                                ::Lit::NamedArgument(
+                                                    value => ::Call( hyper   => '', arguments => '', method => 'code', invocant => ::Var( namespace => [], name => 'node', twigil => '', sigil => '$', ), ),
+                                                    key   => ::Val::Buf( buf => 'code', ),
+                                                ),
+                                                ::Lit::NamedArgument(
+                                                    value => ::Call(
+                                                        hyper     => '',
+                                                        arguments => [
+                                                            ::Lit::Array(
+                                                                array => [
+                                                                    ::Apply( arguments => [ ::Var( namespace => [], name => 'left',  twigil => '', sigil => '$', ), ], code => ::Var( namespace => [], name => 'thunk', twigil => '', sigil => '&', ), ),
+                                                                    ::Apply( arguments => [ ::Var( namespace => [], name => 'right', twigil => '', sigil => '$', ), ], code => ::Var( namespace => [], name => 'thunk', twigil => '', sigil => '&', ), ),
+                                                                ],
+                                                            ),
+                                                        ],
+                                                        method   => 'new',
+                                                        invocant => ::Proto( name => 'Array', ),
+                                                    ),
+                                                    key => ::Val::Buf( buf => 'arguments', ),
+                                                ),
+                                            ],
+                                            method   => 'new',
+                                            invocant => ::Proto( name => 'Apply', ),
+                                        ),
+                                    ),
+                                ],
+                                sig => ::Sig( invocant => '', positional => [], ),
+                                pad => ::Pad(
+                                    lexicals => [
+                                        ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'left',  twigil => '', sigil => '$', ), type => '', ),
+                                        ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'right', twigil => '', sigil => '$', ), type => '', )
+                                    ],
+                                    namespace => "KindaPerl6::Visitor::ShortCircuit",
+                                    parent    => ::Pad(...),
+                                    evaluator => ::Sub(...),
+                                ),
+                                CATCH => '',
+                                state => {},
+                            ),
+                            cond => ::Apply(
+                                arguments => [
+                                    ::Apply(
+                                        arguments => [ ::Var( namespace => [], name => 'node_name',  twigil => '', sigil => '$', ), ::Val::Buf( buf => 'Apply', ), ],
+                                        code      => ::Var( namespace   => [], name => 'infix:<eq>', twigil => '', sigil => '&', ),
+                                    ),
+                                    ::Call(
+                                        hyper     => '',
+                                        arguments => [
+                                            ::Call(
+                                                hyper     => '',
+                                                arguments => '',
+                                                method    => 'name',
+                                                invocant  => ::Call( hyper => '', arguments => '', method => 'code', invocant => ::Var( namespace => [], name => 'node', twigil => '', sigil => '$', ), ),
+                                            ),
+                                        ],
+                                        method   => 'LOOKUP',
+                                        invocant => ::Var( namespace => [], name => 'pass_thunks', twigil => '', sigil => '$', ),
+                                    ),
+                                ],
+                                code => ::Var( namespace => [], name => 'infix:<&&>', twigil => '', sigil => '&', ),
+                            ),
+                            otherwise => '',
+                        ),
+                        ::If(
+                            body => ::Lit::Code(
+                                body => [
+                                    ::Bind(
+                                        parameters => ::Var( namespace => [ 'KindaPerl6', 'Visitor', 'ShortCircuit', ], name => 'last_pad', twigil => '', sigil => '$', ),
+                                        arguments => ::Call( hyper => '', arguments => '', method => 'pad', invocant => ::Var( namespace => [], name => 'node', twigil => '', sigil => '$', ), ),
+                                    ),
+                                ],
+                                sig => ::Sig( invocant => '', positional => [], ),
+                                pad   => ::Pad( lexicals => [], namespace => "KindaPerl6::Visitor::ShortCircuit", parent => ::Pad(...), evaluator => ::Sub(...), ),
+                                CATCH => '',
+                                state => {},
+                            ),
+                            cond => ::Apply(
+                                arguments => [ ::Var( namespace => [], name => 'node_name',  twigil => '', sigil => '$', ), ::Val::Buf( buf => 'Lit::Code', ), ],
+                                code      => ::Var( namespace   => [], name => 'infix:<eq>', twigil => '', sigil => '&', ),
+                            ),
+                            otherwise => '',
+                        ),
+                        ::Return( result => ::Val::Undef(), ),
+                    ],
+                    sig => ::Sig(
+                        invocant   => '',
+                        positional => [
+                            ::Lit::SigArgument(
+                                is_multidimensional => ::Val::Bit( bit => '0', ),
+                                has_default         => ::Val::Bit( bit => '0', ),
+                                value               => ::Val::Undef(),
+                                is_slurpy           => ::Val::Bit( bit => '0', ),
+                                is_optional         => ::Val::Bit( bit => '0', ),
+                                key           => ::Var( namespace => [], name => 'node', twigil => '', sigil => '$', ),
+                                is_copy       => ::Val::Bit( bit  => '0', ),
+                                is_named_only => ::Val::Bit( bit  => '0', ),
+                                type          => '',
+                                is_rw => ::Val::Bit( bit => '0', ),
+                            ),
+                            ::Lit::SigArgument(
+                                is_multidimensional => ::Val::Bit( bit => '0', ),
+                                has_default         => ::Val::Bit( bit => '0', ),
+                                value               => ::Val::Undef(),
+                                is_slurpy           => ::Val::Bit( bit => '0', ),
+                                is_optional         => ::Val::Bit( bit => '0', ),
+                                key           => ::Var( namespace => [], name => 'node_name', twigil => '', sigil => '$', ),
+                                is_copy       => ::Val::Bit( bit  => '0', ),
+                                is_named_only => ::Val::Bit( bit  => '0', ),
+                                type          => '',
+                                is_rw => ::Val::Bit( bit => '0', ),
+                            ),
+                        ],
+                    ),
+                    pad => ::Pad(
+                        lexicals => [
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'pass_thunks', twigil => '', sigil => '$', ), type => '', ),
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => '_',           twigil => '', sigil => '@', ), type => '', ),
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'node',        twigil => '', sigil => '$', ), type => '', ),
+                            ::Decl( decl => 'my', var => ::Var( namespace => [], name => 'node_name',   twigil => '', sigil => '$', ), type => '', )
+                        ],
+                        namespace => "KindaPerl6::Visitor::ShortCircuit",
+                        parent    => ::Pad(...),
+                        evaluator => ::Sub(...),
+                    ),
+                    CATCH => '',
+                    state => {},
+                ),
+            ),
+        ],
+        sig => ::Sig( invocant => '', positional => [], ),
+        pad => ::Pad(
+            lexicals  => [ ::Decl( decl => 'our', var => ::Var( namespace => [], name => 'thunk', twigil => '', sigil => '&', ), type => '', ) ],
+            namespace => "KindaPerl6::Visitor::ShortCircuit",
+            parent    => ::Pad(...),
+            evaluator => ::Sub(...),
+        ),
+        CATCH => '',
+        state => {},
+    ),
+    methods    => {},
+    name       => 'KindaPerl6::Visitor::ShortCircuit',
+    attributes => {},
+    traits     => [],
+    unit_type  => 'class',
+    )
