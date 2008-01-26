@@ -4,8 +4,10 @@ plan 1+322;
 
 # L<S29/"OS"/"=item run">
 
-skip_rest "This file was in t_disabled/.  Remove this SKIP of it now works.";
+skip_rest "This file was in t_disabled/.  Remove this SKIP if it now works.";
 exit;
+
+#?rakudo 323 skip 'test relevant only for pugs'
 
 if $?OS ne 'MSWin32' {
    skip_rest "These are Win32-specific tests";
