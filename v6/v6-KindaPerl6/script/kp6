@@ -308,7 +308,7 @@ my @visitors;
         push @visitor_sequence, qw( MetaClass Emit::Perl5V6 );
     }
     elsif ( grep { $_ eq 'ruby' } @opt{qw(C B)} ) {
-        push @visitor_sequence, qw( Emit::Ruby )
+        push @visitor_sequence, qw( ExtractRuleBlock Token Emit::Ruby )
             unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Ruby';
     }
     elsif ( !@visitor_sequence ) {

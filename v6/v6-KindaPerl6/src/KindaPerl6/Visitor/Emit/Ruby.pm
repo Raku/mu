@@ -23,14 +23,14 @@ class CompUnit {
         if ($.body) {
             $source := $.body.emit_ruby;
         };
-	if $.unit_type eq 'class' {
+	if ($.unit_type eq 'class') || ($.unit_type eq 'grammar') {
 	    $source := ('class ' ~ $.name ~ Main::newline()
 			~ $source
 			~ Main::newline()
 			~ 'end' ~ Main::newline());
 	};
         my $src := '# Machine-generated ruby code.' ~ Main::newline()
-        ~ '# Ruby version >= 1.9.0 2007-12-25 is needed.' ~ Main::newline()
+        ~ '# Ruby version >= 1.9.0 2007-12-25 is needed. unit_type = ' ~ $.unit_type ~ Main::newline()
         ~ 'require \'kp6_runtime\'' ~ Main::newline()
         ~ Main::newline()
         ~ $source ~ Main::newline();

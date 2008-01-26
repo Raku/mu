@@ -43,11 +43,15 @@ sub emit_ruby {
         else                 { }
     };
     do {
-        if ( ( $self->{unit_type} eq 'class' ) ) { $source = ( 'class ' . ( $self->{name} . ( Main::newline() . ( $source . ( Main::newline() . ( 'end' . Main::newline() ) ) ) ) ) ) }
-        else                                     { }
+        if ( ( ( $self->{unit_type} eq 'class' ) || ( $self->{unit_type} eq 'grammar' ) ) ) { $source = ( 'class ' . ( $self->{name} . ( Main::newline() . ( $source . ( Main::newline() . ( 'end' . Main::newline() ) ) ) ) ) ) }
+        else                                                                                { }
     };
     my $src = (
-        '# Machine-generated ruby code.' . ( Main::newline() . ( '# Ruby version >= 1.9.0 2007-12-25 is needed.' . ( Main::newline() . ( 'require \'kp6_runtime\'' . ( Main::newline() . ( Main::newline() . ( $source . Main::newline() ) ) ) ) ) ) ) );
+        '# Machine-generated ruby code.'
+            . (
+            Main::newline() . ( '# Ruby version >= 1.9.0 2007-12-25 is needed. unit_type = ' . ( $self->{unit_type} . ( Main::newline() . ( 'require \'kp6_runtime\'' . ( Main::newline() . ( Main::newline() . ( $source . Main::newline() ) ) ) ) ) ) )
+            )
+    );
     Main::emit_ruby_kludge_commas($src);
 }
 
@@ -618,7 +622,7 @@ sub emit_ruby {
         else {
             do {
                 if   ( ( $meth eq '' ) ) { ( $invocant . ( '.(cx(' . ( $call . '))' ) ) ) }
-                else                     { ( $invocant . ( '.' .     ( 'mc_' . ( $meth . ( '.(cx(' . ( $call . '))' ) ) ) ) ) ) }
+                else                     { ( $invocant . ( '.mc_' .  ( $meth . ( '.(cx(' . ( $call . '))' ) ) ) ) ) }
                 }
         }
         }
