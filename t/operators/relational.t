@@ -6,7 +6,7 @@ use Test;
    Relational Operators
 =cut
 
-plan 42;
+plan 39;
 
 ## For Numbers: <, <=, <=>, >=, >
 ### refactored to t/spec/S03-operators/relational.t
@@ -83,14 +83,6 @@ ok(!('b' le 'a'), 'b is ~not~ less than or equal to a');
 ok('b' ge 'a', 'b is greater than or equal to a');
 ok('b' ge 'b', 'b is greater than or equal to b');
 ok(!('b' ge 'c'), 'b is ~not~ greater than or equal to c');
-
-# cmp
-### cmp refactored to t/spec/S03-operators/comparison.t
-
-# L<S29/Any/"=item cmp">
-is('a' cmp 'a', 0,  'a is equal to a');
-is('a' cmp 'b', -1, 'a is less than b');
-is('b' cmp 'a', 1,  'b is greater than a');
 
 ## Multiway comparisons (RFC 025)
 # L<S03/"Chained comparisons">
