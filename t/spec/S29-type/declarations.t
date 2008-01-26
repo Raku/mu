@@ -3,15 +3,23 @@ use Test;
 
 # L<S29/"Type Declarations">
 
+#?rakudo skip 'Cannot parse pod'
+{
 =kwid
 
 Test for some type declarations for built-in functions. 
 
 =cut
+}
 
 plan 9;
 
-my sub ok_eval1($code, :$todo = 'feature') { &Test::ok.nextwith(eval($code),$code,:$todo) }
+# Maybe this test should be modified to run with rakudo
+
+my sub ok_eval1($code) {
+    #?pugs todo 'feature'
+    &Test::ok.nextwith(eval($code),$code)
+}
 
 ok_eval1('AnyChar.isa(Str)');
 ok_eval1('Char.isa(Str)');
