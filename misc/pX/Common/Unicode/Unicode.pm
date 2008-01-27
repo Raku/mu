@@ -97,7 +97,7 @@ our sub mktables(-->) {
         chdir '..';
     }
     # make this a context var to avoid cluttering up lots of arglists
-    my $+dumpfile = open 'ucd_basic_dump.pm', :w;
+    my $dumpfile is context = open 'ucd_basic_dump.pm', :w;
     # run all the @mktab_subs here
     $_.() for @mktab_subs;
     $+dumpfile.close;
@@ -673,10 +673,12 @@ require ucd_basic_dump;
 # run all the @dump_init_subs here
 $_.() for @dump_init_subs;
 
-class UBuf is Buf of int32 { }
+#XXX need an option to use int64
+class *UBuf is Buf of int32 { }
 my Grapheme @graph_ids;
 my Int %seen_graphs;
-class Grapheme {
+class *Grapheme {
+    use codepoints;
     # a unique number > $unicode_max
     has Int $.id;
     # always has @!as_nfd
@@ -695,17 +697,17 @@ class Grapheme {
         return @!as_nfkd //= $.to_nfkd;
     }
     submethod BUILD(Grapheme $g: Str $s) {
-        my @b is UBuf = nfd_g($s.as_codes);
-        if +@b == 1 {
-            $.id = @b[0];
-            @.as_nfd = @b;
+        return unless $s.as_codes.elems;
+        @.as_nfd = nfd_g($s.as_codes);
+        if @.as_nfc.elems == 1 {
+            $.id = @.as_nfc[0];
             return;
         }
-        if exists %seen_graphs{$s} {
-            $g := @graph_ids[%seen_graphs{$s}];
+        my Str $sc = [~] @.as_nfc».chr;
+        if exists %seen_graphs{$sc} {
+            $g := @graph_ids[%seen_graphs{$sc}];
             return;
         }
-        @.as_nfd = @b;
         #XXX will this need some kind of STM protection?
         my Int $graph_num = +@graph_ids;
         $.id = $graph_num + $unicode_max+1;
@@ -824,44 +826,36 @@ class Grapheme {
 }
 
 # From S29 (mostly)
-class Str is also {
+
+BEGIN {
+    our Str $?NF;
+    our Str $?ENC;
+}
+
+module *nf {
+    sub EXPORTER(Str $nf) {
+        $?NF ::= $nf;
+    }
+}
+
+module *encoding {
+    sub EXPORTER(Str $enc) {
+        $?ENC ::= $enc;
+    }
+}
+
+class *StrPos {
+...;
+}
+class *StrLen {
+...;
+}
+
+class *Str is also {
+    # in general only one of these is defined at a time
     has @!as_graphs is UBuf;
-    # normalization form can be
-    # nfd, nfc, nfkd, nfkc
-    # 'as-is' (for unnormalized codepoint-level strings)
-    has Str $.norm is rw;
     has @!as_codes is UBuf;
-    our method as_graphs(--> UBuf) is rw is export {
-        return @!as_graphs if defined @!as_graphs;
-        if defined @!as_codes {
-            [~] @!as_codes».chr ~~ token :codes{
-                [ (<grapheme_cluster>)
-                    { my Grapheme $g.=new: $0[*-1];
-                      @!as_graphs.push: $g.id;
-                      }
-                    }
-                ]*
-            };
-            return @!as_graphs;
-        }
-        return undef;
-    }
-    our multi method graphs(Str $string: --> Int) is export { +$string.as_graphs }
-    our method as_codes(--> UBuf) is rw is export {
-        return @!as_codes if defined @!as_codes;
-        if defined @!as_graphs and defined $.norm and $.norm ne 'as-is' {
-            for @!as_graphs -> Int $o {
-                if $o <= $unicode_max {
-                    @!as_codes.push: $o;
-                    next;
-                }
-                my Grapheme $g := @graph_ids[$o - ($unicode_max+1)];
-                @!as_codes.push: @$g.$.norm;
-            }
-        }
-        return undef;
-    }
-    our multi method codes(Str $string: --> Int) is export { +$string.as_codes }
+    has @!as_bytes is Buf of int8;
 
     # Grapheme Cluster Boundary Determination        UAX #29
     token isGCBCR :codes { \x{000D} }
@@ -885,6 +879,80 @@ class Str is also {
         | <-isGCBCR-isGCBLF-isGCBControl> <isGrapheme_Extend>*
         | <isGrapheme_Extend>+
     }
+}
+
+module *graphemes {
+    class *Str is also {
+        our multi method graphs(Str $string: --> Int) is export { $string.as_graphs.elems }
+        our multi method chars(Str $string: --> Int) is export { $string.graphs }
+        multi submethod BUILD(...) {...}
+        multi method STORE(...) {...}
+        multi method FETCH(...) {...}
+        our multi *infix:<~>(...) is export {...}
+    }
+}
+
+module *codepoints {
+    class *Str is also {
+        our multi method codes(Str $string: --> Int) is export { $string.as_codes.elems }
+        our multi method chars(Str $string: --> Int) is export { $string.codes }
+        multi submethod BUILD(...) {...}
+        multi method STORE(...) {...}
+        multi method FETCH(...) {...}
+        our multi *infix:<~>(...) is export {...}
+    }
+}
+
+module *bytes {
+    class *Str is also {
+        our multi method bytes(Str $string: --> Int) is export { $string.as_bytes.elems }
+        our multi method chars(Str $string: --> Int) is export { $string.codes }
+        multi submethod BUILD(...) {...}
+        multi method STORE(...) {...}
+        multi method FETCH(...) {...}
+        our multi *infix:<~>(...) is export {...}
+    }
+}
+
+# defaults
+use graphemes;
+use :nf<c>;
+
+#XXX everything below here needs to be rewritten and moved to one of the above modules
+class Str is also {
+    # normalization form can be
+    # nfd, nfc, nfkd, nfkc
+    # 'as-is' (for unnormalized codepoint-level strings)
+    has Str $.norm is rw;
+    our method as_graphs(--> UBuf) is rw is export {
+        return @!as_graphs if defined @!as_graphs;
+        if defined @!as_codes {
+            [~] @!as_codes».chr ~~ token :codes{
+                [ (<grapheme_cluster>)
+                    { my Grapheme $g.=new: $0[*-1];
+                      @!as_graphs.push: $g.id;
+                      }
+                    }
+                ]*
+            };
+            return @!as_graphs;
+        }
+        return undef;
+    }
+    our method as_codes(--> UBuf) is rw is export {
+        return @!as_codes if defined @!as_codes;
+        if defined @!as_graphs and defined $.norm and $.norm ne 'as-is' {
+            for @!as_graphs -> Int $o {
+                if $o <= $unicode_max {
+                    @!as_codes.push: $o;
+                    next;
+                }
+                my Grapheme $g := @graph_ids[$o - ($unicode_max+1)];
+                @!as_codes.push: @$g.$.norm;
+            }
+        }
+        return undef;
+    }
 
     token :codes split_graph {
         $<st>=[ <-isGrapheme_Extend>* ]
@@ -893,17 +961,12 @@ class Str is also {
     our multi method samebase (Str $string: Str $pattern --> Str) is export {
         my Str $ret;
         for ^$string.graphs -> my Int $n {
-            $string.as_graphs[$n].chr ~~ &split_graph;
+            $string.substr($n, 1).nfd ~~ &split_graph;
             $ret ~= $<st>;
-            $pattern.as_graphs[$n].chr ~~ &split_graph;
+            $pattern.substr($n, 1).nfd ~~ &split_graph;
             $ret ~= $<ex>;
         }
         return $ret;
-    }
-
-    our multi method chars(Str $string: --> Int) is export {
-        # XXX how does the "current unicode level" work?
-        &graphs.callsame;
     }
 
     # Default Case Conversion                        Section 3.13
@@ -951,21 +1014,6 @@ class Str is also {
     }
 
 
-    our multi method bytes(Str $string: --> Int) is export {
         ...;
     }
 }
-# Should I assume this stuff is done at a lower level?
-# If not, how?
-# our class AnyChar is Str { ... }
-# our class Uni is AnyChar is Int { ... }
-# our Uni multi chr( Uni $codepoint ) { $codepoint }
-# our Uni multi ord( Uni $character ) { $character }
-# our class Codepoint is Uni { }
-# our class Grapheme is AnyChar { ... }
-# our class Byte is AnyChar is Int { ... }
-# our class CharLingua is AnyChar { ... }
-
-# there's no mini-language for defining custom char classes
-# like in p5, since in p6 you can just do e.g.
-# token funky_alnum { <+isLC+isN+isM+isOther_Alphabetic-isASCII_Hex_Digit> }
