@@ -1108,7 +1108,7 @@ KindaPerl6::Ast - KindaPerl6 Abstract Syntax Tree
 
 This file houses the classes which define nodes in the KindaPerl6
 Abstract Syntax Tree. The AST is generated be the parser (currently
-L<KindaPerl6::Grammar>), it is then munged in various ways be classes
+L<KindaPerl6::Grammar>), it is then munged in various ways by classes
 in the L<KindaPerl6::Visitor> namespace before being emitted by
 C<KindaPerl6::Visitor::Emit*>.
 
