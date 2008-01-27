@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 22 Jan 2008
+  Last Modified: 27 Jan 2008
   Number: 3
-  Version: 127
+  Version: 128
 
 =head1 Overview
 
@@ -2524,6 +2524,16 @@ is short for something like:
 
 An empty Range cannot be iterated; it returns a C<Failure> instead.  An empty
 range still has a defined min and max, but the min is greater than the max.
+
+If a range is generated using a magical autoincrement, it stops if the magical
+increment would "carry" and make the next value longer than the "to" value, on the
+assumption that the sequence can never match the final value exactly.  Hence,
+all of these produce 'A' .. 'Z':
+
+    'A' .. 'Z'
+    'A' .. 'z'
+    'A' .. '_'
+    'A' .. '~'
 
 =item *
 
