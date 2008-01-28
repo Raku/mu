@@ -713,7 +713,7 @@ class *Grapheme {
         $.id = $graph_num + $unicode_max+1;
         die 'Too many unique graphemes' if $.id >= 2 ** 32;
         @graph_ids[$graph_num] = $g;
-        %seen_graphs{$s} = $graph_num;
+        %seen_graphs{$sc} = $graph_num;
     }
     # Normalization Algorithm                        UAX #15
     sub reorder(@b is UBuf --> UBuf) {
@@ -906,7 +906,7 @@ module *codepoints {
 module *bytes {
     class *Str is also {
         our multi method bytes(Str $string: --> Int) is export { $string.as_bytes.elems }
-        our multi method chars(Str $string: --> Int) is export { $string.codes }
+        our multi method chars(Str $string: --> Int) is export { $string.bytes }
         multi submethod BUILD(...) {...}
         multi method STORE(...) {...}
         multi method FETCH(...) {...}
