@@ -674,7 +674,7 @@ class Decl {
 	my $s;
 	if $decl eq 'has' {
 	    $s := ('def_has(:' ~  $.var.emit_ruby ~ ','
-		   ~ '->(){' ~ $.var.emit_ruby_container ~ '.new})'
+		   ~ '->(obj){' ~ $.var.emit_ruby_container ~ '.new})'
 		   ~ Main::newline());
 	}
 	else {

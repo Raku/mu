@@ -725,7 +725,7 @@ sub emit_ruby {
     my $name = $self->{var}->name();
     my $s;
     do {
-        if ( ( $decl eq 'has' ) ) { $s = ( 'def_has(:' . ( $self->{var}->emit_ruby() . ( ',' . ( '->(){' . ( $self->{var}->emit_ruby_container() . ( '.new})' . Main::newline() ) ) ) ) ) ) }
+        if ( ( $decl eq 'has' ) ) { $s = ( 'def_has(:' . ( $self->{var}->emit_ruby() . ( ',' . ( '->(obj){' . ( $self->{var}->emit_ruby_container() . ( '.new})' . Main::newline() ) ) ) ) ) ) }
         else                      { $s = $self->{var}->emit_ruby() }
     };
     return ($s);

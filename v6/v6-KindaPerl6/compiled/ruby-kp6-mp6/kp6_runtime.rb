@@ -186,6 +186,7 @@ class Hash
   def mc_pairs; ->(cap){self.each{|k,v|Pair.new(k,v)}} end
 end
 
+
 ## random cruft created while getting started
 
 class Undef; end
@@ -253,6 +254,7 @@ Str = String
 class Object
   def mc_WHAT; ->(cap){self.to_s} end
   def mc_isa; ->(cap){a=cap.pos; x=eval(a[0]); self.is_a?(x)} end #XXX SECURITY
+  def mc_Str; ->(cap){self.to_s} end
 end
 def c_chars; ->(cap){a=cap.pos; s=a[0]; s.length} end
 def c_substr; ->(cap){a=cap.pos; s=a[0]; s.slice(a[1],a[2]||s.length)} end
@@ -292,7 +294,7 @@ class Module
     class_eval %{
       def #{varname}
         if not @#{varname}
-          @#{varname} = ObjectSpace._id2ref(#{id}).()
+          @#{varname} = ObjectSpace._id2ref(#{id}).(self)
           $avoid_gc.decr_refcount(#{id})
         end
         @#{varname}
