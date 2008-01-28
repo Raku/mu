@@ -983,20 +983,28 @@ module *graphemes {
         }
         multi method FETCH(--> Str) {
             my Str $s;
-            $s.as_graphs = @.as_graphs;
+            @$s.as_graphs = @.as_graphs;
             return $s;
         }
         our multi *infix:<~>(Str $s1, Str $s2 --> Str) is export {
             my Str $s;
-            $s.as_graphs = @$s1.as_graphs[0..*-2];
+            @$s.as_graphs = @$s1.as_graphs[0..*-2];
             my Str $mid;
-            $mid.as_codes = Grapheme.new(:id(@$s1.as_graphs[*-1])).as_nfd,
-                Grapheme.new(:id(@$s2.as_graphs[0])).as_nfd;
+            @$mid.as_codes = Grapheme.new(:id(@$s1.as_graphs[*-1])).as_nfc,
+                Grapheme.new(:id(@$s2.as_graphs[0])).as_nfc;
             $s.as_graphs.push: @$mid.as_graphs;
             $s.as_graphs.push: @$s2.as_graphs[1..*];
             return $s;
         }
         our multi *infix:<eq>(Str $s1, Str $s2 --> Bool) is export { $s1.as_graphs eqv $s2.as_graphs }
+        our multi method ord(Str $string: --> Int) is export { @.as_graphs[0] }
+        our multi method ord(Str $string: --> List of Int) is export { @.as_graphs }
+        our multi method substr(Str $string: StrPos $start, StrLen $length? --> Str) is rw is export {...}
+        our multi method substr(Str $string: StrPos $start, StrPos $end? --> Str) is rw is export {...}
+    }
+    our multi sub *chr(Int *@grid --> Str) {
+        my UBuf @b = @grid;
+        return Str.new(:graphs(@b));
     }
     class *UBuf is also {
         our multi method Str(UBuf $b: --> Str) { Str.new(:graphs($b)) }
@@ -1018,16 +1026,20 @@ module *codepoints {
         }
         multi method FETCH(--> Str) {
             my Str $s;
-            $s.as_codes = @.as_codes;
+            @$s.as_codes = @.as_codes;
             return $s;
         }
         our multi *infix:<~>(Str $s1, Str $s2 --> Str) is export {
             my Str $s;
-            $s.as_codes = $s1.as_codes;
+            @$s.as_codes = $s1.as_codes;
             $s.as_codes.push: @$s2.as_codes;
             return $s;
         }
         our multi *infix:<eq>(Str $s1, Str $s2 --> Bool) is export { $s1.as_codes eqv $s2.as_codes }
+        our multi method ord(Str $string: --> Int) is export { @.as_codes[0] }
+        our multi method ord(Str $string: --> List of Int) is export { @.as_codes }
+        our multi method substr(Str $string: StrPos $start, StrLen $length? --> Str) is rw is export {...}
+        our multi method substr(Str $string: StrPos $start, StrPos $end? --> Str) is rw is export {...}
 
         our multi method normalize(Str $string: Str :$nf = $?NF --> Str) is export {
             use :$nf;
@@ -1044,34 +1056,14 @@ module *codepoints {
             return $string.nfkd if !$canonical and !$recompose;
             return $string.nfkc if !$canonical and  $recompose;
         }
-        our multi method nfd(Str $string: --> Str) is export {
-            my Str $ret;
-            for @$string.as_graphs -> my Int $o {
-                $ret.as_codes.push: Grapheme.new(:id($o)).as_nfd;
-            }
-            return $ret;
-        }
-        our multi method nfkd(Str $string: --> Str) is export {
-            my Str $ret;
-            for @$string.as_graphs -> my Int $o {
-                $ret.as_codes.push: Grapheme.new(:id($o)).as_nfkd;
-            }
-            return $ret;
-        }
-        our multi method nfc(Str $string: --> Str) is export {
-            my Str $ret;
-            for @$string.as_graphs -> my Int $o {
-                $ret.as_codes.push: Grapheme.new(:id($o)).as_nfc;
-            }
-            return $ret;
-        }
-        our multi method nfkc(Str $string: --> Str) is export {
-            my Str $ret;
-            for @$string.as_graphs -> my Int $o {
-                $ret.as_codes.push: Grapheme.new(:id($o)).as_nfkc;
-            }
-            return $ret;
-        }
+        our multi method nfd (Str $string: --> Str) is export { return $string.normalize(:nf<d> ) }
+        our multi method nfkd(Str $string: --> Str) is export { return $string.normalize(:nf<kd>) }
+        our multi method nfc (Str $string: --> Str) is export { return $string.normalize(:nf<c> ) }
+        our multi method nfkc(Str $string: --> Str) is export { return $string.normalize(:nf<kc>) }
+    }
+    our multi sub *chr(Int *@grid --> Str) {
+        my UBuf @b = @grid;
+        return Str.new(:codes(@b));
     }
     class *UBuf is also {
         our multi method Str(UBuf $b: --> Str) { Str.new(:codes($b)) }
@@ -1093,16 +1085,24 @@ module *bytes {
         }
         multi method FETCH(--> Str) {
             my Str $s;
-            $s.as_bytes = @.as_bytes;
+            @$s.as_bytes = @.as_bytes;
             return $s;
         }
         our multi *infix:<~>(Str $s1, Str $s2 --> Str) is export {
             my Str $s;
-            $s.as_bytes = $s1.as_bytes;
+            @$s.as_bytes = $s1.as_bytes;
             $s.as_bytes.push: @$s2.as_bytes;
             return $s;
         }
         our multi *infix:<eq>(Str $s1, Str $s2 --> Bool) is export { $s1.as_bytes eqv $s2.as_bytes }
+        our multi method ord(Str $string: --> Int) is export { @.as_bytes[0] }
+        our multi method ord(Str $string: --> List of Int) is export { @.as_bytes }
+        our multi method substr(Str $string: StrPos $start, StrLen $length? --> Str) is rw is export {...}
+        our multi method substr(Str $string: StrPos $start, StrPos $end? --> Str) is rw is export {...}
+    }
+    our multi sub *chr(Int *@grid --> Str) {
+        my UBuf @b = @grid;
+        return Str.new(:bytes(@b));
     }
     class *UBuf is also {
         our multi method Str(UBuf $b: --> Str) { Str.new(:bytes($b)) }
