@@ -906,7 +906,9 @@ class *Str is also {
     }
     our method as_graphs(--> UBuf) is rw is export {
         return @!as_graphs if defined @!as_graphs;
-        ~@.as_codes ~~ token :codes{
+        my Str $s;
+        $s.as_codes = @.as_codes;
+        $s ~~ token :codes{
             [ (<grapheme_cluster>)
                 { my Grapheme $g.=new: :s($0[*-1]);
                   @!as_graphs.push: $g.id;
@@ -931,6 +933,42 @@ class *Str is also {
     our method as_bytes(--> Buf of int8) is rw is export {
         ...;
     }
+
+    token :codes split_graph {
+        $<st>=[ <-isGrapheme_Extend>* ]
+        $<ex>=[ <isGrapheme_Extend>* ]
+    }
+    our multi method samebase (Str $string: Str $pattern --> Str) is export {
+        my Str $ret;
+        for ^$string.graphs -> my Int $n {
+            #XXX this is wrong, needs substr impl
+            $string.substr($n, 1).nfd ~~ &split_graph;
+            $ret ~= $<st>;
+            $pattern.substr($n, 1).nfd ~~ &split_graph;
+            $ret ~= $<ex>;
+        }
+        return $ret;
+    }
+
+    # Default Case Conversion                        Section 3.13
+    our multi method lc(Str $string: --> Str) is export {
+        ...;
+    }
+    our multi method lcfirst(Str $string: --> Str) is export {
+        ...;
+    }
+    our multi method uc(Str $string: --> Str) is export {
+        ...;
+    }
+    our multi method ucfirst(Str $string: --> Str) is export {
+        ...;
+    }
+    our multi method capitalize(Str $string: --> Str) is export {
+        ...;
+    }
+    our multi method samecase (Str $string: Str $pattern --> Str) is export {
+        ...;
+    }
 }
 
 module *graphemes {
@@ -938,10 +976,27 @@ module *graphemes {
         our multi method graphs(Str $string: --> Int) is export { $string.as_graphs.elems }
         our multi method chars(Str $string: --> Int) is export { $string.graphs }
         multi submethod BUILD(UBuf :@graphs) { @.as_graphs = @graphs; }
-        multi method STORE(...) {...}
-        multi method FETCH(...) {...}
-        our multi *infix:<~>(...) is export {...}
-        our multi *infix:<eq>(...) is export {...}
+        multi method STORE(Str $s) {
+            @!as_graphs = $s.as_graphs;
+            @!as_codes = undef;
+            @!as_bytes = undef;
+        }
+        multi method FETCH(--> Str) {
+            my Str $s;
+            $s.as_graphs = @.as_graphs;
+            return $s;
+        }
+        our multi *infix:<~>(Str $s1, Str $s2 --> Str) is export {
+            my Str $s;
+            $s.as_graphs = @$s1.as_graphs[0..*-2];
+            my Str $mid;
+            $mid.as_codes = Grapheme.new(:id(@$s1.as_graphs[*-1])).as_nfd,
+                Grapheme.new(:id(@$s2.as_graphs[0])).as_nfd;
+            $s.as_graphs.push: @$mid.as_graphs;
+            $s.as_graphs.push: @$s2.as_graphs[1..*];
+            return $s;
+        }
+        our multi *infix:<eq>(Str $s1, Str $s2 --> Bool) is export { $s1.as_graphs eqv $s2.as_graphs }
     }
     class *UBuf is also {
         our multi method Str(UBuf $b: --> Str) { Str.new(:graphs($b)) }
@@ -956,12 +1011,26 @@ module *codepoints {
         our multi method codes(Str $string: --> Int) is export { $string.as_codes.elems }
         our multi method chars(Str $string: --> Int) is export { $string.codes }
         multi submethod BUILD(UBuf :@codes) { @.as_codes = @codes; }
-        multi method STORE(...) {...}
-        multi method FETCH(...) {...}
-        our multi *infix:<~>(...) is export {...}
-        our multi *infix:<eq>(...) is export {...}
+        multi method STORE(Str $s) {
+            @!as_graphs = undef;
+            @!as_codes = $s.as_codes;
+            @!as_bytes = undef;
+        }
+        multi method FETCH(--> Str) {
+            my Str $s;
+            $s.as_codes = @.as_codes;
+            return $s;
+        }
+        our multi *infix:<~>(Str $s1, Str $s2 --> Str) is export {
+            my Str $s;
+            $s.as_codes = $s1.as_codes;
+            $s.as_codes.push: @$s2.as_codes;
+            return $s;
+        }
+        our multi *infix:<eq>(Str $s1, Str $s2 --> Bool) is export { $s1.as_codes eqv $s2.as_codes }
 
         our multi method normalize(Str $string: Str :$nf = $?NF --> Str) is export {
+            use :$nf;
             my Str $ret;
             for @$string.as_graphs -> my Int $o {
                 $ret ~= Grapheme.new(:id($o)).normalize;
@@ -969,17 +1038,11 @@ module *codepoints {
             return $ret;
         }
         # all of the following forms ignore $?NF
-        sub _norm_cr(Str $string, Bool $canonical, Bool $recompose --> Str) {
+        our multi method normalize(Str $string: Bool :$canonical!, Bool :$recompose! --> Str) is export {
             return $string.nfd  if  $canonical and !$recompose;
             return $string.nfc  if  $canonical and  $recompose;
             return $string.nfkd if !$canonical and !$recompose;
             return $string.nfkc if !$canonical and  $recompose;
-        }
-        our multi method normalize(Str $string: Bool :$canonical!, Bool :$recompose --> Str) is export {
-            return _norm_cr $string, $canonical, $recompose;
-        }
-        our multi method normalize(Str $string: Bool :$canonical, Bool :$recompose! --> Str) is export {
-            return _norm_cr $string, $canonical, $recompose;
         }
         our multi method nfd(Str $string: --> Str) is export {
             my Str $ret;
@@ -1023,10 +1086,23 @@ module *bytes {
         our multi method bytes(Str $string: --> Int) is export { $string.as_bytes.elems }
         our multi method chars(Str $string: --> Int) is export { $string.bytes }
         multi submethod BUILD(UBuf :@bytes) { @.as_bytes = @bytes; }
-        multi method STORE(...) {...}
-        multi method FETCH(...) {...}
-        our multi *infix:<~>(...) is export {...}
-        our multi *infix:<eq>(...) is export {...}
+        multi method STORE(Str $s) {
+            @!as_graphs = undef;
+            @!as_codes = undef;
+            @!as_bytes = $s.as_bytes;
+        }
+        multi method FETCH(--> Str) {
+            my Str $s;
+            $s.as_bytes = @.as_bytes;
+            return $s;
+        }
+        our multi *infix:<~>(Str $s1, Str $s2 --> Str) is export {
+            my Str $s;
+            $s.as_bytes = $s1.as_bytes;
+            $s.as_bytes.push: @$s2.as_bytes;
+            return $s;
+        }
+        our multi *infix:<eq>(Str $s1, Str $s2 --> Bool) is export { $s1.as_bytes eqv $s2.as_bytes }
     }
     class *UBuf is also {
         our multi method Str(UBuf $b: --> Str) { Str.new(:bytes($b)) }
@@ -1037,41 +1113,3 @@ module *bytes {
 use graphemes;
 use :nf<c>;
 use :encoding<utf8>;
-
-#XXX everything below here needs to be rewritten and moved to one of the above modules
-class Str is also {
-    token :codes split_graph {
-        $<st>=[ <-isGrapheme_Extend>* ]
-        $<ex>=[ <isGrapheme_Extend>* ]
-    }
-    our multi method samebase (Str $string: Str $pattern --> Str) is export {
-        my Str $ret;
-        for ^$string.graphs -> my Int $n {
-            $string.substr($n, 1).nfd ~~ &split_graph;
-            $ret ~= $<st>;
-            $pattern.substr($n, 1).nfd ~~ &split_graph;
-            $ret ~= $<ex>;
-        }
-        return $ret;
-    }
-
-    # Default Case Conversion                        Section 3.13
-    our multi method lc(Str $string: --> Str) is export {
-        ...;
-    }
-    our multi method lcfirst(Str $string: --> Str) is export {
-        ...;
-    }
-    our multi method uc(Str $string: --> Str) is export {
-        ...;
-    }
-    our multi method ucfirst(Str $string: --> Str) is export {
-        ...;
-    }
-    our multi method capitalize(Str $string: --> Str) is export {
-        ...;
-    }
-    our multi method samecase (Str $string: Str $pattern --> Str) is export {
-        ...;
-    }
-}
