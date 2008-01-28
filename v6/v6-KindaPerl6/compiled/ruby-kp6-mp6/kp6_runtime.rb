@@ -249,19 +249,25 @@ def c_infix_58__60_ne_62_; ->(cap){a=cap.pos; a[0] != a[1]}; end
 def c_prefix_58__60__126__62_; ->(cap){a=cap.pos; a[0].to_s}; end
 def c_prefix_58__60__43__43__62_; ->(cap){a=cap.pos; a[0]._(a[0]+1); a[0]}; end
 
+def c_ternary_58__60__63__63__32__33__33__62_; ->(cap){a=cap.pos; a[0].is_true6? ? a[1] : a[2]}; end
+
 # misc
-Str = String
 class Object
   def mc_WHAT; ->(cap){self.to_s} end
   def mc_isa; ->(cap){a=cap.pos; x=eval(a[0]); self.is_a?(x)} end #XXX SECURITY
   def mc_Str; ->(cap){self.to_s} end
 end
+class Variable
+  def mc_WHAT; __getobj__.mc_WHAT end
+  def mc_isa; __getobj__.mc_isa end
+  def mc_Str; __getobj__.mc_Str end
+end
+Str = String
 def c_chars; ->(cap){a=cap.pos; s=a[0]; s.length} end
 def c_substr; ->(cap){a=cap.pos; s=a[0]; s.slice(a[1],a[2]||s.length)} end
 def c_print; ->(cap){print *c.pos} end
 def c_Inf; ->(cap){1.0/0.0} end
 def c_NaN; ->(cap){0.0/0.0} end
-
 
 
 ## OO
@@ -338,3 +344,9 @@ class Class
        })
   end
 end
+
+## Stuff compiled from p6
+
+class Value; end
+require 'lib/KindaPerl6/Runtime/Perl6/Match.rb'
+
