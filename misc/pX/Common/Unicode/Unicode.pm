@@ -878,6 +878,11 @@ class *StrLen {
 
 class *Str is also {
     # in general only one of these is defined at a time
+    # all conversions are automatic:
+    # codes -> graphs is always allowed
+    # defining $?NF allows graphs -> codes
+    # defining $?ENC allows bytes -> codes, bytes -> graphs, codes -> bytes
+    # graphs -> bytes requires both $?NF and $?ENC (although in most cases NFC and utf8 are assumed)
     has @!as_graphs is UBuf;
     has @!as_codes is UBuf;
     has @!as_bytes is Buf of int8;
@@ -916,7 +921,6 @@ class *Str is also {
             ]*
         };
         return @!as_graphs;
-        return undef;
     }
     our method as_codes(--> UBuf) is rw is export {
         return @!as_codes if defined @!as_codes;
@@ -928,10 +932,14 @@ class *Str is also {
         if defined @!as_bytes and defined $?ENC {
             ...;
         }
-        return undef;
+        return @!as_codes;
     }
     our method as_bytes(--> Buf of int8) is rw is export {
-        ...;
+        return @!as_bytes if defined @!as_bytes;
+        if defined $?ENC {
+            ...;
+        }
+        return @!as_bytes;
     }
 
     token :codes split_graph {
@@ -975,7 +983,7 @@ module *graphemes {
     class *Str is also {
         our multi method graphs(Str $string: --> Int) is export { $string.as_graphs.elems }
         our multi method chars(Str $string: --> Int) is export { $string.graphs }
-        multi submethod BUILD(UBuf :@graphs) { @.as_graphs = @graphs; }
+        multi submethod BUILD(UBuf :@graphs) { @!as_graphs = @graphs; }
         multi method STORE(Str $s) {
             @!as_graphs = $s.as_graphs;
             @!as_codes = undef;
@@ -1003,8 +1011,8 @@ module *graphemes {
         our multi method substr(Str $string: StrPos $start, StrPos $end? --> Str) is rw is export {...}
     }
     our multi sub *chr(Int *@grid --> Str) {
-        my UBuf @b = @grid;
-        return Str.new(:graphs(@b));
+        my UBuf @graphs = @grid;
+        return Str.new(:@graphs);
     }
     class *UBuf is also {
         our multi method Str(UBuf $b: --> Str) { Str.new(:graphs($b)) }
@@ -1018,7 +1026,7 @@ module *codepoints {
     class *Str is also {
         our multi method codes(Str $string: --> Int) is export { $string.as_codes.elems }
         our multi method chars(Str $string: --> Int) is export { $string.codes }
-        multi submethod BUILD(UBuf :@codes) { @.as_codes = @codes; }
+        multi submethod BUILD(UBuf :@codes) { @!as_codes = @codes; }
         multi method STORE(Str $s) {
             @!as_graphs = undef;
             @!as_codes = $s.as_codes;
@@ -1062,8 +1070,8 @@ module *codepoints {
         our multi method nfkc(Str $string: --> Str) is export { return $string.normalize(:nf<kc>) }
     }
     our multi sub *chr(Int *@grid --> Str) {
-        my UBuf @b = @grid;
-        return Str.new(:codes(@b));
+        my UBuf @codes = @grid;
+        return Str.new(:@codes);
     }
     class *UBuf is also {
         our multi method Str(UBuf $b: --> Str) { Str.new(:codes($b)) }
@@ -1077,7 +1085,7 @@ module *bytes {
     class *Str is also {
         our multi method bytes(Str $string: --> Int) is export { $string.as_bytes.elems }
         our multi method chars(Str $string: --> Int) is export { $string.bytes }
-        multi submethod BUILD(UBuf :@bytes) { @.as_bytes = @bytes; }
+        multi submethod BUILD(UBuf :@bytes) { @!as_bytes = @bytes; }
         multi method STORE(Str $s) {
             @!as_graphs = undef;
             @!as_codes = undef;
@@ -1101,8 +1109,8 @@ module *bytes {
         our multi method substr(Str $string: StrPos $start, StrPos $end? --> Str) is rw is export {...}
     }
     our multi sub *chr(Int *@grid --> Str) {
-        my UBuf @b = @grid;
-        return Str.new(:bytes(@b));
+        my UBuf @bytes = @grid;
+        return Str.new(:@bytes);
     }
     class *UBuf is also {
         our multi method Str(UBuf $b: --> Str) { Str.new(:bytes($b)) }
