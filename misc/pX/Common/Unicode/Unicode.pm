@@ -906,25 +906,21 @@ class *Str is also {
     }
     our method as_graphs(--> UBuf) is rw is export {
         return @!as_graphs if defined @!as_graphs;
-        if defined @!as_codes {
-            ~@!as_codes ~~ token :codes{
-                [ (<grapheme_cluster>)
-                    { my Grapheme $g.=new: :s($0[*-1]);
-                      @!as_graphs.push: $g.id;
-                      }
-                    }
-                ]*
-            };
-            return @!as_graphs;
-        }
+        ~@.as_codes ~~ token :codes{
+            [ (<grapheme_cluster>)
+                { my Grapheme $g.=new: :s($0[*-1]);
+                  @!as_graphs.push: $g.id;
+                }
+            ]*
+        };
+        return @!as_graphs;
         return undef;
     }
     our method as_codes(--> UBuf) is rw is export {
         return @!as_codes if defined @!as_codes;
         if defined @!as_graphs and defined $?NF {
             for @!as_graphs -> Int $o {
-                my Grapheme $g.=new: :id($o);
-                @!as_codes.push: $g.normalize.as_codes;
+                @!as_codes.push: Grapheme.new(:id($o)).normalize.as_codes;
             }
         }
         if defined @!as_bytes and defined $?ENC {
@@ -972,12 +968,18 @@ module *codepoints {
             }
             return $ret;
         }
-        #XXX can .normalize() call this variant instead of the one above?
-        our multi method normalize(Str $string: Bool :$canonical, Bool :$recompose --> Str) is export {
+        # all of the following forms ignore $?NF
+        sub _norm_cr(Str $string, Bool $canonical, Bool $recompose --> Str) {
             return $string.nfd  if  $canonical and !$recompose;
             return $string.nfc  if  $canonical and  $recompose;
             return $string.nfkd if !$canonical and !$recompose;
             return $string.nfkc if !$canonical and  $recompose;
+        }
+        our multi method normalize(Str $string: Bool :$canonical!, Bool :$recompose --> Str) is export {
+            return _norm_cr $string, $canonical, $recompose;
+        }
+        our multi method normalize(Str $string: Bool :$canonical, Bool :$recompose! --> Str) is export {
+            return _norm_cr $string, $canonical, $recompose;
         }
         our multi method nfd(Str $string: --> Str) is export {
             my Str $ret;
