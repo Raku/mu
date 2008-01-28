@@ -28,8 +28,7 @@ multi submethod BUILD(Str $str) {
     $.preen;
 }
 
-#XXX how do you stringify an object?
-method tostr(--> Str) {
+method Str(--> Str) {
     # not needed if @@.table.perl DTRT...
     my Str $s;
     loop my Int $i = 0; $i < @@.table.elems; $i++ {
@@ -47,15 +46,15 @@ method tostr(--> Str) {
 }
 
 method perl(--> Str) {
-    return "Utable.new('" ~ $.tostr ~ "')";
+    return "Utable.new('" ~ $.Str ~ "')";
 }
 
 method print(|$args --> Bool) {
-    return $.tostr.print(|$args);
+    return $.Str.print(|$args);
 }
 
 method say(|$args --> Bool) {
-    return $.tostr.say(|$args);
+    return $.Str.say(|$args);
 }
 
 method contains(Int $x --> Bool) {

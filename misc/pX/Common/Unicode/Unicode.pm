@@ -688,13 +688,13 @@ class *Grapheme {
     has @!as_nfkd is UBuf;
     has @!as_nfkc is UBuf;
     method as_nfc(--> UBuf) {
-        return @!as_nfc //= $.to_nfc;
+        return @!as_nfc //= @.to_nfc;
     }
     method as_nfkc(--> UBuf) {
-        return @!as_nfkc //= $.to_nfkc;
+        return @!as_nfkc //= @.to_nfkc;
     }
     method as_nfkd(--> UBuf) {
-        return @!as_nfkd //= $.to_nfkd;
+        return @!as_nfkd //= @.to_nfkd;
     }
     submethod BUILD(Grapheme $g: Str $s) {
         return unless $s.as_codes.elems;
@@ -703,7 +703,7 @@ class *Grapheme {
             $.id = @.as_nfc[0];
             return;
         }
-        my Str $sc = [~] @.as_nfc».chr;
+        my Str $sc = ~@.as_nfc;
         if exists %seen_graphs{$sc} {
             $g := @graph_ids[%seen_graphs{$sc}];
             return;
@@ -718,8 +718,7 @@ class *Grapheme {
     # Normalization Algorithm                        UAX #15
     sub reorder(@b is UBuf --> UBuf) {
         my Str $ret;
-        my Str $string = [~] @b».chr;
-        $string ~~ token :codes {
+        ~@b ~~ token :codes {
             [ $<ns>=[ <isccc(0)>+ ]
                 { $ret ~= $<ns>[*-1] }
             | @<s>=<isccc(1..*)>*
@@ -816,12 +815,10 @@ class *Grapheme {
         return $ret;
     }
     method to_nfc(--> UBuf) {
-        my Str $s = [~] @.as_nfd».chr;
-        return compose_graph($s).as_codes;
+        return compose_graph(~@.as_nfd).as_codes;
     }
     method to_nfkd(--> UBuf) {
-        my Str $s = [~] @.as_nfkd».chr;
-        return compose_graph($s).as_codes;
+        return compose_graph(~@.as_nfkd).as_codes;
     }
 }
 
@@ -885,10 +882,14 @@ module *graphemes {
     class *Str is also {
         our multi method graphs(Str $string: --> Int) is export { $string.as_graphs.elems }
         our multi method chars(Str $string: --> Int) is export { $string.graphs }
-        multi submethod BUILD(...) {...}
+        multi submethod BUILD(UBuf :@graphs) { @.as_graphs = @graphs; }
         multi method STORE(...) {...}
         multi method FETCH(...) {...}
         our multi *infix:<~>(...) is export {...}
+        our multi *infix:<eq>(...) is export {...}
+    }
+    class *UBuf is also {
+        our multi method Str(UBuf $b: --> Str) { Str.new(:graphs($b)) }
     }
 }
 
@@ -896,10 +897,14 @@ module *codepoints {
     class *Str is also {
         our multi method codes(Str $string: --> Int) is export { $string.as_codes.elems }
         our multi method chars(Str $string: --> Int) is export { $string.codes }
-        multi submethod BUILD(...) {...}
+        multi submethod BUILD(UBuf :@codes) { @.as_codes = @codes; }
         multi method STORE(...) {...}
         multi method FETCH(...) {...}
         our multi *infix:<~>(...) is export {...}
+        our multi *infix:<eq>(...) is export {...}
+    }
+    class *UBuf is also {
+        our multi method Str(UBuf $b: --> Str) { Str.new(:codes($b)) }
     }
 }
 
@@ -907,16 +912,21 @@ module *bytes {
     class *Str is also {
         our multi method bytes(Str $string: --> Int) is export { $string.as_bytes.elems }
         our multi method chars(Str $string: --> Int) is export { $string.bytes }
-        multi submethod BUILD(...) {...}
+        multi submethod BUILD(UBuf :@bytes) { @.as_bytes = @bytes; }
         multi method STORE(...) {...}
         multi method FETCH(...) {...}
         our multi *infix:<~>(...) is export {...}
+        our multi *infix:<eq>(...) is export {...}
+    }
+    class *UBuf is also {
+        our multi method Str(UBuf $b: --> Str) { Str.new(:bytes($b)) }
     }
 }
 
 # defaults
 use graphemes;
 use :nf<c>;
+use :encoding<utf8>;
 
 #XXX everything below here needs to be rewritten and moved to one of the above modules
 class Str is also {
