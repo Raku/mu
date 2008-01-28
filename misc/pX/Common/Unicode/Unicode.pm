@@ -85,8 +85,8 @@ my Code @dump_init_subs;
 my Code @mktab_subs;
 our sub mktables(-->) {
     # requires .txt files from e.g. http://www.unicode.org/Public/zipped/5.0.0/UCD.zip
-    if ! 'ucd/Proplist.txt' ~~ :e {
-        if ! 'ucd/UCD.zip' ~~ :e {
+    if 'ucd/Proplist.txt' !~~ :e {
+        if 'ucd/UCD.zip' !~~ :e {
             mkdir 'ucd' unless 'ucd' ~~ :d;
             chdir 'ucd';
             system 'wget', 'http://www.unicode.org/Public/zipped/5.0.0/UCD.zip';
@@ -681,12 +681,14 @@ class *Grapheme {
     use codepoints;
     # a unique number > $unicode_max
     has Int $.id;
-    # always has @!as_nfd
-    has @.as_nfd is UBuf;
     # these are generated lazily
+    has @!as_nfd is UBuf;
     has @!as_nfc is UBuf;
     has @!as_nfkd is UBuf;
     has @!as_nfkc is UBuf;
+    method as_nfd(--> UBuf) {
+        return @!as_nfd //= @.to_nfd;
+    }
     method as_nfc(--> UBuf) {
         return @!as_nfc //= @.to_nfc;
     }
@@ -696,9 +698,10 @@ class *Grapheme {
     method as_nfkd(--> UBuf) {
         return @!as_nfkd //= @.to_nfkd;
     }
-    submethod BUILD(Grapheme $g: Str $s) {
+
+    multi submethod BUILD(Grapheme $g: Str $s) {
         return unless $s.as_codes.elems;
-        @.as_nfd = nfd_g($s.as_codes);
+        @!as_nfd = nfd_g($s.as_codes);
         if @.as_nfc.elems == 1 {
             $.id = @.as_nfc[0];
             return;
@@ -715,11 +718,21 @@ class *Grapheme {
         @graph_ids[$graph_num] = $g;
         %seen_graphs{$sc} = $graph_num;
     }
+    # this is like chr under use graphs
+    multi submethod BUILD(Grapheme $g: Int $id) {
+        if $id <= $unicode_max {
+            $.id = $id;
+            @!as_nfc = $id;
+        } else {
+            $g := @graph_ids[$id - ($unicode_max+1)];
+        }
+    }
+
     # Normalization Algorithm                        UAX #15
     sub reorder(@b is UBuf --> UBuf) {
         my Str $ret;
         ~@b ~~ token :codes {
-            [ $<ns>=[ <isccc(0)>+ ]
+            [ $<ns>=[ <isccc(0)>* ]
                 { $ret ~= $<ns>[*-1] }
             | @<s>=<isccc(1..*)>*
                 { $ret ~= [~] @@<s>[*-1].sort: { %ccc{$^c} } }
@@ -750,6 +763,9 @@ class *Grapheme {
             }
         }
         return reorder @new;
+    }
+    method to_nfd(--> UBuf) {
+        return nfd_g(@!as_nfc);
     }
     method to_nfkd(--> UBuf) {
         my @old is UBuf;
@@ -820,6 +836,14 @@ class *Grapheme {
     method to_nfkd(--> UBuf) {
         return compose_graph(~@.as_nfkd).as_codes;
     }
+    method normalize(Str :$nf = $?NF --> Str) {
+        given $nf {
+            when 'c'  { return ~@.as_nfc;  }
+            when 'd'  { return ~@.as_nfd;  }
+            when 'kc' { return ~@.as_nfkc; }
+            when 'kd' { return ~@.as_nfkd; }
+        }
+    }
 }
 
 # From S29 (mostly)
@@ -830,7 +854,11 @@ BEGIN {
 }
 
 module *nf {
-    sub EXPORTER(Str $nf) {
+    sub EXPORTER(Str $nf is copy) {
+        $nf.=lc;
+        $nf ~~ s:g/nf|\W//;
+        die "Unknown Normalization Form: $nf\n"
+            unless $nf eq any <c d kc kd>;
         $?NF ::= $nf;
     }
 }
@@ -876,6 +904,37 @@ class *Str is also {
         | <-isGCBCR-isGCBLF-isGCBControl> <isGrapheme_Extend>*
         | <isGrapheme_Extend>+
     }
+    our method as_graphs(--> UBuf) is rw is export {
+        return @!as_graphs if defined @!as_graphs;
+        if defined @!as_codes {
+            ~@!as_codes ~~ token :codes{
+                [ (<grapheme_cluster>)
+                    { my Grapheme $g.=new: :s($0[*-1]);
+                      @!as_graphs.push: $g.id;
+                      }
+                    }
+                ]*
+            };
+            return @!as_graphs;
+        }
+        return undef;
+    }
+    our method as_codes(--> UBuf) is rw is export {
+        return @!as_codes if defined @!as_codes;
+        if defined @!as_graphs and defined $?NF {
+            for @!as_graphs -> Int $o {
+                my Grapheme $g.=new: :id($o);
+                @!as_codes.push: $g.normalize.as_codes;
+            }
+        }
+        if defined @!as_bytes and defined $?ENC {
+            ...;
+        }
+        return undef;
+    }
+    our method as_bytes(--> Buf of int8) is rw is export {
+        ...;
+    }
 }
 
 module *graphemes {
@@ -891,6 +950,9 @@ module *graphemes {
     class *UBuf is also {
         our multi method Str(UBuf $b: --> Str) { Str.new(:graphs($b)) }
     }
+    class *Grapheme is also {
+        our multi method Str(--> Str) { Str.new(:graphs($.id)) }
+    }
 }
 
 module *codepoints {
@@ -902,9 +964,55 @@ module *codepoints {
         multi method FETCH(...) {...}
         our multi *infix:<~>(...) is export {...}
         our multi *infix:<eq>(...) is export {...}
+
+        our multi method normalize(Str $string: Str :$nf = $?NF --> Str) is export {
+            my Str $ret;
+            for @$string.as_graphs -> my Int $o {
+                $ret ~= Grapheme.new(:id($o)).normalize;
+            }
+            return $ret;
+        }
+        #XXX can .normalize() call this variant instead of the one above?
+        our multi method normalize(Str $string: Bool :$canonical, Bool :$recompose --> Str) is export {
+            return $string.nfd  if  $canonical and !$recompose;
+            return $string.nfc  if  $canonical and  $recompose;
+            return $string.nfkd if !$canonical and !$recompose;
+            return $string.nfkc if !$canonical and  $recompose;
+        }
+        our multi method nfd(Str $string: --> Str) is export {
+            my Str $ret;
+            for @$string.as_graphs -> my Int $o {
+                $ret.as_codes.push: Grapheme.new(:id($o)).as_nfd;
+            }
+            return $ret;
+        }
+        our multi method nfkd(Str $string: --> Str) is export {
+            my Str $ret;
+            for @$string.as_graphs -> my Int $o {
+                $ret.as_codes.push: Grapheme.new(:id($o)).as_nfkd;
+            }
+            return $ret;
+        }
+        our multi method nfc(Str $string: --> Str) is export {
+            my Str $ret;
+            for @$string.as_graphs -> my Int $o {
+                $ret.as_codes.push: Grapheme.new(:id($o)).as_nfc;
+            }
+            return $ret;
+        }
+        our multi method nfkc(Str $string: --> Str) is export {
+            my Str $ret;
+            for @$string.as_graphs -> my Int $o {
+                $ret.as_codes.push: Grapheme.new(:id($o)).as_nfkc;
+            }
+            return $ret;
+        }
     }
     class *UBuf is also {
         our multi method Str(UBuf $b: --> Str) { Str.new(:codes($b)) }
+    }
+    class *Grapheme is also {
+        our multi method Str(--> Str) { $.normalize }
     }
 }
 
@@ -930,40 +1038,6 @@ use :encoding<utf8>;
 
 #XXX everything below here needs to be rewritten and moved to one of the above modules
 class Str is also {
-    # normalization form can be
-    # nfd, nfc, nfkd, nfkc
-    # 'as-is' (for unnormalized codepoint-level strings)
-    has Str $.norm is rw;
-    our method as_graphs(--> UBuf) is rw is export {
-        return @!as_graphs if defined @!as_graphs;
-        if defined @!as_codes {
-            [~] @!as_codes».chr ~~ token :codes{
-                [ (<grapheme_cluster>)
-                    { my Grapheme $g.=new: $0[*-1];
-                      @!as_graphs.push: $g.id;
-                      }
-                    }
-                ]*
-            };
-            return @!as_graphs;
-        }
-        return undef;
-    }
-    our method as_codes(--> UBuf) is rw is export {
-        return @!as_codes if defined @!as_codes;
-        if defined @!as_graphs and defined $.norm and $.norm ne 'as-is' {
-            for @!as_graphs -> Int $o {
-                if $o <= $unicode_max {
-                    @!as_codes.push: $o;
-                    next;
-                }
-                my Grapheme $g := @graph_ids[$o - ($unicode_max+1)];
-                @!as_codes.push: @$g.$.norm;
-            }
-        }
-        return undef;
-    }
-
     token :codes split_graph {
         $<st>=[ <-isGrapheme_Extend>* ]
         $<ex>=[ <isGrapheme_Extend>* ]
@@ -996,34 +1070,6 @@ class Str is also {
         ...;
     }
     our multi method samecase (Str $string: Str $pattern --> Str) is export {
-        ...;
-    }
-
-    our multi method normalize(Str $string: Bool :$canonical = Bool::True, Bool :$recompose = Bool::False --> Str) is export {
-        $.norm = 'as_nfd'  if  $canonical and !$recompose;
-        $.norm = 'as_nfc'  if  $canonical and  $recompose;
-        $.norm = 'as_nfkd' if !$canonical and !$recompose;
-        $.norm = 'as_nfkc' if !$canonical and  $recompose;
-        return $string;
-    }
-    our multi method nfd(Str $string: --> Str) is export {
-        $string.norm = 'as_nfd';
-        return $string;
-    }
-    our multi method nfkd(Str $string: --> Str) is export {
-        $string.norm = 'as_nfkd';
-        return $string;
-    }
-    our multi method nfc(Str $string: --> Str) is export {
-        $string.norm = 'as_nfc';
-        return $string;
-    }
-    our multi method nfkc(Str $string: --> Str) is export {
-        $string.norm = 'as_nfkc';
-        return $string;
-    }
-
-
         ...;
     }
 }
