@@ -803,32 +803,32 @@ class *Grapheme {
         }
         return $ret;
     }
-    sub compose_graph(Str $s --> Str) {
+    sub compose_graph(Str $s is copy --> Str) {
         return %composition{$s} // $s
             if $s.codes == 1;
         return compose_hangul($s)
             if $s ~~ &isGCBHangulSyllable;
-        my Str $ret = $s;
         startover:
         my Str $one = $s.as_codes[0].chr;
         if exists %composition{$one} {
-            $ret = %composition{$one};
-            $ret.as_codes.push: $s.as_codes[1..*];
+            my Str $new = %composition{$one};
+            $new ~= @$s.as_codes[1..*].chr;
+            $s = $new;
             goto startover;
         }
-        for 1..$ret.codes -> my Int $n {
-            my Str $two = $ret.as_codes[0].chr ~ $ret.as_codes[$n].chr;
+        for 1..$s.codes -> my Int $n {
+            my Str $two = $s.as_codes[0].chr ~ $s.as_codes[$n].chr;
             if exists %composition{$two} {
                 my Str $new = %composition{$two};
-                for 1..$ret.codes -> my Int $m {
+                for 1..$s.codes -> my Int $m {
                     next if $n == $m;
-                    $new ~= $ret.as_codes[$m].chr;
+                    $new ~= $s.as_codes[$m].chr;
                 }
-                $ret = $new;
+                $s = $new;
                 goto startover;
             }
         }
-        return $ret;
+        return $s;
     }
     method to_nfc(--> UBuf) {
         return compose_graph(~@.as_nfd).as_codes;
