@@ -8,7 +8,7 @@ grammar sm0p {
     };
 
     token node {
-        <ws> $responder := <identifier> '.' $identifier := <idconst> (
+        <ws> $responder := <identifier> '.' $identifier := <identifier> (
         [ <ws> $invocant := <identifier> <ws> ':' ]? <ws> <positional> <ws> <named> <ws> ) ;
         { return 'SMOP_DISPATCH(interpreter, SMOP__SLIME__Node, SMOP__ID__new, '
           ~ ' SMOP__NATIVE__capture_create(interpreter, SMOP__SLIME__Node, NULL, (SMOP__Object*[]){'
@@ -16,12 +16,15 @@ grammar sm0p {
           ~ ' SMOP__ID__identifier, ' ~ $identifier ~ ', '
           ~ ' SMOP__ID__capture, SMOP__NATIVE__capture_create(interpreter, '
           ~ ($invocant ?? $invocant !! $responder) ~ ', '~ $<positional> ~', '~ $<named> ~') '
-          ~ ' }))' }
-      | <ws> <identifier> <ws> ;
+          ~ ',NULL }))' }
+      | <ws> <identifier> <ws> ';'
         { return 'SMOP_DISPATCH(interpreter, SMOP__SLIME__Node, SMOP__ID__new, '
           ~ ' SMOP__NATIVE__capture_create(interpreter, SMOP__SLIME__Node, NULL, (SMOP__Object*[]){'
           ~ ' SMOP__ID__result, ' ~ $identifier
-          ~ ' }))' }
+          ~ ',NULL }))' }
+      | <ws> ';'
+        { return 'SMOP_DISPATCH(interpreter, SMOP__SLIME__Node, SMOP__ID__new, '
+          ~ ' SMOP__NATIVE__capture_create(interpreter, SMOP__SLIME__Node, NULL, NULL))' }
     };
 
     token positional {
@@ -37,7 +40,7 @@ grammar sm0p {
     };
 
     token pair {
-        $key := <identifier> <ws> => <ws> $val := <identifier>
+        $key := <identifier> <ws> '=>' <ws> $val := <identifier>
         { return $key ~ ', ' ~ $val }
     };
 
@@ -57,6 +60,6 @@ grammar sm0p {
     };
 
     token ws {
-        [ \s | \n ]*
+        [ \s | \n  | '#' .+? \n ]*
     };
 }
