@@ -8,9 +8,9 @@ grammar sm0p is KindaPerl6::Grammar {
     };
 
     token node {
-        <node_empty>
-      | <node_result>
-      | <node_full>
+        <node_empty> { make $<node_empty> ~ '' }
+      | <node_result> { make $<node_result> ~ '' }
+      | <node_full> { make $<node_full> ~ '' }
       | '' { make 'NULL' }
     };
 
@@ -42,10 +42,12 @@ grammar sm0p is KindaPerl6::Grammar {
 
     token invocant {
         <identifier>
+        { make $<identifier> ~ '' }
     };
 
     token responder {
         <identifier>
+        { make $<identifier> ~ '' }
     };
 
     token positional {
@@ -88,13 +90,13 @@ grammar sm0p is KindaPerl6::Grammar {
     };
 
     token identifier2 {
-        <identifier>
+        <identifier> { make $<identifier> ~ '' }
     };
 
     token identifier {
-        '$' <name> { make $<name> }
-      | <idconst> { make $<idconst> }
-      | <name> { make $<name> }
+        '$' <name> { make $<name> ~ '' }
+      | <idconst> { make $<idconst> ~ ''}
+      | <name> { make $<name> ~ '' }
     };
 
     token idconst {
@@ -102,14 +104,20 @@ grammar sm0p is KindaPerl6::Grammar {
       | lexical { make 'SMOP__ID__lexical' }
     };
 
-    token name :P5 {\\w[\\w\\d]*};
+    token name {
+        <namep5>
+        { make $<namep5> ~ '' }
+    };
+
+    token namep5 :P5 {\\w[\\w\\d]*};
 
     token ws {
         [ \s | \n  | '#' .+? \n | '' ]+
+        { make '' }
     };
 }
 module main {
     $_ =
-'node = q:sm0p { obj.method( a ) ; }';
+'node = q:sm0p { $obj.method( a ) ; }';
     say sm0p.frame($_);
 }
