@@ -1,6 +1,6 @@
 grammar sm0p {
     token frame {
-        <ws> <identifier> <ws> '=' <ws> 'q:sm0p' <ws> { <ws> <node>+ <ws> } <ws> ;
+        <ws> <identifier> <ws> '=' <ws> 'q:sm0p' <ws> '{' <ws> <node>+ <ws> '}' <ws> ;
         { return $<identifier> ~ ' = SMOP_DISPATCH(interpreter, '
           ~ 'SMOP__SLIME__Frame, SMOP__ID__new, SMOP__NATIVE__capture_create('
           ~ 'interpreter, SMOP__SLIME__Frame, (SMOP__Object*[]){ '
@@ -8,8 +8,8 @@ grammar sm0p {
     };
 
     token node {
-        <ws> $responder := <identifier> '.' $identifier := <identifier> (
-        [ <ws> $invocant := <identifier> <ws> ':' ]? <ws> <positional> <ws> <named> <ws> ) ;
+        <ws> $responder := <identifier> '.' $identifier := <identifier> '('
+        [ <ws> $invocant := <identifier> <ws> ':' ]? <ws> <positional> <ws> <named> <ws> ')' ;
         { return 'SMOP_DISPATCH(interpreter, SMOP__SLIME__Node, SMOP__ID__new, '
           ~ ' SMOP__NATIVE__capture_create(interpreter, SMOP__SLIME__Node, NULL, (SMOP__Object*[]){'
           ~ ' SMOP__ID__responder, SMOP_RI(' ~ $responder ~ '), '
