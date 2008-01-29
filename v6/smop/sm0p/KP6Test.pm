@@ -1,6 +1,6 @@
 grammar sm0p is KindaPerl6::Grammar {
     token frame {
-        <ws>* <identifier> <ws>* '=' <ws>* 'q:sm0p' <ws>* '{' <ws>* <node>+ <ws>* '}' <ws>* ;
+        <ws> <identifier> <ws> '=' <ws> 'q:sm0p' <ws> '{' <ws> <node>+ <ws> '}' <ws> ;
         { return $<identifier> ~ ' = SMOP_DISPATCH(interpreter, '
           ~ 'SMOP__SLIME__Frame, SMOP__ID__new, SMOP__NATIVE__capture_create('
           ~ 'interpreter, SMOP__SLIME__Frame, (SMOP__Object*[]){ '
@@ -8,8 +8,8 @@ grammar sm0p is KindaPerl6::Grammar {
     };
 
     token node {
-        <ws>* <responder> '.' <identifier> '('
-        [ <ws>* <invocant> <ws>* ':' ]? <ws>* <positional> <ws>* <named> <ws>* ')' ;
+        <ws> <responder> '.' <identifier> '('
+        [ <ws> <invocant> <ws> ':' ]? <ws> <positional> <ws> <named> <ws> ')' ;
         { return 'SMOP_DISPATCH(interpreter, SMOP__SLIME__Node, SMOP__ID__new, '
           ~ ' SMOP__NATIVE__capture_create(interpreter, SMOP__SLIME__Node, NULL, (SMOP__Object*[]){'
           ~ ' SMOP__ID__responder, SMOP_RI(' ~ $<responder> ~ '), '
@@ -17,12 +17,12 @@ grammar sm0p is KindaPerl6::Grammar {
           ~ ' SMOP__ID__capture, SMOP__NATIVE__capture_create(interpreter, '
           ~ ($<invocant> ?? $<invocant> !! $<responder>) ~ ', '~ $<positional> ~', '~ $<named> ~') '
           ~ ',NULL }))' }
-      | <ws>* <identifier> <ws>* ';'
+      | <ws> <identifier> <ws> ';'
         { return 'SMOP_DISPATCH(interpreter, SMOP__SLIME__Node, SMOP__ID__new, '
           ~ ' SMOP__NATIVE__capture_create(interpreter, SMOP__SLIME__Node, NULL, (SMOP__Object*[]){'
           ~ ' SMOP__ID__result, ' ~ $<identifier>
           ~ ',NULL }))' }
-      | <ws>* ';'
+      | <ws> ';'
         { return 'SMOP_DISPATCH(interpreter, SMOP__SLIME__Node, SMOP__ID__new, '
           ~ ' SMOP__NATIVE__capture_create(interpreter, SMOP__SLIME__Node, NULL, NULL))' }
     };
@@ -44,9 +44,9 @@ grammar sm0p is KindaPerl6::Grammar {
     token positionals {
         <identifier>
         [
-        |   <ws>* \, <ws>* <positionals>
+        |   <ws> \, <ws> <positionals>
             { make [ $$<identifier>, ( $$<positionals> ).values ] }
-        |   <ws>* [ \, <ws>* | '' ]
+        |   <ws> [ \, <ws> | '' ]
             { make [ $$<identifier> ] }
         ]
     |   { make [ ] }
@@ -61,16 +61,16 @@ grammar sm0p is KindaPerl6::Grammar {
     token pairs {
         <pair>
         [
-        |   <ws>* \, <ws>* <pairs>
+        |   <ws> \, <ws> <pairs>
             { make [ $$<pair>, ( $$<pairs> ).values ] }
-        |   <ws>* [ \, <ws>* | '' ]
+        |   <ws> [ \, <ws> | '' ]
             { make [ $$<pair> ] }
         ]
     |   { make [ ] }
     }
 
     token pair {
-        <identifier> <ws>* '=>' <ws>* <identifier2>
+        <identifier> <ws> '=>' <ws> <identifier2>
         { make $<identifier> ~ ', ' ~ $<identifier2> }
     };
 
@@ -94,7 +94,7 @@ grammar sm0p is KindaPerl6::Grammar {
     };
 
     token ws {
-        [ \s | \n  | '#' .+? \n ]
+        [ \s | \n  | '#' .+? \n | '']+
     };
 }
 module main {
