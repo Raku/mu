@@ -1,16 +1,16 @@
 grammar sm0p is KindaPerl6::Grammar {
     token frame {
-        <ws> <identifier> <ws> '=' <ws> 'q:sm0p' <ws> '{' <ws> <node>+ <ws> '}' <ws> ;
-        { return $<identifier> ~ ' = SMOP_DISPATCH(interpreter, '
+        <ws> <identifier> <ws> '=' <ws> 'q:sm0p' <ws> '{' <ws> <node>+ <ws> '}' <ws> [ ';' | '' ]
+        { make $<identifier> ~ ' = SMOP_DISPATCH(interpreter, '
           ~ 'SMOP__SLIME__Frame, SMOP__ID__new, SMOP__NATIVE__capture_create('
           ~ 'interpreter, SMOP__SLIME__Frame, (SMOP__Object*[]){ '
-          ~ ($$<node>).join(',') ~ ' }, NULL)); ' }
+          ~ ($$<node>) ~ ' }, NULL)); ' }
     };
 
     token node {
         <ws> <responder> '.' <identifier> '('
-        [ <ws> <invocant> <ws> ':' ]? <ws> <positional> <ws> <named> <ws> ')' ;
-        { return 'SMOP_DISPATCH(interpreter, SMOP__SLIME__Node, SMOP__ID__new, '
+        [ <ws> <invocant> <ws> ':' | '' ] <ws> <positional> <ws> <named> <ws> ')' ;
+        { make 'SMOP_DISPATCH(interpreter, SMOP__SLIME__Node, SMOP__ID__new, '
           ~ ' SMOP__NATIVE__capture_create(interpreter, SMOP__SLIME__Node, NULL, (SMOP__Object*[]){'
           ~ ' SMOP__ID__responder, SMOP_RI(' ~ $<responder> ~ '), '
           ~ ' SMOP__ID__identifier, ' ~ $<identifier> ~ ', '
@@ -18,13 +18,14 @@ grammar sm0p is KindaPerl6::Grammar {
           ~ ($<invocant> ?? $<invocant> !! $<responder>) ~ ', '~ $<positional> ~', '~ $<named> ~') '
           ~ ',NULL }))' }
       | <ws> <identifier> <ws> ';'
-        { return 'SMOP_DISPATCH(interpreter, SMOP__SLIME__Node, SMOP__ID__new, '
+        { make 'SMOP_DISPATCH(interpreter, SMOP__SLIME__Node, SMOP__ID__new, '
           ~ ' SMOP__NATIVE__capture_create(interpreter, SMOP__SLIME__Node, NULL, (SMOP__Object*[]){'
           ~ ' SMOP__ID__result, ' ~ $<identifier>
           ~ ',NULL }))' }
       | <ws> ';'
-        { return 'SMOP_DISPATCH(interpreter, SMOP__SLIME__Node, SMOP__ID__new, '
+        { make 'SMOP_DISPATCH(interpreter, SMOP__SLIME__Node, SMOP__ID__new, '
           ~ ' SMOP__NATIVE__capture_create(interpreter, SMOP__SLIME__Node, NULL, NULL))' }
+      | '' { make 'NULL' }
     };
 
     token invocant {
@@ -37,8 +38,8 @@ grammar sm0p is KindaPerl6::Grammar {
 
     token positional {
         <positionals>
-        { return '(SMOP__Object*[]){' ~ ($$<positionals>).join(',') ~ ',NULL}'  }
-      | { return 'NULL' }
+        { make '(SMOP__Object*[]){' ~ ($$<positionals>) ~ ',NULL}'  }
+      | { make 'NULL' }
     };
 
     token positionals {
@@ -54,7 +55,7 @@ grammar sm0p is KindaPerl6::Grammar {
 
     token named {
         <pairs>
-        { make '(SMOP__Object*[]){' ~ ($$<pairs>).join(',') ~ ',NULL}'  }
+        { make '(SMOP__Object*[]){' ~ ($$<pairs>) ~ ',NULL}'  }
       | { make 'NULL' }
     };
 
@@ -89,15 +90,13 @@ grammar sm0p is KindaPerl6::Grammar {
       | lexical { make 'SMOP__ID__lexical' }
     };
 
-    token name {
-        \w [ \w | \d ]+
-    };
+    token name :P5 {\\w[\\w\\d]+};
 
     token ws {
-        [ \s | \n  | '#' .+? \n | '']+
+        [ \s | \n  | '#' .+? \n | '' ]+
     };
 }
 module main {
-    $_ = 'node = q:sm0p { }';
+    $_ = 'node = q:sm0p { obj.method( a ) ; }';
     say sm0p.frame($_);
 }
