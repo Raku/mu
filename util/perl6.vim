@@ -36,7 +36,7 @@ syn keyword p6KeyScopeDecl  let my our state temp has constant proto
 syn keyword p6KeyFlow       if else elsif unless  
 syn keyword p6KeyFlow       for foreach loop while until when next last redo
 syn keyword p6KeyFlow       given not or and andthen orelse xor return default
-syn keyword p6KeyFlow       exit
+syn keyword p6KeyFlow       exit make
 syn keyword p6ClosureTrait  BEGIN CHECK INIT START FIRST ENTER LEAVE KEEP UNDO NEXT LAST
 syn keyword p6ClosureTrait  PRE POST END rw signature returns of parsed cached 
 syn keyword p6ClosureTrait  readonly ref copy 
