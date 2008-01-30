@@ -75,7 +75,7 @@ sub install_token(Str $name, Code &check(Str --> Bool) -->) {
     eval "our token $name is export " ~ '{ (.) <?{ &check($0) }> }';
 }
 
-# we have perl6 -MUnicode -e mktables in lieu of a script
+# we have perl6 -MUCD -e mktables in lieu of a script
 # the two init paths (mktables/ucd_basic_dump) are interleaved
 # in the source to keep them organized - subs are gathered up
 # and executed at the right time

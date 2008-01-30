@@ -46,7 +46,7 @@ class *Grapheme {
         my Int $graph_num = +@graph_ids;
         $.id = $graph_num + $unicode_max+1;
         die 'Too many unique graphemes' if $.id >= 2 ** 32;
-        @graph_ids[$graph_num] = $g;
+        @graph_ids[$graph_num] := $g;
         %seen_graphs{$sc} = $graph_num;
     }
     # this is like chr under use graphs
@@ -164,7 +164,7 @@ class *Grapheme {
     method to_nfc(--> UBuf) {
         return compose_graph(~@.as_nfd).as_codes;
     }
-    method to_nfkd(--> UBuf) {
+    method to_nfkc(--> UBuf) {
         return compose_graph(~@.as_nfkd).as_codes;
     }
     method normalize(Str :$nf = $?NF --> Str) {

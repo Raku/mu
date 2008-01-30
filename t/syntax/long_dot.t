@@ -5,29 +5,29 @@ use Test;
 plan 76;
 
 # L<S02/"Whitespace and Comments"/This is known as the "unspace">
-# FIXME: this test should be rethought/renamed - the long dot
+# FIXME: this test should be rethought/renamed - the unspace
 #        concept was absorbed into the more general "unspace" thing
 
-is(4\       .sqrt, 2, 'long dot with numbers');
-is(4\#(quux).sqrt, 2, 'long dot with comments');
-is("x"\     .bytes, 1, 'long dot with strings');
-is("x"\     .bytes(), 1, 'long dot with strings + parens');
+is(4\       .sqrt, 2, 'unspace with numbers');
+is(4\#(quux).sqrt, 2, 'unspace with comments');
+is("x"\     .bytes, 1, 'unspace with strings');
+is("x"\     .bytes(), 1, 'unspace with strings + parens');
 
 my $foo = 4;
-is(eval('$foo.++'), 4, '(short) long dot with postfix inc');
-is($foo, 5, '(short) long dot with postfix inc really postfix');
-is(eval('$foo\       .++'), 5, 'long dot with postfix inc');
-is($foo, 6, 'long dot with postfix inc really postfix');
-is(eval('$foo\       .--'), 6, 'long dot with postfix dec');
-is($foo, 5, 'long dot with postfix dec really postfix');
+is(eval('$foo.++'), 4, '(short) unspace with postfix inc');
+is($foo, 5, '(short) unspace with postfix inc really postfix');
+is(eval('$foo\       .++'), 5, 'unspace with postfix inc');
+is($foo, 6, 'unspace with postfix inc really postfix');
+is(eval('$foo\       .--'), 6, 'unspace with postfix dec');
+is($foo, 5, 'unspace with postfix dec really postfix');
 
-is("xxxxxx"\.bytes, 6, 'long dot without spaces');
+is("xxxxxx"\.bytes, 6, 'unspace without spaces');
 is("xxxxxx"\
-    .bytes, 6, 'long dot with newline');
+    .bytes, 6, 'unspace with newline');
 
-is((:foo\ .("bar")), ('foo' => "bar"), 'long dot with adverb');
+is((:foo\ .("bar")), ('foo' => "bar"), 'unspace with adverb');
 
-is( ~([1,2,3]\ .[2,1,0]), "3 2 1", 'long dot on postfix subscript');
+is( ~([1,2,3]\ .[2,1,0]), "3 2 1", 'unspace on postfix subscript');
 
 my @array = 1,2,3;
 
@@ -39,10 +39,10 @@ eval "
     @array»\     .++;
     @array\ .»\  .++;
 ";
-is( ~@array, "7 8 9", 'long dots with postfix hyperops', :todo);
+is( ~@array, "7 8 9", 'unspace with postfix hyperops', :todo);
 
 
-#Test the "long dot" and unspace syntax
+#Test the "unspace" and unspace syntax
 
 class Str is also {
     method id($x:) { $x }
@@ -62,32 +62,32 @@ is(eval('foo.id'), 'a', 'sanity - foo.id');
 is(eval('foo .id'), 'b', 'sanity - foo .id');
 is(eval('bar.id'), 'a', 'sanity - bar.id');
 is(eval('bar .id'), 'b', 'sanity - bar .id');
-is(eval('foo\.id'), 'a', 'short long dot');
-is(eval('foo\ .id'), 'a', 'long dot');
-is(eval('foo \ .id'), 'b', 'not a long dot');
+is(eval('foo\.id'), 'a', 'short unspace');
+is(eval('foo\ .id'), 'a', 'unspace');
+is(eval('foo \ .id'), 'b', 'not a unspace');
 is(eval('fo\ o.id'), undef, 'unspace not allowed in identifier');
 is(eval('foo\    .id'), 'a', 'longer dot');
-is(eval('foo\#( comment ).id'), 'a', 'long dot with embedded comment');
+is(eval('foo\#( comment ).id'), 'a', 'unspace with embedded comment');
 is(eval('foo\#\ ( comment ).id'), undef, 'unspace can\'t hide space between # and opening bracket');
 is(eval('foo\ # comment
-    .id'), 'a', 'long dot with end-of-line comment');
+    .id'), 'a', 'unspace with end-of-line comment');
 is(eval(':foo\ <bar>'), (:foo<bar>), 'unspace in colonpair');
 is(eval('foo\ .\ ("x")'), 'x', 'unspace is allowed both before and after method .');
 is(eval('foo\
 =begin comment
 blah blah blah
 =end comment
-    .id'), 'a', 'long dot with pod =begin/=end comment');
+    .id'), 'a', 'unspace with pod =begin/=end comment');
 is(eval('foo\
 =for comment
 blah
 blah
 blah
 
-    .id'), 'a', 'long dot with pod =for comment');
+    .id'), 'a', 'unspace with pod =for comment');
 is(eval('foo\
 =comment blah blah blah
-    .id'), 'a', 'long dot with pod =comment');
+    .id'), 'a', 'unspace with pod =comment');
 #This is pretty strange: according to Perl-6.0.0-STD.pm,
 #unspace is allowed after a pod = ... which means pod is
 #syntactically recursive, i.e. you can put pod comments
@@ -96,17 +96,17 @@ is(eval('foo\
 =\ begin comment
 blah blah blah
 =\ end comment
-    .id'), 'a', 'long dot with pod =begin/=end comment w/ pod unspace');
+    .id'), 'a', 'unspace with pod =begin/=end comment w/ pod unspace');
 is(eval('foo\
 =\ for comment
 blah
 blah
 blah
 
-    .id'), 'a', 'long dot with pod =for comment w/ pod unspace');
+    .id'), 'a', 'unspace with pod =for comment w/ pod unspace');
 is(eval('foo\
 =\ comment blah blah blah
-    .id'), 'a', 'long dot with pod =comment w/ pod unspace');
+    .id'), 'a', 'unspace with pod =comment w/ pod unspace');
 is(eval('foo\
 =\
 =begin nested pod
@@ -119,7 +119,7 @@ blah blah blah
 blah blah blah
 =end nested pod
 end comment
-    .id'), 'a', 'long dot with pod =begin/=end comment w/ pod-in-pod');
+    .id'), 'a', 'unspace with pod =begin/=end comment w/ pod-in-pod');
 is(eval('foo\
 =\
 =for nested pod
@@ -132,12 +132,12 @@ blah
 blah
 blah
 
-    .id'), 'a', 'long dot with pod =for commenti w/ pod-in-pod');
+    .id'), 'a', 'unspace with pod =for commenti w/ pod-in-pod');
 is(eval('foo\
 =\
 =nested pod blah blah blah
 comment blah blah blah
-    .id'), 'a', 'long dot with pod =comment w/ pod-in-pod');
+    .id'), 'a', 'unspace with pod =comment w/ pod-in-pod');
 is(eval('foo\
 =\			#1
 =\			#2
@@ -222,7 +222,7 @@ is($m, 2, 'check $m');
 $n = 1; $m = 2;
 is(eval('$n.++ $m'), undef, 'postfix dot w/ infix ambiguity');
 is(eval('$n\ ++ $m'), undef, 'postfix unspace w/ infix ambiguity');
-is(eval('$n\ .++ $m'), undef, 'postfix long dot w/ infix ambiguity');
+is(eval('$n\ .++ $m'), undef, 'postfix unspace w/ infix ambiguity');
 is($n, 1, 'check $n');
 is($m, 2, 'check $m');
 
@@ -245,12 +245,12 @@ is(eval('$n\ ++'), 1, 'postfix unspace');
 is($n, 2, 'check $n');
 
 $n = 1;
-is(eval('$n\ .++'), 1, 'postfix long dot');
+is(eval('$n\ .++'), 1, 'postfix unspace');
 is($n, 2, 'check $n');
 
 # L<S02/"Lexical Conventions"/"U+301D codepoint has two closing alternatives">
-is(eval('foo\#〝 comment 〞.id'), 'a', 'long dot with U+301D/U+301E comment');
-is(eval('foo\#〝 comment 〟.id'), undef, 'long dot with U+301D/U+301F is invalid');
+is(eval('foo\#〝 comment 〞.id'), 'a', 'unspace with U+301D/U+301E comment');
+is(eval('foo\#〝 comment 〟.id'), undef, 'unspace with U+301D/U+301F is invalid');
 
 # L<S02/"Whitespace and Comments"/".123">
 # .123 is equal to 0.123
