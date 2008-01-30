@@ -33,7 +33,7 @@ grammar sm0p is KindaPerl6::Grammar {
 
     token node_full {
         <ws> <responder> '.' <identifier> '('
-        [ <invocant> | '' ] <ws> <positional> <ws> <named> <ws> ')' <ws> ; <ws>
+        [ <invocant> | '' ] <ws> <named> <ws> <positional> <ws> ')' <ws> ; <ws>
         { make 'SMOP_DISPATCH(interpreter, SMOP__SLIME__Node, SMOP__ID__new, '
           ~ ' SMOP__NATIVE__capture_create(interpreter, SMOP__SLIME__Node, NULL, (SMOP__Object*[]){'
           ~ ' SMOP__ID__responder, SMOP_RI(' ~ $<responder> ~ '), '
@@ -79,14 +79,14 @@ grammar sm0p is KindaPerl6::Grammar {
 
     token named {
         <pairs>
-        { make '(SMOP__Object*[]){' ~ ($$<pairs>) ~ '}'  }
-      | '' { make ' NULL' }
+        { make '(SMOP__Object*[]){' ~ $<pairs> ~ '}'  }
+      | { make ' NULL' }
     };
 
     token pairs {
         <pair>
         [
-        |   <ws> \, <ws> <pairs>
+            <ws> \, <ws> <pairs>
             { make $<pair> ~ ', ' ~ $<pairs> }
         |   <ws> [ \, <ws> | '' ]
             { make $<pair> ~ ', NULL' }
@@ -103,9 +103,11 @@ grammar sm0p is KindaPerl6::Grammar {
     };
 
     token identifier {
-        '$' <name> { make $<name> ~ '' }
+        <capturize> { make $<capturize> ~ '' }
+      | '$' <name> { make $<name> ~ '' }
       | <idconst> { make $<idconst> ~ ''}
       | <name> { make $<name> ~ '' }
+      | <native_int> { make $<native_int> ~ '' }
     };
 
     token idconst {
@@ -117,16 +119,68 @@ grammar sm0p is KindaPerl6::Grammar {
         <nameP5> { make $/.Str }
     }
 
-    token nameP5 :P5 {\\w[\\w\\d_]*};
-
     token ws {
-        [ \s | \n  | '#' .+? \n | '' ]+
+        [ \s | \n | '' ]+
         { make '' }
+    }; # |
+
+    token capturize {
+        <ws> SMOP__SLIME__Capturize '.'  new  '(' <ws>
+        <cint1> <ws> ',' <ws> <cintlist1> <ws> ',' <ws>
+        <cintlist2> <ws> ',' <ws> <cint2> ')'
+        { make 'SMOP__SLIME__Capturize_create(' ~ $<cint1> ~ ','
+          ~ $<cintlist1> ~ ',' ~ $<cintlist2> ~ ','
+          ~ $<cint2> ~ ')' }
     };
+
+    token cint1 { <cint> { make $<cint> ~ '' } };
+    token cint2 { <cint> { make $<cint> ~ '' } };
+    token cint {
+        <digitsP5> { make $/ ~ '' }
+    };
+
+    token cintlist1 { <cintlist> { make $<cintlist> ~ '' } };
+    token cintlist2 { <cintlist> { make $<cintlist> ~ '' } };
+    token cintlist {
+        '(' <cintlistbody>
+        ')' {make '(int[]){ '~ $<cintlistbody> ~ ' }' }
+       | '' {make 'NULL'}
+    };
+
+    token cintlistbody {
+        <ws> <cint> <ws>
+        [
+         ',' <ws> <cintlistbody> <ws>
+         { make $<cint> ~ ', ' ~ $<cintlistbody> }
+        | '' { make $<cint> ~ ', NULL '}
+        ]
+    };
+
+    token native_int {
+        <digitsP5> { make 'SMOP__NATIVE__int_create(' ~ $/ ~ ')' };
+    };
+
+    token native_int_list {
+        '(' <native_int_list_body>
+        ')' {make '(SMOP__Object*[]){ '~ $<native_int_list_body> ~ ' }' }
+       | '' {make 'NULL'}
+    };
+
+    token native_int_list_body {
+        <ws> <native_int> <ws>
+        [
+         ',' <ws> <native_int_list_body> <ws>
+         { make $<native_int> ~ ', ' ~ $<native_int_list_body> }
+        | '' { make $<native_int> ~ ', NULL '}
+        ]
+    };
+
+    token nameP5 :P5 {[a-zA-Z_][\\w_]*};
+    token digitsP5 :P5 {\\d+};
 }
 module main {
     $_ =
-'node = q:sm0p { $obj.method( a ) ; }';
+'node = q:sm0p { ; $obj.method(new => $a, $a, SMOP__SLIME__Capturize.new(1,(2,3,4),(5,6,7),8)); }';
     say "Starting to parse " ~ $_;
     my $a = sm0p.frame($_);
     say "Parsed.";
