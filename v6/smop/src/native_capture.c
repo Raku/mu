@@ -154,7 +154,7 @@ SMOP__Object*   SMOP__NATIVE__capture_create(SMOP__Object* interpreter,
     return smop_native_empty_capture;
 
   native_capture_struct* ret = (native_capture_struct*)smop_lowlevel_alloc(sizeof(native_capture_struct));
-  
+  ret->RI = SMOP__NATIVE__capture;
   ret->invocant = invocant;
 
   if (positional) {
@@ -163,7 +163,7 @@ SMOP__Object*   SMOP__NATIVE__capture_create(SMOP__Object* interpreter,
     int size = sizeof(SMOP__Object*) * length;
     ret->positional = malloc(size);
     memcpy(ret->positional, positional, size);
-    ret->count_positional = length - 1;
+    ret->count_positional = length;
   }
 
   if (named) {

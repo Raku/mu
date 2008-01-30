@@ -95,6 +95,40 @@ static SMOP__Object* interpreter_message(SMOP__Object* interpreter,
     ret = SMOP_DISPATCH(interpreter, SMOP_RI(cont), SMOP__ID__jail,
                         SMOP__NATIVE__capture_create(interpreter,cont,NULL,NULL));
 
+  } else if (identifier == SMOP__ID__loop) {
+    SMOP__Object* intr = SMOP__NATIVE__capture_invocant(interpreter, capture);
+
+    smop_lowlevel_rdlock(intr);
+    SMOP__Object* cont = ((interpreter_instance_struct*)intr)->continuation;
+    smop_lowlevel_unlock(intr);
+
+    SMOP__Object* false = SMOP__NATIVE__bool_create(0);
+    SMOP__Object* has_next;
+    if (cont) {
+      has_next = SMOP_DISPATCH(intr, SMOP_RI(cont), SMOP__ID__has_next,
+                               SMOP__NATIVE__capture_create(interpreter, cont, NULL, NULL));
+    } else {
+      has_next = false;
+    }
+    while (cont && has_next != false) {
+      SMOP_DISPATCH(intr,SMOP_RI(cont), SMOP__ID__next,
+                    SMOP__NATIVE__capture_create(interpreter, cont, NULL, NULL));
+      SMOP_DISPATCH(intr,SMOP_RI(cont), SMOP__ID__eval,
+                    SMOP__NATIVE__capture_create(interpreter, cont, NULL, NULL));
+      
+      smop_lowlevel_rdlock(intr);
+      SMOP__Object* cont = ((interpreter_instance_struct*)intr)->continuation;
+      smop_lowlevel_unlock(intr);
+
+      if (cont) {
+        has_next = SMOP_DISPATCH(intr, SMOP_RI(cont), SMOP__ID__has_next,
+                                 SMOP__NATIVE__capture_create(interpreter, cont, NULL, NULL));
+      } else {
+        has_next = false;
+      }
+
+    }
+
   } else if (identifier == SMOP__ID__DESTROYALL) {
     interpreter_instance_struct* inst = (interpreter_instance_struct*)capture;
     smop_lowlevel_wrlock(capture);

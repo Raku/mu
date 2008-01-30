@@ -25,6 +25,7 @@ static SMOP__Object* frame_message(SMOP__Object* interpreter,
   if (identifier == SMOP__ID__new) {
     ret = smop_lowlevel_alloc(sizeof(smop_slime_frame_struct));
     smop_slime_frame_struct* frame = (smop_slime_frame_struct*)ret;
+    frame->RI = SMOP__SLIME__Frame;
     frame->lexical = SMOP__NATIVE__capture_named(interpreter, capture, SMOP__ID__lexical);
     frame->back = SMOP__NATIVE__capture_named(interpreter, capture, SMOP__ID__back);
     frame->node_count = SMOP__NATIVE__capture_positional_count(interpreter, capture);

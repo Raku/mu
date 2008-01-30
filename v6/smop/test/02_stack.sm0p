@@ -58,19 +58,19 @@ int main(int argc, char** argv) {
   };
   
   SMOP__Object* goto_capture = SMOP__NATIVE__capture_create(intrp, intrp, (SMOP__Object*[]){node,NULL}, NULL);
-  SMOP_DISPATCH(NULL, SMOP_RI(intrp),
+  SMOP_DISPATCH(interpreter, SMOP_RI(intrp),
                 SMOP__ID__goto, goto_capture);
-  SMOP_RELEASE(NULL,goto_capture);
-
+  SMOP_RELEASE(interpreter,goto_capture);
 
   SMOP__Object* loop_capture = SMOP__NATIVE__capture_create(intrp, intrp, NULL, NULL);
-  SMOP_DISPATCH(NULL, SMOP_RI(intrp),
-                SMOP__ID__loop, loop_capture);
-  SMOP_RELEASE(NULL, loop_capture);
 
-  SMOP_RELEASE(NULL,obj);
-  SMOP_RELEASE(NULL,node);
-  SMOP_RELEASE(NULL,intrp);
+  SMOP_DISPATCH(interpreter, SMOP_RI(intrp),
+                SMOP__ID__loop, loop_capture);
+  SMOP_RELEASE(interpreter, loop_capture);
+
+  SMOP_RELEASE(interpreter,obj);
+  SMOP_RELEASE(interpreter,node);
+  SMOP_RELEASE(interpreter,intrp);
 
   smop_destr();
 

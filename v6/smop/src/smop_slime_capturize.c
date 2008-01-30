@@ -68,14 +68,24 @@ SMOP__Object* SMOP__SLIME__Capturize_create(int invocant, int* positional, int* 
   smop_slime_capturize_struct* cap = (smop_slime_capturize_struct*)ret;
   cap->invocant = invocant;
   cap->target = target;
-  cap->n_positional = -1;
-  while (positional[++cap->n_positional]);
-  cap->positional = malloc(sizeof(int) * cap->n_positional);
-  memcpy(cap->positional,positional,sizeof(int)*cap->n_positional);
-  cap->n_named = -1;
-  while (named[++cap->n_named]);
-  cap->named = malloc(sizeof(int) * cap->n_named);
-  memcpy(cap->named,named,sizeof(int)*cap->n_named);
+
+  if (positional) {
+    cap->n_positional = -1;
+    while (positional && positional[++(cap->n_positional)]);
+    cap->positional = malloc(sizeof(int) * cap->n_positional);
+    memcpy(cap->positional,positional,sizeof(int)*cap->n_positional);
+  } else {
+    cap->n_positional = 0;
+  }
+
+  if (named) {
+    cap->n_named = -1;
+    while (named[++(cap->n_named)]);
+    cap->named = malloc(sizeof(int) * cap->n_named);
+    memcpy(cap->named,named,sizeof(int)*cap->n_named);
+  } else {
+    cap->n_named = 0;
+  }
   return ret;
 }
 
