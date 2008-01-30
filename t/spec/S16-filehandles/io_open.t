@@ -4,11 +4,11 @@ plan 5;
 
 # L<S16/"Filehandles, files, and directories"/"open">
 
-=pod
+=begin pod
 
 Some edge and error cases for open()
 
-=cut
+=end pod
 
 
 if $*OS eq "browser" {
@@ -18,7 +18,8 @@ if $*OS eq "browser" {
 
 # deal with non-existent files
 {
-    skip 1, "open('nonexisting') => undef is waiting on 'use fatal'";
+    skip(1, "open('nonexisting') => undef is waiting on 'use fatal'");
+
     if 0 {
         ok(!defined(open("file_which_does_not_exist")), 'open() on non-existent file returns undef');
     }
@@ -33,11 +34,11 @@ if $*OS eq "browser" {
 }
 
 
-=pod
+=begin pod
 
 I/O Redirection to scalar tests
 
-=cut
+=end pod
 
 skip_rest("needs speccing"); exit;
 
