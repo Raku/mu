@@ -1,17 +1,28 @@
 grammar sm0p is KindaPerl6::Grammar {
+
     token frame {
-        <ws> <identifier> <ws> '=' <ws> 'q:sm0p' <ws> '{' <ws> <node>+ <ws> '}' <ws> [ ';' | '' ]
+        <ws> <identifier> <ws> '=' <ws> 'q:sm0p' <ws> '{' <ws> <nodes> <ws> '}' <ws> [ ';' | '' ]
         { make $<identifier> ~ ' = SMOP_DISPATCH(interpreter, '
           ~ 'SMOP__SLIME__Frame, SMOP__ID__new, SMOP__NATIVE__capture_create('
           ~ 'interpreter, SMOP__SLIME__Frame, (SMOP__Object*[]){ '
-          ~ ($<node>) ~ ' }, NULL)); ' }
+          ~ ($<nodes>) ~ ' }, NULL)); ' }
     };
+
+    token nodes {
+        <node>
+        [
+        |   <nodes>
+            { make $<node> ~ ', ' ~ $<nodes> }
+        |   ''
+            { make $<node> ~ ', ' }
+        ]
+        | '' { make 'NULL' }
+    }
 
     token node {
         <node_empty> { make $<node_empty> ~ '' }
       | <node_result> { make $<node_result> ~ '' }
       | <node_full> { make $<node_full> ~ '' }
-      | '' { make 'NULL' }
     };
 
     token node_empty {
@@ -60,11 +71,11 @@ grammar sm0p is KindaPerl6::Grammar {
         <identifier>
         [
         |   <ws> \, <ws> <positionals>
-            { make [ $$<identifier>, ( $$<positionals> ).values ] }
+            { make $<identifier> ~ $<positionals>  }
         |   <ws> [ \, <ws> | '' ]
-            { make [ $$<identifier> ] }
+            { make $<identifier> ~ '' }
         ]
-    |   { make [ ] }
+        |   { make '' }
     }
 
     token named {
@@ -77,11 +88,11 @@ grammar sm0p is KindaPerl6::Grammar {
         <pair>
         [
         |   <ws> \, <ws> <pairs>
-            { make [ $$<pair>, ( $$<pairs> ).values ] }
+            { make $<pair> ~ $<pairs> }
         |   <ws> [ \, <ws> | '' ]
-            { make [ $$<pair> ] }
+            { make $<pair> ~ '' }
         ]
-    |   { make [ ] }
+        |   { make '' }
     }
 
     token pair {
@@ -119,5 +130,8 @@ grammar sm0p is KindaPerl6::Grammar {
 module main {
     $_ =
 'node = q:sm0p { $obj.method( a ) ; }';
-    say sm0p.frame($_);
+    say "Starting to parse " ~ $_;
+    my $a = sm0p.frame($_);
+    say "Parsed.";
+    say $a;
 }
