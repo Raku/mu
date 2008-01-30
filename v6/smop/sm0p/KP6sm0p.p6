@@ -178,11 +178,7 @@ grammar sm0p is KindaPerl6::Grammar {
     token nameP5 :P5 {[a-zA-Z_][\\w_]*};
     token digitsP5 :P5 {\\d+};
 }
-module main {
-    $_ =
-'node = q:sm0p { ; $obj.method(new => $a, $a, SMOP__SLIME__Capturize.new(1,(2,3,4),(5,6,7),8)); }';
-    say "Starting to parse " ~ $_;
-    my $a = sm0p.frame($_);
-    say "Parsed.";
-    say $a;
+module main { 
+    $_ = slurp;
+    say sm0p.frame($_);
 }

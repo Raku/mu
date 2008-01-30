@@ -1,5 +1,5 @@
   node = q:sm0p {
-    ; # keep an empty node at the start, as this node will not be evaluated.
+    ;
     $obj.method1();
     $obj.method2();
     $obj.method3();

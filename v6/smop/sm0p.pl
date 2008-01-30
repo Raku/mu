@@ -2,6 +2,7 @@
 
 use strict;
 use warnings;
+use IPC::Open3;
 
 my ($in, $out) = @ARGV;
 
@@ -27,6 +28,16 @@ while (<$input>) {
 
 sub preprocess {
     my $code = shift;
-    print STDERR "sm0p.pl:$in:warning - sm0p code still not being processed.\n";
-    return " /** sm0p code still not being processed \n".$code." */ \n";
+    my ($writer, $reader, $error) = map { gensym } 1..3;
+    my $pid = open3($writer, $reader, $error, 'perl',
+                    '-I../v6-KindaPerl6/compiled/perl5-kp6-mp6/lib',
+                    'sm0p/sm0p/KP6sm0p.pl');
+    print {$writer} $code;
+    close $writer;
+    my $ret = join '', <$reader>;
+    die 'Bad sm0p code at '.$in unless $ret;
+    close $reader;
+    close $error;
+    waitpid($pid,0);
+    return $ret;
 }
