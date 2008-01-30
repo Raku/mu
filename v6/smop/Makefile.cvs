@@ -3,8 +3,8 @@ default: all
 all:
 	aclocal
 	autoheader
-	automake --add-missing
 	autoconf
+	automake --add-missing
 
 clean:
 	rm -f src/smop_lowlevel.c

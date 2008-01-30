@@ -3,8 +3,9 @@
 use strict;
 use warnings;
 use IPC::Open3;
+use Symbol;
 
-my ($in, $out) = @ARGV;
+my ($base, $in, $out) = @ARGV;
 
 open my $input, '<', $in or die $!;
 open my $output, '>', $out or die $!;
@@ -30,12 +31,13 @@ sub preprocess {
     my $code = shift;
     my ($writer, $reader, $error) = map { gensym } 1..3;
     my $pid = open3($writer, $reader, $error, 'perl',
-                    '-I../v6-KindaPerl6/compiled/perl5-kp6-mp6/lib',
-                    'sm0p/sm0p/KP6sm0p.pl');
+                    '-I'.$base.'/../v6-KindaPerl6/compiled/perl5-kp6-mp6/lib',
+                    $base.'/sm0p/KP6sm0p.pl');
     print {$writer} $code;
     close $writer;
     my $ret = join '', <$reader>;
-    die 'Bad sm0p code at '.$in unless $ret;
+    die 'Bad sm0p code at '.$in if $ret eq "\n";
+    warn 'sm0p output is '.$ret;
     close $reader;
     close $error;
     waitpid($pid,0);

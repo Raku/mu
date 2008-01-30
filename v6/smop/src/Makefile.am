@@ -1,5 +1,5 @@
 .sm0p.c:
-	perl $(top_srcdir)/sm0p.pl $< $@
+	perl $(top_srcdir)/sm0p.pl $(top_srcdir) $< $@
 
 AM_CFLAGS = -Wall -D_GNU_SOURCE -DSMOP_LOWLEVEL_MEM_TRACE -I$(top_srcdir)/include
 AM_LDFLAGS = --no-undefined

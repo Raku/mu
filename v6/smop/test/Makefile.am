@@ -1,5 +1,5 @@
 .sm0p.c:
-	perl $(top_srcdir)/sm0p.pl $< $@
+	perl $(top_srcdir)/sm0p.pl $(top_srcdir) $< $@
 
 LDADD = -lsmop 
 AM_LDFLAGS = -L$(top_builddir)/src
