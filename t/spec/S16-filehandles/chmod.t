@@ -3,7 +3,7 @@ use Test;
 
 # L<S16/"Filehandles, files, and directories"/"chmod">
 
-=kwid
+=begin pod
 
 chmod - the unix chmod command, changing the rights on a file
 
@@ -23,7 +23,7 @@ While some of the modes are UNIX specific, it would be nice to find similar
 
 We really need the stat() function in order to test this.
 
-=cut
+=end pod
 
 plan 20;
 
