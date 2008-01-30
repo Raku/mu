@@ -22,6 +22,7 @@ grammar sm0p is KindaPerl6::Grammar {
     token node {
         <node_empty> { make $<node_empty> ~ '' }
       | <node_result> { make $<node_result> ~ '' }
+      | <node_capturized> { make $<node_capturized> ~ '' }
       | <node_full> { make $<node_full> ~ '' }
     };
 
@@ -40,6 +41,17 @@ grammar sm0p is KindaPerl6::Grammar {
           ~ ' SMOP__ID__identifier, ' ~ $<identifier> ~ ', '
           ~ ' SMOP__ID__capture, SMOP__NATIVE__capture_create(interpreter, '
           ~ ($<invocant> ?? $<invocant> !! $<responder>) ~ ', '~ $<positional> ~', '~ $<named> ~') '
+          ~ ' , NULL  }))' }
+    };
+
+    token node_capturized {
+        <ws> <responder> '.' <identifier> '('
+        <ws> '|' <identifier2> <ws> ')' <ws> ; <ws>
+        { make 'SMOP_DISPATCH(interpreter, SMOP__SLIME__Node, SMOP__ID__new, '
+          ~ ' SMOP__NATIVE__capture_create(interpreter, SMOP__SLIME__Node, NULL, (SMOP__Object*[]){'
+          ~ ' SMOP__ID__responder, SMOP_RI(' ~ $<responder> ~ '), '
+          ~ ' SMOP__ID__identifier, ' ~ $<identifier> ~ ', '
+          ~ ' SMOP__ID__capture, ' ~ $<identifier2> ~ ', '
           ~ ' , NULL  }))' }
     };
 
@@ -111,18 +123,16 @@ grammar sm0p is KindaPerl6::Grammar {
     };
 
     token idconst {
-        new { make 'SMOP__ID__new' }
-      | lexical { make 'SMOP__ID__lexical' }
-    };
+      <idconst_list> { make 'SMOP__ID__' ~ $/ ~ '' }
+    }
+
+    token idconst_list :P5 {(new|lexical|back|capture|continuation|continues|copy|current|debug|drop|DESTROYALL|eval|forget|free|goto|has_next|identifier|jail|lexical|loop|move_capturize|move_identifier|move_responder|new|next|past|push|responder|result|setr|outer)};
 
     token name {
         <nameP5> { make $/.Str }
     }
 
-    token ws {
-        [ \s | \n | '' ]+
-        { make '' }
-    }; # |
+    token ws :P5 {[\\s\\t\\n]*};   
 
     token capturize {
         <ws> SMOP__SLIME__Capturize '.'  new  '(' <ws>
@@ -142,8 +152,9 @@ grammar sm0p is KindaPerl6::Grammar {
     token cintlist1 { <cintlist> { make $<cintlist> ~ '' } };
     token cintlist2 { <cintlist> { make $<cintlist> ~ '' } };
     token cintlist {
-        '(' <cintlistbody>
-        ')' {make '(int[]){ '~ $<cintlistbody> ~ ' }' }
+        '('
+        [ <cintlistbody> ')' {make '(int[]){ '~ $<cintlistbody> ~ ' }' }
+        | ')' {make 'NULL'} ] 
        | '' {make 'NULL'}
     };
 

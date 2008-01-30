@@ -139,10 +139,10 @@ SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* interpreter, SMOP__Responde
       $current;
       $interpreter;
       $value.DESTROYALL();
-      SMOP__STACK__Operators.move_capturize(|SMOP__STACK__OPCAPTURE_Move_Capturize.new(2,(3),(),3));
-      SMOP__STACK__Operators.forget();
-      SMOP__STACK__Operators.free(|$value);
-      $interpreter.goto()
+      SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(2,(3),(),3));
+      SMOP__SLIME__CurrentFrame.forget();
+      SMOP__SLIME__CurrentFrame.free(|$value);
+      $interpreter.goto();
     };
     SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__goto,
                   SMOP__NATIVE__capture_create(interpreter, interpreter, (SMOP__Object*[]){continuation,NULL},NULL));
