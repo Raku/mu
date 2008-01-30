@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 17 Jan 2008
+   Last Modified: 30 Jan 2008
    Number: 5
-   Version: 71
+   Version: 72
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -1991,14 +1991,17 @@ longest token, but not the closureless forms.
 
 =item *
 
-Any part of the regex or rule that I<might> match whitespace,
-including whitespace implicitly matched via C<:sigspace>.  (However,
-token declarations are specifically allowed to recognize whitespace
-within a token.)
+Any sequential control flow operator such as C<||> or C<&&>.
 
 =item *
 
-Any sequential control flow operator such as C<||> or C<&&>.
+As a consequence of the previous point, and because the standard
+grammar's C<< <ws> >> rule defines whitespace using C<||>, the
+longest token is also terminated by any part of the regex or rule
+that I<might> match whitespace using that rule, including whitespace
+implicitly matched via C<:sigspace>.  (However, token declarations are
+specifically allowed to recognize whitespace within a token by using
+such lower-level primitives as C<\h+> or other character classes.)
 
 =back
 
