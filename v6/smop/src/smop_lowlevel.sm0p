@@ -135,7 +135,7 @@ SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* interpreter, SMOP__Responde
     SMOP__Object* current = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__current,
                                           SMOP__NATIVE__capture_create(interpreter,interpreter,NULL,NULL));
     SMOP__Object* continuation = NULL;
-    continuation = q:sm0p {
+    $continuation = q:sm0p {
       $current;
       $interpreter;
       $value.DESTROYALL();

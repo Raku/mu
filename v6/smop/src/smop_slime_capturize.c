@@ -14,6 +14,7 @@ typedef struct smop_slime_capturize_struct {
   int* positional;
   int n_named;
   int* named;
+  int target
 } smop_slime_capturize_struct;
 
 static SMOP__Object* capturize_message(SMOP__Object* interpreter,
@@ -61,11 +62,12 @@ void smop_slime_capturize_destr() {
   free(SMOP__SLIME__CurrentFrame);
 }
 
-SMOP__Object* SMOP__SLIME__Capturize_create(int invocant, int* positional, int* named) {
+SMOP__Object* SMOP__SLIME__Capturize_create(int invocant, int* positional, int* named, int target) {
   SMOP__Object* ret = smop_lowlevel_alloc(sizeof(smop_slime_capturize_struct));
   assert(ret);
   smop_slime_capturize_struct* cap = (smop_slime_capturize_struct*)ret;
   cap->invocant = invocant;
+  cap->target = target;
   cap->n_positional = -1;
   while (positional[++cap->n_positional]);
   cap->positional = malloc(sizeof(int) * cap->n_positional);
@@ -101,6 +103,13 @@ int* SMOP__SLIME__Capturize_named(SMOP__Object* obj, int* retsize) {
   int* ret = malloc(sizeof(int) * *retsize);
   memcpy(ret, ((smop_slime_capturize_struct*)obj)->named,
          sizeof(int)*((smop_slime_capturize_struct*)obj)->n_named);
+  smop_lowlevel_unlock(obj);
+  return ret;
+}
+
+int SMOP__SLIME__Capturize_target(SMOP__Object* obj) {
+  smop_lowlevel_rdlock(obj);
+  int ret = ((smop_slime_capturize_struct*)obj)->target;
   smop_lowlevel_unlock(obj);
   return ret;
 }

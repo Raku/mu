@@ -51,7 +51,7 @@ grammar sm0p is KindaPerl6::Grammar {
           ~ ' SMOP__NATIVE__capture_create(interpreter, SMOP__SLIME__Node, NULL, (SMOP__Object*[]){'
           ~ ' SMOP__ID__responder, SMOP_RI(' ~ $<responder> ~ '), '
           ~ ' SMOP__ID__identifier, ' ~ $<identifier> ~ ', '
-          ~ ' SMOP__ID__capture, ' ~ $<identifier2> ~ ', '
+          ~ ' SMOP__ID__capture, ' ~ $<identifier2> 
           ~ ' , NULL  }))' }
     };
 

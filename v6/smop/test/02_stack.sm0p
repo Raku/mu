@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
   SMOP__Object* intrp = SMOP_DISPATCH(NULL, SMOP_RI(SMOP__INTPTR__InterpreterInstance),
                                       SMOP__ID__new, 
                                       SMOP__NATIVE__capture_create(NULL,SMOP__INTPTR__InterpreterInstance,NULL,NULL));
-
+  SMOP__Object* interpreter = intrp;
   SMOP__Object* obj = smop_lowlevel_alloc(sizeof(SMOP__ResponderInterface));
   SMOP__ResponderInterface* ri = (SMOP__ResponderInterface*)obj;
   ri->MESSAGE = custom_MESSAGE;
@@ -50,11 +50,11 @@ int main(int argc, char** argv) {
   SMOP__Object* node = NULL;
 
   node = q:sm0p {
-    ; # keep an empty node at the start, as this node will not be evaluated.
-    $obj.method1();
-    $obj.method2();
-    $obj.method3();
-    $obj.method4();
+    ;
+    $obj.$method1();
+    $obj.$method2();
+    $obj.$method3();
+    $obj.$method4();
   };
   
   SMOP__Object* goto_capture = SMOP__NATIVE__capture_create(intrp, intrp, (SMOP__Object*[]){node,NULL}, NULL);
