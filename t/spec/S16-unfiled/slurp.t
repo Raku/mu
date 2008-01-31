@@ -3,7 +3,9 @@ use v6-alpha;
 use Test;
 
 plan 9;
+
 # L<E07/"And every one shall share..." /returns them as a single string/>
+# L<S16/"Unfiled"/"=item IO.slurp">
 
 if $*OS eq "browser" {
   skip_rest "Programs running in browsers don't have access to regular IO.";
@@ -15,10 +17,12 @@ if $*OS eq "browser" {
   ok index($contents, "Pugs") != -1, "slurp() worked";
 }
 
+#?rakudo skip 'dies_ok() not implemented'
 {
   dies_ok { slurp "does-not-exist" }, "slurp() on not-existant files fails";
 }
 
+#?rakudo skip 'dies_ok() not implemented'
 {
   dies_ok { slurp "t/" }, "slurp() on directories fails";
 }
