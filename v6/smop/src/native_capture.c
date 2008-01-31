@@ -52,28 +52,31 @@ static SMOP__Object* capture_message(SMOP__Object* interpreter,
       native_capture_struct* self = (native_capture_struct*)capture;
       smop_lowlevel_wrlock(capture);
       SMOP__Object* invocant = self->invocant; self->invocant = NULL;
+      int count_positional = self->count_positional;
+      int count_o_named = self->count_o_named;
+      int count_named = self->count_named;
       SMOP__Object** positional = self->positional; self->positional = NULL; self->count_positional = 0;
       named_argument* o_named = self->o_named; self->o_named = NULL; self->count_o_named = 0;
       named_argument* named = self->named; self->named = NULL; self->count_named = 0;
       smop_lowlevel_unlock(capture);
 
       if (invocant) SMOP_RELEASE(interpreter, invocant);
-      int count = 0;
-      while (positional[count]) {
-        SMOP_RELEASE(interpreter, positional[count]);
-        count++;
+      int i;
+      for (i = 0; i < count_positional; i++) {
+        if (positional[i])
+          SMOP_RELEASE(interpreter, positional[i]);
       }
-      int i = 0;
-      while (i < count) {
-        SMOP_RELEASE(interpreter, o_named[i].key);
-        SMOP_RELEASE(interpreter, o_named[i].value);
-        i++;
+      for (i = 0; i < count_o_named; i++) {
+        if (o_named[i].key)
+          SMOP_RELEASE(interpreter, o_named[i].key);
+        if (o_named[i].value)
+          SMOP_RELEASE(interpreter, o_named[i].value);
       }
-      i = 0;
-      while (i < count) {
-        SMOP_RELEASE(interpreter, named[i].key);
-        SMOP_RELEASE(interpreter, named[i].value);
-        i++;
+      for (i = 0; i < count_named; i++) {
+        if (named[i].key)
+          SMOP_RELEASE(interpreter, named[i].key);
+        if (named[i].value)
+          SMOP_RELEASE(interpreter, named[i].value);
       }
       free(positional);
       free(o_named);
@@ -129,16 +132,16 @@ static int cmp_opt_named(const void* p1, const void* p2) {
   if (!p1 && !p2) {
     return 0;
   } else if (p1 && !p2) {
-    return -1;
-  } else if (!p1 && p2) {
     return 1;
+  } else if (!p1 && p2) {
+    return -1;
   } else {
     named_argument* n1 = (named_argument*)p1;
     named_argument* n2 = (named_argument*)p2;
     if (n1->key > n2->key) {
-      return -1;
-    } else if (n2->key > n1->key) {
       return 1;
+    } else if (n2->key > n1->key) {
+      return -1;
     } else {
       return 0;
     }
@@ -264,11 +267,19 @@ SMOP__Object*   SMOP__NATIVE__capture_named(SMOP__Object* interpreter,
   if (capture) {
     if (identifier->RI == SMOP__ID__new->RI) {
       native_capture_struct* self = (native_capture_struct*)capture;
+      named_argument foo;
+      foo.key = identifier;
+      foo.value = 0;
       smop_lowlevel_rdlock(capture);
-      SMOP__Object* ret = bsearch(identifier, self->o_named, self->count_o_named, sizeof(named_argument), cmp_opt_named);
-      if (ret) {
-        smop_lowlevel_unlock(capture);
-        return SMOP_REFERENCE(interpreter,ret);
+      named_argument* res = bsearch(&foo, self->o_named, self->count_o_named, sizeof(named_argument), cmp_opt_named);
+      if (res) {
+        SMOP__Object* ret = res->value;
+        if (ret) {
+          smop_lowlevel_unlock(capture);
+          return SMOP_REFERENCE(interpreter,ret);
+        } else {
+          return NULL;
+        }
       } else {
         if (self->count_named) {
           fprintf(stderr, "Native capture still don't support non-constant-identifiers as key for named arguments.\n");

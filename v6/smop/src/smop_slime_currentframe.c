@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <smop.h>
 #include <smop_slime.h>
@@ -10,12 +11,18 @@ static SMOP__Object* currentframe_message(SMOP__Object* interpreter,
                                      SMOP__Object* capture) {
   SMOP__Object* frame = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                                       SMOP__ID__continuation,
-                                      SMOP__NATIVE__capture_create(interpreter,NULL,NULL,NULL));
+                                      SMOP__NATIVE__capture_create(interpreter,interpreter,NULL,NULL));
   SMOP__Object* delegated = SMOP__NATIVE__capture_delegate(interpreter,
                                                            frame,
                                                            capture);
-  return SMOP_DISPATCH(interpreter, SMOP_RI(frame),
-                       identifier, delegated);
+
+  if (frame) {
+    return SMOP_DISPATCH(interpreter, SMOP_RI(frame),
+                         identifier, delegated);
+  } else {
+    fprintf(stderr, "[SMOP__SLIME__CurrentFrame] Cannot DISPATCH method to current frame without a frame.\n");
+    return NULL;
+  }
 }
 
 static SMOP__Object* currentframe_reference(SMOP__Object* interpreter, SMOP__ResponderInterface* responder, SMOP__Object* obj) {

@@ -36,6 +36,11 @@ int main(int argc, char** argv) {
 
   smop_init();
 
+  method1 = SMOP__ID__new;
+  method2 = SMOP__ID__lexical;
+  method3 = SMOP__ID__continuation;
+  method4 = SMOP__ID__free;
+
   SMOP__Object* intrp = SMOP_DISPATCH(NULL, SMOP_RI(SMOP__INTPTR__InterpreterInstance),
                                       SMOP__ID__new, 
                                       SMOP__NATIVE__capture_create(NULL,SMOP__INTPTR__InterpreterInstance,NULL,NULL));
@@ -60,14 +65,14 @@ int main(int argc, char** argv) {
   SMOP__Object* goto_capture = SMOP__NATIVE__capture_create(intrp, intrp, (SMOP__Object*[]){node,NULL}, NULL);
   SMOP_DISPATCH(interpreter, SMOP_RI(intrp),
                 SMOP__ID__goto, goto_capture);
-  SMOP_RELEASE(interpreter,goto_capture);
 
   SMOP__Object* loop_capture = SMOP__NATIVE__capture_create(intrp, intrp, NULL, NULL);
 
   SMOP_DISPATCH(interpreter, SMOP_RI(intrp),
                 SMOP__ID__loop, loop_capture);
-  SMOP_RELEASE(interpreter, loop_capture);
 
+  SMOP_RELEASE(interpreter,goto_capture);
+  SMOP_RELEASE(interpreter, loop_capture);
   SMOP_RELEASE(interpreter,obj);
   SMOP_RELEASE(interpreter,node);
   SMOP_RELEASE(interpreter,intrp);
