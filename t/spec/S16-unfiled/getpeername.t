@@ -1,6 +1,13 @@
-#IO.getpeername test
 use v6-alpha;
 use Test;
+
+# L<S16/"Unfiled"/"IO.getpeername">
+
+=begin pod
+
+IO.getpeername test
+
+=end pod
 
 plan 1;
 
