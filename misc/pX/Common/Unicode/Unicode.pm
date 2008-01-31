@@ -4,8 +4,8 @@ use UCD;
 
 constant Int $unicode_max = 0x10ffff;
 
-#XXX need an option to use buf64
-class *UBuf is buf32 { }
+#XXX need an option to use Buf64
+class *UBuf is Buf32 { }
 
 class *AnyChar {
     # one character - can be a byte, codepoint or grapheme
@@ -296,7 +296,7 @@ class *Str is also {
     # graphs -> bytes requires both $?NF and $?ENC (although in most cases NFC and utf8 are assumed)
     has @!as_graphs is UBuf;
     has @!as_codes is UBuf;
-    has @!as_bytes is buf8;
+    has @!as_bytes is Buf8;
 
     # Grapheme Cluster Boundary Determination        UAX #29
     token isGCBCR :codes { \x{000D} }
@@ -364,8 +364,7 @@ class *Str is also {
         return SubstrProxy.new(:s($string), :sp($start), :sl($length));
     }
     our multi method substr(Str $string: StrPos $start, StrPos $end? --> Str) is rw is export {
-        die 'Invalid StrPos for this Str' unless $start.s === $string;
-        die 'Invalid StrPos for this Str' unless $end.s === $string;
+        die 'Invalid StrPos for this Str' unless $start.s === $end.s === $string;
         return SubstrProxy.new(:s($string), :sp($start), :sl($end - $start));
     }
     # this works in all levels
@@ -373,17 +372,17 @@ class *Str is also {
         return $string.substr: StrPos.new($string, StrLen.new($start)), StrLen.new($length);
     }
 
-    token :codes split_graph {
+    token :codes :nf<d> split_graph {
         $<st>=[ <-isGrapheme_Extend>* ]
         $<ex>=[ <isGrapheme_Extend>* ]
     }
     our multi method samebase (Str $string: Str $pattern --> Str) is export {
+        use graphemes;
         my Str $ret;
         for ^$string.graphs -> my Int $n {
-            #XXX this is wrong, needs substr impl
-            $string.substr($n, 1).nfd ~~ &split_graph;
+            $string.substr($n, 1) ~~ &split_graph;
             $ret ~= $<st>;
-            $pattern.substr($n, 1).nfd ~~ &split_graph;
+            $pattern.substr($n, 1) ~~ &split_graph;
             $ret ~= $<ex>;
         }
         return $ret;
