@@ -2,6 +2,14 @@ use v6-alpha;
 
 use Test;
 
+# L<S16/"Filehandles, files, and directories"/"connect">
+
+=begin pod
+
+Tests for IO connect() builtin
+
+=end pod
+
 plan 4;
 
 if $*OS eq "browser" {
