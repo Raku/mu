@@ -2,11 +2,15 @@ use v6-alpha;
 
 use Test;
 
-=kwid
+# L<S16/"Filehandles, files, and directories"/"open">
+# L<S16/"Filehandles, files, and directories"/"close">
+# L<S16/"Filehandles, files, and directories"/"readline">
+
+=begin pod
 
 I/O tests
 
-=cut
+=end pod
 
 plan 57;
 
