@@ -4,13 +4,54 @@ use UCD;
 
 constant Int $unicode_max = 0x10ffff;
 
-#XXX need an option to use int64
-class *UBuf is Buf of int32 { }
+#XXX need an option to use buf64
+class *UBuf is buf32 { }
+
+class *AnyChar {
+    # one character - can be a byte, codepoint or grapheme
+    has Str $.char;
+    # for AnyChar, each of these needs to be defined differently for each unicode level
+    multi submethod BUILD(Str $s) {...}
+    method STORE(Str $s -->) {...}
+    method FETCH(--> Str) {...}
+    method Str(--> Str) {...}
+}
+
+class *Byte is AnyChar {
+    multi submethod BUILD(Str $s) { $.char.as_bytes = @$s.as_bytes[0]; }
+    method STORE(Str $s -->)      { $.char.as_bytes = @$s.as_bytes[0]; }
+    method FETCH(--> Str) {
+        my Str $s;
+        $s.as_bytes = $.char.as_bytes;
+        return $s;
+    }
+    method Str(--> Str) {
+        my Str $s;
+        $s.as_bytes = $.char.as_bytes;
+        return $s;
+    }
+}
+
+class *Codepoint is AnyChar {
+    multi submethod BUILD(Str $s) { $.char.as_codes = @$s.as_codes[0]; }
+    method STORE(Str $s -->)      { $.char.as_codes = @$s.as_codes[0]; }
+    method FETCH(--> Str) {
+        my Str $s;
+        $s.as_codes = $.char.as_codes;
+        return $s;
+    }
+    method Str(--> Str) {
+        my Str $s;
+        $s.as_codes = $.char.as_codes;
+        return $s;
+    }
+}
+
 my Grapheme @graph_ids;
 my Int %seen_graphs;
-class *Grapheme {
+class *Grapheme is AnyChar {
     use codepoints;
-    # a unique number > $unicode_max
+    # ID is codepoint or a unique ID > $unicode_max
     has Int $.id;
     # these are generated lazily
     has @!as_nfd is UBuf;
@@ -57,6 +98,17 @@ class *Grapheme {
         } else {
             $g := @graph_ids[$id - ($unicode_max+1)];
         }
+    }
+    method STORE(Str $s -->) { $.id = @$s.as_graphs[0]; }
+    method FETCH(--> Str) {
+        my Str $s;
+        $s.as_graphs = $.id;
+        return $s;
+    }
+    method Str(--> Str) {
+        my Str $s;
+        $s.as_graphs = $.id;
+        return $s;
     }
 
     # Normalization Algorithm                        UAX #15
@@ -253,7 +305,14 @@ class *Str is also {
         };
         return @!as_graphs;
     }
+    # codepoint mode needs to respect lexical $?NF, so we may need to renormalize ourself
+    # remember what NF the as_codes is in
+    has Str $!cur_nf;
     our method as_codes(--> UBuf) is rw is export {
+        if $?NF ne $!cur_nf {
+            @!as_codes = @.normalize.as_codes;
+            $!cur_nf = $?NF;
+        }
         return @!as_codes if defined @!as_codes;
         if defined @!as_graphs and defined $?NF {
             for @!as_graphs -> Int $o {
@@ -315,10 +374,11 @@ module *graphemes {
         our multi method graphs(Str $string: --> Int) is export { $string.as_graphs.elems }
         our multi method chars(Str $string: --> Int) is export { $string.graphs }
         multi submethod BUILD(UBuf :@graphs) { @!as_graphs = @graphs; }
-        multi method STORE(Str $s) {
+        multi method STORE(Str $s -->) {
             @!as_graphs = $s.as_graphs;
             @!as_codes = undef;
             @!as_bytes = undef;
+            $!cur_nf = undef;
         }
         multi method FETCH(--> Str) {
             my Str $s;
@@ -348,8 +408,19 @@ module *graphemes {
     class *UBuf is also {
         our multi method Str(UBuf $b: --> Str) { Str.new(:graphs($b)) }
     }
-    class *Grapheme is also {
-        our multi method Str(--> Str) { Str.new(:graphs($.id)) }
+    class *AnyChar is also {
+        multi submethod BUILD(Str $s) { $.char.as_graphs = @$s.as_graphs[0]; }
+        method STORE(Str $s -->)      { $.char.as_graphs = @$s.as_graphs[0]; }
+        method FETCH(--> Str) {
+            my Str $s;
+            $s.as_graphs = $.char.as_graphs;
+            return $s;
+        }
+        method Str(--> Str) {
+            my Str $s;
+            $s.as_graphs = $.char.as_graphs;
+            return $s;
+        }
     }
 }
 
@@ -358,10 +429,11 @@ module *codepoints {
         our multi method codes(Str $string: --> Int) is export { $string.as_codes.elems }
         our multi method chars(Str $string: --> Int) is export { $string.codes }
         multi submethod BUILD(UBuf :@codes) { @!as_codes = @codes; }
-        multi method STORE(Str $s) {
+        multi method STORE(Str $s -->) {
             @!as_graphs = undef;
             @!as_codes = $s.as_codes;
             @!as_bytes = undef;
+            $!cur_nf = $?NF;
         }
         multi method FETCH(--> Str) {
             my Str $s;
@@ -374,9 +446,12 @@ module *codepoints {
             $s.as_codes.push: @$s2.as_codes;
             return $s;
         }
-        our multi *infix:<eq>(Str $s1, Str $s2 --> Bool) is export { $s1.as_codes eqv $s2.as_codes }
+        # S02:737 says code Strs should be in "universal form",
+        # so compare as_graphs (we can always upgrade to graphs)
+        our multi *infix:<eq>(Str $s1, Str $s2 --> Bool) is export { $s1.as_graphs eqv $s2.as_graphs }
         our multi method ord(Str $string: --> Int) is export { @.as_codes[0] }
         our multi method ord(Str $string: --> List of Int) is export { @.as_codes }
+        our method Buf(--> Buf) { @.as_codes }
         our multi method substr(Str $string: StrPos $start, StrLen $length? --> Str) is rw is export {...}
         our multi method substr(Str $string: StrPos $start, StrPos $end? --> Str) is rw is export {...}
 
@@ -407,8 +482,19 @@ module *codepoints {
     class *UBuf is also {
         our multi method Str(UBuf $b: --> Str) { Str.new(:codes($b)) }
     }
-    class *Grapheme is also {
-        our multi method Str(--> Str) { $.normalize }
+    class *AnyChar is also {
+        multi submethod BUILD(Str $s) { $.char.as_codes = @$s.as_codes[0]; }
+        method STORE(Str $s -->)      { $.char.as_codes = @$s.as_codes[0]; }
+        method FETCH(--> Str) {
+            my Str $s;
+            $s.as_codes = $.char.as_codes;
+            return $s;
+        }
+        method Str(--> Str) {
+            my Str $s;
+            $s.as_codes = $.char.as_codes;
+            return $s;
+        }
     }
 }
 
@@ -417,10 +503,11 @@ module *bytes {
         our multi method bytes(Str $string: --> Int) is export { $string.as_bytes.elems }
         our multi method chars(Str $string: --> Int) is export { $string.bytes }
         multi submethod BUILD(UBuf :@bytes) { @!as_bytes = @bytes; }
-        multi method STORE(Str $s) {
+        multi method STORE(Str $s -->) {
             @!as_graphs = undef;
             @!as_codes = undef;
             @!as_bytes = $s.as_bytes;
+            $!cur_nf = undef;
         }
         multi method FETCH(--> Str) {
             my Str $s;
@@ -436,6 +523,7 @@ module *bytes {
         our multi *infix:<eq>(Str $s1, Str $s2 --> Bool) is export { $s1.as_bytes eqv $s2.as_bytes }
         our multi method ord(Str $string: --> Int) is export { @.as_bytes[0] }
         our multi method ord(Str $string: --> List of Int) is export { @.as_bytes }
+        our method Buf(--> Buf) { @.as_bytes }
         our multi method substr(Str $string: StrPos $start, StrLen $length? --> Str) is rw is export {...}
         our multi method substr(Str $string: StrPos $start, StrPos $end? --> Str) is rw is export {...}
     }
@@ -445,6 +533,20 @@ module *bytes {
     }
     class *UBuf is also {
         our multi method Str(UBuf $b: --> Str) { Str.new(:bytes($b)) }
+    }
+    class *AnyChar is also {
+        multi submethod BUILD(Str $s) { $.char.as_bytes = @$s.as_bytes[0]; }
+        method STORE(Str $s -->)      { $.char.as_bytes = @$s.as_bytes[0]; }
+        method FETCH(--> Str) {
+            my Str $s;
+            $s.as_bytes = $.char.as_bytes;
+            return $s;
+        }
+        method Str(--> Str) {
+            my Str $s;
+            $s.as_bytes = $.char.as_bytes;
+            return $s;
+        }
     }
 }
 
