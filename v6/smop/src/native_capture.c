@@ -159,6 +159,9 @@ SMOP__Object*   SMOP__NATIVE__capture_create(SMOP__Object* interpreter,
   native_capture_struct* ret = (native_capture_struct*)smop_lowlevel_alloc(sizeof(native_capture_struct));
   ret->RI = SMOP__NATIVE__capture;
   ret->invocant = invocant;
+  ret->count_positional = 0;
+  ret->count_named = 0;
+  ret->count_o_named = 0;
 
   if (positional) {
     int length = -1;
@@ -347,14 +350,25 @@ SMOP__Object*   SMOP__NATIVE__capture_delegate(SMOP__Object* interpreter,
   named_argument* o_named = ((native_capture_struct*)original_capture)->o_named;
   smop_lowlevel_unlock(original_capture);
 
-  SMOP__Object** pos = malloc(sizeof(SMOP__Object*) * (n_positional+1));
-  memcpy(pos, positional, sizeof(SMOP__Object*) * n_positional);
-  pos[n_positional] = NULL;
+  SMOP__Object** pos = NULL;
+  if (n_positional && positional) {
+    pos = malloc(sizeof(SMOP__Object*) * (n_positional+1));
+    assert(pos);
+    memcpy(pos, positional, sizeof(SMOP__Object*) * n_positional);
+    pos[n_positional] = NULL;
+  }
 
-  SMOP__Object** nam = malloc(sizeof(SMOP__Object*) * (n_named + n_o_named + 1));
-  memcpy(pos, named, sizeof(SMOP__Object*) * n_named);
-  memcpy(pos[n_named], o_named, sizeof(SMOP__Object*) * n_o_named);
-  pos[n_named + n_o_named] = NULL;
+  SMOP__Object** nam = NULL;
+  if (n_named || n_o_named) {
+    nam = malloc(sizeof(SMOP__Object*) * (n_named + n_o_named + 1));
+    if (n_named) {
+      memcpy(pos, named, sizeof(SMOP__Object*) * n_named);
+    }
+    if (n_o_named) {
+      memcpy(pos[n_named], o_named, sizeof(SMOP__Object*) * n_o_named);
+    }
+    pos[n_named + n_o_named] = NULL;
+  }
    
   return SMOP__NATIVE__capture_create(interpreter,invocant,pos,nam);
 }

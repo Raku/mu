@@ -62,7 +62,7 @@ int main(int argc, char** argv) {
   ri->REFERENCE = smop_lowlevel_refcnt_inc;
   ri->RELEASE = smop_lowlevel_refcnt_dec;
 
-  SMOP__Object* intrp = SMOP_DISPATCH(NULL, SMOP_RI(SMOP__INTPTR__InterpreterInstance),
+  SMOP__Object* intrp = SMOP_DISPATCH(SMOP__INTPTR__InterpreterInstance, SMOP_RI(SMOP__INTPTR__InterpreterInstance),
                                       SMOP__ID__new,
                                       SMOP__NATIVE__capture_create(NULL, SMOP__INTPTR__InterpreterInstance, NULL, NULL));
   
@@ -71,7 +71,7 @@ int main(int argc, char** argv) {
   }
   printf("ok 2 - got new interp successfully.\n");
 
-  SMOP_DISPATCH(NULL, ri, (SMOP__Object*)1, NULL);
+  SMOP_DISPATCH(intrp, ri, (SMOP__Object*)1, NULL);
 
   /* At this point, the destruction code for the object will be put in
    * the stack. That's why we still can call the second method just
@@ -80,15 +80,17 @@ int main(int argc, char** argv) {
    */
   SMOP_RELEASE(intrp, obj);
 
-  SMOP_DISPATCH(NULL, ri, (SMOP__Object*)2, NULL);
+  SMOP_DISPATCH(intrp, ri, (SMOP__Object*)2, NULL);
 
-  SMOP__Object* loop_capture = SMOP__NATIVE__capture_create(NULL, SMOP__INTPTR__InterpreterInstance, NULL, NULL);
-  SMOP_DISPATCH(NULL, SMOP_RI(intrp),
+  SMOP__Object* loop_capture = SMOP__NATIVE__capture_create(intrp,
+                                                            intrp,
+                                                            NULL, NULL);
+  SMOP_DISPATCH(SMOP__INTPTR__InterpreterInstance, SMOP_RI(intrp),
                 SMOP__ID__loop, loop_capture);
 
-  SMOP_RELEASE(NULL, loop_capture);
+  SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance, loop_capture);
 
-  SMOP_RELEASE(NULL, intrp);
+  SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance, intrp);
 
   printf("ok 6 - finished succesfully.\n");
 

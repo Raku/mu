@@ -845,7 +845,7 @@
                                                                                                             my $ret;
                                                                                                             $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                                             INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block1_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block1_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                                                                             do {
                                                                                                                 if (::DISPATCH(
                                                                                                                         ::DISPATCH(
@@ -1260,7 +1260,7 @@
                                                                                     my $ret;
                                                                                     $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                     INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block2_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block2_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                                                     do {
                                                                                         if (::DISPATCH(
                                                                                                 ::DISPATCH(
@@ -1368,7 +1368,7 @@
                                                                                     my $ret;
                                                                                     $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                     INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block3_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block3_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                                                     do {
                                                                                         if (::DISPATCH(
                                                                                                 ::DISPATCH(
@@ -1477,7 +1477,7 @@
                                                             my $ret;
                                                             $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                             INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block4_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block4_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                             do {
                                                                 if (::DISPATCH(
                                                                         ::DISPATCH(
@@ -1809,7 +1809,7 @@
                                                             my $ret;
                                                             $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                             INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block5_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block5_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                             do {
                                                                 if (::DISPATCH(
                                                                         ::DISPATCH(
@@ -1936,7 +1936,7 @@
                                                                 my $ret;
                                                                 $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                 INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block6_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                                ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block6_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                                 do {
                                                                     if (::DISPATCH(
                                                                             ::DISPATCH(
@@ -2066,7 +2066,7 @@
                                                                     my $ret;
                                                                     $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                     INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block7_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block7_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                                     do {
                                                                         if (::DISPATCH(
                                                                                 ::DISPATCH(
@@ -2196,7 +2196,7 @@
                                                                     my $ret;
                                                                     $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                     INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block8_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block8_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                                     do {
                                                                         if (::DISPATCH(
                                                                                 ::DISPATCH(
@@ -2603,7 +2603,7 @@
                                                             my $ret;
                                                             $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                             INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block9_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block9_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                             do {
                                                                 if (::DISPATCH(
                                                                         ::DISPATCH(
@@ -3582,7 +3582,7 @@
                                                                                                                 my $ret;
                                                                                                                 $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                                                 INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                                                ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block10_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                                                                                ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block10_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                                                                                 do {
                                                                                                                     if (::DISPATCH(
                                                                                                                             ::DISPATCH(
@@ -4529,7 +4529,7 @@
                                                                                                         my $ret;
                                                                                                         $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                                         INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block11_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block11_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                                                                         do {
                                                                                                             if (::DISPATCH(
                                                                                                                     ::DISPATCH(
@@ -5027,7 +5027,7 @@
                                                                     my $ret;
                                                                     $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                     INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block12_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block12_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                                     do {
                                                                         if (::DISPATCH(
                                                                                 ::DISPATCH(
@@ -5536,7 +5536,7 @@
                                                                         my $ret;
                                                                         $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                         INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block13_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block13_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                                         do {
                                                                             if (::DISPATCH(
                                                                                     ::DISPATCH(
@@ -5878,7 +5878,7 @@
                                                         my $ret;
                                                         $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                         INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block14_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block14_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                         do {
                                                             if (::DISPATCH(
                                                                     ::DISPATCH(
@@ -6208,7 +6208,7 @@
                                                             my $ret;
                                                             $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                             INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block15_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block15_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                             do {
                                                                 if (::DISPATCH(
                                                                         ::DISPATCH(
@@ -6301,7 +6301,7 @@
                                                         my $ret;
                                                         $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                         INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block16_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block16_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                         do {
                                                             if (::DISPATCH(
                                                                     ::DISPATCH(
@@ -6815,7 +6815,7 @@
                                                                                             my $ret;
                                                                                             $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                             INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block17_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block17_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                                                             do {
                                                                                                 if (::DISPATCH(
                                                                                                         ::DISPATCH(
@@ -6955,7 +6955,7 @@
                                                                                 my $ret;
                                                                                 $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                 INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block18_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                                                ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block18_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                                                 do {
                                                                                     if (::DISPATCH(
                                                                                             ::DISPATCH(
@@ -7297,7 +7297,7 @@
                                                             my $ret;
                                                             $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                             INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block19_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block19_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                             do {
                                                                 if (::DISPATCH(
                                                                         ::DISPATCH(
@@ -7390,7 +7390,7 @@
                                                         my $ret;
                                                         $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                         INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block20_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block20_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                         do {
                                                             if (::DISPATCH(
                                                                     ::DISPATCH(
@@ -7904,7 +7904,7 @@
                                                                                             my $ret;
                                                                                             $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                             INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block21_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block21_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                                                             do {
                                                                                                 if (::DISPATCH(
                                                                                                         ::DISPATCH(
@@ -8186,7 +8186,7 @@
                                                                                     my $ret;
                                                                                     $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                     INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block22_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block22_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                                                     do {
                                                                                         if (::DISPATCH(
                                                                                                 ::DISPATCH(
@@ -8700,7 +8700,7 @@
                                                                         my $ret;
                                                                         $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                         INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block23_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block23_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                                         do {
                                                                             if (::DISPATCH(
                                                                                     ::DISPATCH(
@@ -9042,7 +9042,7 @@
                                                         my $ret;
                                                         $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                         INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block24_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block24_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                         do {
                                                             if (::DISPATCH(
                                                                     ::DISPATCH(
@@ -9372,7 +9372,7 @@
                                                             my $ret;
                                                             $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                             INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block25_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block25_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                             do {
                                                                 if (::DISPATCH(
                                                                         ::DISPATCH(
@@ -9569,7 +9569,7 @@
                                                                     my $ret;
                                                                     $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                     INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block26_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block26_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                                     do {
                                                                         if (::DISPATCH(
                                                                                 ::DISPATCH(
@@ -9702,7 +9702,7 @@
                                                                     my $ret;
                                                                     $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                     INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block27_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block27_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                                     do {
                                                                         if (::DISPATCH(
                                                                                 ::DISPATCH(
@@ -9834,7 +9834,7 @@
                                                                         my $ret;
                                                                         $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                         INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block28_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block28_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                                         do {
                                                                             if (::DISPATCH(
                                                                                     ::DISPATCH(
@@ -9965,7 +9965,7 @@
                                                                         my $ret;
                                                                         $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                         INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block29_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block29_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                                         do {
                                                                             if (::DISPATCH(
                                                                                     ::DISPATCH(
@@ -10303,7 +10303,7 @@
                                                         my $ret;
                                                         $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                         INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block30_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block30_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                         do {
                                                             if (::DISPATCH(
                                                                     ::DISPATCH(
@@ -10865,7 +10865,7 @@
                                                         my $ret;
                                                         $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                         INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block31_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block31_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                         do {
                                                             if (::DISPATCH(
                                                                     ::DISPATCH(
@@ -14768,7 +14768,7 @@
                                                                                                                                                                                                                                     $ret, 'STORE',
                                                                                                                                                                                                                                     ::DISPATCH(
                                                                                                                                                                                                                                         $self,
-                                                                                                                                                                                                                                        '__rule_block32_8d34486ee1382e9262b3e3c094d6523a',
+                                                                                                                                                                                                                                        '__rule_block32_b05424b9acea0d4b37ee578384575f0f',
                                                                                                                                                                                                                                         $MATCH
                                                                                                                                                                                                                                     )
                                                                                                                                                                                                                                 );
@@ -15368,7 +15368,7 @@
                                                         my $ret;
                                                         $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                         INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block33_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block33_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                         do {
                                                             if (::DISPATCH(
                                                                     ::DISPATCH(
@@ -15697,7 +15697,7 @@
                                                         my $ret;
                                                         $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                         INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block34_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block34_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                         do {
                                                             if (::DISPATCH(
                                                                     ::DISPATCH(
@@ -16026,7 +16026,7 @@
                                                         my $ret;
                                                         $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                         INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block35_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block35_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                         do {
                                                             if (::DISPATCH(
                                                                     ::DISPATCH(
@@ -16355,7 +16355,7 @@
                                                         my $ret;
                                                         $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                         INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block36_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block36_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                         do {
                                                             if (::DISPATCH(
                                                                     ::DISPATCH(
@@ -16684,7 +16684,7 @@
                                                         my $ret;
                                                         $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                         INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block37_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block37_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                         do {
                                                             if (::DISPATCH(
                                                                     ::DISPATCH(
@@ -17171,7 +17171,7 @@
                                                                                         my $ret;
                                                                                         $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                         INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block38_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block38_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                                                         do {
                                                                                             if (::DISPATCH(
                                                                                                     ::DISPATCH(
@@ -17348,7 +17348,7 @@
                                                                                     my $ret;
                                                                                     $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                     INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block39_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block39_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                                                     do {
                                                                                         if (::DISPATCH(
                                                                                                 ::DISPATCH(
@@ -17457,7 +17457,7 @@
                                                             my $ret;
                                                             $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                             INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block40_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block40_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                             do {
                                                                 if (::DISPATCH(
                                                                         ::DISPATCH(
@@ -18040,7 +18040,7 @@
                                                                                                     my $ret;
                                                                                                     $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                                     INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block41_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block41_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                                                                     do {
                                                                                                         if (::DISPATCH(
                                                                                                                 ::DISPATCH(
@@ -18155,7 +18155,7 @@
                                                                                         my $ret;
                                                                                         $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                         INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block42_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block42_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                                                         do {
                                                                                             if (::DISPATCH(
                                                                                                     ::DISPATCH(
@@ -18503,7 +18503,7 @@
                                                             my $ret;
                                                             $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                             INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block43_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block43_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                             do {
                                                                 if (::DISPATCH(
                                                                         ::DISPATCH(
@@ -19045,7 +19045,7 @@
                                                                     my $ret;
                                                                     $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                     INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block44_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block44_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                                     do {
                                                                         if (::DISPATCH(
                                                                                 ::DISPATCH(
@@ -19149,7 +19149,7 @@
                                                             my $ret;
                                                             $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                             INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block45_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                            ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block45_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                             do {
                                                                 if (::DISPATCH(
                                                                         ::DISPATCH(
@@ -19732,7 +19732,7 @@
                                                                                                     my $ret;
                                                                                                     $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                                     INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block46_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                                                                    ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block46_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                                                                     do {
                                                                                                         if (::DISPATCH(
                                                                                                                 ::DISPATCH(
@@ -19847,7 +19847,7 @@
                                                                                         my $ret;
                                                                                         $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) unless defined $ret;
                                                                                         INIT { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
-                                                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block47_8d34486ee1382e9262b3e3c094d6523a', $MATCH ) );
+                                                                                        ::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block47_b05424b9acea0d4b37ee578384575f0f', $MATCH ) );
                                                                                         do {
                                                                                             if (::DISPATCH(
                                                                                                     ::DISPATCH(
@@ -20510,7 +20510,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block1_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block1_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -20616,7 +20616,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block2_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block2_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -20707,7 +20707,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block3_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block3_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -20793,7 +20793,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block4_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block4_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -20870,7 +20870,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block5_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block5_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -20956,7 +20956,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block6_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block6_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -21042,7 +21042,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block7_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block7_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -21128,7 +21128,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block8_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block8_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -21214,7 +21214,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block9_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block9_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -21300,7 +21300,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block10_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block10_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -21353,7 +21353,7 @@
                                     ::DISPATCH(
                                         ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", ) ),
                                         'APPLY',
-                                        ::DISPATCH( $::Str, 'new', ' SMOP__ID__responder, SMOP_RI(' ),
+                                        ::DISPATCH( $::Str, 'new', ' SMOP__ID__responder, (SMOP__Object*)SMOP_RI(' ),
                                         ::DISPATCH(
                                             ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", ) ),
                                             'APPLY',
@@ -21462,7 +21462,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block11_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block11_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -21515,7 +21515,7 @@
                                     ::DISPATCH(
                                         ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", ) ),
                                         'APPLY',
-                                        ::DISPATCH( $::Str, 'new', ' SMOP__ID__responder, SMOP_RI(' ),
+                                        ::DISPATCH( $::Str, 'new', ' SMOP__ID__responder, (SMOP__Object*)SMOP_RI(' ),
                                         ::DISPATCH(
                                             ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", ) ),
                                             'APPLY',
@@ -21593,7 +21593,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block12_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block12_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -21694,7 +21694,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block13_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block13_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -21780,7 +21780,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block14_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block14_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -21866,7 +21866,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block15_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block15_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -21957,7 +21957,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block16_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block16_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -22034,7 +22034,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block17_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block17_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -22125,7 +22125,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block18_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block18_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -22211,7 +22211,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block19_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block19_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -22302,7 +22302,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block20_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block20_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -22379,7 +22379,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block21_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block21_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -22470,7 +22470,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block22_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block22_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -22556,7 +22556,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block23_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block23_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -22647,7 +22647,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block24_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block24_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -22733,7 +22733,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block25_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block25_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -22819,7 +22819,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block26_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block26_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -22905,7 +22905,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block27_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block27_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -22991,7 +22991,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block28_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block28_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -23077,7 +23077,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block29_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block29_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -23163,7 +23163,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block30_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block30_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -23249,7 +23249,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block31_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block31_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -23326,7 +23326,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block32_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block32_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -23447,7 +23447,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block33_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block33_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -23533,7 +23533,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block34_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block34_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -23619,7 +23619,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block35_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block35_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -23697,7 +23697,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block36_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block36_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -23783,7 +23783,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block37_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block37_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -23869,7 +23869,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block38_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block38_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -23960,7 +23960,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block39_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block39_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -24037,7 +24037,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block40_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block40_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -24114,7 +24114,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block41_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block41_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -24205,7 +24205,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block42_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block42_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -24251,7 +24251,7 @@
                                 ( $GLOBAL::Code_infix_58__60__126__62_ = $GLOBAL::Code_infix_58__60__126__62_ || ::DISPATCH( $::Routine, "new", ) ),
                                 'APPLY',
                                 ::DISPATCH( $MATCH, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'cint' ) ),
-                                ::DISPATCH( $::Str, 'new',    ', NULL ' )
+                                ::DISPATCH( $::Str, 'new',    ', 0 ' )
                             )
                         );
                         return ( ::DISPATCH( $::Str, 'new', 'sTrNgE V4l' ) );
@@ -24291,7 +24291,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block43_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block43_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -24377,7 +24377,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block44_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block44_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -24468,7 +24468,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block45_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block45_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -24545,7 +24545,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block46_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block46_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {
@@ -24636,7 +24636,7 @@
         ::DISPATCH(
             ::DISPATCH( $::sm0p, 'HOW', ),
             'add_method',
-            ::DISPATCH( $::Str, 'new', '__rule_block47_8d34486ee1382e9262b3e3c094d6523a' ),
+            ::DISPATCH( $::Str, 'new', '__rule_block47_b05424b9acea0d4b37ee578384575f0f' ),
             ::DISPATCH(
                 $::Code, 'new',
                 {   code => sub {

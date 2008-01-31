@@ -3,15 +3,15 @@
 #include <smop.h>
 
 SMOP__Object* SMOP__NATIVE__bool;
-static SMOP__Object* smop_native_bool_const_true;
-static SMOP__Object* smop_native_bool_const_false;
+SMOP__Object* SMOP__NATIVE__bool_true;
+SMOP__Object* SMOP__NATIVE__bool_false;
 
 static SMOP__Object* bool_message(SMOP__Object* interpreter,
                                      SMOP__ResponderInterface* self,
                                      SMOP__Object* identifier,
                                      SMOP__Object* capture) {
   //todo
-  return capture;
+  return SMOP__NATIVE__bool_false;
 }
 
 static SMOP__Object* bool_reference(SMOP__Object* interpreter,
@@ -35,30 +35,29 @@ void smop_native_bool_init() {
   ri->REFERENCE = bool_reference;
   ri->RELEASE = bool_release;
 
-  smop_native_bool_const_true = calloc(1,sizeof(SMOP__Object));
-  assert(smop_native_bool_const_true);
-  smop_native_bool_const_true->RI = ri;
-  smop_native_bool_const_true->data = (void*)1;
+  SMOP__NATIVE__bool_true = calloc(1,sizeof(SMOP__Object));
+  assert(SMOP__NATIVE__bool_true);
+  SMOP__NATIVE__bool_true->RI = ri;
+  SMOP__NATIVE__bool_true->data = (void*)1;
 
-  smop_native_bool_const_false = calloc(1,sizeof(SMOP__Object));
-  assert(smop_native_bool_const_false);
-  smop_native_bool_const_false->RI = ri;
-  smop_native_bool_const_false->data = NULL;
+  SMOP__NATIVE__bool_false = calloc(1,sizeof(SMOP__Object));
+  assert(SMOP__NATIVE__bool_false);
+  SMOP__NATIVE__bool_false->RI = ri;
+  SMOP__NATIVE__bool_false->data = NULL;
   
 }
 
 void smop_native_bool_destr() {
-  free(smop_native_bool_const_false);
-  free(smop_native_bool_const_true);
+  free(SMOP__NATIVE__bool_true);
   free(SMOP__NATIVE__bool);
 }
 
 
 SMOP__Object* SMOP__NATIVE__bool_create(int b) {
   if (b) {
-    return smop_native_bool_const_true;
+    return SMOP__NATIVE__bool_true;
   } else {
-    return smop_native_bool_const_false;
+    return SMOP__NATIVE__bool_false;
   }
 }
 

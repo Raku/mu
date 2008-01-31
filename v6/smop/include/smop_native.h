@@ -29,6 +29,8 @@ extern SMOP__Object* SMOP__NATIVE__buf;
 extern SMOP__Object* SMOP__NATIVE__num;
 extern SMOP__Object* SMOP__NATIVE__complex;
 extern SMOP__Object* SMOP__NATIVE__bool;
+extern SMOP__Object* SMOP__NATIVE__bool_true;
+extern SMOP__Object* SMOP__NATIVE__bool_false;
 extern SMOP__Object* SMOP__NATIVE__capture;
 
 // create methods
