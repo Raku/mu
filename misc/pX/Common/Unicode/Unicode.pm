@@ -253,10 +253,29 @@ module *encoding {
 }
 
 class *StrPos {
-...;
+    # this object is only valid for strings === $s
+    has Str $.s;
+    # substr of $s from beginning to our pos
+    has Str $.sub;
+    method bytes(--> Int)  { $.sub.bytes  }
+    method codes(--> Int)  { $.sub.codes  }
+    method graphs(--> Int) { $.sub.graphs }
+    multi infix:<->(StrPos $sp1, StrPos $sp2 --> StrLen) { StrDisp.new(:s1($sp1.sub), :s2($sp2.sub)) }
 }
 class *StrLen {
-...;
+    # this is a non-lazy, string-independent length which cannot be converted
+    has Int $.bytes;
+    has Int $.codes;
+    has Int $.graphs;
+    my method clear(-->) { $.bytes = $.codes = $.graphs = undef; }
+}
+class *StrDisp is StrLen {
+    # this is the "lazy" StrLen, created only by subtracting StrPos
+    has Str $.s1;
+    has Str $.s2;
+    method bytes(--> Int)  { $.s1.bytes  - $.s2.bytes  }
+    method codes(--> Int)  { $.s1.codes  - $.s2.codes  }
+    method graphs(--> Int) { $.s1.graphs - $.s2.graphs }
 }
 
 class *Str is also {
@@ -398,8 +417,41 @@ module *graphemes {
         our multi *infix:<eq>(Str $s1, Str $s2 --> Bool) is export { $s1.as_graphs eqv $s2.as_graphs }
         our multi method ord(Str $string: --> Int) is export { @.as_graphs[0] }
         our multi method ord(Str $string: --> List of Int) is export { @.as_graphs }
-        our multi method substr(Str $string: StrPos $start, StrLen $length? --> Str) is rw is export {...}
-        our multi method substr(Str $string: StrPos $start, StrPos $end? --> Str) is rw is export {...}
+        our multi method substr(Str $string: StrPos $start, StrLen $length? --> Str) is rw is export {
+            die 'Invalid StrPos for this Str' unless $start.s === $string;
+            return class {
+                method FETCH(--> Str) {
+                    my Str $s;
+                    @$s.as_graphs = @$string.as_graphs[ $start.graphs .. ($length.graphs+$start.graphs // *) ];
+                    return $s;
+                }
+                method STORE(Str $s -->) {
+                    my Str $s1, $s2, $s3;
+                    @$s1.as_graphs = @$string.as_graphs[ 0 .. $start.graphs-1 ];
+                    @$s2.as_graphs = @$string.as_graphs[ ($length.graphs+$start.graphs+1 // *) .. * ];
+                    $s3 = $s1 ~ $s ~ $s2;
+                    $string.as_graphs = $s3.as_graphs;
+                }
+            };
+        }
+        our multi method substr(Str $string: StrPos $start, StrPos $end? --> Str) is rw is export {
+            die 'Invalid StrPos for this Str' unless $start.s === $string;
+            die 'Invalid StrPos for this Str' unless $end.s === $string;
+            return class {
+                method FETCH(--> Str) {
+                    my Str $s;
+                    @$s.as_graphs = @$string.as_graphs[ $start.graphs .. ($end.graphs // *) ];
+                    return $s;
+                }
+                method STORE(Str $s -->) {
+                    my Str $s1, $s2, $s3;
+                    @$s1.as_graphs = @$string.as_graphs[ 0 .. $start.graphs-1 ];
+                    @$s2.as_graphs = @$string.as_graphs[ ($end.graphs+1 // *) .. * ];
+                    $s3 = $s1 ~ $s ~ $s2;
+                    $string.as_graphs = $s3.as_graphs;
+                }
+            };
+        }
     }
     our multi sub *chr(Int *@grid --> Str) {
         my UBuf @graphs = @grid;
@@ -422,6 +474,21 @@ module *graphemes {
             return $s;
         }
     }
+    class *StrLen is also {
+        submethod BUILD(Int $i -->) { $.clear; $.graphs = $i; }
+        method STORE(Int $i -->)    { $.clear; $.graphs = $i; }
+        method FETCH(--> Int) { $.graphs }
+        method Int(--> Int)   { $.graphs }
+    }
+    class *StrPos is also {
+        submethod BUILD(Str $s, StrLen $len) {
+            $.s = $s;
+            my Str $sub;
+            @$sub.as_graphs = @$s.as_graphs[0 .. $len.graphs];
+            $.sub = $sub;
+        }
+        method Int(--> Int) { $.graphs }
+    }
 }
 
 module *codepoints {
@@ -442,7 +509,7 @@ module *codepoints {
         }
         our multi *infix:<~>(Str $s1, Str $s2 --> Str) is export {
             my Str $s;
-            @$s.as_codes = $s1.as_codes;
+            $s.as_codes = $s1.as_codes;
             $s.as_codes.push: @$s2.as_codes;
             return $s;
         }
@@ -452,8 +519,42 @@ module *codepoints {
         our multi method ord(Str $string: --> Int) is export { @.as_codes[0] }
         our multi method ord(Str $string: --> List of Int) is export { @.as_codes }
         our method Buf(--> Buf) { @.as_codes }
-        our multi method substr(Str $string: StrPos $start, StrLen $length? --> Str) is rw is export {...}
-        our multi method substr(Str $string: StrPos $start, StrPos $end? --> Str) is rw is export {...}
+        our multi method substr(Str $string: StrPos $start, StrLen $length? --> Str) is rw is export {
+            die 'Invalid StrPos for this Str' unless $start.s === $string;
+            return class {
+                method FETCH(--> Str) {
+                    my Str $s;
+                    @$s.as_codes = @$string.as_codes[ $start.codes .. ($length.codes+$start.codes // *) ];
+                    return $s;
+                }
+                method STORE(Str $s -->) {
+                    my Str $s1, $s2, $s3;
+                    @$s1.as_codes = @$string.as_codes[ 0 .. $start.codes-1 ];
+                    @$s2.as_codes = @$string.as_codes[ ($length.codes+$start.codes+1 // *) .. * ];
+                    $s3 = $s1 ~ $s ~ $s2;
+                    $string.as_codes = $s3.as_codes;
+                }
+            };
+        }
+        our multi method substr(Str $string: StrPos $start, StrPos $end? --> Str) is rw is export {
+            die 'Invalid StrPos for this Str' unless $start.s === $string;
+            die 'Invalid StrPos for this Str' unless $end.s === $string;
+            return class {
+                method FETCH(--> Str) {
+                    my Str $s;
+                    @$s.as_codes = @$string.as_codes[ $start.codes .. ($end.codes // *) ];
+                    return $s;
+                }
+                method STORE(Str $s -->) {
+                    my Str $s1, $s2, $s3;
+                    @$s1.as_codes = @$string.as_codes[ 0 .. $start.codes-1 ];
+                    @$s2.as_codes = @$string.as_codes[ ($end.codes+1 // *) .. * ];
+                    $s3 = $s1 ~ $s ~ $s2;
+                    $string.as_codes = $s3.as_codes;
+                }
+            };
+        }
+    }
 
         our multi method normalize(Str $string: Str :$nf = $?NF --> Str) is export {
             use :$nf;
@@ -496,6 +597,21 @@ module *codepoints {
             return $s;
         }
     }
+    class *StrLen is also {
+        submethod BUILD(Int $i -->) { $.clear; $.codes = $i; }
+        method STORE(Int $i -->)    { $.clear; $.codes = $i; }
+        method FETCH(--> Int) { $.codes }
+        method Int(--> Int)   { $.codes }
+    }
+    class *StrPos is also {
+        submethod BUILD(Str $s, StrLen $len) {
+            $.s = $s;
+            my Str $sub;
+            @$sub.as_codes = @$s.as_codes[0 .. $len.codes];
+            $.sub = $sub;
+        }
+        method Int(--> Int) { $.codes }
+    }
 }
 
 module *bytes {
@@ -516,7 +632,7 @@ module *bytes {
         }
         our multi *infix:<~>(Str $s1, Str $s2 --> Str) is export {
             my Str $s;
-            @$s.as_bytes = $s1.as_bytes;
+            $s.as_bytes = $s1.as_bytes;
             $s.as_bytes.push: @$s2.as_bytes;
             return $s;
         }
@@ -526,6 +642,42 @@ module *bytes {
         our method Buf(--> Buf) { @.as_bytes }
         our multi method substr(Str $string: StrPos $start, StrLen $length? --> Str) is rw is export {...}
         our multi method substr(Str $string: StrPos $start, StrPos $end? --> Str) is rw is export {...}
+        our multi method substr(Str $string: StrPos $start, StrLen $length? --> Str) is rw is export {
+            die 'Invalid StrPos for this Str' unless $start.s === $string;
+            return class {
+                method FETCH(--> Str) {
+                    my Str $s;
+                    @$s.as_bytes = @$string.as_bytes[ $start.bytes .. ($length.bytes+$start.bytes // *) ];
+                    return $s;
+                }
+                method STORE(Str $s -->) {
+                    my Str $s1, $s2, $s3;
+                    @$s1.as_bytes = @$string.as_bytes[ 0 .. $start.bytes-1 ];
+                    @$s2.as_bytes = @$string.as_bytes[ ($length.bytes+$start.bytes+1 // *) .. * ];
+                    $s3 = $s1 ~ $s ~ $s2;
+                    $string.as_bytes = $s3.as_bytes;
+                }
+            };
+        }
+        our multi method substr(Str $string: StrPos $start, StrPos $end? --> Str) is rw is export {
+            die 'Invalid StrPos for this Str' unless $start.s === $string;
+            die 'Invalid StrPos for this Str' unless $end.s === $string;
+            return class {
+                method FETCH(--> Str) {
+                    my Str $s;
+                    @$s.as_bytes = @$string.as_bytes[ $start.bytes .. ($end.bytes // *) ];
+                    return $s;
+                }
+                method STORE(Str $s -->) {
+                    my Str $s1, $s2, $s3;
+                    @$s1.as_bytes = @$string.as_bytes[ 0 .. $start.bytes-1 ];
+                    @$s2.as_bytes = @$string.as_bytes[ ($end.bytes+1 // *) .. * ];
+                    $s3 = $s1 ~ $s ~ $s2;
+                    $string.as_bytes = $s3.as_bytes;
+                }
+            };
+        }
+    }
     }
     our multi sub *chr(Int *@grid --> Str) {
         my UBuf @bytes = @grid;
@@ -547,6 +699,21 @@ module *bytes {
             $s.as_bytes = $.char.as_bytes;
             return $s;
         }
+    }
+    class *StrLen is also {
+        submethod BUILD(Int $i -->) { $.clear; $.bytes = $i; }
+        method STORE(Int $i -->)    { $.clear; $.bytes = $i; }
+        method FETCH(--> Int) { $.bytes }
+        method Int(--> Int)   { $.bytes }
+    }
+    class *StrPos is also {
+        submethod BUILD(Str $s, StrLen $len) {
+            $.s = $s;
+            my Str $sub;
+            @$sub.as_bytes = @$s.as_bytes[0 .. $len.bytes];
+            $.sub = $sub;
+        }
+        method Int(--> Int) { $.bytes }
     }
 }
 
