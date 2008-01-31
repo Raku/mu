@@ -256,14 +256,10 @@ class *StrPos {
     # this object is only valid for strings === $.s
     has Str $.s;
     # substr of $.s from beginning to our pos
-    has Str $.sub;
+    has Str $.sub is rw;
     method bytes(--> Int)  { $.sub.bytes  }
     method codes(--> Int)  { $.sub.codes  }
     method graphs(--> Int) { $.sub.graphs }
-    multi *infix:<->(StrPos $sp1, StrPos $sp2 --> StrLen) {
-        die 'StrPos objects must be from the same Str' unless $sp1.s === $sp2.s;
-        return StrDisp.new(:s1($sp1.sub), :s2($sp2.sub));
-    }
 }
 class *StrLen {
     # this is a non-lazy, string-independent length which cannot be converted
@@ -280,6 +276,39 @@ class *StrDisp is StrLen {
     method codes(--> Int)  { $.s1.codes  - $.s2.codes  }
     method graphs(--> Int) { $.s1.graphs - $.s2.graphs }
 }
+class StrLenNeg is StrLen {
+    has StrLen $.s;
+    method bytes(--> Int)  { -$.s.bytes  }
+    method codes(--> Int)  { -$.s.codes  }
+    method graphs(--> Int) { -$.s.graphs }
+}
+class StrLenSum is StrLen {
+    has StrLen $.s1;
+    has StrLen $.s2;
+    method bytes(--> Int)  { $.s1.bytes  + $.s2.bytes  }
+    method codes(--> Int)  { $.s1.codes  + $.s2.codes  }
+    method graphs(--> Int) { $.s1.graphs + $.s2.graphs }
+}
+multi *infix:<->(StrPos $sp1, StrPos $sp2 --> StrLen) {
+    die 'StrPos objects must be from the same Str' unless $sp1.s === $sp2.s;
+    return StrDisp.new(:s1($sp1.sub), :s2($sp2.sub));
+}
+multi *infix:<+>(StrPos $sp is copy, StrLen $sl --> StrPos) {
+    $sp.sub ~= $sp.s.substr($sp, $sl);
+}
+multi *infix:<+>(StrLen $s1, StrLen $s2 --> StrLen) {
+    StrLenSum.new(:$s1, :$s2);
+}
+multi prefix:<->(StrLen $s --> StrLen) {
+    StrLenNeg.new(:$s);
+}
+multi *infix:<->(StrLen $s1, StrLen $s2 --> StrLen) {
+    StrLenSum.new(:$s1, :s2(-$s2));
+}
+multi *infix:<->(StrPos $sp is copy, StrLen $sl --> StrPos) {
+    $sp + -$sl;
+}
+
 class SubstrProxy {
     has Str $.s;
     has StrPos $.sp;
