@@ -11,13 +11,15 @@ int main() {
    * \(capture: continuation, continues, copy => current, debug => eval);
    */
   SMOP__Object* capture = 
-    SMOP__NATIVE__capture_create(NULL, SMOP__ID__capture,
+    SMOP__NATIVE__capture_create(SMOP__INTPTR__InterpreterInstance, SMOP__ID__capture,
                                  (SMOP__Object*[]){ SMOP__ID__continuation,
-                                                    SMOP__ID__continues },
+                                                    SMOP__ID__continues,
+                                                    NULL},
                                  (SMOP__Object*[]){ SMOP__ID__copy,
                                                     SMOP__ID__current,
                                                     SMOP__ID__debug,
-                                                    SMOP__ID__eval });
+                                                    SMOP__ID__eval,
+                                                    NULL});
 
   if (!capture) printf("not ");
   printf("ok 1 - capture object created.\n");
@@ -27,15 +29,15 @@ int main() {
   if (foo != SMOP__ID__capture) printf("not ");
   printf("ok 2 - gets the correct invocant.\n");
 
-  foo = SMOP__NATIVE__capture_positional(NULL, capture, 1);
+  foo = SMOP__NATIVE__capture_positional(NULL, capture, 0);
   if (foo != SMOP__ID__continuation) printf("not ");
   printf("ok 3 - gets the first positional.\n");
 
-  foo = SMOP__NATIVE__capture_positional(NULL, capture, 2);
+  foo = SMOP__NATIVE__capture_positional(NULL, capture, 1);
   if (foo != SMOP__ID__continues) printf("not ");
   printf("ok 4 - gets the second positional.\n");
 
-  foo = SMOP__NATIVE__capture_positional(NULL, capture, 3);
+  foo = SMOP__NATIVE__capture_positional(NULL, capture, 2);
   if (foo) printf("not ");
   printf("ok 5 - return NULL on non-existant positional.\n");
 
@@ -51,7 +53,7 @@ int main() {
   if (foo) printf("not");
   printf("ok 8 - returns NULL on non-existant named.\n");
 
-  SMOP_RELEASE(NULL, capture);
+  SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance, capture);
 
   printf("ok 9 - capture object destroyed.\n");
 

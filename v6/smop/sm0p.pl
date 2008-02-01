@@ -37,7 +37,6 @@ sub preprocess {
     close $writer;
     my $ret = join '', <$reader>;
     die 'Bad sm0p code at '.$in if $ret eq "\n";
-    warn 'sm0p output is '.$ret;
     close $reader;
     close $error;
     waitpid($pid,0);

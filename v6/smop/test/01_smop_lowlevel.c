@@ -85,10 +85,10 @@ int main(int argc, char** argv) {
   SMOP__Object* loop_capture = SMOP__NATIVE__capture_create(intrp,
                                                             intrp,
                                                             NULL, NULL);
-  SMOP_DISPATCH(SMOP__INTPTR__InterpreterInstance, SMOP_RI(intrp),
+  SMOP_DISPATCH(intrp, SMOP_RI(intrp),
                 SMOP__ID__loop, loop_capture);
 
-  SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance, loop_capture);
+  SMOP_RELEASE(intrp, loop_capture);
 
   SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance, intrp);
 

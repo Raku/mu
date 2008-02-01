@@ -46,9 +46,11 @@ static void runloop(SMOP__Object* invocant,
       SMOP_DISPATCH(invocant, SMOP_RI(cont), SMOP__ID__eval,
                     SMOP__NATIVE__capture_create(invocant, cont, NULL, NULL));
       
-      smop_lowlevel_rdlock(invocant);
-      SMOP__Object* cont = ((interpreter_instance_struct*)invocant)->continuation;
-      smop_lowlevel_unlock(invocant);
+      if (invocant != SMOP__INTPTR__InterpreterInstance) {
+        smop_lowlevel_rdlock(invocant);
+        cont = ((interpreter_instance_struct*)invocant)->continuation;
+        smop_lowlevel_unlock(invocant);
+      }
 
       if (cont) {
         has_next = SMOP_DISPATCH(invocant, SMOP_RI(cont), SMOP__ID__has_next,
@@ -65,15 +67,27 @@ static SMOP__Object* prototype_interpreter_message(SMOP__Object* interpreter,
                                                    SMOP__Object* capture) {
   if (identifier == SMOP__ID__new) {
     SMOP__Object* ret = smop_lowlevel_alloc(sizeof(interpreter_instance_struct));
-    ret->RI = SMOP__INTPTR__InterpreterInstance;
+    ret->RI = (SMOP__ResponderInterface*)SMOP__INTPTR__InterpreterInstance;
     return ret;
+
+  } else if (identifier == SMOP__ID__continuation) {
+    /* continuation SMOP__ID__continuation: ;
+     * returns false
+     */
+    return SMOP__NATIVE__bool_false;
+
   } else if (identifier == SMOP__ID__goto) {
     /* goto SMOP__INTPTR__InterpreterInstance: $target;
      * 
      * Calling goto on the prototype recurses in the C stack.
      */
     SMOP__Object* cont = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
-    runloop(SMOP__INTPTR__InterpreterInstance, cont);
+    if (cont != SMOP__NATIVE__bool_false) 
+      runloop(SMOP__INTPTR__InterpreterInstance, cont);
+
+  } else if (identifier == SMOP__ID__has_next) {
+    return SMOP__NATIVE__bool_false;
+
   } else {
     fprintf(stderr,"[SMOP__INTPTR__InterpreterInstance] called message on prototype.\n");
   }
@@ -94,7 +108,7 @@ static SMOP__Object* interpreter_message(SMOP__Object* interpreter,
 
   if (identifier == SMOP__ID__new) {
     ret = smop_lowlevel_alloc(sizeof(interpreter_instance_struct));
-    ret->RI = SMOP__INTPTR__InterpreterInstance;
+    ret->RI = (SMOP__ResponderInterface*)SMOP__INTPTR__InterpreterInstance;
 
   } else if (identifier == SMOP__ID__goto) {
     /* goto $interpreter: $target;
