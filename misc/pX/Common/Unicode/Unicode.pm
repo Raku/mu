@@ -295,6 +295,10 @@ multi *infix:<->(StrPos $sp1, StrPos $sp2 --> StrLen) {
 }
 multi *infix:<+>(StrPos $sp is copy, StrLen $sl --> StrPos) {
     $sp.sub ~= $sp.s.substr($sp, $sl);
+    return $sp;
+}
+multi *infix:<+>(StrLen $sl, StrPos $sp --> StrPos) {
+    $sp + $sl;
 }
 multi *infix:<+>(StrLen $s1, StrLen $s2 --> StrLen) {
     StrLenSum.new(:$s1, :$s2);
@@ -303,7 +307,7 @@ multi prefix:<->(StrLen $s --> StrLen) {
     StrLenNeg.new(:$s);
 }
 multi *infix:<->(StrLen $s1, StrLen $s2 --> StrLen) {
-    StrLenSum.new(:$s1, :s2(-$s2));
+    $s1 + -$s2;
 }
 multi *infix:<->(StrPos $sp is copy, StrLen $sl --> StrPos) {
     $sp + -$sl;
