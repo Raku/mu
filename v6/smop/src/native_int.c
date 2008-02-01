@@ -14,7 +14,8 @@ static SMOP__Object* int_message(SMOP__Object* interpreter,
                                      SMOP__Object* identifier,
                                      SMOP__Object* capture) {
   // todo
-  return capture;
+  SMOP_RELEASE(interpreter,capture);
+  return SMOP__NATIVE__bool_false;
 }
 
 static SMOP__Object* int_reference(SMOP__Object* interpreter, SMOP__ResponderInterface* responder, SMOP__Object* obj) {

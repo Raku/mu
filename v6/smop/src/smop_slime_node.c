@@ -124,6 +124,13 @@ static SMOP__Object* node_message(SMOP__Object* interpreter,
     smop_lowlevel_unlock(node);
     if (old) SMOP_RELEASE(interpreter, old);
 
+  } else if (identifier == SMOP__ID__free) {
+    SMOP__Object* node = SMOP__NATIVE__capture_invocant(interpreter,capture);
+
+    smop_lowlevel_wrlock(node);
+    ((smop_slime_node_struct*)node)->capture = NULL;
+    smop_lowlevel_unlock(node);
+
   } else if (identifier == SMOP__ID__eval) {
     SMOP__Object* node = SMOP__NATIVE__capture_invocant(interpreter,capture);
 

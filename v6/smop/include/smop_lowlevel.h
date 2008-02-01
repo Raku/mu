@@ -100,7 +100,8 @@ extern void smop_lowlevel_unlock(SMOP__Object* value);
  */
 extern SMOP__Object* SMOP__LOWLEVEL__Operators;
 
-/*
+/* SMOP__LOWLEVEL__Operators.free(|$obj);
+ *
  * This operator make a pointer freed. This is an extremely low-level
  * operator that is only available as the destroy code can be called
  * using the stack. It **IGNORES** the current refcount of an object,
@@ -111,6 +112,5 @@ extern SMOP__Object* SMOP__LOWLEVEL__Operators;
  * remove the reference to the object in the capture member of the
  * node, as no call to RELEASE should be tried afterwards.
  */
-#define SMOP__LOWLEVEL__OP__Free SMOP__ID__free
 
 #endif

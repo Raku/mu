@@ -15,6 +15,8 @@ int main(int argc, char** argv) {
   if (SMOP__NATIVE__int_fetch(myint) != 1234) printf("not ");
   printf("ok 2 - fetch works...\n");
 
+  SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance, myint);
+
   smop_destr();
   return 0;
 }

@@ -82,6 +82,19 @@ static SMOP__Object* frame_message(SMOP__Object* interpreter,
       ret = SMOP__NATIVE__bool_create(0);
     }    
   
+  } else if (identifier ==  SMOP__ID__free) {
+    SMOP__Object* frame = SMOP__NATIVE__capture_invocant(interpreter, capture);
+    if (frame && frame != SMOP__SLIME__Frame) {
+      smop_lowlevel_rdlock(frame);
+      int pc = ((smop_slime_frame_struct*)frame)->pc;
+      SMOP__Object* node = ((smop_slime_frame_struct*)frame)->nodes[pc];
+      smop_lowlevel_unlock(frame);
+      ret = SMOP_DISPATCH(interpreter,SMOP_RI(node),SMOP__ID__free,
+                          SMOP__NATIVE__capture_create(interpreter,node,NULL,NULL));
+    } else {
+      ret = SMOP__NATIVE__bool_false;
+    }
+
   } else if (identifier ==  SMOP__ID__eval) {
     SMOP__Object* frame = SMOP__NATIVE__capture_invocant(interpreter, capture);
     if (frame && frame != SMOP__SLIME__Frame) {
