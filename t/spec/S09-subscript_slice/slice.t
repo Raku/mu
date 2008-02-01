@@ -4,11 +4,11 @@ use Test;
 # L<S09/Subscript and slice notation>
 # (Could use an additional smart link)
 
-=kwid 
+=begin pod
 
 Testing array slices.
 
-=cut
+=end pod
 
 plan 24;
 
@@ -41,14 +41,16 @@ plan 24;
 {   my @array = <a b c d>;
 
     try { @array[1, 2] := <B C> };
-    is ~@array, "a B C d", "binding array slices works (1)", :todo<feature>;
+    #?pugs todo 'feature'
+    is ~@array, "a B C d", "binding array slices works (1)";
 }
 
 {   my @array = <a b c d>;
 
     try { @array[1, 2] := <B> };
-    is ~@array, "a B d",    "binding array slices works (2-1)", :todo<feature>;
-    ok !defined(@array[2]), "binding array slices works (2-2)", :todo<feature>;
+    #?pugs 2 todo 'feature'
+    is ~@array, "a B d",    "binding array slices works (2-1)";
+    ok !defined(@array[2]), "binding array slices works (2-2)";
 }
 
 {   my @array = <a b c d>;
@@ -56,19 +58,22 @@ plan 24;
     my $bar   = "C";
 
     @array[1, 2] := ($foo, $bar);
-    is ~@array, "a B C d", "binding array slices works (3-1)", :todo<feature>;
+    #?pugs todo 'feature'
+    is ~@array, "a B C d", "binding array slices works (3-1)";
 
     $foo = "BB";
     $bar = "CC";
-    is ~@array, "a BB CC d", "binding array slices works (3-2)", :todo<feature>;
+    #?pugs todo 'feature'
+    is ~@array, "a BB CC d", "binding array slices works (3-2)";
 
     try {
         @array[1] = "BBB";
         @array[2] = "CCC";
     };
     is ~@array, "a BBB CCC d", "binding array slices works (3-3)";
-    is $foo,    "BBB",         "binding array slices works (3-4)", :todo<feature>;
-    is $bar,    "CCC",         "binding array slices works (3-5)", :todo<feature>;
+    #?pugs 2 todo 'feature'
+    is $foo,    "BBB",         "binding array slices works (3-4)";
+    is $bar,    "CCC",         "binding array slices works (3-5)";
 }
 
 # Slices on array literals
@@ -83,3 +88,4 @@ plan 24;
     is((3,7,9), [@array[%slice.keys.sort]],    "values from hash keys, part 2");
     is((3,7,9), [@array[(0,1,1)>>+<<(0,0,1)]], "calculated slice: hyperop");
 }
+
