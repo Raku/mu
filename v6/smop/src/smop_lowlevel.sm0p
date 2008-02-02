@@ -44,6 +44,7 @@ int trace_list_find(void* address, int start, int end) {
 
 void smop_mem_trace_add(void* address) {
 
+  fprintf(stderr,"[SMOP_LOWLEVEL_MEM_TRACE] Alloc: %p\n",address);
   if (trace_list_alloc <= trace_list_size + 1) {
     trace_list = realloc(trace_list, sizeof(void*) * (trace_list_alloc + 1024));
     assert(trace_list);
@@ -63,6 +64,7 @@ void smop_mem_trace_add(void* address) {
 }
 
 void smop_mem_trace_del(void* address) {
+  fprintf(stderr,"[SMOP_LOWLEVEL_MEM_TRACE] Free: %p\n",address);
   int pos = trace_list_find(address,0,trace_list_size);
   memmove(&trace_list[pos],&trace_list[pos+1], sizeof(void*)*(trace_list_size - pos));
   trace_list[trace_list_size - 1] = 0;
