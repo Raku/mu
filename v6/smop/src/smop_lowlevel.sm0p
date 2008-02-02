@@ -166,16 +166,13 @@ SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* interpreter, SMOP__Responde
                                           SMOP__NATIVE__capture_create(interpreter,interpreter,NULL,NULL));
     SMOP__Object* continuation = NULL;
     $continuation = q:sm0p {
-      $current;
-      $interpreter;
+      ;
       $value.DESTROYALL();
-      SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(2,(3),(),3));
       SMOP__SLIME__CurrentFrame.forget();
       SMOP__LOWLEVEL__Operators.free(|$value);
-      $interpreter.goto();
+      $interpreter.goto(|$current);
     };
-    SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__goto,
-                  SMOP__NATIVE__capture_create(interpreter, interpreter, (SMOP__Object*[]){continuation,NULL},NULL));
+    SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__goto,  continuation);
     return NULL;
   } else {
     smop_lowlevel_unlock(value);

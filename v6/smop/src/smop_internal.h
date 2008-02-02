@@ -9,10 +9,10 @@
 #define SMOP_INTERNAL_INIT_SEQUENCE   \
      smop_idconst_init();             \
      smop_lowlevel_init();            \
+     smop_interpreter_init();         \
      smop_native_capture_init();      \
      smop_native_int_init();          \
      smop_native_bool_init();         \
-     smop_interpreter_init();         \
      smop_slime_frame_init();         \
      smop_slime_currentframe_init();  \
      smop_slime_node_init();          \
@@ -23,10 +23,10 @@
      smop_slime_node_destr();         \
      smop_slime_currentframe_destr(); \
      smop_slime_frame_destr();        \
-     smop_interpreter_destr();        \
      smop_native_int_destr();         \
      smop_native_bool_destr();        \
      smop_native_capture_destr();     \
+     smop_interpreter_destr();        \
      smop_lowlevel_destr();           \
      smop_idconst_destr();
 

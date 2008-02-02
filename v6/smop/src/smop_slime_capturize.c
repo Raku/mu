@@ -66,6 +66,7 @@ SMOP__Object* SMOP__SLIME__Capturize_create(int invocant, int* positional, int* 
   SMOP__Object* ret = smop_lowlevel_alloc(sizeof(smop_slime_capturize_struct));
   assert(ret);
   smop_slime_capturize_struct* cap = (smop_slime_capturize_struct*)ret;
+  cap->RI = (SMOP__ResponderInterface*)SMOP__SLIME__Capturize;
   cap->invocant = invocant;
   cap->target = target;
 

@@ -27,9 +27,10 @@ int main() {
 
   smop_init();
 
-  SMOP__Object* intrp = SMOP_DISPATCH(NULL, SMOP_RI(SMOP__INTPTR__InterpreterInstance),
+  SMOP__Object* intrp = SMOP_DISPATCH(SMOP__INTPTR__InterpreterInstance, SMOP_RI(SMOP__INTPTR__InterpreterInstance),
                                       SMOP__ID__new,
-                                      SMOP__NATIVE__capture_create(NULL,SMOP__INTPTR__InterpreterInstance,NULL,NULL));
+                                      SMOP__NATIVE__capture_create(SMOP__INTPTR__InterpreterInstance,
+                                                                   SMOP__INTPTR__InterpreterInstance,NULL,NULL));
   
   if (!intrp) {
     printf("not ");
@@ -46,21 +47,29 @@ int main() {
 
   printf("ok 3 - goto.\n");
 
-  SMOP_DISPATCH(NULL, ri,
+  SMOP_DISPATCH(intrp, ri,
                 SMOP__ID__has_next,
                 SMOP__NATIVE__capture_create(intrp,obj,NULL,NULL));
 
-  SMOP_DISPATCH(NULL, ri,
+  SMOP_DISPATCH(intrp, ri,
                 SMOP__ID__next,
                 SMOP__NATIVE__capture_create(intrp,obj,NULL,NULL));
   
-  SMOP_DISPATCH(NULL, ri,
+  SMOP_DISPATCH(intrp, ri,
                 SMOP__ID__eval,
                 SMOP__NATIVE__capture_create(intrp,obj,NULL,NULL));
 
+  SMOP_RELEASE(intrp,obj);
+
+  SMOP_DISPATCH(intrp, SMOP_RI(intrp),
+                SMOP__ID__loop, SMOP__NATIVE__capture_create(intrp,
+                                                             intrp,
+                                                             NULL,
+                                                             NULL));
+
   printf("ok 7 - delegated.\n");
 
-  SMOP_RELEASE(intrp,intrp);
+  SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,intrp);
 
   printf("ok 9 - should be destroyed.\n");
 

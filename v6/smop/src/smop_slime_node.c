@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <smop.h>
@@ -140,16 +141,19 @@ static SMOP__Object* node_message(SMOP__Object* interpreter,
     SMOP__Object* capture = ((smop_slime_node_struct*)node)->capture;
     smop_lowlevel_unlock(node);
 
-    if (responder)
+    if (identifier && identifier->RI == SMOP__ID__new->RI)
+      fprintf(stderr,"[SMOP__SLIME__Node:DEBUG] eval %s.\n", (char*)(identifier->data));
+
+    if (responder) {
       ret = SMOP_DISPATCH(interpreter,responder,identifier,capture);
 
-    smop_lowlevel_wrlock(node);
-    SMOP__Object* old = ((smop_slime_node_struct*)node)->result;
-    ((smop_slime_node_struct*)node)->result = ret;
-    smop_lowlevel_unlock(node);
+      smop_lowlevel_wrlock(node);
+      SMOP__Object* old = ((smop_slime_node_struct*)node)->result;
+      ((smop_slime_node_struct*)node)->result = ret;
+      smop_lowlevel_unlock(node);
 
-    if (old) SMOP_RELEASE(interpreter, old);
-
+      if (old) SMOP_RELEASE(interpreter, old);
+    }
   } else if (identifier == SMOP__ID__DESTROYALL) {
     smop_slime_node_struct* node = (smop_slime_node_struct*)capture;
 

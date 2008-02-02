@@ -25,7 +25,7 @@ static SMOP__Object* frame_message(SMOP__Object* interpreter,
   if (identifier == SMOP__ID__new) {
     ret = smop_lowlevel_alloc(sizeof(smop_slime_frame_struct));
     smop_slime_frame_struct* frame = (smop_slime_frame_struct*)ret;
-    frame->RI = SMOP__SLIME__Frame;
+    frame->RI = (SMOP__ResponderInterface*)SMOP__SLIME__Frame;
     frame->lexical = SMOP__NATIVE__capture_named(interpreter, capture, SMOP__ID__lexical);
     frame->back = SMOP__NATIVE__capture_named(interpreter, capture, SMOP__ID__back);
     frame->node_count = SMOP__NATIVE__capture_positional_count(interpreter, capture);
@@ -217,19 +217,13 @@ static SMOP__Object* frame_message(SMOP__Object* interpreter,
     if (frame && (SMOP__Object*)frame != SMOP__SLIME__Frame) {
       smop_lowlevel_wrlock((SMOP__Object*)frame);
       int pc = frame->pc;
-      int ncount = frame->node_count;
-      int newcount = ncount - pc;
       SMOP__Object** mynodes = frame->nodes;
-      SMOP__Object** newnodes = malloc(sizeof(SMOP__Object*) * newcount);
-      assert(newnodes);
-      int i;
-      for (i = pc; i < ncount; i++) newnodes[i] = frame->nodes[i];
-      frame->pc = 0;
-      frame->node_count = newcount;
-      frame->nodes = newnodes;
       smop_lowlevel_unlock((SMOP__Object*)frame);
-      for (i = 0; i < pc; i++) SMOP_RELEASE(interpreter,mynodes[i]);
-      free(mynodes);
+      int i;
+      for (i = 0; i < pc; i++) {
+        SMOP_RELEASE(interpreter,mynodes[i]);
+        mynodes[i] = SMOP__NATIVE__bool_false;
+      }
       ret = SMOP__NATIVE__bool_create(0);
     } else {
       ret = SMOP__NATIVE__bool_create(0);
@@ -319,19 +313,16 @@ static SMOP__Object* frame_message(SMOP__Object* interpreter,
     SMOP__Object* frame = SMOP__NATIVE__capture_invocant(interpreter, capture);
     if (frame && frame != SMOP__SLIME__Frame) {
       SMOP__Object* capturize = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
-      SMOP__Object* target = SMOP__NATIVE__capture_positional(interpreter, capture, 1);
       assert(SMOP_RI(capturize) == (SMOP__ResponderInterface*)SMOP__SLIME__Capturize);
-      assert(SMOP_RI(target) == (SMOP__ResponderInterface*)SMOP__NATIVE__int);
 
       int i_invocant = SMOP__SLIME__Capturize_invocant(capturize);
       int n_pos = 0;
       int* i_positional = SMOP__SLIME__Capturize_positional(capturize, &n_pos);
       int n_nam = 0;
       int* i_named = SMOP__SLIME__Capturize_named(capturize, &n_nam);
+      int t = SMOP__SLIME__Capturize_target(capturize);
 
       SMOP_RELEASE(interpreter,capturize); capturize = NULL;
-
-      int t = SMOP__NATIVE__int_fetch(target);
 
       SMOP__Object** nodes_positional_arr = malloc(sizeof(SMOP__Object*) * n_pos);
       assert(nodes_positional_arr);

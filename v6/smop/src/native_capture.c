@@ -38,6 +38,8 @@ typedef struct native_capture_struct {
  * "new", the constant empty capture will be returned.
  */
 static SMOP__Object* smop_native_empty_capture;
+static SMOP__Object* smop_native_intptr_invocant_capture;
+
 
 static SMOP__Object* capture_message(SMOP__Object* interpreter,
                                      SMOP__ResponderInterface* self,
@@ -48,7 +50,9 @@ static SMOP__Object* capture_message(SMOP__Object* interpreter,
   if (identifier == SMOP__ID__new) {
     ret = smop_native_empty_capture;
   } else if (identifier == SMOP__ID__DESTROYALL) {
-    if (capture && capture != (SMOP__Object*)self && capture != smop_native_empty_capture) {
+    if (capture && capture != (SMOP__Object*)self
+        && capture != smop_native_empty_capture
+        && capture != smop_native_intptr_invocant_capture) {
       native_capture_struct* self = (native_capture_struct*)capture;
       smop_lowlevel_wrlock(capture);
       SMOP__Object* invocant = self->invocant; self->invocant = NULL;
@@ -88,14 +92,14 @@ static SMOP__Object* capture_message(SMOP__Object* interpreter,
 }
 
 static SMOP__Object* capture_reference(SMOP__Object* interpreter, SMOP__ResponderInterface* responder, SMOP__Object* obj) {
-  if ((SMOP__Object*)responder != obj && smop_native_empty_capture != obj) {
+  if ((SMOP__Object*)responder != obj && smop_native_empty_capture != obj && smop_native_intptr_invocant_capture != obj) {
     smop_lowlevel_refcnt_inc(interpreter, responder, obj);
   }
   return obj;
 }
 
 static SMOP__Object* capture_release(SMOP__Object* interpreter, SMOP__ResponderInterface* responder, SMOP__Object* obj) {
-  if ((SMOP__Object*)responder != obj && smop_native_empty_capture != obj) {
+  if ((SMOP__Object*)responder != obj && smop_native_empty_capture != obj && smop_native_intptr_invocant_capture != obj) {
     smop_lowlevel_refcnt_dec(interpreter, responder, obj);
   }
   return obj;
@@ -117,12 +121,18 @@ void smop_native_capture_init() {
   assert(smop_native_empty_capture);
   smop_native_empty_capture->RI = (SMOP__ResponderInterface*)SMOP__NATIVE__capture;
 
+  smop_native_intptr_invocant_capture = calloc(1, sizeof(native_capture_struct));
+  assert(smop_native_intptr_invocant_capture);
+  smop_native_intptr_invocant_capture->RI = (SMOP__ResponderInterface*)SMOP__NATIVE__capture;
+  ((native_capture_struct*)smop_native_intptr_invocant_capture)->invocant = SMOP__INTPTR__InterpreterInstance;
+  
 }
 
 void smop_native_capture_destr() {
 
   // destroy the constant empty capture
   free(smop_native_empty_capture);
+  free(smop_native_intptr_invocant_capture);
   // destroy the capture prototype
   free(SMOP__NATIVE__capture);
  
@@ -156,8 +166,11 @@ SMOP__Object*   SMOP__NATIVE__capture_create(SMOP__Object* interpreter,
   if (invocant == NULL && positional == NULL && named == NULL)
     return smop_native_empty_capture;
 
+  if (invocant == interpreter && positional == NULL && named == NULL)
+    return smop_native_intptr_invocant_capture;
+
   native_capture_struct* ret = (native_capture_struct*)smop_lowlevel_alloc(sizeof(native_capture_struct));
-  ret->RI = SMOP__NATIVE__capture;
+  ret->RI = (SMOP__ResponderInterface*)SMOP__NATIVE__capture;
   ret->invocant = invocant;
   ret->count_positional = 0;
   ret->count_named = 0;
@@ -233,11 +246,16 @@ SMOP__Object*   SMOP__NATIVE__capture_create(SMOP__Object* interpreter,
 
 SMOP__Object*   SMOP__NATIVE__capture_invocant(SMOP__Object* interpreter,
                                                SMOP__Object* capture) {
-  if (capture) {
+  if (capture && capture != smop_native_empty_capture && capture != smop_native_intptr_invocant_capture) {
     smop_lowlevel_rdlock(capture);
     SMOP__Object* invocant = ((native_capture_struct*)capture)->invocant;
     smop_lowlevel_unlock(capture);
-    return SMOP_REFERENCE(interpreter, invocant);
+    if (invocant)
+      return SMOP_REFERENCE(interpreter, invocant);
+    else
+      return NULL;
+  } else if (smop_native_intptr_invocant_capture == capture) {
+    return interpreter;
   } else {
     return NULL;
   }
@@ -247,14 +265,14 @@ SMOP__Object*   SMOP__NATIVE__capture_invocant(SMOP__Object* interpreter,
 
 SMOP__Object*   SMOP__NATIVE__capture_positional(SMOP__Object* interpreter,
                                                  SMOP__Object* capture, int p) {
-  if (capture) {
+  if (capture && capture != smop_native_empty_capture && capture != smop_native_intptr_invocant_capture) {
     SMOP__Object* arg;
     native_capture_struct* self = ((native_capture_struct*)capture);
     smop_lowlevel_rdlock(capture);
     if (p < self->count_positional) {
       arg = self->positional[p];
       smop_lowlevel_unlock(capture);
-      return SMOP_REFERENCE(interpreter, self->positional[p]);
+      return SMOP_REFERENCE(interpreter, arg);
     } else {
       smop_lowlevel_unlock(capture);
       return NULL;
@@ -267,7 +285,7 @@ SMOP__Object*   SMOP__NATIVE__capture_positional(SMOP__Object* interpreter,
 SMOP__Object*   SMOP__NATIVE__capture_named(SMOP__Object* interpreter,
                                             SMOP__Object* capture,
                                             SMOP__Object* identifier) {
-  if (capture) {
+  if (capture && capture != smop_native_empty_capture && capture != smop_native_intptr_invocant_capture) {
     if (identifier->RI == SMOP__ID__new->RI) {
       native_capture_struct* self = (native_capture_struct*)capture;
       named_argument foo;
@@ -302,7 +320,7 @@ SMOP__Object*   SMOP__NATIVE__capture_named(SMOP__Object* interpreter,
 int SMOP__NATIVE__capture_may_recurse(SMOP__Object* interpreter,
                                       SMOP__Object* capture) {
   if (capture) {
-    if (capture == smop_native_empty_capture) {
+    if (capture == smop_native_empty_capture || capture == smop_native_intptr_invocant_capture) {
       return 0;
     } else {
       native_capture_struct* self = (native_capture_struct*)capture;
@@ -323,7 +341,7 @@ int SMOP__NATIVE__capture_may_recurse(SMOP__Object* interpreter,
 int SMOP__NATIVE__capture_positional_count(SMOP__Object* interpreter,
                                            SMOP__Object* capture) {
   if (capture) {
-    if (capture == smop_native_empty_capture) {
+    if (capture == smop_native_empty_capture || capture == smop_native_intptr_invocant_capture) {
       return 0;
     } else {
       native_capture_struct* self = (native_capture_struct*)capture;
@@ -360,14 +378,22 @@ SMOP__Object*   SMOP__NATIVE__capture_delegate(SMOP__Object* interpreter,
 
   SMOP__Object** nam = NULL;
   if (n_named || n_o_named) {
-    nam = malloc(sizeof(SMOP__Object*) * (n_named + n_o_named + 1));
+    nam = malloc(sizeof(SMOP__Object*) * ((n_named*2) + (n_o_named*2) + 1));
     if (n_named) {
-      memcpy(pos, named, sizeof(SMOP__Object*) * n_named);
+      int i;
+      for (i = 0; i < n_named; i++) {
+        nam[i*2] = named[i].key;
+        nam[i*2 + 1] = named[i].value;
+      }
     }
     if (n_o_named) {
-      memcpy(pos[n_named], o_named, sizeof(SMOP__Object*) * n_o_named);
+      int i;
+      for (i = 0; i < n_o_named; i++) {
+        nam[i*2] = o_named[i].key;
+        nam[i*2 + 1] = o_named[i].value;
+      }
     }
-    pos[n_named + n_o_named] = NULL;
+    nam[(n_named*2) + (n_o_named*2)] = NULL;
   }
    
   return SMOP__NATIVE__capture_create(interpreter,invocant,pos,nam);

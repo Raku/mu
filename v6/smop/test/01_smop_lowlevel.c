@@ -62,9 +62,11 @@ int main(int argc, char** argv) {
   ri->REFERENCE = smop_lowlevel_refcnt_inc;
   ri->RELEASE = smop_lowlevel_refcnt_dec;
 
-  SMOP__Object* intrp = SMOP_DISPATCH(SMOP__INTPTR__InterpreterInstance, SMOP_RI(SMOP__INTPTR__InterpreterInstance),
+  SMOP__Object* intrp = SMOP_DISPATCH(SMOP__INTPTR__InterpreterInstance,
+                                      SMOP_RI(SMOP__INTPTR__InterpreterInstance),
                                       SMOP__ID__new,
-                                      SMOP__NATIVE__capture_create(NULL, SMOP__INTPTR__InterpreterInstance, NULL, NULL));
+                                      SMOP__NATIVE__capture_create(SMOP__INTPTR__InterpreterInstance,
+                                                                   SMOP__INTPTR__InterpreterInstance, NULL, NULL));
   
   if (!intrp) {
     printf("not ");
@@ -82,13 +84,11 @@ int main(int argc, char** argv) {
 
   SMOP_DISPATCH(intrp, ri, (SMOP__Object*)2, NULL);
 
-  SMOP__Object* loop_capture = SMOP__NATIVE__capture_create(intrp,
-                                                            intrp,
-                                                            NULL, NULL);
   SMOP_DISPATCH(intrp, SMOP_RI(intrp),
-                SMOP__ID__loop, loop_capture);
-
-  SMOP_RELEASE(intrp, loop_capture);
+                SMOP__ID__loop, 
+                SMOP__NATIVE__capture_create(intrp,
+                                             intrp,
+                                             NULL, NULL));
 
   SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance, intrp);
 

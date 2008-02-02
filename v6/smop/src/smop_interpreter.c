@@ -60,6 +60,9 @@ static void runloop(SMOP__Object* invocant,
       }
 
     }
+
+    SMOP_RELEASE(invocant, has_next);
+
 }
 
 static SMOP__Object* prototype_interpreter_message(SMOP__Object* interpreter,
@@ -68,29 +71,36 @@ static SMOP__Object* prototype_interpreter_message(SMOP__Object* interpreter,
   if (identifier == SMOP__ID__new) {
     SMOP__Object* ret = smop_lowlevel_alloc(sizeof(interpreter_instance_struct));
     ret->RI = (SMOP__ResponderInterface*)SMOP__INTPTR__InterpreterInstance;
+    SMOP_RELEASE(interpreter,capture);
     return ret;
 
   } else if (identifier == SMOP__ID__continuation) {
     /* continuation SMOP__ID__continuation: ;
      * returns false
      */
-    return SMOP__NATIVE__bool_false;
 
   } else if (identifier == SMOP__ID__goto) {
     /* goto SMOP__INTPTR__InterpreterInstance: $target;
      * 
      * Calling goto on the prototype recurses in the C stack.
      */
-    SMOP__Object* cont = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
-    if (cont != SMOP__NATIVE__bool_false) 
-      runloop(SMOP__INTPTR__InterpreterInstance, cont);
+    SMOP__Object* target;
+    if (capture->RI == (SMOP__ResponderInterface*)SMOP__NATIVE__capture) {
+      target = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
+    } else {
+      target = capture;
+    }
+    if (target != SMOP__NATIVE__bool_false) 
+      runloop(SMOP__INTPTR__InterpreterInstance, target);
+
+    SMOP_RELEASE(interpreter,target);
 
   } else if (identifier == SMOP__ID__has_next) {
-    return SMOP__NATIVE__bool_false;
 
   } else {
-    fprintf(stderr,"[SMOP__INTPTR__InterpreterInstance] called message on prototype.\n");
+    fprintf(stderr,"[SMOP__INTPTR__InterpreterInstance] called concrete message on prototype.\n");
   }
+  SMOP_RELEASE(interpreter,capture);
   return SMOP__NATIVE__bool_false;
 }
 
@@ -101,7 +111,13 @@ static SMOP__Object* interpreter_message(SMOP__Object* interpreter,
                                      SMOP__Object* capture) {
 
   SMOP__Object* ret = SMOP__NATIVE__bool_false;
-  SMOP__Object* invocant = SMOP__NATIVE__capture_invocant(interpreter, capture);
+  SMOP__Object* invocant;
+  if (capture->RI == (SMOP__ResponderInterface*)SMOP__NATIVE__capture) {
+    invocant = SMOP__NATIVE__capture_invocant(interpreter, capture);
+  } else {
+    SMOP_REFERENCE(interpreter, capture);
+    invocant = interpreter;
+  }
 
   if (invocant == SMOP__INTPTR__InterpreterInstance)
     return prototype_interpreter_message(interpreter, identifier, capture);
@@ -117,7 +133,12 @@ static SMOP__Object* interpreter_message(SMOP__Object* interpreter,
      * given target. If there is a current target, it will be
      * released.
      */
-    SMOP__Object* target = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
+    SMOP__Object* target;
+    if (capture->RI == (SMOP__ResponderInterface*)SMOP__NATIVE__capture) {
+      target = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
+    } else {
+      target = capture;
+    }
     smop_lowlevel_wrlock(invocant);
     SMOP__Object* cont = ((interpreter_instance_struct*)invocant)->continuation;
     ((interpreter_instance_struct*)invocant)->continuation = target;
@@ -135,7 +156,8 @@ static SMOP__Object* interpreter_message(SMOP__Object* interpreter,
     smop_lowlevel_unlock(invocant);
     if (cont)
       ret = SMOP_DISPATCH(interpreter, SMOP_RI(cont), SMOP__ID__setr,
-                          SMOP__NATIVE__capture_create(interpreter, cont, (SMOP__Object*[]){result, NULL},NULL));
+                          SMOP__NATIVE__capture_create(interpreter, SMOP_REFERENCE(interpreter,cont),
+                                                       (SMOP__Object*[]){result, NULL},NULL));
 
   } else if (identifier == SMOP__ID__has_next) {
     /* has_next $interpreter: ;
@@ -150,7 +172,7 @@ static SMOP__Object* interpreter_message(SMOP__Object* interpreter,
     smop_lowlevel_unlock(invocant);
     if (cont) {
       ret = SMOP_DISPATCH(interpreter, SMOP_RI(cont), SMOP__ID__has_next,
-                          SMOP__NATIVE__capture_create(interpreter, cont, NULL, NULL));
+                          SMOP__NATIVE__capture_create(interpreter, SMOP_REFERENCE(interpreter,cont), NULL, NULL));
     } else {
       return SMOP__NATIVE__bool_false;
     }
@@ -165,7 +187,7 @@ static SMOP__Object* interpreter_message(SMOP__Object* interpreter,
     smop_lowlevel_unlock(invocant);
     if (cont)
       ret = SMOP_DISPATCH(interpreter, SMOP_RI(cont), SMOP__ID__next,
-                          SMOP__NATIVE__capture_create(interpreter, cont, NULL, NULL));
+                          SMOP__NATIVE__capture_create(interpreter, SMOP_REFERENCE(interpreter,cont), NULL, NULL));
 
   } else if (identifier == SMOP__ID__eval) {
     /* eval $interpreter: ;
@@ -177,7 +199,18 @@ static SMOP__Object* interpreter_message(SMOP__Object* interpreter,
     smop_lowlevel_unlock(invocant);
     if (cont)
       ret = SMOP_DISPATCH(interpreter, SMOP_RI(cont), SMOP__ID__eval,
-                          SMOP__NATIVE__capture_create(interpreter, cont, NULL, NULL));
+                          SMOP__NATIVE__capture_create(interpreter, SMOP_REFERENCE(interpreter,cont), NULL, NULL));
+
+  } else if (identifier == SMOP__ID__continuation) {
+    /* continuation $interpreter: ;
+     *
+     * returns the current continuation (if there is one).
+     */
+    smop_lowlevel_rdlock(invocant);
+    SMOP__Object* cont = ((interpreter_instance_struct*)invocant)->continuation;
+    smop_lowlevel_unlock(invocant);
+    if (cont)
+      ret = SMOP_REFERENCE(interpreter,cont);
 
   } else if (identifier == SMOP__ID__debug) {
     /* debug $interpreter: ;
@@ -189,7 +222,7 @@ static SMOP__Object* interpreter_message(SMOP__Object* interpreter,
     smop_lowlevel_unlock(invocant);
     if (cont)
       ret = SMOP_DISPATCH(interpreter, SMOP_RI(cont), SMOP__ID__debug,
-                          SMOP__NATIVE__capture_create(interpreter, cont, NULL, NULL));
+                          SMOP__NATIVE__capture_create(interpreter, SMOP_REFERENCE(interpreter,cont), NULL, NULL));
 
   } else if (identifier == SMOP__ID__jail) {
     /* jail $interpreter: ;
@@ -201,7 +234,7 @@ static SMOP__Object* interpreter_message(SMOP__Object* interpreter,
     smop_lowlevel_unlock(invocant);
     if (cont)
       ret = SMOP_DISPATCH(interpreter, SMOP_RI(cont), SMOP__ID__jail,
-                          SMOP__NATIVE__capture_create(interpreter, cont, NULL, NULL));
+                          SMOP__NATIVE__capture_create(interpreter, SMOP_REFERENCE(interpreter,cont), NULL, NULL));
 
   } else if (identifier == SMOP__ID__loop) {
     /* loop $interpreter: ;
@@ -222,6 +255,7 @@ static SMOP__Object* interpreter_message(SMOP__Object* interpreter,
     smop_lowlevel_unlock(capture);
     SMOP_RELEASE(interpreter,cont);
   }
+  SMOP_RELEASE(interpreter, capture);
   return ret;
 }
 
