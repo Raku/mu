@@ -9,17 +9,20 @@ static SMOP__Object* currentframe_message(SMOP__Object* interpreter,
                                      SMOP__ResponderInterface* self,
                                      SMOP__Object* identifier,
                                      SMOP__Object* capture) {
+
   SMOP__Object* frame = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                                       SMOP__ID__continuation,
-                                      SMOP__NATIVE__capture_create(interpreter,interpreter,NULL,NULL));
+                                      SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,interpreter),NULL,NULL));
   SMOP__Object* delegated;
-  if (capture->RI == SMOP__NATIVE__capture)
+  if (capture->RI == SMOP__NATIVE__capture) {
     delegated = SMOP__NATIVE__capture_delegate(interpreter,
-                                              frame,
-                                              capture);
-  else
+                                               frame,
+                                               capture);
+    SMOP_RELEASE(interpreter, capture);
+  } else {
     delegated = capture;
-
+  }
+  
   if (frame) {
     return SMOP_DISPATCH(interpreter, SMOP_RI(frame),
                          identifier, delegated);

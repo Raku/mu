@@ -49,6 +49,7 @@ static SMOP__Object* capture_message(SMOP__Object* interpreter,
 
   if (identifier == SMOP__ID__new) {
     ret = smop_native_empty_capture;
+    SMOP_RELEASE(interpreter,capture);
   } else if (identifier == SMOP__ID__DESTROYALL) {
     if (capture && capture != (SMOP__Object*)self
         && capture != smop_native_empty_capture
@@ -87,6 +88,8 @@ static SMOP__Object* capture_message(SMOP__Object* interpreter,
       free(named);
     }
     ret = NULL;
+  } else {
+    SMOP_RELEASE(interpreter,capture);
   }
   return ret;
 }
@@ -255,7 +258,7 @@ SMOP__Object*   SMOP__NATIVE__capture_invocant(SMOP__Object* interpreter,
     else
       return NULL;
   } else if (smop_native_intptr_invocant_capture == capture) {
-    return interpreter;
+    return SMOP_REFERENCE(interpreter,interpreter);
   } else {
     return NULL;
   }
@@ -372,7 +375,10 @@ SMOP__Object*   SMOP__NATIVE__capture_delegate(SMOP__Object* interpreter,
   if (n_positional && positional) {
     pos = malloc(sizeof(SMOP__Object*) * (n_positional+1));
     assert(pos);
-    memcpy(pos, positional, sizeof(SMOP__Object*) * n_positional);
+    int i;
+    for (i = 0; i < n_named; i++) {
+      pos[i] = SMOP_REFERENCE(interpreter,positional[i]);
+    }
     pos[n_positional] = NULL;
   }
 
@@ -382,19 +388,19 @@ SMOP__Object*   SMOP__NATIVE__capture_delegate(SMOP__Object* interpreter,
     if (n_named) {
       int i;
       for (i = 0; i < n_named; i++) {
-        nam[i*2] = named[i].key;
-        nam[i*2 + 1] = named[i].value;
+        nam[i*2] = SMOP_REFERENCE(interpreter,named[i].key);
+        nam[i*2 + 1] = SMOP_REFERENCE(interpreter,named[i].value);
       }
     }
     if (n_o_named) {
       int i;
       for (i = 0; i < n_o_named; i++) {
-        nam[i*2] = o_named[i].key;
-        nam[i*2 + 1] = o_named[i].value;
+        nam[i*2] = SMOP_REFERENCE(interpreter,o_named[i].key);
+        nam[i*2 + 1] = SMOP_REFERENCE(interpreter,o_named[i].value);
       }
     }
     nam[(n_named*2) + (n_o_named*2)] = NULL;
   }
    
-  return SMOP__NATIVE__capture_create(interpreter,invocant,pos,nam);
+  return SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,invocant),pos,nam);
 }

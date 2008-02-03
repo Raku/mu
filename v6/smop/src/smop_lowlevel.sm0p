@@ -44,7 +44,9 @@ int trace_list_find(void* address, int start, int end) {
 
 void smop_mem_trace_add(void* address) {
 
-  fprintf(stderr,"[SMOP_LOWLEVEL_MEM_TRACE] Alloc: %p\n",address);
+#ifdef SMOP_LOWLEVEL_MEM_DEBUG
+  fprintf(stderr,"[SMOP_LOWLEVEL_MEM_DEBUG] Alloc: %p\n",address);
+#endif
   if (trace_list_alloc <= trace_list_size + 1) {
     trace_list = realloc(trace_list, sizeof(void*) * (trace_list_alloc + 1024));
     assert(trace_list);
@@ -64,7 +66,9 @@ void smop_mem_trace_add(void* address) {
 }
 
 void smop_mem_trace_del(void* address) {
-  fprintf(stderr,"[SMOP_LOWLEVEL_MEM_TRACE] Free: %p\n",address);
+#ifdef SMOP_LOWLEVEL_MEM_DEBUG
+  fprintf(stderr,"[SMOP_LOWLEVEL_MEM_DEBUG] Free: %p\n",address);
+#endif
   int pos = trace_list_find(address,0,trace_list_size);
   memmove(&trace_list[pos],&trace_list[pos+1], sizeof(void*)*(trace_list_size - pos));
   trace_list[trace_list_size - 1] = 0;
@@ -88,6 +92,8 @@ static SMOP__Object* lowlevelop_message(SMOP__Object* interpreter,
     smop_mem_trace_del(capture);
 #endif
     free(capture);
+  } else {
+    SMOP_RELEASE(interpreter,capture);
   }
   return SMOP__NATIVE__bool_false;
 }
@@ -150,6 +156,9 @@ SMOP__Object* smop_lowlevel_alloc(int size) {
 }
 
 SMOP__Object* smop_lowlevel_refcnt_inc(SMOP__Object* interpreter, SMOP__ResponderInterface* ri, SMOP__Object* value) {
+#ifdef SMOP_LOWLEVEL_MEM_DEBUG
+  fprintf(stderr,"[SMOP_LOWLEVEL_MEM_DEBUG] refcont_inc: %p\n",value);
+#endif
   smop_lowlevel_wrlock(value);
   ((SMOP_LOWLEVEL_INTERNAL*)value->data)->ref_cnt++;
   smop_lowlevel_unlock(value);
@@ -157,24 +166,42 @@ SMOP__Object* smop_lowlevel_refcnt_inc(SMOP__Object* interpreter, SMOP__Responde
 }
 
 SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* interpreter, SMOP__ResponderInterface* ri, SMOP__Object* value) {
+#ifdef SMOP_LOWLEVEL_MEM_DEBUG
+  fprintf(stderr,"[SMOP_LOWLEVEL_MEM_DEBUG] refcont_dec: %p\n",value);
+#endif
   smop_lowlevel_wrlock(value);
   ((SMOP_LOWLEVEL_INTERNAL*)value->data)->ref_cnt--;
   if (((SMOP_LOWLEVEL_INTERNAL*)value->data)->ref_cnt <= 0) {
     ((SMOP_LOWLEVEL_INTERNAL*)value->data)->ref_cnt = 999; // force it as to not getting here again...
     smop_lowlevel_unlock(value);
 
-    // This is where the continuation will be manipulated as described in the .h file.
-    SMOP__Object* current = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__continuation,
-                                          SMOP__NATIVE__capture_create(interpreter,interpreter,NULL,NULL));
-    SMOP__Object* continuation = NULL;
-    $continuation = q:sm0p {
-      ;
-      $value.DESTROYALL();
-      SMOP__SLIME__CurrentFrame.forget();
-      SMOP__LOWLEVEL__Operators.free(|$value);
-      $interpreter.goto(|$current);
-    };
-    SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__goto,  continuation);
+    if ((SMOP__Object*)value->RI == SMOP__INTPTR__InterpreterInstance ||
+        (SMOP__Object*)value->RI == SMOP__SLIME__Frame ||
+        (SMOP__Object*)value->RI == SMOP__SLIME__Node ||
+        (SMOP__Object*)value->RI == SMOP__SLIME__Capturize ||
+        (SMOP__Object*)value->RI == SMOP__NATIVE__capture ||
+        (SMOP__Object*)value->RI == SMOP__NATIVE__int) {
+
+      SMOP_DISPATCH(interpreter, SMOP_RI(value), SMOP__ID__DESTROYALL, value);
+#ifdef SMOP_LOWLEVEL_MEM_TRACE
+      smop_mem_trace_del(value);
+#endif
+      free(value);
+
+    } else {
+      // This is where the continuation will be manipulated as described in the .h file.
+      SMOP__Object* current = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__continuation,
+                                            SMOP__NATIVE__capture_create(interpreter,interpreter,NULL,NULL));
+      SMOP__Object* continuation = NULL;
+      $continuation = q:sm0p {
+        ;
+        $value.DESTROYALL();
+        SMOP__SLIME__CurrentFrame.forget();
+        SMOP__LOWLEVEL__Operators.free(|$value);
+        $interpreter.goto(|$current);
+      };
+      SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__goto,  continuation);
+    }
     return NULL;
   } else {
     smop_lowlevel_unlock(value);

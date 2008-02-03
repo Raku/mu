@@ -21,7 +21,8 @@ static SMOP__Object* node_message(SMOP__Object* interpreter,
                                    SMOP__ResponderInterface* self,
                                    SMOP__Object* identifier,
                                    SMOP__Object* capture) {
-  assert(!SMOP__NATIVE__capture_may_recurse(interpreter, capture));
+  if (capture->RI == SMOP__NATIVE__capture)
+    assert(!SMOP__NATIVE__capture_may_recurse(interpreter, capture));
   SMOP__Object* ret = NULL;
 
   if (identifier == SMOP__ID__new) {
@@ -49,6 +50,7 @@ static SMOP__Object* node_message(SMOP__Object* interpreter,
     ret = ((smop_slime_node_struct*)node)->responder;
     smop_lowlevel_unlock(node);
     if (old) SMOP_RELEASE(interpreter, old);
+    SMOP_RELEASE(interpreter,node);
 
   } else if (identifier == SMOP__ID__identifier) {
     SMOP__Object* node = SMOP__NATIVE__capture_invocant(interpreter,capture);
@@ -64,6 +66,7 @@ static SMOP__Object* node_message(SMOP__Object* interpreter,
     ret = ((smop_slime_node_struct*)node)->identifier;
     smop_lowlevel_unlock(node);
     if (old) SMOP_RELEASE(interpreter, old);
+    SMOP_RELEASE(interpreter,node);
 
   } else if (identifier == SMOP__ID__capture) {
     SMOP__Object* node = SMOP__NATIVE__capture_invocant(interpreter,capture);
@@ -79,6 +82,7 @@ static SMOP__Object* node_message(SMOP__Object* interpreter,
     ret = ((smop_slime_node_struct*)node)->capture;
     smop_lowlevel_unlock(node);
     if (old) SMOP_RELEASE(interpreter, old);
+    SMOP_RELEASE(interpreter,node);
 
   } else if (identifier == SMOP__ID__debug) {
     SMOP__Object* node = SMOP__NATIVE__capture_invocant(interpreter,capture);
@@ -94,6 +98,7 @@ static SMOP__Object* node_message(SMOP__Object* interpreter,
     ret = ((smop_slime_node_struct*)node)->debug;
     smop_lowlevel_unlock(node);
     if (old) SMOP_RELEASE(interpreter, old);
+    SMOP_RELEASE(interpreter,node);
 
   } else if (identifier == SMOP__ID__jail) {
     SMOP__Object* node = SMOP__NATIVE__capture_invocant(interpreter,capture);
@@ -108,7 +113,10 @@ static SMOP__Object* node_message(SMOP__Object* interpreter,
     }
     ret = ((smop_slime_node_struct*)node)->jail;
     smop_lowlevel_unlock(node);
+
     if (old) SMOP_RELEASE(interpreter, old);
+
+    SMOP_RELEASE(interpreter,node);
 
   } else if (identifier == SMOP__ID__result) {
     SMOP__Object* node = SMOP__NATIVE__capture_invocant(interpreter,capture);
@@ -125,6 +133,8 @@ static SMOP__Object* node_message(SMOP__Object* interpreter,
     smop_lowlevel_unlock(node);
     if (old) SMOP_RELEASE(interpreter, old);
 
+    SMOP_RELEASE(interpreter,node);
+
   } else if (identifier == SMOP__ID__free) {
     SMOP__Object* node = SMOP__NATIVE__capture_invocant(interpreter,capture);
 
@@ -132,7 +142,10 @@ static SMOP__Object* node_message(SMOP__Object* interpreter,
     ((smop_slime_node_struct*)node)->capture = NULL;
     smop_lowlevel_unlock(node);
 
+    SMOP_RELEASE(interpreter,node);
+
   } else if (identifier == SMOP__ID__eval) {
+
     SMOP__Object* node = SMOP__NATIVE__capture_invocant(interpreter,capture);
 
     smop_lowlevel_rdlock(node);
@@ -145,7 +158,7 @@ static SMOP__Object* node_message(SMOP__Object* interpreter,
       fprintf(stderr,"[SMOP__SLIME__Node:DEBUG] eval %s.\n", (char*)(identifier->data));
 
     if (responder) {
-      ret = SMOP_DISPATCH(interpreter,responder,identifier,capture);
+      ret = SMOP_DISPATCH(interpreter,responder,identifier,SMOP_REFERENCE(interpreter,capture));
 
       smop_lowlevel_wrlock(node);
       SMOP__Object* old = ((smop_slime_node_struct*)node)->result;
@@ -154,6 +167,8 @@ static SMOP__Object* node_message(SMOP__Object* interpreter,
 
       if (old) SMOP_RELEASE(interpreter, old);
     }
+    SMOP_RELEASE(interpreter,node);
+
   } else if (identifier == SMOP__ID__DESTROYALL) {
     smop_slime_node_struct* node = (smop_slime_node_struct*)capture;
 
@@ -174,6 +189,8 @@ static SMOP__Object* node_message(SMOP__Object* interpreter,
     if (x) SMOP_RELEASE(interpreter,x);
 
   }
+
+  SMOP_RELEASE(interpreter, capture);
   return ret;
 }
 

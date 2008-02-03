@@ -71,10 +71,13 @@ int main(int argc, char** argv) {
   SMOP_DISPATCH(interpreter, SMOP_RI(intrp),
                 SMOP__ID__loop, loop_capture);
 
-  SMOP_RELEASE(interpreter,goto_capture);
-  SMOP_RELEASE(interpreter, loop_capture);
   SMOP_RELEASE(interpreter,obj);
-  SMOP_RELEASE(interpreter,node);
+
+  loop_capture = SMOP__NATIVE__capture_create(intrp, intrp, NULL, NULL);
+
+  SMOP_DISPATCH(interpreter, SMOP_RI(intrp),
+                SMOP__ID__loop, loop_capture);
+
   SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,intrp);
 
   smop_destr();

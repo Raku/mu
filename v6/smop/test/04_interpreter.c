@@ -61,13 +61,14 @@ int main() {
 
   SMOP_RELEASE(intrp,obj);
 
+  printf("ok 7 - delegated.\n");
+
   SMOP_DISPATCH(intrp, SMOP_RI(intrp),
                 SMOP__ID__loop, SMOP__NATIVE__capture_create(intrp,
                                                              intrp,
                                                              NULL,
                                                              NULL));
 
-  printf("ok 7 - delegated.\n");
 
   SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,intrp);
 

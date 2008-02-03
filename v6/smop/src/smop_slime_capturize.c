@@ -32,6 +32,8 @@ static SMOP__Object* capturize_message(SMOP__Object* interpreter,
     ((smop_slime_capturize_struct*)capture)->named = NULL;
     smop_lowlevel_unlock(capture);
     free(p); free(n);
+  } else {
+    SMOP_RELEASE(interpreter,capture);
   }
 
   return capture;
