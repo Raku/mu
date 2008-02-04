@@ -1,0 +1,111 @@
+
+Boston Perl Mongers  / Boston Ruby Group  12 Feb 2008
+A pair of lightning talks.(still across the street this month?)
+
+A Perl 6 barn raising.
+mumble - Perl 6 bootstrap on Ruby - a Proposal with Tests
+mumble - Perl 6 bootstrap on Ruby - a Proposal with Code
+dugnad
+
+Or talko, for me.  I so very much don't want to be doing this.
+But -Ofun isn't enough.  Duty remains.
+
+~130 M kids will be born this year.  Almost all will attend some primary school.
+We determine _now_ what languages that software will be written in.
+What that software is going to be capable of.
+300k ppl/day.  2.5 M ppl/week.
+
+Perl 6 is needed to again raise the bar of what languages are expected
+to provide, and by restructuring how languages compete, to accelerate
+language evolution.  We, as a profession, have to be doing so much more
+than we currently are.  P6 has by far the largest potential 5-year
+impact on that that I've seen in 20+ years.(old. lispm?)
+
+For the perl community.  I believe we all wish a quickened pace.
+Better this xmas than next.  I've encountered some ruby bashing, fear
+of what ruby's and python's continuing evolution mean for the future
+of perl.  I've no idea whether it is now widespread, or not at all.
+The perl community has historically been exceptionally ecumenical.
+Any thing that works.  Sacrifice to provide power and flexibility.
+(missed the point)
+Having Perl 6 this xmas is a reasonable goal.  The greatest obstacle
+to that goal is despair of reaching it.
+
+Tradition.  One bootstraps lisp-like languages on lisp.  To bootstrap
+a language, you find a maximally similar language, build a throw-away
+implementation of your language on top of it, implement your language
+in itself, and bootstrap.  Similar buys you less work to build and
+rewrite.  So we bootstrap p6 on a p6-like language.
+
+For the ruby community.  The haskell community gained attention and
+resources by its being used to prototype p6.  Supporting Perl 6 is not
+diminishing ruby.  Ecumenical, and power, means the potential and
+likelihood of '$ perl hello_world.rb', and of lexically scoped
+'...{use Ruby-1-8-6; p class << self; self; end}...'.  That's simply
+what languages have been evolving towards.  Short term, the effort
+gives visibility, helps debug 1.9, and likely spins off a some gems.
+
+Long term, Perl 6 could make a great ruby vm.  Its strong emphasis on
+optional and flexible static compilation and efficiency, provides a
+complement to JIT and C for speed.  And a roused haskell
+implementation of p6 can provide multi-core and other costly things.
+It has been said perl 6 is haskell's way of taking over the world.
+Perl 6 could also be ruby's way of reaching for its full potential,
+and of making the contributions the collective language community
+needs of it.
+
+Perl 6 has be languishing without an active or bootstrapped
+implementation for a couple of years now.  In hindsight, all of the
+pieces to create one have existed for almost a year now.  What's been
+needed is finding a way to fit them together, and a push to get it
+done.
+
+A Perl 6 implementation is composed of ...
+
+Having the pieces and knowing their shapes, permits 
+Extreme Test Driven Development.  
+
+There are now tests and mocks for an entire ruby implementation of
+perl 6.  There is a partial ruby implementation of the perl 6 parser
+engine, and a full ruby copy of the authoritative perl 6 grammar.  The
+exiting partial perl 6 implementations provide their IR's as ruby, so
+compiler and backend development happens immediately, no waiting for
+the parser to mature.  And there is a draft ruby runtime.  In short,
+the project starts sketched in code, braced by tests, and with many of
+the hard nuts at least somewhat cracked.
+
+I invite you to come, and look it over.
+Commit bits are free for the asking.  
+Let's show the magic TDD and ruby can weave.
+
+But I sooo don't want to be doing this. :/
+That can't be allowed to interfere with creating a -Ofun project team.
+Sigh.
+
+
+Next steps:
+ kp6 -Cast-yaml - low hanging fruit, though not critical path.
+ STD.pm to foo("bar","hee") converter.
+  Default to p5-compatible output.  --ruby argument.
+ Repackage yare tests.
+ Translate yare to ruby.
+  Needs to basically work, but regressions ok.
+  STD can guide ast nodes.
+ kp6 t/ ast mock and tests.
+ redsix -Cast-yaml
+ draft new runtime api.
+ break runtime api out of redsix, link in new.
+ interface pugs t/ stdoutput with rb test/unit.
+ determine what subset of t/ redsix and pugs PIL pass.
+  tests for the subset.  capture the PIL.
+  what is pugs -CParse???
+ draft ruby2perl6 translator from ruby2ruby.
+ ...
+
+Risks:
+ ...
+
+one week.  write talk.  cheerlead.  lots of hacking.
+first - project plan.
+
+or not.
