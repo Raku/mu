@@ -204,7 +204,6 @@ SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* interpreter, SMOP__Responde
         SMOP__LOWLEVEL__Operators.free(|$value);
         $interpreter.goto(|$current);
       };
-      if (current) SMOP_RELEASE(interpreter, current);
       SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__goto,  continuation);
     }
     return NULL;

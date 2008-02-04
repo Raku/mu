@@ -96,8 +96,7 @@ static SMOP__Object* frame_message(SMOP__Object* interpreter,
                           SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,node),NULL,NULL));
       SMOP_RELEASE(interpreter,frame);
     }
-    SMOP_RELEASE(interpreter,capture);
-    return SMOP__NATIVE__bool_false;
+    ret = SMOP__NATIVE__bool_false;
 
   } else if (identifier ==  SMOP__ID__eval) {
     SMOP__Object* frame = SMOP__NATIVE__capture_invocant(interpreter, capture);
@@ -108,8 +107,11 @@ static SMOP__Object* frame_message(SMOP__Object* interpreter,
       smop_lowlevel_unlock(frame);
       ret = SMOP_DISPATCH(interpreter,SMOP_RI(node),SMOP__ID__eval,
                           SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,node),NULL,NULL));
-      SMOP_DISPATCH(interpreter,SMOP_RI(node),SMOP__ID__result,
-                    SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,node),(SMOP__Object*[]){ret, NULL},NULL));
+      SMOP__Object* res = SMOP_DISPATCH(interpreter,SMOP_RI(node),SMOP__ID__result,
+                                        SMOP__NATIVE__capture_create(interpreter,
+                                                                     SMOP_REFERENCE(interpreter,node),
+                                                                     (SMOP__Object*[]){ret, NULL},NULL));
+      if (res) SMOP_RELEASE(interpreter,res);
       SMOP_RELEASE(interpreter,frame);
       ret = SMOP__NATIVE__bool_true;
     } else {
@@ -229,7 +231,7 @@ static SMOP__Object* frame_message(SMOP__Object* interpreter,
     }
   
   } else if (identifier ==  SMOP__ID__forget) {
-    smop_slime_frame_struct* frame = (smop_slime_frame_struct*)capture;
+    smop_slime_frame_struct* frame = (smop_slime_frame_struct*)SMOP__NATIVE__capture_invocant(interpreter, capture);
     if (frame && (SMOP__Object*)frame != SMOP__SLIME__Frame) {
       smop_lowlevel_wrlock((SMOP__Object*)frame);
       int pc = frame->pc;
@@ -242,7 +244,7 @@ static SMOP__Object* frame_message(SMOP__Object* interpreter,
       }
       SMOP_RELEASE(interpreter,frame);
     }
-    return SMOP__NATIVE__bool_false;
+    ret = SMOP__NATIVE__bool_false;
   
   } else if (identifier ==SMOP__ID__copy) {
     SMOP__Object* frame = SMOP__NATIVE__capture_invocant(interpreter, capture);
