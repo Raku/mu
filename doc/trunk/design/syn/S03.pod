@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 27 Jan 2008
+  Last Modified: 4 Feb 2008
   Number: 3
-  Version: 128
+  Version: 129
 
 =head1 Overview
 
@@ -2021,127 +2021,124 @@ See L</Chained comparisons> below.
 
 =item *
 
-The list assignment operator now parses on the right like
+The list (array) assignment operator now parses on the right like
 any other list operator, so you don't need parens on the right side of:
 
-    @foo = 1,2,3;
+    @foo = 1, 2, 3;
 
 You do still need them on the left for
 
-    ($a,$b,$c) = 1,2,3;
+    ($a, $b, $c) = 1, 2, 3;
 
 since assignment operators are tighter than comma to their left.
 
+"Don't care" positions may be indicated by assigment to the C<*> token.
+A final C<*> throws away the rest of the list:
+
+    ($a, *, $c) = 1, 2, 3;      # throw away the 2
+    ($a, $b, $c, *) = 1..42;    # throw away 4..42
+
+List assignment offers the list on the right to each container on the
+left in turn, and each container may take one or more elements from the
+front of the list.  If there are any elements left over, a warning is
+issued unless the list on the left ends with C<*> or the final iterator
+on the right is defined in terms of C<*>.  Hence none of these warn:
+
+    ($a, $b, $c, *) = 1..9999999;
+    ($a, $b, $c) = 1..*;
+    ($a, $b, $c) = 1 xx *;
+    ($a, $b, $c) = 1, 2, *;
+
+This, however, warns you of information loss:
+
+    ($a, $b, $c) = 1, 2, 3, 4;
+
+As in Perl 5, assignment to an array or hash slurps up all the
+remaining values, and can never produce such a warning.  (It will,
+however, leave any subsequent lvalue containers with no elements,
+just as in Perl 5.)
+
 =item *
 
-The scalar assignment operator still parses as it did before, so
+The item (scalar) assignment operator expects a single expression with
+precedence tighter than comma, so
 
     loop ($a = 1, $b = 2; ; $a++, $b++) {...}
 
-still works fine.  The syntactic distinction between scalar and list
-assignment is similar to the way Perl 5 defines it, but has to be a
-little different because we can no longer decide on the basis of
-the sigil.  The following forms are parsed as "simple lvalues",
-and imply scalar assignment:
+works as a C programmer would expect.   The term on the right of the
+C<=> is always evaluated in item context.
 
-    $a          # simple scalar variable
-    $(ANY)      # scalar dereference (including $$a)
-    $::(ANY)    # symbolic scalar dereference
-    ANY[SIMPLE] # single simple subscript
-    ANY{SIMPLE} # single simple subscript
-    ANY<x>      # single literal subscript
+The syntactic distinction between scalar and list assignment is similar
+to the way Perl 5 defines it, but has to be a little different because
+we can no longer decide the nature of an inner subscript on the basis
+of the outer sigil.  So instead, item assignment is restricted to
+lvalues that are simple scalar variables, and assignment to anything
+else is parsed as list assignment.  The following forms are parsed as
+"simple lvalues", and imply item assignment to the scalar container:
 
-Where SIMPLE is (recursively) defined as one of the forms above,
-plus the following forms:
+    $a = 1          # simple scalar variable
+    $(ANY) = 1      # scalar dereference (including $$a)
+    $::(ANY) = 1    # symbolic scalar dereference
 
-    123         # single literal
-    'x'         # single literal
-    "$x"        # single literal
-    qq/$x/      # single literal
-    +TERM       # any single term coerced to numeric
-    -TERM       # any single term coerced to numeric
-    ~TERM       # any single term coerced to string
-    ?TERM       # any single term coerced to boolean
-    !TERM       # any single term coerced to boolean
-    (SIMPLE)    # any simple expression in circumfix parens
+Such a scalar variable lvalue may be decorated with declarators,
+types, and traits, so these are also item assignments:
 
-Note that circumfix parens are considered simple only when used as
-part of a subscript.  Putting parens around the entire lvalue still
-implies list context as in Perl 5.
+    my $fido = 1
+    my Dog $fido = 1
+    my Dog $fido is trained is vicious = 1
 
-We also include:
+However, anything more complicated than that (including parentheses
+and subscripted expressions) forces parsing as list assignment instead.
+Assignment to anything that is not a simple scalar container also forces
+parsing as list assignment.  List assignment expects an expression
+that is looser than comma precedence.  The right side is always
+evaluated in list context:
 
-    OP SIMPLE   
-    SIMPLE OP
-    SIMPLE OP SIMPLE
+    ($x) = 1,2,3
+    $x[1] = 1,2,3
+    @$array = 1,2,3
+    my ($x, $y) = 1,2,3
+    our %map = :a<1>, :b<2>
 
-where C<OP> includes any standard scalar operators in the five
-precedence levels autoincrement, exponentiation, symbolic unary,
-multiplicative, and additive; but these are limited to standard
-operators that are known to return numbers, strings, or booleans.
+The rules of list assignment apply, so all the assignments involving
+C<$x> above produce warnings for discarded values.  A warning may be
+issued at compile time if it is detectable.
 
-Operators that imply list operations are excluded: prefix C<@>,
-prefix C<%> and infix C<xx>, for instance.  Hyper operators are
-also excluded, but post-assignment forms such as C<SIMPLE += SIMPLE>
-are allowed.
+The C<=> in a default declaration within a signature is not really
+assignment, and is always parsed as item assignment.  (That is, to
+assign a list as the default value you must use parentheses to hide
+any commas in the list value.)
 
-All other forms imply parsing as a list assignment, which may or may not
-result in a list assignment at run time.  (See below.) However, this is
-exclusively a syntactic distinction, and no semantic or type information
-is used, since it influences subsequent parsing.  In particular, even
-if a function is known to return a scalar value from its declaration,
-you must use C<+> or C<~> if you wish to force scalar parsing from
-within a subscript:
+To assign a list to a scalar value, you cannot say:
 
-    @a[foo()] = bar();          # foo() and bar() called in list context
-    @a[+foo()] = bar();         # foo() and bar() called in item context
+    $a = 1, 2, 3;
+
+because the 2 and 3 will be seen as being in a void context, as if
+you'd said:
+
+    ($a = 1), 2, 3;
+
+Instead, you must do something to explicitly disable or subvert the
+item assignment interpretation:
+
+    $a = [1, 2, 3];             # force construction (probably best practice)
+    $a = (1, 2, 3);             # force grouping as syntactic item
+    $a = list 1, 2, 3;          # force grouping using listop precedence
+    $a = @ 1, 2, 3;             # same thing
+    @$a = 1, 2, 3;              # force list assignment
+
+If a function is known to return a scalar value from its declaration,
+you must use C<item> (or C<$> or C<+> or C<~>) if you wish to force
+scalar parsing from within a subscript:
+
+    @a[foo()] = bar();           # foo() and bar() called in list context
+    @a[item foo()] = item bar(); # foo() and bar() called in item context
+    @a[$ foo()] = $ bar();       # same thing
+    @a[+foo()] = +bar();         # foo() and bar() called in numeric context
+    %a{~foo()} = ~bar();         # foo() and bar() called in string context
 
 But note that the first form still works fine if C<foo()> and C<bar()>
-are item-returning functions that are not context sensitive.  The difference
-in parsing is only an issue if C<bar()> is followed by a comma or
-some such.
-
-For non-simple lvalues, at run time, both sides are evaluated in list
-context, but if the left side results in a single non-list scalar,
-the right side is treated as a single scalar value, as if the right
-side had been evaluated in list context (which is indeed the case)
-but coerced into item context.
-
-If the left side returns a list, however, then regardless of whether
-the list contains a single or multiple values, the right side values
-are assigned one by one as in any other list assignment, discarding any
-extra values if the right side is too long, or assigning undef if the
-right side is too short.  To force list assignment when a subscript
-would return a non-list, either put parens around the entire lvalue,
-or use a comma within the subscript.  (A semicolon in the subscript
-also works to indicate a multidimensional slice.)
-
-Assuming
-
-    sub bar { return <a b c> }
-
-then we have:
-
-    sub foo { return 1,2,3 }
-    @a[foo()] = bar();          # (@a[1,2,3]) = <a b c>
-
-    sub foo { return 1 }
-    @a[foo()] = bar();          # @a[1] = [<a b c>]
-
-    sub foo { return(1) }
-    @a[foo()] = bar();          # @a[1] = [<a b c>]
-
-    sub foo { return (1) }
-    @a[foo()] = bar();          # (@a[1]) = <a b c>
-
-    sub foo { return 1 }
-    @a[foo(),] = bar();         # (@a[1]) = <a b c>
-
-    sub foo { return 1 }
-    (@a[foo()]) = bar();        # (@a[1]) = <a b c>
-
-Those are all parsed as list assignments, but we get different run-time
-behaviors based on the run-time type of the left side.
+are item-returning functions that are not context sensitive.
 
 In general, this will all just do what the user expects most of the time.
 The rest of the time item or list behavior can be forced with minimal
@@ -3009,7 +3006,7 @@ operator it's modifying, because all operators including modified
 ones have to be recognized by the Longest-Token Rule, which disallows
 spaces within a token.
 
-=head2 Assignment operators
+=head2 Assignment metaoperators
 
 These are already familiar to C and Perl programmers.  (Though the
 C<.=> operator now means to call a mutating method on the object on
@@ -3025,8 +3022,24 @@ by the usual correspondence:
 Existing forms ending in C<=> may not be modified with this metaoperator.
 
 Regardless of the precedence of the base operator, the precedence
-of any assignment operators is forced to be the same as that of
-ordinary assignment.
+of any assignment metaoperators is forced to be the same as that of
+ordinary assignment.  If the base operator is tighter than comma,
+the expression is parsed as item assignment.  If the base operator is
+the same or looser than comma, the expression is parsed as a list assignment:
+
+    $a += 1, $b += 2    # two separate item assignments
+    @foo ,= 1,2,3       # same as push(@foo,1,2,3)
+    @foo Z= 1,2,3       # same as @foo = @foo Z 1,2,3
+
+Note that metaassignment to a list does not automatically distribute
+the right argument over the assigned list unless the base operator
+does (as in the C<Z> case above).  Hence if you want to say:
+
+    ($a,$b,$c) += 1;    # ILLEGAL
+
+you must instead use a hyperoperator (see below):
+
+    ($a,$b,$c) »+=» 1;  # add one to each of three variables
 
 =head2 Negated relational operators
 
@@ -3625,12 +3638,13 @@ initialized to 0 instead.  (Native floating-point containers are
 by default initialized to C<NaN>.)  Typed object containers start
 out containing an undefined protoobject of the correct type.
 
-List-context pseudo-assignment is supported for simple declarations:
+List-context pseudo-assignment is supported for simple declarations but
+not for signature defaults:
 
     constant @foo = 1,2,3;      # okay: initializes @foo to (1,2,3)
     constant (@foo = 1,2,3);    # wrong: 2 and 3 are not variable names
 
-When parentheses are omitted, you may use an infix assignment operator
+When parentheses are omitted, you may use any infix assignment operator
 instead of C<=> as the initializer.  In that case, the left hand side of
 the infix operator will be the variable's prototype object:
 
@@ -3638,6 +3652,9 @@ the infix operator will be the variable's prototype object:
     constant Dog $fido = Dog.new;   # same thing
     constant Dog $fido = $fido.new; # wrong: invalid self-reference
     constant (Dog $fido .= new);    # wrong: cannot use .= with parens
+
+Note that very few mutating operators make sense on a protoobject, however,
+since protoobjects are a kind of undefined object.
 
 Parentheses must always be used when declaring multiple parameters:
 
@@ -3776,8 +3793,9 @@ assignment:
     @$bar = 1,2,3;
     $bar[] = 1,2,3;
 
-For long lvalue expressions, the second form can keep the "arrayness"
-of the lvalue close to the assignment operator:
+For long expressions that need to be cast to an array lvalue, the
+second form can keep the "arrayness" of the lvalue close to the
+assignment operator:
 
     $foo.bar.baz.bletch.whatever.attr[] = 1,2,3;
 
