@@ -169,8 +169,10 @@ SMOP__Object*   SMOP__NATIVE__capture_create(SMOP__Object* interpreter,
   if (invocant == NULL && positional == NULL && named == NULL)
     return smop_native_empty_capture;
 
-  if (invocant == interpreter && positional == NULL && named == NULL)
+  if (invocant == interpreter && positional == NULL && named == NULL) {
+    SMOP_RELEASE(interpreter,invocant);
     return smop_native_intptr_invocant_capture;
+  }
 
   native_capture_struct* ret = (native_capture_struct*)smop_lowlevel_alloc(sizeof(native_capture_struct));
   ret->RI = (SMOP__ResponderInterface*)SMOP__NATIVE__capture;

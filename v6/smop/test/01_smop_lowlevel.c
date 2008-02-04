@@ -87,7 +87,7 @@ int main(int argc, char** argv) {
   SMOP_DISPATCH(intrp, SMOP_RI(intrp),
                 SMOP__ID__loop, 
                 SMOP__NATIVE__capture_create(intrp,
-                                             intrp,
+                                             SMOP_REFERENCE(intrp,intrp),
                                              NULL, NULL));
 
   SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance, intrp);

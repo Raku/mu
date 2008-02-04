@@ -102,7 +102,7 @@ static SMOP__Object* prototype_interpreter_message(SMOP__Object* interpreter,
     smop_lowlevel_wrlock(capture);
     SMOP__Object* cont = inst->continuation; inst->continuation = NULL;
     smop_lowlevel_unlock(capture);
-    SMOP_RELEASE(interpreter,cont);
+    if (cont) SMOP_RELEASE(interpreter,cont);
 
   } else {
     if (identifier->RI == SMOP__ID__new->RI) {
@@ -126,7 +126,7 @@ static SMOP__Object* interpreter_message(SMOP__Object* interpreter,
   if (capture->RI == (SMOP__ResponderInterface*)SMOP__NATIVE__capture) {
     invocant = SMOP__NATIVE__capture_invocant(interpreter, capture);
   } else {
-    SMOP_REFERENCE(interpreter, capture);
+    SMOP_REFERENCE(interpreter, interpreter);
     invocant = interpreter;
   }
 
@@ -264,8 +264,9 @@ static SMOP__Object* interpreter_message(SMOP__Object* interpreter,
     smop_lowlevel_wrlock(capture);
     SMOP__Object* cont = inst->continuation; inst->continuation = NULL;
     smop_lowlevel_unlock(capture);
-    SMOP_RELEASE(interpreter,cont);
+    if (cont) SMOP_RELEASE(interpreter,cont);
   }
+  SMOP_RELEASE(interpreter, invocant);
   SMOP_RELEASE(interpreter, capture);
   return ret;
 }

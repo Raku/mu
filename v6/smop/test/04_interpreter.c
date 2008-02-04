@@ -18,6 +18,7 @@ static SMOP__Object* custom_MESSAGE(SMOP__Object* stack,
   } else {
     printf("not ok - unknown method called %p.\n",identifier);
   }
+  SMOP_RELEASE(stack,capture);
   return NULL;
 }
 
@@ -49,15 +50,15 @@ int main() {
 
   SMOP_DISPATCH(intrp, ri,
                 SMOP__ID__has_next,
-                SMOP__NATIVE__capture_create(intrp,obj,NULL,NULL));
+                SMOP__NATIVE__capture_create(intrp,SMOP_REFERENCE(intrp,obj),NULL,NULL));
 
   SMOP_DISPATCH(intrp, ri,
                 SMOP__ID__next,
-                SMOP__NATIVE__capture_create(intrp,obj,NULL,NULL));
+                SMOP__NATIVE__capture_create(intrp,SMOP_REFERENCE(intrp,obj),NULL,NULL));
   
   SMOP_DISPATCH(intrp, ri,
                 SMOP__ID__eval,
-                SMOP__NATIVE__capture_create(intrp,obj,NULL,NULL));
+                SMOP__NATIVE__capture_create(intrp,SMOP_REFERENCE(intrp,obj),NULL,NULL));
 
   SMOP_RELEASE(intrp,obj);
 
@@ -65,7 +66,7 @@ int main() {
 
   SMOP_DISPATCH(intrp, SMOP_RI(intrp),
                 SMOP__ID__loop, SMOP__NATIVE__capture_create(intrp,
-                                                             intrp,
+                                                             SMOP_REFERENCE(intrp,intrp),
                                                              NULL,
                                                              NULL));
 

@@ -172,6 +172,9 @@ SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* interpreter, SMOP__Responde
   smop_lowlevel_wrlock(value);
   ((SMOP_LOWLEVEL_INTERNAL*)value->data)->ref_cnt--;
   if (((SMOP_LOWLEVEL_INTERNAL*)value->data)->ref_cnt <= 0) {
+#ifdef SMOP_LOWLEVEL_MEM_DEBUG
+    fprintf(stderr,"[SMOP_LOWLEVEL_MEM_DEBUG] will destroy: %p\n",value);
+#endif
     ((SMOP_LOWLEVEL_INTERNAL*)value->data)->ref_cnt = 999; // force it as to not getting here again...
     smop_lowlevel_unlock(value);
 
@@ -191,7 +194,7 @@ SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* interpreter, SMOP__Responde
     } else {
       // This is where the continuation will be manipulated as described in the .h file.
       SMOP__Object* current = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__continuation,
-                                            SMOP__NATIVE__capture_create(interpreter,interpreter,NULL,NULL));
+                                            SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,interpreter),NULL,NULL));
       SMOP__Object* continuation = NULL;
       $continuation = q:sm0p {
         ;
