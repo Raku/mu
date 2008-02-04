@@ -2076,9 +2076,11 @@ lvalues that are simple scalar variables, and assignment to anything
 else is parsed as list assignment.  The following forms are parsed as
 "simple lvalues", and imply item assignment to the scalar container:
 
-    $a = 1          # simple scalar variable
+    $a = 1          # scalar variable
+    $foo::bar = 1   # scalar package variable
     $(ANY) = 1      # scalar dereference (including $$a)
     $::(ANY) = 1    # symbolic scalar dereference
+    $foo::(ANY) = 1 # symbolic scalar dereference
 
 Such a scalar variable lvalue may be decorated with declarators,
 types, and traits, so these are also item assignments:
@@ -2102,7 +2104,8 @@ evaluated in list context:
 
 The rules of list assignment apply, so all the assignments involving
 C<$x> above produce warnings for discarded values.  A warning may be
-issued at compile time if it is detectable.
+issued at compile time if it is detected that a run-time warning is
+inevitable.
 
 The C<=> in a default declaration within a signature is not really
 assignment, and is always parsed as item assignment.  (That is, to
@@ -2126,10 +2129,11 @@ item assignment interpretation:
     $a = list 1, 2, 3;          # force grouping using listop precedence
     $a = @ 1, 2, 3;             # same thing
     @$a = 1, 2, 3;              # force list assignment
+    $a[] = 1, 2, 3;             # same thing
 
-If a function is known to return a scalar value from its declaration,
-you must use C<item> (or C<$> or C<+> or C<~>) if you wish to force
-scalar parsing from within a subscript:
+If a function is contextually sensitive and you wish to return a scalar
+value, you must use C<item> (or C<$> or C<+> or C<~>) if you wish to
+force scalar context for either the subscript or the right side:
 
     @a[foo()] = bar();           # foo() and bar() called in list context
     @a[item foo()] = item bar(); # foo() and bar() called in item context
