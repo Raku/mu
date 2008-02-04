@@ -42,6 +42,7 @@ void smop_idconst_init() {
   SMOP__NATIVE__idconst_RI->MESSAGE = idconst_message;
   SMOP__NATIVE__idconst_RI->REFERENCE = idconst_reference;
   SMOP__NATIVE__idconst_RI->RELEASE = idconst_release;
+  SMOP__NATIVE__idconst_RI->id = "Constant Identifier\0";
 
   // initialize the constants
 #include "idconst_init_all.c"

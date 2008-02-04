@@ -46,6 +46,7 @@ void smop_slime_currentframe_init() {
   ((SMOP__ResponderInterface*)SMOP__SLIME__CurrentFrame)->MESSAGE = currentframe_message;
   ((SMOP__ResponderInterface*)SMOP__SLIME__CurrentFrame)->REFERENCE = currentframe_reference;
   ((SMOP__ResponderInterface*)SMOP__SLIME__CurrentFrame)->RELEASE = currentframe_release;
+  ((SMOP__ResponderInterface*)SMOP__SLIME__CurrentFrame)->id = "SMOP SLIME CurrentFrame";
 }
 
 void smop_slime_currentframe_destr() {

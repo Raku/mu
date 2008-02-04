@@ -214,6 +214,7 @@ void smop_slime_node_init() {
   ((SMOP__ResponderInterface*)SMOP__SLIME__Node)->MESSAGE = node_message;
   ((SMOP__ResponderInterface*)SMOP__SLIME__Node)->REFERENCE = node_reference;
   ((SMOP__ResponderInterface*)SMOP__SLIME__Node)->RELEASE = node_release;
+  ((SMOP__ResponderInterface*)SMOP__SLIME__Node)->id = "SMOP SLIME Node";
 }
 
 void smop_slime_node_destr() {

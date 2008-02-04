@@ -112,6 +112,7 @@ void smop_lowlevel_init() {
   ((SMOP__ResponderInterface*)SMOP__LOWLEVEL__Operators)->MESSAGE = lowlevelop_message;
   ((SMOP__ResponderInterface*)SMOP__LOWLEVEL__Operators)->REFERENCE = lowlevelop_reference;
   ((SMOP__ResponderInterface*)SMOP__LOWLEVEL__Operators)->RELEASE = lowlevelop_release;
+  ((SMOP__ResponderInterface*)SMOP__LOWLEVEL__Operators)->id = "SMOP Lowlevel Operator\0";
 
 #ifdef SMOP_LOWLEVEL_MEM_TRACE
   trace_list_alloc = 1024;
@@ -126,7 +127,7 @@ void smop_lowlevel_destr() {
   if (trace_list_size > 0) {
     int i;
     for (i = 0; i < trace_list_size; i++) {
-      fprintf(stderr,"[SMOP_LOWLEVEL_MEM_TRACE] Leaking variable in global destruction: %p\n",trace_list[i]);
+      fprintf(stderr,"[SMOP_LOWLEVEL_MEM_TRACE] Leaking variable in global destruction: %p (%s)\n",trace_list[i],SMOP_RI(trace_list[i])->id);
     }
   }
   free(trace_list);

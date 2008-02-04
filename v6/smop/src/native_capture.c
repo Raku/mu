@@ -118,6 +118,8 @@ void smop_native_capture_init() {
   ((SMOP__ResponderInterface*)SMOP__NATIVE__capture)->MESSAGE = capture_message;
   ((SMOP__ResponderInterface*)SMOP__NATIVE__capture)->REFERENCE = capture_reference;
   ((SMOP__ResponderInterface*)SMOP__NATIVE__capture)->RELEASE = capture_release;
+  ((SMOP__ResponderInterface*)SMOP__NATIVE__capture)->id = "Native Capture\0";
+
 
   // initialize the constant empty capture
   smop_native_empty_capture = calloc(1, sizeof(native_capture_struct));

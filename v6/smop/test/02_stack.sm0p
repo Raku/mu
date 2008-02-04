@@ -43,8 +43,11 @@ int main(int argc, char** argv) {
 
   SMOP__Object* intrp = SMOP_DISPATCH(SMOP__INTPTR__InterpreterInstance, SMOP_RI(SMOP__INTPTR__InterpreterInstance),
                                       SMOP__ID__new, 
-                                      SMOP__NATIVE__capture_create(NULL,SMOP__INTPTR__InterpreterInstance,NULL,NULL));
+                                      SMOP__NATIVE__capture_create(SMOP__INTPTR__InterpreterInstance,
+                                                                   SMOP__INTPTR__InterpreterInstance,NULL,NULL));
+
   SMOP__Object* interpreter = intrp;
+
   SMOP__Object* obj = smop_lowlevel_alloc(sizeof(SMOP__ResponderInterface));
   SMOP__ResponderInterface* ri = (SMOP__ResponderInterface*)obj;
   ri->MESSAGE = custom_MESSAGE;
@@ -62,21 +65,21 @@ int main(int argc, char** argv) {
     $obj.$method4();
   };
   
-  SMOP__Object* goto_capture = SMOP__NATIVE__capture_create(intrp, SMOP_REFERENCE(intrp,intrp), (SMOP__Object*[]){node,NULL}, NULL);
   SMOP_DISPATCH(interpreter, SMOP_RI(intrp),
-                SMOP__ID__goto, goto_capture);
-
-  SMOP__Object* loop_capture = SMOP__NATIVE__capture_create(intrp, SMOP_REFERENCE(intrp,intrp), NULL, NULL);
+                SMOP__ID__goto,
+                node);
 
   SMOP_DISPATCH(interpreter, SMOP_RI(intrp),
-                SMOP__ID__loop, loop_capture);
+                SMOP__ID__loop, SMOP__NATIVE__capture_create(intrp,
+                                                             SMOP_REFERENCE(intrp,intrp),
+                                                             NULL, NULL));
 
   SMOP_RELEASE(interpreter,obj);
 
-  loop_capture = SMOP__NATIVE__capture_create(intrp, SMOP_REFERENCE(intrp,intrp), NULL, NULL);
-
   SMOP_DISPATCH(interpreter, SMOP_RI(intrp),
-                SMOP__ID__loop, loop_capture);
+                SMOP__ID__loop, SMOP__NATIVE__capture_create(intrp,
+                                                             SMOP_REFERENCE(intrp,intrp),
+                                                             NULL, NULL));
 
   SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,intrp);
 

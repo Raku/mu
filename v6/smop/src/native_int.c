@@ -37,6 +37,7 @@ void smop_native_int_init() {
   ((SMOP__ResponderInterface*)SMOP__NATIVE__int)->MESSAGE = int_message;
   ((SMOP__ResponderInterface*)SMOP__NATIVE__int)->REFERENCE = int_reference;
   ((SMOP__ResponderInterface*)SMOP__NATIVE__int)->RELEASE = int_release;
+  ((SMOP__ResponderInterface*)SMOP__NATIVE__int)->id = "Native int\0";
 }
 
 void smop_native_int_destr() {

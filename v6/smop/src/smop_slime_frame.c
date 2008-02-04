@@ -445,6 +445,7 @@ void smop_slime_frame_init() {
   ((SMOP__ResponderInterface*)SMOP__SLIME__Frame)->MESSAGE = frame_message;
   ((SMOP__ResponderInterface*)SMOP__SLIME__Frame)->REFERENCE = frame_reference;
   ((SMOP__ResponderInterface*)SMOP__SLIME__Frame)->RELEASE = frame_release;
+  ((SMOP__ResponderInterface*)SMOP__SLIME__Frame)->id = "SMOP SLIME Frame";
 }
 
 void smop_slime_frame_destr() {

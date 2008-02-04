@@ -51,7 +51,8 @@ struct SMOP__Object {
                              SMOP__Object* object);               \
   SMOP__Object* (*RELEASE)  (SMOP__Object* interpreter,           \
                              SMOP__ResponderInterface* self,      \
-                             SMOP__Object* object);
+                             SMOP__Object* object);               \
+  char* id;
 
 
 struct SMOP__ResponderInterface {
