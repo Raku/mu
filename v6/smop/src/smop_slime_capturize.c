@@ -61,7 +61,7 @@ void smop_slime_capturize_init() {
 }
 
 void smop_slime_capturize_destr() {
-  free(SMOP__SLIME__CurrentFrame);
+  free(SMOP__SLIME__Capturize);
 }
 
 SMOP__Object* SMOP__SLIME__Capturize_create(int invocant, int* positional, int* named, int target) {

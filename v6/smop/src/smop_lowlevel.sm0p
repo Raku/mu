@@ -129,6 +129,7 @@ void smop_lowlevel_destr() {
       fprintf(stderr,"[SMOP_LOWLEVEL_MEM_TRACE] Leaking variable in global destruction: %p\n",trace_list[i]);
     }
   }
+  free(trace_list);
 #endif
   free(SMOP__LOWLEVEL__Operators);
 }
@@ -198,11 +199,12 @@ SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* interpreter, SMOP__Responde
       SMOP__Object* continuation = NULL;
       $continuation = q:sm0p {
         ;
-        $value.DESTROYALL();
+        $value.DESTROYALL(|$value);
         SMOP__SLIME__CurrentFrame.forget();
         SMOP__LOWLEVEL__Operators.free(|$value);
         $interpreter.goto(|$current);
       };
+      if (current) SMOP_RELEASE(interpreter, current);
       SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__goto,  continuation);
     }
     return NULL;

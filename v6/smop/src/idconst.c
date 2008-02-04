@@ -65,12 +65,13 @@ void SMOP__NATIVE__idconst_free(SMOP__Object* value) {
   free(value);
 }
 
-SMOP__Object* SMOP__NATIVE__idconst_create(char* value) {
-  SMOP__Object* ret = calloc(1,sizeof(SMOP__Object*));
+SMOP__Object* SMOP__NATIVE__idconst_create(const char* value) {
+  SMOP__Object* ret = calloc(1,sizeof(SMOP__Object));
   assert(ret);
   ret->RI = SMOP__NATIVE__idconst_RI;
-  ret->data = calloc(1,strlen(value));
+  int size = strlen(value);
+  ret->data = calloc(1,size+1);
   assert(ret->data);
-  strcpy(ret->data, value);
+  strncpy(ret->data, value, size);
   return ret;
 }

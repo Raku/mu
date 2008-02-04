@@ -34,7 +34,7 @@ extern SMOP__Object* SMOP__NATIVE__bool_false;
 extern SMOP__Object* SMOP__NATIVE__capture;
 
 // create methods
-SMOP__Object*   SMOP__NATIVE__idconst_create(char* value);
+SMOP__Object*   SMOP__NATIVE__idconst_create(const char* value);
 SMOP__Object*   SMOP__NATIVE__bytes_create(char* value, int size);
 SMOP__Object*   SMOP__NATIVE__bit_create(int value);
 SMOP__Object*   SMOP__NATIVE__int_create(int value);

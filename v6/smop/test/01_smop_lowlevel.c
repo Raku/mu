@@ -71,7 +71,7 @@ int main(int argc, char** argv) {
   if (!intrp) {
     printf("not ");
   }
-  printf("ok 2 - got new interp successfully.\n");
+  printf("ok 2 - got new interp successfully %p.\n",intrp);
 
   SMOP_DISPATCH(intrp, ri, (SMOP__Object*)1, NULL);
 

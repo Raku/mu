@@ -40,7 +40,7 @@ void smop_native_int_init() {
 }
 
 void smop_native_int_destr() {
-  free(SMOP__SLIME__CurrentFrame);
+  free(SMOP__NATIVE__int);
 }
 
 SMOP__Object* SMOP__NATIVE__int_create(int value) {

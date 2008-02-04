@@ -48,6 +48,7 @@ void smop_native_bool_init() {
 }
 
 void smop_native_bool_destr() {
+  free(SMOP__NATIVE__bool_false);
   free(SMOP__NATIVE__bool_true);
   free(SMOP__NATIVE__bool);
 }

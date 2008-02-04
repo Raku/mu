@@ -11,9 +11,9 @@ open my $dstr, '>', 'src/idconst_destr_all.c' or die $!;
 
 while (<$file>) {
     chomp;
-    next unless /^extern SMOP__Object\* (\S+);.+\/\*\s(.+)\s\*\//;
+    next unless /^extern SMOP__Object\* (\S+);.+\/\*\s\"(.+)\"\s\*\//;
     print {$decl} "SMOP__Object* $1;\n";
-    print {$init} "$1 = SMOP__NATIVE__idconst_create( $2 );\n";
+    print {$init} "$1 = SMOP__NATIVE__idconst_create( \"$2\\0\" );\n";
     print {$dstr} "SMOP__NATIVE__idconst_free( $1 );\n";
 }
 

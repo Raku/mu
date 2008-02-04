@@ -154,6 +154,7 @@ static SMOP__Object* interpreter_message(SMOP__Object* interpreter,
     SMOP__Object* cont = ((interpreter_instance_struct*)invocant)->continuation;
     ((interpreter_instance_struct*)invocant)->continuation = target;
     smop_lowlevel_unlock(invocant);
+    
     if (cont) SMOP_RELEASE(interpreter,cont);
 
   } else if (identifier == SMOP__ID__setr) {
@@ -185,7 +186,7 @@ static SMOP__Object* interpreter_message(SMOP__Object* interpreter,
       ret = SMOP_DISPATCH(interpreter, SMOP_RI(cont), SMOP__ID__has_next,
                           SMOP__NATIVE__capture_create(interpreter, SMOP_REFERENCE(interpreter,cont), NULL, NULL));
     } else {
-      return SMOP__NATIVE__bool_false;
+      ret = SMOP__NATIVE__bool_false;
     }
 
   } else if (identifier == SMOP__ID__next) {
