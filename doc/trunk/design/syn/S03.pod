@@ -2791,7 +2791,7 @@ This can be useful when the unordered semantics of multiple dispatch
 are insufficient for defining the "pecking order" of code.  Note that
 you can bind to either a bare block or a pointy block.  Binding to a
 bare block conveniently leaves the topic in C<$_>, so the final form
-above is equivalent to a C<default>.  (Placeholders parameters may
+above is equivalent to a C<default>.  (Placeholder parameters may
 also be used in the bare block form, though of course their types
 cannot be specified that way.)
 
