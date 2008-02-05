@@ -228,37 +228,10 @@ On the LHS of assignment, those expressions incurs a scalar context.
 isScalarLValue :: Exp -> Bool
 isScalarLValue x = case x of
     Ann Parens _    -> False
-    Ann _ exp       -> isScalarLValue exp
-    Sym _ _ _ _ exp -> isScalarLValue exp
     Var var | SScalar <- v_sigil var -> True
     Syn "${}" _     -> True -- XXX - Change tp App("&prefix:<$>") later
     Syn "$::()" _   -> True
-    Syn "[]" [_, y] -> isSIMPLE y
-    Syn "{}" [_, y] -> isSIMPLE y
-    Val VList{}     -> False
-    Val{}           -> True
     _               -> False
-    where
-    isSIMPLE x = case unwrap x of
-        App (Var var) Nothing [y]
-            | C_prefix <- v_categ var
-            -> var `Set.member` coercePrefixOps
-                || (var `Set.member` simplePrefixOps && isSIMPLE y)
-            | C_postfix <- v_categ var
-            -> var `Set.member` simplePostfixOps && isSIMPLE y
-        App (Var var) (Just y) []
-            | C_prefix <- v_categ var
-            -> var `Set.member` coercePrefixOps
-                || (var `Set.member` simplePrefixOps && isSIMPLE y)
-            | C_postfix <- v_categ var
-            -> var `Set.member` simplePostfixOps && isSIMPLE y
-        App (Var var) Nothing [x, y]
-            | C_infix <- v_categ var
-            -> var `Set.member` simpleInfixOps && isSIMPLE x && isSIMPLE y
-        App (Var var) (Just x) [y]
-            | C_infix <- v_categ var
-            -> var `Set.member` simpleInfixOps && isSIMPLE x && isSIMPLE y
-        _               -> isScalarLValue x
 
 opSet :: VarCateg -> [String] -> Set Var
 opSet cat posts = Set.fromList $ map doMakeVar posts
