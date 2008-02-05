@@ -247,7 +247,11 @@ module *nf {
 }
 
 module *encoding {
-    sub EXPORTER(Str $enc) {
+    sub EXPORTER(Str $enc is copy) {
+        $enc.=lc;
+        $enc ~~ s:g/utf|\W//;
+        die "Unknown Encoding: $enc\n"
+            unless $enc eq any <8 16le 16be 32le 32be>;
         $?ENC ::= $enc;
     }
 }
@@ -314,7 +318,7 @@ multi *infix:<->(StrPos $sp is copy, StrLen $sl --> StrPos) {
 }
 
 class SubstrProxy {
-    has Str $.s;
+    has Str $.s is rw;
     has StrPos $.sp;
     has StrLen $.sl;
     # STORE and FETCH are per-level
@@ -381,14 +385,14 @@ class *Str is also {
             }
         }
         if defined @!as_bytes and defined $?ENC {
-            ...;
+            @!as_codes = @!as_bytes.pack($?ENC, 'U*').as_codes;
         }
         return @!as_codes;
     }
     our method as_bytes(--> Buf of int8) is rw is export {
         return @!as_bytes if defined @!as_bytes;
         if defined $?ENC {
-            ...;
+            @!as_bytes = self.unpack($?ENC, 'U*');
         }
         return @!as_bytes;
     }
