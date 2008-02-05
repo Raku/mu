@@ -11,6 +11,7 @@ static SMOP__Object* bool_message(SMOP__Object* interpreter,
                                      SMOP__Object* identifier,
                                      SMOP__Object* capture) {
   //todo
+  SMOP_RELEASE(interpreter,capture);
   return SMOP__NATIVE__bool_false;
 }
 

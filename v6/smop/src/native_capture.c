@@ -405,6 +405,7 @@ SMOP__Object*   SMOP__NATIVE__capture_delegate(SMOP__Object* interpreter,
     }
     nam[(n_named*2) + (n_o_named*2)] = NULL;
   }
-   
+
+  SMOP_RELEASE(interpreter,original_capture);
   return SMOP__NATIVE__capture_create(interpreter,invocant,pos,nam);
 }

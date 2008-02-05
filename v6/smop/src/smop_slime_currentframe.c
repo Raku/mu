@@ -18,7 +18,6 @@ static SMOP__Object* currentframe_message(SMOP__Object* interpreter,
     delegated = SMOP__NATIVE__capture_delegate(interpreter,
                                                frame,
                                                capture);
-    SMOP_RELEASE(interpreter, capture);
   } else {
     delegated = capture;
   }

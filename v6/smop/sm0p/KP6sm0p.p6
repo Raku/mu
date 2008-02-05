@@ -37,10 +37,10 @@ grammar sm0p is KindaPerl6::Grammar {
         [ <invocant> | '' ] <ws> <named> <ws> <positional> <ws> ')' <ws> ; <ws>
         { make 'SMOP_DISPATCH(interpreter, SMOP__SLIME__Node, SMOP__ID__new, '
           ~ ' SMOP__NATIVE__capture_create(interpreter, SMOP__SLIME__Node, NULL, (SMOP__Object*[]){'
-          ~ ' SMOP__ID__responder, (SMOP__Object*)SMOP_RI(' ~ $<responder> ~ '), '
-          ~ ' SMOP__ID__identifier, ' ~ $<identifier> ~ ', '
+          ~ ' SMOP__ID__responder, SMOP_REFERENCE(interpreter,(SMOP__Object*)SMOP_RI(' ~ $<responder> ~ ')), '
+          ~ ' SMOP__ID__identifier, SMOP_REFERENCE(interpreter,' ~ $<identifier> ~ '), '
           ~ ' SMOP__ID__capture, SMOP__NATIVE__capture_create(interpreter, '
-          ~ ($<invocant> ?? $<invocant> !! $<responder>) ~ ', '~ $<positional> ~', '~ $<named> ~') '
+          ~ 'SMOP_REFERENCE(interpreter,' ~ ($<invocant> ?? $<invocant> !! $<responder>) ~ '), '~ $<positional> ~', '~ $<named> ~') '
           ~ ' , NULL  }))' }
     };
 
@@ -49,8 +49,8 @@ grammar sm0p is KindaPerl6::Grammar {
         <ws> '|' <identifier2> <ws> ')' <ws> ; <ws>
         { make 'SMOP_DISPATCH(interpreter, SMOP__SLIME__Node, SMOP__ID__new, '
           ~ ' SMOP__NATIVE__capture_create(interpreter, SMOP__SLIME__Node, NULL, (SMOP__Object*[]){'
-          ~ ' SMOP__ID__responder, (SMOP__Object*)SMOP_RI(' ~ $<responder> ~ '), '
-          ~ ' SMOP__ID__identifier, ' ~ $<identifier> ~ ', '
+          ~ ' SMOP__ID__responder, SMOP_REFERENCE(interpreter,(SMOP__Object*)SMOP_RI(' ~ $<responder> ~ ')), '
+          ~ ' SMOP__ID__identifier, SMOP_REFERENCE(interpreter,' ~ $<identifier> ~ '), '
           ~ ' SMOP__ID__capture, ' ~ $<identifier2> 
           ~ ' , NULL  }))' }
     };
@@ -59,7 +59,7 @@ grammar sm0p is KindaPerl6::Grammar {
         <ws> <identifier> <ws> ';'
         { make 'SMOP_DISPATCH(interpreter, SMOP__SLIME__Node, SMOP__ID__new, '
           ~ ' SMOP__NATIVE__capture_create(interpreter, SMOP__SLIME__Node, NULL, (SMOP__Object*[]){'
-          ~ ' SMOP__ID__result, ' ~ $<identifier>
+          ~ ' SMOP__ID__result, SMOP_REFERENCE(interpreter,' ~ $<identifier> ~ ')'
           ~ ' , NULL}))' }
     };
 

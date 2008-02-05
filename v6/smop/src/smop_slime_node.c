@@ -154,8 +154,8 @@ static SMOP__Object* node_message(SMOP__Object* interpreter,
     SMOP__Object* capture = ((smop_slime_node_struct*)node)->capture;
     smop_lowlevel_unlock(node);
 
-    if (identifier && identifier->RI == SMOP__ID__new->RI)
-      fprintf(stderr,"[SMOP__SLIME__Node:DEBUG] eval %s.\n", (char*)(identifier->data));
+    //if (identifier && identifier->RI == SMOP__ID__new->RI)
+      //fprintf(stderr,"[SMOP__SLIME__Node:DEBUG] eval %s.\n", (char*)(identifier->data));
 
     if (responder) {
       ret = SMOP_DISPATCH(interpreter,responder,identifier,SMOP_REFERENCE(interpreter,capture));

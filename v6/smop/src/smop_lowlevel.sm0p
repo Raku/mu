@@ -78,6 +78,35 @@ void smop_mem_trace_del(void* address) {
 
 #endif
 
+typedef struct SMOP_LOWLEVEL_INTERNAL {
+  int ref_cnt;
+  pthread_rwlock_t* rwlock;
+} SMOP_LOWLEVEL_INTERNAL;
+
+
+SMOP__Object* smop_lowlevel_alloc(int size) {
+  SMOP__Object* y = calloc(1,size);
+  assert(y);
+  SMOP_LOWLEVEL_INTERNAL* internal = calloc(1,sizeof(SMOP_LOWLEVEL_INTERNAL));
+  assert(internal);
+  y->data = internal;
+  internal->ref_cnt = 1;
+  internal->rwlock = calloc(1,sizeof(pthread_rwlock_t));
+  assert(internal->rwlock);
+  assert(pthread_rwlock_init(internal->rwlock, NULL) == 0);
+#ifdef SMOP_LOWLEVEL_MEM_TRACE
+  smop_mem_trace_add(y);
+#endif
+  return y;
+}
+
+void smop_lowlevel_free(SMOP__Object* value) {
+  pthread_rwlock_destroy(((SMOP_LOWLEVEL_INTERNAL*)value->data)->rwlock);
+  free(((SMOP_LOWLEVEL_INTERNAL*)value->data)->rwlock);
+  free(value->data);
+  free(value);
+}
+
 
 SMOP__Object* SMOP__LOWLEVEL__Operators;
 
@@ -91,7 +120,7 @@ static SMOP__Object* lowlevelop_message(SMOP__Object* interpreter,
 #ifdef SMOP_LOWLEVEL_MEM_TRACE
     smop_mem_trace_del(capture);
 #endif
-    free(capture);
+    smop_lowlevel_free(capture);
   } else {
     SMOP_RELEASE(interpreter,capture);
   }
@@ -135,28 +164,6 @@ void smop_lowlevel_destr() {
   free(SMOP__LOWLEVEL__Operators);
 }
 
-typedef struct SMOP_LOWLEVEL_INTERNAL {
-  int ref_cnt;
-  pthread_rwlock_t* rwlock;
-} SMOP_LOWLEVEL_INTERNAL;
-
-
-SMOP__Object* smop_lowlevel_alloc(int size) {
-  SMOP__Object* y = calloc(1,size);
-  assert(y);
-  SMOP_LOWLEVEL_INTERNAL* internal = calloc(1,sizeof(SMOP_LOWLEVEL_INTERNAL));
-  assert(internal);
-  y->data = internal;
-  internal->ref_cnt = 1;
-  internal->rwlock = calloc(1,sizeof(pthread_rwlock_t));
-  assert(internal->rwlock);
-  assert(pthread_rwlock_init(internal->rwlock, NULL) == 0);
-#ifdef SMOP_LOWLEVEL_MEM_TRACE
-  smop_mem_trace_add(y);
-#endif
-  return y;
-}
-
 SMOP__Object* smop_lowlevel_refcnt_inc(SMOP__Object* interpreter, SMOP__ResponderInterface* ri, SMOP__Object* value) {
 #ifdef SMOP_LOWLEVEL_MEM_DEBUG
   fprintf(stderr,"[SMOP_LOWLEVEL_MEM_DEBUG] refcont_inc: %p\n",value);
@@ -191,8 +198,8 @@ SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* interpreter, SMOP__Responde
 #ifdef SMOP_LOWLEVEL_MEM_TRACE
       smop_mem_trace_del(value);
 #endif
-      free(value);
 
+      smop_lowlevel_free(value);
     } else {
       // This is where the continuation will be manipulated as described in the .h file.
       SMOP__Object* current = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__continuation,
