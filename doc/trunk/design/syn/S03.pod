@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 4 Feb 2008
+  Last Modified: 5 Feb 2008
   Number: 3
-  Version: 129
+  Version: 130
 
 =head1 Overview
 
@@ -2021,7 +2021,7 @@ See L</Chained comparisons> below.
 
 =item *
 
-The list (array) assignment operator now parses on the right like
+The list assignment operator now parses on the right like
 any other list operator, so you don't need parens on the right side of:
 
     @foo = 1, 2, 3;
@@ -2037,6 +2037,9 @@ A final C<*> throws away the rest of the list:
 
     ($a, *, $c) = 1, 2, 3;      # throw away the 2
     ($a, $b, $c, *) = 1..42;    # throw away 4..42
+
+(Within signature syntax, a bare C<$> can ignore a single argument as well,
+and a bare C<*@> can ignore the remaining arguments.)
 
 List assignment offers the list on the right to each container on the
 left in turn, and each container may take one or more elements from the
@@ -2058,9 +2061,17 @@ remaining values, and can never produce such a warning.  (It will,
 however, leave any subsequent lvalue containers with no elements,
 just as in Perl 5.)
 
+The left side is evaluated completely for its sequence of containers before
+any assignment is done.  Therefore this:
+
+    my $a = 0; my @b;
+    ($a, @b[$a]) = 1, 2;
+
+assigns 2 to @b[0], not @b[1].
+
 =item *
 
-The item (scalar) assignment operator expects a single expression with
+The item assignment operator expects a single expression with
 precedence tighter than comma, so
 
     loop ($a = 1, $b = 2; ; $a++, $b++) {...}
@@ -2068,7 +2079,7 @@ precedence tighter than comma, so
 works as a C programmer would expect.   The term on the right of the
 C<=> is always evaluated in item context.
 
-The syntactic distinction between scalar and list assignment is similar
+The syntactic distinction between item and list assignment is similar
 to the way Perl 5 defines it, but has to be a little different because
 we can no longer decide the nature of an inner subscript on the basis
 of the outer sigil.  So instead, item assignment is restricted to
