@@ -25,6 +25,7 @@ static SMOP__Object* custom_MESSAGE(SMOP__Object* stack,
     printf("ok 4 - method4 called.\n");
   } else if (identifier == SMOP__ID__DESTROYALL) {
     printf("ok 5 - DESTROYALL called.\n");
+    return NULL;
   } else {
     printf("not ok - unknown method called %p.\n",identifier);
   }
@@ -64,8 +65,11 @@ int main(int argc, char** argv) {
     $obj.$method2();
     $obj.$method3();
     $obj.$method4();
+    $interpreter.goto(|SMOP__NATIVE__bool_false);
   };
    
+  SMOP_RELEASE(interpreter,obj);
+
   SMOP_DISPATCH(interpreter, SMOP_RI(intrp),
                 SMOP__ID__goto,
                 node);
@@ -75,16 +79,6 @@ int main(int argc, char** argv) {
                                                              SMOP_REFERENCE(intrp,intrp),
                                                              NULL, NULL));
 
-  SMOP_DISPATCH(interpreter, SMOP_RI(intrp),
-                SMOP__ID__goto,
-                SMOP__NATIVE__bool_false);
-
-  SMOP_RELEASE(interpreter,obj);
-
-  SMOP_DISPATCH(interpreter, SMOP_RI(intrp),
-                SMOP__ID__loop, SMOP__NATIVE__capture_create(intrp,
-                                                             SMOP_REFERENCE(intrp,intrp),
-                                                             NULL, NULL));
 
   SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,intrp);
 
