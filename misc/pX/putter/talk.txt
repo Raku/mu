@@ -7,8 +7,7 @@ mumble - Perl 6 bootstrap on Ruby - a Proposal with Tests
 mumble - Perl 6 bootstrap on Ruby - a Proposal with Code
 dugnad
 
-Or talko, for me.  I so very much don't want to be doing this.
-But -Ofun isn't enough.  Duty remains.
+Why?
 
 ~130 M kids will be born this year.  Almost all will attend some primary school.
 We determine _now_ what languages that software will be written in.
@@ -78,15 +77,16 @@ I invite you to come, and look it over.
 Commit bits are free for the asking.  
 Let's show the magic TDD and ruby can weave.
 
-But I sooo don't want to be doing this. :/
-That can't be allowed to interfere with creating a -Ofun project team.
-Sigh.
+I am unsure how much interest there is in this project,
+and thus whether I will pursue it.  If you are at all
+interested, please let me know.
 
+I may putter a bit with things it would be nice to have regardless of
+whether this project kicks off.  Eg:
+ STD.pm to foo("bar","hee") converter.
 
 Next steps:
  kp6 -Cast-yaml - low hanging fruit, though not critical path.
- STD.pm to foo("bar","hee") converter.
-  Default to p5-compatible output.  --ruby argument.
  Repackage yare tests.
  Translate yare to ruby.
   Needs to basically work, but regressions ok.
