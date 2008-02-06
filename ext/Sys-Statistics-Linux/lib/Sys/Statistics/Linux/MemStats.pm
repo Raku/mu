@@ -200,5 +200,3 @@ method get () {
 
     return %meminfo;
 }
-
-1;

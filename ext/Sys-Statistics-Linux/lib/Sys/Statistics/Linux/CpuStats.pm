@@ -283,5 +283,3 @@ my method deltas () {
         %scpu.delete('softirq') if %scpu.exists('softirq');
     }
 }
-
-1;

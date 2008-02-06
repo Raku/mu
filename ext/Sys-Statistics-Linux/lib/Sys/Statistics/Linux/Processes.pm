@@ -585,5 +585,3 @@ my method calsec ($s is copy) {
     $s = sprintf('%d', $s);
     return ($d, $h, $m, $s);
 }
-
-1;

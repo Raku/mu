@@ -188,5 +188,3 @@ method get () {
 
     return %stats;
 }
-
-1;

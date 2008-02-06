@@ -166,5 +166,3 @@ method get () {
     $sockfh.close;
     return %stats;
 }
-
-1;

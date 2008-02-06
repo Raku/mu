@@ -300,5 +300,3 @@ my method uptime () {
     $upfh.close;
     return $up;
 }
-
-1;

@@ -166,5 +166,3 @@ method get () {
     $diskfh.close;
     return %disk_usage;
 }
-
-1;

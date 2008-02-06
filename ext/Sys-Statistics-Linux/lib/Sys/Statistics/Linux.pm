@@ -234,7 +234,7 @@ use v6-alpha;
 #use POSIX qw(strftime);
 #use UNIVERSAL;
 #use UNIVERSAL::require;
-use lib '/home/bloonix/pugs/ext/Sys-Statistics-Linux/lib';
+#use lib '/home/bloonix/pugs/ext/Sys-Statistics-Linux/lib';
 
 sub croak (*@m) { die @m } # waiting for Carp::croak
 
@@ -564,5 +564,3 @@ method get () {
 #
 #   return undef;
 #}
-
-1;

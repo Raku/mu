@@ -140,5 +140,3 @@ method get () {
     $avgfh.close;
     return %stat;
 }
-
-1;
