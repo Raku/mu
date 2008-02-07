@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 5 Feb 2008
+  Last Modified: 7 Feb 2008
   Number: 6
-  Version: 92
+  Version: 93
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -2842,5 +2842,35 @@ or C<--topart> for the second parameter.
 If a switch of the form C<-abc> cannot be matched against any
 particular parameter, an attempt will be made to match it as if it
 had been written C<-a -b -c>.
+
+=head2 Implementation note on autothreading of only subs
+
+The natural way to implement autothreading for multi subs is to
+simply have the junctional signatures (the ones that can accept
+Objects/Junctions as well as Any parameters) match more loosely than
+the non-autothreading versions, and let multiple dispatch find the
+appropriate sub based on the signature.  Those generic routines
+then end up redispatching to the more specific ones.
+
+On the other hand, the natural implementation of only subs is to
+call the sub in question directly for efficiency (and maybe even
+inline it in some cases).  That efficiency is, after all, the main
+reason for not just making all subs multi.  However, this direct
+call conflicts with the desire to allow autothreading.  It might
+be tempting to simply make everything multi dispatch underneath,
+and then say that the "only" declaration merely means that you get
+an error if you redeclare.  And maybe that is a valid approach if
+the multiple dispatch mechanism is fast enough.
+
+However, a direct call still needs to bind its arguments to its
+parameters correctly, and it has to handle the case of failure to
+bind somehow.  So it is also possible to implement autothreading
+of only subs based on failover from the binding failure.  This could
+either be a one-shot failover followed by a conversion to a multi call,
+or it could failover every time you try to autothread. If we assume
+that junctional processing is likely to be fairly heavyweight most of
+the time compared to the cost of failing to bind, that tends to argue
+for failing over every time.  This is also more conducive to inlining,
+since it's difficult to rewrite inlined calls.
 
 =for vim:set expandtab sw=4:
