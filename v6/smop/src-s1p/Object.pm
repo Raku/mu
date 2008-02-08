@@ -180,7 +180,4 @@ Creates a clone of the current object.
 
 }
 
-
-=back
-
 =cut
