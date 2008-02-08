@@ -907,7 +907,7 @@ extract a normal value will throw its associated exception immediately.
 (The C<Failure> may, however, be stored in any container whose type
 allows the C<Failure> role to be mixed in.)  The C<.handled> method
 returns false on failures that have not been handled.  It returns true for
-handled exceptions and for every other kind of object. (That is,
+handled exceptions and for all non-C<Failure> objects. (That is,
 it is an C<Object> method, not a C<Failure> method.  Only C<Failure> objects
 need to store the actual status however; other types just return C<True>.)
 
