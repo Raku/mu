@@ -46,7 +46,7 @@ call the initialization code from least-derived to most-derived.
 
   method bless($prototype: $candidate?, *@protoobjects, *%initialize) {
       $candidate //= $prototype.CREATE();
-      my $object = $prototype.^^bless($candidate);
+      my $object = $prototype.^!bless($candidate);
       $object.BUILDALL(|@protoobjects, |%initialize);
       return $object;
   }
@@ -66,7 +66,7 @@ representation or the default one.
       # TODO: we don't really support creating alternative
       # representations right now. But one can always call CREATE on
       # another representation by himself and call bless with it.
-      return $prototype.^^CREATE()
+      return $prototype.^!CREATE()
   }
 
 =over
@@ -85,25 +85,25 @@ This will traverse the hierarchy calling BUILD in each class.
   }
 
   my method !buildall_recurse($object: $prototype, *@protoobjects, *%initialize) {
-      if (my $super = $prototype.^^get_direct_prototype()) {
+      if (my $super = $prototype.^!get_direct_prototype()) {
           $object!buildall_recurse($super, |@protoobjects, |%initalize);
       } else {
-          if (my $count = $prototype.^^isa_count()) {
+          if (my $count = $prototype.^!isa_count()) {
               my $i = 0;
               while ($i < $count) {
-                  $object!buildall_recurse($prototype.^^isa_at($count), |@protoobjects, |%initialize)
+                  $object!buildall_recurse($prototype.^!isa_at($count), |@protoobjects, |%initialize)
                   $count++;
               }
           }
-          if (my $count = $prototype.^^role_count()) {
+          if (my $count = $prototype.^!role_count()) {
               my $i = 0;
               while ($i < $count) {
-                  $object!buildall_recurse($prototype.^^role_at($count), |@protoobjects, |%initialize)
+                  $object!buildall_recurse($prototype.^!role_at($count), |@protoobjects, |%initialize)
                   $count++;
               }
           }
       }
-      $prototype.^^initialize_instance_storage($object);
+      $prototype.^!initialize_instance_storage($object);
       # TODO: test if any of the protoobjects are of the same type of
       # the current prototype, and if that's the case, translate it into
       # named arguments.
@@ -122,25 +122,25 @@ This will traverse the hierarchy calling DESTROY in each class.
 
   method DESTROYALL($object:) {
       $object!destroyall_recurse($object);
-      $object.^^DESTROY();
+      $object.^!DESTROY();
   }
 
   my method !destroyall_recurse($object: $prototype) {
       $prototype.?DESTROY($object: );
-      $prototype.^^destroy_instance_storage($object);
-      if (my $super = $prototype.^^get_direct_prototype()) {
+      $prototype.^!destroy_instance_storage($object);
+      if (my $super = $prototype.^!get_direct_prototype()) {
           $object!destroyall_recurse($super);
       } else {
-          if (my $count = $prototype.^^isa_count()) {
+          if (my $count = $prototype.^!isa_count()) {
               while ($count >= 0) {
                   $count--;
-                  $object!destroyall_recurse($prototype.^^isa_at($count))
+                  $object!destroyall_recurse($prototype.^!isa_at($count))
               }
           }
-          if (my $count = $prototype.^^role_count()) {
+          if (my $count = $prototype.^!role_count()) {
               while ($count >= 0) {
                   $count--;
-                  $object!destroyall_recurse($prototype.^^role_at($count))
+                  $object!destroyall_recurse($prototype.^!role_at($count))
               }
           }
       }
@@ -174,7 +174,7 @@ Creates a clone of the current object.
 =cut
 
   method clone($object: ) {
-      return $object.^^clone();
+      return $object.^!clone();
   }
 
 
