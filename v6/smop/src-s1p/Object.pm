@@ -28,7 +28,7 @@ initializes it with the given named parameters and protoobjects.
 
   method new($prototype: *@protoobjects, *%initialize) {
       return $prototype.bless($prototype.CREATE(),
-                            |@protobjects,
+                            |@protoobjects,
                             |%initialize);
   };
 
