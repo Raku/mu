@@ -64,7 +64,8 @@ representation or the default one.
 
   method CREATE($prototype: :$repr) {
       # TODO: we don't really support creating alternative
-      # representations right now.
+      # representations right now. But one can always call CREATE on
+      # another representation by himself and call bless with it.
       return $prototype.^^CREATE()
   }
 
@@ -83,18 +84,18 @@ This will traverse the hierarchy calling BUILD in each class.
       return $object!buildall_recurse($object, @protoobjects, %initialize);
   }
 
-  my method buildall_recurse($object: $prototype, *@protoobjects, *%initialize) {
+  my method !buildall_recurse($object: $prototype, *@protoobjects, *%initialize) {
       if (my $super = $prototype.^^get_direct_prototype()) {
           $object!buildall_recurse($super, |@protoobjects, |%initalize);
       } else {
-          if (my $count = $prototype.^^isa_cout()) {
+          if (my $count = $prototype.^^isa_count()) {
               my $i = 0;
               while ($i < $count) {
                   $object!buildall_recurse($prototype.^^isa_at($count), |@protoobjects, |%initialize)
                   $count++;
               }
           }
-          if (my $count = $prototype.^^role_cout()) {
+          if (my $count = $prototype.^^role_count()) {
               my $i = 0;
               while ($i < $count) {
                   $object!buildall_recurse($prototype.^^role_at($count), |@protoobjects, |%initialize)
@@ -124,19 +125,19 @@ This will traverse the hierarchy calling DESTROY in each class.
       $object.^^DESTROY();
   }
 
-  my method destroyall_recurse($object: $prototype) {
+  my method !destroyall_recurse($object: $prototype) {
       $prototype.?DESTROY($object: );
       $prototype.^^destroy_instance_storage($object);
       if (my $super = $prototype.^^get_direct_prototype()) {
           $object!destroyall_recurse($super);
       } else {
-          if (my $count = $prototype.^^isa_cout()) {
+          if (my $count = $prototype.^^isa_count()) {
               while ($count >= 0) {
                   $count--;
                   $object!destroyall_recurse($prototype.^^isa_at($count))
               }
           }
-          if (my $count = $prototype.^^role_cout()) {
+          if (my $count = $prototype.^^role_count()) {
               while ($count >= 0) {
                   $count--;
                   $object!destroyall_recurse($prototype.^^role_at($count))
@@ -161,6 +162,21 @@ named arguments.
           $object.?"$key" = $initialize($value);
       }
   }
+
+=over
+
+=item method clone()
+
+Creates a clone of the current object.
+
+=back
+
+=cut
+
+  method clone($object: ) {
+      return $object.^^clone();
+  }
+
 
 }
 
