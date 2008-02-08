@@ -65,7 +65,6 @@ int main(int argc, char** argv) {
     $obj.$method2();
     $obj.$method3();
     $obj.$method4();
-    $interpreter.goto(|SMOP__NATIVE__bool_false);
   };
    
   SMOP_RELEASE(interpreter,obj);

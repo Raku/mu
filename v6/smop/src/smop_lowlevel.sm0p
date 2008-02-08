@@ -187,7 +187,8 @@ SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* interpreter, SMOP__Responde
     ((SMOP_LOWLEVEL_INTERNAL*)value->data)->ref_cnt = 999; // force it as to not getting here again...
     smop_lowlevel_unlock(value);
 
-    if ((SMOP__Object*)value->RI == SMOP__INTPTR__InterpreterInstance ||
+    if (interpreter == SMOP__INTPTR__InterpreterInstance ||
+        (SMOP__Object*)value->RI == SMOP__INTPTR__InterpreterInstance ||
         (SMOP__Object*)value->RI == SMOP__SLIME__Frame ||
         (SMOP__Object*)value->RI == SMOP__SLIME__Node ||
         (SMOP__Object*)value->RI == SMOP__SLIME__Capturize ||
