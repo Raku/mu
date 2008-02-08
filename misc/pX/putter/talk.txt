@@ -55,7 +55,7 @@ needs of it.
 
 Perl 6 has be languishing without an active or bootstrapped
 implementation for a couple of years now.  In hindsight, all of the
-pieces to create one have existed for almost a year now.  What's been
+pieces to create one have existed for some months now.  What's been
 needed is finding a way to fit them together, and a push to get it
 done.
 
