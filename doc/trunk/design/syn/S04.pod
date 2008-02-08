@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 22 Jan 2008
+  Last Modified: 8 Feb 2008
   Number: 4
-  Version: 63
+  Version: 64
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -900,10 +900,16 @@ for a value out of range, or the function fails somehow.  Perl 6 has
 C<Failure> objects, any of which refers to an unthrown C<Exception> object in
 C<$!> and knows whether it has been handled or not.
 
-If you test a C<Failure> for C<.defined> or C<.true>, it causes
-C<$!> to mark the exception as I<handled>, and acts as a harmless C<Undef>
-value thereafter.  Any other use of the C<Failure> will throw its associated
-exception immediately.
+If you test a C<Failure> for C<.defined> or C<.true>, it causes C<$!>
+to mark the exception as I<handled>; the exception acts as a relatively harmless
+undefined value thereafter.  Any other use of the C<Failure> object to
+extract a normal value will throw its associated exception immediately.
+(The C<Failure> may, however, be stored in any container whose type
+allows the C<Failure> role to be mixed in.)  The C<.handled> method
+returns false on failures that have not been handled.  It returns true for
+handled exceptions and for every other kind of object. (That is,
+it is an C<Object> method, not a C<Failure> method.  Only C<Failure> objects
+need to store the actual status however; other types just return C<True>.)
 
 Because the contextual variable C<$!> contains all exceptions collected in the
 current lexical scope, saying C<die $!> will throw all exceptions,
