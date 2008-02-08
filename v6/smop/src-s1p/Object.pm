@@ -46,7 +46,7 @@ call the initialization code from least-derived to most-derived.
 
   method bless($prototype: $candidate?, *@protoobjects, *%initialize) {
       $candidate //= $prototype.CREATE();
-      my $object = $prototype.^^bless($candidate);
+      my $object = $prototype.^bless($candidate);
       $object.BUILDALL(|@protoobjects, |%initialize);
       return $object;
   }
