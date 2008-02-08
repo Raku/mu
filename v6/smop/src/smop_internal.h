@@ -12,6 +12,7 @@
      smop_interpreter_init();         \
      smop_native_capture_init();      \
      smop_native_int_init();          \
+     smop_native_uint_init();         \
      smop_native_bool_init();         \
      smop_slime_frame_init();         \
      smop_slime_currentframe_init();  \
@@ -24,6 +25,7 @@
      smop_slime_currentframe_destr(); \
      smop_slime_frame_destr();        \
      smop_native_int_destr();         \
+     smop_native_uint_destr();        \
      smop_native_bool_destr();        \
      smop_native_capture_destr();     \
      smop_interpreter_destr();        \
@@ -48,5 +50,7 @@ void smop_native_bool_init();
 void smop_native_bool_destr();
 void smop_native_int_init();
 void smop_native_int_destr();
+void smop_native_uint_init();
+void smop_native_uint_destr();
 
 #endif

@@ -8,7 +8,7 @@ AM_LDFLAGS = --no-undefined
 lib_LTLIBRARIES = libsmop.la
 libsmop_la_LIBADD = -lpthread
 libsmop_la_SOURCES = smop_lowlevel.sm0p idconst.c						\
-	native_bool.c native_capture.c native_int.c							\
+	native_bool.c native_capture.c native_int.c	native_uint.c			\
 	smop.c smop_internal.h smop_interpreter.c							\
     smop_slime_capturize.c smop_slime_currentframe.c smop_slime_frame.c	\
     smop_slime_node.c
