@@ -159,7 +159,7 @@ named arguments.
 
   submethod BUILD($object: *%initialize) {
       for (%initialize.keys) -> $key {
-          $object.?"$key" = $initialize($value);
+          $object.?"$key" = %initialize{$key};
       }
   }
 
