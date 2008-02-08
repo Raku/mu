@@ -1,4 +1,4 @@
-'v6' is a Perl 6 compiler written in plain-perl6.
+'v6' is a Perl 6 compiler written in plain perl6.
 
 This is not the perl5 v6-alpha, see perl5/Pugs-Compiler-Perl6 for that.
 
@@ -7,10 +7,9 @@ There are currently 3 active subprojects:
 
 - v6-MiniPerl6 is a subset of Perl 6 used to bootstrap the full Perl 6.
 
-- v6-KindaPerl6 is a full Perl 6 implementation, currently written mostly in MiniPerl6
+- v6-KindaPerl6 is a full Perl 6 implementation, currently written mostly in MiniPerl6.
 
-- yap6 is a C implementation of the Perl 6 runtime
+- smop (formerly yap6) is a C implementation of the Perl 6 runtime.
 
 
 Inactive projects are under misc/
-
