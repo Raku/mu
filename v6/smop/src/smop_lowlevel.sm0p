@@ -192,7 +192,8 @@ SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* interpreter, SMOP__Responde
         (SMOP__Object*)value->RI == SMOP__SLIME__Node ||
         (SMOP__Object*)value->RI == SMOP__SLIME__Capturize ||
         (SMOP__Object*)value->RI == SMOP__NATIVE__capture ||
-        (SMOP__Object*)value->RI == SMOP__NATIVE__int) {
+        (SMOP__Object*)value->RI == SMOP__NATIVE__int ||
+        (SMOP__Object*)value->RI == SMOP__NATIVE__uint) {
 
       SMOP_DISPATCH(interpreter, SMOP_RI(value), SMOP__ID__DESTROYALL, value);
 #ifdef SMOP_LOWLEVEL_MEM_TRACE
