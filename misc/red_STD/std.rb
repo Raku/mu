@@ -11,9 +11,93 @@
 #
 require 'prelude'
 
+
+
 class Perl < Grammar
-    LOOSESTH = {:prec=>"a=!"}
+    attr_accessor :ws_from,:ws_to
+
+    def _TOP; _UNIT( $env_vars[:unitstopper] || "_EOS" ); end
+
+    module PrecOp
+        def precop_mumble(m)
+            defaults.each{|k,v| m[k] = v if not m.key? k }
+            $env_vars[:thisopH][:top] = m;
+            if not m.key?(:transparent)
+                $env_vars[:thisopH][:prec] = m[:prec];
+                $env_vars[:thisopH][:assoc] = m[:assoc];
+            end
+            return m;
+        end
+    end
+    prec_op(:hyper             ,{ :transparent =>1                           })
+    prec_op(:term              ,{ :prec =>"z="                               })
+    prec_op(:methodcall        ,{ :prec =>"y="                               })
+    prec_op(:autoincrement     ,{ :prec =>"x="                               })
+    prec_op(:exponentiation    ,{ :prec =>"w=", :assoc =>:right, :assign =>1 })
+    prec_op(:symbolic_unary    ,{ :prec =>"v="                               })
+    prec_op(:multiplicative    ,{ :prec =>"u=", :assoc =>:left,  :assign =>1 })
+    prec_op(:additive          ,{ :prec =>"t=", :assoc =>:left,  :assign =>1 })
+    prec_op(:replication       ,{ :prec =>"s=", :assoc =>:left,  :assign =>1 })
+    prec_op(:concatenation     ,{ :prec =>"r=", :assoc =>:left,  :assign =>1 })
+    prec_op(:junctive_and      ,{ :prec =>"q=", :assoc =>:list,  :assign =>1 })
+    prec_op(:junctive_or       ,{ :prec =>"p=", :assoc =>:list,  :assign =>1 })
+    prec_op(:named_unary       ,{ :prec =>"o=",                              })
+    prec_op(:nonchaining       ,{ :prec =>"n=", :assoc =>:non                })
+    prec_op(:chaining          ,{ :prec =>"m=", :assoc =>:chain, :bool =>1   })
+    prec_op(:tight_and         ,{ :prec =>"l=", :assoc =>:left,  :assign =>1 })
+    prec_op(:tight_or          ,{ :prec =>"k=", :assoc =>:left,  :assign =>1 })
+    prec_op(:conditional       ,{ :prec =>"j=", :assoc =>:right,             })
+    prec_op(:item_assignment   ,{ :prec =>"i=", :assoc =>:right              })
+    prec_op(:loose_unary       ,{ :prec =>"h=",                              })
+    prec_op(:comma             ,{ :prec =>"g=", :assoc =>:list,              })
+    prec_op(:list_infix        ,{ :prec =>"f=", :assoc =>:list,  :assign =>1 })
+    prec_op(:list_assignment   ,{ :prec =>"i=", :sub =>"e=", :assoc =>:right })
+    prec_op(:list_prefix       ,{ :prec =>"e=",                              })
+    prec_op(:loose_and         ,{ :prec =>"d=", :assoc =>:left,  :assign =>1 })
+    prec_op(:loose_or          ,{ :prec =>"c=", :assoc =>:left,  :assign =>1 })
+    prec_op(:LOOSEST           ,{ :prec =>"a=!",                             })
+    prec_op(:terminator        ,{ :prec =>"a=", :assoc =>:list               })
     LOOSESTS = "a=!"
+
+    proto_token_simple('category')
+    proto_token_simple('sigil')
+    proto_token_simple('twigil')
+    proto_token_simple('special_variable')
+    proto_token_simple('version')
+    proto_token_simple('term')
+    proto_token_simple('quote')
+    proto_token_defequiv('prefix','symbolic_unary')
+    proto_token_defequiv('infix','additive')
+    proto_token_defequiv('postfix','autoincrement')
+    proto_token_endsym('dotty',' <.unsp>? ')
+    proto_token_simple('circumfix')
+    proto_token_simple('postcircumfix')
+    proto_token_simple('regex_metachar')
+    proto_token_simple('regex_backslash')
+    proto_token_simple('regex_assertion')
+    proto_token_simple('regex_mod_internal')
+    proto_token_simple('quote_mod')
+    proto_token_simple('q_backslash')
+    proto_token_simple('qq_backslash')
+    proto_token_endsym('trait_verb',' \s+ <nofat> ')
+    proto_token_endsym('trait_auxiliary',' \s+ <nofat> ')
+    proto_token_gtgt_nofat('type_declarator')
+    proto_token_gtgt_nofat('scope_declarator')
+    proto_token_gtgt_nofat('package_declarator')
+    proto_token_gtgt_nofat('routine_declarator')
+    proto_rule_gtgt_nofat('statement_prefix')
+    proto_rule_endsym('statement_control',' <nofat> <?before \s | \'#\'> ')
+    proto_rule_gtgt_nofat('statement_mod_cond')
+    proto_rule_gtgt_nofat('statement_mod_loop')
+    proto_token_simple('infix_prefix_meta_operator')
+    proto_token_simple('infix_postfix_meta_operator')
+    proto_token_simple('infix_circumfixfix_meta_operator')
+    proto_token_simple('postfix_prefix_meta_operator')
+    proto_token_simple('prefix_postfix_meta_operator')
+    proto_token_simple('prefix_circumfix_meta_operator')
+
+    proto_token_simple('terminator') #R added
+
 
     def dot_ws
         true
@@ -24,21 +108,35 @@ class Perl < Grammar
             infix_prefix_meta_operator || infix_circumfix_meta_operator
     end
 
-    ## I'm unclear on what infix() is, and thus on how to get from expect_infix() to _EXPR().
     def prefix; false; end
     def prefix_circumfix_meta_operator; false; end
     def expect_postfix; false; end
     def adverbs; false; end
 
+    ## term
+    #...missing...
+    def_tokens_simple :infix,:methodcall,%w{ . }
+    def_tokens_simple :postfix,:methodcall,%w{ -> }
+    def_tokens_simple :postfix,:autoincrement,%w{ ++ -- }
+    def_tokens_simple :prefix,:autoincrement,%w{ ++ -- }
+    def_tokens_simple :infix,:exponentiation,%w{ ** }
+    def_tokens_simple :prefix,:symbolic_unary,%w{ ! + - ~ ? = * ** ~^ +^ ?^ ^ | }
+    def_tokens_simple :infix,:multiplicative,%w{ * / % +& +< << >> +> ~&> ~< ~> }
+    def_tokens_simple :infix,:additive,%w{ + - +| +^ ~| ~^ ?| ?^ }
+    #...missing...
+    def_tokens_simple :infix,:loose_and,%w{ and andthen }
+    def_tokens_simple :infix,:loose_or,%w{ or xor orelse }
+    def_tokens_before :terminator,:terminator,%w{ ; <== ==> --> ) ] \} !! }
 
-    ## regex - ##Q why is this a regex?
+
+    #R regex - ##Q why is this a regex?
     def stdstopper
         (@scanner.eos? ||
-##         terminator || statement_mod_cond || statement_mod_loop ||
-##         cent.pos == env[:endstmt] ||
-##         cent.pos == env[:endargs]
-##         #    | <$+unitstopper> ##?
-false ##
+#R         terminator || statement_mod_cond || statement_mod_loop ||
+#R         cent.pos == env[:endstmt] ||
+#R         cent.pos == env[:endargs]
+#R         #    | <$+unitstopper> ##?
+false #R
          )
     end
 
@@ -46,14 +144,14 @@ false ##
     def push(a,e);a.push(e);end
     def reverse(a);a.reverse;end
     def item(h);raise "what does item do?";end
-    def _EXPR(seenS, preclimH=nil, stopS=nil, *fateA) ## Args reordered!!!!! ########
-        preclimH ||= LOOSESTH
+    def _EXPR(seenS, preclimH=nil, stopS=nil, *fateA) #R Args reordered!
+        preclimH ||= HLOOSEST
         stopS ||= method(:stdstopper)
 
-        $env.scope_enter(:inquoteS,:prevopS,:thisopH);
+        $env_vars.scope_enter(:inquoteS,:prevopS,:thisopH);
         
         my preclimS = preclimH[:prec];
-        $env[:inquoteS] = 0
+        $env_vars[:inquoteS] = 0
         #    my terminatorA = before(lambda{|s| stop(s) } );
         #    return () if not terminatorA.empty? and terminatorA[0].bool;
         termstackA = []
@@ -65,7 +163,7 @@ false ##
         if seenS 
             hereS = seenS;
         else 
-            my tA = expect_term();
+            my tA = [expect_term()];
             hereS = tA[0];
         end
         push termstackA, hereS;
@@ -123,8 +221,8 @@ false ##
             my tS = terminatorA[0];
             break if tS and terminatorA[0].bool;
             thisopH = {}
-            #        my infixA = hereS.expect_tight_infix(preclimS);
-            my infixA = hereS.expect_infix();
+            #        my infixA = [hereS.expect_tight_infix(preclimS)];
+            my infixA = [hereS.expect_infix()];
             my infixS = infixA[0];
             hereS = infixS;
         
@@ -161,19 +259,19 @@ false ##
                 end
             end
             push opstackA, item(thisopH);
-            my terminatorA = hereS.before(lambda{|s| stop(s) } );
+            my terminatorA = [hereS.before(lambda{|s| stop(s) } )];
             if not terminatorA.empty? and terminatorA[0].bool 
                 hereS.panic("#{infixS.perl()} is missing right term");
             end
             thisopH = {}
-            my tA = hereS.expect_term();
+            my tA = [hereS.expect_term()];
             hereS = tA[0];
             push termstackA, hereS;
             say "after push: ", termstackA.length;
         end
         reduce() while termstackA.length > 1;
         termstackA == 1 or hereS.panic("Internal operator parser error, termstack == #{termstackA.length}");
-        $env.scope_leave
+        $env_vars.scope_leave
         return termstackA[0];
     end
 
@@ -208,8 +306,8 @@ false ##
     end
     
     def noun
-        ##(pair || package_declarator || scope_declarator || plurality_declarator ||
-        ## routine_declarator || regex_declarator || type_declarator || circumfix ||
+        #R (pair || package_declarator || scope_declarator || plurality_declarator ||
+        #R  routine_declarator || regex_declarator || type_declarator || circumfix ||
         ( variable || value || subcall || capterm || sigterm || term || statement_prefix)
     end
     def variable; false; end
@@ -232,6 +330,7 @@ end
 
 p Perl.new(('42')).noun()
 p Perl.new(('42')).expect_term()
+p Perl.new(('+')).infix()
 p Perl.new(('42'))._EXPR(false)
 
 say "Starting...";

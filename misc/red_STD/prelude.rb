@@ -115,17 +115,86 @@ class Grammar
     end
   end
 
+
+  def self.prec_op(*a)
+  end
+  def self.proto_token_simple(name)
+    _token_category(name)
+  end
+  def self.proto_token_defequiv(name,other)
+    _token_category(name)
+  end
+  def self.proto_token_endsym(name,pat)
+    _token_category(name)
+  end
+  def self.proto_rule_endsym(name,pat)
+    _token_category(name)
+  end
+  def self.proto_token_gtgt_nofat(name)
+    _token_category(name)
+  end
+  def self.proto_rule_gtgt_nofat(name)
+    _token_category(name)
+  end
+  def self._token_category(name)
+    eval "@@#{name} = RxHash.new"
+    eval "def #{name}; p @@#{name}; @@#{name}.longest_token_match(@scanner); end"
+  end
+
+  def self.def_tokens_simple(fix,type,syms)
+    syms.each{|sym| _token(fix,type,sym) }
+  end
+  def self.def_tokens_before(fix,type,syms)
+    syms.each{|sym| _token(fix,type,sym) }
+  end
+  def self._token(fix,type,sym)
+    h = eval "@@#{fix}"
+    h[Regexp.new(Regexp.quote(sym))] = nil
+  end
 end
 
-class Env
+class EnvVars
+  def initialize
+    @stack = []
+  end
   def scope_enter(*vars)
+    @stack.unshift({})
+    vars.each{|var|def_var(var)}
   end
   def scope_leave
+    @stack.shift or raise "bug"
+  end
+  def def_var(var)
+    @stack[-1][var] = nil
+  end
+  def _find_defining_env(k)
+    @stack.each{|e| return e if e.key? k}
+    nil
   end
   def [](k)
+    e = _find_defining_env(k)
+    return nil if not e
+    e[k]
   end
   def []=(k,v)
+    e = _find_defining_env(k)
+    raise("Environment variable #{k} was not declared") if not e
+    e[k] = v
   end
 end
 
-$env = Env.new
+$env_vars = EnvVars.new
+
+
+class RxHash < Hash
+  def longest_token_match(scanner)
+    @cache ||= keys.sort{|a,b| b.to_s.length <=> a.to_s.length}
+    @cache.each{|k| scanner.scan(k) and return k }
+    nil
+  end
+  alias :_RxHash_set :[]=
+  def []=(k,v)
+    @cache = nil
+    _RxHash_set(k,v)
+  end
+end
