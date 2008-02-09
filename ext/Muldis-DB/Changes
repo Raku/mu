@@ -1,7 +1,7 @@
                                 Muldis::DB
 ---------------------------------------------------------------------------
 
-2008-01-xx   Darren Duncan <perl@DarrenDuncan.net>
+2008-02-xx   Darren Duncan <perl@DarrenDuncan.net>
 
     * Muldis DB version 0.7.0 for Perl 5 is released on CPAN as
     Muldis-DB-0.7.0.tar.gz.  Muldis DB version 0.7.0 for Perl 6 is not
@@ -19,6 +19,11 @@
     * (SeeAlso.pod)  A few minor updates.
 
     * Incremented all copyright year range-ends to 2008.
+
+    * Added new file archives/OSCON2008SessionProposal.txt which is a copy
+    of a proposal to give a talk on Muldis D + DB at OSCON 2008 (it can
+    also be given elsewhere); this is likely the most succinct description
+    yet of what the projects are and why one would want to use them.
 
 2007-12-09   Darren Duncan <perl@DarrenDuncan.net>
 

@@ -1,0 +1,110 @@
+OSCON 2008 Session Proposal
+by Darren Duncan, Founder, Muldis Data Systems
+submitted for consideration on 2008 February 3
+
+-----------------
+
+Proposal Title:
+
+    Muldis D - Portable Databases At Full Power
+
+Description (brief overview for marketing purposes):
+
+    How would you like to have a full-featured object-relational DBMS
+    integrated right into your development environment? One that
+    understands OOP, implements all of the relational operators, and
+    greatly shortens development time? That gets you away from the tyranny
+    of SQL so you can focus on what you really know? Introducing Muldis D,
+    an industrial strength language with fully integrated ORDBMS.
+
+Topics:
+
+    Databases
+
+Session Type:
+
+    45 minute conference session
+
+Abstract:
+
+    This session introduces Muldis D, an industrial strength programming
+    language with fully integrated database functionality, and shows how to
+    use the Muldis DB database access framework for Perl.  The session will
+    focus on a few of the features that I consider the most interesting and
+    unique, and ways users can solve their common database-using problems.
+
+    Muldis D provides access to the entire relational model of data,
+    including arbitrarily complex user-defined scalar and collection data
+    types, stored routines, constraints, updateable views, and updateable
+    system catalogs.  You can select both parent and child records together
+    in a single query, without redundancy (child records are in collection
+    values in parent records).  You can treat multiple databases as if they
+    were parts of a single database, making cross-database queries easy.
+    The language is cleaner and more rigorously defined than SQL, so it
+    should be easier to write code that is reliable, portable, easy to
+    understand, and is easier to auto-optimize or auto-parallelize.
+
+    Muldis DB is a database access framework in native Perl 5 and Perl 6
+    versions (for Perl 6 it is also the *first* database tool).  It
+    presents databases to Perl applications as shared libraries of routines
+    and data that can be used and updated.  The normal way for Perl code to
+    use a database with Muldis DB is to invoke the database's stored
+    routines (and prepared statements) as if those were Perl routines, with
+    data being inserted and retrieved via the routine parameters.
+
+    Muldis DB is designed for strong inter-DBMS portability, and provides a
+    deeper abstraction than the Perl DBI, such that a Perl application will
+    see all DBMSs as having the same query language (Muldis D by default),
+    rather than them having highly-incompatible dialects of SQL.  But while
+    most database abstractors or ORMs treat every DBMS as a stupid data
+    store - a strategy that can result in the user getting fewer features
+    and poorer performance than the original DBMS provided - Muldis DB
+    differentiates DBMSs according to their capability, and optimally
+    leverages their built-in features where at all possible, only emulating
+    missing features in Perl as a last resort.  Unlike other tools, Muldis
+    DB features the ability to translate SQL stored procedures (and by
+    extension most other SQL features).  Muldis DB also includes a
+    full-featured DBMS natively in Perl, and user queries are compiled into
+    Perl code rather than SQL for execution; this allows database-using
+    projects (and Muldis DB itself) to be fully tested or demonstrated in
+    the absence of a normal DBMS, easing their development.
+
+    Muldis D is intended to qualify as a "D" language as defined by
+    "Databases, Types, and The Relational Model: The Third Manifesto"
+    (TTM), a formal proposal for a solid foundation for data and database
+    management systems, written by Christopher J. Date (who also wrote
+    "Database in Depth") and Hugh Darwen.  Several other "D" languages
+    exist, including the teaching language "Tutorial D", but Muldis D is
+    arguably the first one that is actually practical for industrial use.
+
+Audience Level:
+
+    Intermediate
+
+Additional Notes:
+
+    I credit David Wheeler for writing most of the brief marketing
+    description in the final version of this proposal.
+
+    If actually seeing the topical projects makes a difference to your
+    proposal selection process, they are at
+    http://search.cpan.org/dist/Language-MuldisD/ (language spec) and
+    http://search.cpan.org/dist/Muldis-DB/ (Perl 5 impl) respectively.  I
+    didn't know whether to put those urls in the Abstract or not, so they
+    are here instead.
+
+    This session is arguably both in the Databases and Perl topics; while I
+    chose Databases as the single most relevant, feel free to move it over
+    if you have too many Databases sessions and not enough Perl sessions.
+
+Speaker Biography:
+
+    Darren Duncan is a developer of applications and databases, has written
+    several CPAN modules, and participates in Perl 6 language development.
+    Darren's life's work is to build consumer-useable ontological database
+    solutions for accurately organizing and easily sharing the world's
+    knowledge over the long term, particularly scientific, historical, and
+    genealogical knowledge.  Darren is interested in general information
+    management and epistemology.
+
+-----------------

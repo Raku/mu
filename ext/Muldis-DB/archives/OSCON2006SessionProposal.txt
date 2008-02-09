@@ -75,7 +75,7 @@ Biography:
 
     Darren Duncan is a developer of applications and databases, has written
     several CPAN modules, and participates in Pugs / Perl 6 development.
-    His life's work is to build consumer-useable ontological database
+    Darren's life's work is to build consumer-useable ontological database
     solutions for accurately organizing and easily sharing the world's
     knowledge over the long term, including scientific, historical, and
     genealogical.
