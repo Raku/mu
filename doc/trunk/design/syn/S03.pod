@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 5 Feb 2008
+  Last Modified: 8 Feb 2008
   Number: 3
-  Version: 130
+  Version: 131
 
 =head1 Overview
 
@@ -27,35 +27,57 @@ levels (same as Perl 5, but differently arranged).  Here we list the
 levels from "tightest" to "loosest", along with a few examples of
 each level:
 
-    Level               Examples
-    =====               ========
-    Terms               42 3.14 "eek" qq["foo"] $x :!verbose @$array
-    Method postfix      .meth .+ .? .* .() .[] .{} .<> .«» .:: .= .^ .:
-    Autoincrement       ++ --
-    Exponentiation      **
-    Symbolic unary      ! + - ~ ? | +^ ~^ ?^ \ ^ =
-    Multiplicative      * / % +& +< +> ~& ~< ~> ?& div mod
-    Additive            + - +| +^ ~| ~^ ?| ?^
-    Replication         x xx
-    Concatenation       ~
-    Junctive and (all)  &
-    Junctive or (any)   | ^
-    Named unary         rand sleep abs
-    Nonchaining infix   but does <=> leg cmp .. ..^ ^.. ^..^
-    Chaining infix      != == < <= > >= eq ne lt le gt ge ~~ === eqv !eqv
-    Tight and           &&
-    Tight or            || ^^ // min max
-    Conditional         ?? !! ff fff
-    Item assignment     = := ::= => += -= **= xx= .=
-    Loose unary         true not
-    Comma operator      , p5=>
-    List infix          Z minmax X X~X X*X XeqvX
-    List prefix         = : print push say die map substr ... [+] [*] any $ @
-    Loose and           and andthen
-    Loose or            or xor orelse
-    Terminator          ; <==, ==>, <<==, ==>>, {...}, modifiers, extra ), ], }
+    A  Level             Examples
+    =  =====             ========
+    N  Terms             42 3.14 "eek" qq["foo"] $x :!verbose @$array
+    L  Method postfix    .meth .+ .? .* .() .[] .{} .<> .«» .:: .= .^ .:
+    L  Autoincrement     ++ --
+    R  Exponentiation    **
+    L  Symbolic unary    ! + - ~ ? | +^ ~^ ?^ \ ^ =
+    L  Multiplicative    * / % +& +< +> ~& ~< ~> ?& div mod
+    L  Additive          + - +| +^ ~| ~^ ?| ?^
+    N  Replication       x xx
+    L  Concatenation     ~
+    X  Junctive and      &
+    X  Junctive or       | ^
+    L  Named unary       rand sleep abs
+    N  Nonchaining infix but does <=> leg cmp .. ..^ ^.. ^..^
+    C  Chaining infix    != == < <= > >= eq ne lt le gt ge ~~ === eqv !eqv
+    L  Tight and         &&
+    L  Tight or          || ^^ // min max
+    L  Conditional       ?? !! ff fff
+    R  Item assignment   = := ::= => += -= **= xx= .=
+    L  Loose unary       true not
+    X  Comma operator    , p5=>
+    X  List infix        Z minmax X X~X X*X XeqvX
+    R  List prefix       : print push say die map substr ... [+] [*] any $ @
+    L  Loose and         and andthen
+    L  Loose or          or xor orelse
+    N  Terminator        ; <==, ==>, <<==, ==>>, {...}, unless, extra ), ], }
 
-If you don't see your favorite operator there, the following
+The associativities specified above are:
+
+        Assoc     Meaning of $a op $b op $c
+        =====     =========================
+    L   left      ($a op $b) op $c
+    R   right     $a op ($b op $c)
+    N   non       ILLEGAL
+    C   chain     ($a op $b) and ($b op $c)
+    X   list      op($a, $b, $c) or op($a; $b; $c)
+
+Note that list associativity only works between identical operators.
+If two different list-associative operators have the same precedence,
+they are assumed to be left-associative with respect to each other.
+For example, the C<X> cross operator and the C<Z> zip operator both
+have a precedence of "list infix", but:
+
+    @a X @b Z @c
+
+is parsed as:
+
+    (@a X @b) Z @c
+
+If you don't see your favorite operator above, the following
 sections cover all the operators in precedence order.  Basic operator
 descriptions are here; special topics are covered afterwards.
 
@@ -239,7 +261,7 @@ Listop (leftward)
 
 As in Perl 5, a list operator looks like a term to the expression on
 its left, so it binds tighter than comma on the left but looser than
-comma on the right--see List operator precedence below.
+comma on the right--see List prefix precedence below.
 
 =back
 
