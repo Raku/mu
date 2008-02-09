@@ -7,7 +7,7 @@ use Symbol;
 
 my ($base, $in, $out) = @ARGV;
 
-die 'You need to checkout v6/ and not v6/smop, because smop depends on KP6' unless -d '../v6-KindaPerl6';
+die 'You need to checkout v6/ and not v6/smop, because smop depends on KP6' unless -d $base.'/../v6-KindaPerl6';
 
 open my $input, '<', $in or die $!;
 open my $output, '>', $out or die $!;
