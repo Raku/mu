@@ -36,9 +36,10 @@ sub preprocess {
     print {$writer} $code;
     close $writer;
     my $ret = join '', <$reader>;
-    die 'Bad sm0p code at '.$in if $ret eq "\n";
+    die 'Bad sm0p code at '.$in unless $ret && $ret ne "\n";
     close $reader;
     close $error;
     waitpid($pid,0);
+    die 'KP6sm0p.pl returned failure '.$? if $?;
     return $ret;
 }
