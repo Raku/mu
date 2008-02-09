@@ -866,7 +866,7 @@ automatically declaring a undefined prototype value with the same name.
 Whenever a C<Failure> value is put into a typed container, it takes
 on the type specified by the container but continues to carry the
 C<Failure> role.  (The C<undef> function merely returns the most
-generic C<Failure> object.  Use C<fail> to more specific failures.  Use
+generic C<Failure> object.  Use C<fail> to return more specific failures.  Use
 C<Object> for the most generic non-failure undefined value.  The C<Any>
 type is also undefined, but excludes C<Junctions> so that autothreading
 may be dispatched using normal multiple dispatch rules.)
