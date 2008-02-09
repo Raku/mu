@@ -85,7 +85,7 @@ static SMOP__Object* prototype_interpreter_message(SMOP__Object* interpreter,
      * Calling goto on the prototype recurses in the C stack.
      */
     SMOP__Object* target;
-    if (capture->RI == (SMOP__ResponderInterface*)SMOP__NATIVE__capture) {
+    if (SMOP_RI(capture) == (SMOP__ResponderInterface*)SMOP__NATIVE__capture) {
       target = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
     } else {
       target = SMOP_REFERENCE(interpreter,capture);
@@ -105,7 +105,7 @@ static SMOP__Object* prototype_interpreter_message(SMOP__Object* interpreter,
     if (cont) SMOP_RELEASE(interpreter,cont);
 
   } else {
-    if (identifier->RI == SMOP__ID__new->RI) {
+    if (SMOP_RI(identifier) == SMOP_RI(SMOP__ID__new)) {
       fprintf(stderr,"[SMOP__INTPTR__InterpreterInstance] called %s on prototype.\n",(char*)identifier->data);
     } else {
       fprintf(stderr,"[SMOP__INTPTR__InterpreterInstance] called concrete message on prototype.\n");
@@ -123,7 +123,7 @@ static SMOP__Object* interpreter_message(SMOP__Object* interpreter,
 
   SMOP__Object* ret = SMOP__NATIVE__bool_false;
   SMOP__Object* invocant;
-  if (capture->RI == (SMOP__ResponderInterface*)SMOP__NATIVE__capture) {
+  if (SMOP_RI(capture) == (SMOP__ResponderInterface*)SMOP__NATIVE__capture) {
     invocant = SMOP__NATIVE__capture_invocant(interpreter, capture);
   } else {
     SMOP_REFERENCE(interpreter, interpreter);
@@ -145,7 +145,7 @@ static SMOP__Object* interpreter_message(SMOP__Object* interpreter,
      * released.
      */
     SMOP__Object* target;
-    if (capture->RI == (SMOP__ResponderInterface*)SMOP__NATIVE__capture) {
+    if (SMOP_RI(capture) == (SMOP__ResponderInterface*)SMOP__NATIVE__capture) {
       target = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
     } else {
       target = SMOP_REFERENCE(interpreter,capture);

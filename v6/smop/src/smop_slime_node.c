@@ -21,7 +21,7 @@ static SMOP__Object* node_message(SMOP__Object* interpreter,
                                    SMOP__ResponderInterface* self,
                                    SMOP__Object* identifier,
                                    SMOP__Object* capture) {
-  if (capture->RI == SMOP__NATIVE__capture)
+  if (SMOP_RI(capture) == SMOP__NATIVE__capture)
     assert(!SMOP__NATIVE__capture_may_recurse(interpreter, capture));
   SMOP__Object* ret = NULL;
 
@@ -154,7 +154,7 @@ static SMOP__Object* node_message(SMOP__Object* interpreter,
     SMOP__Object* capture = ((smop_slime_node_struct*)node)->capture;
     smop_lowlevel_unlock(node);
 
-    //if (identifier && identifier->RI == SMOP__ID__new->RI)
+    //if (identifier && SMOP_RI(identifier) == SMOP_RI(SMOP__ID__new))
       //fprintf(stderr,"[SMOP__SLIME__Node:DEBUG] eval %s.\n", (char*)(identifier->data));
 
     if (responder) {

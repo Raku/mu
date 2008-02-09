@@ -13,14 +13,19 @@ open my $input, '<', $in or die $!;
 open my $output, '>', $out or die $!;
 
 my $sm0p_code = '';
+my $linecount = 0;
 PRINCIPAL:
 while (<$input>) {
+    $linecount++;
     if (/q:sm0p/) {
         $sm0p_code = $_;
+        $linecount++;
         while (<$input>) {
             $sm0p_code .= $_;
+            $linecount++;
             if ( $_ =~ /\}/ ) {
                 print {$output} preprocess($sm0p_code);
+                print {$output} "#line $linecount\n";
                 next PRINCIPAL;
             };
         }

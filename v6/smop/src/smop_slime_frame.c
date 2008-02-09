@@ -20,7 +20,7 @@ static SMOP__Object* frame_message(SMOP__Object* interpreter,
                                    SMOP__ResponderInterface* self,
                                    SMOP__Object* identifier,
                                    SMOP__Object* capture) {
-  if (capture->RI == (SMOP__ResponderInterface*)SMOP__NATIVE__capture)
+  if (SMOP_RI(capture) == (SMOP__ResponderInterface*)SMOP__NATIVE__capture)
     assert(!SMOP__NATIVE__capture_may_recurse(interpreter, capture));
   SMOP__Object* ret = NULL;
 

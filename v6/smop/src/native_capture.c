@@ -197,7 +197,7 @@ SMOP__Object*   SMOP__NATIVE__capture_create(SMOP__Object* interpreter,
     int l_opt = 0;
     int l_nor = 0;
     while (named[length]) {
-      if (named[length]->RI == SMOP__ID__new->RI) {
+      if (SMOP_RI(named[length]) == SMOP_RI(SMOP__ID__new)) {
         l_opt++;
       } else {
         l_nor++;
@@ -220,7 +220,7 @@ SMOP__Object*   SMOP__NATIVE__capture_create(SMOP__Object* interpreter,
     l_opt = 0;
     l_nor = 0;
     while (named[length]) {
-      if (named[length]->RI == SMOP__ID__new->RI) {
+      if (SMOP_RI(named[length]) == SMOP_RI(SMOP__ID__new)) {
         ret->o_named[l_opt].key = named[length];
         ret->o_named[l_opt].value = named[length + 1];
         l_opt++;
@@ -293,7 +293,7 @@ SMOP__Object*   SMOP__NATIVE__capture_named(SMOP__Object* interpreter,
                                             SMOP__Object* capture,
                                             SMOP__Object* identifier) {
   if (capture && capture != smop_native_empty_capture && capture != smop_native_intptr_invocant_capture) {
-    if (identifier->RI == SMOP__ID__new->RI) {
+    if (SMOP_RI(identifier) == SMOP_RI(SMOP__ID__new)) {
       native_capture_struct* self = (native_capture_struct*)capture;
       named_argument foo;
       foo.key = identifier;
