@@ -14,9 +14,13 @@ module MatchDescribe
     a += "\n" if a != ""
     h = as_h.map{|k,v|
       vs = if v.instance_of?(Array)
-             "[\n" + indent.call(v.map{|m|m.match_describe(seen)}.join(",\n"))+"\n]"
+             "[\n" + indent.call(v.map{|e| (e.respond_to?(:match_describe) ?
+                                            e.match_describe(seen) :
+                                            e.inspect)}.join(",\n"))+"\n]"
            else
-             v.match_describe(seen)
+             (v.respond_to?(:match_describe) ?
+              v.match_describe(seen) :
+              v.inspect)
            end
       "\n  #{k} => #{indent_except_top.call(vs)},"
     }.join("")
@@ -66,3 +70,13 @@ class Match
   def match_describe_name; "#{super}:#{rule ? rule.name : 'nil'}" end
   def inspect; match_describe end
 end
+
+
+class Match
+  def [](k); @hash[k] end
+  def []=(k,v); @hash[k] = v; end
+  def key?(k); @hash.key? k; end
+
+  def perl; inspect; end #R XXX hack
+end
+

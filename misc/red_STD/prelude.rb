@@ -7,6 +7,8 @@ class Object
   def bool; true; end
   def WHAT; to_s; end ##?
 end
+class FalseClass; def bool; false; end; end
+class NilClass; def bool; false; end; end
 
 module Kernel
   def my(v); end
@@ -30,8 +32,19 @@ class Grammar
     _match_from(b)
   end
 
-  def before(re)
-    @scanner.check(re)
+  def panic(msg)
+    raise "panic: #{msg}"
+  end
+
+  def before(re=nil,&blk)
+    if re
+      @scanner.check(re)
+    else
+      b = @scanner.pos
+      v = blk.()
+      @scanner.pos = b
+      v ? true : false
+    end
   end
   def after(re)
     # no look-behind in 1.8 :(
@@ -131,7 +144,9 @@ class Grammar
   end
 
 
-  def self.prec_op(*a)
+  def self.prec_op(type,init)
+    @@types ||= {}
+    @@types[type] = init
   end
   def self.proto_token_simple(name)
     _token_category(name)
@@ -153,7 +168,16 @@ class Grammar
   end
   def self._token_category(name)
     eval "@@#{name} = RxHash.new"
-    eval "def #{name}; @@#{name}.longest_token_match(@scanner); end"
+    eval <<-END
+      def #{name}
+        b = @scanner.pos
+        v =  @@#{name}.longest_token_match(@scanner) or return false
+        m = _match_from(b)
+        init = @@types[v] or raise "bug"
+        precop_mumble(m,init)
+        m
+      end
+    END
   end
 
   def self.def_tokens_simple(fix,type,syms)
@@ -164,7 +188,7 @@ class Grammar
   end
   def self._token(fix,type,sym)
     h = eval "@@#{fix}"
-    h[Regexp.new(Regexp.quote(sym))] = nil
+    h[Regexp.new(Regexp.quote(sym))] = type
   end
 end
 
@@ -204,7 +228,7 @@ $env_vars = EnvVars.new
 class RxHash < Hash
   def longest_token_match(scanner)
     @cache ||= keys.sort{|a,b| b.to_s.length <=> a.to_s.length}
-    @cache.each{|k| scanner.scan(k) and return k }
+    @cache.each{|k| scanner.scan(k) and return self[k] }
     nil
   end
   alias :_RxHash_set :[]=

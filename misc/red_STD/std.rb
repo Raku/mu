@@ -18,17 +18,19 @@ class Perl < Grammar
 
     def _TOP; _UNIT( $env_vars[:unitstopper] || "_EOS" ); end
 
-    module PrecOp
-        def precop_mumble(m)
-            defaults.each{|k,v| m[k] = v if not m.key? k }
+    #module PrecOp
+    def precop_mumble(m,defaults)
+        defaults.each{|k,v| m[k] = v if not m.key? k }
+        if $env_vars[:thisopH]
             $env_vars[:thisopH][:top] = m;
             if not m.key?(:transparent)
                 $env_vars[:thisopH][:prec] = m[:prec];
                 $env_vars[:thisopH][:assoc] = m[:assoc];
             end
-            return m;
         end
+        return m;
     end
+    #end
     prec_op(:hyper             ,{ :transparent =>1                           })
     prec_op(:term              ,{ :prec =>"z="                               })
     prec_op(:methodcall        ,{ :prec =>"y="                               })
@@ -113,12 +115,13 @@ class Perl < Grammar
     end
 
     def expect_infix
-        (infix && starTOK{infix_postfix_meta_operator}) ||
+        ((i = infix) && starTOK{infix_postfix_meta_operator} && i) || #R XXX
             infix_prefix_meta_operator || infix_circumfix_meta_operator
     end
 
     def prefix; false; end
     def prefix_circumfix_meta_operator; false; end
+    def infix_circumfix_meta_operator; false; end
     def expect_postfix; false; end
     def adverbs; false; end
 
@@ -169,7 +172,7 @@ false #R
         opstackA = []
 
         #R push opstackA, termH;         # (just a sentinel value)
-        push opstackA, rand  #R will this work?
+        push opstackA, {:prec =>"a="} #R kludge
 
         hereS = nil
         if seenS 
@@ -229,10 +232,10 @@ false #R
 
         while true 
             say "In while true, at ", hereS_workaround.pos;
-            my terminatorA = hereS_workaround.before(lambda{|s| stop(s) } );
+            my terminatorA = [hereS_workaround.before{stopS.()}]
             my tS = terminatorA[0];
             break if tS and terminatorA[0].bool;
-            thisopH = {}
+            $env_vars[:thisopH] = {}
             #        my infixA = [hereS_workaround.expect_tight_infix(preclimS)];
             my infixA = [hereS_workaround.expect_infix()];
             my infixS = infixA[0];
@@ -241,17 +244,17 @@ false #R
             # XXX might want to allow this in a declaration though
             if not infixS;  hereS_workaround.panic("Can't have two terms in a row"); end
 
-            if not thisopH.key?(:prec) 
+            if not $env_vars[:thisopH].key?(:prec) 
                 say "No prec case in thisop!";
-                thisopH = terminatorH;
+                $env_vars[:thisopH] = terminatorH;
             end
-            thisprecS = thisopH[:prec];
+            thisprecS = $env_vars[:thisopH][:prec];
             # substitute precedence for listops
-            thisopH[:prec] = thisopH[:sub] if thisopH[:sub];
+            $env_vars[:thisopH][:prec] = $env_vars[:thisopH][:sub] if $env_vars[:thisopH][:sub];
             
             # Does new infix (or terminator) force any reductions?
-            while opstackA[-1][:prec] < thisprecS 
-                reduce();
+            while opstackA[-1][:prec] > thisprecS 
+                reduce.();
             end
             
             # Not much point in reducing the sentinels...
@@ -259,30 +262,30 @@ false #R
             
             # Equal precedence, so use associativity to decide.
             if opstackA[-1][:prec] == thisprecS 
-                case thisopH[:assoc] 
+                case $env_vars[:thisopH][:assoc] 
                 when 'non' ;   hereS_workaround.panic("\"#{infixS}\" is not associative")
-                when 'left' ;  reduce()   # reduce immediately
+                when 'left' ;  reduce.()   # reduce immediately
                 when 'right';  # just shift
                 when 'chain';  # just shift
                 when 'list'                # if op differs reduce else shift
-                    reduce() if thisopH[:top][:sym] != opstackA[-1][:top][:sym];
+                    reduce.() if $env_vars[:thisopH][:top][:sym] != opstackA[-1][:top][:sym];
                 else
-                    hereS_workaround.panic("Unknown associativity \"#{thisopH[:assoc]}\" for \"#{infixS}\"")
+                    hereS_workaround.panic("Unknown associativity \"#{$env_vars[:thisopH][:assoc]}\" for \"#{infixS}\"")
                 end
             end
-            push opstackA, item(thisopH);
-            my terminatorA = [hereS_workaround.before(lambda{|s| stop(s) } )];
+            push opstackA, $env_vars[:thisopH]  #R item($env_vars[:thisopH]); # ignore puzzling item()
+            my terminatorA = [hereS_workaround.before{stopS.()}];
             if not terminatorA.empty? and terminatorA[0].bool 
                 hereS_workaround.panic("#{infixS.perl()} is missing right term");
             end
-            thisopH = {}
+            $env_vars[:thisopH] = {}
             my tA = [hereS_workaround.expect_term()];
             hereS = tA[0];
             push termstackA, hereS;
             say "after push: ", termstackA.length;
         end
-        reduce() while termstackA.length > 1;
-        termstackA == 1 or hereS_workaround.panic("Internal operator parser error, termstack == #{termstackA.length}");
+        reduce.() while termstackA.length > 1;
+        termstackA.length == 1 or hereS_workaround.panic("Internal operator parser error, termstack == #{termstackA.length}");
         $env_vars.scope_leave
         return termstackA[0];
     end
@@ -348,6 +351,10 @@ p Perl.new(('42')).noun()
 p Perl.new(('42')).expect_term()
 p Perl.new(('+')).infix()
 p Perl.new(('42'))._EXPR(false)
+p Perl.new(('+')).expect_infix();
+p ""
+p Perl.new(('42+3'))._EXPR(false)
+p Perl.new(('2+3*4'))._EXPR(false)
 
 say "Starting...";
 my $r = Perl.new(('42')).expect_infix();
