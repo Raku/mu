@@ -58,6 +58,7 @@ class Perl < Grammar
     prec_op(:LOOSEST           ,{ :prec =>"a=!",                             })
     prec_op(:terminator        ,{ :prec =>"a=", :assoc =>:list               })
     LOOSESTS = "a=!"
+    LOOSESTH = { :prec =>"a=!" }
 
     proto_token_simple('category')
     proto_token_simple('sigil')
@@ -98,9 +99,17 @@ class Perl < Grammar
 
     proto_token_simple('terminator') #R added
 
-
     def dot_ws
-        true
+        pos == ws_to and return true
+        after(/\w/) and before(/\w/) and return false
+        ws_from = pos
+        starTOK{ unsp || (seqTOK{@scanner.scan(/\v/); heredoc}) || unv }
+        ws_to = pos
+    end
+
+    def unsp
+    end
+    def unv
     end
 
     def expect_infix
@@ -114,7 +123,7 @@ class Perl < Grammar
     def adverbs; false; end
 
     ## term
-    #...missing...
+    #R...missing...
     def_tokens_simple :infix,:methodcall,%w{ . }
     def_tokens_simple :postfix,:methodcall,%w{ -> }
     def_tokens_simple :postfix,:autoincrement,%w{ ++ -- }
@@ -123,7 +132,7 @@ class Perl < Grammar
     def_tokens_simple :prefix,:symbolic_unary,%w{ ! + - ~ ? = * ** ~^ +^ ?^ ^ | }
     def_tokens_simple :infix,:multiplicative,%w{ * / % +& +< << >> +> ~&> ~< ~> }
     def_tokens_simple :infix,:additive,%w{ + - +| +^ ~| ~^ ?| ?^ }
-    #...missing...
+    #R...missing...
     def_tokens_simple :infix,:loose_and,%w{ and andthen }
     def_tokens_simple :infix,:loose_or,%w{ or xor orelse }
     def_tokens_before :terminator,:terminator,%w{ ; <== ==> --> ) ] \} !! }
@@ -135,7 +144,7 @@ class Perl < Grammar
 #R         terminator || statement_mod_cond || statement_mod_loop ||
 #R         cent.pos == env[:endstmt] ||
 #R         cent.pos == env[:endargs]
-#R         #    | <$+unitstopper> ##?
+#R         #    | <$+unitstopper> #R?
 false #R
          )
     end
@@ -145,7 +154,9 @@ false #R
     def reverse(a);a.reverse;end
     def item(h);raise "what does item do?";end
     def _EXPR(seenS, preclimH=nil, stopS=nil, *fateA) #R Args reordered!
-        preclimH ||= HLOOSEST
+        hereS_workaround = self
+
+        preclimH ||= LOOSESTH
         stopS ||= method(:stdstopper)
 
         $env_vars.scope_enter(:inquoteS,:prevopS,:thisopH);
@@ -157,7 +168,8 @@ false #R
         termstackA = []
         opstackA = []
 
-        push opstackA, termH;         # (just a sentinel value)
+        #R push opstackA, termH;         # (just a sentinel value)
+        push opstackA, rand  #R will this work?
 
         hereS = nil
         if seenS 
@@ -167,7 +179,7 @@ false #R
             hereS = tA[0];
         end
         push termstackA, hereS;
-        say "In EXPR, at ", hereS.pos;
+        say "In EXPR, at ", hereS_workaround.pos;
 
         reduce = lambda {
             say "entering reduce, termstack == ", termstackA.length, " opstack == ", opstackA.length;
@@ -216,18 +228,18 @@ false #R
         }
 
         while true 
-            say "In while true, at ", hereS.pos;
-            my terminatorA = hereS.before(lambda{|s| stop(s) } );
+            say "In while true, at ", hereS_workaround.pos;
+            my terminatorA = hereS_workaround.before(lambda{|s| stop(s) } );
             my tS = terminatorA[0];
             break if tS and terminatorA[0].bool;
             thisopH = {}
-            #        my infixA = [hereS.expect_tight_infix(preclimS)];
-            my infixA = [hereS.expect_infix()];
+            #        my infixA = [hereS_workaround.expect_tight_infix(preclimS)];
+            my infixA = [hereS_workaround.expect_infix()];
             my infixS = infixA[0];
             hereS = infixS;
         
             # XXX might want to allow this in a declaration though
-            if not infixS;  hereS.panic("Can't have two terms in a row"); end
+            if not infixS;  hereS_workaround.panic("Can't have two terms in a row"); end
 
             if not thisopH.key?(:prec) 
                 say "No prec case in thisop!";
@@ -248,29 +260,29 @@ false #R
             # Equal precedence, so use associativity to decide.
             if opstackA[-1][:prec] == thisprecS 
                 case thisopH[:assoc] 
-                when 'non' ;   hereS.panic("\"#{infixS}\" is not associative")
+                when 'non' ;   hereS_workaround.panic("\"#{infixS}\" is not associative")
                 when 'left' ;  reduce()   # reduce immediately
                 when 'right';  # just shift
                 when 'chain';  # just shift
                 when 'list'                # if op differs reduce else shift
                     reduce() if thisopH[:top][:sym] != opstackA[-1][:top][:sym];
                 else
-                    hereS.panic("Unknown associativity \"#{thisopH[:assoc]}\" for \"#{infixS}\"")
+                    hereS_workaround.panic("Unknown associativity \"#{thisopH[:assoc]}\" for \"#{infixS}\"")
                 end
             end
             push opstackA, item(thisopH);
-            my terminatorA = [hereS.before(lambda{|s| stop(s) } )];
+            my terminatorA = [hereS_workaround.before(lambda{|s| stop(s) } )];
             if not terminatorA.empty? and terminatorA[0].bool 
-                hereS.panic("#{infixS.perl()} is missing right term");
+                hereS_workaround.panic("#{infixS.perl()} is missing right term");
             end
             thisopH = {}
-            my tA = [hereS.expect_term()];
+            my tA = [hereS_workaround.expect_term()];
             hereS = tA[0];
             push termstackA, hereS;
             say "after push: ", termstackA.length;
         end
         reduce() while termstackA.length > 1;
-        termstackA == 1 or hereS.panic("Internal operator parser error, termstack == #{termstackA.length}");
+        termstackA == 1 or hereS_workaround.panic("Internal operator parser error, termstack == #{termstackA.length}");
         $env_vars.scope_leave
         return termstackA[0];
     end
@@ -326,6 +338,10 @@ false #R
         }x
     end
     def dec_number; false; end
+
+
+    def heredoc
+    end
 end
 
 p Perl.new(('42')).noun()

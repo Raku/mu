@@ -30,6 +30,21 @@ class Grammar
     _match_from(b)
   end
 
+  def before(re)
+    @scanner.check(re)
+  end
+  def after(re)
+    # no look-behind in 1.8 :(
+    s = @str.slice(0,pos)
+    Regexp.new("#{re}\z").match(s) ? true : false
+  end
+
+  def seqTOK(f=nil,&blk)
+    fun = f || blk
+    b = pos
+    v = fun.() ? v : fail_at(b)
+  end
+
   def quesTOK(f=nil,&blk)
     fun = f || blk
     v = fun.()
@@ -111,7 +126,7 @@ class Grammar
       result[0].unshift(v)
       result
     else
-      failed_at(before_fun)
+      fail_at(before_fun)
     end
   end
 
@@ -138,7 +153,7 @@ class Grammar
   end
   def self._token_category(name)
     eval "@@#{name} = RxHash.new"
-    eval "def #{name}; p @@#{name}; @@#{name}.longest_token_match(@scanner); end"
+    eval "def #{name}; @@#{name}.longest_token_match(@scanner); end"
   end
 
   def self.def_tokens_simple(fix,type,syms)
