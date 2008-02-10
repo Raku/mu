@@ -13,23 +13,27 @@ open my $input, '<', $in or die $!;
 open my $output, '>', $out or die $!;
 
 my $sm0p_code = '';
-my $linecount = 0;
+my $out_count = 1;
+print {$output} qq{#line 1 "$in"\n};
 PRINCIPAL:
 while (<$input>) {
-    $linecount++;
     if (/q:sm0p/) {
         $sm0p_code = $_;
-        $linecount++;
         while (<$input>) {
             $sm0p_code .= $_;
-            $linecount++;
             if ( $_ =~ /\}/ ) {
-                print {$output} preprocess($sm0p_code);
-                print {$output} "#line $linecount\n";
+                my $next_inline = $. + 1;
+                my $next_outline = $out_count + 2;
+                my $lines = qq{#line $next_outline "$out"\n}
+                               . preprocess($sm0p_code)
+                               . qq{#line $next_inline "$in"\n};
+                print {$output} $lines;
+                $out_count += $lines =~ tr/\n//;
                 next PRINCIPAL;
             };
         }
     }
+    $out_count++;
     print {$output} $_;
 }
 
