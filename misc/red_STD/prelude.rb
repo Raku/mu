@@ -1,5 +1,7 @@
 require 'strscan'
+
 require 'match'
+
 
 def say(*args); print *args,"\n"; end
 
@@ -21,6 +23,13 @@ class Grammar
   end
   def pos; @scanner.pos; end
   def fail_at(n); @scanner.pos = n; false; end
+  def scan(re); @scanner.scan(re); end
+  def wrap(&blk)
+    b = @scanner.pos
+    v = blk.()
+    @scanner.pos = b if not v
+    v
+  end
 
   def _match_from(from,h=nil)
     h ||= {}
@@ -235,5 +244,58 @@ class RxHash < Hash
   def []=(k,v)
     @cache = nil
     _RxHash_set(k,v)
+  end
+end
+
+require 'readline'
+class Repl
+  def initialize(history_filename="deleteme_hist")
+    @histfile = File::expand_path(history_filename)
+    if File::exists?(@histfile)
+      Readline::HISTORY.push(*(eval(IO.read(@histfile))||[]))
+    end
+  end
+  def save_history
+    h = Readline::HISTORY.to_a.reverse.uniq.slice(0,100).reverse.inspect
+    open(@histfile,"w"){|io|io.puts(h)}
+  end
+  def ruby
+    while true
+      s = Readline.readline("rb: ",true)
+      break if not s or s == ""
+      p Object.module_eval(s)
+    end
+  end
+  def expr
+    while true
+      s = Readline.readline("expr: ",true)
+      break if not s or s == ""
+      p Perl.new(s)._EXPR(false)
+    end
+  end
+  def parser_rule
+    while true
+      s = Readline.readline("rule: ",true)
+      break if not s or s == ""
+      rule = s
+      while true
+        s = Readline.readline("input: ",true)
+        break if not s or s == ""
+        eval("p Perl.new(s).#{rule}")
+      end
+    end
+  end
+  def parser_input
+    while true
+      s = Readline.readline("input: ",true)
+      break if not s or s == ""
+      input = s
+      while true
+        s = Readline.readline("rule: ",true)
+        break if not s or s == ""
+        rule = s
+        eval("p Perl.new(input).#{rule}")
+      end
+    end
   end
 end

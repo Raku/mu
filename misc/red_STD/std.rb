@@ -7,7 +7,9 @@
 # seem to have trouble finding the real 1.9.0.
 #
 # Notes
-# 
+#
+# Things not in STD
+#   EXPR() dot_ws calls
 #
 require 'prelude'
 
@@ -105,14 +107,20 @@ class Perl < Grammar
         pos == ws_to and return true
         after(/\w/) and before(/\w/) and return false
         ws_from = pos
-        starTOK{ unsp || (seqTOK{@scanner.scan(/\v/); heredoc}) || unv }
+        starTOK{ unsp || (seqTOK{scan(/\v/); heredoc}) || unv }
         ws_to = pos
     end
-
-    def unsp
-    end
+    def unsp; wrap{ scan(/\\/) and before(/\s|\#/) and starTOK{ scan(/\v/) || unv } }; end
     def unv
+        wrap{
+            scan(/[ \t]+/) or
+            (after(/\n|\A/) and (pod_comment or
+                                 (wrap{ scan(/\#/) and ((bracketed and panic("Can't use embedded comments in column 1")) or
+                                                        scan(/.*/)) } ))) or
+            (scan(/\#/) and (bracketed or scan(/.*/)))
+        }
     end
+
 
     def expect_infix
         ((i = infix) && starTOK{infix_postfix_meta_operator} && i) || #R XXX
@@ -232,6 +240,9 @@ false #R
 
         while true 
             say "In while true, at ", hereS_workaround.pos;
+
+            dot_ws #R added
+
             my terminatorA = [hereS_workaround.before{stopS.()}]
             my tS = terminatorA[0];
             break if tS and terminatorA[0].bool;
@@ -279,6 +290,9 @@ false #R
                 hereS_workaround.panic("#{infixS.perl()} is missing right term");
             end
             $env_vars[:thisopH] = {}
+
+            dot_ws #R added
+
             my tA = [hereS_workaround.expect_term()];
             hereS = tA[0];
             push termstackA, hereS;
@@ -347,23 +361,9 @@ false #R
     end
 end
 
-p Perl.new(('42')).noun()
-p Perl.new(('42')).expect_term()
-p Perl.new(('+')).infix()
-p Perl.new(('42'))._EXPR(false)
-p Perl.new(('+')).expect_infix();
-p ""
-p Perl.new(('42+3'))._EXPR(false)
-p Perl.new(('2+3*4'))._EXPR(false)
-
-say "Starting...";
-my $r = Perl.new(('42')).expect_infix();
-say $r;
-exit;
-say "WHAT\t", $r.WHAT;
-say "BOOL\t", $r.bool;
-say "FROM\t", $r.from;
-say "TO\t", $r.to;
+# p Perl.new(('2+3*4'))._EXPR(false)
+#Repl.new.expr
+Repl.new.parser_rule
 
 ## vim: expandtab sw=4
 ## Local Variables:
