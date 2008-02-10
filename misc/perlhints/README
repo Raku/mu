@@ -46,35 +46,31 @@ key3: some value
 
 
 At the moment, the following keys are planned:
-    key 
-    syn (synopsis) 
-    name 
-    desc (longer description) 
-    ex (example) 
-    spec (link to a specification)
-    dsl (domain specific language, if any)
-    con (context)
-Each section starts with the 'key:' key, the ordering of all other lines is
+    id:             a uniq identifier for that token
+    token:          whitespace delimited list of verbatim symbols that
+                    identify this token (no uniq identification, though)
+    syn:            informal syntactic description
+    name:           a human readable name
+    desc:           longer description 
+    ex:             example 
+    spec:           link to a specification
+    dsl:            domain specific language, if any
+    con:            context
+Each section starts with the 'id:' key, the ordering of all other lines is
 arbitrary.
 
 Example:
 
-key:  +
-syn:  $expr1 + $expr2
-name: binary plus
-desc: Adds two numbers, and enforces numerical contexts onto its operands
-ex:   my $a = 2 + 3; # Result: 5
+id:     infix:<+>
+token:  +
+syn:    EXPR + EXPR
+name:   binary numeric plus
+desc:   Adds two numbers, and enforces numerical contexts onto its operands
+ex:     my $a = 2 + 3; # Result: 5
 
-key:  +
-syn:  +$expr1
-name: unary plus
-desc: enforces numerical context onto its operand
-ex:   +"23";   # returns the number 23
-      +42;     # return 42
-
-key:  +
-syn:  $token +
-name: regex quantifier +
-desc: matches $token one or more times
-dsl:  regex
-ex:   'ab'+ # matches ab, abab, ababab, ...
+id:     prefix:<+>
+syn:    +EXPR
+name:   unary numierc plus
+desc:   enforces numerical context onto its operand
+ex:     +"23";   # returns the number 23
+ex:     +42;     # return 42
