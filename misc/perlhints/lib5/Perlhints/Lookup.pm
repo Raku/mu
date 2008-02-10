@@ -3,6 +3,7 @@ package Perlhints::Lookup;
 use Carp;
 use strict;
 use warnings;
+use Data::Dumper;
 
 sub new {
 	my ($class, $record_ref) = @_;
@@ -21,9 +22,10 @@ sub lookup {
 	my $re_lookup = quotemeta $lookup;
 	my @results;
 	for my $rec (@{$self->{records}}) {
-		if ($lookup eq $rec->{key}) {
+#        print Dumper $rec if !defined $rec->{token};
+		if ($lookup eq $rec->{token}) {
 			push @results, [1, $rec];
-		} elsif ($rec->{key} =~ m/$re_lookup/){
+		} elsif ($rec->{token} =~ m/$re_lookup/){
 			my $qs = length($lookup) / length($rec->{key});
 			push @results, [$qs, $rec];
 		} 

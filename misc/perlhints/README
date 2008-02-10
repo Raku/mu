@@ -20,10 +20,13 @@ English.
 
 All files should be UTF-8 encoded, and conform to the following format:
 
+=begin perlhints 
+
 key1: value
 key2: multiple lines for a value
       possible if the all of the following 
       lines start with at least one whitespace.
+
 
 # in the previous example the the newlines are included in the output,
 # if you want to prevent that, you have to continue the lines with a 
@@ -37,6 +40,8 @@ some_key: here is a long \
 # comments start with a '#'.
 # empty lines are allowed, but terminate the previous value.
 
+=end perlhints
+
 The following would be invalid:
 
 key3: some value
@@ -44,6 +49,8 @@ key3: some value
 
       but interrupted by an empty line
 
+Perlhints are embedded in \n=begin perlhints\n ... \n=end perlhints\n POD
+blocks.
 
 At the moment, the following keys are planned:
     id:             a uniq identifier for that token
@@ -74,3 +81,7 @@ name:   unary numierc plus
 desc:   enforces numerical context onto its operand
 ex:     +"23";   # returns the number 23
 ex:     +42;     # return 42
+
+The current plan is to poke @larry until a special variable is introduced that
+makes the parse tree available at CHECK time or runtime. Hopefully that parse
+tree contains the id, so that each token can be mapped to a description.

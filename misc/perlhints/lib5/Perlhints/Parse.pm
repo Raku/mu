@@ -19,15 +19,26 @@ sub new {
 sub _parse {
     my $self = $_[0];
     my $fn = $self->{filename};
-    open (my $fh, '<:utf8', $fn) or die "Can't open file '$fn' for reading: $!";
+    open (my $fh, '<:encoding(UTF-8)', $fn) 
+        or die "Can't open file '$fn' for reading: $!";
     my @records;
-    my $previous_key = qq{};
+    my $previous_key = q{};
     my %current_record;
+
+    my $inside_block = 0;
 
     INPUT:
     while (my $line = <$fh>){
         chomp $line;
-        next INPUT if $line =~ m{^ [#]}msx;
+        next INPUT if $line =~ m{^#}m;
+        if ($line =~ m/^=begin\s+perlhints/){
+            $inside_block = 1;
+            next INPUT;
+        } elsif ($line =~ m/^=end\s+perlhints/){
+            $inside_block = 0;
+        }
+        next INPUT unless $inside_block;
+
         if (length($line)== 0){
             $previous_key = qq{};
             next INPUT;
@@ -61,7 +72,7 @@ sub _parse {
 #                warn "Preserving line endings";
                 $value .= "\n";
             }
-            if ($key eq "key"){
+            if ($key eq "id"){
                 if (%current_record){
                     for (keys %current_record){
                         chomp $current_record{$_};

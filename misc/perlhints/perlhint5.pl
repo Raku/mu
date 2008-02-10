@@ -13,7 +13,8 @@ chdir dirname($0) ;
 
 my $query = shift @ARGV || die "Usage: $0 <character>\n";
 print "Looking up '$query'...\n";
-my $parser = Perlhints::Parse->new({filename => 'data/perl-6.en.dat'});
+my $parser = Perlhints::Parse->new({filename => '../../src/perl6/STD.pm'});
+#print Dumper $parser;
 my $l = Perlhints::Lookup->new($parser->records);
 
 my @out = $l->lookup($query);
@@ -22,7 +23,8 @@ my @out = $l->lookup($query);
 
 my $delim = "=" x 20;
 my %legend = (
-        syn     => 'Synopsis',
+        id      => 'Identifier',
+        syn     => 'Syntax',
         desc    => 'Description',
         name    => 'Name',
         ex      => 'Example(s)',
