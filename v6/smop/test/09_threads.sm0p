@@ -1,0 +1,98 @@
+#include <stdio.h>
+#include <pthread.h>
+#include <smop.h>
+#include <smop_lowlevel.h>
+#include <unistd.h>
+
+/* This test will have a set of methods in an object called by the
+ * stack.
+ */
+typedef struct ThreadTestStruct {
+  SMOP__Object__BASE
+  SMOP__ResponderInterface__BASE
+  int testvalue;
+} ThreadTestStruct;
+
+static SMOP__Object* method1;
+
+static SMOP__Object* custom_MESSAGE(SMOP__Object* interpreter,
+                                    SMOP__ResponderInterface* self,
+                                    SMOP__Object* identifier,
+                                    SMOP__Object* capture) {
+  if (identifier == method1) {
+    SMOP__Object* obj = SMOP__NATIVE__capture_invocant(interpreter,capture);
+    smop_lowlevel_wrlock(obj);
+    int r = ++((ThreadTestStruct*)obj)->testvalue;
+    smop_lowlevel_unlock(obj);
+    SMOP_RELEASE(interpreter, obj);
+    printf("ok %d - method1 called.\n", r);
+  } else if (identifier == SMOP__ID__DESTROYALL) {
+    printf("ok 9 - DESTROYALL called.\n");
+    return NULL;
+  } else {
+    printf("not ok - unknown method called %p.\n",identifier);
+  }
+  SMOP_RELEASE(interpreter,capture);
+  return NULL;
+}
+
+void* threaded_function(void* object) {
+  SMOP__Object* obj = (SMOP__Object*)object;
+
+  SMOP__Object* interpreter = SMOP_DISPATCH(SMOP__INTPTR__InterpreterInstance,
+                                            SMOP_RI(SMOP__INTPTR__InterpreterInstance),
+                                            SMOP__ID__new, 
+                                            SMOP__NATIVE__capture_create(SMOP__INTPTR__InterpreterInstance,
+                                                                         SMOP__INTPTR__InterpreterInstance,NULL,NULL));
+
+
+  SMOP__Object* node = NULL;
+
+  node = q:sm0p {
+    ;
+    $obj.$method1();
+    $obj.$method1();
+    $obj.$method1();
+    $obj.$method1();
+  };
+   
+  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                SMOP__ID__goto,
+                node);
+
+  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                SMOP__ID__loop, SMOP__NATIVE__capture_create(interpreter,
+                                                             SMOP_REFERENCE(interpreter,interpreter),
+                                                             NULL, NULL));
+
+  SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,interpreter);
+
+  return NULL;
+}
+
+int main(int argc, char** argv) {
+  printf("1..10\n");
+
+  smop_init();
+  method1 = SMOP__ID__new;
+
+  SMOP__Object* obj = smop_lowlevel_alloc(sizeof(ThreadTestStruct));
+  SMOP__ResponderInterface* ri = (SMOP__ResponderInterface*)obj;
+  ri->MESSAGE = custom_MESSAGE;
+  ri->REFERENCE = smop_lowlevel_refcnt_inc;
+  ri->RELEASE = smop_lowlevel_refcnt_dec;
+
+  pthread_t t1, t2;
+  pthread_create(&t1, NULL, &threaded_function, obj);
+  pthread_create(&t2, NULL, &threaded_function, obj);
+  pthread_join(t2, NULL);
+  pthread_join(t1, NULL);
+
+  SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,obj);
+  smop_destr();
+
+  printf("ok 10 - finished succesfully.\n");
+
+  return 0;
+
+}

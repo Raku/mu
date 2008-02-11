@@ -6,7 +6,8 @@ AM_LDFLAGS = -L$(top_builddir)/src
 AM_CFLAGS = -Wall -D_GNU_SOURCE -I$(top_srcdir)/include
 
 check_PROGRAMS = 01_smop_lowlevel.t 02_stack.t 03_const_identifier.t \
-	04_interpreter.t 05_capture.t 06_native_bool.t 07_native_int.t 08_native_uint.t
+	04_interpreter.t 05_capture.t 06_native_bool.t 07_native_int.t \
+	08_native_uint.t 09_threads.t
 
 01_smop_lowlevel_t_SOURCES = 01_smop_lowlevel.c
 02_stack_t_SOURCES = 02_stack.sm0p
@@ -16,3 +17,4 @@ check_PROGRAMS = 01_smop_lowlevel.t 02_stack.t 03_const_identifier.t \
 06_native_bool_t_SOURCES = 06_native_bool.c
 07_native_int_t_SOURCES = 07_native_int.c
 08_native_uint_t_SOURCES = 08_native_uint.c
+09_threads_t_SOURCES = 09_threads.sm0p
