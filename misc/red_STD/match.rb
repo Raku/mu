@@ -67,7 +67,7 @@ class Match
   include MatchDescribe
   def as_b; @bool end; def as_s; str end; def as_a; [] end; def as_h; @hash end
   def match_beg; @from end; def match_end; @to end
-  def match_describe_name; "#{super}:#{rule ? rule.name : 'nil'}" end
+  def match_describe_name; "#{super}:#{rule ? rule : 'nil'}" end
   def inspect; match_describe end
 end
 

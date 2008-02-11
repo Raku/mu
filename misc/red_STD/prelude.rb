@@ -24,21 +24,21 @@ class Grammar
   def pos; @scanner.pos; end
   def fail_at(n); @scanner.pos = n; false; end
   def scan(re); @scanner.scan(re); end
-  def wrap(&blk)
+  def let_pos(&blk)
     b = @scanner.pos
     v = blk.()
     @scanner.pos = b if not v
     v
   end
 
-  def _match_from(from,h=nil)
+  def _match_from(from,h=nil,rule=nil)
     h ||= {}
-    Match.new(@str,from,@scanner.pos,true,h,nil)
+    Match.new(@str,from,@scanner.pos,true,h,nil,rule)
   end
-  def _match_pat(re)
+  def _match_pat(re,rule=nil)
     b = @scanner.pos
     return false if !@scanner.scan(re)
-    _match_from(b)
+    _match_from(b,nil,rule)
   end
 
   def panic(msg)
@@ -154,50 +154,89 @@ class Grammar
 
 
   def self.prec_op(type,init)
-    @@types ||= {}
-    @@types[type] = init
+    @@__types__ ||= {}
+    @@__types__[type] = init
   end
-  def self.proto_token_simple(name)
-    _token_category(name)
+  def self.proto_token_simple(category)
+    _token_category(category)
   end
-  def self.proto_token_defequiv(name,other)
-    _token_category(name)
+  def self.proto_token_defequiv(category, other)
+    _token_category(category)
   end
-  def self.proto_token_endsym(name,pat)
-    _token_category(name)
+  def self.proto_token_endsym(category, pat)
+    _token_category(category)
   end
-  def self.proto_rule_endsym(name,pat)
-    _token_category(name)
+  def self.proto_rule_endsym(category, pat)
+    _token_category(category)
   end
-  def self.proto_token_gtgt_nofat(name)
-    _token_category(name)
+  def self.proto_token_gtgt_nofat(category)
+    _token_category(category)
   end
-  def self.proto_rule_gtgt_nofat(name)
-    _token_category(name)
+  def self.proto_rule_gtgt_nofat(category)
+    _token_category(category)
   end
-  def self._token_category(name)
-    eval "@@#{name} = RxHash.new"
+  def self._token_category(category)
+    eval "@@#{category} = RxHash.new"
+    eval "@@__sym_return_type__#{category} = {}"
     eval <<-END
-      def #{name}
+      def #{category}
         b = @scanner.pos
-        v =  @@#{name}.longest_token_match(@scanner) or return false
-        m = _match_from(b)
-        init = @@types[v] or raise "bug"
+        tmp = @@#{category}.longest_token_match(self,@scanner) or return false
+        sym_re,v =  tmp
+        return_type = @@__sym_return_type__#{category}[sym_re]
+        init = @@__types__[return_type] or raise "bug"
+        stuff = v.is_a?(TrueClass) ? nil : {:kludge =>v}
+        m = _match_from(b,stuff,'#{category}')
         precop_mumble(m,init)
         m
       end
     END
   end
 
-  def self.def_tokens_simple(fix,type,syms)
-    syms.each{|sym| _token(fix,type,sym) }
+  def self.def_tokens_simple(category, return_type, syms)
+    syms.each{|sym| _token(category, return_type, sym) }
   end
-  def self.def_tokens_before(fix,type,syms)
-    syms.each{|sym| _token(fix,type,sym) }
+  def self.def_tokens_before(category, return_type, syms)
+    syms.each{|sym| _token(category, return_type, sym) }
   end
-  def self._token(fix,type,sym)
-    h = eval "@@#{fix}"
-    h[Regexp.new(Regexp.quote(sym))] = type
+  def self.def_tokens_circum(return_type, left_syms, rest_code)
+    category = :circumfix
+    rest_method_name = "__#{category}_#{rand(10000000)}"
+    eval "def #{rest_method_name}; #{rest_code}; end"
+    rest = rest_method_name.to_sym
+    left_syms.each{|sym| _token(category, return_type, sym, rest) }
+  end
+  def self._token(category, return_type, sym, rest=true)
+    sym_re = Regexp.new(Regexp.quote(sym))
+    (eval "@@__sym_return_type__#{category}")[sym_re] = return_type
+    (eval "@@#{category}")[sym_re] = rest
+  end
+end
+
+class RxHash < Hash
+  def longest_token_match(gram,scanr)
+    @cache ||= keys.sort{|a,b| b.to_s.length <=> a.to_s.length}
+    @cache.each{|k|
+      b = scanr.pos
+      scanr.scan(k) or next
+      hv = self[k]
+      if hv.is_a? Symbol
+        (v = gram.send(hv)) and return [k,v]
+      elsif hv.is_a? String
+        scanr.scan(v) and return [k,true]
+      #elsif hv.respond_to?(:call)
+      #  (v = hv.()) and return [k,v]
+      else
+        return [k,hv]
+      end
+      scanr.pos = b
+    }
+    false
+  end
+  alias :_RxHash_set :[]=
+  def []=(k,v)
+    @cache = nil
+    _RxHash_set(k,v)
   end
 end
 
@@ -234,19 +273,6 @@ end
 $env_vars = EnvVars.new
 
 
-class RxHash < Hash
-  def longest_token_match(scanner)
-    @cache ||= keys.sort{|a,b| b.to_s.length <=> a.to_s.length}
-    @cache.each{|k| scanner.scan(k) and return self[k] }
-    nil
-  end
-  alias :_RxHash_set :[]=
-  def []=(k,v)
-    @cache = nil
-    _RxHash_set(k,v)
-  end
-end
-
 require 'readline'
 class Repl
   def initialize(history_filename="deleteme_hist")
@@ -265,6 +291,7 @@ class Repl
       break if not s or s == ""
       p Object.module_eval(s)
     end
+    save_history
   end
   def expr
     while true
@@ -272,9 +299,11 @@ class Repl
       break if not s or s == ""
       p Perl.new(s)._EXPR(false)
     end
+    save_history
   end
   def parser_rule
     while true
+      print "Example rules: _EXPR  infix  integer\n"
       s = Readline.readline("rule: ",true)
       break if not s or s == ""
       rule = s
@@ -284,6 +313,7 @@ class Repl
         eval("p Perl.new(s).#{rule}")
       end
     end
+    save_history
   end
   def parser_input
     while true
@@ -297,5 +327,6 @@ class Repl
         eval("p Perl.new(input).#{rule}")
       end
     end
+    save_history
   end
 end

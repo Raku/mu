@@ -110,30 +110,32 @@ class Perl < Grammar
         starTOK{ unsp || (seqTOK{scan(/\v/); heredoc}) || unv }
         ws_to = pos
     end
-    def unsp; wrap{ scan(/\\/) and before(/\s|\#/) and starTOK{ scan(/\v/) || unv } }; end
+    def unsp; let_pos{ scan(/\\/) and before(/\s|\#/) and starTOK{ scan(/\v/) || unv } }; end
     def unv
-        wrap{
+        let_pos{
             scan(/[ \t]+/) or
             (after(/\n|\A/) and (pod_comment or
-                                 (wrap{ scan(/\#/) and ((bracketed and panic("Can't use embedded comments in column 1")) or
+                                 (let_pos{ scan(/\#/) and ((bracketed and panic("Can't use embedded comments in column 1")) or
                                                         scan(/.*/)) } ))) or
             (scan(/\#/) and (bracketed or scan(/.*/)))
         }
     end
 
+    def statement_list
+        starRULE{ statement }
+    end
 
     def expect_infix
         ((i = infix) && starTOK{infix_postfix_meta_operator} && i) || #R XXX
             infix_prefix_meta_operator || infix_circumfix_meta_operator
     end
 
-    def prefix; false; end
-    def prefix_circumfix_meta_operator; false; end
-    def infix_circumfix_meta_operator; false; end
-    def expect_postfix; false; end
-    def adverbs; false; end
+
 
     ## term
+    #R...missing...
+#    def_tokens_circum :term,%w{ ( },%q{let_pos{ statementlist and scan(/\)/) }}
+    def_tokens_circum :term,%w{ ( },%q{let_pos{ (t = _EXPR()) and scan(/\)/) and t }}
     #R...missing...
     def_tokens_simple :infix,:methodcall,%w{ . }
     def_tokens_simple :postfix,:methodcall,%w{ -> }
@@ -152,7 +154,7 @@ class Perl < Grammar
     #R regex - ##Q why is this a regex?
     def stdstopper
         (@scanner.eos? ||
-#R         terminator || statement_mod_cond || statement_mod_loop ||
+         terminator || statement_mod_cond || statement_mod_loop ||
 #R         cent.pos == env[:endstmt] ||
 #R         cent.pos == env[:endargs]
 #R         #    | <$+unitstopper> #R?
@@ -164,7 +166,8 @@ false #R
     def push(a,e);a.push(e);end
     def reverse(a);a.reverse;end
     def item(h);raise "what does item do?";end
-    def _EXPR(seenS, preclimH=nil, stopS=nil, *fateA) #R Args reordered!
+    def _EXPR(*args); let_pos{ _EXPR_raw(*args) }; end
+    def _EXPR_raw(seenS=false, preclimH=nil, stopS=nil, *fateA) #R Args reordered!
         hereS_workaround = self
 
         preclimH ||= LOOSESTH
@@ -273,7 +276,7 @@ false #R
             
             # Equal precedence, so use associativity to decide.
             if opstackA[-1][:prec] == thisprecS 
-                case $env_vars[:thisopH][:assoc] 
+                case $env_vars[:thisopH][:assoc].to_s
                 when 'non' ;   hereS_workaround.panic("\"#{infixS}\" is not associative")
                 when 'left' ;  reduce.()   # reduce immediately
                 when 'right';  # just shift
@@ -331,17 +334,15 @@ false #R
 
         # now push ops over the noun according to precedence.
         #    { make $¢.nounphrase(:noun($<noun>), :pre(@<pre>), :post(@<post>)) }
-        _match_from(b,{:noun=>_noun,:postfix=>postfix})
+        _match_from(b,{:noun=>_noun,:postfix=>postfix},'expect_term')
     end
     
     def noun
         #R (pair || package_declarator || scope_declarator || plurality_declarator ||
-        #R  routine_declarator || regex_declarator || type_declarator || circumfix ||
-        ( variable || value || subcall || capterm || sigterm || term || statement_prefix)
+        (  routine_declarator || regex_declarator || type_declarator || circumfix ||
+           variable || value || subcall || capterm || sigterm || term || statement_prefix)
     end
-    def variable; false; end
     def value; quote || number || version || fulltypename; end
-    def quote; false; end
     def number; dec_number || integer || rad_number; end
     def integer
         _match_pat %r{
@@ -352,16 +353,20 @@ false #R
               | \d+(_\d+)*
               )
             | \d+(_\d+)*
-        }x
+        }x,'integer'
     end
-    def dec_number; false; end
 
-
-    def heredoc
+    def method_missing(method, *args)
+        print "FAKING #{method}\n"
+        false
     end
 end
 
-# p Perl.new(('2+3*4'))._EXPR(false)
+#p Perl.new(('3')).expect_infix
+#p Perl.new((')')).terminator
+#p Perl.new(('2')).expect_term
+#p Perl.new(('(2)')).circumfix
+#p Perl.new(('2+3*4'))._EXPR
 #Repl.new.expr
 Repl.new.parser_rule
 
