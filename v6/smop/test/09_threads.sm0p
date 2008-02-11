@@ -14,6 +14,7 @@ typedef struct ThreadTestStruct {
 } ThreadTestStruct;
 
 static SMOP__Object* method1;
+static SMOP__Object* method2;
 
 static SMOP__Object* custom_MESSAGE(SMOP__Object* interpreter,
                                     SMOP__ResponderInterface* self,
@@ -26,6 +27,15 @@ static SMOP__Object* custom_MESSAGE(SMOP__Object* interpreter,
     smop_lowlevel_unlock(obj);
     SMOP_RELEASE(interpreter, obj);
     printf("ok %d - method1 called.\n", r);
+    usleep(10000);
+  } else if (identifier == method2) {
+    SMOP__Object* obj = SMOP__NATIVE__capture_invocant(interpreter,capture);
+    smop_lowlevel_rdlock(obj);
+    int r = ((ThreadTestStruct*)obj)->testvalue;
+    smop_lowlevel_unlock(obj);
+    SMOP_RELEASE(interpreter, obj);
+    printf("# method2 called when value is %d.\n", r);
+    usleep(10000);
   } else if (identifier == SMOP__ID__DESTROYALL) {
     printf("ok 9 - DESTROYALL called.\n");
     return NULL;
@@ -70,11 +80,47 @@ void* threaded_function(void* object) {
   return NULL;
 }
 
+void* readonly_function(void* object) {
+  SMOP__Object* obj = (SMOP__Object*)object;
+
+  SMOP__Object* interpreter = SMOP_DISPATCH(SMOP__INTPTR__InterpreterInstance,
+                                            SMOP_RI(SMOP__INTPTR__InterpreterInstance),
+                                            SMOP__ID__new, 
+                                            SMOP__NATIVE__capture_create(SMOP__INTPTR__InterpreterInstance,
+                                                                         SMOP__INTPTR__InterpreterInstance,NULL,NULL));
+
+
+  SMOP__Object* node = NULL;
+
+  node = q:sm0p {
+    ;
+    $obj.$method2();
+    $obj.$method2();
+    $obj.$method2();
+    $obj.$method2();
+  };
+   
+  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                SMOP__ID__goto,
+                node);
+
+  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                SMOP__ID__loop, SMOP__NATIVE__capture_create(interpreter,
+                                                             SMOP_REFERENCE(interpreter,interpreter),
+                                                             NULL, NULL));
+
+  SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,interpreter);
+
+  return NULL;
+}
+
+
 int main(int argc, char** argv) {
   printf("1..10\n");
 
   smop_init();
   method1 = SMOP__ID__new;
+  method2 = SMOP__ID__goto;
 
   SMOP__Object* obj = smop_lowlevel_alloc(sizeof(ThreadTestStruct));
   SMOP__ResponderInterface* ri = (SMOP__ResponderInterface*)obj;
@@ -82,9 +128,11 @@ int main(int argc, char** argv) {
   ri->REFERENCE = smop_lowlevel_refcnt_inc;
   ri->RELEASE = smop_lowlevel_refcnt_dec;
 
-  pthread_t t1, t2;
+  pthread_t t1, t2, t3;
   pthread_create(&t1, NULL, &threaded_function, obj);
   pthread_create(&t2, NULL, &threaded_function, obj);
+  pthread_create(&t3, NULL, &readonly_function, obj);
+  pthread_join(t3, NULL);
   pthread_join(t2, NULL);
   pthread_join(t1, NULL);
 
