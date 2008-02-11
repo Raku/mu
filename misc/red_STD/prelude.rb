@@ -93,8 +93,12 @@ class Grammar
   def starRULE(f=nil,&blk)
     fun = f || blk
     a = []
+    p = pos
     dot_ws
-    while v = fun.(); a.push(v); dot_ws; end
+    while v = fun.()
+      a.push(v); dot_ws
+      p1 = pos; break if not p < p1; p = p1
+    end
     a
   end
   def plusRULE(f=nil,&blk)
@@ -102,8 +106,12 @@ class Grammar
     dot_ws
     v = fun.() or return false
     a = [v]
+    p = pos
     dot_ws
-    while v = fun.(); a.push(v); dot_ws; end
+    while v = fun.()
+      a.push(v); dot_ws
+      p1 = pos; break if not p < p1; p = p1
+    end
     a
   end
 
@@ -303,7 +311,7 @@ class Repl
   end
   def parser_rule
     while true
-      print "Example rules: _EXPR  infix  integer\n"
+      print "Example rules: _UNIT  _EXPR  infix  integer\n"
       s = Readline.readline("rule: ",true)
       break if not s or s == ""
       rule = s

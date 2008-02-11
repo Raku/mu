@@ -20,6 +20,26 @@ class Perl < Grammar
 
     def _TOP; _UNIT( $env_vars[:unitstopper] || "_EOS" ); end
 
+    def _UNIT (_unitstopper =nil)
+        $env_vars.scope_enter(:unitstopper)
+        $env_vars[:unitstopper] = _unitstopper || "_EOS"
+        # UNIT: do {
+        v = comp_unit()
+        $env_vars.scope_leave
+        v
+    end
+
+    def comp_unit
+        $env_vars.scope_enter(:begin_compunit,:endstmt,:endargs)
+        $env_vars[:begin_compunit] = 1
+        $env_vars[:endstmt] = -1
+        $env_vars[:endargs] = -1
+        dot_ws
+        _sl = statementlist
+        $env_vars[:unitstopper] or panic("Can't understand next input--giving up")
+        _sl
+    end
+
     #module PrecOp
     def precop_mumble(m,defaults)
         defaults.each{|k,v| m[k] = v if not m.key? k }
@@ -121,9 +141,39 @@ class Perl < Grammar
         }
     end
 
-    def statement_list
+    def statementlist
         starRULE{ statement }
     end
+
+    def statement
+        $env_vars.scope_enter(:endstmt)
+        $env_vars[:endstmt] = -1;
+        dot_ws
+        b = pos
+        label_ = starRULE{ label }; dot_ws
+        ( control_ = statement_control or
+          ( x = expect_term and dot_ws and expr = _EXPR(x) and dot_ws and
+           ( before{ stdstopper } or
+             let_pos{ mod_loop_ = statement_mod_loop and dot_ws and loopx = _EXPR } or 
+             ( let_pos{ mod_cond_ = statement_mod_cond and dot_ws and condx = _EXPR } and
+               (  before{ stdstopper } or
+                  let_pos{ mod_condloop_ = statement_mod_loop and dot_ws and loopx = _EXPR } )))) or
+          before(/;/))
+        dot_ws
+        eat_terminator
+        dot_ws
+        $env_vars.scope_leave
+        m = _match_from(b,{:expr =>expr},'statement')
+    end
+
+    def eat_terminator
+        ( scan(/;/) or
+          ($env_vars[:endstmt] == ws_from) or 
+          before{ terminator } or
+          @scanner.eos? or #R added QUESTION: what's the right thing?
+          panic("Statement not terminated properly"))
+    end
+
 
     def expect_infix
         ((i = infix) && starTOK{infix_postfix_meta_operator} && i) || #R XXX
@@ -131,11 +181,9 @@ class Perl < Grammar
     end
 
 
-
     ## term
     #R...missing...
-#    def_tokens_circum :term,%w{ ( },%q{let_pos{ statementlist and scan(/\)/) }}
-    def_tokens_circum :term,%w{ ( },%q{let_pos{ (t = _EXPR()) and scan(/\)/) and t }}
+    def_tokens_circum :term,%w{ ( },%q{let_pos{ t = statementlist and scan(/\)/) and t }}
     #R...missing...
     def_tokens_simple :infix,:methodcall,%w{ . }
     def_tokens_simple :postfix,:methodcall,%w{ -> }
@@ -254,7 +302,8 @@ false #R
             my infixA = [hereS_workaround.expect_infix()];
             my infixS = infixA[0];
             hereS = infixS;
-        
+            dot_ws
+
             # XXX might want to allow this in a declaration though
             if not infixS;  hereS_workaround.panic("Can't have two terms in a row"); end
 
@@ -293,8 +342,6 @@ false #R
                 hereS_workaround.panic("#{infixS.perl()} is missing right term");
             end
             $env_vars[:thisopH] = {}
-
-            dot_ws #R added
 
             my tA = [hereS_workaround.expect_term()];
             hereS = tA[0];
