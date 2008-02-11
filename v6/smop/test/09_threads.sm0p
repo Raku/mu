@@ -26,7 +26,7 @@ static SMOP__Object* custom_MESSAGE(SMOP__Object* interpreter,
     int r = ++((ThreadTestStruct*)obj)->testvalue;
     smop_lowlevel_unlock(obj);
     SMOP_RELEASE(interpreter, obj);
-    printf("ok %d - method1 called.\n", r);
+    printf("ok %d - method1 called by interpreter %p.\n", r, interpreter);
     usleep(10000);
   } else if (identifier == method2) {
     SMOP__Object* obj = SMOP__NATIVE__capture_invocant(interpreter,capture);
