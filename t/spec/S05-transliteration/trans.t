@@ -2,12 +2,13 @@ use v6-alpha;
 
 use Test;
 
-=kwid
+=begin pod
 
 String transliteration
-L<S05/Transliteration>
-=cut
 
+L<S05/Transliteration>
+
+=end pod
 
 plan 17;
 
@@ -16,7 +17,6 @@ is("ABC".trans( ('A'=>'a'), ('B'=>'b'), ('C'=>'c') ),"abc",
 
 is("XYZ".trans( ('XYZ' => 'xyz') ),"xyz",
            "The two sides of the any pair can be strings interpreted as tr/// would multichar");
-
 
 is("ABC".trans( ('A..C' => 'a..c') ),"abc",
            "The two sides of the any pair can be strings interpreted as tr/// would range");
@@ -30,6 +30,7 @@ is("ABC-DEF".trans(("A..YZ-" => "a..z_")),"abc_def",
 
 is("ABCDEF".trans( ('A B .. E' => 'ab..e') ), "abcdeF",
                   "The two sides can consists of both chars and ranges");
+
 is("ABCDEFGH".trans( ('A..CE..G' => ' a..c e..g ') ),"abcDefgH",
                   "The two sides can consist of multiple ranges");
 
@@ -47,7 +48,6 @@ is("abcde".trans( ('a .. e' => ['A' .. 'E']) ), "ABCDE",
 is("ABCDE".trans( (['A' .. 'E'] => "a .. e") ), "abcde",
 	   "Using array reference on one side and string range on the other");
 
-
 is(" <>&".trans( (['<',    '>',    '&',    ] => 
                   ['&lt;', '&gt;', '&amp;' ]))," &lt;&gt;&amp;",
          "The array version can map one characters to one-or-more characters except spaces");
@@ -56,9 +56,9 @@ is(" <>&".trans( ([' ',      '<',    '>',    '&'    ] =>
                   ['&nbsp;', '&lt;', '&gt;', '&amp;' ])),"&nbsp;&lt;&gt;&amp;",
          "The array version can map one-or-more characters to one-or-more characters");
 
+#?pugs todo 'feature'
 is(eval('"abc".trans(<== "a" => "A")'), "Abc",
-    "you're allowed to leave off the (...) named arg parens when you use <==",
-    :todo<feature>);
+    "you're allowed to leave off the (...) named arg parens when you use <==");
 
 # Make sure the tr/// version works, too.  
 
