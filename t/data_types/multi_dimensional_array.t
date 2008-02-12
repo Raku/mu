@@ -1,21 +1,18 @@
 use v6-alpha;
-
 use Test;
 
-=kwid
+=begin pod
 
 Multi-Dimensional Arrays
 
-=cut
+=end pod
 
 plan 31;
 
 # multi-dimensional array
 
 my $multi1 = [1, ['foo', 'bar', 'baz'], 5];
-
 is(+$multi1, 3, 'the multi1 has 3 elements');
-
 is($multi1[0], 1, 'got the right value at multi1 index 0');
 
 {
@@ -23,14 +20,16 @@ is($multi1[0], 1, 'got the right value at multi1 index 0');
     is(+$array, 3, 'multi1[1] has 3 elements');
     is(+$multi1[1], 3, '+$multi1[1] works')
 }
+
 isa_ok($multi1[1], 'List');
 
 # multi-dimensional array slices 
 # L<S09/"Subscript and slice notation"/index value to each slice>
 
-is(eval('$multi1[1;0]'), 'foo', 'got the right value at multi1 index 1,0', :todo);
-is(eval('$multi1[1;1]'), 'bar', 'got the right value at multi1 index 1,1', :todo);
-is(eval('$multi1[1;2]'), 'baz', 'got the right value at multi1 index 1,2', :todo);
+#?pugs 3 todo 'multi-dimensional indexing'
+is(eval('$multi1[1;0]'), 'foo', 'got the right value at multi1 index 1,0');
+is(eval('$multi1[1;1]'), 'bar', 'got the right value at multi1 index 1,1');
+is(eval('$multi1[1;2]'), 'baz', 'got the right value at multi1 index 1,2');
 
 # and the normal syntax
 
@@ -57,9 +56,10 @@ isa_ok($multi2[0], 'List');
 
 # slice
 
-is(eval('$multi2[0;0]'), 1, 'got the right value at multi2 index 0,0', :todo);
-is(eval('$multi2[0;1]'), 2, 'got the right value at multi2 index 0,1', :todo);
-is(eval('$multi2[0;2]'), 3, 'got the right value at multi2 index 0,2', :todo);
+#?pugs 3 todo ''
+is(eval('$multi2[0;0]'), 1, 'got the right value at multi2 index 0,0');
+is(eval('$multi2[0;1]'), 2, 'got the right value at multi2 index 0,1');
+is(eval('$multi2[0;2]'), 3, 'got the right value at multi2 index 0,2');
 
 # normal 
 
@@ -77,9 +77,10 @@ isa_ok($multi2[1], 'List');
 
 # slice 
 
-is(eval('$multi2[1;0]'), 4, 'got the right value at multi2 index 1,0', :todo);
-is(eval('$multi2[1;1]'), 5, 'got the right value at multi2 index 1,1', :todo);
-is(eval('$multi2[1;2]'), 6, 'got the right value at multi2 index 1,2', :todo);
+#?pugs 3 todo ''
+is(eval('$multi2[1;0]'), 4, 'got the right value at multi2 index 1,0');
+is(eval('$multi2[1;1]'), 5, 'got the right value at multi2 index 1,1');
+is(eval('$multi2[1;2]'), 6, 'got the right value at multi2 index 1,2');
 
 # normal
 
