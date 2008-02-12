@@ -136,7 +136,7 @@ This will traverse the hierarchy calling BUILD in each class.
       return $object!buildall_recurse($object, @protoobjects, %initialize);
   }
 
-  my method !buildall_recurse($object: $prototype, *@protoobjects, *%initialize) {
+  my method buildall_recurse($object: $prototype, *@protoobjects, *%initialize) {
       for ($prototype.^!isa()) -> $isa {
           $object!buildall_recurse($isa, |@protoobjects, |%initialize)
       }
@@ -164,7 +164,7 @@ This will traverse the hierarchy calling DESTROY in each class.
       $object!destroyall_recurse($object);
   }
 
-  my method !destroyall_recurse($object: $prototype) {
+  my method destroyall_recurse($object: $prototype) {
       $prototype.?DESTROY($object: );
       $object.^!destroy_instance_storage($prototype.^!package());
 
