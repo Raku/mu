@@ -184,7 +184,7 @@ class Grammar
     _token_category(category)
   end
   def self._token_category(category)
-    eval "@@#{category} = RxHash.new"
+    eval "@@#{category} = HashInToken.new"
     eval "@@__sym_return_type__#{category} = {}"
     eval <<-END
       def #{category}
@@ -192,13 +192,21 @@ class Grammar
         tmp = @@#{category}.longest_token_match(self,@scanner) or return false
         sym_re,v =  tmp
         return_type = @@__sym_return_type__#{category}[sym_re]
-        init = @@__types__[return_type] or raise "bug"
+        init = @@__types__[return_type]; init or init.is_a?(FalseClass) or raise "bug"
         stuff = v.is_a?(TrueClass) ? nil : {:kludge =>v}
         m = _match_from(b,stuff,'#{category}')
-        precop_mumble(m,init)
+        precop_method(m,init) if init
         m
       end
     END
+  end
+
+  $warn_once_23016 = true
+  def self.def_category_rules(category,syms,all_code)
+    if $warn_once_23016; print "Hash interpolated into rule (not token) is not yet implemented.\n"; $warn_once_23016 =false; end
+    syms.each{|sym|
+      #...
+    }
   end
 
   def self.def_tokens_simple(category, return_type, syms)
@@ -208,7 +216,9 @@ class Grammar
     syms.each{|sym| _token(category, return_type, sym) }
   end
   def self.def_tokens_circum(return_type, left_syms, rest_code)
-    category = :circumfix
+    def_tokens_rest(:circumfix, return_type, left_syms, rest_code)
+  end
+  def self.def_tokens_rest(category, return_type, left_syms, rest_code)
     rest_method_name = "__#{category}_#{rand(10000000)}"
     eval "def #{rest_method_name}; #{rest_code}; end"
     rest = rest_method_name.to_sym
@@ -221,12 +231,12 @@ class Grammar
   end
 end
 
-class RxHash < Hash
+class HashInToken < Hash
   def longest_token_match(gram,scanr)
     @cache ||= keys.sort{|a,b| b.to_s.length <=> a.to_s.length}
     @cache.each{|k|
       b = scanr.pos
-      scanr.scan(k) or next
+      scan_key(gram,scanr,k) or next
       hv = self[k]
       if hv.is_a? Symbol
         (v = gram.send(hv)) and return [k,v]
@@ -241,10 +251,23 @@ class RxHash < Hash
     }
     false
   end
-  alias :_RxHash_set :[]=
+  def scan_key(gram,scanr,k)
+    scanr.scan(k)
+  end
+  alias :_HashInToken_set :[]=
   def []=(k,v)
     @cache = nil
-    _RxHash_set(k,v)
+    _HashInToken_set(k,v)
+  end
+end
+class HashInRule < HashInToken
+  def scan_key(gram,scanr,k)
+    let_pos{
+      gram.dot_ws
+      v = scanr.scan(k) or return false
+      gram.dot_ws
+      v
+    }
   end
 end
 
