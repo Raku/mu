@@ -132,6 +132,7 @@ This will traverse the hierarchy calling BUILD in each class.
 
 
   method BUILDALL($object: *@protoobjects, *%initialize) {
+      fail if not $object.^!instance;
       return $object!buildall_recurse($object, @protoobjects, %initialize);
   }
 
