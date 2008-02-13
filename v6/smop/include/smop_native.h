@@ -35,6 +35,7 @@ extern SMOP__Object* SMOP__NATIVE__capture;
 
 // create methods
 SMOP__Object*   SMOP__NATIVE__idconst_create(const char* value);
+SMOP__Object*   SMOP__NATIVE__idconst_createn(const char* value, int size);
 SMOP__Object*   SMOP__NATIVE__bytes_create(char* value, int size);
 SMOP__Object*   SMOP__NATIVE__bit_create(int value);
 SMOP__Object*   SMOP__NATIVE__int_create(int value);
@@ -56,7 +57,7 @@ SMOP__Object*   SMOP__NATIVE__capture_delegate(SMOP__Object* interpreter,
                                                SMOP__Object* original_capture);
 
 // get methods
-char*           SMOP__NATIVE__idconst_fetch(SMOP__Object* value);
+char*           SMOP__NATIVE__idconst_fetch(SMOP__Object* value, int* retsize);
 char*           SMOP__NATIVE__bytes_fetch(SMOP__Object* value, int* retsize);
 int             SMOP__NATIVE__bit_fetch(SMOP__Object* value);
 int             SMOP__NATIVE__int_fetch(SMOP__Object* value);

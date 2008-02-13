@@ -76,3 +76,13 @@ SMOP__Object* SMOP__NATIVE__idconst_create(const char* value) {
   strncpy(ret->data, value, size);
   return ret;
 }
+
+SMOP__Object* SMOP__NATIVE__idconst_createn(const char* value, int size) {
+  SMOP__Object* ret = calloc(1,sizeof(SMOP__Object));
+  assert(ret);
+  ret->RI = SMOP__NATIVE__idconst_RI;
+  ret->data = calloc(1,size+1);
+  assert(ret->data);
+  strncpy(ret->data, value, size);
+  return ret;
+}
