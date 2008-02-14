@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
 
   other = SMOP__NATIVE__idconst_createn("hello\0", 6);
   if (mine == other) printf("not ");
-  printf("ok 7 - \\0 may be part of a string, and it should be part of the compairision..\n");
+  printf("ok 6 - \\0 may be part of a string, and it should be part of the compairision..\n");
 
   smop_destr();
 
