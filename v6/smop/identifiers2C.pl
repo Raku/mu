@@ -27,4 +27,3 @@ print {$init} $rest;
 close $file;
 close $decl;
 close $init;
-close $dstr;

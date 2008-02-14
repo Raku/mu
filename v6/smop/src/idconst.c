@@ -7,6 +7,7 @@
 #include <smop.h>
 #include <assert.h>
 #include <pthread.h>
+#include <stdio.h>
 #include "smop_internal.h"
 
 static SMOP__Object** constlist;
@@ -28,15 +29,17 @@ typedef struct SMOP__NATIVE__idconst_data {
 } SMOP__NATIVE__idconst_data;
 
 static int cmp_idconst(const void* p1, const void* p2) {
-  if (!p1 && !p2)
+  if (!p1 && !p2) {
     return 0;
-  else if (p1 && !p2)
+  } else if (p1 && !p2) {
     return 1;
-  else if (!p1 && p2)
+  } else if (!p1 && p2) {
     return -1;
-  else {
-    SMOP__NATIVE__idconst_data* n1 = (SMOP__NATIVE__idconst_data*)(((SMOP__Object*)p1)->data);
-    SMOP__NATIVE__idconst_data* n2 = (SMOP__NATIVE__idconst_data*)(((SMOP__Object*)p2)->data);
+  } else {
+    SMOP__Object* o1 = *(SMOP__Object**)p1;
+    SMOP__Object* o2 = *(SMOP__Object**)p2;
+    SMOP__NATIVE__idconst_data* n1 = (SMOP__NATIVE__idconst_data*)o1->data;
+    SMOP__NATIVE__idconst_data* n2 = (SMOP__NATIVE__idconst_data*)o2->data;
     if (n1->size > n2->size) {
       int r = strncmp(n1->content, n2->content, n2->size);
       return r ? r : -1;
@@ -91,12 +94,12 @@ SMOP__Object* SMOP__NATIVE__idconst_createn(const char* value, int size) {
   SMOP__Object* candidate = SMOP__NATIVE__idconst_createn_nolist(value,size);
 
   assert(pthread_rwlock_rdlock(&constlist_lock) == 0);
-  SMOP__Object* ret = bsearch(candidate, constlist, constlist_size - 1, sizeof(SMOP__Object*), cmp_idconst);
+  SMOP__Object** ret = bsearch(&candidate, constlist, constlist_size, sizeof(SMOP__Object*), cmp_idconst);
   assert(pthread_rwlock_unlock(&constlist_lock) == 0);
 
   if (ret) {
     SMOP__NATIVE__idconst_free(candidate);
-    return ret;
+    return *ret;
   } else {
 
     assert(pthread_rwlock_wrlock(&constlist_lock) == 0);
@@ -108,7 +111,7 @@ SMOP__Object* SMOP__NATIVE__idconst_createn(const char* value, int size) {
 
     constlist[constlist_size - 1] = candidate;
 
-    qsort(constlist, constlist_size - 1, sizeof(SMOP__Object*), cmp_idconst);
+    qsort(constlist, constlist_size, sizeof(SMOP__Object*), cmp_idconst);
 
     assert(pthread_rwlock_unlock(&constlist_lock) == 0);
 
@@ -136,7 +139,7 @@ void smop_idconst_init() {
   // initialize the constants
 #include "idconst_init_all.c"
 
-  qsort(constlist, constlist_size - 1, sizeof(SMOP__Object*), cmp_idconst);
+  qsort(constlist, constlist_size, sizeof(SMOP__Object*), cmp_idconst);
 
   assert(pthread_rwlock_init(&constlist_lock, NULL) == 0);
   

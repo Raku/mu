@@ -10,7 +10,7 @@
  */
 
 int main(int argc, char** argv) {
-  printf("1..7\n");
+  printf("1..6\n");
 
   smop_init();
 
@@ -37,12 +37,8 @@ int main(int argc, char** argv) {
   if (mine != other) printf("not ");
   printf("ok 5 - idconst_createn should also check for previously created matching constants, but trimming the string on the size.\n");
 
-  other = SMOP__NATIVE__idconst_createn("hello world", 5);
-  if (mine != other) printf("not ");
-  printf("ok 6 - idconst_createn should also check for previously created matching constants, but trimming the string on the size.\n");
-
   other = SMOP__NATIVE__idconst_createn("hello\0", 6);
-  if (mine != other) printf("not ");
+  if (mine == other) printf("not ");
   printf("ok 7 - \\0 may be part of a string, and it should be part of the compairision..\n");
 
   smop_destr();
