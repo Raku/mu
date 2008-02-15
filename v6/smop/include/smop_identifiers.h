@@ -37,4 +37,34 @@ extern SMOP__Object* SMOP__ID__result;            /* "result" */
 extern SMOP__Object* SMOP__ID__setr;              /* "setr" */
 extern SMOP__Object* SMOP__ID__outer;             /* "outer" */
 
+extern SMOP__Object* SMOP__ID__HOW_CREATE;        /* "^CREATE" */
+extern SMOP__Object* SMOP__ID__HOW_methods;       /* "^methods" */
+extern SMOP__Object* SMOP__ID__HOW_attributes;    /* "^attributes" */
+extern SMOP__Object* SMOP__ID__HOW_isa;           /* "^isa" */
+extern SMOP__Object* SMOP__ID__HOW_can;           /* "^can" */
+extern SMOP__Object* SMOP__ID__HOW_has;           /* "^has" */
+
+extern SMOP__Object* SMOP__ID__REPR_CREATE;       /* "^!CREATE" */
+extern SMOP__Object* SMOP__ID__REPR_DESTROY;      /* "^!DESTROY" */
+extern SMOP__Object* SMOP__ID__REPR_clone;        /* "^!clone" */
+extern SMOP__Object* SMOP__ID__REPR_bless;        /* "^!bless" */
+extern SMOP__Object* SMOP__ID__REPR_how;          /* "^!how" */
+extern SMOP__Object* SMOP__ID__REPR_initialize_instance_storage;         /* "^!initialize_instance_storage" */
+extern SMOP__Object* SMOP__ID__REPR_initialize_instance_storage_slot;    /* "^!initialize_instance_storage_slot" */
+extern SMOP__Object* SMOP__ID__REPR_destroy_instance_storage;            /* "^!destroy_instance_storage" */
+extern SMOP__Object* SMOP__ID__REPR_destroy_instance_storage_slot;       /* "^!destroy_instance_storage_slot" */
+extern SMOP__Object* SMOP__ID__REPR_defined;      /* "^!defined" */
+extern SMOP__Object* SMOP__ID__REPR_instance;     /* "^!instance" */
+extern SMOP__Object* SMOP__ID__REPR_whence;       /* "^!whence" */
+extern SMOP__Object* SMOP__ID__REPR_isa;          /* "^!isa" */
+extern SMOP__Object* SMOP__ID__REPR_role;         /* "^!role" */
+extern SMOP__Object* SMOP__ID__REPR_private_storage;                     /* "^!private_storage" */
+extern SMOP__Object* SMOP__ID__REPR_class_storage;                       /* "^!class_storage" */
+extern SMOP__Object* SMOP__ID__REPR_methods;      /* "^!methods" */
+extern SMOP__Object* SMOP__ID__REPR_attributes;   /* "^!attributes" */
+extern SMOP__Object* SMOP__ID__REPR_package;      /* "^!package" */
+extern SMOP__Object* SMOP__ID__REPR_properties;   /* "^!properties" */
+extern SMOP__Object* SMOP__ID__REPR_can;          /* "^!can" */
+extern SMOP__Object* SMOP__ID__REPR_has;          /* "^!has" */
+
 #endif
