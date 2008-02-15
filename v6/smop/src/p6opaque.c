@@ -27,6 +27,11 @@ typedef struct SMOP__p6opaque_LOWL_PoH {
   SMOP__p6opaque_LOWL_H value;
 };
 
+typedef struct SMOP__p6opaque_LOWL_HoA {
+  int count;
+  SMOP__p6opaque_LOWL_PoA* pairs;
+};
+
 typedef struct SMOP__p6opaque_LOWL_HoH {
   int count;
   SMOP__p6opaque_LOWL_PoH* pairs;
