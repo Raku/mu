@@ -41,7 +41,7 @@ call the initialization code from least-derived to most-derived.
 
   method bless($prototype: $candidate?, *@protoobjects, *%initialize --> Object ) {
       $candidate //= $prototype.CREATE();
-      $candidate.^!isa().push($prototype);
+      $candidate.^!bless($prototype);
       $candidate.BUILDALL(|@protoobjects, |%initialize);
       return $candidate;
   }
@@ -148,7 +148,7 @@ This will traverse the hierarchy calling BUILD in each class.
       $object.^!initialize_instance_storage($package);
 
       for ($prototype.^!attributes()) -> $att {
-          $object.^!initialize_instance_storage_slot($package, $att.name(), $att.create_container());
+          $object.^!initialize_instance_storage_slot($package, $att.private_name(), $att.create_container());
       }
 
       # TODO: test if any of the protoobjects are of the same type of
