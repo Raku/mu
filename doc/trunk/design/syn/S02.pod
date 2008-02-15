@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 8 Feb 2008
+  Last Modified: 15 Feb 2008
   Number: 2
-  Version: 128
+  Version: 129
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -722,7 +722,7 @@ with 8-bit integers.)
 
 For graphemes that have no precomposed form, a temporary private
 id should be assigned that uniquely identifies the grapheme.
-If such identifiers are assigned consistently thoughout the process,
+If such ids are assigned consistently thoughout the process,
 comparison of two graphemes is no more difficult than the comparison
 of two integers, and comparison of base characters no more difficult
 than a direct lookup into the id-to-NFD table.
@@ -1988,6 +1988,54 @@ grammar.  Basically, the current grammar has to belong only to the
 current compiling scope.  It may not be shared, at least not without
 explicit consent of all parties.  No magical syntax at a distance.
 Consent of the governed, and all that.
+
+=item *
+
+It is often convenient to have names that contain arbitrary characters
+or other data structures.  Typically these uses involve situations
+where a set of entities shares a common "short" name, but still needs
+for each of its elements to be identifiable individually.  For
+example, you might use a module whose short name is C<ThatModule>,
+but the complete long name of a module includes its version, naming
+authority, and perhaps even its source language.  Similarly,
+sets of operators work together in various syntactic categories
+with names like C<prefix>, C<infix>, C<postfix>, etc.  The long
+names of these operators, however, often contain characters that
+are excluded from ordinary identifiers.
+
+For all such uses, an identifier followed by a subscript-like adverbial
+form (see below) is considered an I<extended identifier>:
+
+    infix:<+>    # the official name of the operator in $a + $b
+    infix:<*>    # the official name of the operator in $a * $b
+    infix:«<=»   # the official name of the operator in $a <= $b
+    prefix:<+>   # the official name of the operator in +$a
+    postfix:<--> # the official name of the operator in $a--
+
+This name is to be thought of semantically, not syntactically.  That is,
+the bracketing characters used do not count as part of the name; only
+the quoted data matters.  These are all the same name:
+
+    infix:<+>
+    infix:<<+>>
+    infix:«+»
+    infix:['+']
+
+Despite the appearance as a subscripting form, these names are resolved
+not at run time but at compile time.  The pseudo-subscripts need not
+be simple scalars.  These are extended with the same two-element list:
+
+    infix:<?? !!>
+    infix:['??','!!']
+
+An identifier may be extended with multiple named identifier
+extensions, in which case the names matter but their order does not.
+These name the same module:
+
+    use ThatModule:ver<2.7.18.28.18>:auth<Somebody>
+    use ThatModule:auth<Somebody>:ver<2.7.18.28.18>
+
+Adverbial syntax will be described more fully later.
 
 =back
 
