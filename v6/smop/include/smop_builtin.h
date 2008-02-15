@@ -18,7 +18,6 @@
 /*
  * The undefined types
  */
-extern SMOP__Object* SMOP__UNDEF__Undef;
 extern SMOP__Object* SMOP__UNDEF__Whatever;
 extern SMOP__Object* SMOP__UNDEF__Failure;
 
