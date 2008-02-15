@@ -144,7 +144,12 @@ This will traverse the hierarchy calling BUILD in each class.
           $object!buildall_recurse($does, |@protoobjects, |%initialize)
       }
 
-      $object.^!initialize_instance_storage($prototype.^!package());
+      my $package = $prototype.^!package();
+      $object.^!initialize_instance_storage($package);
+
+      for ($prototype.^!attributes()) -> $att {
+          $object.^!initialize_instance_storage_slot($package, $att.name(), $att.create_container());
+      }
 
       # TODO: test if any of the protoobjects are of the same type of
       # the current prototype, and if that's the case, translate it into
