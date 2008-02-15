@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 8 Feb 2008
+  Last Modified: 15 Feb 2008
   Number: 3
-  Version: 131
+  Version: 132
 
 =head1 Overview
 
@@ -2284,19 +2284,24 @@ list operator.
 
 =item *
 
-A function predeclared as 0-ary is never considered a list
-operator, though it allows an optional set of empty parentheses.
-Unlike functions and list operators with arguments (see above),
-a 0-ary function does not require parentheses even if followed
+A function predeclared with an empty signature is considered 0-ary
+at run time but is still parsed as a list prefix operator, and looks
+for a following list.  To declare a function that is parsed
+as a simple 0-ary term, you must use the form C<< term:<foo> >>.
+Such a term is never considered a list prefix operator, though it
+allows an optional set of empty parentheses (because it represents a
+C<Code> object).  Unlike functions and list operators with arguments
+(see above), a 0-ary term does not require parentheses even if followed
 immediately by a postfix.
 
 =item *
 
-A non-multi sub predeclared with an arity of exactly 1 parses
-as a named unary in precedence.  All other subs with arguments
-parse as list operators.  (In other words, a named unary operator
-may be declared to take extra arguments only if they are named-only
-arguments.)
+A non-multi sub predeclared with an arity of exactly 1 also still
+parses as a list prefix operator.  You must explicitly use the form
+C<< prefix:<foo> >> to declare C<foo> as a named unary in precedence;
+it must still take a single positional parameter (though any number of
+named parameters are allowed, which can be bound to adverbs).
+All other subs with arguments parse as list operators.
 
 =item *
 
