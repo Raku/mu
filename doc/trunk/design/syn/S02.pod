@@ -2705,6 +2705,57 @@ Obviously C<\e> is preferred when brevity is needed.
 
 =item *
 
+Any character that I<would> start an interpolation in the current
+quote context may be protected from such interpolation by prefixing with
+backslash.  The backslash is always removed in this case.
+
+The treatment of backslashed characters that would I<not> have
+introduced an interpolation varies depending on the type of quote:
+
+=over 4
+
+=item 1.
+
+Any quoting form that includes C<qq> or C<:qq> in its semantic
+derivation (including the normal double quote form) assumes that all
+backslashes are to be considered meaningful.  The meaning depends
+on whether the following character is alphanumeric; if it is, the
+non-interpolating sequence produces a compile-time error.  If the
+character is non-alphanumeric, the backslash is silently removed, on
+the assumption that the string was backslashed using C<quotemeta()>
+or some such.
+
+=item 2.
+
+All other quoting forms (including standard single quotes)
+assume that non-interpolating sequences are to be left unaltered
+because they are probably intended to pass through to the result.
+Backslashes are removed I<only> for the terminating quote or for
+characters that would interpolate if unbackslashed.  (In either case,
+a special exception is made for brackets; if the left bracket would
+interpolate, the right bracket may optionally also be backslashed,
+and if so, the backslash will be removed.  If brackets are used as
+the delimiters, both left and right C<must> be backslashed the same,
+since they would otherwise be counted wrong in the bracket count.)
+
+=back
+
+As a consequence, these all produce the same literal string:
+
+    " \{ this is not a closure } "
+    " \{ this is not a closure \} "
+    q:c / \{ this is not a closure } /
+    q:c / \{ this is not a closure \} /
+    q:c { \{ this is not a closure \} }
+    q { { this is not a closure } }
+    q { \{ this is not a closure \} }
+
+(Of course, matching backslashes is likely to make your syntax
+highlighter a bit happier, along with any other naïve bracket
+counting algorithms...)
+
+=item *
+
 There are no barewords in Perl 6.  An undeclared bare identifier will
 always be taken to mean a subroutine name.  (Class names
 (and other type names) are predeclared, or prefixed with the C<::>
