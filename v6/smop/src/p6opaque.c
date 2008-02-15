@@ -14,7 +14,7 @@ typedef struct SMOP__p6opaque_LOWL_P {
 
 typedef struct SMOP__p6opaque_LOWL_H {
   int count;
-  SMOP__p6opaque_LOWL_P* array;
+  SMOP__p6opaque_LOWL_P* pairs;
 } SMOP__p6opaque_LOWL_H;
 
 typedef struct SMOP__p6opaque_LOWL_PoA {
@@ -58,6 +58,27 @@ typedef struct SMOP__p6opaque_struct {
   SMOP__p6opaque_LOWL_HoH instance;
 } SMOP__p6opaque_struct;
 
+typedef struct SMOP__p6opaque_proxy_struct {
+  SMOP__Object__BASE
+  SMOP__Object* object;
+} SMOP__p6opaque_proxy_struct;
+
+typedef struct SMOP__p6opaque_canlazylist_struct {
+  SMOP__Object__BASE
+  SMOP__Object* object;
+  SMOP__Object* name;
+  SMOP__Object* capture;
+} SMOP__p6opaque_proxy_struct;
+
+typedef struct SMOP__p6opaque_canlazyiterator_struct {
+  SMOP__Object__BASE
+  SMOP__Object* object;
+  SMOP__Object* name;
+  SMOP__Object* capture;
+  int count_methods_optimal;
+  int count_methods;
+} SMOP__p6opaque_proxy_struct;
+
 SMOP__Object* SMOP__p6opaque__RI;
 SMOP__Object* SMOP__p6opaque__Scalar__whence;
 SMOP__Object* SMOP__p6opaque__Array__isa;
@@ -69,7 +90,7 @@ SMOP__Object* SMOP__p6opaque__Array__attributes;
 SMOP__Object* SMOP__p6opaque__Scalar__package;
 SMOP__Object* SMOP__p6opaque__Hash__properties;
 SMOP__Object* SMOP__p6opaque__List__can;
-
+SMOP__Object* SMOP__p6opaque__Iterator__can;
 
 void smop_p6opaque_init() {
 
