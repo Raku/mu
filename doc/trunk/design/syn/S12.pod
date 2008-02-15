@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 27 Jun 2007
+  Last Modified: 15 Feb 2008
   Number: 12
-  Version: 56
+  Version: 57
 
 =head1 Overview
 
@@ -234,12 +234,19 @@ Dot notation can omit the invocant if it's in C<$_>:
 
     .doit(1,2,3)
 
+Note that there is no corresponding notation for private methods.
+
+    !doit(1,2,3)        # WRONG, would be parsed as not(doit(1,2,3))
+    self!doit(1,2,3)    # okay
+
 There are several forms of indirection for the method name.  You can
 replace the identifier with a quoted string, and it will be evaluated
 as a quote and then the result of that is used as the method name.
 
     $obj."$methodname"(1,2,3)   # use contents of $methodname as method name
     $obj.'$methodname'(1,2,3)   # no interpolation; call method with $ in name!
+
+    $obj!"$methodname"          # indirect call to private method name
 
 [Note: to help catch the mistaken use of C<< infix:<.> >> as a string
 concatenation operator, Perl 6 will warn you about "useless use of
@@ -263,11 +270,12 @@ or more succinctly but less readably:
 
 The variable must contain a Code object, that is, a closure of some
 sort.  Regardless of whether the closure was defined as a method or
-a sub or a block, the closure is called as a method, with the object
-as its first argument, and the rest of the arguments second, third,
-and so on.   For instance, such a closure may be used to abstract a
-"navigational" path through a data structure without specifying the
-root of the path till later:
+a sub or a block, the closure is called directly without any class
+dispatch; from the closure's point of view, however, it is always
+called as a method, with the object as its first argument, and the
+rest of the arguments second, third, and so on.   For instance, such
+a closure may be used to abstract a "navigational" path through a
+data structure without specifying the root of the path till later:
 
     $locator = -> $root, $x, $y { $root.<foo>[$x]<bar>{$y}[3] }
     $obj.$locator(42,"baz")  # $obj<foo>[42]<bar><baz>[3]
@@ -302,7 +310,13 @@ Instead of a scalar variable, an array variable may also be used:
     $obj.@candidates(1,2,3)
 
 As with the scalar variant, each array element must be a Code object,
-but the list is treated as a list of candidates to call.
+but the list is treated as a list of candidates to call.  Note also that
+the 
+
+    $obj.$candidates(1,2,3)
+
+form may dispatch to a list of candidates if $candidates is a special
+C<Code> object representing a partial dispatch to a list of candidates.
 
 Another form of indirection relies on the fact that operators are named
 using a variant on hash subscript notation, which gives you these forms:
@@ -334,17 +348,23 @@ the actual operator is not obvious:
 You must use a special syntax to call a private method:
 
     $mybrain!think($pinky)
+    self!think($pinky)
 
-Parentheses (or a colon) are required on the dot notation if there
+For a call on your own private method, you may also use the attribute-ish form:
+
+    $!think($pinky)     # short for $(self!think($pinky))
+
+Parentheses (or a colon) are required on the dot/bang notations if there
 are any arguments (not counting adverbial arguments).  There may be
 no space between the method name and the left parenthesis unless you
-use the dot form of parentheses:
+use the dot form of parentheses or otherwise make use of "unspace":
 
     .doit       # okay, no arguments
     .doit()     # okay, no arguments
     .doit ()    # ILLEGAL (two terms in a row)
     .doit.()    # okay, no arguments, same as .doit()
-    .doit\ .()  # okay, no arguments, same as .doit() (unspace form)
+    .doit\ ()   # okay, no arguments, same as .doit() (unspace form)
+    .doit\ .()  # okay, no arguments, same as .doit.() (unspace form)
 
 However, you can turn any of the legal forms above into a list
 operator by appending a colon:
@@ -509,6 +529,8 @@ much like with C<our> variables, you may declare a lexically scoped alias
 to the private variable by saying:
 
         has $brain;     # also declares $!brain;
+
+As with the C<!> declaration, no accessor is generated.
 
 And any later references to the private variable within the same block
 may either use or omit the exclamation, as you wish to emphasize or
@@ -1152,16 +1174,13 @@ be considered part of the long name:
         has ID $.collar .= new($tag);
     }
 
-Unlike in a class, within a role the C<has> declarator distinguishes
-private attribute declared with exclamation from those without.
-To declare a private attribute that is shared by the class, use the
-exclamationless notation in the declaration:
+Within a role the C<has> declarator always indicates the declaration
+from the viewpoint of the class.  Therefore a private attribute declared
+using C<has> is private to the class, not to the role.  You may wish to declare an attribute
+that is hidden even from the class; a completely private role
+attribute may be declared like this:
 
-    has Nose $sniffer .= new();
-
-A completely private role attribute may be declared like this:
-
-    has $!spleen;
+    my $!spleen;
 
 The name of such a private attribute is always considered lexically scoped.
 If a role declares private lexical items, those items are private to
@@ -1173,23 +1192,22 @@ In particular, a role may say
 
 to allow C<self!attr()> access to the role's C<$!attr> variables with the
 class or from other roles composed into the class.  Conflicts between
-private accessor are also caught at composition time, but of course
+private accessors are also caught at composition time, but of course
 need not consider super classes, since no-one outside the current
 class (or a trusted class) can call a private accessor at all.
 (Private accessors are never virtual, and must be package qualified
 if called from a trusted scope other than our own.  That is, it's
 either C<self!attr()> or C<$obj!TrustsMe::attr().>)
 
-Outside of the C<has> declaration, the exclamation mark is again optional,
-as with an ordinary private attribute in the class.
-
 A role may also distinguish a shared method
 
-    method foo ...
+    has method foo ...
+    method foo ...      # same
 
 from a nonshared private method:
 
     my method !foo ...
+    my method foo ...   # same, but &foo is aliased to &!foo
 
 Generally you'd just use a lexically scoped sub, though.
 
@@ -1208,8 +1226,8 @@ A role can abstract the decision to delegate:
     }
 
 Note that this puts the three methods into the class as well as
-C<$groomer>.  In contrast, "C<has $!groomer>" would only put the
-three methods.
+C<$groomer>.  In contrast, "C<my $!groomer>" would only put the
+three methods; the attribute itself is private to the role.
 
 A role is allowed to declare an additional inheritance for its class when
 that is considered an implementation detail:
@@ -1240,7 +1258,12 @@ from other classes.
 If there are no method name conflicts between roles (or with the
 class), then each role's methods can be installed in the class.  If,
 however, two roles try to introduce a method of the same name the
-composition of the class fails.
+composition of the class fails.  (Two C<has> attributes of the same
+name, whether public or private, are simply merged into one slot,
+provided the types are the same; otherwise, the composition fails.
+Role-private attributes are not merged, and from the viewpoint of
+the composition, don't even exist, except to allocate a slot for each
+such attribute.)
 
 There are several ways to solve method conflicts.  The first is simply to
 write a class method that overrides the conflicting role methods, perhaps
