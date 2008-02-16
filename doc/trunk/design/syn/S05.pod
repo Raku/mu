@@ -2119,7 +2119,7 @@ you can override that by calling C<make> inside a regex:
 
     my $moose = $(m:{
         <antler> <body>
-        { make Moose.new( body => $body().attach($antler) ) }
+        { make Moose.new( body => $<body>.attach($<antler>) ) }
         # match succeeds -- ignore the rest of the regex
     });
 
