@@ -351,17 +351,16 @@ class Perl < Grammar
     end
 
     def noun
-        (pair || package_declarator || scope_declarator || plurality_declarator ||
-         routine_declarator || regex_declarator || type_declarator || circumfix ||
-         variable || value || subcall || capterm || sigterm || term || statement_prefix)
+        (fatarrow || package_declarator || scope_declarator || plurality_declarator ||
+         routine_declarator || regex_declarator || type_declarator || circumfix || subcall ||
+         variable || value || capterm || sigterm || term || statement_prefix || colonpair)
     end
     
-    def pair
-        let_pos{ ((key = ident and
-                   scan(/[ \t]*/) and
-                   scan(/\=>/) and
-                   val = _EXPR(nil,Hitem_assignment)) or
-                  (plusTOK{ colonpair and dot_ws })) }
+    def fatarrow
+        let_pos{ (key = ident and
+                  scan(/[ \t]*/) and
+                  scan(/\=>/) and
+                  val = _EXPR(nil,Hitem_assignment)) }
     end
 
     def colonpair
@@ -1141,32 +1140,37 @@ class Perl < Grammar
 # }
 
 # regex q_balanced ($lang, $start, $stop, :@esc = $lang.escset) {
-#     <start=$start>
-#     $<text> = [.*?]
-#     @<more> = (
-#         <!before <$stop>>
+#     $start
+#     $<text> = [.*?] ** [
+#         <!before $stop>
 #         [ # XXX triple rule should just be in escapes to be customizable
-#         | <?before <$start> ** 3>
+#         | <?before $start ** 3>
 #             $<dequote> = <EXPR(%LOOSEST,/<$stop> ** 3/)>
 #         | <?before <$start>>
 #             $<subtext> = <q_balanced($lang, $start, $stop, :@esc)>
 #         | <?before @esc>
 #             $<escape> = [ <q_escape($lang)> ]
 #         ]
-#         $<text> = [.*?]
-#     )*
+#     ]
+#     $stop
+#     {*}
+# }
+
+# regex q_unbalanced_rule ($lang, $stop, :@esc = $lang.escset) {
+#     $<text> = [.*?] ** [
+#         <!before <$stop>>
+#         <?before @esc> <escape=q_escape($lang)>
+#     ]
 #     <stop=$stop>
 #     {*}
 # }
 
 # regex q_unbalanced ($lang, $stop, :@esc = $lang.escset) {
-#     $<text> = [.*?]
-#     @<more> = (
-#       <!before <$stop>>
-#       <?before @esc> $<escape> = [ <q_escape($lang)> ]
-#       $<text> = [.*?]
-#     )*
-#     <stop=$stop>
+#     $<text> = [.*?] ** [
+#         <!before $stop>
+#         <?before @esc> <escape=q_escape($lang)>
+#     ]
+#     $stop
 #     {*}
 # }
 
@@ -1347,7 +1351,7 @@ class Perl < Grammar
         rul{ scan(/\=/) and _EXPR(nil,Hitem_assignment) }
     end
 
-    def_rules_rest :statement_prefix,%w{ do try gather contend async lazy },%q{ statement }
+    def_tokens_rest :statement_prefix,%w{ do try gather contend async lazy },%q{ statement }
 
 
     ## term
@@ -1428,13 +1432,13 @@ class Perl < Grammar
     def_tokens_simple :infix,:loose_and,%w{ and andthen }
     def_tokens_simple :infix,:loose_or,%w{ or xor orelse }
     def_tokens_before :terminator,:terminator,%w{ ; <== ==> --> ) ] \} !! }
-    def_tokens_before :terminator,:terminator,%w{ \{ } #R added, XXX speculative
 
 
     #R regex - ##Q why is this a regex?
     def stdstopper
         (@scanner.eos? ||
          terminator || statement_mod_cond || statement_mod_loop ||
+         (before(/{/) and after(/\s/)) ||
 #R         cent.pos == env[:endstmt] ||
 #R         cent.pos == env[:endargs]
 #R         #    | <$+unitstopper> #R?
