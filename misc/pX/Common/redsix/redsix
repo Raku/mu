@@ -1,4 +1,4 @@
-#! /usr/local/bin/ruby-1.9
+#! /usr/bin/env ruby1.9
 # This is a modified snapshot of an old perl6-on-ruby implementation.
 # See README.
 # Uses emacs ruby and outline mode. setq at bottom colorizes heredoc code.
@@ -23,7 +23,7 @@ $ruby_init_code = <<'_CODE'
   def source_ruby(s)
     file,line = caller_file_line
     s_len = s.split(/\n/).size
-    startline = line # - s_len
+    startline = line - s_len - 1
     eval(s,nil,file,startline)
   end
 #  def source_perl(*a) end
@@ -716,7 +716,7 @@ end
 
 class Grammar
   def self.abbrev(arg) arg.map{|a|a.is_a?(Symbol) ? sr(a) : a.is_a?(String) ? sym(a) : a.is_a?(Regexp) ? [:apat,a] : a } end
-  def self.mangle(s) s.to_s.gsub(/z/,'zz').gsub(/([^a-z0-9])/i){|w|sprintf("z%0Xz",w[0])} end
+  def self.mangle(s) s.to_s.gsub(/z/,'zz').gsub(/([^a-z0-9])/i){|w|sprintf("z%0Xz",w[0].ord)} end
 
   def self.alt(*specs) [:apat,[:alt,abbrev(specs)]] end
   def self.seq(*spec) p=[:apat];abbrev(spec).map{|e|p.push(*e)}; p end
@@ -1279,7 +1279,7 @@ define_more_crud
 
 class PastFromParse
   @@map = {}
-  def self.mangle(s) s.to_s.gsub(/z/,'zz').gsub(/([^a-z0-9])/i){|w|sprintf("z%0Xz",w[0])} end
+  def self.mangle(s) s.to_s.gsub(/z/,'zz').gsub(/([^a-z0-9])/i){|w|sprintf("z%0Xz",w[0].ord)} end
   def self.node(name,p) @@map[mangle(name).to_sym] = p end
   node :rx_literal_bare,->(m){
     pat = m.hash[:rx_pattern].as_s
@@ -1746,7 +1746,7 @@ module Past
       all = $1 == 'all'
       ret = []
       instance_variables.each{|iv|
-        n = iv.sub(/^@/,'')
+        n = iv.to_s.sub(/^@/,'')
         next if !self.respond_to?(n)
         node = self.send(n)
         nodes = nil
@@ -2724,7 +2724,7 @@ class Module
       m = todo.shift
       d = $module_included_by[m] || []
       d.each{|m1|
-        m.funcall(:append_features_pre_ModuleIncludeGraph,m1)
+        m.send(:append_features_pre_ModuleIncludeGraph,m1)
       }
       todo += d
     end
@@ -2768,7 +2768,7 @@ class Object
   def obj_clasule; (class << self; self end).clasule end
 end
 class Module
-  def defc(sym,b) clasule.funcall(:define_method,sym,b) end
+  def defc(sym,b) clasule.send(:define_method,sym,b) end
 end
 
 
@@ -2827,7 +2827,7 @@ module Multi
       @map[key].push(type.new(patterns, body))
 
       if ! obj.methods.include?(method_name)
-        klass.funcall(:define_method,method_name.to_sym,proc{|*params, &block|
+        klass.send(:define_method,method_name.to_sym,proc{|*params, &block|
                           Multi::DISPATCHER.dispatch(klass, method_name, params, block)
                       })
       end
@@ -2926,7 +2926,7 @@ class << Object
     #print "method_added(#{id.id2name}) on #{self}\n"
     if self == Object
       #print "punting #{id.id2name}\n"
-      BetterDelegator.funcall(:undef_method,id)
+      BetterDelegator.send(:undef_method,id)
     end
     pre_BetterDelegator_method_added(id)
   end
@@ -2935,8 +2935,8 @@ end
 class Object; def __getobj__; self end end
 module ScalarSetM
   def _(*opt)
-    o = *opt
-    o = *o.to_a if o.listy?
+    o, = *opt
+    o, = *o.to_a if o.listy?
     o ||= pundef
     __setobj__(o)
   end
@@ -3018,7 +3018,7 @@ def df(sym,b)
   }
 end
 
-df :say,->(_E,*args){ print args.map{|a|a.as_s},"\n"}
+df :say,->(_E,*args){ print *args.map{|a|a.as_s},"\n"}
 df :defined,->(_E,x){ x.is_defined}
 df :substr,->(_E,s,off,len){ s.slice(off,len)}
 df :split,->(_E,re,s){ s.split(re)}
@@ -3408,16 +3408,33 @@ def main
     exec("perl",*ARGV) if ARGV[0] == '-le' # pugs "make test" :/
     ARGV.shift if ARGV[0] == '-w'
     if ARGV[0] == '-c'
+      print_usage_and_exit if ARGV.size != 3
       $P.compile_file(ARGV[1],ARGV[2])
     elsif ARGV[0] == '-e'
       $P.eval6(ARGV[1])
+    elsif ARGV[0] =~ /^-/
+      print_usage_and_exit
     else
       print "Parseing #{ARGV[0]}\n"
       $P.eval6_file(ARGV[0])
     end
   end
 end
+def print_usage_and_exit
+  STDERR.print <<_USAGE; exit(2)
 
+#{$0} [ARGS]
+
+With no ARGS, runs an interactive read-eval-print-loop.
+
+  -e EXPRESSION_TO_RUN
+
+  FILE_TO_RUN
+
+  -c FILE_TO_COMPILE TO_FILENAME
+
+_USAGE
+end
 _END
 );
 ;
