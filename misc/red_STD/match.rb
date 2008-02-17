@@ -13,7 +13,7 @@ module MatchDescribe
     a = as_a.map{|m| "\n"+indent.call(m.match_describe(seen))+"," }.join("")
     a += "\n" if a != ""
     h = as_h.map{|k,v|
-      vs = if v.instance_of?(Array)
+      vs = if v.instance_of?(Array) and not v.empty?
              "[\n" + indent.call(v.map{|e| (e.respond_to?(:match_describe) ?
                                             e.match_describe(seen) :
                                             e.inspect)}.join(",\n"))+"\n]"
