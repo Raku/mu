@@ -4,7 +4,7 @@ See the History section for motivation.  It is currently abandoned.
 UPDATE: redsix has now been lightly dusted to not immediately crash on
 the 2007-12-25 release of ruby 1.9.0.  While a few sanity tests work,
   make test-redsix  shows pervase failure.  Even on t/builtins, like
-math/, arrays/ and strings/, which once worked, don't.  Also now, some
+math/, arrays/ and strings/, which once worked, don't.  Also, some
 ruby interpreter bugs are reported.
 
 PRE-UPDATE:
