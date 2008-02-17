@@ -1,0 +1,8 @@
+# A ruby transliteration of src/perl6/STD.pm
+# Sources to crib from:
+#  v6/v6-KindaPerl6/compiled/ruby-kp6-mp6/kp6_runtime.rb
+#  misc/pX/Common/redsix/redsix
+#  misc/pX/Common/yet_another_regex_engine/Regexp_ModuleA.pm (perhaps)
+# We'll pay the pain of sticking with ruby 1.8 for now, since folks
+# seem to have trouble finding the real 1.9.0.
+#

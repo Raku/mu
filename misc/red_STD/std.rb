@@ -1,19 +1,10 @@
 # A ruby transliteration of src/perl6/STD.pm
-# Sources to crib from:
-#  v6/v6-KindaPerl6/compiled/ruby-kp6-mp6/kp6_runtime.rb
-#  misc/pX/Common/redsix/redsix
-#  misc/pX/Common/yet_another_regex_engine/Regexp_ModuleA.pm (perhaps)
-# We'll pay the pain of sticking with ruby 1.8 for now, since folks
-# seem to have trouble finding the real 1.9.0.
-#
-# Notes
+# See README.
 #
 # STD issues
 #   multiple copies of postfix:++, etal
 #
 require 'prelude'
-
-
 
 class Perl < Grammar
     attr_accessor :ws_from, :ws_to
@@ -48,10 +39,9 @@ class Perl < Grammar
     prec_op(:loose_or          ,{ :prec =>"c=", :assoc =>:left,  :assign =>1 })
     prec_op(:LOOSEST           ,{ :prec =>"a=!",                             })
     prec_op(:terminator        ,{ :prec =>"a=", :assoc =>:list               })
-    LOOSESTS = "a=!"
-    LOOSESTH = { :prec =>"a=!" }
+    SLOOSEST = HLOOSEST[:prec]
 
-    #module PrecOp
+    #R module PrecOp
     def precop_method(m,defaults)
         defaults.each{|k,v| m[k] = v if not m.key? k }
         if $env_vars[:thisopH]
@@ -63,8 +53,13 @@ class Perl < Grammar
         end
         return m;
     end
+    #R I'm unsure what make() should be doing.
+    def make(m,overwrite)
+        defaults.each{|k,v| m[k] = v }
+    end
 
-    #R things like "class Term does PrecOp[|%term] {}" are folded into prec_op above.
+    #R things like "class Term does PrecOp[|%term] {}" are folded into
+    #R prec_op above.
 
     $env_vars.scope_enter(:endsym,:unitstopper,:endstmt,:endargs)
     $env_vars[:endsym] = "null"
@@ -73,48 +68,49 @@ class Perl < Grammar
     $env_vars[:endargs] = -1
 
     #R XXX TODO - the non-simple constraints are not being applied.
-    proto_token_simple('category')
-    proto_token_simple('sigil')
-    proto_token_simple('twigil')
-    proto_token_simple('special_variable')
-    proto_token_simple('version')
-    proto_token_simple('term')
-    proto_token_simple('quote')
-    proto_token_defequiv('prefix','symbolic_unary')
-    proto_token_defequiv('infix','additive')
-    proto_token_defequiv('postfix','autoincrement')
-    proto_token_endsym('dotty',' <.unsp>? ')
-    proto_token_simple('circumfix')
-    proto_token_simple('postcircumfix')
-    proto_token_simple('regex_metachar')
-    proto_token_simple('regex_backslash')
-    proto_token_simple('regex_assertion')
-    proto_token_simple('regex_mod_internal')
-    proto_token_simple('quote_mod')
-    proto_token_simple('q_backslash')
-    proto_token_simple('qq_backslash')
-    proto_token_endsym('trait_verb',' \s+ <nofat> ')
-    proto_token_endsym('trait_auxiliary',' \s+ <nofat> ')
-    proto_token_gtgt_nofat('type_declarator')
-    proto_token_gtgt_nofat('scope_declarator')
-    proto_token_gtgt_nofat('package_declarator')
-    proto_token_gtgt_nofat('routine_declarator')
-    proto_rule_gtgt_nofat('statement_prefix')
-    proto_rule_endsym('statement_control',' <nofat> <?before \s | \'#\'> ')
-    proto_rule_gtgt_nofat('statement_mod_cond')
-    proto_rule_gtgt_nofat('statement_mod_loop')
-    proto_token_simple('infix_prefix_meta_operator')
-    proto_token_simple('infix_postfix_meta_operator')
-    proto_token_simple('infix_circumfixfix_meta_operator')
-    proto_token_simple('postfix_prefix_meta_operator')
-    proto_token_simple('prefix_postfix_meta_operator')
-    proto_token_simple('prefix_circumfix_meta_operator')
+    proto_token :category
+    proto_token :sigil
+    proto_token :twigil
+    proto_token :special_variable
+    proto_token :version
+    proto_token :term
+    proto_token :quote
+    proto_token :prefix, 'defequiv'=>:symbolic_unary
+    proto_token :infix,  'defequiv'=>:additive
+    proto_token :postfix,'defequiv'=>:autoincrement
+    proto_token :dotty,  'endsym'=>' <.unsp>? '
+    proto_token :circumfix
+    proto_token :postcircumfix
+    proto_token :regex_metachar
+    proto_token :regex_backslash
+    proto_token :regex_assertion
+    proto_token :regex_mod_internal
+    proto_token :quote_mod
+    proto_token :q_backslash
+    proto_token :qq_backslash
+    proto_token :trait_verb,      'endsym'=>' \s+ <nofat> '
+    proto_token :trait_auxiliary, 'endsym'=>' \s+ <nofat> '
+    proto_token :type_declarator,    'gtgt_nofat'
+    proto_token :scope_declarator,   'gtgt_nofat'
+    proto_token :package_declarator, 'gtgt_nofat'
+    proto_token :routine_declarator, 'gtgt_nofat'
+    proto_rule  :statement_prefix,   'gtgt_nofat'
+    proto_rule  :statement_control, 'endsym'=>' <nofat> <?before \s | \'#\'> '
+    proto_rule  :statement_mod_cond, 'gtgt_nofat'
+    proto_rule  :statement_mod_loop, 'gtgt_nofat'
+    proto_token :infix_prefix_meta_operator
+    proto_token :infix_postfix_meta_operator
+    proto_token :infix_circumfixfix_meta_operator
+    proto_token :postfix_prefix_meta_operator
+    proto_token :prefix_postfix_meta_operator
+    proto_token :prefix_circumfix_meta_operator
+    #R added:
+    proto_token :terminator
+    proto_token :regex_quantifier
+    proto_token :infix_circumfix_meta_operator
+    proto_token :plurality_declarator
+    proto_token :regex_declarator
 
-    proto_token_simple('terminator') #R added
-    proto_token_simple('regex_quantifier') #R added
-    proto_token_simple('infix_circumfix_meta_operator') #R added
-    proto_token_simple('plurality_declarator')  #R added
-    proto_token_simple('regex_declarator')  #R added
 
     # Lexical routines
 
@@ -143,7 +139,7 @@ class Perl < Grammar
         }
     end
 
-    def ident; scan(/[:alpha:]\w+/); end
+    def ident; scan(/[[:alpha:]]\w*/); end
     
     def pod_comment
         after(/^|\n/) and scan(/=/) and unsp? and
@@ -377,25 +373,24 @@ class Perl < Grammar
             (dotty or postop_ = postop) and (xXXX[:prec] = postop_[:prec]) #R XXX ?
     end
 
-    #R XXX missing:
-    #R # Note: backtracks, or we'd never get to parse [LIST] on seeing [+ and such.
-    #R # (Also backtracks if on \op when no \op infix exists.)
-    #R regex prefix_circumfix_meta_operator:reduce {
-    #R     :my %thisop is context<rw>;
-    #R     @<sym> = [ '[' \\?? ]   # prefer no meta \ if op has \
-    #R     <expect_infix>
-    #R     @<sym> = [ ']' ]
-    #R 
-    #R     [ <!{ %+thisop<assoc> eq 'non' }>
-    #R         || <panic: Can't reduce a non-associative operator> ]
-    #R 
-    #R     [ <!{ %+thisop<prec> eq %conditional<prec> }>
-    #R         || <panic: Can't reduce a conditional operator> ]
-    #R 
-    #R     { .<prec> := %+thisop<prec> }
-    #R 
-    #R     {*}                                                         #= [ ]
-    #R }
+# # Note: backtracks, or we'd never get to parse [LIST] on seeing [+ and such.
+# # (Also backtracks if on \op when no \op infix exists.)
+# regex prefix_circumfix_meta_operator:reduce {
+#     :my %thisop is context<rw>;
+#     @<sym> = [ '[' \\?? ]   # prefer no meta \ if op has \
+#     <expect_infix>
+#     @<sym> = [ ']' ]
+# 
+#     [ <!{ %+thisop<assoc> eq 'non' }>
+#         || <panic: Can't reduce a non-associative operator> ]
+# 
+#     [ <!{ %+thisop<prec> eq %conditional<prec> }>
+#         || <panic: Can't reduce a conditional operator> ]
+# 
+#     { .<prec> := %+thisop<prec> }
+# 
+#     {*}                                                         #= [ ]
+# }
 
     def_tokens_simple :prefix_postfix_meta_operator,false,%w{ « }
     def_tokens_simple :prefix_postfix_meta_operator,false,%w{ << }
@@ -455,7 +450,7 @@ class Perl < Grammar
     def arglist
         $env_vars.scope_enter(:endargs)
         $env_vars[:endargs] = 0 #R ??? XXX "0" or "false"?
-        v = _EXPR(list_prefixH)
+        v = _EXPR(Hlist_prefix)
         $env_vars.scope_leave
         v
     end
@@ -469,8 +464,8 @@ class Perl < Grammar
     end
 
     #R XXX TODO another token which requires more powerful indexing.
-    #R token circumfix:sym<{ }> ( --> Circumfix) {
-    #R   <?before '{'> <block>
+# token circumfix:sym<{ }> ( --> Circumfix) {
+#   <?before '{'> <block>
 
     def variable_decl
         (var = variable and ( xXXX[:sigil] = var[:sigil] ) and
@@ -483,8 +478,8 @@ class Perl < Grammar
          starTOK{trait} and
          dot_ws and
          quesTOK{
-             ((scan(/\=/) and dot_ws and _EXPR(var[:sigil] == '$' ? item_assignmentH : list_prefixH)) or
-              (scan(/\.\=/) and dot_ws and _EXPR(item_assignmentH)))
+             ((scan(/\=/) and dot_ws and _EXPR(var[:sigil] == '$' ? Hitem_assignment : Hlist_prefix)) or
+              (scan(/\.\=/) and dot_ws and _EXPR(Hitem_assignment)))
          })
     end
 
@@ -698,26 +693,10 @@ class Perl < Grammar
 #     ]?
 # }
 
-# # handle composite forms like qww
-# token quote:qq {
-#     <sym> <quote_mod>
-#     <quotesnabber(':qq', $<quote_mod>)>
-# }
-# token quote:q {
-#     <sym>  <quote_mod>
-#     <quotesnabber(':q', $<quote_mod>)>
-# }
+    # handle composite forms like qww
+    def_tokens_rest :quote,false,%w{ qq q },%q{ qm = quote_mod and quotesnabber(':<sym>',qm) }
 
-# token quote_mod:w  { <sym> }
-# token quote_mod:ww { <sym> }
-# token quote_mod:x  { <sym> }
-# token quote_mod:to { <sym> }
-# token quote_mod:s  { <sym> }
-# token quote_mod:a  { <sym> }
-# token quote_mod:h  { <sym> }
-# token quote_mod:f  { <sym> }
-# token quote_mod:c  { <sym> }
-# token quote_mod:b  { <sym> }
+    def_tokens_simple :quote_mod,false,%w{ w ww x to s a h f c b }
 
 # token quote:rx { <sym> <quotesnabber(':regex')> }
 
@@ -958,7 +937,7 @@ class Perl < Grammar
 
     # XXX should eventually be derived from current Unicode tables.
     if "\u0028" != "("
-        #R while unicode in ruby 1.8 can sortof kindof be supported
+        #R while unicode in ruby 1.8 can sortof kindof be supported,
         #R using additional libraries, the real answer is... use 1.9.
         Open2close = {
             "\x0028" => "\x0029", "\x003C" => "\x003E", "\x005B" => "\x005D",
@@ -1140,16 +1119,13 @@ class Perl < Grammar
 #     {*}
 # }
 
-# token quote_escapes {
-#     [
-#     || \\ <qq_backslash>
-#     || <?before '{'> <block>
-#     || <?before '$'> <variable> <extrapost>?
-#     || <variable> <extrapost>
-#     || .
-#     ]
-#     {*}
-# }
+    def quote_escapes
+        (lex_pos{scan(/\\/) and qq_backslash} or
+         (before(/\{/) and block) or
+         (before(/$/) and variable and (extrapost;true)) or
+         lex_pos{ variable and extrapost } or
+         scan(/.|\n/))
+    end
 
 # # Note, backtracks!  So expect_postfix mustn't commit to anything permanent.
 # regex extrapost {
@@ -1160,195 +1136,161 @@ class Perl < Grammar
 #     {*}
 # }
 
-# rule multisig {
-#     ':'?'(' <signature> ')' [ '|' ':'?'(' <signature> ')' ]*
-# }
+    def multisig
+        rul{ scan(/:?\(/) and dot_ws and signature and dot_ws and starRULE{ scan(/\|/) and dot_ws and scan(/:?\(/) and dot_ws and signature and dot_ws and scan(/\)/) } }
+    end
 
-# rule routine_def {
-#     | <ident>?  <multisig>?
-#     <trait>*
-#     <block>
-#     {*}
-# }
+    def routine_def
+        rul{ quesRULE{ident} and dot_ws and 
+            quesRULE{multisig} and dot_ws and
+            starRULE{trait} and dot_ws and
+            block }
+    end
 
-# rule method_def {
-#     [
-#     | <ident>  <multisig>?
-#     | <?before <sigil> '.' [ '[' | '{' | '(' ] > <sigil> <postcircumfix>
-#     ]
-#     <trait>*
-#     <block>
-#     {*}
-# }
+    def method_def
+        rul{ (let_pos{ident and dot_ws and quesRULE{multisig}} or
+              let_pos{before{sigil and scan(/\.[\[\{\(]/)} and sigil and postcircumfix }) and dot_ws and
+            starRULE{trait} and dot_ws and
+            block }
+    end
 
-# rule regex_def {
-#     <ident>?
-#     <trait>*
-#     [ ':'?'(' <signature> ')']?
-#     <regex_block>
-#     {*}
-# }
+    def regex_def
+        rul{ quesRULE{ident} and dot_ws and
+            starRULE{trait} and dot_ws and
+            quesRULE{ scan(/:?\(/) and dot_ws and signature and dot_ws and scan(/\)/) } and dot_ws and
+            regex_block }
+    end
 
-# # XXX redundant with routine_def?
-# rule macro_def {
-#     | <ident>?  <multisig>?
-#     <trait>*
-#     <block>
-#     {*}
-# }
+    # XXX redundant with routine_def?
+    def macro_def
+        rul{ quesRULE{ident} and dot_ws and 
+            quesRULE{multisig} and dot_ws and
+            starRULE{trait} and dot_ws and
+            block }
+    end
 
-# rule trait { <trait_verb> | <trait_auxiliary> }
 
-# rule trait_auxiliary:is   { <sym> <ident><postcircumfix>? }
-# rule trait_auxiliary:will { <sym> <ident> <block> }
+    def trait
+        rul{ trait_verb or trait_auxiliary }
+    end
 
-# rule trait_verb:of      { <sym> <fulltypename> }
-# rule trait_verb:returns { <sym> <fulltypename> }
-# rule trait_verb:handles { <sym> <EXPR> }
+    def_rules_rest :trait_verb,%w{ is },%q{ ident and ws_dot and (postcircumfix;true) }
+    def_rules_rest :trait_verb,%w{ will },%q{ ident and ws_dot and block }
+    def_rules_rest :trait_verb,%w{ of returns },%q{ fulltypename }
+    def_rules_rest :trait_verb,%w{ handles },%q{ _EXPR }
 
-# token capterm {
-#     '\\(' <capture> ')'
-#     {*}
-# }
+    def capterm
+        let_pos{ scan(/\\\(/) and capture and scan(/\)/) }
+    end
 
-# rule capture {
-#     <EXPR>
-#     {*}
-# }
+    def capture #R rule
+        _EXPR
+    end
 
-# token sigterm {
-#     ':(' <signature> ')'
-#     {*}
-# }
+    def sigterm
+        let_pos{ scan(/:\(/) and signature and scan(/\)/) }
+    end
 
-# rule signature {
-#     :my $zone is context<rw> = 'posreq';
-#     @<parsep> = ( <parameter>
-#                     ( ',' | ':' | ';' | ';;' | <?before '-->' | ')' | '{' > )
-#                  )*
-#     [ '-->' <fulltypename> ]?
-#     {*}
-# }
+    def signature
+        $env_vars.scope_enter(:zone)
+        $env_vars[:zone] = 'posreq'
+        v = rul{
+            parsep = starRULE{ parameter and dot_ws and (scan(/,|:|;;|;/) or before(/-->|\)|\{/)) }
+            dot_ws
+            parsep and quesRULE{ scan(/-->/) and dot_ws and fulltypename }
+        }
+        $env_vars.scope_leave
+        v
+    end
 
-# rule type_declarator:subset {
-#     <sym>
-#     <name>
-#     [ of <fulltypename> ]?
-#     where <EXPR>
-#     {*}
-# }
+    def_rules_rest :type_declarator,%w{ subset },%q{ name and dot_ws and quesRULE{ scan(/of/) and dot_ws and fulltypename } and scan(/where/) and dot_ws and _EXPR }
 
-# rule type_constraint {
-#     [
-#     | <value>
-#     | where <EXPR(%chaining)>
-#     ]
-#     {*}
-# }
+    def type_constraint
+        rul{ value or
+            (scan(/where/) and _EXPR(Hchaining)) }
+    end
 
-# rule post_constraint {
-#     [
-#     | <multisig>
-#     | where <EXPR(%chaining)>
-#     ]
-#     {*}
-# }
+    def post_constraint
+        rul{ multisig or
+            (scan(/where/) and _EXPR(Hchaining)) }
+    end
 
-# token param_var {
-#     <sigil> <twigil>?
-#     [
-#         # Is it a longname declaration?
-#     || <?{ $<sigil> eq '&' }> <?ident> ::
-#         <ident=sublongname>
+    def param_var
+        let_pos{
+            (sigil and (twigil;true) and
+             (# Is it a longname declaration?
+              (let_pos{ xXXX[:sigil] == '&' and ident } and
+               (ident_=sublongname or return false;ident_)) or
+              # Is it a shaped array or hash declaration?
+              (let_pos{ (xXXX[:sigil] == '@' or xXXX[:sigil] == '%')  and
+                   (ident;true) and dot_ws and before(/[\<\(\[\{]/) and
+                   postcircumfix }) or
+              # ordinary parameter name
+              (ident) or
+              # bare sigil?          
+              (null))) }
+    end
 
-#     ||  # Is it a shaped array or hash declaration?
-#         <?{ $<sigil> eq '@' | '%' }>
-#         <ident>?
-#         <.ws>
-#         <?before <[ \< \( \[ \{ ]> >
-#         <postcircumfix>
+    def parameter
+        quantS = nil
+        v = (starTOK{ type_constraint } and 
+             (let_pos{ quantchar_ = scan(/\*/) and pv = param_var and slurp_=[quantchar_,pv] and quantS = '*' } or
+              ((let_pos{ quantchar_ = scan(/:/) and
+                    (let_pos{ name_ = ident and scan(/\(/) and param_var and scan(/\)/) } or
+                     let_pos{ pv = param_var and name_ = pv[:ident] }) and
+                    quantS = '*' and
+                    named_ = true #R ...
+                } or
+                let_pos{ param_var and quantS = '!' }) and
+               quanchar_ = scan(/[\?!]/) and quantS = quantchar_ )) and
+             quantSTAR{ trait } and
+             quantSTAR{ post_constraint } and
+             quesTOK{
+                 (default_value and
+                  (case quantchar_
+                   when '!'
+                       panic("Can't put a default on a required parameter")
+                   when '*'
+                       panic("Can't put a default on a slurpy parameter")
+                   else
+                       raise 'bug?'
+                   end
+                   quantS = '?'))
+             })
+        return v if not v
+        # enforce zone constraints
+        case quantS
+        when '!'
+            case $env_vars[:zone]
+            when :posopt
+                panic("Can't use required parameter in optional zone")
+            when :var
+                panic("Can't use required parameter in variadic zone")
+            else
+                raise 'bug?'
+            end
+        when '?'
+            case $env_vars[:zone]
+            when :posreq
+                $env_vars[:zone] = :posopt
+            when :var
+                panic("Can't use optional positional parameter in variadic zone")
+            else
+                raise 'bug?'
+            end
+        when '*'
+            $env_vars[:zone] = :var
+        else
+            raise 'bug?'
+        end
+        v
+    end
 
-#         # ordinary parameter name
-#     || <ident>
+    def default_value
+        rul{ scan(/\=/) and _EXPR(Hitem_assignment) }
+    end
 
-#         # bare sigil?
-#     || <null>
-#     ]
-# }
-
-# token parameter {
-#     :my $quant;
-#     <type_constraint>*
-#     [
-#     | $<slurp> = [ $<quantchar>=[ '*' ] <param_var> ]
-#         { let $quant := '*' }
-#     |   [ $<named> =
-#             [ $<quantchar> = [ ':' ]
-#                 [
-#                 | <name=ident> '(' <param_var>  ')'
-#                 | <param_var> { $<name> := $<param_var><ident> }
-#                 ]
-#                 { let $quant = '*' }
-#             ]
-#         | <param_var>
-#             { let $quant := '!'; }
-#         ]
-#         [ $<quantchar> = <[ ? ! ]> { let $quant := $<quantchar> } ]?
-#     ]
-#     <trait>*
-
-#     <post_constraint>*
-
-#     [
-#         <default_value> {{
-#             given $<quantchar> {
-#               when '!' { .panic("Can't put a default on a required parameter") }
-#               when '*' { .panic("Can't put a default on a slurpy parameter") }
-#             }
-#             let $quant := '?';
-#         }}
-#     ]?
-
-#     # enforce zone constraints
-#     {{
-#         given $quant {
-#             when '!' {
-#                 given $+zone {
-#                     when 'posopt' {
-# .panic("Can't use required parameter in optional zone");
-#                     }
-#                     when 'var' {
-# .panic("Can't use required parameter in variadic zone");
-#                     }
-#                 }
-#             }
-#             when '?' {
-#                 given $+zone {
-#                     when 'posreq' { $+zone = 'posopt' }
-#                     when 'var' {
-# .panic("Can't use optional positional parameter in variadic zone");
-#                     }
-#                 }
-#             }
-#             when '*' {
-#                 $+zone = 'var';
-#             }
-#         }
-#     }}
-#     {*}
-# }
-
-# rule default_value {
-#     '=' <EXPR(%item_assignment)>
-# }
-
-# rule statement_prefix:do      { <sym> <statement> {*} }         #= do
-# rule statement_prefix:try     { <sym> <statement> {*} }         #= try
-# rule statement_prefix:gather  { <sym> <statement> {*} }         #= gather
-# rule statement_prefix:contend { <sym> <statement> {*} }         #= contend
-# rule statement_prefix:async   { <sym> <statement> {*} }         #= async
-# rule statement_prefix:lazy    { <sym> <statement> {*} }         #= lazy
-
+    def_rules_rest :statement_prefix,%w{ do try gather contend async lazy },%q{ statement }
 
 
     ## term
@@ -1403,20 +1345,9 @@ class Perl < Grammar
 #     {*}                                                         #= ?? !!
 # }
 
-# token infix:sym<?> ( --> Conditional)
-#     { <sym> <obs('?: for the conditional operator', '??!!')> }
 
-
-# ## assignment
-# token infix:sym<=> ()
-# {
-#     <sym>
-#     { self.<sigil> eq '$' 
-#         ?? make Item_assignment($/)
-#         !! make List_assignment($/);
-#     }
-#     {*}
-# }                                               #= =
+    ## assignment
+    def_tokens_rest :infix,false,%w{ = },%q{ xXXX[:sigil] == '$' ? make(xXXX,Hitem_assignment) : make(xXXX,Hlist_assignment) }
 
     def_tokens_simple :infix,:item_assignment,%w{ := ::= }
     # XXX need to do something to turn subcall into method call here...
@@ -1469,7 +1400,7 @@ false #R
     def _EXPR_raw(seenS=false, preclimH=nil, stopS=nil, *fateA) #R Args reordered!
         hereS_workaround = self
 
-        preclimH ||= LOOSESTH
+        preclimH ||= HLOOSEST
         stopS ||= method(:stdstopper)
 
         $env_vars.scope_enter(:inquoteS,:prevopS,:thisopH);
@@ -1560,7 +1491,7 @@ false #R
 
             if not $env_vars[:thisopH].key?(:prec) 
                 say "No prec case in thisop!";
-                $env_vars[:thisopH] = terminatorH;
+                $env_vars[:thisopH] = Hterminator;
             end
             thisprecS = $env_vars[:thisopH][:prec];
             # substitute precedence for listops
@@ -1572,7 +1503,7 @@ false #R
             end
             
             # Not much point in reducing the sentinels...
-            break if thisprecS < LOOSESTS;
+            break if thisprecS < SLOOSEST;
             
             # Equal precedence, so use associativity to decide.
             if opstackA[-1][:prec] == thisprecS 
@@ -1613,63 +1544,54 @@ false #R
     #############################################3333
 
 
+    def regex(stop)
+        $env_vars.scope_enter(:stop)
+        $env_vars[:stop] = stop
+        v = rul{ regex_ordered_disjunction }
+        $env_vars.scope_leave
+        v
+    end
 
-# rule regex ($stop is context) {
-#     <regex_ordered_disjunction>
-#     {*}
-# }
+    def regex_ordered_disjunction
+        rul{scan(/(\|\|)?/) and dot_ws and
+            interleaveRULE(/\|\|/){ regex_ordered_conjunction } }
+    end
 
-# rule regex_ordered_disjunction {
-#     '||'?
-#     <regex_ordered_conjunction> ** '||'
-#     {*}
-# }
+    def regex_ordered_conjunction
+        rul{ interleaveRULE(/&&/){ regex_submatch } }
+    end
 
-# rule regex_ordered_conjunction {
-#     <regex_submatch> ** '&&'
-#     {*}
-# }
+    def regex_submatch
+        rul{ interleaveRULE(/!?~~/){ regex_unordered_disjunction } }
+    end
 
-# rule regex_submatch {
-#     <regex_unordered_disjunction> ** [ \!?'~~' ]
-#     {*}
-# }
+    def regex_unordered_disjunction
+        rul{ quesRULE{ let_pos{ scan(/\|/) and not before(/\|/) } } and
+            interleaveRULE(/\!(?!\!)/){ regex_unordered_conjunction } }
+    end
 
-# rule regex_unordered_disjunction {
-#     [ '|' <!before '|'> ]?
-#     <regex_unordered_conjunction> ** [ '|' <!before '|'> ]
-#     {*}
-# }
+    def regex_unordered_conjunction
+        rul{ interleaveRULE(/\&(?!\&)/){ regex_sequence } }
+    end
 
-# rule regex_unordered_conjunction {
-#     <regex_sequence> ** [ '&' <!before '&'> ]
-#     {*}
-# }
+    def regex_sequence
+        plusRULE{regex_quantified_atom}
+    end
 
-# rule regex_sequence {
-#     <regex_quantified_atom>+
-#     # Could combine unquantified atoms into one here...
-#     {*}
-# }
+    def regex_quantified_atom
+        rul{ ra = regex_atom and dot_ws and
+            (regex_quantifier and
+             (ra.max_width or
+              panic("Can't quantify zero-width atom"));true) }
+    end
 
-# rule regex_quantified_atom {
-#     <regex_atom>
-#     [ <regex_quantifier>
-#         <?{ $<regex_atom>.max_width }>
-#             || <panic: "Can't quantify zero-width atom")
-#     ]?
-#     {*}
-# }
-
-# rule regex_atom {
-#     [
-#     || <$+stop> :: <fail>
-#     || <regex_metachar>
-#     || (\w)
-#     || <panic: "unrecognized metacharacter">
-#     ]
-#     {*}
-# }
+    def regex_atom
+        (dot_ws and
+         ((let_pos{ scan(/#{$env_vars[:stop]}/) } and return(false);false) or
+          (regex_metachar and dot_ws) or
+          (scan(/\w/) and dot_ws) or
+          panic("unrecognized metacharacter")))
+    end
 
     def_tokens_rest :regex_metachar,false,%w{ > && & || | ] ) \\ },%q{ return false }
 
@@ -1718,10 +1640,8 @@ false #R
 #     '<' <unsp>? <regex_assertion> '>'
 #     {*}                                                         #= < >
 # }
-# token regex_metachar:sym<\\> { <sym> <regex_backslash> {*} }    #= \
-# token regex_metachar:sym<.>  { <sym> {*} }                      #= .
-# token regex_metachar:sym<^^> { <sym> {*} }                      #= ^^
-# token regex_metachar:sym<^>  { <sym> {*} }                      #= ^
+    def_tokens_rest :regex_metachar,false,%w{ \\ },%q{ regex_backslash }
+    def_tokens_simple :regex_metachar,false,%w{ . ^^ ^ }
 # token regex_metachar:sym<$$> {
 #     <sym>
 #     [ <?before (\w+)> <obs("\$\$$0 to deref var inside a regex","\$(\$$0)")> ]?
@@ -1749,31 +1669,18 @@ false #R
 #     {*}                                                         #= var
 # }
 
-# token codepoint {
-#     '[' (.*?) ']'
-# }
+    def codepoint
+        scan(/\[(.*?)\]/)
+    end
 
-# token q_backslash:qq { <?before qq> <quote> }
-# token q_backslash:sym<\\> { <sym> }
-# token q_backslash:misc { :: (.) }
+    def_tokens_full :q_backslash,%w{ qq },%q{ before(/qq/) and <quote> }
+    def_tokens_rest :q_backslash,false,[""],%q{ scan(/./) }
 
-# token qq_backslash:a { <sym> }
-# token qq_backslash:b { <sym> }
-# token qq_backslash:c { <sym>
-#     [
-#     || '[' <-[ \] \v ]>* ']'
-#     || <codepoint>
-#     ]
-# }
-# token qq_backslash:e { <sym> }
-# token qq_backslash:f { <sym> }
-# token qq_backslash:n { <sym> }
-# token qq_backslash:o { <sym> [ <octint> | '['<octint>[','<octint>]*']' ] }
-# token qq_backslash:r { <sym> }
-# token qq_backslash:t { <sym> }
-# token qq_backslash:x { <sym> [ <hexint> | '['<hexint>[','<hexint>]*']' ] }
-# token qq_backslash:sym<0> { <sym> }
-# token qq_backslash:misc { :: \W || <panic: unrecognized backslash sequence> }
+    def_tokens_rest :qq_backslash,false,%w{ c },%q{ scan(/\[[^\]\n\r]*\]/) or codepoint }
+
+    def_tokens_simple :qq_backslash,false,%w{ \\ a b e f n r t 0 }
+    def_tokens_rest :qq_backslash,false,%w{ o },%q{ octint or (scan(/\[/) and octint and starTOK{ scan(/,/) and octint } and scan(/\]/)) }
+    def_tokens_rest :qq_backslash,false,%w{ x },%q{ hexint or (scan(/\[/) and hexint and starTOK{ scan(/,/) and hexint } and scan(/\]/)) }
 
 # token regex_backslash:a { :i <sym> }
 # token regex_backslash:b { :i <sym> }
@@ -1783,6 +1690,7 @@ false #R
 #     || <codepoint>
 #     ]
 # }
+
 # token regex_backslash:d { :i <sym> }
 # token regex_backslash:e { :i <sym> }
 # token regex_backslash:f { :i <sym> }
@@ -1796,8 +1704,7 @@ false #R
 # token regex_backslash:x { :i <sym> [ <hexint> | '['<hexint>[','<hexint>]*']' ] }
 # token regex_backslash:oops { :: <panic: unrecognized regex backslash sequence> }
 
-# token regex_assertion:sym<?> { <sym> <regex_assertion> }
-# token regex_assertion:sym<!> { <sym> <regex_assertion> }
+    def_tokens_rest :regex_assertion,false,%w{ ? ! },%q{ regex_assertion }
 
 # token regex_assertion:sym<{ }> { <block> }
 # token regex_assertion:variable {
@@ -1838,9 +1745,9 @@ false #R
     end
 
     #R XXX TODO
-    #R token regex_mod_internal:adv {
-    #R     <quotepair> { $/<sym> := «: $<quotepair><key>» }
-    #R }
+# token regex_mod_internal:adv {
+#     <quotepair> { $/<sym> := «: $<quotepair><key>» }
+# }
 
     def_tokens_rest :regex_mod_internal,false,%w{ :i },%q{ quesTOK{regex_mod_arg} }
     def_tokens_simple :regex_mod_internal,false,%w{ :!i }

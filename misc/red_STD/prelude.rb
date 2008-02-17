@@ -30,6 +30,11 @@ class Grammar
     @scanner.pos = b if not v
     v
   end
+  def rul(&blk)
+    let_pos{ dot_ws and blk.() and dot_ws }
+  end
+    
+
 
   def _match_from(from,h=nil,rule=nil)
     h ||= {}
@@ -44,6 +49,8 @@ class Grammar
   def panic(msg)
     raise "panic: #{msg}"
   end
+
+  def null; true; end
 
   def before(re=nil,&blk)
     if re
@@ -164,23 +171,12 @@ class Grammar
   def self.prec_op(type,init)
     @@__types__ ||= {}
     @@__types__[type] = init
+    eval("H#{type} = init")
   end
-  def self.proto_token_simple(category)
+  def self.proto_token(category,*args)
     _token_category(category)
   end
-  def self.proto_token_defequiv(category, other)
-    _token_category(category)
-  end
-  def self.proto_token_endsym(category, pat)
-    _token_category(category)
-  end
-  def self.proto_rule_endsym(category, pat)
-    _token_category(category)
-  end
-  def self.proto_token_gtgt_nofat(category)
-    _token_category(category)
-  end
-  def self.proto_rule_gtgt_nofat(category)
+  def self.proto_rule(category,*args)
     _token_category(category)
   end
   def self._token_category(category)
@@ -191,11 +187,15 @@ class Grammar
         b = @scanner.pos
         tmp = @@#{category}.longest_token_match(self,@scanner) or return false
         sym_re,v =  tmp
-        return_type = @@__sym_return_type__#{category}[sym_re]
-        init = @@__types__[return_type]; init or init.is_a?(FalseClass) or raise "bug"
         stuff = v.is_a?(TrueClass) ? nil : {:kludge =>v}
         m = _match_from(b,stuff,'#{category}')
-        precop_method(m,init) if init
+        if return_type = @@__sym_return_type__#{category}[sym_re]
+          if init = @@__types__[return_type]
+            precop_method(m,init)
+          else
+            init.is_a?(FalseClass) or raise "bug"
+          end
+        end
         m
       end
     END
@@ -228,6 +228,11 @@ class Grammar
     sym_re = Regexp.new(Regexp.quote(sym))
     (eval "@@__sym_return_type__#{category}")[sym_re] = return_type
     (eval "@@#{category}")[sym_re] = rest
+  end
+
+  def self.def_tokens_full(*a)
+  end
+  def self.def_rules_rest(category, left_syms, rest_code)
   end
 end
 
