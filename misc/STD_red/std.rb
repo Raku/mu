@@ -1351,7 +1351,7 @@ class Perl < Grammar
         rul{ scan(/\=/) and _EXPR(nil,Hitem_assignment) }
     end
 
-    def_tokens_rest :statement_prefix,%w{ do try gather contend async lazy },%q{ statement }
+    def_tokens_rest :statement_prefix,false,%w{ do try gather contend async lazy },%q{ statement }
 
 
     ## term

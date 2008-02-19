@@ -3,6 +3,8 @@ require 'strscan'
 require 'match'
 
 
+# Perl grammar helpers
+
 def say(*args); print *args,"\n"; end
 
 class Object
@@ -167,8 +169,12 @@ class Grammar
       fail_at(before_fun)
     end
   end
+end
 
 
+# Tokens
+
+class Grammar
   def self.prec_op(type,init)
     @@__types__ ||= {}
     @@__types__[type] = init
@@ -321,6 +327,9 @@ class RuleHash < TokenHash
   end
 end
 
+
+# Dynamically scoped $+foo environment variables
+
 class EnvVars
   def initialize
     @stack = []
@@ -353,6 +362,8 @@ end
 
 $env_vars = EnvVars.new
 
+
+# Interactive REPL
 
 require 'readline'
 class Repl
