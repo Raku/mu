@@ -1520,12 +1520,12 @@ class PastFromParse
   }
   node :block_formal_pointy,->(m){
     body = emit(m.hash[:block])
-    sig = create_sig(m)
+    sig = create_sig(m,nil)
     Past::SubDecl.new(m,nil,'sub',nil,sig,body)
   }
   node :block_formal_standard,->(m){
     body = emit(m.hash[:block])
-    sig = create_sig(m)
+    sig = create_sig(m,nil)
     Past::SubDecl.new(m,nil,'sub',nil,sig,body)
   }
   node :formal_param,->(m){
@@ -2149,9 +2149,9 @@ module Past
         "#{@obj.emit_rb}.#{n}(#{@arggen ? @arggen.emit_rb : ''})"
       else
         o = gensym
-        n = "#{f}C"
+        n = "#{f}Cm"
         a = "#{@arggen ? @arggen.emit_rb : ''}"
-        a = a == '' ? "#{o},#{o}" : "#{o},#{o},#{a}" 
+        a = a == '' ? "#{o}" : "#{o},#{a}" 
         "(#{o}=#{@obj.emit_rb}).#{n}.call(#{a})"
       end
     end
@@ -2258,7 +2258,17 @@ module Past
       arity = @body.sig.positional_arity_min if @body.respond_to?(:sig)
       if arity == 1
         @body.whiteboard[:need_an_arg] = 1
-        "(#{@enu.emit_rb}).each{|__e__|(#{@body.emit_rb}).call(__e__,__e__)}"
+
+        # Workaround a misparse:  In "for @a {}", that's not a StandaloneBlock.
+        # "for @a ->{}" and "for @a {}"... what's the right thing?
+        body = @body
+        args = "__e__,__e__"
+        if body.instance_of?(StandaloneBlock)
+          body = CodeBlock.new(body.src,body.block)
+          args = "__e__"
+        end
+
+        "(#{@enu.emit_rb}).each{|__e__|(#{body.emit_rb}).call(#{args})}"
       else
         a=gensym;i=gensym;v=gensym;
         "(#{a} = (#{@enu.emit_rb}); #{i}=0; while #{a}.exists?(#{i}); #{v} = (#{@body.emit_rb}).call(:deadbeef,*(#{a}.slice(#{i},#{arity}))); #{i} += #{arity}; #{v} end)"
@@ -2400,11 +2410,13 @@ module Past
       }.join(',')
     end
     def emit_rb_param_list
+      assignment_needs_comma = @params.size == 1
       @params.map{|p|
         n = p.variable.emit_rb_def
         n = "*#{n}" if p.slurpy?
+        assignment_needs_comma = false if p.slurpy?
         n
-      }.join(',')
+      }.join(',') + (assignment_needs_comma ? "," : "")
     end
     def emit_rb_param_list_with_nils
       @params.map{|p|
@@ -2476,13 +2488,13 @@ module Past
             "#{lam}\n"
           end
         when 'method'
-          n = "#{@name.emit_rb}C"
+          n = "#{@name.emit_rb}Cm"
           "current_class.def_pkg_var(#{n.to_sym.inspect},#{lam2})\n"
         when 'submethod'
           n = "#{@name.emit_rb}Csm"
           "current_class.def_pkg_var(#{n.to_sym.inspect},#{lam})\n"
         when 'multi sub'
-          n = "#{@name.emit_rb}C"
+          n = "#{@name.emit_rb}Cm"
           nm = "#{@name.emit_rb}M"
           spc = @sig.emit_rb_multi_pattern
           "multi(#{nm.to_sym.inspect},Object,#{spc},#{lam})\ncurrent_class.def_pkg_var(#{n.to_sym.inspect},->(*args){#{nm}(*args)})\n"
@@ -2979,7 +2991,7 @@ class BindBoxh < BindBox
     while not a.empty?
       k = a.shift
       v = nil
-      if k.isaC.call(nil,"Pair").as_b
+      if k.isaCm.call(nil,"Pair").as_b
         k,v = k.name,k.value
       elsif k.wrapped_pair?
         p = k.unwrap
@@ -3047,7 +3059,7 @@ class BindBoxKeyed; def is_defined; __getobj__.is_defined end end
 class BindBox; def is_defined; @__getobj__.is_defined end end
 class Object; def is_defined; true end end
 class Undef;  def is_defined; false end end
-class Object; def definedC;->(_S){self.is_defined}end end
+class Object; def definedCm;->(_S){self.is_defined}end end
 class NilClass; def is_defined; false end end #X
 ###**** as_s
 class BindBoxKeyed; def as_s; __getobj__.as_s end end
@@ -3082,12 +3094,12 @@ end
 ###**** as_n
 # is elsewhere
 ###**** ref
-class BindBox; def refC;proc{ @__getobj__.refC.call }end end
-class Object; def refC;proc{ "#{self.class}" }end end
-class String; def refC;proc{ "Str" }end end
-class TrueClass;  def refC;proc{ "Bool" }end end
-class FalseClass; def refC;proc{ "Bool" }end end
-class Proc; def refC;proc{ "Code" }end end
+class BindBox; def refCm;proc{ @__getobj__.refCm.call }end end
+class Object; def refCm;proc{ "#{self.class}" }end end
+class String; def refCm;proc{ "Str" }end end
+class TrueClass;  def refCm;proc{ "Bool" }end end
+class FalseClass; def refCm;proc{ "Bool" }end end
+class Proc; def refCm;proc{ "Code" }end end
 ###**** true false
 class Object
   class Blah
@@ -3119,19 +3131,19 @@ module Code; end
 class Proc;  include Code; end
 module NotAModuleHack; end
 class Object
-  # also used by Array/List isaC
+  # also used by Array/List isaCm
   def isa_hlp(t) t.is_a?(Module) ? t : begin eval("#{t}")
                                        rescue Exception; NotAModuleHack end 
   end
-  def isaC;->(_E,s){ self.is_a?(isa_hlp(s)) }end
+  def isaCm;->(_E,s){ self.is_a?(isa_hlp(s)) }end
 end
-class BindBox; def isaC;->(_E,s){ @__getobj__.isaC.call(_E,s) }end end
+class BindBox; def isaCm;->(_E,s){ @__getobj__.isaCm.call(_E,s) }end end
 ###**** goto
-class Method; def gotoC;->(*args){ call(*args) }end end
-class Proc; def gotoC;->(*args){ call(*args) }end end
+class Method; def gotoCm;->(*args){ call(*args) }end end
+class Proc; def gotoCm;->(*args){ call(*args) }end end
 $scalar_ERROR = pundef
 ###**** arity
-module Code; def arityC;->(_E){ self.arity }end end
+module Code; def arityCm;->(_E){ self.arity }end end
  #... but sub() procs all have *args so -1 arity.
  # So need to wrap and label them.  Something for another time.
 ###**** Range
@@ -3215,50 +3227,50 @@ end
 ###**** Array
 module ArrayM
   def get(k) BindBoxKeyed.new(self,k) end
-  def elemsC;->(_E){ self.size }end
-  def endC;->(_E){ self.size-1 }end
-  def chompC;->(_E){ self.map{|e|e.chomp} }end
-  def pushC;->(_E,*args){
+  def elemsCm;->(_E){ self.size }end
+  def endCm;->(_E){ self.size-1 }end
+  def chompCm;->(_E){ self.map{|e|e.chomp} }end
+  def pushCm;->(_E,*args){
       a = args.delisty
       a = a[0] if a.size == 1 && a[0].is_a?(Array) #X!
       self.push(*a)
     }end
-  def unshiftC;->(_E,*args){
+  def unshiftCm;->(_E,*args){
       a = args.delisty
       a = a[0] if a.size == 1 && a[0].is_a?(Array) #X!
       self.unshift(*a)
     }end
-  def shiftC;->(_E){ self.shift() || pundef }end
-  def popC;->(_E){ self.pop() || pundef }end
-  def isaC;->(_E,s){
+  def shiftCm;->(_E){ self.shift() || pundef }end
+  def popCm;->(_E){ self.pop() || pundef }end
+  def isaCm;->(_E,s){
       (s == List || s == 'List' ||
        s == Array || s == 'Array' ||
        self.is_a?(isa_hlp(s)))
     }end
-  def existsC;->(_E,k){
+  def existsCm;->(_E,k){
       k = size+k if k < 0
       k >= 0 && exists?(k)
     }end
-  def sortC;->(_E){
+  def sortCm;->(_E){
       sort{|a,b| a.as_s <=> b.as_s}
     }end
-  def joinC;->(_E,s){
+  def joinCm;->(_E,s){
       map{|e|e.as_s}.join(s.as_s)
     }end
-  def mapC;->(_E,b){
+  def mapCm;->(_E,b){
       map{|e| b.call(e)} #X?
     }end
-  def deleteC;->(_E,*ks){
+  def deleteCm;->(_E,*ks){
       ks.map{|k|
         e = self[k];
         (k == -1 || k == size - 1) ? delete_at(k) : (self[k] = pundef);
         e
       }
     }end
-  def keysC;->(_E){(0..(size-1)).to_a}end
-  def valuesC;->(_E){dup}end
-  def kvC;->(_E){a=[];each_with_index{|v,k|a.push(k,v)};a}end
-  def pairsC;->(_E){a=[];each_with_index{|v,k|a.push(Pair.new(k,v))};a}end
+  def keysCm;->(_E){(0..(size-1)).to_a}end
+  def valuesCm;->(_E){dup}end
+  def kvCm;->(_E){a=[];each_with_index{|v,k|a.push(k,v)};a}end
+  def pairsCm;->(_E){a=[];each_with_index{|v,k|a.push(Pair.new(k,v))};a}end
 end
 List = Listy
 class Listy
@@ -3274,19 +3286,19 @@ end
 ###**** Hash
 class Hash
   def get(k) BindBoxKeyed.new(self,k) end
-  def existsC;->(_E,k){
+  def existsCm;->(_E,k){
       self[k] && true
     }end
-  def pairsC;->(_E){
+  def pairsCm;->(_E){
       map{|k,v|Pair.new(k,v)}
     }end
-  def deleteC;->(_E,*ks){
+  def deleteCm;->(_E,*ks){
       ks.map{|k| e = delete(k); e || pundef}
     }end
-  def keysC;->(_E){keys}end
-  def valuesC;->(_E){values}end
-  def kvC;->(_E){a=[];each{|k,v|a.push(k,v)};a}end
-  def sortC;->(_E){
+  def keysCm;->(_E){keys}end
+  def valuesCm;->(_E){values}end
+  def kvCm;->(_E){a=[];each{|k,v|a.push(k,v)};a}end
+  def sortCm;->(_E){
       sort{|a,b| a[0].as_s <=> b[0].as_s}
     }end
 end
@@ -3294,13 +3306,13 @@ end
 class Pair
   attr_accessor :name,:value
   def initialize(name,value) @name,@value=name,value end
-  def nameC;->(_E){ @name }end
-  def keyC;->(_E){ @name }end
-  def valueC;->(_E){ @value }end
-  def keysC;->(_E){ [@name] }end
-  def valuesC;->(_E){ [@value] }end
-  def kvC;->(_E){ [@name,@value] }end
-  def pairsC;->(_E){[self]}end
+  def nameCm;->(_E){ @name }end
+  def keyCm;->(_E){ @name }end
+  def valueCm;->(_E){ @value }end
+  def keysCm;->(_E){ [@name] }end
+  def valuesCm;->(_E){ [@value] }end
+  def kvCm;->(_E){ [@name,@value] }end
+  def pairsCm;->(_E){[self]}end
   def <=>(o) c = name <=> o.name; c != 0 ? c : value <=> o.value end
 end
 class WrappedPair
@@ -3354,9 +3366,9 @@ class Array; def as_n; size end end
 class Listy; def as_n; size end end
 class Hash; def as_n; size end end
   
-class Object; def asC;->(_S,f){sprintf(f,self)}end end
+class Object; def asCm;->(_S,f){sprintf(f,self)}end end
 class String
-  def asC;->(_S,f){
+  def asCm;->(_S,f){
       begin
         sprintf(f,self)
       rescue ArgumentError
@@ -3364,26 +3376,26 @@ class String
       end
     }
   end
-  def lcfirstC;->(_S){gsub(/^./){|c|c.downcase}} end
-  def lcC;->(_S){downcase} end
-  def ucfirstC;->(_S){gsub(/^./){|c|c.upcase}} end
-  def ucC;->(_S){upcase} end
-  def capitalizeC;->(_S){gsub(/\w+/){|w|w.capitalize}} end
-  def bytesC;->(_S){length} end
-  def charsC;->(_S){length} end
-  def indexC;->(_S,ss,from=0){index(ss,from)||-1} end
-  def rindexC;->(_S,ss,from=0){rindex(ss,from)||-1} end
-  def chompC;->(_S){chomp} end
-  def transC;->(_S,*m){s=self;m.each{|p|s = s.tr(p.name,p.value)};s} end
+  def lcfirstCm;->(_S){gsub(/^./){|c|c.downcase}} end
+  def lcCm;->(_S){downcase} end
+  def ucfirstCm;->(_S){gsub(/^./){|c|c.upcase}} end
+  def ucCm;->(_S){upcase} end
+  def capitalizeCm;->(_S){gsub(/\w+/){|w|w.capitalize}} end
+  def bytesCm;->(_S){length} end
+  def charsCm;->(_S){length} end
+  def indexCm;->(_S,ss,from=0){index(ss,from)||-1} end
+  def rindexCm;->(_S,ss,from=0){rindex(ss,from)||-1} end
+  def chompCm;->(_S){chomp} end
+  def transCm;->(_S,*m){s=self;m.each{|p|s = s.tr(p.name,p.value)};s} end
 end
-class Array; def asC;->(_S,f,j){ self.map{|e|e.asC.call(_S,f)}.join(j) }end end
-class Listy; def asC;->(_S,f,j){ self.map{|e|e.asC.call(_S,f)}.join(j) }end end
-class Hash; def asC;->(_S,f,j){ self.map{|k,v|sprintf(f,k,v)}.join(j) }end end
-class Pair; def asC;->(_S,f){ sprintf(f,name,value) }end end
+class Array; def asCm;->(_S,f,j){ self.map{|e|e.asCm.call(_S,f)}.join(j) }end end
+class Listy; def asCm;->(_S,f,j){ self.map{|e|e.asCm.call(_S,f)}.join(j) }end end
+class Hash; def asCm;->(_S,f,j){ self.map{|k,v|sprintf(f,k,v)}.join(j) }end end
+class Pair; def asCm;->(_S,f){ sprintf(f,name,value) }end end
 
 require 'rbconfig' # for Config::CONFIG
 
-class Object; def self.newC;->(_S,_self,*a){ new(*a) }end end
+class Object; def self.newCm;->(_S,_self,*a){ new(*a) }end end
 
 ###** main
 #print $grammar.parse.search((" "*1000)+"4").inspect
