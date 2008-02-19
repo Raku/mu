@@ -7,7 +7,6 @@ def say(*args); print *args,"\n"; end
 
 class Object
   def bool; true; end
-  def WHAT; to_s; end ##?
 end
 class FalseClass; def bool; false; end; end
 class NilClass; def bool; false; end; end
