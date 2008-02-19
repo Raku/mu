@@ -16,34 +16,34 @@ class Perl < Grammar
 
     def _TOP; _UNIT( $env_vars[:unitstopper] || "_EOS" ); end
 
-    prec_op(:hyper             ,{ :transparent =>1                           })
-    prec_op(:term              ,{ :prec =>"z="                               })
-    prec_op(:methodcall        ,{ :prec =>"y="                               })
-    prec_op(:autoincrement     ,{ :prec =>"x="                               })
-    prec_op(:exponentiation    ,{ :prec =>"w=", :assoc =>:right, :assign =>1 })
-    prec_op(:symbolic_unary    ,{ :prec =>"v="                               })
-    prec_op(:multiplicative    ,{ :prec =>"u=", :assoc =>:left,  :assign =>1 })
-    prec_op(:additive          ,{ :prec =>"t=", :assoc =>:left,  :assign =>1 })
-    prec_op(:replication       ,{ :prec =>"s=", :assoc =>:left,  :assign =>1 })
-    prec_op(:concatenation     ,{ :prec =>"r=", :assoc =>:left,  :assign =>1 })
-    prec_op(:junctive_and      ,{ :prec =>"q=", :assoc =>:list,  :assign =>1 })
-    prec_op(:junctive_or       ,{ :prec =>"p=", :assoc =>:list,  :assign =>1 })
-    prec_op(:named_unary       ,{ :prec =>"o=",                              })
-    prec_op(:nonchaining       ,{ :prec =>"n=", :assoc =>:non                })
-    prec_op(:chaining          ,{ :prec =>"m=", :assoc =>:chain, :bool =>1   })
-    prec_op(:tight_and         ,{ :prec =>"l=", :assoc =>:left,  :assign =>1 })
-    prec_op(:tight_or          ,{ :prec =>"k=", :assoc =>:left,  :assign =>1 })
-    prec_op(:conditional       ,{ :prec =>"j=", :assoc =>:right,             })
-    prec_op(:item_assignment   ,{ :prec =>"i=", :assoc =>:right              })
-    prec_op(:loose_unary       ,{ :prec =>"h=",                              })
-    prec_op(:comma             ,{ :prec =>"g=", :assoc =>:list,              })
-    prec_op(:list_infix        ,{ :prec =>"f=", :assoc =>:list,  :assign =>1 })
-    prec_op(:list_assignment   ,{ :prec =>"i=", :sub =>"e=", :assoc =>:right })
-    prec_op(:list_prefix       ,{ :prec =>"e=",                              })
-    prec_op(:loose_and         ,{ :prec =>"d=", :assoc =>:left,  :assign =>1 })
-    prec_op(:loose_or          ,{ :prec =>"c=", :assoc =>:left,  :assign =>1 })
-    prec_op(:LOOSEST           ,{ :prec =>"a=!",                             })
-    prec_op(:terminator        ,{ :prec =>"a=", :assoc =>:list               })
+    def_precedence :hyper           ,{ :transparent =>1                           }
+    def_precedence :term            ,{ :prec =>"z="                               }
+    def_precedence :methodcall      ,{ :prec =>"y="                               }
+    def_precedence :autoincrement   ,{ :prec =>"x="                               }
+    def_precedence :exponentiation  ,{ :prec =>"w=", :assoc =>:right, :assign =>1 }
+    def_precedence :symbolic_unary  ,{ :prec =>"v="                               }
+    def_precedence :multiplicative  ,{ :prec =>"u=", :assoc =>:left,  :assign =>1 }
+    def_precedence :additive        ,{ :prec =>"t=", :assoc =>:left,  :assign =>1 }
+    def_precedence :replication     ,{ :prec =>"s=", :assoc =>:left,  :assign =>1 }
+    def_precedence :concatenation   ,{ :prec =>"r=", :assoc =>:left,  :assign =>1 }
+    def_precedence :junctive_and    ,{ :prec =>"q=", :assoc =>:list,  :assign =>1 }
+    def_precedence :junctive_or     ,{ :prec =>"p=", :assoc =>:list,  :assign =>1 }
+    def_precedence :named_unary     ,{ :prec =>"o=",                              }
+    def_precedence :nonchaining     ,{ :prec =>"n=", :assoc =>:non                }
+    def_precedence :chaining        ,{ :prec =>"m=", :assoc =>:chain, :bool =>1   }
+    def_precedence :tight_and       ,{ :prec =>"l=", :assoc =>:left,  :assign =>1 }
+    def_precedence :tight_or        ,{ :prec =>"k=", :assoc =>:left,  :assign =>1 }
+    def_precedence :conditional     ,{ :prec =>"j=", :assoc =>:right,             }
+    def_precedence :item_assignment ,{ :prec =>"i=", :assoc =>:right              }
+    def_precedence :loose_unary     ,{ :prec =>"h=",                              }
+    def_precedence :comma           ,{ :prec =>"g=", :assoc =>:list,              }
+    def_precedence :list_infix      ,{ :prec =>"f=", :assoc =>:list,  :assign =>1 }
+    def_precedence :list_assignment ,{ :prec =>"i=", :sub =>"e=", :assoc =>:right }
+    def_precedence :list_prefix     ,{ :prec =>"e=",                              }
+    def_precedence :loose_and       ,{ :prec =>"d=", :assoc =>:left,  :assign =>1 }
+    def_precedence :loose_or        ,{ :prec =>"c=", :assoc =>:left,  :assign =>1 }
+    def_precedence :LOOSEST         ,{ :prec =>"a=!",                             }
+    def_precedence :terminator      ,{ :prec =>"a=", :assoc =>:list               }
     SLOOSEST = HLOOSEST[:prec]
 
     #R module PrecOp
@@ -64,7 +64,7 @@ class Perl < Grammar
     end
 
     #R things like "class Term does PrecOp[|%term] {}" are folded into
-    #R prec_op above.
+    #R def_precedence above.
 
     $env_vars.scope_enter(:endsym,:unitstopper,:endstmt,:endargs)
     $env_vars[:endsym] = "null"
@@ -73,48 +73,52 @@ class Perl < Grammar
     $env_vars[:endargs] = -1
 
     #R XXX TODO - the non-simple constraints are not being applied.
-    proto_token :category
-    proto_token :sigil
-    proto_token :twigil
-    proto_token :special_variable
-    proto_token :version
-    proto_token :term
-    proto_token :quote
-    proto_token :prefix, 'defequiv'=>:symbolic_unary
-    proto_token :infix,  'defequiv'=>:additive
-    proto_token :postfix,'defequiv'=>:autoincrement
-    proto_token :dotty,  'endsym'=>' <.unsp>? '
-    proto_token :circumfix
-    proto_token :postcircumfix
-    proto_token :regex_metachar
-    proto_token :regex_backslash
-    proto_token :regex_assertion
-    proto_token :regex_mod_internal
-    proto_token :quote_mod
-    proto_token :q_backslash
-    proto_token :qq_backslash
-    proto_token :trait_verb,      'endsym'=>' \s+ <nofat> '
-    proto_token :trait_auxiliary, 'endsym'=>' \s+ <nofat> '
-    proto_token :type_declarator,    'gtgt_nofat'
-    proto_token :scope_declarator,   'gtgt_nofat'
-    proto_token :package_declarator, 'gtgt_nofat'
-    proto_token :routine_declarator, 'gtgt_nofat'
-    proto_rule  :statement_prefix,   'gtgt_nofat'
-    proto_rule  :statement_control, 'endsym'=>' <nofat> <?before \s | \'#\'> '
-    proto_rule  :statement_mod_cond, 'gtgt_nofat'
-    proto_rule  :statement_mod_loop, 'gtgt_nofat'
-    proto_token :infix_prefix_meta_operator
-    proto_token :infix_postfix_meta_operator
-    proto_token :infix_circumfixfix_meta_operator
-    proto_token :postfix_prefix_meta_operator
-    proto_token :prefix_postfix_meta_operator
-    proto_token :prefix_circumfix_meta_operator
+    token_category :category
+    token_category :sigil
+    token_category :twigil
+    token_category :special_variable
+    token_category :version
+    token_category :term
+    token_category :quote
+    token_category :prefix
+    token_category :infix
+    token_category :postfix
+    # def_precedence_alias is what "is defequiv" means.
+    def_precedence_alias :prefix,  :symbolic_unary
+    def_precedence_alias :infix,   :additive
+    def_precedence_alias :postfix, :autoincrement
+    token_category :dotty,  'endsym'=>' <.unsp>? '
+    token_category :circumfix
+    token_category :postcircumfix
+    token_category :regex_metachar
+    token_category :regex_backslash
+    token_category :regex_assertion
+    token_category :regex_mod_internal
+    token_category :quote_mod
+    token_category :q_backslash
+    token_category :qq_backslash
+    token_category :trait_verb,      'endsym'=>' \s+ <nofat> '
+    token_category :trait_auxiliary, 'endsym'=>' \s+ <nofat> '
+    token_category :type_declarator,    'gtgt_nofat'
+    token_category :scope_declarator,   'gtgt_nofat'
+    token_category :package_declarator, 'gtgt_nofat'
+    token_category :routine_declarator, 'gtgt_nofat'
+    rule_category  :statement_prefix,   'gtgt_nofat'
+    rule_category  :statement_control, 'endsym'=>' <nofat> <?before \s | \'#\'> '
+    rule_category  :statement_mod_cond, 'gtgt_nofat'
+    rule_category  :statement_mod_loop, 'gtgt_nofat'
+    token_category :infix_prefix_meta_operator
+    token_category :infix_postfix_meta_operator
+    token_category :infix_circumfixfix_meta_operator
+    token_category :postfix_prefix_meta_operator
+    token_category :prefix_postfix_meta_operator
+    token_category :prefix_circumfix_meta_operator
     #R added:
-    proto_token :terminator
-    proto_token :regex_quantifier
-    proto_token :infix_circumfix_meta_operator
-    proto_token :plurality_declarator
-    proto_token :regex_declarator
+    token_category :terminator
+    token_category :regex_quantifier
+    token_category :infix_circumfix_meta_operator
+    token_category :plurality_declarator
+    token_category :regex_declarator
 
 
     # Lexical routines
@@ -124,8 +128,8 @@ class Perl < Grammar
         # <!before \h* <.unsp>? '=>' >
         not let_pos{ (h = scan(/[ \t]*/); unsp; h) and scan(/=>/) }
     end
-            
-    def dot_ws
+    #R ws, renamed wsp to make life easier.
+    def wsp
         pos == ws_to and return true
         after(/\w/) and before(/\w/) and return false
         ws_from = pos
@@ -148,8 +152,8 @@ class Perl < Grammar
     
     def pod_comment
         after(/^|\n/) and scan(/=/) and unsp? and
-        ( (scan(/begin/) and dot_ws and id = ident and
-            scan(/.*?\n=/) and unsp? and scan(/end/) and dot_ws and scan(/#{id}.*/)
+        ( (scan(/begin/) and wsp and id = ident and
+            scan(/.*?\n=/) and unsp? and scan(/end/) and wsp and scan(/#{id}.*/)
            ) or
           scan(/.*/))
     end
@@ -171,7 +175,7 @@ class Perl < Grammar
         $env_vars[:endstmt] = -1
         $env_vars[:endargs] = -1
         b = pos
-        dot_ws
+        wsp
         _sl = statementlist
         #R XXX this next line should apply unitstopper, not just look at it. :/
         $env_vars[:unitstopper] or panic("Can't understand next input--giving up")
@@ -198,7 +202,7 @@ class Perl < Grammar
         ( scan(/}/) or panic("Missing right brace") ) and
             #R QUESTION <?before < ,: >> typo?
             ( (scan(/[ \t]*/) and unsp? and before(/[,:]/)) or
-              (unv; before(/\n/) and dot_ws and ($env_vars[:endstmt] = ws_from)) or
+              (unv; before(/\n/) and wsp and ($env_vars[:endstmt] = ws_from)) or
               ($env_vars[:endargs] = pos) )
     end
 
@@ -212,7 +216,7 @@ class Perl < Grammar
     end
 
     def label
-        let_pos{ id = ident and scan(/:\s/) and dot_ws }
+        let_pos{ id = ident and scan(/:\s/) and wsp }
         #R ...missing... bookkeeping - needed?
     end
 
@@ -225,20 +229,20 @@ class Perl < Grammar
         $env_vars.scope_enter(:endstmt)
         $env_vars[:endstmt] = -1;
         label_ = control_ = expr_ = mod_loop_ = mod_cond_ = loopx_ = condx_ = mod_condloop_ = nil
-        dot_ws
+        wsp
         b = pos
-        label_ = starRULE{ label }; dot_ws
+        label_ = starRULE{ label }; wsp
         ((control_ = statement_control) or
-         let_pos{ x = expect_term and dot_ws and expr_ = _EXPR(x) and dot_ws and
+         let_pos{ x = expect_term and wsp and expr_ = _EXPR(x) and wsp and
            ( before{ stdstopper } or
-             let_pos{ mod_loop_ = statement_mod_loop and dot_ws and loopx = _EXPR } or 
-             ( let_pos{ mod_cond_ = statement_mod_cond and dot_ws and condx = _EXPR } and
+             let_pos{ mod_loop_ = statement_mod_loop and wsp and loopx = _EXPR } or 
+             ( let_pos{ mod_cond_ = statement_mod_cond and wsp and condx = _EXPR } and
                (  before{ stdstopper } or
-                  let_pos{ mod_condloop_ = statement_mod_loop and dot_ws and loopx = _EXPR } )))} or
+                  let_pos{ mod_condloop_ = statement_mod_loop and wsp and loopx = _EXPR } )))} or
           before(/;/)) and
-        dot_ws and
+        wsp and
         eat_terminator or return false
-        dot_ws
+        wsp
         $env_vars.scope_leave
         h = {}
         _hkv(h,:label,label_)
@@ -261,18 +265,18 @@ class Perl < Grammar
           panic("Statement not terminated properly"))
     end
 
-    def_category_rules :statement_control,%w{ use no },%q{let_pos{ e=nil; mn = module_name and dot_ws and (e=_EXPR; dot_ws) and eat_terminator and (h={:module_name =>mn};_hkv(h,:EXPR,e);_match_from(start,h,:<sym>)) }}
-    def_category_rules(:statement_control,%w{ if }, %q{let_pos{ b=pos; e=_EXPR and dot_ws and pb=pblock and dot_ws and ei=starRULE{let_pos{ b1=pos; scan(/elsif/) and dot_ws and e1=_EXPR and dot_ws and pb1=pblock and _match_from(b1,{:elsif_expr =>e1,:elsif_block =>pb1},:elsif)}} and el=quesRULE{ scan(/else/) and dot_ws and pblock} and (h={:if_expr =>e,:if_block =>pb,:elsif =>ei};_hkv(h,:else,el);_match_from(b,h,:if)) }})
+    def_rules_rest :statement_control,%w{ use no },%q{let_pos{ e=nil; mn = module_name and wsp and (e=_EXPR; wsp) and eat_terminator and (h={:module_name =>mn};_hkv(h,:EXPR,e);_match_from(start,h,:<sym>)) }}
+    def_rules_rest(:statement_control,%w{ if }, %q{let_pos{ b=pos; e=_EXPR and wsp and pb=pblock and wsp and ei=starRULE{let_pos{ b1=pos; scan(/elsif/) and wsp and e1=_EXPR and wsp and pb1=pblock and _match_from(b1,{:elsif_expr =>e1,:elsif_block =>pb1},:elsif)}} and el=quesRULE{ scan(/else/) and wsp and pblock} and (h={:if_expr =>e,:if_block =>pb,:elsif =>ei};_hkv(h,:else,el);_match_from(b,h,:if)) }})
 
-    def_category_rules :statement_control,%w{ unless while until  for given when },%q{let_pos{ _EXPR and dot_ws and pblock and dot_ws }}
-    def_category_rules :statement_control,%w{ repeat },%q{ ((scan(/while|until/) and dot_ws and _EXPR and dot_ws and block and dot_ws) or (block and dot_ws and scan(/while|until/) and dot_ws and _EXPR and dot_ws))}
-    def_category_rules :statement_control,%w{ loop },%q{ ((scan(/\(/) and dot_ws and e1= _EXPR and dot_ws and scan(/;/) and dot_ws and e2= _EXPR and dot_ws and scan(/;/) and dot_ws and e3= _EXPR and dot_ws and scan(/\)/) and dot_ws);true) and block and dot_ws}
+    def_rules_rest :statement_control,%w{ unless while until  for given when },%q{let_pos{ _EXPR and wsp and pblock and wsp }}
+    def_rules_rest :statement_control,%w{ repeat },%q{ ((scan(/while|until/) and wsp and _EXPR and wsp and block and wsp) or (block and wsp and scan(/while|until/) and wsp and _EXPR and wsp))}
+    def_rules_rest :statement_control,%w{ loop },%q{ ((scan(/\(/) and wsp and e1= _EXPR and wsp and scan(/;/) and wsp and e2= _EXPR and wsp and scan(/;/) and wsp and e3= _EXPR and wsp and scan(/\)/) and wsp);true) and block and wsp}
 
-    def_category_rules :statement_control,%w{ default BEGIN CHECK INIT END START ENTER LEAVE KEEP UNDO FIRST NEXT LAST PRE POST CATCH CONTROL },%q{let_pos{ block and dot_ws }}
+    def_rules_rest :statement_control,%w{ default BEGIN CHECK INIT END START ENTER LEAVE KEEP UNDO FIRST NEXT LAST PRE POST CATCH CONTROL },%q{let_pos{ block and wsp }}
 
-    def modifier_expr; dot_ws and _EXPR and dot_ws; end
-    def_category_rules :statement_mod_cond,%w{ if unless when },%q{let_pos{ modifier_expr and dot_ws }}
-    def_category_rules :statement_mod_loop,%w{ while until for given },%q{let_pos{ modifier_expr and dot_ws }}
+    def modifier_expr; wsp and _EXPR and wsp; end
+    def_rules_rest :statement_mod_cond,%w{ if unless when },%q{let_pos{ modifier_expr and wsp }}
+    def_rules_rest :statement_mod_loop,%w{ while until for given },%q{let_pos{ modifier_expr and wsp }}
     
     def module_name
         b = pos
@@ -303,7 +307,7 @@ class Perl < Grammar
             end
             # XXX assuming no precedence change
             starTOK{prefix_postfix_meta_operator}
-            dot_ws
+            wsp
             m
         }
 
@@ -311,7 +315,7 @@ class Perl < Grammar
 
         # also queue up any postfixes, since adverbs could change things
         postfix = starTOK{expect_postfix}
-        dot_ws
+        wsp
         quesTOK{adverbs}
 
         # now push ops over the noun according to precedence.
@@ -344,7 +348,7 @@ class Perl < Grammar
     end
 
     def adverbs
-        plusTOK{ _cp = colonpair and (colonpair_ ||= []; colonpair_.push(_cp);true) and dot_ws } and
+        plusTOK{ _cp = colonpair and (colonpair_ ||= []; colonpair_.push(_cp);true) and wsp } and
             ( prop = $env_vars[:prevop] or
               panic('No previous operator visible to adverbial pair ('+colonpair_+')');
               prop.adverb(colonpair_); true )
@@ -483,11 +487,11 @@ class Perl < Grammar
     end
 
     def anglewords(stop)
-        dot_ws and starTOK{ (not before(/#{stop}/)) and scan(/./) } # XXX need to split
+        wsp and starTOK{ (not before(/#{stop}/)) and scan(/./) } # XXX need to split
     end
 
     def shellwords(stop)
-        dot_ws and starTOK{ (not before(/#{stop}/)) and scan(/./) } # XXX need to split
+        wsp and starTOK{ (not before(/#{stop}/)) and scan(/./) } # XXX need to split
     end
 
     
@@ -499,15 +503,15 @@ class Perl < Grammar
         (var = variable and ( xXXX[:sigil] = var[:sigil] ) and
          quesTOK{
              %w{ @ % }.member?(var[:sigil]) and
-             dot_ws and
+             wsp and
              before(/[\<\(\[\{]/) and
              postcircumfix
          } and
          starTOK{trait} and
-         dot_ws and
+         wsp and
          quesTOK{
-             ((scan(/\=/) and dot_ws and _EXPR(nil,var[:sigil] == '$' ? Hitem_assignment : Hlist_prefix)) or
-              (scan(/\.\=/) and dot_ws and _EXPR(nil,Hitem_assignment)))
+             ((scan(/\=/) and wsp and _EXPR(nil,var[:sigil] == '$' ? Hitem_assignment : Hlist_prefix)) or
+              (scan(/\.\=/) and wsp and _EXPR(nil,Hitem_assignment)))
          })
     end
 
@@ -529,8 +533,8 @@ class Perl < Grammar
     #R added a .ws between module_name and block, and before module_name. XXX
     def package_def
         let_pos{
-            dot_ws
-            (mn = quesTOK{module_name} and starTOK{trait} and dot_ws and
+            wsp
+            (mn = quesTOK{module_name} and starTOK{trait} and wsp and
              (($env_vars[:begin_compunit] and scan(/;/) and
                (mn.bool or panic("Compilation unit cannot be anonymous")) and
                ($env_vars[:begin_compunit] = false
@@ -630,7 +634,7 @@ class Perl < Grammar
 
     def fulltypename #R regex XXX
         typename and
-            quesRX{ dot_ws and scan(/of/) and dot_ws and fulltypename }
+            quesRX{ wsp and scan(/of/) and wsp and fulltypename }
     end
 
     def number; dec_number || integer || rad_number; end
@@ -977,8 +981,8 @@ class Perl < Grammar
         $env_vars.scope_enter(:delim)
         $env_vars[:delim] = '' 
         v = ((not before(/\w/)) and nofat and #R XX? ::
-         dot_ws and
-         starTOK{ q = quotepair and qA.push(q) and dot_ws } and
+         wsp and
+         starTOK{ q = quotepair and qA.push(q) and wsp } and
          # Dispatch to current lang's subparser.
          ( lang = qlang('Q',qA) and false ) #R XXX I don't understand this yet.
          # {{
@@ -1198,35 +1202,35 @@ class Perl < Grammar
 # }
 
     def multisig
-        rul{ scan(/:?\(/) and dot_ws and signature and dot_ws and starRULE{ scan(/\|/) and dot_ws and scan(/:?\(/) and dot_ws and signature and dot_ws and scan(/\)/) } }
+        rul{ scan(/:?\(/) and wsp and signature and wsp and starRULE{ scan(/\|/) and wsp and scan(/:?\(/) and wsp and signature and wsp and scan(/\)/) } }
     end
 
     def routine_def
-        rul{ quesRULE{ident} and dot_ws and 
-            quesRULE{multisig} and dot_ws and
-            starRULE{trait} and dot_ws and
+        rul{ quesRULE{ident} and wsp and 
+            quesRULE{multisig} and wsp and
+            starRULE{trait} and wsp and
             block }
     end
 
     def method_def
-        rul{ (let_pos{ident and dot_ws and quesRULE{multisig}} or
-              let_pos{before{sigil and scan(/\.[\[\{\(]/)} and sigil and postcircumfix }) and dot_ws and
-            starRULE{trait} and dot_ws and
+        rul{ (let_pos{ident and wsp and quesRULE{multisig}} or
+              let_pos{before{sigil and scan(/\.[\[\{\(]/)} and sigil and postcircumfix }) and wsp and
+            starRULE{trait} and wsp and
             block }
     end
 
     def regex_def
-        rul{ quesRULE{ident} and dot_ws and
-            starRULE{trait} and dot_ws and
-            quesRULE{ scan(/:?\(/) and dot_ws and signature and dot_ws and scan(/\)/) } and dot_ws and
+        rul{ quesRULE{ident} and wsp and
+            starRULE{trait} and wsp and
+            quesRULE{ scan(/:?\(/) and wsp and signature and wsp and scan(/\)/) } and wsp and
             regex_block }
     end
 
     # XXX redundant with routine_def?
     def macro_def
-        rul{ quesRULE{ident} and dot_ws and 
-            quesRULE{multisig} and dot_ws and
-            starRULE{trait} and dot_ws and
+        rul{ quesRULE{ident} and wsp and 
+            quesRULE{multisig} and wsp and
+            starRULE{trait} and wsp and
             block }
     end
 
@@ -1256,15 +1260,15 @@ class Perl < Grammar
         $env_vars.scope_enter(:zone)
         $env_vars[:zone] = 'posreq'
         v = rul{
-            parsep = starRULE{ parameter and dot_ws and (scan(/,|:|;;|;/) or before(/-->|\)|\{/)) }
-            dot_ws
-            parsep and quesRULE{ scan(/-->/) and dot_ws and fulltypename }
+            parsep = starRULE{ parameter and wsp and (scan(/,|:|;;|;/) or before(/-->|\)|\{/)) }
+            wsp
+            parsep and quesRULE{ scan(/-->/) and wsp and fulltypename }
         }
         $env_vars.scope_leave
         v
     end
 
-    def_rules_rest :type_declarator,%w{ subset },%q{ name and dot_ws and quesRULE{ scan(/of/) and dot_ws and fulltypename } and scan(/where/) and dot_ws and _EXPR }
+    def_rules_rest :type_declarator,%w{ subset },%q{ name and wsp and quesRULE{ scan(/of/) and wsp and fulltypename } and scan(/where/) and wsp and _EXPR }
 
     def type_constraint
         rul{ value or
@@ -1284,7 +1288,7 @@ class Perl < Grammar
                (ident_=sublongname or return false;ident_)) or
               # Is it a shaped array or hash declaration?
               (let_pos{ (xXXX[:sigil] == '@' or xXXX[:sigil] == '%')  and
-                   (ident;true) and dot_ws and before(/[\<\(\[\{]/) and
+                   (ident;true) and wsp and before(/[\<\(\[\{]/) and
                    postcircumfix }) or
               # ordinary parameter name
               (ident) or
@@ -1365,11 +1369,11 @@ class Perl < Grammar
 #     { <typename> '(' <semilist> ')' {*} }                       #= Type( ) 
 
 
-    def_tokens_circum :term,%w{ ( },%q{let_pos{ t = statementlist and scan(/\)/) and t }}
-    def_tokens_circum :term,%w{ [ },%q{let_pos{ t = statementlist and scan(/\]/) and t }}
-    def_tokens_circum :term,%w{ < },%q{let_pos{ t = anglewords('>') and scan(/>/) and t }}
-    def_tokens_circum :term,%w{ << },%q{let_pos{ t = shellwords('>>') and scan(/>>/) and t }}
-    def_tokens_circum :term,%w{ « },%q{let_pos{ t = shellwords('»') and scan(/»/) and t }}
+    def_tokens_rest :circumfix,:term,%w{ ( },%q{let_pos{ t = statementlist and scan(/\)/) and t }}
+    def_tokens_rest :circumfix,:term,%w{ [ },%q{let_pos{ t = statementlist and scan(/\]/) and t }}
+    def_tokens_rest :circumfix,:term,%w{ < },%q{let_pos{ t = anglewords('>') and scan(/>/) and t }}
+    def_tokens_rest :circumfix,:term,%w{ << },%q{let_pos{ t = shellwords('>>') and scan(/>>/) and t }}
+    def_tokens_rest :circumfix,:term,%w{ « },%q{let_pos{ t = shellwords('»') and scan(/»/) and t }}
     def_tokens_simple :infix,:methodcall,%w{ . }
     def_tokens_simple :postfix,:methodcall,%w{ -> }
     def_tokens_simple :postfix,:autoincrement,%w{ i ++ -- }
@@ -1528,7 +1532,7 @@ false #R
         while true 
             say "In while true, at ", hereS_workaround.pos;
 
-            dot_ws #R added
+            wsp #R added
 
             my terminatorA = [hereS_workaround.before{stopS.()}]
             my tS = terminatorA[0];
@@ -1538,7 +1542,7 @@ false #R
             my infixA = [hereS_workaround.expect_infix()];
             my infixS = infixA[0];
             hereS = infixS;
-            dot_ws
+            wsp
 
             # XXX might want to allow this in a declaration though
             if not infixS;  hereS_workaround.panic("Can't have two terms in a row"); end
@@ -1607,7 +1611,7 @@ false #R
     end
 
     def regex_ordered_disjunction
-        rul{scan(/(\|\|)?/) and dot_ws and
+        rul{scan(/(\|\|)?/) and wsp and
             interleaveRULE(/\|\|/){ regex_ordered_conjunction } }
     end
 
@@ -1633,17 +1637,17 @@ false #R
     end
 
     def regex_quantified_atom
-        rul{ ra = regex_atom and dot_ws and
+        rul{ ra = regex_atom and wsp and
             (regex_quantifier and
              (ra.max_width or
               panic("Can't quantify zero-width atom"));true) }
     end
 
     def regex_atom
-        (dot_ws and
+        (wsp and
          ((let_pos{ scan(/#{$env_vars[:stop]}/) } and return(false);false) or
-          (regex_metachar and dot_ws) or
-          (scan(/\w/) and dot_ws) or
+          (regex_metachar and wsp) or
+          (scan(/\w/) and wsp) or
           panic("unrecognized metacharacter")))
     end
 
@@ -1727,7 +1731,7 @@ false #R
         scan(/\[(.*?)\]/)
     end
 
-    def_tokens_full :q_backslash,%w{ qq },%q{ before(/qq/) and <quote> }
+    def_tokens_before :q_backslash,false,%w{ qq },%q{ quote }
     def_tokens_rest :q_backslash,false,[""],%q{ scan(/./) }
 
     def_tokens_rest :qq_backslash,false,%w{ c },%q{ scan(/\[[^\]\n\r]*\]/) or codepoint }
@@ -1807,7 +1811,7 @@ false #R
     def_tokens_simple :regex_mod_internal,false,%w{ :!i }
 
     def_tokens_rest :regex_quantifier,false,%w{ * + ? },%q{ quantmod }
-    def_tokens_rest :regex_quantifier,false,%w{ ** },%q{ quantmod and dot_ws and scan(/\d+(?:\.\.(?:\d+|\*))?/) or block or regex_atom }
+    def_tokens_rest :regex_quantifier,false,%w{ ** },%q{ quantmod and wsp and scan(/\d+(?:\.\.(?:\d+|\*))?/) or block or regex_atom }
     def quantmod; scan(/[?!:+]/); true; end
 
 

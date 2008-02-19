@@ -21,10 +21,12 @@ class Grammar
   def initialize(orig)
     @scanner = StringScanner.new(orig)
     @str = orig
+    @eat_cache = {}
   end
   def pos; @scanner.pos; end
   def fail_at(n); @scanner.pos = n; false; end
   def scan(re); @scanner.scan(re); end
+  def eat(str); @scanner.scan((@eat_cache[str] ||= Regexp.new(Regexp.quote(str)))); end
   def let_pos(&blk)
     b = @scanner.pos
     v = blk.()
@@ -32,7 +34,7 @@ class Grammar
     v
   end
   def rul(&blk)
-    let_pos{ dot_ws and blk.() and dot_ws }
+    let_pos{ wsp and blk.() and wsp }
   end
     
 
@@ -96,30 +98,30 @@ class Grammar
 
   def quesRULE(f=nil,&blk)
     fun = f || blk
-    dot_ws
-    v = fun.(); dot_ws
+    wsp
+    v = fun.(); wsp
     v ? [v] : []
   end
   def starRULE(f=nil,&blk)
     fun = f || blk
     a = []
     p = pos
-    dot_ws
+    wsp
     while v = fun.()
-      a.push(v); dot_ws
+      a.push(v); wsp
       p1 = pos; break if not p < p1; p = p1
     end
     a
   end
   def plusRULE(f=nil,&blk)
     fun = f || blk
-    dot_ws
+    wsp
     v = fun.() or return false
     a = [v]
     p = pos
-    dot_ws
+    wsp
     while v = fun.()
-      a.push(v); dot_ws
+      a.push(v); wsp
       p1 = pos; break if not p < p1; p = p1
     end
     a
@@ -175,12 +177,28 @@ end
 # Tokens
 
 class Grammar
-  def self.prec_op(type,init)
-    @@__types__ ||= {}
-    @@__types__[type] = init
-    eval("H#{type} = init")
+
+  def self.def_precedence(precedence,precedence_hash)
+    @@__precedence_hashes__ ||= {}
+    @@__precedence_hashes__[precedence] = precedence_hash
+    eval("H#{precedence} = precedence_hash")
   end
-  def self._proto_common(category,args)
+  def self.def_precedence_alias(precedence,defequiv_precedence)
+    precedence_hash = @@__precedence_hashes__[defequiv_precedence]
+    def_precedence(precedence,precedence_hash)
+  end
+
+  def self.token_category(category,*args)
+    eval "@@matcher_for_#{category} = CategoryMatcher.new"
+    _help_def_category(category,args)
+  end
+  def self.rule_category(category,*args)
+    eval "@@matcher_for_#{category} = CategoryMatcher.new(true)"
+    _help_def_category(category,args)
+  end
+  def self._help_def_category(category,args)
+
+    # endsym's
     if not args.empty?
       if args[0].instance_of?(Hash)
         k = args[0].keys[0]
@@ -190,140 +208,132 @@ class Grammar
         v = nil
       end
       case k
-      when 'defequiv'
-        type = v
-        prec_op(category,@@__types__[type])
       when 'gtgt_nofat'
         print "# caveat: #{category} endsym gtgt_nofat unimplemented\n"
       when 'endsym'
         print "# caveat: #{category} endsym unimplemented\n"
-      when nil
-        p category
-        #R XXX why is this case needed??
       else
+        p category, k
         raise "bug"
       end
     end
-  end
-  def self.proto_token(category,*args)
-    _proto_common(category,args)
-    eval "@@#{category} = TokenHash.new"
-    _token_category(category)
-  end
-  def self.proto_rule(category,*args)
-    _proto_common(category,args)
-    eval "@@#{category} = RuleHash.new"
-    _token_category(category)
-  end
-  def self._token_category(category)
-    eval "@@__sym_return_type__#{category} = {}"
+
+    eval "@@__precedences_for_#{category}_symbols__ = {}"
+
     eval <<-END
       def #{category}
         b = @scanner.pos
-        tmp = @@#{category}.longest_token_match(self,@scanner) or return false
-        sym_re,v =  tmp
+        sym,v = @@matcher_for_#{category}.longest_token_match(self,@scanner)
+        sym or return false
 
         if v.instance_of?(Match)
-          v.rule = "#{category}:\#{v.rule||"kludge"}"
+          v.rule = "#{category}:\#{v.rule||"kludge_node"}"
           m = v
         else
-          stuff = v.is_a?(TrueClass) ? nil : {:kludge =>v}
-          m = _match_from(b,stuff,'#{category}')
+          h = v.is_a?(TrueClass) ? nil : {:kludge_name =>v}
+          m = _match_from(b,h,'#{category}')
         end
 
-        if return_type = @@__sym_return_type__#{category}[sym_re]
-          if init = @@__types__[return_type]
-            precop_method(m,init)
+        if precedence = @@__precedences_for_#{category}_symbols__[sym]
+          if precedence_hash = @@__precedence_hashes__[precedence]
+            precop_method(m,precedence_hash)
           else
-            init.is_a?(FalseClass) or
-              raise "bug: unknown return type class: \#{return_type.capitalize}"
+            precedence_hash.is_a?(FalseClass) or
+              raise "bug: unknown return precedence class: \#{precedence.capitalize}"
           end
         end
         m
       end
     END
+
   end
     
 
-  def self.def_tokens_simple(category, return_type, syms)
-    syms.each{|sym| _token(category, return_type, sym) }
-  end
-  def self.def_tokens_before(category, return_type, syms)
-    syms.each{|sym| _token(category, return_type, sym) }
-  end
-  def self.def_tokens_circum(return_type, left_syms, rest_code)
-    def_tokens_rest(:circumfix, return_type, left_syms, rest_code)
-  end
-  def self.def_tokens_rest(category, return_type, left_syms, common_rest_code)
-    left_syms.each{|sym|
-      rest_code = common_rest_code.gsub(/<sym>/,sym)
-      rest_method_name = "__#{category}_#{rand(10000000)}"
-      eval "def #{rest_method_name}(start); #{rest_code}; end"
-      rest = rest_method_name.to_sym
-      _token(category, return_type, sym, rest)
-    }
-  end
-  def self.def_category_rules(category,syms,common_rest_code)
-    syms.each{|sym|
-      rest_code = common_rest_code.gsub(/<sym>/,sym)
-      rest_method_name = "__#{category}_#{rand(10000000)}"
-      eval "def #{rest_method_name}(start); #{rest_code}; end"
-      rest = rest_method_name.to_sym
-      _token(category, false, sym, rest)
-    }
-  end
-  def self._token(category, return_type, sym, rest=true)
-    sym_re = Regexp.new(Regexp.quote(sym))
-    (eval "@@__sym_return_type__#{category}")[sym_re] = return_type
-    if (eval "@@#{category}").key?(sym_re); print "# Warning: #{category}:#{sym_re} redefined.\n"; end
-    (eval "@@#{category}")[sym_re] = rest
-  end
 
-  def self.def_tokens_full(*a)
-    print "# caveat: ignored #{a}\n"
+  def self.def_tokens_simple(category, precedence, syms)
+    syms.each{|sym| _def_token(category, sym, nil, precedence) }
   end
   def self.def_rules_rest(category, left_syms, rest_code)
-    print "# caveat: ignored #{category}:#{left_syms}\n"
+    def_tokens_rest(category, false, left_syms, rest_code)
+  end
+  def self.def_tokens_rest(category, precedence, left_syms, common_rest_code)
+    left_syms.each{|sym|
+      rest = _methodify_rest_code(category,sym,common_rest_code)
+      _def_token(category, sym, nil, precedence, rest)
+    }
+  end
+  def self.def_tokens_before(category, precedence, syms, common_rest_code=nil)
+    syms.each{|sym|
+      re = Regexp.new("(?=#{Regexp.quote(sym)})")
+      rest = _methodify_rest_code(category,sym,common_rest_code)
+      _def_token(category, sym, re, precedence, rest)
+    }
+  end
+
+  def self._methodify_rest_code(category,sym,common_rest_code)
+    return true if not common_rest_code
+    rest_code = common_rest_code.gsub(/<sym>/,sym)
+    rest_method_name = "__#{category}_#{rand(10000000)}"
+    eval "def #{rest_method_name}(start); #{rest_code}; end"
+    rest = rest_method_name.to_sym
+  end
+  def self._def_token(category,name,leading_re,precedence,rest=true)
+    leading_re ||= Regexp.new(Regexp.quote(name))
+    _def_token_precedence(category,name,precedence)
+    _def_category_member(category,name,leading_re,rest)
+  end
+  def self._def_token_precedence(category,sym,precedence)
+    (eval "@@__precedences_for_#{category}_symbols__")[sym] = precedence
+  end
+  def self._def_category_member(category,name,leading_re,rest)
+    if (eval "@@matcher_for_#{category}").declared?(name); print "# WARNING: #{category}:#{name} redefined.\n"; end
+    (eval "@@matcher_for_#{category}").declare(name,leading_re,rest)
   end
 end
 
-class TokenHash < Hash
+class CategoryMatcher
+  def initialize(is_rule_category=false)
+    @is_rule_category=is_rule_category
+    @member_index = {}
+  end
+  class CategoryMember
+    attr_accessor :name,:leading_re,:rest
+    def initialize(name,leading_re,rest)
+      @name,@leading_re,@rest=name,leading_re,rest
+    end
+  end
+  def declare(name,leading_re,rest)
+    cm = CategoryMember.new(name,leading_re,rest)
+    @member_index[name] = cm
+    @member_cache = nil
+  end
+  def declared?(name)
+    @member_index.key? name
+  end
   def longest_token_match(gram,scanr)
-    @cache ||= keys.sort{|a,b| b.to_s.length <=> a.to_s.length}
-    @cache.each{|k|
-      b = scanr.pos
-      scan_key(gram,scanr,k) or next
-      hv = self[k]
-      if hv.is_a? Symbol
-        (v = gram.send(hv,b)) and return [k,v]
-      elsif hv.is_a? String
-        scanr.scan(v) and return [k,true]
-      #elsif hv.respond_to?(:call)
-      #  (v = hv.()) and return [k,v]
+    @member_cache ||= @member_index.values
+    b0 = b1 = scanr.pos
+    if @is_rule_category
+      gram.wsp or return false
+      b1 = scanr.pos
+    end
+    @member_cache.each{|cm|
+      scanr.scan(cm.leading_re) or next
+      rest = cm.rest
+      if rest.is_a?(Symbol)
+        if u = gram.send(rest,b1) #and ((not @is_rule_category) or gram.wsp)
+          return [cm.name,u]
+        end
+      #elsif rest.respond_to?(:call)
       else
-        return [k,hv]
+        if true #and ((not @is_rule_category) or gram.wsp)
+          return [cm.name,rest]
+        end
       end
-      scanr.pos = b
+      scanr.pos = b1
     }
+    scanr.pos = b0
     false
-  end
-  def scan_key(gram,scanr,k)
-    scanr.scan(k)
-  end
-  alias :_TokenHash_set :[]=
-  def []=(k,v)
-    @cache = nil
-    _TokenHash_set(k,v)
-  end
-end
-class RuleHash < TokenHash
-  def scan_key(gram,scanr,k)
-    gram.let_pos{
-      gram.dot_ws
-      v = scanr.scan(k) or return false
-      gram.dot_ws
-      v
-    }
   end
 end
 
