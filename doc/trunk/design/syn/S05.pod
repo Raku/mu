@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 30 Jan 2008
+   Last Modified: 20 Feb 2008
    Number: 5
-   Version: 72
+   Version: 73
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -336,10 +336,10 @@ match variants are defined for them:
 
 New modifiers specify Unicode level:
 
-     m:bytes  / .**{2} /       # match two bytes
-     m:codes  / .**{2} /       # match two codepoints
-     m:graphs / .**{2} /       # match two language-independent graphemes
-     m:chars  / .**{2} /       # match two characters at current max level
+     m:bytes  / .**2 /       # match two bytes
+     m:codes  / .**2 /       # match two codepoints
+     m:graphs / .**2 /       # match two language-independent graphemes
+     m:chars  / .**2 /       # match two characters at current max level
 
 There are corresponding pragmas to default to these levels.  Note that
 the C<:chars> modifier is always redundant because dot always matches
@@ -361,7 +361,7 @@ modifiers at the end.)  For instance,
 
 is equivalant to the Perl 6 syntax:
 
-    m/ :i ^^ [ <[a..z]> || \d ]**{1..2} <before \s> /
+    m/ :i ^^ [ <[a..z]> || \d ] ** 1..2 <before \s> /
 
 =item *
 
@@ -733,8 +733,11 @@ of a longest-token pattern.)
 The general repetition specifier is now C<**> for maximal matching,
 with a corresponding C<**?> for minimal matching.  (All such quantifier
 modifiers now go directly after the C<**>.)  Space is allowed on either
-side of the complete quantifier.  The next token will determine what
-kind of repetition is desired:
+side of the complete quantifier.  This space is considered significant
+under C<:sigspace>, and will be distributed as a call to <.ws> between
+all the elements of the match but not on either end.
+
+The next token will determine what kind of repetition is desired:
 
 If the next thing is an integer, then it is parsed as either as an exact
 count or a range:
@@ -758,20 +761,19 @@ It is illegal to return a list, so this easy mistake fails:
 The closure form is always considered procedural, so the item it is
 modifying is never considered part of the longest token.
 
-If you supply any other atom (which may not be quantified), it is
+If you supply any other atom (which may be quantified), it is
 interpreted as a separator (such as an infix operator), and the
 initial item is quantified by the number of times the separator is
 seen between items:
 
-    <alt> ** '|'            # repetition controlled by presence of separator
-    <addend> ** <addop>     # repetition controlled by presence of separator
-    <item> ** [ \!?'==' ]   # repetition controlled by presence of separator
+    <alt> ** '|'            # repetition controlled by presence of character
+    <addend> ** <addop>     # repetition controlled by presence of subrule
+    <item> ** [ \!?'==' ]   # repetition controlled by presence of operator
+    <file>**\h+             # repetition controlled by presence of whitespace
 
 A successful match of such a quantifier always ends "in the middle",
 that is, after the initial item but before the next separator.
-(The separator never matches independently of the next item; if the
-separator matches but the next item fails, it backtracks all the way
-back through the separator.)  Therefore
+Therefore
 
     / <ident> ** ',' /
 
@@ -790,6 +792,36 @@ It is legal for the separator to be zero-width as long as the pattern on
 the left progresses on each iteration:
 
     . ** <?same>   # match sequence of identical characters
+
+The separator never matches independently of the next item; if the
+separator matches but the next item fails, it backtracks all the way
+back through the separator.  Likewise, this matching of the separator
+does not count as "progress" under C<:ratchet> semantics unless the
+next item succeeds.
+
+When significant space is used under C<:sigspace> with the separator
+form, it applies on both sides of the separator, so
+
+    mm/<element> ** ','/
+    mm/<element>** ','/
+    mm/<element> **','/
+
+all allow whitespace around the separator like this:
+
+    / <element>[<.ws>','<.ws><element>]* /
+
+while
+
+    mm/<element>**','/
+
+excludes all significant whitespace:
+
+    / <element>[','<element>]* /
+
+Of course, you can always match whitespace explicitly if necessary, so to
+allow whitespace after the comma but not before, you can say:
+
+    / <element>**[','\s*] /
 
 =item *
 
@@ -2635,6 +2667,11 @@ objects to this array. For example:
          $from = $<file>[0];
          $to   = $<file>[1];
      }
+
+(Note, for clarity we are ignoring whitespace subtleties here--the
+normal sigspace rules would require space only between alphanumeric
+characters, which is wrong.  Assume that our file subrule requires a
+real boundary at that point using C<< <!before \S> >> or some such.)
 
 Likewise, with a quantified subrule:
 
