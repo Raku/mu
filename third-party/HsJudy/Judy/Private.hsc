@@ -35,6 +35,7 @@ wordPtrToPtr = unsafeCoerce##
 newtype JError = JError (Ptr ())
 --foreign import ccall unsafe "judy_error" judyError :: JError
 -- #def JError_t *judy_error(void) { static JError_t err; return &err; }
+judyError :: JError
 judyError = JError nullPtr
 
 newtype Frozen a = Frozen a
@@ -162,8 +163,8 @@ foreign import ccall "JudyHSGet" judyHSGet :: JudyHS -> Ptr CChar -> Value -> IO
 foreign import ccall "JudyHSFreeArray" judyHSFreeArray :: Ptr JudyHS -> JError -> IO Value
 
 foreign import ccall "JudyHSIterFirst" judyHSIterFirst :: JudyHS -> Ptr JudyHSIter -> Ptr CString -> Ptr Value -> JError -> IO (Ptr Value)
-foreign import ccall "JudyHSIterNext" judyHSIterNext :: JudyHS -> Ptr JudyHSIter -> Ptr CString -> Ptr Value -> JError -> IO (Ptr Value) 
-foreign import ccall "JudyHSIterLast" judyHSIterLast :: JudyHS -> Ptr JudyHSIter -> Ptr CString -> Ptr Value -> JError -> IO (Ptr Value) 
-foreign import ccall "JudyHSIterPrev" judyHSIterPrev :: JudyHS -> Ptr JudyHSIter -> Ptr CString -> Ptr Value -> JError -> IO (Ptr Value) 
+foreign import ccall "JudyHSIterNext" judyHSIterNext :: JudyHS -> Ptr JudyHSIter -> Ptr CString -> Ptr Value -> JError -> IO (Ptr Value)
+foreign import ccall "JudyHSIterLast" judyHSIterLast :: JudyHS -> Ptr JudyHSIter -> Ptr CString -> Ptr Value -> JError -> IO (Ptr Value)
+foreign import ccall "JudyHSIterPrev" judyHSIterPrev :: JudyHS -> Ptr JudyHSIter -> Ptr CString -> Ptr Value -> JError -> IO (Ptr Value)
 foreign import ccall "JudyHSFreeIter" judyHSFreeIter :: Ptr JudyHSIter -> JError -> IO Value
 

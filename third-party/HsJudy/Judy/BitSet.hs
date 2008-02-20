@@ -61,13 +61,13 @@ delete v (BitSet j) = withForeignPtr j $ \j' -> do
 
 -- | Set value in or out the set and return its old value.
 set :: HashIO a => BitSet a -> a -> Bool -> IO Bool
-set (BitSet j) v True = withForeignPtr j $ \j ->  do
+set (BitSet k) v True = withForeignPtr k $ \j ->  do
     vp <- hashIO v
     r <- judy1Set j vp judyError
     if vp == jerr
         then error "HsJudy: Not enough memory."
         else return $ r == 0
-set (BitSet j) v False = withForeignPtr j $ \j -> do
+set (BitSet k) v False = withForeignPtr k $ \j -> do
     vp <- hashIO v
     r <- judy1Unset j vp judyError
     if vp == jerr
@@ -83,7 +83,7 @@ get (BitSet j) v = do
     r <- judy1Test jj vp judyError
     return $ r /= 0
 
--- | Is the value a member of the set? 
+-- | Is the value a member of the set?
 member :: HashIO a => a -> BitSet a -> IO Bool
 member v (BitSet j) = do
     j' <- withForeignPtr j peek
@@ -109,7 +109,7 @@ clear :: HashIO a => BitSet a -> IO ()
 clear (BitSet j) = withForeignPtr j $ \j' -> judy1FreeArray j' judyError >> return ()
 
 -- | Convert the set to a list of elements.
-toList :: ReversibleHashIO a => BitSet a -> IO [a]
+toList :: (Enum a) => BitSet t -> IO [a]
 toList (BitSet j) = do
     j' <- withForeignPtr j peek
     alloca $ \vp -> do
@@ -168,7 +168,7 @@ fromListF vs = Frozen $ unsafePerformIO $ do
     fromList vs bs
     return bs
 
-toListF :: ReversibleHashIO a => Frozen (BitSet a) -> [a]
+toListF :: (Enum a) => Frozen (BitSet t) -> [a]
 toListF (Frozen (BitSet j)) = unsafePerformIO $ do
     j' <- withForeignPtr j peek
     alloca $ \vp -> do
@@ -181,7 +181,6 @@ toListF (Frozen (BitSet j)) = unsafePerformIO $ do
                 f r (v':xs)
         r <- judy1Last j' vp judyError
         f r []
-
 
 -- TODO: See if ListFrom and RevList are needed
 -- compare my toListF with toListFrom (it have more unsafePerformIO's =P)

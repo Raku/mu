@@ -4,7 +4,7 @@
 
 module Judy.IntMap (
     IntMap (..),
-    
+
     freeze,
     toRevList,
     size,
@@ -14,13 +14,13 @@ module Judy.IntMap (
 
 import Data.Typeable
 import Control.Monad (when)
-import Foreign.C.String
-import Foreign.C.Types
-import Foreign.ForeignPtr
-import Foreign.Marshal.Alloc
-import Foreign.Ptr
-import Foreign.Storable
-import Foreign.StablePtr
+-- import Foreign.C.String
+-- import Foreign.C.Types
+-- import Foreign.ForeignPtr
+-- import Foreign.Marshal.Alloc
+-- import Foreign.Ptr
+-- import Foreign.Storable
+-- import Foreign.StablePtr
 import Foreign
 import Data.Maybe (fromJust)
 
@@ -79,6 +79,7 @@ finalize need j = do
     --putStrLn $ "\n(FINALIZER CALLED FOR "++ (show j) ++  ": " ++ (show v) ++ ")\n"
     return ()
 
+rawElems :: IntMap k a -> IO [Value]
 rawElems = internalMap $ \r _ -> peek r
 
 dummy :: Refeable a => IntMap k a -> a
@@ -91,7 +92,7 @@ new_ = do
     m <- return $ IntMap fp
 
     finalize' <- mkFin $ finalize $ needGC (dummy m)
-    addForeignPtrFinalizer finalize' fp 
+    addForeignPtrFinalizer finalize' fp
     return m
 
 insert_ :: (ReversibleHashIO k, Refeable a) => k -> a -> IntMap k a -> IO ()
@@ -116,7 +117,7 @@ alter_ f k m@(IntMap j) = do
             v <- fromRef v'
             let fv = f (Just v)
             if fv == Nothing
-                then do delete_ k m 
+                then do delete_ k m
                         return Nothing           -- FIXME check delete output
                 else if v /= (fromJust fv)
                          then do when (needGC (fromJust fv)) $ GC.freeRef v'

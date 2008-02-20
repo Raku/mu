@@ -3,10 +3,10 @@
 module Judy.CollectionsM (
     MapM (..),
     MapF (..)
-) where 
+) where
 
-import Judy.Freeze
-import Foreign
+-- import Judy.Freeze
+-- import Foreign
 import Data.IORef
 import qualified Data.Map       as DM
 import qualified Data.HashTable as HT
@@ -15,7 +15,7 @@ import Prelude hiding (lookup)
 
 -- import Prelude (Bool(..), Int, Maybe(..),
 --                 (==), (.), (+), ($), (-), (&&), (||),
---                 Eq, Ord, 
+--                 Eq, Ord,
 --                 error, const, not, fst, snd, maybe, head, otherwise, curry, uncurry, flip,
 --                 min, max, Show)
 
@@ -26,7 +26,7 @@ class Monad m => CollectionM c i o m | c -> i o m where
     -- From Foldable
     null :: c -> m Bool
     size :: c -> m Int
-    
+
     empty :: m c
     isSingleton :: c -> m Bool
     -- FIXME: create a new structure? or delete inplace? or have both options?
@@ -74,7 +74,7 @@ class Monad m => MapM c k a m | c -> k a m where
     --isSubset :: c -> c -> m Bool
 
     --insertWith :: (a -> a -> a) -> k -> a -> c -> m ()
-    
+
     -- FIXME: create a new structure? or delete inplace? or have both?
     --mapWithKey :: (k -> a -> a) -> c -> m c
     --unionWith :: (a -> a -> a) -> c -> c -> m c
@@ -146,9 +146,9 @@ instance MapM (HT.HashTable String a) String a IO where
             Nothing -> case (f Nothing) of
                 Nothing -> return Nothing
                 Just y  -> (HT.insert m k y) >> (return $ Just y)
-            Just x  -> case (f (Just x)) of
+            Just y  -> case (f $ Just y) of
                 Nothing -> (HT.delete m k)   >> (return Nothing)
-                Just y  -> (HT.insert m k y) >> (return $ Just y)
+                Just z  -> (HT.insert m k z) >> (return $ Just z)
     fromList = HT.fromList HT.hashString
     toList = HT.toList
     elems = (fmap (map snd)) . HT.toList
@@ -179,7 +179,7 @@ instance MapM (HT.HashTable Int a) Int a IO where
             Nothing -> case (f Nothing) of
                 Nothing -> return Nothing
                 Just y  -> (HT.insert m k y) >> (return $ Just y)
-            Just x  -> case (f (Just x)) of
+            Just a  -> case (f $ Just a) of
                 Nothing -> (HT.delete m k)   >> (return Nothing)
                 Just y  -> (HT.insert m k y) >> (return $ Just y)
     fromList = HT.fromList HT.hashInt

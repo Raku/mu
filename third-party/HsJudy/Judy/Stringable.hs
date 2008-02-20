@@ -1,12 +1,13 @@
-{-# OPTIONS -fallow-undecidable-instances -fallow-incoherent-instances #-}
+{-# OPTIONS -fglasgow-exts #-}
+{-# LANGUAGE TypeSynonymInstances #-}
 
 module Judy.Stringable (
     Stringable (..)
 ) where
 
 import Foreign.C.String
-import qualified Data.ByteString as B
-
+import qualified Data.ByteString as B (ByteString, useAsCString, useAsCStringLen)
+import Data.ByteString.Unsafe as BU (unsafePackCString, unsafePackCStringLen)
 -- TODO: See if its possible to use Storable, ie. to let any Storable type be "stringable".
 
 class Stringable k where
@@ -30,12 +31,12 @@ instance Stringable String where
 instance Stringable B.ByteString where
     toString = undefined
     fromString = undefined
- 
-    useAsCS = B.useAsCString 
+
+    useAsCS = B.useAsCString
     useAsCSLen = B.useAsCStringLen
 
-    copyCS = B.copyCString
-    copyCSLen = B.copyCStringLen
+    copyCS = BU.unsafePackCString
+    copyCSLen = BU.unsafePackCStringLen
 
 --instance Stringable Int where
 --    toString = show

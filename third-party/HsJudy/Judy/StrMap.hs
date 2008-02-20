@@ -12,12 +12,12 @@ module Judy.StrMap (
 import Data.Typeable
 import Control.Monad (when)
 import Foreign.C.String
-import Foreign.C.Types
-import Foreign.ForeignPtr
-import Foreign.Marshal.Alloc
-import Foreign.Ptr
-import Foreign.Storable
-import Foreign.StablePtr
+-- import Foreign.C.Types
+-- import Foreign.ForeignPtr
+-- import Foreign.Marshal.Alloc
+-- import Foreign.Ptr
+-- import Foreign.Storable
+-- import Foreign.StablePtr
 import Foreign
 import Data.Maybe (fromJust)
 
@@ -75,6 +75,7 @@ finalize need j = do
     --putStrLn $ "\n(FINALIZER CALLED FOR "++ (show j) ++  ": " ++ (show v) ++ ")\n"
     return ()
 
+rawElems :: StrMap k a -> IO [Value]
 rawElems = internalMap $ \r _ -> peek r
 
 dummy :: Refeable a => StrMap k a -> a
@@ -88,7 +89,7 @@ new_ = do
 
     -- putStrLn $ show $ needGC $ dummy m
     finalize' <- mkFin $ finalize $ needGC $ dummy m
-    addForeignPtrFinalizer finalize' fp 
+    addForeignPtrFinalizer finalize' fp
     return m
 
 insert_ :: (Stringable k, Refeable a) => k -> a -> StrMap k a -> IO ()
@@ -108,12 +109,12 @@ alter_ f k m@(StrMap j) = do
             then if (f Nothing) == Nothing
                     then return Nothing
                     else insert_ k (fromJust (f Nothing)) m >> return (f Nothing)
-            else do 
+            else do
                 v' <- peek r
                 v <- fromRef v'
                 let fv = f (Just v)
                 if fv == Nothing
-                    then do delete_ k m 
+                    then do delete_ k m
                             return Nothing
                     else if v /= (fromJust fv)
                              then do when (needGC (fromJust fv)) $ GC.freeRef v'
@@ -145,7 +146,7 @@ delete_ k m@(StrMap j) = withForeignPtr j $ \j' -> do
         when (needGC (dummy m)) $ do
             r <- judySLGet j'' k' judyError
             if r == nullPtr
-                then return () 
+                then return ()
                 else do v' <- peek r
                         GC.freeRef v'
                         return ()
@@ -163,7 +164,7 @@ internalMap' :: (Ptr Value -> CString -> IO b) -> StrMap k a -> IO [b]
 internalMap' f (StrMap j) = do
     jj <- withForeignPtr j peek
     alloca $ \vp -> do
-        poke vp 0 
+        poke vp 0
         let loop act xs = do
             r <- act jj vp judyError
             if r == nullPtr
@@ -189,7 +190,7 @@ internalMap f (StrMap j) = do
 mapHelper_ :: (Stringable k, Refeable a) => (k -> a -> b) -> Ptr Value -> CString -> IO b
 mapHelper_ f r vp = do
     k <- copyCS vp
-    v <- peek r >>= fromRef 
+    v <- peek r >>= fromRef
     return $ f k v
 
 mapToList_ :: (Stringable k, Refeable a) => (k -> a -> b) -> StrMap k a -> IO [b]

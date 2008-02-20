@@ -48,7 +48,7 @@ allow Haskell data types to be used as values.
 Haskell API and seeing which ones would have Judy-based support, good
 candidates are Map, IntSet and IntMap. Doing an interface for DiffArray was
 suggested, too. It's possible that no Haskell API matches some
-functionalities (like 'unbounded' Arrays); in that case new interfaces will
+functionality (like 'unbounded' Arrays); in that case new interfaces will
 be created.
 
 * Benchmark. Measure speed of the new bindings against that of previous

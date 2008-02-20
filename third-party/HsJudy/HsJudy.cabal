@@ -1,15 +1,44 @@
 name:                HsJudy
 version:             0.1
-description:         Judy bindings, and some nice APIs
+Category:            Data
+Synopsis:            Judy bindings, and some nice APIs
+Description:         Judy[1] bindings (a C library that implements fast sparse dynamic
+                     arrays) for Haskell presenting APIs conforming as much as possible to the
+                     existent Haskell library interfaces, like Data.Map and Data.Array.MArray.
+                     This binding for the Judy library includes all its four types: mapping from
+                     words to bits (Judy1), from words to values (JudyL), from strings to values
+                     (JudyHS) and from array-of-bytes to values (JudyHS).
 license:             BSD3
 license-file:        LICENSE
-author:              Caio Marcelo de Oliveira Filho <cmarcelo@gmail.com>, John Meacham
+author:              Caio Marcelo de Oliveira Filho, John Meacham
 maintainer:          Caio Marcelo de Oliveira Filho <cmarcelo@gmail.com>
-build-depends:       base -any, pugs-fps -any
-exposed-modules:     Judy.BitSet Judy.Freeze Judy.Hash Judy.IntMap Judy.StrMap Judy.CollectionsM Judy.HashIO Judy.Refeable Judy.Stringable
-other-modules:       Judy.Private Judy.MiniGC
-extensions:          ForeignFunctionInterface
-ghc-options:         -fglasgow-exts -O2 -static ../judy/Judy-1.0.3/src/Judy1/*.o ../judy/Judy-1.0.3/src/JudyL/*.o ../judy/Judy-1.0.3/src/JudySL/*.o ../judy/Judy-1.0.3/src/JudyHS/*.o ../judy/Judy-1.0.3/src/JudyCommon/*.o
-include-dirs:        . ../judy/Judy-1.0.3/src
--- FIXME: make Cabal work nicely with _hsc files, now I think it works, but doesnt clean _hsc files
-c-sources:           Judy/Private_hsc.c
+homepage:            http://www.pugscode.org/
+cabal-version:       >= 1.2
+tested-with:         GHC==6.8.2
+build-type:          Simple
+
+data-files:          README
+
+flag small_base
+    description: Choose the new smaller, split-up base package.
+
+Library
+        if flag(small_base)
+            Build-Depends: base, containers
+        else
+            Build-Depends: base < 3
+        build-depends:     bytestring>=0.9.0.1
+        exposed-modules:     Judy.BitSet Judy.Freeze Judy.Hash Judy.IntMap Judy.StrMap
+                             Judy.CollectionsM Judy.HashIO Judy.Refeable Judy.Stringable
+        other-modules:       Judy.Private Judy.MiniGC
+
+        include-dirs:        . ../judy/Judy-1.0.3/src
+-- FIXME: make Cabal work nicely with _hsc files; now I think it works, but doesn't clean _hsc files
+        c-sources:           Judy/Private_hsc.c
+
+
+        extensions:          ForeignFunctionInterface, TypeSynonymInstances, MagicHash,
+                             IncoherentInstances, UndecidableInstances
+        ghc-options:         -fglasgow-exts -Wall -O2 -static ../judy/Judy-1.0.3/src/Judy1/*.o
+                             ../judy/Judy-1.0.3/src/JudyL/*.o ../judy/Judy-1.0.3/src/JudySL/*.o
+                             ../judy/Judy-1.0.3/src/JudyHS/*.o ../judy/Judy-1.0.3/src/JudyCommon/*.o

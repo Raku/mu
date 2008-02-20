@@ -10,15 +10,16 @@ import Data.Maybe (fromJust)
 
 import Foreign
 
-
 --import Foreign.Ptr
 import Foreign.StablePtr
 
 import Judy.Private
 
 {-# NOINLINE judyGC #-}
+judyGC :: GCMap
 judyGC = unsafePerformIO newGCMap
 
+newRef :: a -> IO WordPtr
 newRef a = do
     --putStr "(new)"
     v <- newStablePtr a
@@ -28,6 +29,7 @@ newRef a = do
    where f Nothing = Just 1
          f (Just n) = Just (n+1)
 
+freeRef :: Value -> IO ()
 freeRef v = do
     --putStr "(free? "
     alter f v judyGC
@@ -52,7 +54,7 @@ instance Show GCMap where
 newGCMap :: IO GCMap
 newGCMap = do
     fp <- mallocForeignPtr
-    addForeignPtrFinalizer judyL_free_ptr fp 
+    addForeignPtrFinalizer judyL_free_ptr fp
     withForeignPtr fp $ flip poke nullPtr
     return $ GCMap fp
 
@@ -79,13 +81,14 @@ alter f k m@(GCMap j) = do
                 then delete k m >> return ()
                 else poke r $ toEnum $ fromJust fv
 
-lookup :: Value -> GCMap -> IO (Maybe Int)
-lookup k (GCMap j) = do
-    j' <- withForeignPtr j peek
-    r <- judyLGet j' k judyError
-    if r == nullPtr
-        then return Nothing
-        else do { v' <- peek r; return $ Just $ fromEnum v' }
+-- -- Not used; dead code
+-- lookup :: Value -> GCMap -> IO (Maybe Int)
+-- lookup k (GCMap j) = do
+--     j' <- withForeignPtr j peek
+--     r <- judyLGet j' k judyError
+--     if r == nullPtr
+--         then return Nothing
+--         else do { v' <- peek r; return $ Just $ fromEnum v' }
 
 member :: Value -> GCMap -> IO Bool
 member k (GCMap j) = do

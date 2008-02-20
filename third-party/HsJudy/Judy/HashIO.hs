@@ -1,3 +1,4 @@
+{-# LANGUAGE MagicHash #-}
 {-# OPTIONS -fallow-undecidable-instances -fallow-incoherent-instances -fallow-overlapping-instances #-}
 
 module Judy.HashIO (
@@ -21,18 +22,21 @@ class UniqueHashIO a => ReversibleHashIO a where
 
 
 instance Enum a => UniqueHashIO a where
+
 instance Enum a => HashIO a where
     hashIO = return . unsafeCoerce# . fromEnum
+
 instance Enum a => ReversibleHashIO a where
     unHashIO = return . toEnum . unsafeCoerce#
 
 
 instance HashIO Value where
     hashIO = return
+
 instance UniqueHashIO Value
+
 instance ReversibleHashIO Value where
     unHashIO = return
-
 
 instance HashIO Integer where
     hashIO = return . fromIntegral . hashString . show

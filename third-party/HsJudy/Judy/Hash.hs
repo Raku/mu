@@ -12,11 +12,11 @@ module Judy.Hash (
 import Data.Typeable
 import Control.Monad (when)
 import Foreign.C.String
-import Foreign.C.Types
-import Foreign.ForeignPtr
-import Foreign.Marshal.Alloc
-import Foreign.Ptr
-import Foreign.Storable
+-- import Foreign.C.Types
+-- import Foreign.ForeignPtr
+-- import Foreign.Marshal.Alloc
+-- import Foreign.Ptr
+-- import Foreign.Storable
 import Foreign
 import Data.Maybe (fromJust)
 
@@ -74,6 +74,7 @@ finalize need j = do
     --putStrLn $ "\n(FINALIZER CALLED FOR "++ (show j) ++  ": " ++ (show v) ++ ")\n"
     return ()
 
+rawElems :: Hash k a -> IO [Value]
 rawElems = internalMap $ \r _ _ -> peek r
 
 dummy :: Refeable a => Hash k a -> a
@@ -87,7 +88,7 @@ new_ = do
     m <- return $ Hash fp
 
     finalize' <- mkFin $ finalize $ needGC (dummy m)
-    addForeignPtrFinalizer finalize' fp 
+    addForeignPtrFinalizer finalize' fp
     return m
 
 insert_ :: (Stringable k, Refeable a) => k -> a -> Hash k a -> IO ()
@@ -111,12 +112,12 @@ alter_ f k m@(Hash j) = do
             then if (f Nothing) == Nothing
                     then return Nothing
                     else insert_ k (fromJust (f Nothing)) m >> return (f Nothing)
-            else do 
+            else do
                 v' <- peek r
                 v <- fromRef v'
                 let fv = f (Just v)
                 if fv == Nothing
-                    then do delete_ k m 
+                    then do delete_ k m
                             return Nothing
                     else if v /= (fromJust fv)
                              then do when (needGC (fromJust fv)) $ GC.freeRef v'
@@ -132,7 +133,7 @@ lookup_ k (Hash j) = do
         r <- judyHSGet j' cp (fromIntegral len)
         if r == nullPtr
             then return Nothing
-            else do 
+            else do
                 v' <- peek r
                 v <- fromRef v'
                 return $ Just v

@@ -1,5 +1,5 @@
 {-# OPTIONS -fallow-undecidable-instances -fallow-incoherent-instances #-}
-
+{-# LANGUAGE MagicHash, UndecidableInstances, IncoherentInstances #-}
 module Judy.Refeable (
     Refeable (..)
 ) where
@@ -27,7 +27,7 @@ class Refeable a where
     fromRef = deRefStablePtr . castPtrToStablePtr . wordPtrToPtr
     needGC :: a -> Bool
     needGC _ = True
-    
+
 --instance Dummy a => Refeable a where
 instance Refeable a where
 
