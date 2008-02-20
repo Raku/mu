@@ -1266,13 +1266,13 @@ lexically scoped.)
 
 A leading C<?{> or C<!{> indicates a code assertion:
 
-     / (\d**{1..3}) <?{ $0 < 256 }> /
-     / (\d**{1..3}) <!{ $0 < 256 }> /
+     / (\d**1..3) <?{ $0 < 256 }> /
+     / (\d**1..3) <!{ $0 < 256 }> /
 
 Similar to:
 
-     / (\d**{1..3}) { $0 < 256 or fail } /
-     / (\d**{1..3}) { $0 < 256 and fail } /
+     / (\d**1..3) { $0 < 256 or fail } /
+     / (\d**1..3) { $0 < 256 and fail } /
 
 Unlike closures, code assertions are considered declarative; they are
 not guaranteed to be run at the canonical time if the optimizer can
@@ -1837,7 +1837,7 @@ and rules):
 As the above example indicates, it's possible to refer to named regexes,
 such as:
 
-     regex serial_number { <[A..Z]> \d**{8} }
+     regex serial_number { <[A..Z]> \d**8 }
      token type { alpha | beta | production | deprecated | legacy }
 
 in other regexes as named assertions:
@@ -2293,12 +2293,12 @@ Any part of a regex that is enclosed in capturing parentheses is called a
 I<subpattern>. For example:
 
         #               subpattern
-        #  _________________/\____________________
-        # |                                       |
-        # |       subpattern  subpattern          |
-        # |          __/\__    __/\__             |
-        # |         |      |  |      |            |
-      mm/ (I am the (walrus), ( khoo )**{2} kachoo) /;
+        #  _________________/\___________________
+        # |                                      |
+        # |       subpattern  subpattern         |
+        # |          __/\__    __/\__            |
+        # |         |      |  |      |           |
+      mm/ (I am the (walrus), ( khoo )**2  kachoo) /;
 
 
 =item *
@@ -2324,12 +2324,12 @@ are undone if the subpattern is backtracked.
 For example, if the following pattern matched successfully:
 
         #                subpat-A
-        #  _________________/\____________________
-        # |                                       |
-        # |         subpat-B  subpat-C            |
-        # |          __/\__    __/\__             |
-        # |         |      |  |      |            |
-      mm/ (I am the (walrus), ( khoo )**{2} kachoo) /;
+        #  _________________/\__________________
+        # |                                     |
+        # |         subpat-B  subpat-C          |
+        # |          __/\__    __/\__           |
+        # |         |      |  |      |          |
+      mm/ (I am the (walrus), ( khoo )**2 kachoo) /;
 
 then the C<Match> objects representing the matches made by I<subpat-B>
 and I<subpat-C> would be successively pushed onto the array inside I<subpat-
@@ -2460,7 +2460,7 @@ structure:
       # |   $0         $1        ||      |
       # |  _^_      ___^___      ||      |
       # | |   |    |       |     ||      |
-     m/ [ (\w+) \: (\w+ \h*)* \n ]**{2..*} /
+     m/ [ (\w+) \: (\w+ \h*)* \n ] ** 2..* /
 
 Non-capturing brackets I<don't> create a separate nested lexical scope,
 so the two subpatterns inside them are actually still in the regex's
@@ -2478,7 +2478,7 @@ parentheses. For example:
 
                #   $0--     $1------
                #   |   |    |       |
-     $text ~~ m/ [ (\w+) \: (\w+ \h*)* \n ]**{2..*} /;
+     $text ~~ m/ [ (\w+) \: (\w+ \h*)* \n ] ** 2..* /;
 
      # Because they're in a quantified non-capturing block...
      # $0 contains the equivalent of:
@@ -2508,7 +2508,7 @@ of the inner parens for I<every> iteration (as described above). That is:
                # |                        |
                # | $0[0]    $0[1]---      |
                # | |   |    |       |     |
-     $text ~~ m/ ( (\w+) \: (\w+ \h*)* \n )**{2..*} /;
+     $text ~~ m/ ( (\w+) \: (\w+ \h*)* \n ) ** 2..* /;
 
      # Because it's in a quantified capturing block,
      # $0 contains the equivalent of:
@@ -2670,12 +2670,12 @@ objects to this array. For example:
 
 (Note, for clarity we are ignoring whitespace subtleties here--the
 normal sigspace rules would require space only between alphanumeric
-characters, which is wrong.  Assume that our file subrule requires a
-real boundary at that point using C<< <!before \S> >> or some such.)
+characters, which is wrong.  Assume that our file subrule deals
+with whitespace on its own.)
 
 Likewise, with a quantified subrule:
 
-     if mm/ mv <file>**{2} / {
+     if mm/ mv <file> ** 2 / {
          $from = $<file>[0];
          $to   = $<file>[1];
      }
@@ -2747,10 +2747,10 @@ of those combinations.
 
 If a named scalar alias is applied to a set of I<capturing> parens:
 
-        #         ______/capturing parens\______
-        #        |                              |
-        #        |                              |
-      mm/ $<key>=( (<[A..E]>) (\d**{3..6}) (X?) ) /;
+        #         _____/capturing parens\_____
+        #        |                            |
+        #        |                            |
+      mm/ $<key>=( (<[A..E]>) (\d**3..6) (X?) ) /;
 
 then the outer capturing parens no longer capture into the array of
 C<$/> as unaliased parens would. Instead the aliased parens capture
@@ -2805,10 +2805,10 @@ name is the alias.
 
 If a named scalar alias is applied to a set of I<non-capturing> brackets:
 
-        #         ___/non-capturing brackets\___
-        #        |                              |
-        #        |                              |
-      mm/ $<key>=[ (<[A..E]>) (\d**{3..6}) (X?) ] /;
+        #         __/non-capturing brackets\__
+        #        |                            |
+        #        |                            |
+      mm/ $<key>=[ (<[A..E]>) (\d**3..6) (X?) ] /;
 
 then the corresponding C<< $/<key> >> Match object contains only the string
 matched by the non-capturing brackets.
@@ -2931,7 +2931,7 @@ numbering semantics of nested Perl 5 subpatterns:
       # |   $0[0]       $0[1]    $0[2] |
       # |  ___/\___   ____/\____   /\  |
       # | |        | |          | |  | |
-     m/ ( (<[A..E]>) (\d**{3..6}) (X?) ) /;
+     m/ ( (<[A..E]>) (\d ** 3..6) (X?) ) /;
 
 
       # Perl 6 simulating Perl 5...
@@ -2940,7 +2940,7 @@ numbering semantics of nested Perl 5 subpatterns:
       # |        $2          $3       $4  |
       # |     ___/\___   ____/\____   /\  |
       # |    |        | |          | |  | |
-     m/ $1=[ (<[A..E]>) (\d**{3..6}) (X?) ] /;
+     m/ $1=[ (<[A..E]>) (\d ** 3..6) (X?) ] /;
 
 The non-capturing brackets don't introduce a scope, so the subpatterns within
 them are at regex scope, and hence numbered at the top level. Aliasing the
@@ -2998,7 +2998,7 @@ substring that was matched by the full set of repetitions of the
 brackets (as described in L<Named scalar aliases applied to 
 non-capturing brackets>). For example:
 
-     "coffee fifo fumble" ~~ m/ $<effs>=[f <-[f]>**{1..2} \s*]+ /;
+     "coffee fifo fumble" ~~ m/ $<effs>=[f <-[f]> ** 1..2 \s*]+ /;
 
      say $<effs>;    # prints "fee fifo fum"
 
