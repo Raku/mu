@@ -457,7 +457,7 @@ sub build_exe {
     #push @o, 'src/UnicodeC.o' if grep /WITH_UNICODEC/, @_;
     #system $ghc, '--make', @_, @o, '-o' => 'pugs', 'src/Main.hs';
 
-    $push_pkgs->(qw(stm network mtl template-haskell filepath base pugs-HsSyck pugs-hsregex));
+    $push_pkgs->(qw(stm network mtl template-haskell filepath base HsSyck pugs-hsregex));
     if ($^O =~ /(?:MSWin32|mingw|msys|cygwin)/) {
         $push_pkgs->('Win32');
     }
@@ -556,7 +556,7 @@ sub write_buildinfo {
 
     while (<IN>) {
         # Adjust the dependency line based on Cabal version
-        s/pugs-HsSyck -any, //;
+        s/HsSyck -any, //;
         s/pugs-hsregex -any, //;
         s/__OPTIONS__/@args/;
         s/__VERSION__/$version/;

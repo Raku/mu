@@ -1,5 +1,5 @@
-Name:                pugs-HsSyck
-Version:             0.41
+Name:                HsSyck
+Version:             0.42
 Category:            Text
 Synopsis:            Fast, lightweight YAML loader and dumper
 Description:         This is a simple YAML ('Yet Another Markup Language') processor,

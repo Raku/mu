@@ -12,7 +12,7 @@ WORKAROUND: Force it with "cpan -if Task::TAP::Model".
 
 
 
-PROBLEM: Doesn't build under Debian; aborts with 
+PROBLEM: Doesn't build under Debian; aborts with
 	"Setup: error reading ./.setup-config"
 
 WORKAROUND: Install libghc6-network-dev
@@ -25,7 +25,7 @@ PROBLEM: make pugs fails at link time, with errors like
 EXAMPLE:
 *** Building: util/runcompiler -hide-all-packages -package stm -package network
 -package mtl -package template-haskell -package base -package pugs-fps -package
-pugs-HsSyck -package HsJudy -package unix -package readline -package Pugs -optl-Lthird-party/installed -o pugs src/Main.hs -lHSPugs-6.2.12 -optl-fno-strict-aliasing -optl-pipe -optl-Wdeclaration-after-statement -optl-I/usr/local/include -optc-D_LARGEFILE_SOURCE -optc-D_FILE_OFFSET_BITS=64 -optl-I/usr/include/gdbm -optl-Wl,-E -L/usr/local/lib -L/usr/local/lib/perl5/5.8.8/x86_64-linux/CORE -lperl -lnsl -ldl -lm -lcrypt -lutil -lc /usr/local/lib/perl5/5.8.8/x86_64-linux/auto/DynaLoader/DynaLoader.a
+HsSyck -package HsJudy -package unix -package readline -package Pugs -optl-Lthird-party/installed -o pugs src/Main.hs -lHSPugs-6.2.12 -optl-fno-strict-aliasing -optl-pipe -optl-Wdeclaration-after-statement -optl-I/usr/local/include -optc-D_LARGEFILE_SOURCE -optc-D_FILE_OFFSET_BITS=64 -optl-I/usr/include/gdbm -optl-Wl,-E -L/usr/local/lib -L/usr/local/lib/perl5/5.8.8/x86_64-linux/CORE -lperl -lnsl -ldl -lm -lcrypt -lutil -lc /usr/local/lib/perl5/5.8.8/x86_64-linux/auto/DynaLoader/DynaLoader.a
 /mumble/pugs/third-party/installed/lib/Pugs-6.2.12/libHSPugs-6.2.12.a(p5embed.o)(.text+0x27a): In function `pugs_getenv':
 : undefined reference to `PL_modglobal'
 

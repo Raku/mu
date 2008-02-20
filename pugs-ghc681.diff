@@ -10,8 +10,8 @@ Index: Pugs.cabal.in
 +license-file: LICENSE.txt
  copyright: 2005-2007, The Pugs Contributors
  maintainer: Audrey Tang <audreyt@audreyt.org>
--build-depends: pugs-hsregex -any, pugs-HsSyck -any, filepath -any, base -any, mtl -any, stm -any, parsec -any, network -any, haskell98 -any, template-haskell -any, time -any__DEPENDS__
-+build-depends: pugs-hsregex -any, pugs-HsSyck -any, filepath -any, base >=3, array, containers, random, bytestring, pretty, process, directory, mtl -any, stm -any, parsec -any, network -any, haskell98 -any, template-haskell -any, time -any__DEPENDS__
+-build-depends: pugs-hsregex -any, HsSyck -any, filepath -any, base -any, mtl -any, stm -any, parsec -any, network -any, haskell98 -any, template-haskell -any, time -any__DEPENDS__
++build-depends: pugs-hsregex -any, HsSyck -any, filepath -any, base >=3, array, containers, random, bytestring, pretty, process, directory, mtl -any, stm -any, parsec -any, network -any, haskell98 -any, template-haskell -any, time -any__DEPENDS__
  stability: experimental
  homepage: http://pugscode.org/
  synopsis: A Perl 6 Implementation
@@ -28,7 +28,7 @@ Index: src/UTF8.hs
 +--WV: deprecated        packAddress,            -- :: Addr# -> ByteString
 +        unsafePackAddress,      -- :: Int -> Addr# -> ByteString -- WV: now IO ByteString
  #endif
- 
+
          -- simple list-using functions
 @@ -186,16 +186,21 @@
                         ,getContents, putStr, putStrLn
@@ -39,14 +39,14 @@ Index: src/UTF8.hs
 +                       ,copy, packCString, packCStringLen
                         ,singleton
                         )
- 
+
 -import Data.ByteString.Base
 -                       ( ByteString(..), unsafeUseAsCString, unsafeUseAsCStringLen, unsafeCreate, memcpy
-+import Data.ByteString.Internal 
++import Data.ByteString.Internal
 +                       ( ByteString(..), unsafeCreate, memcpy
 +			)
 +import Data.ByteString.Unsafe
-+                       (  unsafeUseAsCString, unsafeUseAsCStringLen 
++                       (  unsafeUseAsCString, unsafeUseAsCStringLen
 +                        ,unsafePackAddress
                         )
  import Data.ByteString.Char8
@@ -55,11 +55,11 @@ Index: src/UTF8.hs
 +--                       ,packAddress, unsafePackAddress
                         ,useAsCStringLen, useAsCString
                         )
- 
+
 @@ -219,6 +224,14 @@
  #define STRICT4(f) f a b c d | a `seq` b `seq` c `seq` d `seq` False = undefined
  #define STRICT5(f) f a b c d e | a `seq` b `seq` c `seq` d `seq` e `seq` False = undefined
- 
+
 +-- WV
 +copyCString str = do
 +                        nstr <-  (packCString str)
@@ -81,7 +81,7 @@ Index: src/Pugs/Prim.hs
          }
 -    return undef
 +--    return undef
-+    
++
  op1 "listen" = \v -> do
      port    <- fromVal v
      socket  <- guardIO $ listenOn (PortNumber $ fromInteger port)
@@ -93,7 +93,7 @@ Index: src/Pugs/AST/Internals/Instances.hs
          return (Map.fromList [ (cast k, v) | (k, v) <- list ])
  instance Typeable a => YAML (IVar a) where
      asYAML x = asYAML (MkRef x)
-+    
++
 +instance YAML VMultiCode where
 +    fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
 +	"MkMultiCode" -> do
@@ -102,10 +102,10 @@ Index: src/Pugs/AST/Internals/Instances.hs
 +	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkMultiCode"] ++ " in node " ++ show e
 +    fromYAML e = fail $ "no tag found: expecting " ++ show ["MkMultiCode"] ++ " in node " ++ show e
 +    asYAML (MkMultiCode aa ab ac ad ae) = asYAMLseq "MkMultiCode"
-+	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad, asYAML ae]    
-+    
++	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad, asYAML ae]
++
 +fromTypeableVMC :: forall a . (Typeable a) => a -> Maybe VMultiCode
-+fromTypeableVMC = fromTypeable    
++fromTypeableVMC = fromTypeable
  instance YAML VRef where
      asYAML (MkRef (ICode cv))
 -        | Just mc <- fromTypeable cv = do
@@ -151,9 +151,9 @@ Index: src/Pugs/AST/Pad.hs
 @@ -75,12 +75,15 @@
  adjustPad :: (PadEntry -> PadEntry) -> Var -> Pad -> Pad
  adjustPad f v (MkPad p) = MkPad (Map.adjust f v p)
- 
+
 +fromTypeableVMC :: forall a . (Typeable a) => a -> Maybe VMultiCode
-+fromTypeableVMC = fromTypeable    
++fromTypeableVMC = fromTypeable
 +
  mergePadEntry :: PadEntry -> PadEntry -> PadEntry
  mergePadEntry
@@ -173,7 +173,7 @@ Index: src/Pugs/Monads.hs
 @@ -249,9 +249,12 @@
              }
  recloseCode vcode = return vcode
- 
+
 +fromTypeableVC :: forall a . (Typeable a) => a -> Maybe VCode
 +fromTypeableVC = fromTypeable
 +
@@ -191,7 +191,7 @@ Index: src/Pugs/AST.hs
 @@ -45,6 +45,10 @@
  import Pugs.Meta ()
  import Pugs.Class (Boxable(..), ResponderInterface(..), Invocant(..), AnyResponder(..), MethodInvocation(..), ivDispatch)
- 
+
 +
 +fromTypeableVMC :: forall a . (Typeable a) => a -> Maybe VMultiCode
 +fromTypeableVMC = fromTypeable
@@ -211,7 +211,7 @@ Index: src/Pugs/AST.hs
 @@ -473,9 +477,13 @@
  __ITEM__ :: Call
  __ITEM__ = cast "ITEM"
- 
+
 +
 +fromTypeableVC :: forall a . (Typeable a) => a -> Maybe VCode
 +fromTypeableVC = fromTypeable
@@ -238,13 +238,13 @@ Index: src/Pugs/Eval.hs
 +++ src/Pugs/Eval.hs	(working copy)
 @@ -14,7 +14,7 @@
  thereby evaluating the program.
- 
+
  The AST is represented as a hierarchy of nested 'Exp' expressions
 -(see "Pugs.AST").  Some understanding of 'Exp' and "Pugs.AST" in will help in
 +(see "Pugs.AST").  Some understanding of 'Exp' and "Pugs.AST" will help in
  understanding this module.
  -}
- 
+
 @@ -184,7 +184,7 @@
  evalRef :: VRef -> Eval Val
  evalRef ref = do
@@ -262,19 +262,19 @@ Index: src/Pugs/Eval.hs
 +            -- Here we ensure "my Hash $x" can only vivify into Hash no matter how it's asked.
              typ' = case val of
                  VType t -> t
-                 _       -> typ 
+                 _       -> typ
 @@ -1483,11 +1483,11 @@
                  (True, False)   -> do
                      --- not scalarRef! -- use the new "transparent IType" thing!
                      case showType (typeOfSigilVar var) of
 -                        "Hash"  -> ($ v) . fix $ \redo x -> case x of
 +                        "Hash"  -> ($ v) . fix $ \(redo::Val->Eval Val) x -> case x of
-                             VRef (MkRef (IHash h)) -> return (VRef $ hashRef h) 
+                             VRef (MkRef (IHash h)) -> return (VRef $ hashRef h)
                              VRef ref@(MkRef IScalar{}) -> redo =<< readRef ref
                              _ -> fmap (VRef . hashRef) (fromVal v :: Eval VHash)
 -                        "Array" -> ($ v) . fix $ \redo x -> case x of
 +                        "Array" -> ($ v) . fix $ \(redo::Val->Eval Val) x -> case x of
-                             VRef (MkRef (IArray a)) -> return (VRef $ arrayRef a) 
+                             VRef (MkRef (IArray a)) -> return (VRef $ arrayRef a)
                              VRef ref@(MkRef IScalar{}) -> redo =<< readRef ref
                              _ -> fmap (VRef . arrayRef) (fromVal v :: Eval VArray)
 Index: src/Pugs/Compile.hs
@@ -288,12 +288,12 @@ Index: src/Pugs/Compile.hs
 +        canCompile :: ([Char],Eval VRef) -> Eval [PIL_Decl] -- WV
          canCompile (name@('&':_), sym) = do
 -            ref <- sym
-+            ref <- sym 
++            ref <- sym
              case ref of
 -                MkRef ICode{} -> do
 -                    codes <- readCodesFromRef ref
 -                    fmap concat $ forM codes (doCode name)
-+                MkRef ICode{} -> do              
++                MkRef ICode{} -> do
 +                    codes <- readCodesFromRef (ref :: VRef)
 +                    fmap concat $ forM codes (doCode (name :: String))
                  MkRef (IScalar sv) | scalar_iType sv == mkType "Scalar::Const"
@@ -359,7 +359,7 @@ Index: LICENSE/Artistic-2
 -license directly with the Copyright Holder of a given Package.  If the
 -terms of this license do not permit the full use that you propose to
 -make of the Package, you should contact the Copyright Holder and seek
--a different licensing arrangement. 
+-a different licensing arrangement.
 -
 -Definitions
 -
@@ -392,7 +392,7 @@ Index: LICENSE/Artistic-2
 -
 -    "Modified Version" means the Package, if it has been changed, and
 -    such changes were not explicitly requested by the Copyright
--    Holder. 
+-    Holder.
 -
 -    "Original License" means this Artistic License as Distributed with
 -    the Standard Version of the Package, in its current version or as
@@ -428,7 +428,7 @@ Index: LICENSE/Artistic-2
 -will be subject to the Original License.
 -
 -
--Distribution of Modified Versions of the Package as Source 
+-Distribution of Modified Versions of the Package as Source
 -
 -(4)  You may Distribute your Modified Version as Source (either gratis
 -or for a Distributor Fee, and with or without a Compiled form of the
@@ -450,7 +450,7 @@ Index: LICENSE/Artistic-2
 -    (c)  allow anyone who receives a copy of the Modified Version to
 -    make the Source form of the Modified Version available to others
 -    under
--		
+-
 -	(i)  the Original License or
 -
 -	(ii)  a license that permits the licensee to freely copy,
@@ -462,7 +462,7 @@ Index: LICENSE/Artistic-2
 -	Fees are allowed.
 -
 -
--Distribution of Compiled Forms of the Standard Version 
+-Distribution of Compiled Forms of the Standard Version
 -or Modified Versions without the Source
 -
 -(5)  You may Distribute Compiled forms of the Standard Version without
@@ -480,7 +480,7 @@ Index: LICENSE/Artistic-2
 -the Source of the Modified Version.
 -
 -
--Aggregating or Linking the Package 
+-Aggregating or Linking the Package
 -
 -(7)  You may aggregate the Package (either the Standard Version or
 -Modified Version) with other packages and Distribute the resulting
@@ -497,7 +497,7 @@ Index: LICENSE/Artistic-2
 -provided the result does not expose a direct interface to the Package.
 -
 -
--Items That are Not Considered Part of a Modified Version 
+-Items That are Not Considered Part of a Modified Version
 -
 -(9) Works (including, but not limited to, modules and scripts) that
 -merely extend or make use of the Package, do not, by themselves, cause
@@ -625,7 +625,7 @@ Index: LICENSE/GPL-3
 -
 -  "Copyright" also means copyright-like laws that apply to other kinds of
 -works, such as semiconductor masks.
-- 
+-
 -  "The Program" refers to any copyrightable work licensed under this
 -License.  Each licensee is addressed as "you".  "Licensees" and
 -"recipients" may be individuals or organizations.
@@ -1058,7 +1058,7 @@ Index: LICENSE/GPL-3
 -covered work in a country, or your recipient's use of the covered work
 -in a country, would infringe one or more identifiable patents in that
 -country that you have reason to believe are valid.
--  
+-
 -  If, pursuant to or in connection with a single transaction or
 -arrangement, you convey, or propagate by procuring conveyance of, a
 -covered work, and grant a patent license to some of the parties
@@ -1264,7 +1264,7 @@ Index: LICENSE/LGPL-3
 -the terms and conditions of version 3 of the GNU General Public
 -License, supplemented by the additional permissions listed below.
 -
--  0. Additional Definitions. 
+-  0. Additional Definitions.
 -
 -  As used herein, "this License" refers to version 3 of the GNU Lesser
 -General Public License, and the "GNU GPL" refers to version 3 of the GNU
@@ -1365,7 +1365,7 @@ Index: LICENSE/LGPL-3
 -       a copy of the Library already present on the user's computer
 -       system, and (b) will operate properly with a modified version
 -       of the Library that is interface-compatible with the Linked
--       Version. 
+-       Version.
 -
 -   e) Provide Installation Information, but only if you would otherwise
 -   be required to provide such information under section 6 of the
@@ -1424,12 +1424,12 @@ Index: Makefile.PL
 @@ -250,7 +250,7 @@
      # set up install path for third-party modules
      mkdir File::Spec->catdir('third-party', 'installed');
- 
+
 -    compile_hs($ghc, 'Setup', $setup);
 +    compile_hs($ghc,'Setup', $setup);
      compile_hs($ghc, File::Spec->catfile('util', 'ghc-pkg-wrapper'), $ghc_pkg_wrapper);
      compile_hs($ghc, File::Spec->catfile('util', 'runcompiler'), $ghc_wrapper);
- 
+
 @@ -967,6 +967,7 @@
          close TMP;
          system(
@@ -1443,9 +1443,9 @@ Index: misc/runpugs/bin/perl_repl.pl
 --- misc/runpugs/bin/perl_repl.pl	(revision 18880)
 +++ misc/runpugs/bin/perl_repl.pl	(working copy)
 @@ -14,4 +14,4 @@
- 
+
  my $repl = new Repl {subref=>$subref,prompt=>$prompt,motd=>$motd};
- 
+
 -$repl->run();
 +$repl->run("\n");
 Index: SLAVES
@@ -1467,10 +1467,10 @@ Index: SLAVES
 +specbot6                                diakopter
  exp_evalbot                             moritz
 +>>>>>>> .r17615
-Index: third-party/HsSyck/pugs-HsSyck.cabal
+Index: third-party/HsSyck/HsSyck.cabal
 ===================================================================
---- third-party/HsSyck/pugs-HsSyck.cabal	(revision 18880)
-+++ third-party/HsSyck/pugs-HsSyck.cabal	(working copy)
+--- third-party/HsSyck/HsSyck.cabal	(revision 18880)
++++ third-party/HsSyck/HsSyck.cabal	(working copy)
 @@ -6,7 +6,7 @@
  License-file:        LICENSE
  Author:              Audrey Tang
@@ -1491,11 +1491,11 @@ Index: third-party/HsSyck/Data/Yaml/Syck.hsc
 -import Data.ByteString.Char8 (copyCStringLen, useAsCStringLen, useAsCString, copyCString)
 +--import Data.ByteString.Char8 (copyCStringLen, useAsCStringLen, useAsCString, copyCString)
 +import Data.ByteString.Char8 (packCString, packCStringLen, copy, useAsCStringLen, useAsCString)
- 
-+copyCString str = do 
+
++copyCString str = do
 +			nstr <-  (packCString str)
 +			return $ copy nstr
-+copyCStringLen str = do 
++copyCStringLen str = do
 +			nstr <-  (packCStringLen str)
 +			return $ copy nstr
 +
@@ -1520,9 +1520,9 @@ Index: util/build_pugs.pl
 --- util/build_pugs.pl	(revision 18880)
 +++ util/build_pugs.pl	(working copy)
 @@ -490,7 +490,7 @@
- 
+
      $push_pkgs->('Pugs'); #"-$version";
- 
+
 -    @_ = ('--make', @pkgs, qw(-optl-Lthird-party/installed -o ), "$out.new", qw( src/Main.hs ), @libs);
 +    @_ = ('-L/usr/local/lib/','-lreadline','--make', @pkgs, qw(-optl-Lthird-party/installed -o ), "$out.new", qw( src/Main.hs ), @libs);
      #@_ = (@pkgs, qw(-idist/build -Ldist/build -idist/build/src -Ldist/build/src -o pugs src/Main.hs), @libs);

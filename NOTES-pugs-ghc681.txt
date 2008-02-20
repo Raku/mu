@@ -13,3 +13,4 @@ NOTES Pugs and GHC-6.8.1
   look like '{-# INCLUDE
   "/home/gwern/bin/pugs/dist/build/Pugs/Embed/Parrot_hsc.h" #-}').
 
+For further information, see './pugs-ghc681.diff' for an example diff.

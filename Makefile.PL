@@ -98,7 +98,7 @@ for my $var (qw( PERL5LIB PERLLIB )) {
         die <<"EOD";
 *** The "$var" environment variable contains a naked 'lib',
     which will disrupt the Pugs build process.
-    
+
     Please remove it and run Makefile.PL again.
 EOD
     }
@@ -208,7 +208,7 @@ sub try_package {
     To install extra libraries, extract both "-src" and "-src-extralibs"
     distributions from http://haskell.org/ghc/download_ghc_66.html in the
     same directory, then cd into ghc-6.6/ and build GHC from there.
-    In Ubuntu Feisty/debian type 
+    In Ubuntu Feisty/debian type
      "sudo aptitude install libghc6-$ghcpkg-dev"
 EOD
     }
@@ -266,7 +266,7 @@ sub set_postamble {
     try_package($ghc,
                 'network',
                 "import Network.BSD\n"
-                . "main = let x = defaultProtocol in return x\n"  
+                . "main = let x = defaultProtocol in return x\n"
                 );
     try_package($ghc,
                 'time',
@@ -320,7 +320,7 @@ sub set_postamble {
         }
     }
 
-    if (has_ghc_package('readline') 
+    if (has_ghc_package('readline')
         and  try_compile("import System.Console.Readline\n"
                         ."main :: IO ()\n"
                         ."main = do\n"
@@ -431,7 +431,7 @@ sub set_postamble {
 
 .
     }
-    
+
     if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bparrot\b/i and $Config{cc} eq 'cl') {
         push @warn, << '.';
 *** Parrot linking not supported with MSVC.  Parrot linking will be disabled.
@@ -491,19 +491,19 @@ EOD
         if (!$parrot_config && -e $temp) {
           $parrot_config = $temp;
         }
-        
+
         $temp = File::Spec->catfile($base, 'parrot-config.pir');
         if (!$parrot_config && -e $temp) {
           $parrot_config = $temp;
         }
-        
+
         $temp = File::Spec->catfile($base, 'parrot-config');
         if (!$parrot_config && -e $temp) {
           $parrot_config = $temp;
         }
 
         $base =~ s/bin\/*$//;
-        
+
         (-d $base and -e $parrot_config)
             or die "*** Please set \$ENV{PARROT_PATH} to the base path with a built parrot tree.\n";
         my $ldflags = parrot_config($base, $parrot_config, 'ldflags');
@@ -532,7 +532,7 @@ EOD
         $config = "$build_dir/src/parrot_config$Config{_o}" unless -e $config;
         $config = "$build_dir/src/null_config$Config{_o}" unless -e $config;
 
-        die <<"EOD" unless -e $config or $is_shared; 
+        die <<"EOD" unless -e $config or $is_shared;
 *** Could not find src/null_config.o in $build_dir.
     Solutions include:
         * Remove parrot from PUGS_EMBED
@@ -690,7 +690,7 @@ EOD
 #        $judyclean = "cd third-party/judy/Judy-1.0.3 \&\& $make clean \&\& perl cleanmore.pl";
 #    }
 
-    my @ghci_flags = qw( -hide-all-packages -package base -package filepath -package parsec -package template-haskell -package readline -package unix -package haskell98 -package mtl -package stm -package network -package pugs-HsSyck -package pugs-hsregex );
+    my @ghci_flags = qw( -hide-all-packages -package base -package filepath -package parsec -package template-haskell -package readline -package unix -package haskell98 -package mtl -package stm -package network -package HsSyck -package pugs-hsregex );
 
     postamble(fixpaths(<< "."));
 $config_h : lib/Perl6/Pugs.pm util/config_h.pl
@@ -804,7 +804,7 @@ pure_all :: blib6/lib/Test.pm.yml
 
 test-all : test test-js test-pir test-perl5
 
-test-pir : 
+test-pir :
 	\$(PERL) -e "ENV->{HARNESS_PERL_SWITCHES}=q+-B PIR+; system qq+$Config{make}+, q+test+"
 
 test-js :
@@ -818,7 +818,7 @@ test-redsix :
 
 blib6/lib/Test.pm.yml :: ext/Test/lib/Test.pm
 	\$(NOECHO) \$(ECHO) "Precompiling Test.pm..."
-	$thispugs -CParse-YAML ext/Test/lib/Test.pm > blib6/lib/Test.pm.yml 
+	$thispugs -CParse-YAML ext/Test/lib/Test.pm > blib6/lib/Test.pm.yml
 
 blib6/lib/Prelude.pm.yml :
 	\$(NOECHO) \$(ECHO) "Precompiling Prelude.pm..."
@@ -862,7 +862,7 @@ ghci : @prereqs @derived_srcfiles
 
 ctags : @prereqs @derived_srcfiles
 	echo ":ctags" | $ghc $ghc_flags @ghci_flags $ghc_output --interactive -osuf moose -hisuf miise -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs
-        
+
 etags : @prereqs @derived_srcfiles
 	echo ":etags" | $ghc $ghc_flags @ghci_flags $ghc_output --interactive -osuf moose -hisuf miise -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs
 
@@ -1020,7 +1020,7 @@ sub which {
         my $full_name = File::Spec->catfile($_, $file);
         return $full_name if -e $full_name;
     }
-    return undef;    
+    return undef;
 }
 
 sub preprocess {
