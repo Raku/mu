@@ -7,7 +7,7 @@
 -- Maintainer  : martin@norpan.org
 -- Stability   : experimental
 -- Portability : same as Data.ByteString
--- 
+--
 
 --
 -- | Manipulate ByteStrings containing UTF-8 encoded characters.
@@ -15,7 +15,7 @@
 -- because it will allow using the full Unicode range on Chars.
 --
 -- Behaviour when contents is not UTF-8 is undefined.
--- 
+--
 -- This module is intended to be imported @qualified@, to avoid name
 -- clashes with Prelude functions.  eg.
 --
@@ -55,7 +55,7 @@ module UTF8 (
         concatMap,              -- :: (Char -> ByteString) -> ByteString -> ByteString
 
         -- ** Joining strings
-        join,                   -- :: ByteString -> [ByteString] -> ByteString
+        intercalate,                   -- :: ByteString -> [ByteString] -> ByteString
 
         -- ** Searching for substrings
         isPrefixOf,             -- :: ByteString -> ByteString -> Bool
@@ -73,8 +73,8 @@ module UTF8 (
         -- ** Copying ByteStrings
         -- | These functions perform memcpy(3) operations
         copy,                   -- :: ByteString -> ByteString
-        copyCString,            -- :: CString -> ByteString
-        copyCStringLen,         -- :: CStringLen -> ByteString
+        unsafePackCString,      -- :: CString -> ByteString
+        unsafePackCStringLen,   -- :: CStringLen -> IO ByteString
 
         -- * I\/O with @ByteString@s
 
@@ -105,8 +105,8 @@ module UTF8 (
 #if defined(__GLASGOW_HASKELL__)
         -- * Low level construction
         -- | For constructors from foreign language types see /Data.ByteString/
-        packAddress,            -- :: Addr# -> ByteString
-        unsafePackAddress,      -- :: Int -> Addr# -> ByteString
+        unsafePackAddress,            -- :: Addr# -> IO ByteString
+        unsafePackAddressLen,      -- :: Int -> Addr# -> ByteString
 #endif
 
         -- simple list-using functions
@@ -177,7 +177,7 @@ import qualified Data.ByteString as B
 -- These functions are unchanged from Data.ByteString
 -- which means they work for (valid) UTF-8 byte strings too
 import Data.ByteString (empty,null,append
-                       ,concat,join
+                       ,concat,intercalate
 
                        -- for valid UTF-8 these functions work on the byte
                        -- level
@@ -186,16 +186,16 @@ import Data.ByteString (empty,null,append
                        ,getContents, putStr, putStrLn
                        ,readFile, {-mmapFile,-} writeFile
                        ,hGetContents, hGet, hPut
-                       ,copy, copyCString, copyCStringLen
+                       ,copy
                        ,singleton
                        )
+import Data.ByteString.Unsafe (unsafePackCString, unsafePackCStringLen, unsafeUseAsCString, unsafeUseAsCStringLen, unsafePackAddress, unsafePackAddressLen)
 
-import Data.ByteString.Base
-                       ( ByteString(..), unsafeUseAsCString, unsafeUseAsCStringLen, unsafeCreate, memcpy
+import Data.ByteString.Internal
+                       ( ByteString(..), memcpy, unsafeCreate
                        )
 import Data.ByteString.Char8
                        (getLine, hGetLine, hGetNonBlocking
-                       ,packAddress, unsafePackAddress
                        ,useAsCStringLen, useAsCString
                        )
 
@@ -231,7 +231,7 @@ pack s = unsafeCreate (numBytesString s) $ \p -> go p s
   where
     go _ [] = return ()
     go p (x:xs) = do
-      l <- putUTF8 p x 
+      l <- putUTF8 p x
       go (p `plusPtr` l) xs
 
 {-# INLINE unpack #-}
@@ -399,7 +399,7 @@ putUTF8 p0 char =
     poke p2 (toEnum (b10000000 .|. bits12))
     poke p3 (toEnum (b10000000 .|. bits6))
     return 4
-  where 
+  where
     -- all calculations are made in Int here, for speed and no risk of
     -- overflow, portability etc.
     ch     = fromEnum char
@@ -455,7 +455,7 @@ getUTF8 p m = do
 
 isFollow :: Bits a => a -> Bool
 isFollow b = (b .&. b11000000) == b10000000
-    
+
 numBytes :: Char -> Int
 numBytes c | fromEnum c < 0x80    = 1
            | fromEnum c < 0x800   = 2
@@ -582,12 +582,12 @@ lines ps
     where search = B.elemIndex newline
 
 lines' :: ByteString -> [ByteString]
-lines' bs = lines bs ++ 
+lines' bs = lines bs ++
   if (not (null bs) && B.last bs == newline) then [singleton newline] else []
 
 -- split
 split :: Char -> ByteString -> [ByteString]
-split c = let i = Char.ord c in 
+split c = let i = Char.ord c in
           if i < 128 then B.split (fromIntegral i)
           else splitWith (== c)
 
@@ -597,7 +597,7 @@ words = tokens Char.isSpace
 
 -- unwords
 unwords :: [ByteString] -> ByteString
-unwords = join (singleton space)
+unwords = intercalate $ singleton space
 
 words' :: ByteString -> [ByteString]
 words' = splitWith Char.isSpace
@@ -651,9 +651,9 @@ replicate n c | n <= 0 = empty
               | otherwise = unsafeCreate (n * numBytes c) $ \p -> go n p
   where
     go 0 _ = return ()
-    go n p = do
-      k <- putUTF8 p c 
-      go (n-1) (p `plusPtr` k)
+    go o p = do
+      k <- putUTF8 p c
+      go (o - 1) (p `plusPtr` k)
 
 -- elem
 elem :: Char -> ByteString -> Bool
@@ -736,7 +736,7 @@ zip = zipWith (,)
 -- zipWith
 zipWith :: (Char -> Char -> a) -> ByteString -> ByteString -> [a]
 zipWith f b1 b2 | null b1 || null b2 = []
-                | otherwise = f (head b1) (head b2) 
+                | otherwise = f (head b1) (head b2)
                             : zipWith f (tail b1) (tail b2)
 
 -- count
@@ -798,7 +798,7 @@ rawIndices (PS x s l) = withPtr x $ \p -> go 0 (p `plusPtr` s) l
       return (k:is)
 
 breakFirst :: Char -> ByteString -> Maybe (ByteString, ByteString)
-breakFirst c xs = let (x,y) = breakChar c xs in 
+breakFirst c xs = let (x,y) = breakChar c xs in
   if null y then Nothing else Just (x, tail y)
 
 findSubstring :: ByteString -> ByteString -> Maybe Int
