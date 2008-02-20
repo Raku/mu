@@ -14,7 +14,7 @@ instance Boxable PureStr where
 _StrClass :: PureClass
 _StrClass = mkPureClass "Str"
     [ "reverse"     ... Str.reverse
-    , "join"        ... Str.join
+    , "join"        ... Str.intercalate
     , "chop"        ... (\str -> if Str.null str then str else Str.init str)
     , "index"       ... (\str sub pos -> fromMaybe (-1) $ Str.findSubstring sub $ Str.drop pos str)
     , "chars"       ... Str.length   -- UTF8.length, which Does The Right Thing here

@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -funbox-strict-fields -fallow-overlapping-instances -fparr #-} 
+{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -funbox-strict-fields -fallow-overlapping-instances -fparr #-}
 {-|
     Implementation Types.
 
@@ -9,13 +9,13 @@
 >   In the Land of Mordor where the Shadows lie.
 -}
 
-module Pugs.Types 
+module Pugs.Types
 {-
 (
     Type(..), mkType, anyType, showType, isaType, isaType', deltaType,
     ClassTree, initTree,
 
-    Cxt(..), 
+    Cxt(..),
     cxtItem, cxtSlurpy, cxtVoid, cxtItemAny, cxtSlurpyAny,
     typeOfCxt, isSlurpyCxt, isItemCxt, isVoidCxt,
     enumCxt, cxtEnum,
@@ -34,6 +34,7 @@ import qualified Data.HashTable as H
 import qualified Data.IntMap as IntMap
 import qualified Data.IntSet as IntSet
 import qualified Data.ByteString.Char8 as Buf -- Intentionally not UTF8!
+import qualified Data.ByteString as B (findSubstring)
 
 data Type
     = MkType !ID            -- ^ A regular type
@@ -214,7 +215,7 @@ instance Show Pkg where
     show pkg = cast (cast pkg :: ByteString)
 
 instance ((:>:) ByteString) Pkg where
-    cast (MkPkg ns) = Buf.join (__"::") ns
+    cast (MkPkg ns) = Buf.intercalate (__"::") ns
 
 instance Show Var where
     show var = show (cast var :: ByteString)
@@ -397,7 +398,7 @@ instance ((:>:) VarSigil) ByteString where
         | otherwise         = internalError $ "Invalid sigil " ++ show name
 
 {-|
-Transform an operator name, for example @&infix:\<+\>@ or @&prefix:«[+]»@, 
+Transform an operator name, for example @&infix:\<+\>@ or @&prefix:«[+]»@,
 into its internal name (@&infix:+@ and @&prefix:[+]@ respectively).
 -}
 instance ((:>:) Var) String where
@@ -479,24 +480,24 @@ doBufToVar buf = MkVar
             '+' -> (TNil, (contextPkg, snd afterTwi))
             _   -> (TNil, toPkg (tokenPkg afterSig))
     afterTwi = tokenPkg (Buf.tail afterSig)
-    toPkg (pkg, rest) = (MkPkg pkg, rest)
+    toPkg (pg, rest) = (MkPkg pg, rest)
     tokenPkg :: ByteString -> ([ByteString], (VarCateg, ByteString))
     tokenPkg str = case Buf.elemIndex ':' str of
-        Just idx1 -> case Buf.findSubstring (__":(") str of
+        Just idx1 -> case B.findSubstring (__":(") str of
             Just idxSig | idx1 == idxSig -> ([], (CNil, str))
-            _ -> case Buf.findSubstring (__"::") str of
+            _ -> case B.findSubstring (__"::") str of
                 Nothing  -> ([], (cast (Buf.take idx1 str), Buf.drop (succ idx1) str))
                 Just 0   -> tokenPkg (Buf.drop 2 str) -- '$::x' is the same as $x
                 Just idx
                     | idx == idx1 -> case cast (Buf.take idx1 str) of
                         -- &infix::= should parse as infix:<:=>, not infix::<=>
-                        Just cat -> ([], (cat, Buf.drop (succ idx1) str))
+                        Just ct -> ([], (ct, Buf.drop (succ idx1) str))
                         -- &Infix::= should parse as Infix::<=>, not Infix:<:=>
                         _        -> let (rest, final) = tokenPkg (Buf.drop (idx + 2) str) in
                             ((Buf.take idx str:rest), final)
                     | otherwise -> ([], (cast (Buf.take idx1 str), Buf.drop (succ idx1) str))
         _ -> ([], (CNil, str))
-    (name, longname) = case Buf.findSubstring (__":(") fullname of
+    (name, longname) = case B.findSubstring (__":(") fullname of
         Just idx -> (cast (Buf.take idx fullname), cast (Buf.drop idx fullname))
         _        -> (cast fullname, nullID)
     (fullname, meta)
@@ -510,17 +511,17 @@ doBufToVar buf = MkVar
         = (Buf.drop 2 (dropEnd 2 afterCat), MHyper)
         | C_infix <- cat
         , __">>" `Buf.isPrefixOf` afterCat
-        , __"<<" `Buf.isSuffixOf` afterCat 
+        , __"<<" `Buf.isSuffixOf` afterCat
         = (Buf.drop 2 (dropEnd 2 afterCat), MHyper)
         | C_prefix <- cat
         , __"[\\" `Buf.isPrefixOf` afterCat
         , ']' <- Buf.last afterCat
         = case Buf.drop 2 (Buf.init afterCat) of
             maybeHyper | __">>" `Buf.isPrefixOf` maybeHyper
-                       , __"<<" `Buf.isSuffixOf` maybeHyper 
+                       , __"<<" `Buf.isSuffixOf` maybeHyper
                 -> (Buf.drop 2 (dropEnd 2 maybeHyper), MHyperScan)
             maybeHyper | __"\187" `Buf.isPrefixOf` maybeHyper
-                       , __"\171" `Buf.isSuffixOf` maybeHyper 
+                       , __"\171" `Buf.isSuffixOf` maybeHyper
                 -> (Buf.drop 2 (dropEnd 2 maybeHyper), MHyperScan)
             other -> (other, MScan)
         | C_prefix <- cat
@@ -528,10 +529,10 @@ doBufToVar buf = MkVar
         , ']' <- Buf.last afterCat
         = case Buf.tail (Buf.init afterCat) of
             maybeHyper | __">>" `Buf.isPrefixOf` maybeHyper
-                       , __"<<" `Buf.isSuffixOf` maybeHyper 
+                       , __"<<" `Buf.isSuffixOf` maybeHyper
                 -> (Buf.drop 2 (dropEnd 2 maybeHyper), MHyperFold)
             maybeHyper | __"\187" `Buf.isPrefixOf` maybeHyper
-                       , __"\171" `Buf.isSuffixOf` maybeHyper 
+                       , __"\171" `Buf.isSuffixOf` maybeHyper
                 -> (Buf.drop 2 (dropEnd 2 maybeHyper), MHyperFold)
             other -> (other, MFold)
         -- XXX - massive cut-n-paste!
@@ -541,10 +542,10 @@ doBufToVar buf = MkVar
         , __"]\171" `Buf.isSuffixOf` afterCat || __"]<<" `Buf.isSuffixOf` afterCat
         = case Buf.drop 2 (dropEnd 3 afterCat) of
             maybeHyper | __">>" `Buf.isPrefixOf` maybeHyper
-                       , __"<<" `Buf.isSuffixOf` maybeHyper 
+                       , __"<<" `Buf.isSuffixOf` maybeHyper
                 -> (Buf.drop 2 (dropEnd 2 maybeHyper), MHyperScanPost)
             maybeHyper | __"\187" `Buf.isPrefixOf` maybeHyper
-                       , __"\171" `Buf.isSuffixOf` maybeHyper 
+                       , __"\171" `Buf.isSuffixOf` maybeHyper
                 -> (Buf.drop 2 (dropEnd 2 maybeHyper), MHyperScanPost)
             other -> (other, MScanPost)
         | C_prefix <- cat
@@ -552,10 +553,10 @@ doBufToVar buf = MkVar
         , __"]\171" `Buf.isSuffixOf` afterCat || __"]<<" `Buf.isSuffixOf` afterCat
         = case Buf.tail (dropEnd 3 afterCat) of
             maybeHyper | __">>" `Buf.isPrefixOf` maybeHyper
-                       , __"<<" `Buf.isSuffixOf` maybeHyper 
+                       , __"<<" `Buf.isSuffixOf` maybeHyper
                 -> (Buf.drop 2 (dropEnd 2 maybeHyper), MHyperFoldPost)
             maybeHyper | __"\187" `Buf.isPrefixOf` maybeHyper
-                       , __"\171" `Buf.isSuffixOf` maybeHyper 
+                       , __"\171" `Buf.isSuffixOf` maybeHyper
                 -> (Buf.drop 2 (dropEnd 2 maybeHyper), MHyperFoldPost)
             other -> (other, MFoldPost)
         -}
@@ -655,7 +656,7 @@ Incompatible will produce a distance larger
 than any two compatible types. If one (or both) of the types doesn't exist in
 the tree, the result is a very large number.
 
-> <scook0> is deltaType supposed to be returning large positive numbers for 
+> <scook0> is deltaType supposed to be returning large positive numbers for
 >            types that are actually incompatible?
 > <autrijus> that is a open design question.
 > <autrijus> it is that way because we want
@@ -690,29 +691,29 @@ check whether @Int@ is a @Num@ (@True@), then check whether @Str@ is a num
 (@False@), then combine the results using the specified disjunctive combiner
 (in this case Haskell's @(||)@). The result is thus @True@.
 -}
-junctivate :: (t -> t -> t) -- ^ Function to combine results over disjunctive 
+junctivate :: (t -> t -> t) -- ^ Function to combine results over disjunctive
                             --     (@|@) types
-           -> (t -> t -> t) -- ^ Function to combine results over conjunctive 
+           -> (t -> t -> t) -- ^ Function to combine results over conjunctive
                             --     (@\&@) types
            -> (Type -> Type -> t)
-                            -- ^ Function that will actually perform the 
+                            -- ^ Function that will actually perform the
                             --     comparison (on non-junctive types)
            -> Type          -- ^ First type to compare
            -> Type          -- ^ Second type to compare
            -> t
-junctivate or and f base target
+junctivate ors ands f base target
     | TypeOr t1 t2 <- target
-    = redo base t1 `or` redo base t2
+    = redo base t1 `ors` redo base t2
     | TypeOr b1 b2 <- base
-    = redo b1 target `or` redo b2 target
+    = redo b1 target `ors` redo b2 target
     | TypeAnd t1 t2 <- target
-    = redo base t1 `and` redo base t2
+    = redo base t1 `ands` redo base t2
     | TypeAnd b1 b2 <- base
-    = redo b1 target `and` redo b2 target
+    = redo b1 target `ands` redo b2 target
     | otherwise
     = f base target
     where
-    redo = junctivate or and f
+      redo = junctivate ors ands f
 
 -- When saying Int.isa(Scalar), Scalar is the base, Int is the target
 {-|
@@ -725,7 +726,7 @@ isaType :: String    -- ^ Base type
 isaType base target = isaType' (mkType base) target
 
 {-|
-Return true if the second type (the \'target\') is derived-from or equal-to the 
+Return true if the second type (the \'target\') is derived-from or equal-to the
 first type (the \'base\'), in the context of the given class tree.
 
 This function will autothread over junctive types.
@@ -742,7 +743,7 @@ Compute the \'distance\' between two types by applying 'findList' to each of
 See 'compareList' for further details.
 -}
 distanceType :: Type -> Type -> Int
-distanceType base@(MkType b) target@(MkType t) = 
+distanceType base@(MkType b) target@(MkType t) =
     IntMap.findWithDefault (distanceType base' target') (bk `shiftL` 16 + tk) initCache
 --  | not (castOk base target)  = 0
 --  | otherwise = compareList l1 l2
@@ -786,7 +787,7 @@ Take two inheritance chains produced by 'findList', and determine how
 
 Compatible types will produce a number indicating how distant they are.
 Incompatible types produce a negative number indicating how much the base type
-would need to be relaxed. If one (or both) types doesn't exist in the tree, a 
+would need to be relaxed. If one (or both) types doesn't exist in the tree, a
 large negative number is produced
 
 E.g.:
