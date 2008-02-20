@@ -7,6 +7,7 @@
 #   "token circumfix:sym<{ }> ( --> Circumfix)", but there is no Circumfix.
 #   "token package_def {" doesn't accept ws between module_name and block,
 #      nor before module_name?
+#   "$wsequiv ~~ s/^ (\t+) /{ ' ' x ($0 * 8) }/; # per spec", ^^ instead of ^ ?
 #
 
 require 'prelude'
@@ -404,24 +405,28 @@ class Perl < Grammar
             (dotty or postop_ = postop) and (xXXX[:prec] = postop_[:prec]) #R XXX ?
     end
 
-# # Note: backtracks, or we'd never get to parse [LIST] on seeing [+ and such.
-# # (Also backtracks if on \op when no \op infix exists.)
-# regex prefix_circumfix_meta_operator:reduce {
-#     :my %thisop is context<rw>;
-#     @<sym> = [ '[' \\?? ]   # prefer no meta \ if op has \
-#     <expect_infix>
-#     @<sym> = [ ']' ]
-# 
-#     [ <!{ %+thisop<assoc> eq 'non' }>
-#         || <panic: Can't reduce a non-associative operator> ]
-# 
-#     [ <!{ %+thisop<prec> eq %conditional<prec> }>
-#         || <panic: Can't reduce a conditional operator> ]
-# 
-#     { .<prec> := %+thisop<prec> }
-# 
-#     {*}                                                         #= [ ]
-# }
+    #R XXX TODO I currently don't understand the [LIST] part.  And dont support it.
+
+    # Note: backtracks, or we'd never get to parse [LIST] on seeing [+ and such.
+    # (Also backtracks if on \op when no \op infix exists.)
+    def_token_full :prefix_circumfix_meta_operator,false,'reduce',/\[/,%q{
+       b = pos
+       scan(/\[/) or return false
+       $env_vars.scope_enter(:thisop)
+       #starNgRX(proc{ scan(/\\/) }){ expect_infix and scan(/\]/) }
+       (let_pos{ expect_infix and scan(/\]/) } or 
+        (scan(/\\\\/) and expect_infix and scan(/\]/)) or
+        ($env_vars.scope_leave;return fail_at(b)))
+
+       ((not $env_vars[:thisop][:assoc] == 'non') or
+        panic("Can't reduce a non-associative operator"))
+       ((not $env_vars[:thisop][:prec] == Hconditional[:prec]) or
+        panic("Can't reduce a conditional operator"))
+
+       xXXX[:prec] = $env_vars[:thisop][:prec]
+
+       $env_vars.scope_leave
+    }
 
     def_tokens_simple :prefix_postfix_meta_operator,false,%w{ « }
     def_tokens_simple :prefix_postfix_meta_operator,false,%w{ << }
@@ -663,317 +668,246 @@ class Perl < Grammar
 
 
 
-# our @herestub_queue;
+    $herestub_queue = []
 
-# token q_herestub ($lang) {
-#     $<delimstr> = <quotesnabber()>  # force raw semantics on /END/ marker
-#     {
-#         push @herestub_queue,
-#             Herestub.new(
-#                 delim => $<delimstr><delimited><q><text>, # XXX or some such
-#                 orignode => $_,
-#                 lang => $lang,
-#             );
-#     }
-#     {*}
-# }
+    def q_herestub(lang)
+        (xXXX[:delimstr] = quotesnabber() or  # force raw semantics on /END/ marker
+         return false)
+        hs = Herestub.new($xXXX[:delimstr][:delimited][:q][:text], # XXX or some such
+                          xXXX,
+                          lang);
+        $herestub_queue.push hs
+    end
 
-# class Herestub {
-#     has Str $.delim;
-#     has $.orignode;
-#     has $.lang;
-# }
+    class Herestub
+        attr_accessor :delim,:orignode,:lang
+        def initialize; @delim,@orignode,@lang=delim,orignode,lang; end
+    end
 
-# token theredoc {
-#     ^^ $<ws>=(\h*?) $+delim \h* $$ \n?
-# }
+    def theredoc
+        scan(/^[ \t]*?/) and eat($env_vars[:delim]) and scan(/[ \t]*$\n?/)
+    end
 
-# # XXX be sure to temporize @herestub_queue on reentry to new line of heredocs
+    # XXX be sure to temporize @herestub_queue on reentry to new line of heredocs
 
-# method heredoc () {
-#     my $here = self;
-#     while my $herestub = shift @herestub_queue {
-#         my $delim is context = $herestub.delim;
-#         my $lang = $herestub.lang;
-#         my $doc;
-#         my $ws = "";
-#         $here = $here.q_unbalanced_rule($lang, :stop(&theredoc)).MATCHIFY;
-#         if $here {
-#             if $ws {
-#                 my $wsequiv = $ws;
-#                 $wsequiv ~~ s/^ (\t+) /{ ' ' x ($0 * 8) }/; # per spec
-#                 $here<text>[0] ~~ s/^/\n/; # so we don't match ^^ after escapes
-#                 for @($here<text>) {
-#                     s:g[\n ($ws || \h*)] = do {
-#                         my $white = $0;
-#                         if $white eq $ws {
-#                             '';
-#                         }
-#                         else {
-#                             $white ~~ s[^ (\t+) ] = do {
-#                                 ' ' x ($0.chars * (COMPILING::<$?TABSTOP> // 8))
-#                             };
-#                             $white ~~ s/^ $wsequiv //
-#                                 ?? $white
-#                                 !! '';
-#                         }
-#                     }
-#                 }
-#                 $here<text>[0] ~~ s/^ \n //;
-#             }
-#             $herestub.orignode<doc> = $here;
-#         }
-#         else {
-#             self.panic("Ending delimiter $delim not found");
-#         }
-#     }
-#     return $here;
-# }
+    def heredoc()
+        here = self
+        while herestub = $herestub_queue.shift
+            $env_vars.scope_enter(:delim)
+            $env_vars[:delim] = herestub.delim
+            lang = herestub.lang
+            doc = nil
+            wsS = ""
+            here = here.q_unbalanced_rule(lang, method(:theredoc)).xMATCHIFY;
+            if here.bool
+                if wsS != ""
+                    wsequiv = wsS;
+                    wsequiv.gsub!(/\A( *)\t/,"$1        "); # per spec
+                    here[:text][0].sub!(/\A/,"\n"); # so we don't match ^^ after escapes
+                    here[:text].each{|s__|
+                        s__.gsub!(/\n(#{wsS}||[ \t]*)/){
+                            white = $1;
+                            if white == wsS
+                                '';
+                            else
+                                white.sub!(/\A(\t+)/){ #R QUESTION shouldn't it be ^ instead of \A?
+                                    #R XXX TODO
+                                    #R ' ' x ($0.chars * (COMPILING::<$?TABSTOP> // 8))
+                                };
+                                white.sub!(/\A#{wsequiv}/,'') ? white : '';
+                            end
+                        }
+                    }
+                    here[:text][0].sub!(/^\n/,'')
+                end
+                herestub.orignode[:doc] = here;
+            else
+                panic("Ending delimiter $delim not found");
+            end
+            $env_vars.scope_leave
+        end
+        return here;
+    end
 
 
-
-# token quote:sym<' '>   { <?before "'"  > <quotesnabber(":q")>        }
-# token quote:sym<" ">   { <?before '"'  > <quotesnabber(":qq")>       }
-# token quote:sym<« »>   { <?before '«'  > <quotesnabber(":qq",":ww")> }
-# token quote:sym«<< >>» { <?before '<<' > <quotesnabber(":qq",":ww")> }
-# token quote:sym«< >»   { <?before '<'  > <quotesnabber(":q", ":w")>  }
-
-# token quote:sym</ />   {
-#     <?before '/'  > <quotesnabber(":regex")>
-#     [ (< i g s m x c e ] >+) 
-#         # note: only the submatch fails here on the obs call
-#         [ $0 ~~ 'i' <obs("/i",":i")> ]?
-#         [ $0 ~~ 'g' <obs("/g",":g")> ]?
-#         [ $0 ~~ 's' <obs("/s","^^ and $$ anchors")> ]?
-#         [ $0 ~~ 'm' <obs("/m",". or \N")> ]?
-#         [ $0 ~~ 'x' <obs("/x","normal default whitespace")> ]?
-#         [ $0 ~~ 'c' <obs("/c",":c or :p")> ]?
-#         [ $0 ~~ 'e' <obs("/e","interpolated {...} or s{} = ... form")> ]?
-#         <obs("suffix regex modifiers","prefix adverbs")>
-#     ]?
-# }
+    def self.def_quote(name,args)
+        left_sym, = name.split(/\s+/)
+        def_token_full :quote,false,name,Regexp.new(Regexp.quote(left_sym))," qutoesnabber(#{args})"
+    end
+    def_quote "' '"  ,%q{':q'}
+    def_quote '" "'  ,%q{':qq'}
+    def_quote '« »'  ,%q{':qq',':ww'}
+    def_quote '<< >>',%q{':qq',':ww'}
+    def_quote '< >'  ,%q{':q',':w'}
+    def_quote '/ /'  ,%q{':regex'}
 
     # handle composite forms like qww
     def_tokens_rest :quote,false,%w{ qq q },%q{ qm = quote_mod and quotesnabber(':<sym>',qm) }
 
     def_tokens_simple :quote_mod,false,%w{ w ww x to s a h f c b }
 
-# token quote:rx { <sym> <quotesnabber(':regex')> }
+    def_tokens_rest :quote,false,%w{ rx m },%q{ quotesnabber(':regex') }
+    def_tokens_rest :quote,false,%w{ mm },%q{ quotesnabber(':regex', ':s') }
+    def_tokens_rest :quote,false,%w{ s },%q{ pat=quotesnabber(':regex') and finish_subst(pat) }
+    def_tokens_rest :quote,false,%w{ ss },%q{ pat=quotesnabber(':regex', ':s') and finish_subst(pat) }
+    def_tokens_rest :quote,false,%w{ tr },%q{ pat=quotesnabber(':trans') and finish_subst(pat) }
 
-# token quote:m { <sym>  <quotesnabber(':regex')> }
-# token quote:mm { <sym> <quotesnabber(':regex', ':s')> }
+    def finish_subst(pat)
+        $env_vars.scope_enter(:thisop)
+        u =(
+            # bracketed form
+            (pat[:delim] == 2 and ((wsp and infix and
+                                    ($env_vars[:thisop][:prec] == Hitem_assignment[:prec] or
+                                     panic("Bracketed subst must use some form of assignment")) and
+                                    repl=_EXPR(nil,Hitem_assignment)) or :failed)) or
+            # unbracketed form
+            (repl=q_unbalanced(qlang('Q',':qq'), pat[:delim][0])))
+        $env_vars.scope_leave
+        u = false if u == :failed
+        u
+    end
 
-# token quote:s {
-#     <sym>  <pat=quotesnabber(':regex')>
-#     <finish_subst($<pat>)>
-# }
-# token quote:ss {
-#     <sym> <pat=quotesnabber(':regex', ':s')>
-#     <finish_subst($<pat>)>
-# }
-# token quote:tr {
-#     <sym> <pat=quotesnabber(':trans')>
-#     <finish_trans($<pat>)>
-# }
+    def finish_trans(pat)
+        u =(
+            # bracketed form
+            (pat[:delim] == 2 and ((wsp and 
+                                    repl==q_pickdelim(qlang('Q',':tr'))) or :failed)) or
+            # unbracketed form
+            (repl=q_unbalanced(qlang('Q',':tr'), pat[:delim][0])))
+        u
+    end
 
-# token finish_subst ($pat) {
-#     :my %thisop is context<rw>;
-#     [
-#     # bracketed form
-#     | <?{ $pat<delim> == 2 }> ::
-#           <.ws>
-#           <infix>            # looking for pseudoassign here
-#           { %+thisop<prec> == %item_assignment<prec> or
-#               .panic("Bracketed subst must use some form of assignment") }
-#           <repl=EXPR(%item_assignment)>
-#     # unbracketed form
-#     | <repl=q_unbalanced(qlang('Q',':qq'), $pat<delim>[0])>
-#     ]
-# }
+    # The key observation here is that the inside of quoted constructs may
+    # be any of a lot of different sublanguages, and we have to parameterize
+    # which parse rule to use as well as what options to feed that parse rule.
 
-# token finish_trans ($pat) {
-#     [
-#     # bracketed form
-#     | <?{ $pat<delim> == 2 }> ::
-#           <.ws>
-#           <repl=q_pickdelim(qlang('Q',':tr'))>
-#     # unbracketed form
-#     | <repl=q_unbalanced(qlang('Q',':tr'), $pat<delim>[0])>
-#     ]
-# }
+    $qlang = {}
+    def qlang(pedigreeA)
+        pedigreeS = pedigreeA.join("")
+        $qlang[pedigreeS] ||= QLang.create(pedigreeA)
+    end
 
-# # The key observation here is that the inside of quoted constructs may
-# # be any of a lot of different sublanguages, and we have to parameterize
-# # which parse rule to use as well as what options to feed that parse rule.
-
-# role QLang {
-#     has %.option;
-#     has $.tweaker handles 'tweak';
-#     has $.parser;
-#     has $.escrule;
-
-#     # a method, so that everything is overridable in derived grammars
-#     method root_of_Q () {
-#         return
-#             tweaker => ::Q_tweaker,      # class name should be virtual here!
-#             parser => &Perl::q_pickdelim,
-#             option => < >,
-#             escrule => &Perl::quote_escapes;
-#     }
-
-#     method new (@pedigree) {
-#         if @pedigree == 1 {
-# #           my %start = try { self."root_of_@pedigree[0]" } //
-#             my %start = try { self.root_of_Q } //
-#                 panic("Quote construct @pedigree[0] not recognized");
-#             return self.bless(|%start);
-#         }
-#         else {
-#             my $tail = pop @pedigree;
-#             my $self = qlang(@pedigree).clone
-#                 orelse fail "Can't clone {@pedigree}: $!";
-#             return $self.tweak($tail);
-#         }
-#     }
-# }
-
-# sub qlang (@pedigree) {
-#     my $pedigree = @pedigree.join;
-#     (state %qlang){$pedigree} //= new QLang(@pedigree);
-# }
-
-# class Q_tweaker does QLang {
-#     has @.escapes;
-
-#     method escset {
-#         @.escapes ||=               # presumably resolves after adverbs
-#            '\\' xx ?%.option<b>,
-#             '$' xx ?%.option<s>,
-#             '@' xx ?%.option<a>,
-#             '%' xx ?%.option<h>,
-#             '&' xx ?%.option<f>,
-#             '{' xx ?%.option<c>;
-#     } #'
-
-#     multi method tweak (:q($single)) {
-#         $single or panic("Can't turn :q back off");
-#         %.option.keys and panic("Too late for :q");
-#         %.option = (:b, :!s, :!a, :!h, :!f, :!c);
-#     }
-
-#     multi method tweak (:qq($double)) {
-#         $double or panic("Can't turn :qq back off");
-#         %.option.keys and panic("Too late for :qq");
-#         %.option = (:b, :s, :a, :h, :f, :c);
-#     }
-
-#     multi method tweak (:b($backslash))   { %.option<b>  = $backslash }
-#     multi method tweak (:s($scalar))      { %.option<s>  = $scalar }
-#     multi method tweak (:a($array))       { %.option<a>  = $array }
-#     multi method tweak (:h($hash))        { %.option<h>  = $hash }
-#     multi method tweak (:f($function))    { %.option<f>  = $function }
-#     multi method tweak (:c($closure))     { %.option<c>  = $closure }
-
-#     multi method tweak (:x($exec))        { %.option<c>  = $exec }
-#     multi method tweak (:w($words))       { %.option<w>  = $words }
-#     multi method tweak (:ww($quotewords)) { %.option<ww> = $quotewords }
-
-#     multi method tweak (:to($heredoc)) {
-#         $.parser = &Perl::q_heredoc;
-#         %.option<to> = $heredoc;
-#     }
-
-#     multi method tweak (:$regex) {
-#         $.tweaker = ::RX_tweaker,
-#         $.parser = &Perl::rx_pickdelim;
-#         %.option = < >;
-#         $.escrule = &Perl::regex_metachar;
-#     }
-
-#     multi method tweak (:$trans) {
-#         $.tweaker = ::TR_tweaker,
-#         $.parser = &Perl::tr_pickdelim;
-#         %.option = < >;
-#         $.escrule = &Perl::trans_metachar;
-#     }
-
-#     multi method tweak (:$code) {
-#         $.tweaker = ::RX_tweaker,
-#         $.parser = &Perl::rx_pickdelim;
-#         %.option = < >;
-#         $.escrule = &Perl::regex_metachar;
-#     }
-
-#     multi method tweak (*%x) {
-#         panic("Unrecognized quote modifier: %x.keys()");
-#     }
-
-# }
-
-# class RX_tweaker does QLang {
-#     multi method tweak (:g($global))      { %.option<g>  = $global }
-#     multi method tweak (:i($ignorecase))  { %.option<i>  = $ignorecase }
-#     multi method tweak (:c($continue))    { %.option<c>  = $continue }
-#     multi method tweak (:p($pos))         { %.option<p>  = $pos }
-#     multi method tweak (:ov($overlap))    { %.option<ov> = $overlap }
-#     multi method tweak (:ex($exhaustive)) { %.option<ex> = $exhaustive }
-#     multi method tweak (:s($sigspace))    { %.option<s>  = $sigspace }
-
-#     multi method tweak (:$bytes)  { %.option<UNILEVEL> = 'bytes' }
-#     multi method tweak (:$codes)  { %.option<UNILEVEL> = 'codes' }
-#     multi method tweak (:$graphs) { %.option<UNILEVEL> = 'graphs' }
-#     multi method tweak (:$langs)  { %.option<UNILEVEL> = 'langs' }
-
-#     multi method tweak (:$rw)      { %.option<rw>      = $rw }
-#     multi method tweak (:$ratchet) { %.option<ratchet> = $ratchet }
-#     multi method tweak (:$keepall) { %.option<keepall> = $keepall }
-#     multi method tweak (:$panic)   { %.option<panic>   = $panic }
-
-#     # XXX probably wrong
-#     multi method tweak (:P5($Perl5)) {
-#         %.option<P5> = $Perl5;
-#         $.tweaker = ::P5RX_tweaker,
-#         $.parser = &Perl::p5rx_pickdelim;
-#         $.escrule = &Perl::p5regex_metachar;
-#     }
-
-#     multi method tweak (:$nth)            { %.option<nth> = $nth }
-#     multi method tweak (:x($times))       { %.option<x> = $times }
-
-#     # Ain't we special!
-#     multi method tweak (*%x) {
-#         my $na = %x.keys();
-#         my ($n,$a) = $na ~~ /^(\d+)(<[a-z]>+)$/
-#             or panic("Unrecognized regex modifier: $na");
-#         if $a eq 'x' {
-#             %.option{x} = $n;
-#         }
-#         elsif $a eq 'st' | 'nd' | 'rd' | 'th' {
-#             %.option{nth} = $n;
-#         }
-#     }
-# }
-
-# class P5RX_tweaker does QLang {
-#     multi method tweak (:$g) { %.option<g>  = $g }
-#     multi method tweak (:$i) { %.option<i>  = $i }
-#     multi method tweak (:$s) { %.option<s>  = $s }
-#     multi method tweak (:$m) { %.option<m>  = $m }
-
-#     multi method tweak (*%x) {
-#         panic("Unrecognized Perl 5 regex modifier: %x.keys()");
-#     }
-# }
-
-# class TR_tweaker does QLang {
-#     multi method tweak (:$c) { %.option<c>  = $c }
-#     multi method tweak (:$d) { %.option<d>  = $d }
-#     multi method tweak (:$s) { %.option<s>  = $s }
-
-#     multi method tweak (*%x) {
-#         panic("Unrecognized transliteration modifier: %x.keys()");
-#     }
-# }
+    class QLang
+        attr_accessor :option,:tweaker,:parser,:escrule
+        def initialize(option,tweaker,parser,escrule)
+            @option,@tweaker,@parser,@escrule=option,tweaker,parser,escrule
+            initialize_escapes
+        end
+        attr_accessor :escapes
+        def initialize_escapes(*a)
+            super(*a)
+            @escapes = []
+            @escapes.push('\\') if @option[:b]
+            @escapes.push('$') if @option[:s]
+            @escapes.push('@') if @option[:a]
+            @escapes.push('%') if @option[:h]
+            @escapes.push('&') if @option[:f]
+            @escapes.push('{') if @option[:c]
+        end
+        def self.create(pedigree)
+            q = QLang.new(nil,nil,nil,nil)
+            base = pedigree.shift
+            eval("init_root_of_#{base}")
+            pedigree.each{|mod|
+                ma = mod.match(/^:(!)?(\w+)$/) or raise "bug"
+                all,neg,name = ma.to_a
+                q.tweak(name => (neg ? false : 1))
+            }
+            q
+        end
+        def init_root_of_Q
+            @option  = {}
+            @tweaker = :the_Q_tweaker
+            @parser  = :q_pickdelim
+            @escrule = :quote_escapes
+        end
+        def tweak(opt)
+            send(@tweaker,opt)
+        end
+        
+        def the_Q_tweaker(opt)
+            k,v = opt.to_a[0]
+            ks = k.to_s
+            if %w{ q }.member? ks
+                v or panic("Can't turn :q back off");
+                (not @option.keys.empty?) and panic("Too late for :q");
+                @option = {:b =>1, :s =>false, :a =>false, :h =>false, :f =>false, :c =>false};
+            elsif %w{ qq }.member? ks
+                v or panic("Can't turn :qq back off");
+                (not @option.keys.empty?) and panic("Too late for :qq");
+                @option = {:b =>1, :s =>1, :a =>1, :h =>1, :f =>1, :c =>1};
+            elsif %w{ b s a h f c  x w ww }.member? ks
+                @option[k] = v
+            elsif %w{ to }.member? ks
+                @parser = :q_heredoc
+                @option[k] = v
+            elsif %w{ regex }.member? ks
+                @tweaker = :the_RX_tweaker
+                @parser = :rx_pickdelim
+                @option = {}
+                @escrule = :regex_metachar
+            elsif %w{ trans }.member? ks
+                @tweaker = :the_TR_tweaker
+                @parser = :tr_pickdelim
+                @option = {}
+                @escrule = :trans_metachar
+            elsif %w{ code }.member? ks
+                @tweaker = :the_RX_tweaker
+                @parser = :rx_pickdelim
+                @option = {}
+                @escrule = :regex_metachar
+            else
+                panic("Unrecognized quote modifier: #{k}")
+            end
+        end
+        def the_RX_tweaker(opt)
+            k,v = opt.to_a[0]
+            ks = k.to_s
+            if %w{ g i c p ov ex s }.member? ks
+                @option[k] = v
+            elsif %w{ bytes codes graphs langs }.member? ks
+                @option[:UNILEVEL] = ks
+            elsif %w{ rw ratchet keepall panic }.member? ks
+                @option[k] = v
+            elsif %w{ P5 }.member? ks
+                # XXX probably wrong
+                @option[k] = v
+                @tweaker = :the_P5RX_tweaker
+                @parser = :p5rx_pickdelim
+                @escrule = :p5regex_metachar
+            elsif %w{ nth x }.member? ks
+                @option[k] = v
+            elsif ma= ks.match(/^(\d+)([a-z]+)$/)
+                all,n,a= ma.to_a
+                if a == 'x'
+                    @option[a] = n
+                elsif %w{ st nd rd th }.member? a
+                    @option['nth'] = n
+                else
+                    #R added
+                    panic("Unrecognized nth-like regex modifier: #{k}")
+                end
+            else
+                panic("Unrecognized regex modifier: #{k}");
+            end
+        end
+        def the_P5RX_tweaker(opt)
+            k,v = opt.to_a[0]
+            if %w{ g i s m }.member? k.to_s
+                @option[k] = v
+            else
+                panic("Unrecognized Perl 5 regex modifier: #{k}")
+            end
+        end
+        def the_TR_tweaker(opt)
+            k,v = opt.to_a[0]
+            if %w{ c d s }.member? k.to_s
+                @option[k] = v
+            else
+                panic("Unrecognized transliteration modifier: #{k}")
+            end
+        end
+    end
 
 
 
@@ -1070,119 +1004,125 @@ class Perl < Grammar
     end
 
 
-# # assumes whitespace is eaten already
+    # assumes whitespace is eaten already
 
-# method peek_delimiters () {
-#     return peek_brackets ||
-#         substr(self.orig,0,1) xx 2;
-# }
+    def peek_delimiters ()
+        peek_brackets || (x = self.orig.slice(0,1); [x,x])
+    end
 
-# method peek_brackets () {
-#     if m:p(self) / \s / {
-#         self.panic("Whitespace not allowed as delimiter");
-#     }
-#     elsif m:p(self) / <+isPe>> / {
-#         self.panic("Use a closing delimiter for an opener is reserved");
-#     }
-#     elsif m:p(self) / (.) ** <?same> > / {
-#         my $start = ~$/;
-#         my $rightbrack = %open2close{$0} orelse
-#             return ();
-#         my $stop = $rightbrack x $start.chars;
-#         return $start, $stop;
-#     }
-#     else {
-#         return ();
-#     }
-# }
+    def peek_brackets ()
+        b = pos
+        if scan(/(?=\s)/)
+            panic("Whitespace not allowed as delimiter");
+        #R elsif scan(/<+isPe>>/)   #R XXX TODO
+        #R     panic("Use a closing delimiter for an opener is reserved");
+        elsif start = scan(/(.)\1*/) #R XXX huh?
+            char = s.match(/(.)\1*/)[1]
+            rightbrack = Open2close[char] or return fail_at(b)
+            stop = rightbrack * start.length;
+            return start, stop;
+        else
+            return nil;
+        end
+    end
 
-# regex bracketed ($lang = qlang("Q")) {
-#     :my ($start,$stop);
-#     <?{ ($start,$stop) = .peek_brackets() }>
-#     <q=q_balanced($lang, $start, $stop)>
-#     {*}
-# }
+    def bracketed (lang=nil)
+        lang ||= qlang("Q")
+        start,stop = peek_brackets()
+        q=q_balanced(lang, start, stop)        
+    end
 
-# regex q_pickdelim ($lang) {
-#     :my ($start,$stop);
-#     {{
-#        ($start,$stop) = .peek_delimiters();
-#        if $start eq $stop {
-#            $<q> := .q_unbalanced($lang, $stop);
-#        }
-#        else {
-#            $<q> := .q_balanced($lang, $start, $stop);
-#        }
-#     }}
-#     {*}
-# }
+    def q_pickdelim (lang)
+        start,stop = peek_delimiters()
+        if start == stop
+            q_= q_unbalanced(lang, stop)
+        else
+            q_= q_balanced(lang, start, stop)
+        end
+    end
 
-# regex rx_pickdelim ($lang) {
-#     [
-#     || { ($<start>,$<stop>) = .peek_delimiters() }
-#       $<start>
-#       <rx=regex($<stop>)>        # counts its own brackets, we hope
-#     || $<stop> = [ [\S] || <panic: Regex delimiter must not be whitespace> ]
-#       <rx=regex($<stop>)>
-#     ]
-#     {*}
-# }
+    def rx_pickdelim (lang)
+        (let_pos{ (start,stop = peek_delimiters()) and (
+                                                        if start == stop
+                                                            q_= q_unbalanced(lang, stop)
+                                                        else
+                                                            q_= q_balanced(lang, start, stop)
+                                                        end) } or
+         ((stop = scan(/\S/) or panic("Regex delimiter must not be whitespace")) and
+          rx_=regex(stop)) )
+    end
 
-# regex tr_pickdelim ($lang) {
-#     [
-#     || { ($<start>,$<stop>) = .peek_delimiters() }
-#       $<start>
-#       <tr=transliterator($<stop>)>
-#     || $<stop> = [ [\S] || <panic: tr delimiter must not be whitespace> ]
-#       <tr=transliterator($<stop>)>
-#     ]
-#     {*}
-# }
+    def tr_pickdelim (lang)
+        (let_pos{( (start,stop = peek_delimiters()) and
+                   scan(start) and
+                   tr_= transliterator(stop))} or
+         ((stop = scan(/\S/) or panic("tr delimiter must not be whitespace")) and
+          tr_=transliterator(stop)) )
+    end
 
-# regex transliterator($stop) {
-#     # XXX your ad here
-# }
+    #R def transliterator(stop)
+    #R   # XXX your ad here
+    #R end
 
-# regex q_balanced ($lang, $start, $stop, :@esc = $lang.escset) {
-#     $start
-#     $<text> = [.*?] ** [
-#         <!before $stop>
-#         [ # XXX triple rule should just be in escapes to be customizable
-#         | <?before $start ** 3>
-#             $<dequote> = <EXPR(%LOOSEST,/<$stop> ** 3/)>
-#         | <?before <$start>>
-#             $<subtext> = <q_balanced($lang, $start, $stop, :@esc)>
-#         | <?before @esc>
-#             $<escape> = [ <q_escape($lang)> ]
-#         ]
-#     ]
-#     $stop
-#     {*}
-# }
+    def q_balanced (lang, start, stop, esc=nil)
+        esc ||=  lang.escset
+        b = pos
+        scan(start) or return false
+        while not before(stop)
+            triple = /#{stop}#{stop}#{stop}/
+            if before(triple)
+                # XXX triple rule should just be in escapes to be customizable
+                dequote_ = _EXPR(nil,HLOOSEST,triple) or return fail_at(b)
+            elsif before(start)
+                subtext_ = q_balanced(lang, start, stop, esc) or fail_at(b)
+            elsif before(esc)
+                e=q_escape(lang) or return fail_at(b)
+            else
+                scan(/./m) or break
+            end
+        end
+        scan(stop) or return fail_at(b)
+        _match_from(b,nil,'q_unbalanced_rule')
+    end
 
-# regex q_unbalanced_rule ($lang, $stop, :@esc = $lang.escset) {
-#     $<text> = [.*?] ** [
-#         <!before <$stop>>
-#         <?before @esc> <escape=q_escape($lang)>
-#     ]
-#     <stop=$stop>
-#     {*}
-# }
 
-# regex q_unbalanced ($lang, $stop, :@esc = $lang.escset) {
-#     $<text> = [.*?] ** [
-#         <!before $stop>
-#         <?before @esc> <escape=q_escape($lang)>
-#     ]
-#     $stop
-#     {*}
-# }
+    #R this differs from q_unbalanced() only in whether stop is rul or string.
+    #R our convention is method name symbol, or regexp.
+    #R XXX TODO the convention for esc... is a non-working work in progress.
+    def q_unbalanced_rule (lang, stop, esc=nil)
+        esc ||=  lang.escset
+        b = pos
+        while not before{ send(stop) }
+            if before(esc)
+                e=q_escape(lang) or return fail_at(b)
+            else
+                scan(/./m) or break
+            end
+        end
+        send(stop) or return fail_at(b)
+        _match_from(b,nil,'q_unbalanced_rule')
+    end
 
-# # We get here only for escapes in escape set, even though more are defined.
-# method q_escape ($lang) {
-#     $lang<escrule>(self);
-#     {*}
-# }
+    def q_unbalanced (lang, stop, esc=nil)
+        esc ||=  lang.escset
+        b = pos
+        while not before(stop)
+            if before(esc)
+                e=q_escape(lang) or return fail_at(b)
+            else
+                scan(/./m) or break
+            end
+        end
+        scan(stop) or return fail_at(b)
+        _match_from(b,nil,'q_unbalanced')
+    end
+
+
+    # We get here only for escapes in escape set, even though more are defined.
+    def q_escape (lang)
+        lang[:escrule].(self)
+    end
+
 
     def quote_escapes
         (lex_pos{scan(/\\/) and qq_backslash} or
@@ -1192,14 +1132,13 @@ class Perl < Grammar
          scan(/.|\n/))
     end
 
-# # Note, backtracks!  So expect_postfix mustn't commit to anything permanent.
-# regex extrapost {
-#     :my $inquote is context = 1;
-#     <expect_postfix>*
-#     # XXX Shouldn't need a backslash on anything but the right square here
-#     <?after <[ \] \} \> \) ]> > 
-#     {*}
-# }
+    # Note, backtracks!  So expect_postfix mustn't commit to anything permanent.
+    def extrapost
+        $env_vars.scope_enter(:inquote)
+        $env_vars[:inquote] = 1
+        starRX(proc{ expect_postfix }){ after(/[\]\}\>\)]/) }
+        $env_vars.scope_leave
+    end
 
     def multisig
         rul{ scan(/:?\(/) and wsp and signature and wsp and starRULE{ scan(/\|/) and wsp and scan(/:?\(/) and wsp and signature and wsp and scan(/\)/) } }
@@ -1362,12 +1301,10 @@ class Perl < Grammar
     def_tokens_rest :term,:term,%w{ undef },%q{ scan(/undef/) and scan(/[ \t]*/) and nofat }
     def_tokens_simple :term,:term,%w{ self * }
 
-# token circumfix:sigil ( --> Term)
-#     { <sigil> '(' <semilist> ')' {*} }                          #= $( ) 
+    sigil_speed_hack_re = /\$|@@|@|%|&|::/
+    def_token_full :circumfix,:term,'sigil',sigil_speed_hack_re,%q{ scan(/\(/) and semilist and scan(/\)/) }
 
-# token circumfix:typecast ( --> Term)
-#     { <typename> '(' <semilist> ')' {*} }                       #= Type( ) 
-
+    def_token_full :circumfix,:term,'typename',//,%q{ typename and scan(/\(/) and semilist and scan(/\)/) }
 
     def_tokens_rest :circumfix,:term,%w{ ( },%q{let_pos{ t = statementlist and scan(/\)/) and t }}
     def_tokens_rest :circumfix,:term,%w{ [ },%q{let_pos{ t = statementlist and scan(/\]/) and t }}
@@ -1394,22 +1331,9 @@ class Perl < Grammar
     def_tokens_rest :infix,:tight_or,%w{ ^^ },%q{ xXXX[:assoc] = :list }
 
 
-# ## conditional
-# token infix:sym<?? !!> ( --> Conditional) {
-#     '??'
-#     <EXPR(%conditional)>
-#     [ '!!' ||
-#         [
-#         || <?before '='> <panic: Assignment not allowed within ??!!>
-#         || <?before '::'> <panic: Please use !! rather than ::>
-#         || <?before <infix>>    # Note: a tight infix would have parsed right
-#             <panic: Precedence too loose within ??!!; use ??()!! instead >
-#         || <panic: Found ?? but no !!; possible precedence problem>
-#         ]
-#     ]
-#     {*}                                                         #= ?? !!
-# }
-
+    ## conditional
+    def_token_full :infix,:conditional,'?? !!',/\?\?/,%q{ _EXPR(nil,Hconditional) }
+    #R assorted cautionary panics left out
 
     ## assignment
     def_tokens_rest :infix,false,%w{ = },%q{ xXXX[:sigil] == '$' ? make(xXXX,Hitem_assignment) : make(xXXX,Hlist_assignment) }
@@ -1423,11 +1347,9 @@ class Perl < Grammar
     def_tokens_simple :infix,:comma,%w{ , p5=> }
     def_tokens_simple :infix,:list_infix,%w{ X Z minmax }
 
-# token term:sigil ( --> List_prefix)
-#     { <sym=sigil> \s <arglist> {*} }                                #= $
-
-# token term:typecast ( --> List_prefix)
-#     { <sym=typename> \s <arglist> {*} }                             #= Type
+    #R QUESTION: STD says ... \s ... not \s+.  That can't be right, can it?
+    def_token_full :term,:list_prefix,'sigil',sigil_speed_hack_re,%q{ scan(/\s+/) and arglist }
+    def_token_full :term,:list_prefix,'typecast',//,%q{ typename and scan(/\s+/) and arglist }
 
     # unrecognized identifiers are assumed to be post-declared listops.
     # (XXX for cheating purposes this rule must be the last term: rule)
@@ -1653,79 +1575,31 @@ false #R
 
     def_tokens_rest :regex_metachar,false,%w{ > && & || | ] ) \\ },%q{ return false }
 
-# token regex_metachar:quant { <regex_quantifier> <panic: quantifier quantifies nothing> }
+    regex_quantifier_re = /\*\*|\*|\+|\?/
+    def_token_full :regex_metachar,false,'quant',regex_quantifier_re,%q{ panic("quantifier quantifies nothing") }
 
-# # "normal" metachars
-# token regex_metachar:sym<{ }> {
-#     <block>
-#     {{ $/<sym> := <{ }> }}
-#     {*}                                                         #= { }
-# }
+    # "normal" metachars
+    def_token_full :regex_metachar,false,'{ }',/(?=\{)/,%q{ block }
 
-# token regex_metachar:mod {
-#     <regex_mod_internal>
-#     { $/<sym> := $<regex_mod_internal><sym> }
-#     {*}                                                         #= :mod
-# }
+    def_token_full :regex_metachar,false,'mod',//,%q{ regex_mod_internal }
 
-# token regex_metachar:sym<[ ]> {
-#     '[' <regex ']'> ']'
-#     { $/<sym>:=<[ ]> }
-#     {*}                                                         #= [ ]
-# }
+    def_token_full :regex_metachar,false,'[ ]',/(?=\[)/,%q{ regex(']') and scan(/\]/) }
+    def_token_full :regex_metachar,false,'( )',/(?=\()/,%q{ regex(')') and scan(/\)/) }
 
-# token regex_metachar:sym<( )> {
-#     '(' <regex ')'> ')'
-#     { $/<sym>:=<( )> }
-#     {*}                                                         #= ( )
-# }
+    def_tokens_simple :regex_metachar,false,%w{ <( )> << >> « » }
 
-# token regex_metachar:sym« <( » { '<(' {*} }                     #= <(
-# token regex_metachar:sym« )> » { ')>' {*} }                     #= )>
+    def_token_full :regex_metachar,false,'qw',/(?=<\s)/,%q{ quote }
 
-# token regex_metachar:sym« << » { '<<' {*} }                     #= <<
-# token regex_metachar:sym« >> » { '>>' {*} }                     #= >>
-# token regex_metachar:sym< « > { '«' {*} }                       #= «
-# token regex_metachar:sym< » > { '»' {*} }                       #= »
-
-# token regex_metachar:qw {
-#     <?before '<' \s >  # (note required whitespace)
-#     <quote>
-#     {*}                                                         #= quote
-# }
-
-# token regex_metachar:sym«< >» {
-#     '<' <unsp>? <regex_assertion> '>'
-#     {*}                                                         #= < >
-# }
+    def_token_full :regex_metachar,false,'< >',/\</,%q{ unsp; regex_assertion and scan(/\>/) }
     def_tokens_rest :regex_metachar,false,%w{ \\ },%q{ regex_backslash }
     def_tokens_simple :regex_metachar,false,%w{ . ^^ ^ }
-# token regex_metachar:sym<$$> {
-#     <sym>
-#     [ <?before (\w+)> <obs("\$\$$0 to deref var inside a regex","\$(\$$0)")> ]?
-#     {*}
-# }
-# token regex_metachar:sym<$>  {
-#     '$'
-#     <before
-#     | \s
-#     | '|'
-#     | ')'
-#     | ']'
-#     | '>'
-#     >
-#     {*}                                                         #= $
-# }
+    def_tokens_simple :regex_metachar,false,%w{ $$ }
+    def_tokens_rest :regex_metachar,false,%w{ $ },%q{ before(/\s|\||\)|\]|\>/) }
 
-# token regex_metachar:sym<' '> { <?before "'"  > <quotesnabber(":q")>  }
-# token regex_metachar:sym<" "> { <?before '"'  > <quotesnabber(":qq")> }
+    def_token_full :regex_metachar,false,"' '",/\'/,%q{ quotesnabber(":q") }
+    def_token_full :regex_metachar,false,'" "',/\"/,%q{ quotesnabber(":qq") }
 
-# token regex_metachar:var {
-#     <!before '$$'>
-#     <sym=variable> <.ws>
-#     $<binding> = ( ':=' <.ws> <regex_quantified_atom> )?
-#     {*}                                                         #= var
-# }
+    def_token_full :regex_metachar,false,'var',/(?!\$\$)/,%q{ binding_=nil; sym=variable and wsp and (scan(/:=/) and wsp and binding_= regex_quantified_atom; true) }
 
     def codepoint
         scan(/\[(.*?)\]/)
@@ -1740,52 +1614,28 @@ false #R
     def_tokens_rest :qq_backslash,false,%w{ o },%q{ octint or (scan(/\[/) and octint and starTOK{ scan(/,/) and octint } and scan(/\]/)) }
     def_tokens_rest :qq_backslash,false,%w{ x },%q{ hexint or (scan(/\[/) and hexint and starTOK{ scan(/,/) and hexint } and scan(/\]/)) }
 
-# token regex_backslash:a { :i <sym> }
-# token regex_backslash:b { :i <sym> }
-# token regex_backslash:c { :i <sym>
-#     [
-#     || '[' <-[ \] \v ]>* ']'
-#     || <codepoint>
-#     ]
-# }
-
-# token regex_backslash:d { :i <sym> }
-# token regex_backslash:e { :i <sym> }
-# token regex_backslash:f { :i <sym> }
-# token regex_backslash:h { :i <sym> }
-# token regex_backslash:n { :i <sym> }
-# token regex_backslash:o { :i <sym> [ <octint> | '['<octint>[','<octint>]*']' ] }
-# token regex_backslash:r { :i <sym> }
-# token regex_backslash:t { :i <sym> }
-# token regex_backslash:v { :i <sym> }
-# token regex_backslash:w { :i <sym> }
-# token regex_backslash:x { :i <sym> [ <hexint> | '['<hexint>[','<hexint>]*']' ] }
-# token regex_backslash:oops { :: <panic: unrecognized regex backslash sequence> }
+    def self.rx_bs(letter,rest=nil)
+        letter = letter.to_s
+        def_token_full :regex_backslash,false,letter,/(?i:#{letter})/,rest
+    end
+    %w{ a b d e f h n r t v w }.each{|letter| rx_bs letter }
+    rx_bs :c,%q{ (scan(/\[ [^\]\n\r]* \]/x) or
+                  codepoint) }
+    rx_bs :o,%q{ octint or (scan(/\[/) and octint and starTOK{ scan(/,/) and octint} and scan(/\]/)) }
+    rx_bs :x,%q{ hexint or (scan(/\[/) and hexint and starTOK{ scan(/,/) and hexint} and scan(/\]/)) }
+    def_token_full :regex_backslash,false,'oops',//,%q{ panic("unrecognized regex backslash sequence") }
 
     def_tokens_rest :regex_assertion,false,%w{ ? ! },%q{ regex_assertion }
 
-# token regex_assertion:sym<{ }> { <block> }
-# token regex_assertion:variable {
-#     <?before <sigil>>  # note: semantics must be determined per-sigil
-#     <EXPR(%LOOSEST,&assertstopper)>
-#     {*}                                                        #= variable
-# }
-# token regex_assertion:method {
-#     <?before '.' <!before '>'> >
-#     <EXPR(%LOOSEST,&assertstopper)>
-#     {*}                                                        #= method
-# }
-# token regex_assertion:ident { <ident> [               # is qq right here?
-#                                 | '=' <regex_assertion>
-#                                 | ':' <.ws>
-#                                     <q_unbalanced(qlang('Q',':qq'), :stop«>»)>
-#                                 | '(' <semilist> ')'
-#                                 | <.ws> <EXPR(%LOOSEST,&assertstopper)>
-#                                 ]?
-# }
+    def_token_full :regex_assertion,false,'{ }',/\{/,%q{ block }
 
-
-
+    def_token_full :regex_assertion,false,'variable',/(?=#{sigil_speed_hack_re})/,%q{ before{ sigil } and _EXPR(nil,HLOOSEST,method(:assertstopper)) }
+    def_token_full :regex_assertion,false,'method',/(?=\.(?!>))/,%q{ before(/\.(?!>)/) and _EXPR(nil,HLOOSEST,method(:assertstopper)) }
+    def_token_full :regex_assertion,false,'ident',//,%q{ ident and quesTOK{
+      (let_pos{ scan(/\=/) and regex_assertion} or
+       let_pos{ scan(/\:/) and wsp and q_unbalanced(qlang('Q',':qq'), '>')} or
+       let_pos{ scan(/\(/) and semilist and scan(/\)/)} or
+       (wsp and _EXPR(nil,HLOOSEST,method(:assertstopper))) ) } }
 
     def_tokens_rest :regex_assertion,false,%w{ [ + - },%q{ before(/[\<sym>]/) and plusTOK{cclass_elem} }
     def_tokens_simple :regex_assertion,false,%w{ . , }
@@ -1802,10 +1652,8 @@ false #R
         let_pos{ scan(/\(/) and semilist and scan(/\)/) }
     end
 
-    #R XXX TODO
-# token regex_mod_internal:adv {
-#     <quotepair> { $/<sym> := «: $<quotepair><key>» }
-# }
+    def_token_full :regex_mod_internal,false,'adv',//,%q{ quotepair and true }
+    #R XXX     <quotepair> { $/<sym> := «: $<quotepair><key>» }
 
     def_tokens_rest :regex_mod_internal,false,%w{ :i },%q{ quesTOK{regex_mod_arg} }
     def_tokens_simple :regex_mod_internal,false,%w{ :!i }

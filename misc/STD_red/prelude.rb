@@ -127,7 +127,7 @@ class Grammar
     a
   end
 
-  def quesRX(fun,more)
+  def quesRX(fun,&more)
     before_fun = pos
     v = fun.()
     if not v
@@ -152,7 +152,7 @@ class Grammar
       end
     end
   end
-  def starRX(fun,more)
+  def starRX(fun,&more)
     result = plusRX(fun,more) and return result
     if not more
       [[]]
@@ -161,7 +161,7 @@ class Grammar
       result.unshift([])
     end
   end
-  def plusRX(fun,more=nil)
+  def plusRX(fun,&more)
     before_fun = pos
     v = fun.() or return false
     if result = starRX(fun,more)
@@ -268,6 +268,10 @@ class Grammar
       rest = _methodify_rest_code(category,sym,common_rest_code)
       _def_token(category, sym, re, precedence, rest)
     }
+  end
+  def self.def_token_full(category, precedence, name, leading_re, common_rest_code)
+      rest = _methodify_rest_code(category,name,common_rest_code)
+      _def_token(category, name, leading_re, precedence, rest)
   end
 
   def self._methodify_rest_code(category,sym,common_rest_code)
