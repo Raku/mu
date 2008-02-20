@@ -46,7 +46,7 @@ sub build {
     my($opts) = @_;
     my $thispugs = { @{ $opts->{GEN_PRELUDE} } }->{'--pugs'} or # laugh at me now.
         die "$0: no pugs passed in _+GEN_PRELUDE segment";
-    
+
     if ( grep '--precompile-prelude', @{ $opts->{GEN_PRELUDE} } ) {
         $PugsBuild::Config::Conf->{'precompile_prelude'}
             = { @{ $opts->{GEN_PRELUDE} } }->{'--precompile-prelude'}
@@ -56,11 +56,11 @@ sub build {
 
     my ($version, $ghc, $ghc_pkg, $ghc_version, $setup, @args) = @{$opts->{GHC}};
 
-    $want_profiling = grep { /^-prof$/ } @args; 
-    @args = grep { !/^-prof$/ } @args; 
+    $want_profiling = grep { /^-prof$/ } @args;
+    @args = grep { !/^-prof$/ } @args;
 
     # Set heap options via environment here; Win32 needs it instead
-    # of setting on GHC flags line. 
+    # of setting on GHC flags line.
     my @rts_args;
     foreach my $arg (@args) {
         $_ = $arg;
@@ -170,7 +170,7 @@ sub build {
 
             # Judy at this moment wants GNU make.
             $make = 'gmake' unless `$make --version` =~ /GNU/;
-            
+
             system("./configure") unless -e "src/Makefile";
             #system("$make clean");
             chdir 'src';
@@ -265,13 +265,13 @@ sub build {
         glob("$archive_dir/*/*.a"),
         glob("$archive_dir/*/*/*.a"),
     );
-    
+
     my @o_files = map { glob("third-party/judy/Judy-1.0.3/src/$_/*.o"), }
                         qw( Judy1 JudyHS JudyCommon JudyL JudySL );
 
     print "Embedding @o_files into @archive_files\n";
     system($AR_EXE, "-r", $_, @o_files) for @archive_files;
-  
+
     if ($Config{ranlib} ne ':') {
         system(split(/ /,$Config{ranlib}), $_) for @archive_files;
     }
@@ -320,7 +320,7 @@ sub build {
 
         # also, remove all .pm.yml files there too.
         unlink($_) for glob(File::Spec->catfile(dirname($ppc_yml), "*.pm.yml"));
-        
+
         # finally regenerate the prelude.
         run($^X, qw<util/gen_prelude.pl -v -i src/perl6/Prelude.pm>,
                 (map { ('-i' => $_) } @{ PugsBuild::Config->lookup('precompile_modules') }),
@@ -353,7 +353,7 @@ sub build_lib {
 
     # Add GHC to PATH
     local $ENV{PATH} = dirname($ghc) . $Config{path_sep} . $ENV{PATH};
- 
+
     run($^X, qw<util/version_h.pl>);
 
     mkdir "dist/build" unless -d "dist/build";
@@ -504,7 +504,7 @@ sub build_exe {
     rename "$out.new" => $out;
 }
 
-sub write_buildinfo { 
+sub write_buildinfo {
     my ($version, $ghc, $ghc_pkg, $ghc_version, @args) = @_;
 
     open IN, "< Pugs.cabal.in" or die $!;
@@ -556,13 +556,8 @@ sub write_buildinfo {
 
     while (<IN>) {
         # Adjust the dependency line based on Cabal version
-        if ($has_new_cabal) {
-            s/hs-source-dir/hs-source-dirs/;
-        }
-        else {
-            s/pugs-HsSyck -any, //;
-            s/pugs-hsregex -any, //;
-        }
+        s/pugs-HsSyck -any, //;
+        s/pugs-hsregex -any, //;
         s/__OPTIONS__/@args/;
         s/__VERSION__/$version/;
         s/__DEPENDS__/$depends/;
@@ -584,9 +579,9 @@ sub classify_options {
         # we can't use +SEGMENT and -SEGMENT since that interferes with GHC.
         $kind = $1,  next if /^_\+(.*)/;        # _+SEGMENT start
         undef $kind, next if $_ eq "_-$kind";   # _-SEGMENT end
-        
+
         s/^__(.*)__$/PugsBuild::Config->lookup($1)/e;
-        
+
         die "don't know where this option belongs: $_" unless $kind;
         push @{ $opts{$kind} }, $_;
     }
