@@ -24,7 +24,8 @@ import System.IO.Unsafe
 import GHC.Ptr (Ptr(..))
 import qualified Data.HashTable as Hash
 import qualified Data.ByteString.Char8 as Buf
-import Data.ByteString.Char8 (copyCStringLen, useAsCStringLen, useAsCString, copyCString)
+import Data.ByteString.Char8 (useAsCStringLen, useAsCString)
+import Data.ByteString.Unsafe (unsafePackCString, unsafePackCStringLen)
 
 type Buf        = Buf.ByteString
 type YamlTag    = Maybe Buf
@@ -64,7 +65,7 @@ type SyckNodeHandler = SyckParser -> SyckNode -> IO SYMID
 type SyckErrorHandler = SyckParser -> CString -> IO ()
 type SyckBadAnchorHandler = SyckParser -> CString -> IO SyckNodePtr
 type SyckNodePtr = Ptr CString
-type SyckEmitter = Ptr ()  
+type SyckEmitter = Ptr ()
 type SyckEmitterHandler = SyckEmitter -> Ptr () -> IO ()
 type SyckOutputHandler = SyckEmitter -> CString -> CLong -> IO ()
 data SyckKind = SyckMap | SyckSeq | SyckStr
@@ -76,9 +77,13 @@ maxId = maxBound
 nilNode :: YamlNode
 nilNode = MkNode maxId ENil Nothing ASingleton
 
+-- | Convert a ByteString buffer into a regular Haskell string
+
 {-# INLINE unpackBuf #-}
 unpackBuf :: Buf -> String
 unpackBuf = Buf.unpack
+
+-- | Convert a regular Haskell string into a ByteString buffer
 
 {-# INLINE packBuf #-}
 packBuf :: String -> Buf
@@ -107,13 +112,14 @@ mkTagStrNode tag str = mkTagNode tag (EStr $! packBuf str)
 type EmitterExtras = Ptr ()
 -}
 
+-- | Dump a YAML node into a ByteString buffer (fast)
+
 emitYamlBytes :: YamlNode -> IO Buf
 emitYamlBytes node = do
     bracket syck_new_emitter syck_free_emitter $ \emitter -> do
         -- set up output port
         out    <- newIORef []
         #{poke SyckEmitter, style} emitter scalarFold
-        -- #{poke SyckEmitter, sort_keys} emitter (1 :: CInt)
         #{poke SyckEmitter, anchor_format} emitter (Ptr "%d"## :: CString)
 
         marks <- Hash.new (==) (Hash.hashInt)
@@ -130,10 +136,14 @@ emitYamlBytes node = do
         syck_emitter_flush emitter 0
         fmap (Buf.concat . reverse) (readIORef out)
 
+-- | Given a file name, dump a YAML node into that file
+
 emitYamlFile :: FilePath -> YamlNode -> IO ()
 emitYamlFile file node = do
     buf <- emitYamlBytes node
     Buf.writeFile file buf
+
+-- | Dump a YAML node into a regular Haskell string
 
 emitYaml :: YamlNode -> IO String
 emitYaml node = fmap unpackBuf (emitYamlBytes node)
@@ -158,7 +168,7 @@ markYamlNode freeze emitter node = do
 
 outputCallbackPS :: IORef [Buf] -> SyckEmitter -> CString -> CLong -> IO ()
 outputCallbackPS out emitter buf len = do
-    str <- copyCStringLen (buf, fromEnum len)
+    str <- unsafePackCStringLen (buf, fromEnum len)
     str `seq` modifyIORef out (str:)
 
 outputCallback :: SyckEmitter -> CString -> CLong -> IO ()
@@ -182,20 +192,20 @@ emitNode _ e n | EStr s <- n_elem n, Buf.length s == 1, Buf.head s == '~' = do
 
 emitNode _ e n | EStr s <- n_elem n = do
     withTag n (Ptr "string"##) $ \tag ->
-        useAsCStringLen s $ \(cs, l) ->       
+        useAsCStringLen s $ \(cs, l) ->
         syck_emit_scalar e tag scalarFold 0 0 0 cs (toEnum l)
 
 emitNode freeze e n | ESeq sq <- n_elem n = do
     withTag n (Ptr "array"##) $ \tag ->
-        syck_emit_seq e tag seqInline
---      syck_emit_seq e tag seqNone
+--        syck_emit_seq e tag seqInline
+      syck_emit_seq e tag seqNone
     mapM_ (syck_emit_item e) =<< mapM freeze sq
     syck_emit_end e
 
 emitNode freeze e n | EMap m <- n_elem n = do
     withTag n (Ptr "map"##) $ \tag ->
-        syck_emit_map e tag mapInline
---      syck_emit_map e tag mapNone
+--        syck_emit_map e tag mapInline
+      syck_emit_map e tag mapNone
     flip mapM_ m (\(k,v) -> do
         syck_emit_item e =<< freeze k
         syck_emit_item e =<< freeze v)
@@ -204,11 +214,17 @@ emitNode freeze e n | EMap m <- n_elem n = do
 withTag :: YamlNode -> CString -> (CString -> IO a) -> IO a
 withTag node def f = maybe (f def) (`useAsCString` f) (n_tag node)
 
+-- | Parse a regular Haskell string
+
 parseYaml :: String -> IO YamlNode
 parseYaml = (`withCString` parseYamlCStr)
 
+-- | Given a file name, parse contents of file
+
 parseYamlFile :: String -> IO YamlNode
 parseYamlFile file = parseYamlBytes =<< Buf.readFile file
+
+-- | Parse a ByteString buffer (this is faster)
 
 parseYamlBytes :: Buf -> IO YamlNode
 parseYamlBytes = (`useAsCString` parseYamlCStr)
@@ -333,7 +349,7 @@ syckNodeTag :: SyckNode -> IO (Maybe Buf)
 syckNodeTag syckNode = do
     tag <- #{peek SyckNode, type_id} syckNode
     if (tag == nullPtr) then (return Nothing) else do
-        p <- copyCString tag
+        p <- unsafePackCString tag
         return $! case Buf.elemIndex '/' p of
             Just n -> let { pre = Buf.take n p; post = Buf.drop (n+1) p } in
                 Just $ Buf.concat [_tagLiteral, pre, _colonLiteral, post]
@@ -370,7 +386,7 @@ parseNode SyckSeq parser syckNode len nid = do
 parseNode SyckStr _ syckNode len nid = do
     tag   <- syckNodeTag syckNode
     cstr  <- syck_str_read syckNode
-    buf   <- copyCStringLen (cstr, fromEnum len)
+    buf   <- unsafePackCStringLen (cstr, fromEnum len)
     let node = nilNode{ n_elem = EStr buf, n_tag = tag, n_id = nid }
     if tag == Nothing && Buf.length buf == 1 && Buf.index buf 0 == '~'
         then do
@@ -380,13 +396,13 @@ parseNode SyckStr _ syckNode len nid = do
                 else return node
         else return node
 
-foreign import ccall "wrapper"  
+foreign import ccall "wrapper"
     mkNodeCallback :: SyckNodeHandler -> IO (FunPtr SyckNodeHandler)
 
-foreign import ccall "wrapper"  
+foreign import ccall "wrapper"
     mkErrorCallback :: SyckErrorHandler -> IO (FunPtr SyckErrorHandler)
 
-foreign import ccall "wrapper"  
+foreign import ccall "wrapper"
     mkBadHandlerCallback :: SyckBadAnchorHandler -> IO (FunPtr SyckBadAnchorHandler)
 
 foreign import ccall "wrapper"
