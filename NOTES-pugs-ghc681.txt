@@ -7,10 +7,9 @@ NOTES Pugs and GHC-6.8.1
 - Most issues were with scoping of "wobbly types", so the fixes are almost all added type annotations
 - I had an issue with the Readline library, but that is probably OS X specific. I added
   "-L/usr/local/lib","-lreadline" to the GHC build command (in Makefile.PL) to fix it.
-- {-# INCLUDE -} now seems to require an absolute path, at least I had make
-  the path to dist/build/Pugs/Embed/Parrot_hsc.h in
-  dist/build/Pugs/Embed/Parrot.hs absolute (that is, the first line needs to
-  look like '{-# INCLUDE
-  "/home/gwern/bin/pugs/dist/build/Pugs/Embed/Parrot_hsc.h" #-}').
+- {-# INCLUDE -} seems to require either a very relative or an absolute path. That is, you have to make the path listed inside an INCLUDE ('dist/build/Pugs/Embed/Parrot_hsc.h') in the file
+  dist/build/Pugs/Embed/Parrot.hs absolute or completely relative - that is, the first line needs to
+  look like either '{-# INCLUDE "Parrot_hsc.h" #-}' or  '{-# INCLUDE
+  "/home/gwern/bin/pugs/dist/build/Pugs/Embed/Parrot_hsc.h" #-}'.
 
 For further information, see './pugs-ghc681.diff' for an example diff.
