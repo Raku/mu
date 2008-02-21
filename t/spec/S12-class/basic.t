@@ -61,3 +61,4 @@ ok(Baz ~~ Foo, '... smartmatch our Baz to the Foo class');
 my $baz = Baz.new();
 ok($baz ~~ Baz, '... smartmatch our $baz to the Baz class');
 ok($baz.isa(Baz), "... .isa(Baz)");
+
