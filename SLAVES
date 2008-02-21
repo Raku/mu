@@ -1,6 +1,6 @@
-This is a list of services that should "just work", and who maintains them. 
+This is a list of services that should "just work", and who maintains them.
 If you provide a service related to pugs, perl6 or #perl6, please add
-yourself to the list. 
+yourself to the list.
 
 The name "SLAVES" for this file was suggested by avar++.
 
@@ -10,7 +10,7 @@ service                                 nick and email of maintainer
 autosmoke on feather                    agentzh
 evalbot                                 diakopter
 irc logs                                moritz, <moritz at faui2k3 dot org>
-run.pugscode.org                        andara
+run.pugscode.org                        andara, <andara at feather dot perl6 dot nl>
 smartlinks                              agentzh
 svnbot6                                 diakopter
 devbot6                                 diakopter
