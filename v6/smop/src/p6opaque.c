@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <smop.h>
+#include <smop_oo.h>
 #include <smop_lowlevel.h>
 
 typedef struct SMOP__p6opaque_LOWL_A {

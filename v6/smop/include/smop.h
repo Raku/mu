@@ -6,7 +6,6 @@
 #include <smop_native.h>
 #include <smop_builtin.h>
 #include <smop_interpreter.h>
-#include <smop_oo.h>
 
 void smop_init();
 void smop_destr();

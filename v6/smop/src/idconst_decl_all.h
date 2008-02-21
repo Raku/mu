@@ -2,6 +2,7 @@ SMOP__Object* SMOP__ID__back;
 SMOP__Object* SMOP__ID__bless;
 SMOP__Object* SMOP__ID__BUILD;
 SMOP__Object* SMOP__ID__BUILDALL;
+SMOP__Object* SMOP__ID__call;
 SMOP__Object* SMOP__ID__can;
 SMOP__Object* SMOP__ID__capture;
 SMOP__Object* SMOP__ID__clone;

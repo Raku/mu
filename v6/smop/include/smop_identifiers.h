@@ -11,6 +11,7 @@ extern SMOP__Object* SMOP__ID__back;              /* "back" */
 extern SMOP__Object* SMOP__ID__bless;             /* "bless" */
 extern SMOP__Object* SMOP__ID__BUILD;             /* "BUILD" */
 extern SMOP__Object* SMOP__ID__BUILDALL;          /* "BUILDALL" */
+extern SMOP__Object* SMOP__ID__call;              /* "call" */
 extern SMOP__Object* SMOP__ID__can;               /* "can" */
 extern SMOP__Object* SMOP__ID__capture;           /* "capture" */
 extern SMOP__Object* SMOP__ID__clone;             /* "clone" */

@@ -43,11 +43,13 @@
  * See http://www.perlfoundation.org/perl6/index.cgi?smop_boot_sequence
  */
 #define SMOP_INTERNAL_INIT_SEQUENCE         \
+     smop_lowlevel_method_init();           \
      smop_p6opaque_init();                  \
      smop_native_uint_init();
 #define SMOP_INTERNAL_DESTROY_SEQUENCE      \
      smop_native_uint_destr();              \
-     smop_p6opaque_destr();
+     smop_p6opaque_destr();                 \
+     smop_lowlevel_method_destr();
 
 void smop_idconst_init();
 void smop_idconst_destr();
@@ -69,6 +71,8 @@ void smop_native_int_init();
 void smop_native_int_destr();
 void smop_native_uint_init();
 void smop_native_uint_destr();
+void smop_lowlevel_method_init();
+void smop_lowlevel_method_destr();
 void smop_p6opaque_init();
 void smop_p6opaque_destr();
 
