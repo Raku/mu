@@ -10,6 +10,8 @@ SMOP__Object* test_code(SMOP__Object* interpreter,
                         SMOP__Object* method,
                         SMOP__Object* capture) {
   printf("ok 2 - method call.\n");
+  SMOP_RELEASE(interpreter,capture);
+  return SMOP__NATIVE__bool_false;
 }
 
 
@@ -30,10 +32,11 @@ int main(int argc, char** argv) {
   SMOP_DISPATCH(intrp,
                 SMOP_RI(method),
                 SMOP__ID__call,
-                SMOP__NATIVE__capture_create(SMOP__INTPTR__InterpreterInstance,
-                                             method,NULL,NULL));
+                SMOP__NATIVE__capture_create(intrp,
+                                             SMOP_REFERENCE(intrp,method),NULL,NULL));
 
 
+  SMOP_RELEASE(intrp, method);
 
   SMOP_DISPATCH(intrp, SMOP_RI(intrp),
                 SMOP__ID__loop, SMOP__NATIVE__capture_create(intrp,
@@ -41,8 +44,6 @@ int main(int argc, char** argv) {
                                                              NULL, NULL));
 
   printf("ok 3 - returned.\n");
-
-  SMOP_RELEASE(intrp, method);
 
   SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,intrp);
 
