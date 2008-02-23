@@ -55,7 +55,7 @@ May be used to enter one line of program.
 
 execute use the compiler backend.
 
-(valid backends are: ast, perl5, perl6, nqp, cl (add -sbcl, -clisp, -ecl under -B), ruby)
+(valid backends are: ast, ast-yaml, perl5, perl6, nqp, cl (add -sbcl, -clisp, -ecl under -B), ruby)
 
 =item -C[backend]
 
@@ -287,6 +287,10 @@ my @visitors;
     elsif ( grep { $_ eq 'ast' } @opt{qw(C B)} ) {
         push @visitor_sequence, qw( Emit::AstPerl )
             unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::AstPerl';
+    }
+    elsif ( grep { $_ eq 'ast-yaml' } @opt{qw(C B)} ) {
+        push @visitor_sequence, qw( Emit::AstYaml )
+            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::AstYaml';
     }
     elsif ( grep { $_ eq 'perl5' } @opt{qw(C B)} ) {
         push @visitor_sequence, qw( ExtractRuleBlock Token MetaClass  Global Emit::Perl5 )    # ShortCircuit
@@ -635,7 +639,7 @@ Usage: kp6 [switches] [--] [programfile] [arguments]
   -c              parse the file or -e, but do not run it
   -Bbackend       execute using the compiler backend
   -Cbackend       compile using the compiler backend
-                  (valid backends are: ast, perl5, cl (add -sbcl, -clisp, -ecl under -B)
+                  (valid backends are: ast, ast-yaml, perl5, cl (add -sbcl, -clisp, -ecl under -B)
   -o              output to file if using -B, required by some backends
   --do            visitors to use
 
