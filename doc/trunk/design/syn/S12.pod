@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 15 Feb 2008
+  Last Modified: 23 Feb 2008
   Number: 12
-  Version: 57
+  Version: 58
 
 =head1 Overview
 
@@ -894,16 +894,25 @@ doesn't share with anything outside of it or declared prior to it.
 Only one such sub (or method) can inhabit a given namespace, and it
 hides any outer subs (or less-derived methods) of the same short name.
 
-The default C<proto> declarations provided by Perl from the global scope
-are I<not> propagated to the user's scope unless explicitly imported,
-so a C<sub> declaration there that happens to be the same as a global
-multi is considered C<only> unless explicitly marked C<multi>.
+The default C<proto> declarations provided by Perl from the global
+scope are I<not> automatically propagated to the user's scope
+unless explicitly imported, so a C<sub> declaration there that
+happens to be the same as a global multi is considered C<only> unless
+explicitly marked C<multi>.  In the absence of such an explicit C<sub>
+declaration, however, the global proto is used by the compiler in
+the analysis of any calls to that short name.  (Since only list
+operators may be post-declared, as soon as the compiler sees a
+non-listop operator it is free to apply the global C<proto> since
+any user-defined C<only> version of it must of necessity be declared
+earlier in the user's lexical scope or not at all.)
 
-A C<proto> may share with multis declared after it in the same scope,
+A C<proto> may share dispatch with multis declared after it in the same scope,
 but in that case it functions only as the final tie-breaker if the
 inner multies can't decide among themselves what to do.  (It may
 then, of course, decide to redispatch outside of the current scope.)
-The signature of such a proto-multi also nails down the presumed order
+
+Within its scope,
+the signature of a C<proto> also nails down the presumed order
 and naming of positional parameters, so that any multi call with named
 arguments in that scope can presume to rearrange those arguments into
 positional parameters based on that information.  (Unrecognized names
@@ -943,7 +952,7 @@ If a tie still results, only candidates marked with the C<default> trait are
 considered, and the best matching default routine is used.  If there
 are no default routines, or if the available defaults are also tied,
 a final tie-breaking proto sub is called, if there is one (see above).
-Otherwise an exception is thrown.
+Otherwise the dispatch fails.
 
 The order in which candidates are considered is defined by a
 topological sort based on the "type narrowness" of each candidate's
