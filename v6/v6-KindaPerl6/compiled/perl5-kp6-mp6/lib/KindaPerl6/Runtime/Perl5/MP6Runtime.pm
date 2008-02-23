@@ -312,9 +312,11 @@ sub emit_ruby_kludge_commas {
 
 sub emit_yaml {
     my $node = shift;
-    eval("require YAML::XS;") or die $!;
+    eval("require YAML::Syck;") or die $!;
+    local $YAML::Syck::ImplicitTyping = 1;
+    local $YAML::Syck::ImplicitUnicode = 1;
     binmode(STDOUT, ":utf8");
-    print STDOUT YAML::XS::Dump($node);
+    print STDOUT YAML::Syck::Dump($node);
     "\n";
 }
 
