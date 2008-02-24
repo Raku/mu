@@ -1,0 +1,169 @@
+
+  jig, n. - A device in manufacturing, woodworking, or other creative
+  endeavors for controlling the location, path of movement, or both of
+  either a workpiece or the tool that is operating upon it.
+
+  jig, v. - To move briskly, especially as a dance.
+
+  winter, n. - A season ending in late March.
+
+
+This work is an attempt to facilitate Perl 6 development in late
+February, and into March, 2008.  To help us progress more rapidly.
+
+BACKGROUND
+
+In late February, the largest current concentrations of activity are around:
+ (1) parrot's rakudo, to get enough of rakudo working that perl5
+     programmers can start playing with it and have most of the things
+     they're used to working.
+ (2) TimToady working on src/perl6/STD.pm,
+     to shake down the official p6 grammar,
+     and to develop a mumble mumble tagged DFA engine.
+ (3) Slow progress on the language spec and tests.
+ (4) A couple of interesting, but single person efforts.
+ (n) I probably missed something.  We don't have project-wide status reports.
+
+As for other things:
+
+() Pugs remains mothballed.  Kp6 has stalled.  There is no active work
+on backends or runtimes other than parrot.  Nor on a prelude.  Nor on
+a bootstrap implementation.
+
+() It remains impossible to do larger-than-small scale code development
+in p6.  Pugs remains the only interpreter on which to do even small scale.
+
+() To the extent that we have working p6 regex engines, they remain
+inaccessible (PGE), slow (Pugs::Compiler::Rule), or obscure (yare).
+
+() The ability to obtain a p6 parse tree, including oo declarations,
+which I consider (others differ) to have been the development roadblock
+for years, remains unchanged.
+
+
+Parrot's rakudo is the current effort most likely to, eventually,
+develop into a usable Perl 6.
+
+We have lots of pieces of a perl 6 implementation.  Some written
+multiple times.  And yet, we are largely stalled.
+
+NEED
+
+(1) There is lots of development work which could be being enjoyably
+    pursued right now, but isn't.
+
+(2) Hanging our hopes for Christmas on another monolithic project
+    (rakudo) seems unnecessarily fragile, as well as creating avoidable
+    bottlenecks.
+
+ANALYSIS
+
+Some aspects of past and present Perl 6 project failure:
+
+() Coupling.  Historically our development efforts were monolithic, in
+part because the spec'ed language architecture was.  Eg, a parser
+required an active runtime to do a correct parse.
+
+() Monopoly market destruction.  If the monolithic system makes it
+hard for you to work on X, you can't, or more usually, you struggle
+with it for a while, dissipating energy and interest, and eventually
+give up.
+
+() Projects having a sub-critical mass of developers.  Eventually the
+primary developer(s) get discouraged by working in isolation, and the
+project stalls.
+
+() Lack of an aware, reflective, critical community.  Existing
+resources are ignored.  There is no friendly but blunt discussion of
+strategy or tactics.  Visions of development path are non-existent or
+flawed.  There is remarkable absence of any project management.
+
+Is Rakudo the answer?
+
+Rakudo is developing towards usability.
+
+() It is not yet, in general, up to pugs capability.  The current focus
+is to get enough of rakudo working that perl5 programmers can start
+playing with it and have most of the things they're used to working.
+Like hashes.  And it remains unable to run the pugs t/, something most
+other implementations have managed, and when not, has proved to have
+been a warning sign.
+
+() It is capable now, or potentially capable with foreseeable effort,
+of doing several things pugs can't.  Including the previously mentioned
+critical making available of a full parse tree.
+
+() It is tightly tied to parrot, which has a very dark history.
+
+So, my current take is rakudo is a useful, potentially key resource.
+But not a basket I want all my eggs in.  All my hope of Christmas.
+
+A single basket strategy is something I'd like to avoid in general.
+
+
+Where from here?
+
+My hypothesis is it is possible to knit together existing capabilities,
+so as to unblock many projects which have stalled, and help currently
+active projects remain active.
+
+The key is that while it remains ultimately true that a correct p6
+parse requires an integrated and running p6, there has been a change in
+perspective towards permitting greater decoupling, during the current
+early development period.
+
+Decoupling of grammar from parse, and parse from backend, by exposing
+the intermediate match tree and ast.  Decoupling of runtime from
+backend, by our increasing ability to compile, and thus write in, p6
+rather than native backend language.  And decoupling compilation (and
+optimization), as yet largely unaddressed, from parse and backend.
+
+So, for instance, the p6-on-p5 backend could use a rakudo ast.  As
+could a smop backend.  Or one from redsix.  A STD.pm match tree could
+be exercised and tested by conversion to ast and subsequent use.  A
+prelude could be metaprogrammed for rakudo, and all the other backends.
+Development of a capable compiler could begin, in any language, and the
+results could be tested and used immediately.  Every component could be
+subjected to the discipline of running against the real test suite.
+
+What to do, specifically?
+
+() Pull out an ast abstraction (or two) from existing implementations.
+Rakudo definitely, kp6, perhaps redsix, perhaps pugs.  Ideally rakudo
+will also eventually be able to take an ast as input.  The
+abstraction(s) should include schema checkers, and wrapper libraries.
+
+() Pull out a match tree abstraction, and make it easy to run existing
+regex engines, on a grammar, against an input, yielding a match tree.
+PGE definitely, Pugs::Compiler::Rule, perhaps yet_another_regex_engine.
+
+() Create a backend providing p6 syntax over p5 style and semantics.
+A "direct to p5" compiler, with no runtime overhead.  Because while a
+p5 backend seems likely to remain an area of interest, if the process
+is made easy enough, at least some of that development can be written
+in p6, and used by other backends as well.
+
+PROJECT
+
+Resources (people):
+
+Just me, mncharity/putter, so far.
+
+Resources (time):
+
+I'm somewhat flexible in that regard.  The key question is whether the
+time is being used well.  Which approximates as whether other people
+are collaborating.  For example, if someone starts doing backend work,
+depending on my providing ast's, that I can do.  If no-one starts using
+or working on this "jig" with me, my threshold for killing the project
+is very low.  A couple of days.
+
+Real objective:
+
+See if I can easily drum up interest in collaboration.
+Create an environment where peoples' work is generally used by others.
+
+Status and current goals:
+
+See the STATUS file.
+

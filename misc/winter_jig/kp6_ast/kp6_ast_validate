@@ -1,0 +1,310 @@
+#!/usr/bin/perl
+# Validate your yaml against a kp6 ast schema.
+
+# This code is kludgy.
+# Didn't find a yaml schema checker capable of handling
+#  "this field may be any of these several node types".
+# Ie, kwalify can't.
+# Perhaps better to convert to XML and check there?
+
+use YAML::Syck qw(Load);
+use Scalar::Util;
+use strict;
+use warnings;
+
+require 'kp6_ast_def.pl';
+our @nodes = KP6_AST_Def::nodes();
+
+my %field_constraints;
+sub field {
+    my($node_name,$field_name,@constraints)=@_;
+    $field_constraints{$node_name}{$field_name} =
+	Constraint->new($node_name,$field_name,@constraints);
+}
+
+my $a_value_node = [qw{
+ Val::Int Val::Bit Val::Num Val::Buf Val::Char Val::Object
+ Lit::Seq Lit::Array Lit::Hash Lit::Pair
+ Var Bind Assign Call Apply
+}];
+my $invocant = ['undef','NO_SPEC'];
+
+field('CompUnit','unit_type', 'scalar');
+field('CompUnit','name', 'scalar');
+field('CompUnit','traits', 'ARRAY','NO_SPEC');
+field('CompUnit','attributes', 'HASH','NO_SPEC');
+field('CompUnit','methods', 'HASH','NO_SPEC');
+field('CompUnit','body', 'Lit::Code');
+field('Val::Int','int', 'scalar');
+field('Val::Bit','bit', 'scalar');
+field('Val::Num','num', 'scalar');
+field('Val::Buf','buf', 'scalar');
+field('Val::Char','char', 'NO_SPEC');
+field('Val::Object','class', 'NO_SPEC');
+field('Val::Object','fields', 'NO_SPEC');
+field('Lit::Seq','seq', 'NO_SPEC');
+field('Lit::Array','array', 'NO_SPEC');
+field('Lit::Hash','hash', 'NO_SPEC');
+field('Lit::Pair','key', 'NO_SPEC');
+field('Lit::Pair','value', 'NO_SPEC');
+field('Lit::SigArgument','key', 'NO_SPEC');
+field('Lit::SigArgument','value', 'NO_SPEC');
+field('Lit::SigArgument','type', 'NO_SPEC');
+field('Lit::SigArgument','has_default', 'NO_SPEC');
+field('Lit::SigArgument','is_named_only', 'NO_SPEC');
+field('Lit::SigArgument','is_optional', 'NO_SPEC');
+field('Lit::SigArgument','is_slurpy', 'NO_SPEC');
+field('Lit::SigArgument','is_multidimensional', 'NO_SPEC');
+field('Lit::SigArgument','is_rw', 'NO_SPEC');
+field('Lit::SigArgument','is_copy', 'NO_SPEC');
+field('Lit::NamedArgument','key', 'NO_SPEC');
+field('Lit::NamedArgument','value', 'NO_SPEC');
+field('Lit::Code','pad', 'Pad');
+field('Lit::Code','state', 'HASH','NO_SPEC');
+field('Lit::Code','sig', 'Sig');
+field('Lit::Code','body', 'ARRAY',$a_value_node);
+field('Lit::Code','CATCH', 'NO_SPEC');
+field('Lit::Object','class', 'NO_SPEC');
+field('Lit::Object','fields', 'NO_SPEC');
+field('Var','sigil', 'scalar');
+field('Var','twigil', 'scalar');
+field('Var','name', 'scalar');
+field('Var','namespace', 'ARRAY','NO_SPEC');
+field('Bind','parameters', 'Var');
+field('Bind','arguments', 'NO_SPEC');
+field('Assign','parameters', 'NO_SPEC');
+field('Assign','arguments', 'NO_SPEC');
+field('Proto','name', 'scalar');
+field('Call','invocant', $invocant);
+field('Call','hyper', 'NO_SPEC');
+field('Call','method', 'NO_SPEC');
+field('Call','arguments', 'NO_SPEC');
+field('Apply','code', $a_value_node);
+field('Apply','arguments', 'ARRAY', $a_value_node);
+field('Return','result', 'NO_SPEC');
+field('If','cond', 'NO_SPEC');
+field('If','body', 'NO_SPEC');
+field('If','otherwise', 'NO_SPEC');
+field('While','cond', 'NO_SPEC');
+field('While','body', 'NO_SPEC');
+field('Decl','decl', 'scalar');
+field('Decl','type', ['undef','scalar']);
+field('Decl','var', 'Var');
+field('Sig','invocant', $invocant);
+field('Sig','positional', 'ARRAY','NO_SPEC');
+field('Lit::Capture','invocant', $invocant);
+field('Lit::Capture','array', 'NO_SPEC');
+field('Lit::Capture','hash', 'NO_SPEC');
+field('Lit::Subset','name', 'scalar');
+field('Lit::Subset','base_class', 'NO_SPEC');
+field('Lit::Subset','block', 'NO_SPEC');
+field('Method','name', 'scalar');
+field('Method','block', 'NO_SPEC');
+field('Sub','name', 'scalar');
+field('Sub','block', 'Lit::Code');
+field('Macro','name', 'scalar');
+field('Macro','block', 'NO_SPEC');
+field('Coro','name', 'scalar');
+field('Coro','block', 'NO_SPEC');
+field('P5Token','regex', 'NO_SPEC');
+field('Token','name', 'scalar');
+field('Token','regex', 'NO_SPEC');
+field('Token','sym', 'NO_SPEC');
+field('Do','block', 'NO_SPEC');
+field('BEGIN','block', 'NO_SPEC');
+field('Use','mod', 'NO_SPEC');
+field('Use','perl5', 'NO_SPEC');
+field('Rule::Quantifier','term', 'NO_SPEC');
+field('Rule::Quantifier','quant', 'NO_SPEC');
+field('Rule::Quantifier','greedy', 'NO_SPEC');
+field('Rule::Quantifier','ws1', 'NO_SPEC');
+field('Rule::Quantifier','ws2', 'NO_SPEC');
+field('Rule::Quantifier','ws3', 'NO_SPEC');
+field('Rule::Or','or', 'NO_SPEC');
+field('Rule::Concat','concat', 'NO_SPEC');
+field('Rule::Subrule','metasyntax', 'NO_SPEC');
+field('Rule::Subrule','ident', 'NO_SPEC');
+field('Rule::Subrule','capture_to_array', 'NO_SPEC');
+field('Rule::SubruleNoCapture','metasyntax', 'NO_SPEC');
+field('Rule::Var','sigil', 'scalar');
+field('Rule::Var','twigil', 'scalar');
+field('Rule::Var','name', 'scalar');
+field('Rule::Constant','constant', 'NO_SPEC');
+field('Rule::SpecialChar','char', 'NO_SPEC');
+field('Rule::Block','closure', 'NO_SPEC');
+field('Rule::InterpolateVar','var', 'NO_SPEC');
+field('Rule::NamedCapture','rule', 'NO_SPEC');
+field('Rule::NamedCapture','ident', 'NO_SPEC');
+field('Rule::NamedCapture','capture_to_array', 'NO_SPEC');
+field('Rule::Before','rule', 'NO_SPEC');
+field('Rule::Before','assertion_modifier', 'NO_SPEC');
+field('Rule::Before','capture_to_array', 'NO_SPEC');
+field('Rule::After','rule', 'NO_SPEC');
+field('Rule::After','assertion_modifier', 'NO_SPEC');
+field('Rule::After','capture_to_array', 'NO_SPEC');
+field('Rule::NegateCharClass','chars', 'NO_SPEC');
+field('Rule::CharClass','chars', 'NO_SPEC');
+field('Rule::Capture','rule', 'NO_SPEC');
+field('Rule::Capture','position', 'NO_SPEC');
+field('Rule::Capture','capture_to_array', 'NO_SPEC');
+
+{ package Constraint;
+    sub new {
+	my($cls,$node_name,$field_name,$type,@rest)=@_;
+
+	my $self = {
+	    node_name => $node_name,
+	    field_name => $field_name,
+	};
+	bless $self,$cls;
+
+	$self->{type_ok} = $self->_expand_type_ok($type);
+	if($type eq 'ARRAY') {
+	    my $element_type = shift(@rest);
+	    $self->{element_type_ok} = $self->_expand_type_ok($element_type);
+	}
+	$self;
+    }
+    sub _expand_type_ok {
+	my($self,$type)=@_;
+	my $type_ok = {};
+	if(ref($type) and ref($type) eq 'ARRAY') {
+	    for (@{$type}) { $type_ok->{$_} = 1 };
+	} else {
+	    $type_ok->{$type} = 1;
+	}
+	$type_ok;
+    }
+    sub _check_value {
+	my($self,$type_ok,$value,$addendum)=@_;
+	$addendum ||= "";
+	my $type = ref($value) || (defined($value) ? 'scalar' : 'undef');
+	$self->report("${addendum}invalid type: $type vs (".join(", ",keys(%$type_ok)).")",
+		      $value)
+	    if not $type_ok->{$type};
+    }
+
+    sub check {
+	my($self,$value)=@_;
+	$self->_check_value($self->{type_ok},$value);
+	my $type = Scalar::Util::reftype($value) || 'scalar';
+	if($type eq 'ARRAY') {
+	    for my $element (@{$value}) {
+		$self->_check_value($self->{element_type_ok},$element,'in array: ');
+	    }
+	}
+    }
+    sub report {
+	my($self,$msg,$value)=@_;
+	my $error = sprintf("\n%s %s: %s:\n%s\n",
+			    $self->{node_name},$self->{field_name},
+			    $msg,($value||'UnDeF'));
+	print $error;
+    }
+}
+
+
+{ package Validator;
+
+  sub new {
+      my($cls)=@_;
+      my $self = {
+      };
+      bless $self,$cls;
+  }
+  sub validate_yaml {
+      my($self,$data)=@_;
+      $self->{seen} = {};
+      $self->validate_object($data);
+  }
+  sub validate_object {
+      my($self,$thing)=@_;
+      return if not defined($thing);
+      return if $self->{seen}{$thing}++;
+      $self->validate_node($thing) if Scalar::Util::blessed($thing);
+      $self->recurse($thing);
+  }
+  sub recurse {
+      my($self,$thing)=@_;
+      my $type = Scalar::Util::reftype($thing);
+      if(not $type) {
+      }
+      elsif($type eq 'CODE') {
+      }
+      elsif($type eq 'SCALAR') {
+	  $self->validate_object($$thing);
+      }
+      elsif($type eq 'ARRAY') {
+	  map{$self->validate_object($_)} @$thing;
+      }
+      elsif($type eq 'HASH') {
+	  map{$self->validate_object($_)} values(%$thing);
+      }
+      else {
+	  die "bug: $type";
+      }
+  }
+  sub validate_node {
+      my($self,$node)=@_;
+      my $cls = ref($node);
+      my $nfc = $field_constraints{$cls};
+      if(not $nfc) {
+	  return $self->report_error("Unknown node class: $cls");}
+      for my $field (keys(%$node)) {
+	  my $fc = $nfc->{$field};
+	  if(not $fc){
+	      return $self->report_error("Unknown node field: $cls $field");}
+	  $fc->check($node->{$field});
+      }
+  }
+  sub report_error {
+      my($self,$msg)=@_;
+      print "\n",$msg,"\n";
+  }
+}
+
+sub load_yaml {
+    my($file)=@_;
+    open(F,"<$file") or die $!;
+    my $yaml = join("",<F>); close(F);
+    my $data = Load($yaml) or die "YAML Load failed.";
+    $data;
+}
+
+sub print_usage_and_die {
+    print STDERR "$0 YAML_FILE\n";
+    exit(2);
+}
+sub main {
+    my $file = shift(@ARGV);
+    print_usage_and_die if not $file or !-f $file;
+    Validator->new()->validate_yaml(load_yaml($file));
+}
+main;
+
+
+__END__
+
+for my $n (@nodes) {
+    my $code = '';
+    my $name = $n->name;
+    for my $f ($n->fields) {
+	my $fname = $f->identifier;
+	my $pred = '/^\w+$/';
+	$code .= "field('$name','$fname', 'STR');\n";
+    }
+    print $code;
+}
+
+for my $n (@nodes) {
+    my $code = '';
+    my $name = $n->name;
+    $code .= "node('$name', {\n";
+    for my $f ($n->fields) {
+	my $fname = $f->identifier;
+	my $pred = '/^\w+$/';
+	$code .= "   '$fname' => 'STR',\n";
+    }
+    $code .= "    });\n";
+    print $code;
+}

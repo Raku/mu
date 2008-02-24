@@ -1,0 +1,103 @@
+#!/usr/bin/perl
+# Check kp6 ast definition file against KindaPerl6/Ast.pm.
+use strict;
+use warnings;
+
+require 'kp6_ast_def.pl';
+our @nodes = KP6_AST_Def::nodes();
+
+# round-trip test
+# diff -bB ../../../v6/v6-KindaPerl6/src/KindaPerl6/Ast.pm output
+sub regenerate_kp6_ast_file_code {
+    my $code = "";
+    for my $node (@nodes) {
+	my $name = $node->name;
+	my @fields = $node->fields;
+	$code .= "class $name {\n";
+	for my $field (@fields) {
+	    my $field_name = $field->name;
+	    $code .= "    has $field_name;\n";
+	}
+	$code .= join("\n",('    method emit( $visitor, $path ) {',
+			    '        KindaPerl6::Traverse::visit( ',
+			    '            $visitor,',
+			    '            self,',
+			    '            \''.$name.'\',',
+			    '            $path,',
+			    '        );',
+			    '    };',
+			    '    method attribs {',
+			    '            {',
+			    join("\n",map{
+				my $field = $_;
+				my $identifier = $field->identifier;
+				my $attrib_name = $field->attrib_name;
+				my $padding = " " x (9 - length($identifier));
+				('                '.
+				 $identifier.$padding.' => '.$attrib_name.',')
+				 } @fields),
+			    '            }',
+			    '    };',
+			    '}',''));
+    }
+    $code;
+}
+
+sub compare_with_ast_pm {
+    my($ast_pm_filename)=@_;
+    open(F,"<$ast_pm_filename") or die $!;
+    my $ast_original = join("",<F>); close(F);
+    $ast_original =~ s/(?<!\\)\#.*//g;
+    my $ast_from_def = regenerate_kp6_ast_file_code;
+    my $tmp1 = "deleteme_kp6_ast_origial.pm";
+    my $tmp2 = "deleteme_kp6_ast_from_def.pm";
+    open(TMP1,">$tmp1") or die $!;
+    open(TMP2,">$tmp2") or die $!;
+    print TMP1 $ast_original; close(TMP1);
+    print TMP2 $ast_from_def; close(TMP2);
+    my $cmd = "diff -bB $tmp1 $tmp2";
+    system($cmd);
+    unlink($tmp1,$tmp2);
+}
+
+# ../../../v6/v6-KindaPerl6/src/KindaPerl6/Ast.pm
+sub print_usage_and_exit {
+    print STDERR <<"END";
+
+Our version of the kp6 ast is derived from the KindaPerl6/Ast.pm.
+This script allows (re)checking our ast definition against the original.
+
+$0 COMMAND
+
+  --regenerated   
+
+    Prints the ast definition in a form similar to Ast.pm.
+
+  --diff .../v6/v6-KindaPerl6/src/KindaPerl6/Ast.pm
+
+    Diffs the --regenerated code against Ast.pm.
+
+END
+    exit(2);
+}
+sub main {
+    print_usage_and_exit if @ARGV < 1;
+    my $arg = shift(@ARGV);
+    if($arg =~ /^--regenerated$/) {
+	print regenerate_kp6_ast_file_code;
+    }
+    elsif($arg =~ /^--diff$/) {
+	my $ast_pm = shift(@ARGV);
+	if(not $ast_pm or !-f $ast_pm) {
+	    print STDERR "File not found: $ast_pm\n";
+	    print_usage_and_exit;
+	}
+	compare_with_ast_pm($ast_pm);
+    }
+    else {
+	print_usage_and_exit;
+    }
+}
+
+main() if $0 eq __FILE__;
+

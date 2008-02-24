@@ -1,0 +1,94 @@
+# Representation of KindaPerl6/Ast.pm
+# Created from v6/v6-KindaPerl6/src/KindaPerl6/Ast.pm r19980.
+
+node(' CompUnit    $.unit_type $.name @.traits %.attributes %.methods @.body ');
+
+node(' Val::Int    $.int ');
+node(' Val::Bit    $.bit ');
+node(' Val::Num    $.num ');
+node(' Val::Buf    $.buf ');
+node(' Val::Char   $.char ');
+node(' Val::Undef  ');
+node(' Val::Object $.class %.fields ');
+
+node(' Lit::Seq    @.seq ');
+node(' Lit::Array  @.array     ');
+node(' Lit::Hash   @.hash ');
+node(' Lit::Pair   $.key $.value ');
+
+# see also S06, Runtime::Perl6::Signature.pm, Grammar::Signature.pm
+#    has $.is_optional;  # !is_required
+#    # has $.is_longname;
+node(' Lit::SigArgument  $.key $.value $.type $.has_default $.is_named_only $.is_optional $.is_slurpy $.is_multidimensional $.is_rw $.is_copy ');
+
+node(' Lit::NamedArgument  $.key $.value ');
+
+#     has %.pad         #  is Mapping of Type; # All my/state/parameter variables
+#     has %.state       #  is Mapping of Exp;  # State initializers, run upon first entry 
+#     has $.sig         #  is Sig              # Signature
+#     has @.body        #  is Seq of Exp;      # Code body 
+#     has $.CATCH       #  is Lit::Code;       # Exception handler
+#     #has @.parameters  #  is Seq of Exp;      # Signature
+node(' Lit::Code  %.pad %.state $.sig @.body $.CATCH ');
+
+node(' Lit::Object  $.class @.fields% ');
+
+node(' Var     $.sigil $.twigil $.name $.namespace ');
+node(' Bind    $.parameters $.arguments ');
+node(' Assign  $.parameters $.arguments ');
+node(' Proto   $.name ');
+
+#    #has $.hyper
+node(' Call    $.invocant $.hyper $.method @.arguments ');
+node(' Apply   $.code @.arguments ');
+
+node(' Return  $.result ');
+node(' If      $.cond @.body @.otherwise ');
+node(' While   $.cond @.body ');
+node(' Decl    $.decl $.type@ $.var@ ');
+node(' Sig     $.invocant $.positional@ ');
+
+node(' Lit::Capture  $.invocant $.array@ $.hash@ ');
+node(' Lit::Subset   $.name $.base_class $.block ');
+
+#    #has $.sig
+node(' Method  $.name $.block ');
+node(' Sub     $.name @.block$ ');
+node(' Macro   $.name @.block$ ');
+node(' Coro    $.name @.block$ ');
+
+node(' P5Token  $.regex ');
+
+#    #has $.sig
+#    has $.sym  # token:sym<...>
+node(' Token  $.name $.regex $.sym ');
+
+node(' Do     @.block ');
+node(' BEGIN  @.block ');
+
+node(' Use    $.mod $.perl5 ');
+
+
+# ------------- REGEX AST ----------
+
+
+node(' Rule  ');
+node(' Rule::Quantifier  $.term $.quant $.greedy $.ws1 $.ws2 $.ws3 ');
+node(' Rule::Or  @.or$ ');
+node(' Rule::Concat  @.concat$ ');
+node(' Rule::Subrule  $.metasyntax $.ident $.capture_to_array ');
+node(' Rule::SubruleNoCapture  $.metasyntax ');
+node(' Rule::Var  $.sigil $.twigil $.name ');
+node(' Rule::Constant  $.constant ');
+node(' Rule::Dot  ');
+node(' Rule::SpecialChar  $.char ');
+node(' Rule::Block  $.closure ');
+node(' Rule::InterpolateVar  $.var ');
+node(' Rule::NamedCapture  $.rule $.ident $.capture_to_array ');
+node(' Rule::Before  $.rule $.assertion_modifier $.capture_to_array ');
+node(' Rule::After  $.rule $.assertion_modifier $.capture_to_array ');
+node(' Rule::NegateCharClass $.chars ');
+node(' Rule::CharClass $.chars ');
+node(' Rule::Capture  $.rule $.position $.capture_to_array ');
+
+
