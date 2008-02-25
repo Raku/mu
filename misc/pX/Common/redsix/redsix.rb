@@ -2570,7 +2570,7 @@ class P6
   attr_accessor :pkgspace
   attr_accessor :verbose
   def initialize
-    @verbose=true
+    @verbose=false
     @pkgspace = RPackage.make_GLOBAL
   end
   def P6_binding; @pkgspace.thebinding end
@@ -2622,7 +2622,7 @@ class P6
       end
       exit
     end
-    print "Parsing #{fileline[0]} line #{fileline[1]}.\n" if fileline
+    print "Parsing #{fileline[0]} line #{fileline[1]}.\n" if fileline and @verbose
     k = Digest::MD5.hexdigest(src)
     if (!clean||clean==2) && File.exists?("redsix_cache/#{k}.rb")
       print "Using redsix_cache/#{k}.rb\n"
@@ -2697,7 +2697,8 @@ class P6
         #src = begin readline rescue "" end
         if src == "" || !src;print "\n"; break end
         if src == "\n"; break end
-        eval6(src,['repl-input',1])
+        res = eval6(src,['repl-input',1])
+        print "=> ",res.inspect,"\n" if not @verbose # because eval6() did it if @verbose.
       end
     rescue Interrupt
       exit
@@ -3402,6 +3403,10 @@ def main
     ARGV.shift()
     ARGV.shift()
   end
+  if not ARGV.empty? and ARGV[0] =~ /^-v$/
+    ARGV.shift()
+    $P.verbose = true
+  end
 
   if ARGV.empty?
     $P.repl
@@ -3428,6 +3433,8 @@ def print_usage_and_exit
 #{$0} [ARGS]
 
 With no ARGS, runs an interactive read-eval-print-loop.
+
+  -v    Turn on verbose.
 
   -e EXPRESSION_TO_RUN
 
