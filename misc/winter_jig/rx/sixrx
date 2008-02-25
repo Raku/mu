@@ -1,0 +1,68 @@
+#!/usr/bin/perl
+# Script providing command-line access to regex engines.
+
+use YAML::Syck;
+
+sub print_usage_and_exit {
+    my($msg,$exit_code)=@_;
+    $exit_code = 2 if !defined($exit_code);
+    $msg =~ s/\n?\z/\n\n/ if $msg;
+    $msg ||= ''; 
+    print STDERR $msg;
+    print STDERR <<"END";
+$0 [--api0] [--yaml] ENGINE GRAMMAR_FILE START_GRAMMAR START_RULE INPUT_FILE
+END
+    exit($exit_code);
+}
+sub main {
+    if(@ARGV and $ARGV[0] =~ /^--help$/) {print_usage_and_exit(undef,0)}
+    my $api = '--api0';
+    if(@ARGV and $ARGV[0] =~ /^--api\d+$/) {$api = shift(@ARGV);}
+    my $output_form = 'string';
+    if(@ARGV and $ARGV[0] =~ /^--yaml$/) {shift(@ARGV);$output_form='yaml';}
+    my $main = {
+	'--api0' => \&main_api0
+    }->{$api};
+    print_usage_and_exit('Unknown api.') if not $main;
+    $main->($api,$output_form);
+}
+sub main_api0 {
+    my($api,$output_form)=@_;
+    my($engine,$grammar_file,$start_grammar,$start_rule,$input_file)=@ARGV;
+    print_usage_and_exit("Wrong number of arguments: ".(0+@ARGV)) if @ARGV != 5;
+
+    open(F,"<$grammar_file") or die "$grammar_file: $!";
+    my $grammar_code = join("",<F>); close(F);
+    open(F,"<$input_file") or die "$input_file: $!";
+    my $input = join("",<F>); close(F);
+    
+    run_engine($engine,$grammar_code,$start_grammar,$start_rule,$input,$output_form);
+}
+
+sub run_engine {
+    my($engine,@args)=@_;
+    if($engine eq 'pcr') { run_pcr(@args) }
+    else { print_usage_and_exit("Unknown regex engine: $engine .") }
+}
+
+sub run_pcr {
+    my($grammar_code,$start_grammar,$start_rule,$input,$output_form)=@_;
+    eval("use Pugs::Compiler::Grammar;"); die $@ if $@;
+    my $obj = Pugs::Compiler::Grammar->compile($grammar_code);
+    my $perl5 = $obj->perl5;
+    eval $perl5;
+    die $@ if $@;
+    my $match = eval($start_grammar.'->'.$start_rule.'($input)');
+    die $@ if $@;
+    if($output_form eq 'yaml') {
+	print YAML::Syck::Dump($match);
+    }
+    elsif($output_form eq 'string') {
+	print $match;
+	print "\n" if $match;
+    }
+    else { die "bug: unknown output form: $output_form" }
+    exit($match ? 0 : 1);
+}
+
+main;

@@ -1,0 +1,59 @@
+--- !!perl/ref:Pugs::Runtime::Match 
+=: 
+  bool: !!perl/ref 
+    =: 1
+  capture: ~
+  from: !!perl/ref 
+    =: 0
+  match: []
+
+  named: 
+    type: !!perl/ref:Pugs::Runtime::Match 
+      =: 
+        bool: !!perl/ref 
+          =: 1
+        capture: ~
+        from: !!perl/ref 
+          =: 0
+        match: []
+
+        named: {}
+
+        str: !!perl/ref 
+          =: "float foo;\n"
+        to: !!perl/ref 
+          =: 5
+    var_list: !!perl/ref:Pugs::Runtime::Match 
+      =: 
+        bool: !!perl/ref 
+          =: 1
+        capture: ~
+        from: !!perl/ref 
+          =: 6
+        match: []
+
+        named: 
+          ident: 
+            - !!perl/ref:Pugs::Runtime::Match 
+              =: 
+                bool: !!perl/ref 
+                  =: 1
+                capture: ~
+                from: !!perl/ref 
+                  =: 6
+                match: []
+
+                named: {}
+
+                str: !!perl/ref 
+                  =: &1 "float foo;\n"
+                to: !!perl/ref 
+                  =: 9
+        str: !!perl/ref 
+          =: *1
+        to: !!perl/ref 
+          =: 9
+  str: !!perl/ref 
+    =: "float foo;\n"
+  to: !!perl/ref 
+    =: 10
