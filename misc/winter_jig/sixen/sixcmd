@@ -1,0 +1,93 @@
+#!/usr/bin/perl
+# Script making it easier to run the various Perl 6 implementations.
+# Hides what directory you need to be in, and executable invocation.
+# The assorted command-lines are _not_ normalized.  That's a task for
+# a different next-generation script.
+use strict;
+use warnings;
+
+sub require_PUGS_ROOT {
+    if(not $ENV{PUGS_ROOT}) {
+	die "You must set the environment variable PUGS_ROOT .\n";
+    }
+}
+sub require_PARROT_ROOT {
+    if(not $ENV{PARROT_ROOT}) {
+	die "You must set the environment variable PARROT_ROOT .\n";
+    }
+}
+
+sub print_usage_and_exit {
+    print STDERR <<"END";
+$0 PERL6_IMPLEMENTATION ARGUMENTS
+
+PERL6_IMPLEMENTATION can be
+  pugs
+  kp6
+  rakudo
+  rakudo.exe
+  rakudo.pbc
+  redsix
+
+Several interpreters require chdir()ing before running them.
+ARGUMENTS which are guessed to be relative filenames have the
+current working directory prepended to them.
+
+END
+    exit(2);
+}
+
+sub main {
+    print_usage_and_exit if !@ARGV;
+    my $impl = shift(@ARGV);
+    my @args = absolutize_any_file_names(@ARGV);
+    $impl = 'rakudo.exe' if $impl eq 'rakudo';
+    if($impl eq 'pugs') {
+	require_PUGS_ROOT;
+	# Needs chdir() to find it's precompiled prelude, yes?
+	chdir($ENV{PUGS_ROOT}) or die $!;
+	exec("./pugs",@args);
+    }
+    elsif($impl eq 'kp6') {
+	require_PUGS_ROOT;
+	# Needs chdir() to find... what? XXX
+	chdir($ENV{PUGS_ROOT}.'/v6/v6-KindaPerl6') or die $!;
+	exec("./script/kp6",@args);
+    }
+    elsif($impl eq 'redsix') {
+	require_PUGS_ROOT;
+	# Needs chdir() to find its own Test.pm.
+	#exec($ENV{PUGS_ROOT}.'/misc/pX/Common/redsix/redsix',@ARGV);
+	chdir($ENV{PUGS_ROOT}.'/misc/pX/Common/redsix') or die $!;
+	exec("./redsix",@args);
+    }
+    elsif($impl eq 'rakudo.pbc') {
+	require_PARROT_ROOT;
+	# XXX Entirely speculative.
+	chdir($ENV{PARROT_ROOT}.'/languages/perl6') or die $!;
+	exec("../../parrot","perl6.pbc",@args);
+    }
+    elsif($impl eq 'rakudo.exe') {
+	require_PARROT_ROOT;
+	# XXX Entirely speculative.
+	chdir($ENV{PARROT_ROOT}.'/languages/perl6') or die $!;
+	exec("./perl6",@args);
+    }
+}
+
+sub absolutize_any_file_names {
+    my(@args)=@_;
+    chomp(my $cwd = `pwd`);
+    for my $i (0..(@args-1)) {
+	my $arg = $args[$i];
+	my $seems_to_be_a_file = 
+	    (-e $arg or
+	     ($arg =~ /\// && ($i == 0 || $args[$i-1] ne '-e')));
+	next if not $seems_to_be_a_file;
+	next if $arg =~ /^\//; # already an absolute path.
+	$args[$i] = $cwd.'/'.$args[$i];
+    }
+    @args;
+}
+
+main;
