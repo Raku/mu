@@ -2258,17 +2258,7 @@ module Past
       arity = @body.sig.positional_arity_min if @body.respond_to?(:sig)
       if arity == 1
         @body.whiteboard[:need_an_arg] = 1
-
-        # Workaround a misparse:  In "for @a {}", that's not a StandaloneBlock.
-        # "for @a ->{}" and "for @a {}"... what's the right thing?
-        body = @body
-        args = "__e__,__e__"
-        if body.instance_of?(StandaloneBlock)
-          body = CodeBlock.new(body.src,body.block)
-          args = "__e__"
-        end
-
-        "(#{@enu.emit_rb}).each{|__e__|(#{body.emit_rb}).call(#{args})}"
+        "(#{@enu.emit_rb}).each{|__e__|(#{@body.emit_rb}).call(__e__,__e__)}"
       else
         a=gensym;i=gensym;v=gensym;
         "(#{a} = (#{@enu.emit_rb}); #{i}=0; while #{a}.exists?(#{i}); #{v} = (#{@body.emit_rb}).call(:deadbeef,*(#{a}.slice(#{i},#{arity}))); #{i} += #{arity}; #{v} end)"
