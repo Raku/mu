@@ -13,120 +13,133 @@ $code .= $base->warning;
 $code .= <<"END";
 
 package BackendBarePerl5;
+use Class::Rebless;
 use strict;
 use warnings;
 
 END
 
-$code .= $base->use_external_dispatch;
-#$code .= $base->use_injection_dispatch;
+$base->config_declare_multi('emit');
+$base->config_inject_under('BackendBarePerl5::Ast');
 
-sub node { $code .= $base->node(@_) }
+# XXX may have to remove an existing stem in rebase.
+$code .= <<'END';
+sub emit_ast {
+    my($cls,$ast)=@_;
+    Class::Rebless->rebase($ast,'BackendBarePerl5::Ast');
+    $cls->new()->emit($ast);
+}
+END
+
+$code .= $base->configured_class_setup;
+
+sub inject { $code .= $base->def_inject(@_) }
+sub emit_node { $code .= $base->def_multi('emit',@_) }
 
 
-node 'CompUnit',<<'END';
+emit_node 'CompUnit',<<'END';
 {
     # $unit_type $name $traits $attributes $methods $body 
     $self->emit($body);
 }
 END
-node 'Val::Int',<<'END';
+emit_node 'Val::Int',<<'END';
 {
     # $int 
     $int;
 }
 END
-node 'Val::Bit',<<'END';
+emit_node 'Val::Bit',<<'END';
 {
     # $bit 
     $bit;
 }
 END
-node 'Val::Num',<<'END';
+emit_node 'Val::Num',<<'END';
 {
     # $num 
     $num;
 }
 END
-node 'Val::Buf',<<'END';
+emit_node 'Val::Buf',<<'END';
 {
     # $buf 
     $buf;
 }
 END
-node 'Val::Char',<<'END';
+emit_node 'Val::Char',<<'END';
 {
     # $char 
     "chr($char)";
 }
 END
-node 'Val::Undef',<<'END';
+emit_node 'Val::Undef',<<'END';
 {
     # 
     'undef';
 }
 END
-node 'Val::Object',<<'END';
+emit_node 'Val::Object',<<'END';
 {
     # $class $fields 
     die "Even kp6 Emit/Perl5 doesn't implement $obj";
 }
 END
-node 'Lit::Seq',<<'END';
+emit_node 'Lit::Seq',<<'END';
 {
     # $seq 
     '('.join(', ',map{$self->emit($_)} @{$seq}).')';
 }
 END
-node 'Lit::Array',<<'END';
+emit_node 'Lit::Array',<<'END';
 {
     # $array 
     '['.join(', ',map{$self->emit($_)} @{$array}).']';
 }
 END
-node 'Lit::Hash',<<'END';
+emit_node 'Lit::Hash',<<'END';
 {
     # $hash 
     '{'.join(', ',map{$self->emit($_)} @{$hash}).'}';
 }
 END
-node 'Lit::Pair',<<'END';
+emit_node 'Lit::Pair',<<'END';
 {
     # $key $value 
     "[$key,$value]";
 }
 END
-node 'Lit::SigArgument',<<'END';
+emit_node 'Lit::SigArgument',<<'END';
 {
     # $key $value $type $has_default $is_named_only $is_optional $is_slurpy $is_multidimensional $is_rw $is_copy 
     
 }
 END
-node 'Lit::NamedArgument',<<'END';
+emit_node 'Lit::NamedArgument',<<'END';
 {
     # $key $value 
 
 }
 END
-node 'Lit::Code',<<'END';
+emit_node 'Lit::Code',<<'END';
 {
     # $pad $state $sig $body $CATCH 
     join(";\n",map{$self->emit($_)} @{$body})
 }
 END
-node 'Lit::Object',<<'END';
+emit_node 'Lit::Object',<<'END';
 {
     # $class $fields 
 
 }
 END
-node 'Var',<<'END';
+emit_node 'Var',<<'END';
 {
     # $sigil $twigil $name $namespace 
     $sigil ne '&' ? '$'.$name : $name;
 }
 END
-node 'Bind',<<'END';
+emit_node 'Bind',<<'END';
 {
     # $parameters $arguments 
     ('('.join(',',map{$self->emit($_)} @{$parameters}).')'.
@@ -135,7 +148,7 @@ node 'Bind',<<'END';
      ';');
 }
 END
-node 'Assign',<<'END';
+emit_node 'Assign',<<'END';
 {
     # $parameters $arguments 
     ('('.join(',',map{$self->emit($_)} @{$parameters}).')'.
@@ -144,13 +157,13 @@ node 'Assign',<<'END';
      ';');
 }
 END
-node 'Proto',<<'END';
+emit_node 'Proto',<<'END';
 {
     # $name 
     die;
 }
 END
-node 'Call',<<'END';
+emit_node 'Call',<<'END';
 {
     # $invocant $hyper $method $arguments 
     ($self->emit($invocant).'->'.$method.
@@ -158,7 +171,7 @@ node 'Call',<<'END';
      '');
 }
 END
-node 'Apply',<<'END';
+emit_node 'Apply',<<'END';
 {
     # $code $arguments 
     my $f = $self->emit($code);
@@ -167,13 +180,13 @@ node 'Apply',<<'END';
      '');
 }
 END
-node 'Return',<<'END';
+emit_node 'Return',<<'END';
 {
     # $result 
     'return('.$self->emit($result).');'
 }
 END
-node 'If',<<'END';
+emit_node 'If',<<'END';
 {
     # $cond $body $otherwise 
     ('if('.$self->emit($cond).") {\n".
@@ -183,7 +196,7 @@ node 'If',<<'END';
      "\n}\n");
 }
 END
-node 'While',<<'END';
+emit_node 'While',<<'END';
 {
     # $cond $body 
     ('while('.$self->emit($cond).") {\n".
@@ -191,7 +204,7 @@ node 'While',<<'END';
      "\n}\n");
 }
 END
-node 'Decl',<<'END';
+emit_node 'Decl',<<'END';
 {
     # $decl $type $var 
     my $var_sigil = $var->{sigil};
@@ -203,181 +216,181 @@ node 'Decl',<<'END';
     $decl.' '.$self->emit($var).$setup.";";
 }
 END
-node 'Sig',<<'END';
+emit_node 'Sig',<<'END';
 {
     # $invocant $positional 
     
 }
 END
-node 'Lit::Capture',<<'END';
+emit_node 'Lit::Capture',<<'END';
 {
     # $invocant $array $hash 
 
 }
 END
-node 'Lit::Subset',<<'END';
+emit_node 'Lit::Subset',<<'END';
 {
     # $name $base_class $block 
 
 }
 END
-node 'Method',<<'END';
+emit_node 'Method',<<'END';
 {
     # $name $block 
     'sub '.$name.' '.$self->emit($block);
 }
 END
-node 'Sub',<<'END';
+emit_node 'Sub',<<'END';
 {
     # $name $block 
     'sub '.$name.' '.$self->emit($block);
 }
 END
-node 'Macro',<<'END';
+emit_node 'Macro',<<'END';
 {
     # $name $block 
     die;
 }
 END
-node 'Coro',<<'END';
+emit_node 'Coro',<<'END';
 {
     # $name $block 
     die;
 }
 END
-node 'P5Token',<<'END';
+emit_node 'P5Token',<<'END';
 {
     # $regex 
 
 }
 END
-node 'Token',<<'END';
+emit_node 'Token',<<'END';
 {
     # $name $regex $sym 
 
 }
 END
-node 'Do',<<'END';
+emit_node 'Do',<<'END';
 {
     # $block 
     ("do{\n".$self->emit($block)."\n}");
 }
 END
-node 'BEGIN',<<'END';
+emit_node 'BEGIN',<<'END';
 {
     # $block 
     ("INIT{\n".$self->emit($block)."\n}\n");
 }
 END
-node 'Use',<<'END';
+emit_node 'Use',<<'END';
 {
     # $mod $perl5 
     ($mod =~ /^v6/) ? "# use $mod\n" : "use $mod\n";
 }
 END
-node 'Rule',<<'END';
+emit_node 'Rule',<<'END';
 {
     # 
 
 }
 END
-node 'Rule::Quantifier',<<'END';
+emit_node 'Rule::Quantifier',<<'END';
 {
     # $term $quant $greedy $ws1 $ws2 $ws3 
 
 }
 END
-node 'Rule::Or',<<'END';
+emit_node 'Rule::Or',<<'END';
 {
     # $or 
 
 }
 END
-node 'Rule::Concat',<<'END';
+emit_node 'Rule::Concat',<<'END';
 {
     # $concat 
 
 }
 END
-node 'Rule::Subrule',<<'END';
+emit_node 'Rule::Subrule',<<'END';
 {
     # $metasyntax $ident $capture_to_array 
 
 }
 END
-node 'Rule::SubruleNoCapture',<<'END';
+emit_node 'Rule::SubruleNoCapture',<<'END';
 {
     # $metasyntax 
 
 }
 END
-node 'Rule::Var',<<'END';
+emit_node 'Rule::Var',<<'END';
 {
     # $sigil $twigil $name 
 
 }
 END
-node 'Rule::Constant',<<'END';
+emit_node 'Rule::Constant',<<'END';
 {
     # $constant 
 
 }
 END
-node 'Rule::Dot',<<'END';
+emit_node 'Rule::Dot',<<'END';
 {
     # 
     '.';
 }
 END
-node 'Rule::SpecialChar',<<'END';
+emit_node 'Rule::SpecialChar',<<'END';
 {
     # $char 
 
 }
 END
-node 'Rule::Block',<<'END';
+emit_node 'Rule::Block',<<'END';
 {
     # $closure 
 
 }
 END
-node 'Rule::InterpolateVar',<<'END';
+emit_node 'Rule::InterpolateVar',<<'END';
 {
     # $var 
 
 }
 END
-node 'Rule::NamedCapture',<<'END';
+emit_node 'Rule::NamedCapture',<<'END';
 {
     # $rule $ident $capture_to_array 
 
 }
 END
-node 'Rule::Before',<<'END';
+emit_node 'Rule::Before',<<'END';
 {
     # $rule $assertion_modifier $capture_to_array 
 
 }
 END
-node 'Rule::After',<<'END';
+emit_node 'Rule::After',<<'END';
 {
     # $rule $assertion_modifier $capture_to_array 
 
 }
 END
-node 'Rule::NegateCharClass',<<'END';
+emit_node 'Rule::NegateCharClass',<<'END';
 {
     # $chars 
 
 }
 END
-node 'Rule::CharClass',<<'END';
+emit_node 'Rule::CharClass',<<'END';
 {
     # $chars 
 
 }
 END
-node 'Rule::Capture',<<'END';
+emit_node 'Rule::Capture',<<'END';
 {
     # $rule $position $capture_to_array 
 
