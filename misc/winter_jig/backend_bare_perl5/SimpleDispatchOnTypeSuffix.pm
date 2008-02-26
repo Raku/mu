@@ -1,5 +1,5 @@
 
-package SingleDispatchOnTypeSuffix;
+package SimpleDispatchOnTypeSuffix;
 use strict;
 use warnings;
 

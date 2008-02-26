@@ -1,0 +1,79 @@
+#!/usr/bin/perl
+use File::Temp qw( tempfile );
+use YAML::Syck;
+use Class::Rebless;
+use strict;
+use warnings;
+
+
+sub print_usage_and_exit {
+    print STDERR <<"END"; exit(2);
+$0 [ PERL6_FILE | -e PERL6_CODE ] [-o PERL5_OUTPUT]
+END
+}
+sub main {
+    my($filename,$code,$output_file);
+    $ENV{PUGS_ROOT} || die "You must define environment variable PUGS_ROOT .\n";
+    -d $ENV{PUGS_ROOT} || die "Invalid PUGS_ROOT .\n";
+    my $lib = "$ENV{PUGS_ROOT}/misc/winter_jig/backend_bare_perl5/emit_from_kp6.pl";
+    eval("require '$lib';"); die "require failed: '$lib': $@" if $@;
+
+    print_usage_and_exit if !@ARGV;
+    if(@ARGV and $ARGV[0] eq '-e') {
+	$filename = shift(@ARGV);
+	$code = shift(@ARGV);
+    }
+    else {
+	$filename = shift(@ARGV);
+	open(F,"<$filename") or die "$filename: $!";
+	$code = join("",<F>); close(F);
+    }
+
+    if(@ARGV and $ARGV[0] eq '-o') {
+	shift(@ARGV);
+	$output_file = shift(@ARGV) || print_usage_and_exit;
+    }
+    elsif(@ARGV) { print_usage_and_exit; }
+    else {
+	$output_file = undef;
+    }
+
+    my $p5 = compile_p6_to_p5($filename,$code);
+    if($output_file) {
+	open(F,">$output_file") or die "$output_file: $!";
+	print F $p5,"\n"; close(F);
+    } else {
+	print $p5,"\n";
+    }
+}
+
+sub compile_p6_to_p5 {
+    my($filename,$p6)=@_;
+    my $ast_yaml = parse_p6_to_ast_yaml($p6);
+    my $p5 = emit_p5_from_ast_yaml($ast_yaml);
+    $p5;
+}
+
+sub parse_p6_to_ast_yaml {
+    my($p6)=@_;
+    my($fh,$fn) = tempfile();
+    my $oldfh = select($fh); $| = 1; select($oldfh);
+    print $fh $p6;
+    open(F,"(cd $ENV{PUGS_ROOT}/v6/v6-KindaPerl6; ./script/kp6 -Cast-yaml $fn)|")
+	or die "kp6 invocation failed: $!";
+    my $ast_yaml = join("",<F>); close(F);
+    close($fh);
+    unlink($fn);
+    $ast_yaml;
+}
+
+sub emit_p5_from_ast_yaml {
+    my($ast_yaml)=@_;
+    my $ast = YAML::Syck::Load($ast_yaml) or die "Invalid parser yaml: $!";
+    my $emitter = 'BackendBarePerl5';
+    Class::Rebless->rebase($ast,$emitter);
+    $emitter->emit_ast($ast);
+}
+
+
+main;

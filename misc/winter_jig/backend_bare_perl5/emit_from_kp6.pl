@@ -4,9 +4,10 @@
 
 
 package BackendBarePerl5;
-use SimpleDispatchOnTypeSuffix;
 use strict;
 use warnings;
+
+use SimpleDispatchOnTypeSuffix;
 
 sub new {
     my($cls)=@_;
@@ -15,6 +16,7 @@ sub new {
     };
     bless $self,$cls;
     $self->initialize();
+    $self;
 }
 
 sub dispatch_type_to {
@@ -26,67 +28,73 @@ sub emit {
     my($self,$obj,@rest)=@_;
     my $handler = $self->{dispatcher}->lookup($obj);
     die "No handler for $obj" if not $handler;
-    $handler->($self,$obj,@rest);
+    my $code = $handler->($self,$obj,@rest);
+    $code;
 }
 
 sub initialize {
     my($self)=@_;
-    $self->dispatch_type_to('KP6AST::CompUnit',\&emit_kp6_CompUnit);
-    $self->dispatch_type_to('KP6AST::Val::Int',\&emit_kp6_Val_Int);
-    $self->dispatch_type_to('KP6AST::Val::Bit',\&emit_kp6_Val_Bit);
-    $self->dispatch_type_to('KP6AST::Val::Num',\&emit_kp6_Val_Num);
-    $self->dispatch_type_to('KP6AST::Val::Buf',\&emit_kp6_Val_Buf);
-    $self->dispatch_type_to('KP6AST::Val::Char',\&emit_kp6_Val_Char);
-    $self->dispatch_type_to('KP6AST::Val::Undef',\&emit_kp6_Val_Undef);
-    $self->dispatch_type_to('KP6AST::Val::Object',\&emit_kp6_Val_Object);
-    $self->dispatch_type_to('KP6AST::Lit::Seq',\&emit_kp6_Lit_Seq);
-    $self->dispatch_type_to('KP6AST::Lit::Array',\&emit_kp6_Lit_Array);
-    $self->dispatch_type_to('KP6AST::Lit::Hash',\&emit_kp6_Lit_Hash);
-    $self->dispatch_type_to('KP6AST::Lit::Pair',\&emit_kp6_Lit_Pair);
-    $self->dispatch_type_to('KP6AST::Lit::SigArgument',\&emit_kp6_Lit_SigArgument);
-    $self->dispatch_type_to('KP6AST::Lit::NamedArgument',\&emit_kp6_Lit_NamedArgument);
-    $self->dispatch_type_to('KP6AST::Lit::Code',\&emit_kp6_Lit_Code);
-    $self->dispatch_type_to('KP6AST::Lit::Object',\&emit_kp6_Lit_Object);
-    $self->dispatch_type_to('KP6AST::Var',\&emit_kp6_Var);
-    $self->dispatch_type_to('KP6AST::Bind',\&emit_kp6_Bind);
-    $self->dispatch_type_to('KP6AST::Assign',\&emit_kp6_Assign);
-    $self->dispatch_type_to('KP6AST::Proto',\&emit_kp6_Proto);
-    $self->dispatch_type_to('KP6AST::Call',\&emit_kp6_Call);
-    $self->dispatch_type_to('KP6AST::Apply',\&emit_kp6_Apply);
-    $self->dispatch_type_to('KP6AST::Return',\&emit_kp6_Return);
-    $self->dispatch_type_to('KP6AST::If',\&emit_kp6_If);
-    $self->dispatch_type_to('KP6AST::While',\&emit_kp6_While);
-    $self->dispatch_type_to('KP6AST::Decl',\&emit_kp6_Decl);
-    $self->dispatch_type_to('KP6AST::Sig',\&emit_kp6_Sig);
-    $self->dispatch_type_to('KP6AST::Lit::Capture',\&emit_kp6_Lit_Capture);
-    $self->dispatch_type_to('KP6AST::Lit::Subset',\&emit_kp6_Lit_Subset);
-    $self->dispatch_type_to('KP6AST::Method',\&emit_kp6_Method);
-    $self->dispatch_type_to('KP6AST::Sub',\&emit_kp6_Sub);
-    $self->dispatch_type_to('KP6AST::Macro',\&emit_kp6_Macro);
-    $self->dispatch_type_to('KP6AST::Coro',\&emit_kp6_Coro);
-    $self->dispatch_type_to('KP6AST::P5Token',\&emit_kp6_P5Token);
-    $self->dispatch_type_to('KP6AST::Token',\&emit_kp6_Token);
-    $self->dispatch_type_to('KP6AST::Do',\&emit_kp6_Do);
-    $self->dispatch_type_to('KP6AST::BEGIN',\&emit_kp6_BEGIN);
-    $self->dispatch_type_to('KP6AST::Use',\&emit_kp6_Use);
-    $self->dispatch_type_to('KP6AST::Rule',\&emit_kp6_Rule);
-    $self->dispatch_type_to('KP6AST::Rule::Quantifier',\&emit_kp6_Rule_Quantifier);
-    $self->dispatch_type_to('KP6AST::Rule::Or',\&emit_kp6_Rule_Or);
-    $self->dispatch_type_to('KP6AST::Rule::Concat',\&emit_kp6_Rule_Concat);
-    $self->dispatch_type_to('KP6AST::Rule::Subrule',\&emit_kp6_Rule_Subrule);
-    $self->dispatch_type_to('KP6AST::Rule::SubruleNoCapture',\&emit_kp6_Rule_SubruleNoCapture);
-    $self->dispatch_type_to('KP6AST::Rule::Var',\&emit_kp6_Rule_Var);
-    $self->dispatch_type_to('KP6AST::Rule::Constant',\&emit_kp6_Rule_Constant);
-    $self->dispatch_type_to('KP6AST::Rule::Dot',\&emit_kp6_Rule_Dot);
-    $self->dispatch_type_to('KP6AST::Rule::SpecialChar',\&emit_kp6_Rule_SpecialChar);
-    $self->dispatch_type_to('KP6AST::Rule::Block',\&emit_kp6_Rule_Block);
-    $self->dispatch_type_to('KP6AST::Rule::InterpolateVar',\&emit_kp6_Rule_InterpolateVar);
-    $self->dispatch_type_to('KP6AST::Rule::NamedCapture',\&emit_kp6_Rule_NamedCapture);
-    $self->dispatch_type_to('KP6AST::Rule::Before',\&emit_kp6_Rule_Before);
-    $self->dispatch_type_to('KP6AST::Rule::After',\&emit_kp6_Rule_After);
-    $self->dispatch_type_to('KP6AST::Rule::NegateCharClass',\&emit_kp6_Rule_NegateCharClass);
-    $self->dispatch_type_to('KP6AST::Rule::CharClass',\&emit_kp6_Rule_CharClass);
-    $self->dispatch_type_to('KP6AST::Rule::Capture',\&emit_kp6_Rule_Capture);
+    $self->dispatch_type_to('::CompUnit',\&emit_kp6_CompUnit);
+    $self->dispatch_type_to('::Val::Int',\&emit_kp6_Val_Int);
+    $self->dispatch_type_to('::Val::Bit',\&emit_kp6_Val_Bit);
+    $self->dispatch_type_to('::Val::Num',\&emit_kp6_Val_Num);
+    $self->dispatch_type_to('::Val::Buf',\&emit_kp6_Val_Buf);
+    $self->dispatch_type_to('::Val::Char',\&emit_kp6_Val_Char);
+    $self->dispatch_type_to('::Val::Undef',\&emit_kp6_Val_Undef);
+    $self->dispatch_type_to('::Val::Object',\&emit_kp6_Val_Object);
+    $self->dispatch_type_to('::Lit::Seq',\&emit_kp6_Lit_Seq);
+    $self->dispatch_type_to('::Lit::Array',\&emit_kp6_Lit_Array);
+    $self->dispatch_type_to('::Lit::Hash',\&emit_kp6_Lit_Hash);
+    $self->dispatch_type_to('::Lit::Pair',\&emit_kp6_Lit_Pair);
+    $self->dispatch_type_to('::Lit::SigArgument',\&emit_kp6_Lit_SigArgument);
+    $self->dispatch_type_to('::Lit::NamedArgument',\&emit_kp6_Lit_NamedArgument);
+    $self->dispatch_type_to('::Lit::Code',\&emit_kp6_Lit_Code);
+    $self->dispatch_type_to('::Lit::Object',\&emit_kp6_Lit_Object);
+    $self->dispatch_type_to('::Var',\&emit_kp6_Var);
+    $self->dispatch_type_to('::Bind',\&emit_kp6_Bind);
+    $self->dispatch_type_to('::Assign',\&emit_kp6_Assign);
+    $self->dispatch_type_to('::Proto',\&emit_kp6_Proto);
+    $self->dispatch_type_to('::Call',\&emit_kp6_Call);
+    $self->dispatch_type_to('::Apply',\&emit_kp6_Apply);
+    $self->dispatch_type_to('::Return',\&emit_kp6_Return);
+    $self->dispatch_type_to('::If',\&emit_kp6_If);
+    $self->dispatch_type_to('::While',\&emit_kp6_While);
+    $self->dispatch_type_to('::Decl',\&emit_kp6_Decl);
+    $self->dispatch_type_to('::Sig',\&emit_kp6_Sig);
+    $self->dispatch_type_to('::Lit::Capture',\&emit_kp6_Lit_Capture);
+    $self->dispatch_type_to('::Lit::Subset',\&emit_kp6_Lit_Subset);
+    $self->dispatch_type_to('::Method',\&emit_kp6_Method);
+    $self->dispatch_type_to('::Sub',\&emit_kp6_Sub);
+    $self->dispatch_type_to('::Macro',\&emit_kp6_Macro);
+    $self->dispatch_type_to('::Coro',\&emit_kp6_Coro);
+    $self->dispatch_type_to('::P5Token',\&emit_kp6_P5Token);
+    $self->dispatch_type_to('::Token',\&emit_kp6_Token);
+    $self->dispatch_type_to('::Do',\&emit_kp6_Do);
+    $self->dispatch_type_to('::BEGIN',\&emit_kp6_BEGIN);
+    $self->dispatch_type_to('::Use',\&emit_kp6_Use);
+    $self->dispatch_type_to('::Rule',\&emit_kp6_Rule);
+    $self->dispatch_type_to('::Rule::Quantifier',\&emit_kp6_Rule_Quantifier);
+    $self->dispatch_type_to('::Rule::Or',\&emit_kp6_Rule_Or);
+    $self->dispatch_type_to('::Rule::Concat',\&emit_kp6_Rule_Concat);
+    $self->dispatch_type_to('::Rule::Subrule',\&emit_kp6_Rule_Subrule);
+    $self->dispatch_type_to('::Rule::SubruleNoCapture',\&emit_kp6_Rule_SubruleNoCapture);
+    $self->dispatch_type_to('::Rule::Var',\&emit_kp6_Rule_Var);
+    $self->dispatch_type_to('::Rule::Constant',\&emit_kp6_Rule_Constant);
+    $self->dispatch_type_to('::Rule::Dot',\&emit_kp6_Rule_Dot);
+    $self->dispatch_type_to('::Rule::SpecialChar',\&emit_kp6_Rule_SpecialChar);
+    $self->dispatch_type_to('::Rule::Block',\&emit_kp6_Rule_Block);
+    $self->dispatch_type_to('::Rule::InterpolateVar',\&emit_kp6_Rule_InterpolateVar);
+    $self->dispatch_type_to('::Rule::NamedCapture',\&emit_kp6_Rule_NamedCapture);
+    $self->dispatch_type_to('::Rule::Before',\&emit_kp6_Rule_Before);
+    $self->dispatch_type_to('::Rule::After',\&emit_kp6_Rule_After);
+    $self->dispatch_type_to('::Rule::NegateCharClass',\&emit_kp6_Rule_NegateCharClass);
+    $self->dispatch_type_to('::Rule::CharClass',\&emit_kp6_Rule_CharClass);
+    $self->dispatch_type_to('::Rule::Capture',\&emit_kp6_Rule_Capture);
+}
+
+sub emit_ast {
+    my($cls,$ast)=@_;
+    $cls->new()->emit($ast);
 }
 
 sub emit_kp6_CompUnit {
@@ -94,7 +102,7 @@ sub emit_kp6_CompUnit {
     my($unit_type,$name,$traits,$attributes,$methods,$body)=($obj->{unit_type},$obj->{name},$obj->{traits},$obj->{attributes},$obj->{methods},$obj->{body});
 {
     # $unit_type $name $traits $attributes $methods $body 
-
+    $self->emit($body);
 }
 }
 sub emit_kp6_Val_Int {
@@ -269,7 +277,8 @@ sub emit_kp6_Apply {
     my($code,$arguments)=($obj->{code},$obj->{arguments});
 {
     # $code $arguments 
-    ($self->emit($code).'->'.
+    my $f = $self->emit($code);
+    ($f.($f =~ /^[\w:]+$/ ? "" : '->').
      '('.join(',',map{$self->emit($_)} @{$arguments}).')'.
      '');
 }
@@ -556,3 +565,5 @@ sub emit_kp6_Rule_Capture {
 
 }
 }
+1;
+__END__
