@@ -510,7 +510,7 @@ they are parsing, it is necessary for the tool to know exactly which
 variant of Perl 6 is being parsed in any given scope.  All Perl 6
 compilation units that are complete files start out at the top of the
 file in the Standard Dialect (which itself has versions that correspond
-to the same version of the official Perl test suite.  Eval strings,
+to the same version of the official Perl test suite).  Eval strings,
 on the other hand, start out in the language variant in use at the
 point of the eval call, so that you don't suddenly lose your macro
 definitions inside eval.
