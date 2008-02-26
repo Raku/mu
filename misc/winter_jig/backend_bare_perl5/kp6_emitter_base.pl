@@ -31,7 +31,8 @@ sub config_declare_multi {
 sub def_inject {
     my($self,$method_name,$node_name,$emitter_code)=@_;
     my $code = '';
-    die "unimplemented"; # XXX - see multi.
+    $code .= 'sub '.$method_name." {\n".'    my($node)=@_;'."\n";
+    $code .= $self->_def_method_helper($node,'$node',$emitter_code);
     my $all_code = '';
     for my $under (@{$self->{inject_under}}) {
 	my $pkg = $under.'::'.$node_name;
@@ -40,19 +41,29 @@ sub def_inject {
     $all_code;
 }
 
-
 sub def_multi {
     my($self,$multi_name,$node_name,$emitter_code)=@_;
     my $node = KP6_AST_Def->node_from_name($node_name);
     my $method_name = $self->multi_method_name($multi_name,$node_name);
-    my $code = 'sub '.$method_name." {\n".'    my($self,$obj)=@_;'."\n";
+    my $code = 'sub '.$method_name." {\n".'    my($self,$node)=@_;'."\n";
+    $code .= $self->_def_method_helper($node,'$node',$emitter_code);
+    $code;
+}
+sub multi_method_name {
+    my($self,$multi_name,$node_name)=@_;
+    $node_name =~ s/::/_/g;
+    $multi_name.'_'.$node_name;
+}
+sub _def_method_helper {
+    my($self,$node,$var_of_node,$emitter_code)=@_;
+    my $code = '';
     my @fields = $node->fields;
     if(@fields) {
 	$code .= '    my(';
 	for my $field (@fields){ $code .= '$'.$field->identifier.','; }
 	substr($code,-1) = ""; #clip the trailing comma
 	$code .= ')=(';
-	for my $field (@fields){ $code .= '$obj->{'.$field->identifier.'},'; }
+	for my $field (@fields){ $code .= $var_of_node.'->{'.$field->identifier.'},'; }
 	substr($code,-1) = ""; #clip the trailing comma
 	$code .= ");\n";
     }
@@ -65,12 +76,6 @@ sub def_multi {
     $code .= "}\n";
     $code;
 }
-sub multi_method_name {
-    my($self,$multi_name,$node_name)=@_;
-    $node_name =~ s/::/_/g;
-    $multi_name.'_'.$node_name;
-}
-
 
 #----------------------------------------
 sub configured_class_setup {
@@ -130,7 +135,54 @@ END
     $code;
 }
 #----------------------------------------
+sub setup_ast_inheritance {
+    my($self,$ast_root)=@_;
+    my $root_mixin = $ast_root.'::'.'AllNodes';
+    my $code = "";
+    $code .= "{package $root_mixin; }\n";
+    for my $node (@nodes) {
+	my $node_name = $node->name;
+	my $pkg = $ast_root.'::'.$node_name;
+	$code .= "{package ${pkg}; BEGIN{ push(\@${pkg}::ISA, qw{ $root_mixin }); }}\n";
+    }
+    $code;
+}
+# XXX once we know which fields contain nodes, add a only-node-fields helper.
+sub setup_ast_helpers {
+    my($self,$ast_root)=@_;
+    my $code = "";
+    for my $a_node (@nodes) {
+	my $node_name = $a_node->name;
+	my $pkg = $ast_root.'::'.$node_name;
+        my $fields = join(",", map{"'".$_->identifier."'"} $a_node->fields);
+	$code .= "{package ${pkg};\n";
 
+	$code .= <<'END';
+sub all_fields {
+    my($node)=@_;
+END
+        if($fields ne "")  {
+	    $code .= '    '.'@$node{'.$fields."};\n";
+	} else {
+	    $code .= '    '.'return()'.";\n";
+	}
+	$code .= <<'END';
+}
+END
+
+	$code .= <<'END';
+sub all_field_names {
+    my($node)=@_;
+END
+        $code .= '    '."return($fields);\n";
+	$code .= <<'END';
+}
+END
+
+        $code .= "}\n";
+    }
+    $code;
+}
 
 1;
 __END__

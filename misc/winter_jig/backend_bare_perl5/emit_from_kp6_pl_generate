@@ -18,6 +18,10 @@ use strict;
 use warnings;
 
 END
+my $code_to_put_at_the_end = '';
+$code_to_put_at_the_end .= $base->setup_ast_inheritance('BackendBarePerl5::Ast');
+$code_to_put_at_the_end .= $base->setup_ast_helpers('BackendBarePerl5::Ast');
+
 
 $base->config_declare_multi('emit');
 $base->config_inject_under('BackendBarePerl5::Ast');
@@ -82,7 +86,7 @@ END
 emit_node 'Val::Object',<<'END';
 {
     # $class $fields 
-    die "Even kp6 Emit/Perl5 doesn't implement $obj";
+    die "Even kp6 Emit/Perl5 doesn't implement $node";
 }
 END
 emit_node 'Lit::Seq',<<'END';
@@ -397,6 +401,7 @@ emit_node 'Rule::Capture',<<'END';
 }
 END
 
+$code .= $code_to_put_at_the_end;
 $code .= <<'END';
 1;
 __END__
