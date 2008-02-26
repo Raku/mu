@@ -582,7 +582,7 @@ within the existing grammar (by avoiding the definition of new macros
 or operators), they do not fall into the language tweak category.
 Modules that export new operators or macros are always considered
 language tweaks.  (Unexported macros or operators intended only for
-internal use of the module itselfdo not count as language tweaks.)
+internal use of the module itself do not count as language tweaks.)
 
 The requirement for immutable interfaces extends transitively to
 any modules imported by a language tweak module.  There can be no
