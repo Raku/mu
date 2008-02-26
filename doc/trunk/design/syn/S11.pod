@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 8 Feb 2008
+  Last Modified: 26 Feb 2008
   Number: 11
-  Version: 22
+  Version: 23
 
 =head1 Overview
 
@@ -505,11 +505,15 @@ begins with the "class" or "module" keywords.
 
 =head1 Tool use vs language changes
 
-In order that language processing tools know exactly what language they
-are parsing, it is necessary for the tool to know exactly which variant
-of Perl 6 is being parsed in any given scope.  All Perl 6 compilation
-units start out at the top in the Standard Dialect (which has versions
-that correspond to the same version of the official Perl test suite).
+In order that language processing tools know exactly what language
+they are parsing, it is necessary for the tool to know exactly which
+variant of Perl 6 is being parsed in any given scope.  All Perl 6
+compilation units that are complete files start out at the top of the
+file in the Standard Dialect (which itself has versions that correspond
+to the same version of the official Perl test suite.  Eval strings,
+on the other hand, start out in the language variant in use at the
+point of the eval call, so that you don't suddenly lose your macro
+definitions inside eval.
 
 All language tweaks from the start of the compilation unit must
 be tracked.  Tweaks can be specified either directly in your code as
@@ -519,29 +523,72 @@ may be substituted in an inner lexical scope for an outer grammar,
 and parsing continues under the new grammar (which may or may not be
 a derivative of the standard Perl grammar).
 
-Note that most class modules do no language tweaking, and in any case
-cannot perform language tweaks unless explicitly imported.
+Language tweaks are considered part of the interface of any module
+you import.  Version numbers are assumed to represent a combination of
+interface and patch level.  We will use the term "interface version"
+to represent that part of the version number that represents the
+interface.  For typical version number schemes, this is the first two
+numbers (where the third number usually represents patch level within
+a constant interface).  Other schemes are possible though.  (It is
+recommended that branches be reflected by differences in authority
+rather than differences in version, whenever that makes sense.  To make
+it make sense more often, some hierarchical authority-naming scheme
+may be devised so that authorities can have temporary subauthorities
+to hold branches without relinquishing overall naming authority.)
 
-You may import language tweaks from your own code as you like; however,
-all imports of language tweaks from the official library must specify
-the exact version of the module.  Such officially installed versions
-must be considered immutable, so that once any language-tweaking
+So anyway, the basic rule is this: you may import language tweaks
+from your own private (user-library) code as you like; however, all
+imports of language tweaks from the official library must specify
+the exact interface version of the module.
+
+Such officially installed interface versions must be considered
+immutable on the language level, so that once any language-tweaking
 module is in circulation, it may be presumed to represent a fixed
-language change.  By examination of these versions a language
+language change.  By examination of these interface versions a language
 processing tool can know whether it has sufficient information to
-know the current language.  In the absence of that information,
-it can choose either to download and use the module directly, or
-the tool can proceed in ignorance.  As an intermediate position,
-if the tool does not actually care about running the code, the tool
-need not actually have the complete module in question; many language
-tweaks could be stored in a database of module versions, so if the
-tool merely knows the nature of the language tweak on the basis of the
-version number it may well be able to proceed with perfect knowledge.
-A module that uses a well-behaved macro or two could be fairly easily
-emulated based on the version info alone.
+know the current language.
 
-This strict versioning policy also prevents the need to refetch
-modules that are known not to have changed, since they are considered
-immutable.
+In the absence of that information, the tool can choose either
+to download and use the module directly, or the tool can proceed
+in ignorance.  As an intermediate position, if the tool does not
+actually care about running the code, the tool need not actually have
+the complete module in question; many language tweaks could be stored
+in a database of interface versions, so if the tool merely knows the
+nature of the language tweak on the basis of the interface version it
+may well be able to proceed with perfect knowledge.  A module that
+uses a well-behaved macro or two could be fairly easily emulated
+based on the version info alone.
+
+But more realistically, in the absence of such a hypothetical database,
+most systems already come with a kind of database for modules that
+have already been installed.  So perhaps the most common case is
+that you have downloaded an older version of the same module, in
+which case the tool can know from the interface version whether that
+older module represesents the language tweak sufficiently well that
+your tool can use the interface definition from that module without
+bothering to download the latest patch.
+
+Note that most class modules do no language tweaking, and in any case
+cannot perform language tweaks unless these are explicitly exported.
+
+Modules that export multis are technically language tweaks on the
+semantic level, but as long as those new definitions modify semantics
+within the existing grammar (by avoiding the definition of new macros
+or operators), they do not fall into the language tweak category.
+Modules that export new operators or macros are always considered
+language tweaks.  (Unexported macros or operators intended only for
+internal use of the module itselfdo not count as language tweaks.)
+
+The requirement for immutable interfaces extends transitively to
+any modules imported by a language tweak module.  There can be no
+indeterminacy in the language definition either directly or indirectly.
+
+It must be possible for any official module to be separately compiled
+without knowledge of the context in which it will be embedded, and
+this separate compilation must be able to produce a deterministic
+profile of the interface.  It must be possible to extract out the
+language tweaking part of this profile for use in tools that wish to
+know how to parse the current language variant deterministically.
+
 
 =for vim:set expandtab sw=4:

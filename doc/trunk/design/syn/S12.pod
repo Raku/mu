@@ -908,7 +908,7 @@ earlier in the user's lexical scope or not at all.)
 
 A C<proto> may share dispatch with multis declared after it in the same scope,
 but in that case it functions only as the final tie-breaker if the
-inner multies can't decide among themselves what to do.  (It may
+inner multis can't decide among themselves what to do.  (It may
 then, of course, decide to redispatch outside of the current scope.)
 
 Within its scope,

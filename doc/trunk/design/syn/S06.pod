@@ -875,7 +875,7 @@ signature:
 
     method addto (|$args ($self: @x)) { trace($args); $self += [+] @x }
 
-The inner signature is not required for non-multies since there can
+The inner signature is not required for non-multis since there can
 only be one candidate, but for multiple dispatch the inner signature
 is required at least for its types, or the declaration would not know
 what signature to match against.
