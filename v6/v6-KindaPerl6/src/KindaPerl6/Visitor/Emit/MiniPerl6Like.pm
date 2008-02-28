@@ -15,10 +15,6 @@ class KindaPerl6::Visitor::Emit::MiniPerl6Like {
 }
 
 class CompUnit {
-    has $.name;
-    has %.attributes;
-    has %.methods;
-    has @.body;
     method emit_mp6like {
           'package ' ~ $.name ~ ";" ~ Main.newline 
         ~ 'sub new { shift; bless { @_ }, "' ~ $.name ~ '" }'  ~ Main.newline 
@@ -29,22 +25,18 @@ class CompUnit {
 }
 
 class Val::Int {
-    has $.int;
     method emit_mp6like { $.int }
 }
 
 class Val::Bit {
-    has $.bit;
     method emit_mp6like { $.bit }
 }
 
 class Val::Num {
-    has $.num;
     method emit_mp6like { $.num }
 }
 
 class Val::Buf {
-    has $.buf;
     method emit_mp6like { '\'' ~ $.buf ~ '\'' }
 }
 
@@ -53,29 +45,24 @@ class Val::Undef {
 }
 
 class Val::Object {
-    has $.class;
-    has %.fields;
     method emit_mp6like {
         'bless(' ~ %.fields.perl ~ ', ' ~ $.class.perl ~ ')';
     }
 }
 
 class Lit::Seq {
-    has @.seq;
     method emit_mp6like {
         '(' ~ (@.seq.>>emit_mp6like).join(', ') ~ ')';
     }
 }
 
 class Lit::Array {
-    has @.array;
     method emit_mp6like {
         '[' ~ (@.array.>>emit_mp6like).join(', ') ~ ']';
     }
 }
 
 class Lit::Hash {
-    has @.hash;
     method emit_mp6like {
         my $fields := @.hash;
         my $str := '';
@@ -112,8 +99,6 @@ class Lit::Code {
 }
 
 class Lit::Object {
-    has $.class;
-    has @.fields;
     method emit_mp6like {
         # $.class ~ '->new( ' ~ @.fields.>>emit_mp6like.join(', ') ~ ' )';
         my $fields := @.fields;
@@ -127,8 +112,6 @@ class Lit::Object {
 }
 
 class Index {
-    has $.obj;
-    has $.index;
     method emit_mp6like {
         $.obj.emit_mp6like ~ '->[' ~ $.index.emit_mp6like ~ ']';
         # TODO
@@ -142,17 +125,12 @@ class Index {
 }
 
 class Lookup {
-    has $.obj;
-    has $.index;
     method emit_mp6like {
         $.obj.emit_mp6like ~ '->{' ~ $.index.emit_mp6like ~ '}';
     }
 }
 
 class Var {
-    has $.sigil;
-    has $.twigil;
-    has $.name;
     method emit_mp6like {
         # Normalize the sigil here into $
         # $x    => $x
@@ -175,8 +153,6 @@ class Var {
 }
 
 class Bind {
-    has $.parameters;
-    has $.arguments;
     method emit_mp6like {
         if $.parameters.isa( 'Lit::Array' ) {
             
@@ -252,17 +228,12 @@ class Bind {
 }
 
 class Proto {
-    has $.name;
     method emit_mp6like {
         ~$.name        
     }
 }
 
 class Call {
-    has $.invocant;
-    has $.hyper;
-    has $.method;
-    has @.arguments;
     #has $.hyper;
     method emit_mp6like {
         my $invocant := $.invocant.emit_mp6like;
@@ -314,8 +285,6 @@ class Call {
 }
 
 class Apply {
-    has $.code;
-    has @.arguments;
     method emit_mp6like {
         
         my $code := $.code;
@@ -374,7 +343,6 @@ class Apply {
 }
 
 class Return {
-    has $.result;
     method emit_mp6like {
         return
         #'do { print Main::perl(caller(),' ~ $.result.emit_mp6like ~ '); return(' ~ $.result.emit_mp6like ~ ') }';
@@ -383,18 +351,12 @@ class Return {
 }
 
 class If {
-    has $.cond;
-    has @.body;
-    has @.otherwise;
     method emit_mp6like {
         'do { if (' ~ $.cond.emit_mp6like ~ ') { ' ~ ($.body.emit_mp6like) ~ ' } else { ' ~ ($.otherwise ?? $.otherwise.emit_mp6like !! '') ~ ' } }';
     }
 }
 
 class For {
-    has $.cond;
-    has @.body;
-    has @.topic;
     method emit_mp6like {
         my $cond := $.cond;
         if   $cond.isa( 'Var' ) 
@@ -407,9 +369,6 @@ class For {
 }
 
 class Decl {
-    has $.decl;
-    has $.type;
-    has $.var;
     method emit_mp6like {
         my $decl := $.decl;
         my $name := $.var.name;
@@ -424,9 +383,6 @@ class Decl {
 }
 
 class Sig {
-    has $.invocant;
-    has $.positional;
-    has $.named;
     method emit_mp6like {
         ' print \'Signature - TODO\'; die \'Signature - TODO\'; '
     };
@@ -439,9 +395,6 @@ class Sig {
 }
 
 class Method {
-    has $.name;
-    has $.sig;
-    has @.block;
     method emit_mp6like {
         # TODO - signature binding
         my $sig := $.sig;
@@ -486,9 +439,6 @@ class Method {
 }
 
 class Sub {
-    has $.name;
-    has $.sig;
-    has @.block;
     method emit_mp6like {
         # TODO - signature binding
         my $sig := $.sig;
@@ -537,7 +487,6 @@ class Sub {
 }
 
 class Do {
-    has @.block;
     method emit_mp6like {
         'do { ' ~ 
           (@.block.>>emit_mp6like).join('; ') ~ 
@@ -546,7 +495,6 @@ class Do {
 }
 
 class Use {
-    has $.mod;
     method emit_mp6like {
         'use ' ~ $.mod
     }
