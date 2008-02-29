@@ -153,11 +153,31 @@ sub emit_mp6like_declarations {
     return ($s);
 }
 
+sub emit_mp6like_arguments {
+    my $self   = shift;
+    my $List__ = \@_;
+    my $invocant;
+    do { $invocant = $List__->[0]; [$invocant] };
+    my $str = '';
+    my $i   = 0;
+    do {
+        for my $field ( @{ $self->{sig}->positional() } ) { $str = ( $str . ( $field->key()->emit_mp6like() . ( ' = $_[' . ( $i . ']; ' ) ) ) ); $i = ( $i + 1 ) }
+    };
+    ( ( $invocant ? 'my $self = shift; ' : '' ) . ( '$List__ = \@_; ' . $str ) );
+}
+
+sub emit_mp6like_body {
+    my $self   = shift;
+    my $List__ = \@_;
+    do { [] };
+    Main::join( [ map { $_->emit_mp6like() } @{ $self->{body} } ], ( ';' . Main->newline() ) );
+}
+
 sub emit_mp6like {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( $self->emit_mp6like_declarations() . Main::join( [ map { $_->emit_mp6like() } @{ $self->{body} } ], ( ';' . Main->newline() ) ) );
+    ( $self->emit_mp6like_declarations() . $self->emit_mp6like_body() );
 }
 
 package Lit::Object;
@@ -274,6 +294,10 @@ sub emit_mp6like {
             return ( ( $str . ( $self->{parameters}->emit_mp6like() . ' }' ) ) );
         }
         else { }
+    };
+    do {
+        if   ( ( Main::isa( $self->{parameters}, 'Var' ) && ( $self->{parameters}->sigil() eq '&' ) ) ) { return ( $self->{arguments}->emit_mp6like() ) }
+        else                                                                                            { }
     };
     ( $self->{parameters}->emit_mp6like() . ( ' = ' . $self->{arguments}->emit_mp6like() ) );
 }
@@ -492,7 +516,7 @@ sub emit_mp6like {
         if ( ( $code eq 'ternary:<?? !!>' ) ) { return ( ( '(' . ( $self->{arguments}->[0]->emit_mp6like() . ( ' ? ' . ( $self->{arguments}->[1]->emit_mp6like() . ( ' : ' . ( $self->{arguments}->[2]->emit_mp6like() . ')' ) ) ) ) ) ) ) }
         else                                  { }
     };
-    ( $self->{code} . ( '(' . ( Main::join( [ map { $_->emit_mp6like() } @{ $self->{arguments} } ], ', ' ) . ')' ) ) );
+    ( $code . ( '(' . ( Main::join( [ map { $_->emit_mp6like() } @{ $self->{arguments} } ], ', ' ) . ')' ) ) );
 }
 
 package Return;
@@ -554,20 +578,6 @@ sub emit_mp6like {
     ' print \'Signature - TODO\'; die \'Signature - TODO\'; ';
 }
 
-sub invocant {
-    my $self   = shift;
-    my $List__ = \@_;
-    do { [] };
-    $self->{invocant};
-}
-
-sub positional {
-    my $self   = shift;
-    my $List__ = \@_;
-    do { [] };
-    $self->{positional};
-}
-
 package Method;
 sub new { shift; bless {@_}, "Method" }
 
@@ -575,25 +585,7 @@ sub emit_mp6like {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    my $sig      = $self->{sig};
-    my $invocant = $sig->invocant();
-    my $pos      = $sig->positional();
-    my $str      = 'my $List__ = \@_; ';
-    my $pos      = $sig->positional();
-    do {
-
-        for my $field ( @{$pos} ) {
-            do {
-                if ( Main::isa( $field, 'Lit::Array' ) ) {
-                    $str = ( $str . ( 'my (' . ( Main::join( [ map { $_->emit_mp6like() } @{ $field->array() } ], ', ' ) . '); ' ) ) );
-                }
-                else { $str = ( $str . ( 'my ' . ( $field->emit_mp6like() . '; ' ) ) ) }
-                }
-        }
-    };
-    my $bind = Bind->new( 'parameters' => Lit::Array->new( 'array' => $sig->positional(), ), 'arguments' => Var->new( 'sigil' => '@', 'twigil' => '', 'name' => '_', ), );
-    $str = ( $str . ( $bind->emit_mp6like() . '; ' ) );
-    ( 'sub ' . ( $self->{name} . ( ' { ' . ( 'my ' . ( $invocant->emit_mp6like() . ( ' = shift; ' . ( $str . ( Main::join( [ map { $_->emit_mp6like() } @{ $self->{block} } ], '; ' ) . ' }' ) ) ) ) ) ) ) );
+    ( 'sub ' . ( $self->{name} . ( ' { ' . ( $self->{block}->emit_mp6like_declarations() . ( $self->{block}->emit_mp6like_arguments(1) . ( $self->{block}->emit_mp6like_body() . ' }' ) ) ) ) ) );
 }
 
 package Sub;
@@ -603,24 +595,7 @@ sub emit_mp6like {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    my $sig = $self->{sig};
-    my $pos = $sig->positional();
-    my $str = 'my $List__ = \@_; ';
-    my $pos = $sig->positional();
-    do {
-
-        for my $field ( @{$pos} ) {
-            do {
-                if ( Main::isa( $field, 'Lit::Array' ) ) {
-                    $str = ( $str . ( 'my (' . ( Main::join( [ map { $_->emit_mp6like() } @{ $field->array() } ], ', ' ) . '); ' ) ) );
-                }
-                else { $str = ( $str . ( 'my ' . ( $field->emit_mp6like() . '; ' ) ) ) }
-                }
-        }
-    };
-    my $bind = Bind->new( 'parameters' => Lit::Array->new( 'array' => $sig->positional(), ), 'arguments' => Var->new( 'sigil' => '@', 'twigil' => '', 'name' => '_', ), );
-    $str = ( $str . ( $bind->emit_mp6like() . '; ' ) );
-    ( 'sub ' . ( $self->{name} . ( ' { ' . ( $str . ( Main::join( [ map { $_->emit_mp6like() } @{ $self->{block} } ], '; ' ) . ' }' ) ) ) ) );
+    ( 'sub ' . ( $self->{name} . ( ' { ' . ( $self->{block}->emit_mp6like_declarations() . ( $self->{block}->emit_mp6like_arguments(0) . ( $self->{block}->emit_mp6like_body() . ' }' ) ) ) ) ) );
 }
 
 package Do;

@@ -73,6 +73,13 @@ class Lit::Hash {
     }
 }
 
+#        my $bind := ::Bind( 
+#            'parameters' => ::Lit::Array( array => $sig.positional ), 
+#            'arguments'  => ::Var( sigil => '@', twigil => '', name => '_' )
+#        );
+#        $str := $str ~ $bind.emit_mp6like ~ '; ';
+
+
 class Lit::Code {
     method emit_mp6like_declarations {
         my $s;
@@ -92,9 +99,24 @@ class Lit::Code {
         };
         return $s;
     };
+    method emit_mp6like_arguments($invocant) {
+        my $str := '';
+        my $i := 0;
+        for @($.sig.positional) -> $field { 
+            $str := $str ~ ($field.key).emit_mp6like ~ ' = $_[' ~ $i ~ ']; ';
+            $i := $i + 1;
+        };
+        #XXX $.sig.invocant
+        ($invocant ?? 'my $self = shift; ' !! '') ~
+        '$List__ = \@_; ' ~
+        $str;
+    };
+    method emit_mp6like_body {
+        (@.body.>>emit_mp6like).join( ";" ~ Main.newline )
+    };
     method emit_mp6like {
         self.emit_mp6like_declarations ~
-        (@.body.>>emit_mp6like).join( ";" ~ Main.newline )
+        self.emit_mp6like_body
     }
 }
 
@@ -223,6 +245,10 @@ class Bind {
             return $str ~ $.parameters.emit_mp6like ~ ' }';
         };
     
+        if $.parameters.isa( 'Var') && ($.parameters.sigil eq '&') {
+            # XXX
+            return $.arguments.emit_mp6like;
+        };
         $.parameters.emit_mp6like ~ ' = ' ~ $.arguments.emit_mp6like;
     }
 }
@@ -337,7 +363,7 @@ class Apply {
                  ' : ' ~ (@.arguments[2]).emit_mp6like ~
                   ')' };
         
-        $.code ~ '(' ~ (@.arguments.>>emit_mp6like).join(', ') ~ ')';
+        $code ~ '(' ~ (@.arguments.>>emit_mp6like).join(', ') ~ ')';
         # '(' ~ $.code.emit_mp6like ~ ')->(' ~ @.arguments.>>emit_mp6like.join(', ') ~ ')';
     }
 }
@@ -386,102 +412,24 @@ class Sig {
     method emit_mp6like {
         ' print \'Signature - TODO\'; die \'Signature - TODO\'; '
     };
-    method invocant {
-        $.invocant
-    };
-    method positional {
-        $.positional
-    }
 }
 
 class Method {
     method emit_mp6like {
-        # TODO - signature binding
-        my $sig := $.sig;
-        # say "Sig: ", $sig.perl;
-        my $invocant := $sig.invocant; 
-        # say $invocant.emit_mp6like;
-
-        my $pos := $sig.positional;
-        my $str := 'my $List__ = \@_; ';   # no strict "vars"; ';
-
-        # TODO - follow recursively
-        my $pos := $sig.positional;
-        for @$pos -> $field { 
-            if ( $field.isa('Lit::Array') ) {
-                $str := $str ~ 'my (' ~ (($field.array).>>emit_mp6like).join(', ') ~ '); ';
-            }
-            else {
-                $str := $str ~ 'my ' ~ $field.emit_mp6like ~ '; ';
-            };
-        };
-
-        my $bind := ::Bind( 
-            'parameters' => ::Lit::Array( array => $sig.positional ), 
-            'arguments'  => ::Var( sigil => '@', twigil => '', name => '_' )
-        );
-        $str := $str ~ $bind.emit_mp6like ~ '; ';
-
-#        my $pos := $sig.positional;
-#        my $str := '';
-#        my $i := 1;
-#        for @$pos -> $field { 
-#            $str := $str ~ 'my ' ~ $field.emit_mp6like ~ ' = $_[' ~ $i ~ ']; ';
-#            $i := $i + 1;
-#        };
-
         'sub ' ~ $.name ~ ' { ' ~ 
-          'my ' ~ $invocant.emit_mp6like ~ ' = shift; ' ~
-          $str ~
-          (@.block.>>emit_mp6like).join('; ') ~ 
+            $.block.emit_mp6like_declarations ~
+            $.block.emit_mp6like_arguments(1) ~
+            $.block.emit_mp6like_body ~
         ' }'
     }
 }
 
 class Sub {
     method emit_mp6like {
-        # TODO - signature binding
-        my $sig := $.sig;
-        # say "Sig: ", $sig.perl;
-        ## my $invocant := $sig.invocant; 
-        # say $invocant.emit_mp6like;
-        my $pos := $sig.positional;
-        my $str := 'my $List__ = \@_; ';  # no strict "vars"; ';
-
-        # TODO - follow recursively
-        my $pos := $sig.positional;
-        for @$pos -> $field { 
-            if ( $field.isa('Lit::Array') ) {
-                $str := $str ~ 'my (' ~ (($field.array).>>emit_mp6like).join(', ') ~ '); ';
-            }
-            else {
-                $str := $str ~ 'my ' ~ $field.emit_mp6like ~ '; ';
-            };
-            #$str := $str ~ 'my ' ~ $field.emit_mp6like ~ '; ';
-        };
-
-        my $bind := ::Bind( 
-            'parameters' => ::Lit::Array( array => $sig.positional ), 
-            'arguments'  => ::Var( sigil => '@', twigil => '', name => '_' )
-        );
-        $str := $str ~ $bind.emit_mp6like ~ '; ';
-
-#        my $i := 0;
-#        for @$pos -> $field { 
-#            my $bind := ::Bind( 
-#                'parameters' => $field, 
-#                'arguments'  => ::Index(
-#                        obj    => ::Var( sigil => '@', twigil => '', name => '_' ),
-#                        index  => ::Val::Int( int => $i )
-#                    ),
-#                );
-#            $str := $str ~ $bind.emit_mp6like ~ '; ';
-#            $i := $i + 1;
-#        };
         'sub ' ~ $.name ~ ' { ' ~ 
-          ## 'my ' ~ $invocant.emit_mp6like ~ ' = $_[0]; ' ~
-          $str ~
-          (@.block.>>emit_mp6like).join('; ') ~ 
+            $.block.emit_mp6like_declarations ~
+            $.block.emit_mp6like_arguments(0) ~
+            $.block.emit_mp6like_body ~
         ' }'
     }
 }
