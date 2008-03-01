@@ -349,10 +349,20 @@ sub emit_mp6like {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
+    do {
+        if   ( ( Main::isa( $self->{invocant}, 'Proto' ) && ( $self->{invocant}->name() eq 'Hash' ) ) ) { return ( $self->{arguments}->[0]->emit_mp6like() ) }
+        else                                                                                            { }
+    };
     my $invocant = $self->{invocant}->emit_mp6like();
     do {
         if ( ( $invocant eq 'self' ) ) { $invocant = '$self' }
         else                           { }
+    };
+    do {
+        if ( ( $self->{method} eq 'LOOKUP' ) ) {
+            return ( ( $invocant . ( '->{' . ( Main::join( [ map { $_->emit_mp6like() } @{ $self->{arguments} } ], ', ' ) . '}' ) ) ) );
+        }
+        else { }
     };
     do {
         if ( ( $self->{method} eq 'values' ) ) {

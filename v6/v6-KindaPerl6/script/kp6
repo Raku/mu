@@ -315,6 +315,10 @@ my @visitors;
         push @visitor_sequence, qw( ExtractRuleBlock Token Emit::Ruby )
             unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Ruby';
     }
+    elsif ( grep { $_ eq 'mp6' } @opt{qw(C B)} ) {
+        push @visitor_sequence, qw( Emit::MiniPerl6Like )
+            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::MiniPerl6Like';
+    }
     elsif ( !@visitor_sequence ) {
 
         # this is the default sequence
@@ -423,11 +427,15 @@ for (@COMPILER::CHECK) {
             }
         }
     }
-    elsif ( grep { $_ eq 'perl5' || $_ eq 'perl5v6' } @opt{qw(C B)} ) {
+    elsif ( grep { $_ eq 'perl5' || $_ eq 'perl5v6' || $_ eq 'mp6' } @opt{qw(C B)} ) {
         if ( $opt{B} ) {
 
             # Execute!
-            run_piped_command("$EXECUTABLE_NAME -I$lib - -- @ARGV");
+            if ($opt{B} eq 'mp6') {
+                run_piped_command("$EXECUTABLE_NAME -I".runtime_dir()."/../../../../v6-MiniPerl6/lib5 - -- @ARGV");
+            } else {
+                run_piped_command("$EXECUTABLE_NAME -I$lib - -- @ARGV");
+            }
         }
         elsif ( $opt{C} ) {
             if ( $opt{perltidy} ) {
@@ -639,7 +647,7 @@ Usage: kp6 [switches] [--] [programfile] [arguments]
   -c              parse the file or -e, but do not run it
   -Bbackend       execute using the compiler backend
   -Cbackend       compile using the compiler backend
-                  (valid backends are: ast, ast-yaml, perl5, cl (add -sbcl, -clisp, -ecl under -B)
+                  (valid backends are: ast, ast-yaml, perl5, ruby, perl5v6, mp6, cl (add -sbcl, -clisp, -ecl under -B)
   -o              output to file if using -B, required by some backends
   --do            visitors to use
 
