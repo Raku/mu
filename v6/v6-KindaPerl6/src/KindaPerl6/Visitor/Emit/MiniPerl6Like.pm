@@ -182,9 +182,10 @@ class Var {
         ?? ( '$self->{' ~ $.name ~ '}' )
         !!  (    ( $.name eq '/' )
             ??   ( $table{$.sigil} ~ 'MATCH' )
-            !!   ( $table{$.sigil} ~ $.name )
+            !!   Main::mangle_name( $.sigil, $.twigil, $.name, $.namespace )
             )
     };
+    #( $table{$.sigil} ~ $.name )
 }
 
 class Bind {
@@ -275,18 +276,29 @@ class Proto {
 class Call {
     #has $.hyper;
     method emit_mp6like {
+        #XXX
         if ($.invocant.isa('Proto') && $.invocant.name eq 'Hash') {
             return ($.arguments[0]).emit_mp6like;
         };
+        if ($.invocant.isa('Proto') && $.invocant.name eq 'Array') {
+            return ($.arguments[0]).emit_mp6like;
+        };
+
         my $invocant := $.invocant.emit_mp6like;
         if $invocant eq 'self' {
             $invocant := '$self';
         };
 
-        if     ($.method eq 'LOOKUP')
+        if     $.method eq 'LOOKUP'
         { 
             return $invocant ~ '->{' ~ (@.arguments.>>emit_mp6like).join(', ') ~ '}';
         };
+        if     $.method eq 'INDEX'
+        { 
+            return $invocant ~ '->[' ~ (@.arguments.>>emit_mp6like).join(', ') ~ ']';
+        };
+        if     ($.method eq 'map') && $.invocant.isa('Apply') && ($.invocant.{
+        }
 
 
         if     ($.method eq 'values')
@@ -385,6 +397,9 @@ class Apply {
                  ' : ' ~ (@.arguments[2]).emit_mp6like ~
                   ')' };
         
+        if ($.code.isa('Var') && @($.code.namespace)) {
+            $code := ($.code.namespace).join('::') ~ '::' ~ $.code.name; 
+        }
         $code ~ '(' ~ (@.arguments.>>emit_mp6like).join(', ') ~ ')';
         # '(' ~ $.code.emit_mp6like ~ ')->(' ~ @.arguments.>>emit_mp6like.join(', ') ~ ')';
     }

@@ -253,7 +253,7 @@ sub emit_mp6like {
     my $List__ = \@_;
     do { [] };
     my $table = { '$' => '$', '@' => '$List_', '%' => '$Hash_', '&' => '$Code_', };
-    ( ( $self->{twigil} eq '.' ) ? ( '$self->{' . ( $self->{name} . '}' ) ) : ( ( $self->{name} eq '/' ) ? ( $table->{ $self->{sigil} } . 'MATCH' ) : ( $table->{ $self->{sigil} } . $self->{name} ) ) );
+    ( ( $self->{twigil} eq '.' ) ? ( '$self->{' . ( $self->{name} . '}' ) ) : ( ( $self->{name} eq '/' ) ? ( $table->{ $self->{sigil} } . 'MATCH' ) : Main::mangle_name( $self->{sigil}, $self->{twigil}, $self->{name}, $self->{namespace} ) ) );
 }
 
 package Bind;
@@ -353,6 +353,10 @@ sub emit_mp6like {
         if   ( ( Main::isa( $self->{invocant}, 'Proto' ) && ( $self->{invocant}->name() eq 'Hash' ) ) ) { return ( $self->{arguments}->[0]->emit_mp6like() ) }
         else                                                                                            { }
     };
+    do {
+        if   ( ( Main::isa( $self->{invocant}, 'Proto' ) && ( $self->{invocant}->name() eq 'Array' ) ) ) { return ( $self->{arguments}->[0]->emit_mp6like() ) }
+        else                                                                                             { }
+    };
     my $invocant = $self->{invocant}->emit_mp6like();
     do {
         if ( ( $invocant eq 'self' ) ) { $invocant = '$self' }
@@ -361,6 +365,12 @@ sub emit_mp6like {
     do {
         if ( ( $self->{method} eq 'LOOKUP' ) ) {
             return ( ( $invocant . ( '->{' . ( Main::join( [ map { $_->emit_mp6like() } @{ $self->{arguments} } ], ', ' ) . '}' ) ) ) );
+        }
+        else { }
+    };
+    do {
+        if ( ( $self->{method} eq 'INDEX' ) ) {
+            return ( ( $invocant . ( '->[' . ( Main::join( [ map { $_->emit_mp6like() } @{ $self->{arguments} } ], ', ' ) . ']' ) ) ) );
         }
         else { }
     };
@@ -555,6 +565,10 @@ sub emit_mp6like {
     do {
         if ( ( $code eq 'ternary:<?? !!>' ) ) { return ( ( '(' . ( $self->{arguments}->[0]->emit_mp6like() . ( ' ? ' . ( $self->{arguments}->[1]->emit_mp6like() . ( ' : ' . ( $self->{arguments}->[2]->emit_mp6like() . ')' ) ) ) ) ) ) ) }
         else                                  { }
+    };
+    do {
+        if ( ( Main::isa( $self->{code}, 'Var' ) && @{ $self->{code}->namespace() } ) ) { $code = ( Main::join( $self->{code}->namespace(), '::' ) . ( '::' . $self->{code}->name() ) ) }
+        else                                                                            { }
     };
     ( $code . ( '(' . ( Main::join( [ map { $_->emit_mp6like() } @{ $self->{arguments} } ], ', ' ) . ')' ) ) );
 }

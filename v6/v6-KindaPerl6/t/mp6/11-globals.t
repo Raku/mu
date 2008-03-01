@@ -6,7 +6,7 @@ class Hierachical::Namespace::Foo {
 class Main {
     say "1..2";
     $Hierachical::Namespace::Foo::bar := 8;
-    if  $Hierachical::Namespace::Foo::bar == 3 {
+    if  $Hierachical::Namespace::Foo::bar == 8 {
         say "ok";
     } else {
         say "not ok";
