@@ -1,0 +1,21 @@
+redsix is a partial implementation of perl6 written in ruby.
+
+It was originally written in Spring '06.  Then the need for it seemed
+to go away (haskell pugs was again active), and so it was abandoned.
+That's the 2006/ directory.
+
+In early 2008, we were still awaiting Christmas (p6 availability), and
+it was dusted off as one of several partial implementations of parts
+of p6, which might hopefully be mixed together to get a more robust
+development process.  That's this directory.
+
+NOTES
+
+The parser grammar was snarfed from pugs.  Which is now somewhat out
+of date.  It does not include a p6 regex implementation - it uses p5
+regexp plus subrules.
+
+EXAMPLES:
+
+ prove -e ./redsix ../../../../t/01-sanity
+

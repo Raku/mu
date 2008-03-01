@@ -830,7 +830,12 @@ class SixGrammar < Grammar
   _paren = /(?:[^()]|\(#{_paren}\))*/
   _paren = /(?:[^()]|\(#{_paren}\))*/
   _paren = /(?:[^()]|\(#{_paren}\))*/
-    ws_re = /(?:(?>\s+)|(?>(?<!\A|\n)\#\(#{_paren}\))|(?>\#[^\n]*)|^=\w(?>[^\n]*)(?>(?:\n(?!=cut)(?>[^\n]*))*)(?:\z|\n=cut[\ \t\r]*(?:\n|\z)))+/
+    ws_re = /
+      (?: (?>\s+)
+        | (?>(?<!\A|\n)\#\(#{_paren}\))
+        | (?>\#[^\n]*)
+        | ^=\w(?>[^\n]*)(?>(?:\n(?!=(cut|end))(?>[^\n]*))*)(?:\z|\n=(cut|end)[^\n]*)
+       )+/x
   named :ws, ws_re
   named :ws!, ws_re
   named :ws?, /#{ws_re}?/
@@ -1319,9 +1324,12 @@ class PastFromParse
     v = emit(v) if v
     if n =~ /^\d+\z/
       base = n.to_i
+      val = v.src.as_s
+      val.gsub!(/^[\<\[\{]|[\>\]\}]$/,'')
       num = case base
-            when 16; eval(v.src.as_s).hex
-            when 8; eval(v.src.as_s).oct
+            when 16; eval(val).hex
+            when 8; eval(val).oct
+            when 10; eval(val).to_i
             else fail(":#{n}() unimplemented") end
       Past::Number.new(m,num)
     else
@@ -1908,7 +1916,8 @@ module Past
     end
     def sigil; @sigil_actual || '&' end
     def perl
-      t = type ? type.perl+' ' : ''
+      #t = type ? type.perl+' ' : '' #XXX
+      t = type ? type+' ' : '' #XXX
       close = twigil == '<' ? '>' : ''
       "#{t}#{sigil_actual||''}#{twigil||''}#{path.join('::')}#{close}"
     end
@@ -2023,6 +2032,9 @@ module Past
   class PastObject
     def rb_type_mangle(tn)
       tn =~ /^Rb::/ ? tn.slice(4..-1) : ''+tn
+    end
+    def varname(n)
+      n.sub(/^(?=[A-Z])/,'_')
     end
   end
   class Rx
@@ -2149,7 +2161,7 @@ module Past
         "#{@obj.emit_rb}.#{n}(#{@arggen ? @arggen.emit_rb : ''})"
       else
         o = gensym
-        n = "#{f}Cm"
+        n = varname("#{f}Cm")
         a = "#{@arggen ? @arggen.emit_rb : ''}"
         a = a == '' ? "#{o}" : "#{o},#{a}" 
         "(#{o}=#{@obj.emit_rb}).#{n}.call(#{a})"
@@ -2478,13 +2490,13 @@ module Past
             "#{lam}\n"
           end
         when 'method'
-          n = "#{@name.emit_rb}Cm"
+          n = varname("#{@name.emit_rb}Cm")
           "current_class.def_pkg_var(#{n.to_sym.inspect},#{lam2})\n"
         when 'submethod'
           n = "#{@name.emit_rb}Csm"
           "current_class.def_pkg_var(#{n.to_sym.inspect},#{lam})\n"
         when 'multi sub'
-          n = "#{@name.emit_rb}Cm"
+          n = varname("#{@name.emit_rb}Cm")
           nm = "#{@name.emit_rb}M"
           spc = @sig.emit_rb_multi_pattern
           "multi(#{nm.to_sym.inspect},Object,#{spc},#{lam})\ncurrent_class.def_pkg_var(#{n.to_sym.inspect},->(*args){#{nm}(*args)})\n"
@@ -3040,7 +3052,9 @@ df :use,->(_E,c){
 }
 def puse(n)
   fn = "#{n}.pm"
-  fn = "misc/pX/Common/redsix/Test.pm" if fn == "Test.pm"
+  if fn == "Test.pm" and not FileTest.exist?("Test.pm")
+    fn = "misc/pX/Common/redsix/Test.pm"
+  end
   $P.eval6_file(fn)
 end
 
@@ -3155,6 +3169,7 @@ class Array
     else self end
   end
 end
+class Range; def listy?; true end end
 module ListyThingM; end
 class Listy
   def listy?; true end
@@ -3262,6 +3277,14 @@ module ArrayM
   def valuesCm;->(_E){dup}end
   def kvCm;->(_E){a=[];each_with_index{|v,k|a.push(k,v)};a}end
   def pairsCm;->(_E){a=[];each_with_index{|v,k|a.push(Pair.new(k,v))};a}end
+  def splice(off,len=nil,*v)
+    off = 0 if not off
+    len = size if not len
+    r = self[off,len]
+    self[off,len]=v
+    r
+  end
+  def spliceCm;->(_E,off=nil,len=nil,*lst){splice(off,len,*lst)} end
 end
 List = Listy
 class Listy
@@ -3469,6 +3492,7 @@ sub isa($o,$t){$o.isa($t)}
 sub ref($o){$o.ref}
 sub push($o,*@a){$o.push(*@a)}
 sub unshift($o,*@a){$o.unshift(*@a)}
+sub splice($o,*@a){$o.splice(*@a)}
 sub eval($code){rUBYeval6q($code)}
 sub sprintf($f,*@a){rUBYsprintf($f,*@a)}
 sub hash(*@a){ my %h = *@a; %h }
@@ -3492,6 +3516,7 @@ sub keys($o){$o.keys}
 sub values($o){$o.values}
 sub kv($o){$o.kv}
 sub sort($o){$o.sort}
+sub qw(*@a){@a}
 sub pi(){raw_rUBY('Math::PI')}
 sub sin($n){raw_rUBY('Math.sin(nS.as_n)')}
 sub cos($n){raw_rUBY('Math.cos(nS.as_n)')}
