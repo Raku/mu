@@ -1,3 +1,4 @@
+#!/usr/bin/perl
 package main;
 
 use lib 'inc/v6-MiniPerl6-lib5';

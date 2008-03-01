@@ -80,6 +80,16 @@ sub emit_mp6like {
     ( '\'' . ( $self->{buf} . '\'' ) );
 }
 
+package Val::Char;
+sub new { shift; bless {@_}, "Val::Char" }
+
+sub emit_mp6like {
+    my $self   = shift;
+    my $List__ = \@_;
+    do { [] };
+    ( 'chr(' . ( $self->{char} . ')' ) );
+}
+
 package Val::Undef;
 sub new { shift; bless {@_}, "Val::Undef" }
 
@@ -193,6 +203,26 @@ sub emit_mp6like {
         for my $field ( @{$fields} ) { $str = ( $str . ( $field->[0]->emit_mp6like() . ( ' => ' . ( $field->[1]->emit_mp6like() . ',' ) ) ) ) }
     };
     ( $self->{class} . ( '->new( ' . ( $str . ' )' ) ) );
+}
+
+package Lit::NamedArgument;
+sub new { shift; bless {@_}, "Lit::NamedArgument" }
+
+sub emit_mp6like {
+    my $self   = shift;
+    my $List__ = \@_;
+    do { [] };
+    ( $self->{key}->emit_mp6like() . ( '=>' . $self->{value}->emit_mp6like() ) );
+}
+
+package Lit::Pair;
+sub new { shift; bless {@_}, "Lit::Pair" }
+
+sub emit_mp6like {
+    my $self   = shift;
+    my $List__ = \@_;
+    do { [] };
+    ( $self->{key}->emit_mp6like() . ( '=>' . $self->{value}->emit_mp6like() ) );
 }
 
 package Index;

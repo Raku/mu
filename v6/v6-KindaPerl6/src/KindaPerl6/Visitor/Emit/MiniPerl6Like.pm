@@ -39,6 +39,9 @@ class Val::Num {
 class Val::Buf {
     method emit_mp6like { '\'' ~ $.buf ~ '\'' }
 }
+class Val::Char {
+    method emit_mp6like { 'chr('~ $.char ~ ')' }
+}
 
 class Val::Undef {
     method emit_mp6like { '(undef)' }
@@ -130,6 +133,16 @@ class Lit::Object {
             $str := $str ~ ($field[0]).emit_mp6like ~ ' => ' ~ ($field[1]).emit_mp6like ~ ',';
         }; 
         $.class ~ '->new( ' ~ $str ~ ' )';
+    }
+}
+class Lit::NamedArgument {
+    method emit_mp6like {
+        $.key.emit_mp6like ~ '=>' ~ $.value.emit_mp6like;
+    }
+}
+class Lit::Pair {
+    method emit_mp6like {
+        $.key.emit_mp6like ~ '=>' ~ $.value.emit_mp6like;
     }
 }
 
