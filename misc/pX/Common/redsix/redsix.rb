@@ -1,9 +1,8 @@
 #! /usr/bin/env ruby1.9
-# This is a modified snapshot of an old perl6-on-ruby implementation.
 # See README.
 # Uses emacs ruby and outline mode. setq at bottom colorizes heredoc code.
-# Disclaimer - most of this code was intended to be thown away on a
-#  timescale of a couple of weeks.  But the project terminated first.
+# Disclaimer - most of this code was originally intended to be thown
+#  away on a timescale of a couple of weeks.  Now... it's not clear.
 
 
 ###* RedSix
@@ -2581,9 +2580,11 @@ require 'readline'
 class P6
   attr_accessor :pkgspace
   attr_accessor :verbose
+  attr_accessor :provide_yaml_ast
   def initialize
     @verbose=false
     @pkgspace = RPackage.make_GLOBAL
+    @provide_yaml_ast = false
   end
   def P6_binding; @pkgspace.thebinding end
   def P6_binding_Main; @pkgspace.symtab['::Main'].thebinding end
@@ -2652,13 +2653,19 @@ class P6
     end
     ast = PastFromParse::emit(tree)
     ast.walk_past_init
-    note :ast,ast
-    rbc = ast.emit_rb
-    note :rbc,number_lines(rbc),false
-    if !clean
-      File.open("redsix_cache/#{k}.rb","w"){|f|f.print(rbc)}
+    if provide_yaml_ast
+      require "yaml"
+      print YAML::dump(ast)
+      ""
+    else
+      note :ast,ast
+      rbc = ast.emit_rb
+      note :rbc,number_lines(rbc),false
+      if !clean
+        File.open("redsix_cache/#{k}.rb","w"){|f|f.print(rbc)}
+      end
+      rbc
     end
-    rbc
   end    
   def eval6_file(fn)
     fnc = "#{fn}.rb"
@@ -3430,6 +3437,10 @@ def main
     ARGV.shift()
     $P.verbose = true
   end
+  if not ARGV.empty? and ARGV[0] =~ /^--yaml$/
+    ARGV.shift()
+    $P.provide_yaml_ast = true
+  end
 
   if ARGV.empty?
     $P.repl
@@ -3457,7 +3468,9 @@ def print_usage_and_exit
 
 With no ARGS, runs an interactive read-eval-print-loop.
 
-  -v    Turn on verbose.
+  -v      Turn on verbose.
+
+  --yaml  Print ast as yaml, instead of running.
 
   -e EXPRESSION_TO_RUN
 
