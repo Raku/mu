@@ -1774,6 +1774,10 @@ module Past
       h ||= {}
       down_not_self(:walk_past_init,h)
     end
+    def walk_discarding_src
+      @src = nil if instance_variable_defined? :@src
+      down_not_self(:walk_discarding_src)
+    end
   end
   def self.frob(s)
     s.split(/\s*\n/).each{|l|
@@ -2655,6 +2659,7 @@ class P6
     ast.walk_past_init
     if provide_yaml_ast
       require "yaml"
+      ast.walk_discarding_src
       print YAML::dump(ast)
       ""
     else
