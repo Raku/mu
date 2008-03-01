@@ -98,7 +98,7 @@ local $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
   package Regexp::ModuleA::AST::BaseClass;
 
   use Sub::Name;
-  my $sub_id = 1;
+  our $sub_id = 1;
 
   sub RMARE_emit {
     my $cls = ref($_[0]);
