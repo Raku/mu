@@ -1797,6 +1797,14 @@ module Past
         class #{cl} < PastObject #{"\n"+varcode}
         end
       END
+      args = fs.map{|f|"@#{f}.respond_to?(:emit_aterm) ? @#{f}.emit_aterm : \"'\#{@#{f}}'\""}.join(",")
+      code += <<-END 
+        class #{cl}
+          def emit_aterm
+            "#{cl}("+[#{args}].join(",")+")"
+          end
+        end
+      END
       begin eval code; rescue Exception; fail "#{$!}:\n#{code}" end
     }
   end
@@ -1847,6 +1855,8 @@ WrappedPPair pair
 })
 # Parameter
 end
+
+class Array; def emit_aterm; '['+map{|e|e.emit_aterm}.join(",")+']'; end end
 
 ###**** Past methods
 
@@ -2028,6 +2038,19 @@ module Past
   end
 end
 
+###*** PastToAterm
+
+module Past
+  class Identifier
+    def emit_aterm; "Identifier('#{@src.as_s}')" end
+  end
+  class Variable
+    def emit_aterm; "Variable('#{sigil}','#{twigil}','#{leafname}')" end
+  end
+  class Infix
+    def emit_aterm; "Infix('#{fun.as_s}','#{fargs[0].emit_aterm}','#{fargs[1].emit_aterm}')" end
+  end
+end
 
 ###*** PastToRb
 
@@ -2584,11 +2607,12 @@ require 'readline'
 class P6
   attr_accessor :pkgspace
   attr_accessor :verbose
-  attr_accessor :provide_yaml_ast
+  attr_accessor :provide_yaml_ast,:provide_aterm
   def initialize
     @verbose=false
     @pkgspace = RPackage.make_GLOBAL
     @provide_yaml_ast = false
+    @provide_aterm = false
   end
   def P6_binding; @pkgspace.thebinding end
   def P6_binding_Main; @pkgspace.symtab['::Main'].thebinding end
@@ -2661,6 +2685,9 @@ class P6
       require "yaml"
       ast.walk_discarding_src
       print YAML::dump(ast)
+      ""
+    elsif provide_aterm
+      print ast.emit_aterm,"\n"
       ""
     else
       note :ast,ast
@@ -3445,6 +3472,10 @@ def main
   if not ARGV.empty? and ARGV[0] =~ /^--yaml$/
     ARGV.shift()
     $P.provide_yaml_ast = true
+  end
+  if not ARGV.empty? and ARGV[0] =~ /^--aterm$/ # unsupported
+    ARGV.shift()
+    $P.provide_aterm = true
   end
 
   if ARGV.empty?
