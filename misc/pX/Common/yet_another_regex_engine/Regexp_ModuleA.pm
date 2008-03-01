@@ -2867,7 +2867,8 @@ use Filter::Simple sub {
         next;        
       }
       if($re =~ /\A(\/|(m|s|qr)\W)/) {
-        die "Only P5 literals are currently implemented" if $prompt ne "5";
+        die "Only P5 literals are currently implemented (ie, enter a, not /a/)"
+          if $prompt ne "5";
         $re = convert_p5_re_literal_to_p5_re($re);
         print "As regexp: $re\n";
       }
