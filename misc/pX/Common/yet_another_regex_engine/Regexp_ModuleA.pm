@@ -1,3 +1,4 @@
+#!/usr/bin/perl -w
 # CONTENTS
 # Regexp Engine
 #  package Regexp::ModuleA::ReentrantEngine;
@@ -2307,7 +2308,7 @@ namespace(""
 my @unicode_classes = (
   #perl-5.9.4/pod/perlunicode.pod
   #=item General Category
-  qw(L  Letter LC CasedLetter Lu UppercaseLetter Ll LowercaseLetter Lt TitlecaseLetter Lm ModifierLetter Lo OtherLetter M  Mark Mn NonspacingMark Mc SpacingMark Me EnclosingMark N  Number Nd DecimalNumber Nl LetterNumber No OtherNumber P  Punctuation Pc ConnectorPunctuation Pd DashPunctuation Ps OpenPunctuation Pe ClosePunctuation Pi InitialPunctuation Pf FinalPunctuation Po OtherPunctuation S  Symbol Sm MathSymbol Sc CurrencySymbol Sk ModifierSymbol So OtherSymbol Z  Separator Zs SpaceSeparator Zl LineSeparator Zp ParagraphSeparator C  Other Cc Control Cf Format Cs Surrogate Co PrivateUse Cn Unassigned),
+  qw(L  Letter LC CasedLetter Lu UppercaseLetter Ll LowercaseLetter Lt TitlecaseLetter Lm ModifierLetter Lo OtherLetter M  Mark Mn NonspacingMark Mc SpacingMark Me EnclosingMark N  Number Nd DecimalNumber Nl LetterNumber No OtherNumber P  Punctuation Pc ConnectorPunctuation Pd DashPunctuation Ps OpenPunctuation Pe ClosePunctuation Pi InitialPunctuation Pf FinalPunctuation Po OtherPunctuation S  Symbol Sm MathSymbol Sc CurrencySymbol Sk ModifierSymbol So OtherSymbol Z  Separator Zs SpaceSeparator Zl LineSeparator Zp ParagraphSeparator C  Other Cc Control Cf Format Cs Surrogate Co PrivateUse Cn),
   #=item Bidirectional Character Types
   # separate
   #=item Scripts
@@ -2315,7 +2316,7 @@ my @unicode_classes = (
   #=item Extended property classes
   qw(ASCIIHexDigit BidiControl Dash Deprecated Diacritic Extender GraphemeLink HexDigit Hyphen Ideographic IDSBinaryOperator IDSTrinaryOperator JoinControl LogicalOrderException NoncharacterCodePoint OtherAlphabetic OtherDefaultIgnorableCodePoint OtherGraphemeExtend OtherLowercase OtherMath OtherUppercase QuotationMark Radical SoftDotted TerminalPunctuation UnifiedIdeograph WhiteSpace),
   # and there are further derived properties:
-  qw(Alphabetic Lowercase Uppercase Math ID_Start ID_Continue Any Assigned Unassigned Common),
+  qw(Alphabetic Lowercase Uppercase Math ID_Start ID_Continue Any Assigned Common),
   #=item Blocks
   qw(InAlphabeticPresentationForms InArabic InArabicPresentationFormsA InArabicPresentationFormsB InArmenian InArrows InBasicLatin InBengali InBlockElements InBopomofo InBopomofoExtended InBoxDrawing InBraillePatterns InBuhid InByzantineMusicalSymbols InCJKCompatibility InCJKCompatibilityForms InCJKCompatibilityIdeographs InCJKCompatibilityIdeographsSupplement InCJKRadicalsSupplement InCJKSymbolsAndPunctuation InCJKUnifiedIdeographs InCJKUnifiedIdeographsExtensionA InCJKUnifiedIdeographsExtensionB InCherokee InCombiningDiacriticalMarks InCombiningDiacriticalMarksforSymbols InCombiningHalfMarks InControlPictures InCurrencySymbols InCyrillic InCyrillicSupplementary InDeseret InDevanagari InDingbats InEnclosedAlphanumerics InEnclosedCJKLettersAndMonths InEthiopic InGeneralPunctuation InGeometricShapes InGeorgian InGothic InGreekExtended InGreekAndCoptic InGujarati InGurmukhi InHalfwidthAndFullwidthForms InHangulCompatibilityJamo InHangulJamo InHangulSyllables InHanunoo InHebrew InHighPrivateUseSurrogates InHighSurrogates InHiragana InIPAExtensions InIdeographicDescriptionCharacters InKanbun InKangxiRadicals InKannada InKatakana InKatakanaPhoneticExtensions InKhmer InLao InLatin1Supplement InLatinExtendedA InLatinExtendedAdditional InLatinExtendedB InLetterlikeSymbols InLowSurrogates InMalayalam InMathematicalAlphanumericSymbols InMathematicalOperators InMiscellaneousMathematicalSymbolsA InMiscellaneousMathematicalSymbolsB InMiscellaneousSymbols InMiscellaneousTechnical InMongolian InMusicalSymbols InMyanmar InNumberForms InOgham InOldItalic InOpticalCharacterRecognition InOriya InPrivateUseArea InRunic InSinhala InSmallFormVariants InSpacingModifierLetters InSpecials InSuperscriptsAndSubscripts InSupplementalArrowsA InSupplementalArrowsB InSupplementalMathematicalOperators InSupplementaryPrivateUseAreaA InSupplementaryPrivateUseAreaB InSyriac InTagalog InTagbanwa InTags InTamil InTelugu InThaana InThai InTibetan InUnifiedCanadianAboriginalSyllabics InVariationSelectors InYiRadicals InYiSyllables));
 my @unicode_bidi_classes = (
@@ -2905,27 +2906,31 @@ sub Regexp::ModuleA::test_target6 {
   };
 }
 
-if($0 eq __FILE__ && @ARGV) {
-  if($ARGV[0] eq '--test') {
-    require './t/re_tests.pl';
-    Pkg_re_tests::test(&Regexp::ModuleA::test_target);
-    exit;
+if($0 eq __FILE__) {
+  if(@ARGV) {
+    if($ARGV[0] eq '--test') {
+      require './t/re_tests.pl';
+      Pkg_re_tests::test(&Regexp::ModuleA::test_target);
+      exit;
+    }
+    if($ARGV[0] eq '--test6') {
+      require './t/rx.pl';
+      Pkg_re_tests::test6(&Regexp::ModuleA::test_target6);
+      exit;
+    }
+    if($ARGV[0] eq '--repl') {
+      shift;
+      Regexp::ModuleA::Interactive::repl();
+      exit;
+    }
+    if($ARGV[0] eq '--repl6') {
+      shift;
+      Regexp::ModuleA::Interactive::repl(6);
+      exit;
+    }
+    die "Invalid argument";
   }
-  if($ARGV[0] eq '--test6') {
-    require './t/rx.pl';
-    Pkg_re_tests::test6(&Regexp::ModuleA::test_target6);
-    exit;
-  }
-  if($ARGV[0] eq '--repl') {
-    shift;
-    Regexp::ModuleA::Interactive::repl();
-    exit;
-  }
-  if($ARGV[0] eq '--repl6') {
-    shift;
-    Regexp::ModuleA::Interactive::repl(6);
-    exit;
-  }
+  Regexp::ModuleA::Interactive::repl(6);
 }
 
 1;
