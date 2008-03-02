@@ -297,9 +297,6 @@ class Call {
         { 
             return $invocant ~ '->[' ~ (@.arguments.>>emit_mp6like).join(', ') ~ ']';
         };
-        if     ($.method eq 'map') && $.invocant.isa('Apply') && ($.invocant.{
-        }
-
 
         if     ($.method eq 'values')
         { 
