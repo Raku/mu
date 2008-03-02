@@ -21,7 +21,18 @@ sub visit {
                     Main->newline()
                         . (
                         'use strict;'
-                            . ( Main->newline() . ( 'use MiniPerl6::Perl5::Runtime;' . ( Main->newline() . ( 'use MiniPerl6::Perl5::Match;' . ( Main->newline() . ( $node->emit_mp6like() . ( Main->newline() . ( '1;' . Main->newline() ) ) ) ) ) ) ) )
+                            . (
+                            Main->newline()
+                                . (
+                                'use KindaPerl6::Runtime::MiniPerl6Like::Runtime;'
+                                    . (
+                                    Main->newline()
+                                        . (
+                                        'use KindaPerl6::Runtime::MiniPerl6Like::Match;' . ( Main->newline() . ( 'use autobox ARRAY=>"Array";' . ( Main->newline() . ( $node->emit_mp6like() . ( Main->newline() . ( '1;' . Main->newline() ) ) ) ) ) )
+                                        )
+                                    )
+                                )
+                            )
                         )
                     )
                 )
@@ -486,7 +497,7 @@ sub emit_mp6like {
     };
     do {
         if ( ( $code eq 'prefix:<@>' ) ) {
-            return ( ( '@{' . ( Main::join( [ map { $_->emit_mp6like() } @{ $self->{arguments} } ], ' ' ) . '}' ) ) );
+            return ( Main::join( [ map { $_->emit_mp6like() } @{ $self->{arguments} } ], ' ' ) );
         }
         else { }
     };

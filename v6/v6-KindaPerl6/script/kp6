@@ -429,13 +429,8 @@ for (@COMPILER::CHECK) {
     }
     elsif ( grep { $_ eq 'perl5' || $_ eq 'perl5v6' || $_ eq 'mp6' } @opt{qw(C B)} ) {
         if ( $opt{B} ) {
-
             # Execute!
-            if ($opt{B} eq 'mp6') {
-                run_piped_command("$EXECUTABLE_NAME -I".runtime_dir()."/../../../../v6-MiniPerl6/lib5 - -- @ARGV");
-            } else {
-                run_piped_command("$EXECUTABLE_NAME -I$lib - -- @ARGV");
-            }
+            run_piped_command("$EXECUTABLE_NAME -I$lib - -- @ARGV");
         }
         elsif ( $opt{C} ) {
             if ( $opt{perltidy} ) {

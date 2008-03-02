@@ -193,6 +193,9 @@ KP6-MP6:
     compiled/perl5-kp6-mp6/lib/KindaPerl6/Runtime/Perl5V6/%.pm: src/KindaPerl6/Runtime/Perl5V6/%.pm
     	$(CP) $< $@
 
+    compiled/perl5-kp6-mp6/lib/KindaPerl6/Runtime/MiniPerl6Like/%.pm: src/KindaPerl6/Runtime/MiniPerl6Like/%.pm
+    	$(CP) $< $@
+
     
     compiled/perl5-kp6-mp6/lib/KindaPerl6.pm: src/KindaPerl6.pm
     	$(CP) $< $@

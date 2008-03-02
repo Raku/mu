@@ -347,6 +347,7 @@ END
                 src/KindaPerl6/Visitor/*.pm
                 src/KindaPerl6/Visitor/Emit/*.pm
                 src/KindaPerl6/Runtime/Perl5V6/*.pm
+                src/KindaPerl6/Runtime/MiniPerl6Like/*.pm
                 src/KindaPerl6/Runtime/Perl5/*.pm
                 src/KindaPerl6/Runtime/Perl6/*.pm
                 src/KindaPerl6/Test/*.pm |
@@ -361,7 +362,7 @@ END
     }
     else {
         $inherited .= <<"END"
-kp6_mp6_OBJ = \$(patsubst src/%,$Kp6Build{lib}/%,\$(wildcard src/*.pm src/KindaPerl6/Grammar/*.pm src/KindaPerl6/Grammar.pm src/KindaPerl6/Traverse.pm src/KindaPerl6/Ast.pm src/KindaPerl6/Visitor/*.pm src/KindaPerl6/Visitor/Emit/*.pm src/KindaPerl6/Runtime/Perl5V6/*.pm src/KindaPerl6/Runtime/Perl5/*.pm src/KindaPerl6/Runtime/Perl6/*.pm src/KindaPerl6/Test/*.pm ))
+kp6_mp6_OBJ = \$(patsubst src/%,$Kp6Build{lib}/%,\$(wildcard src/*.pm src/KindaPerl6/Grammar/*.pm src/KindaPerl6/Grammar.pm src/KindaPerl6/Traverse.pm src/KindaPerl6/Ast.pm src/KindaPerl6/Visitor/*.pm src/KindaPerl6/Visitor/Emit/*.pm src/KindaPerl6/Runtime/Perl5V6/*.pm src/KindaPerl6/Runtime/MiniPerl6Like/*.pm src/KindaPerl6/Runtime/Perl5/*.pm src/KindaPerl6/Runtime/Perl6/*.pm src/KindaPerl6/Test/*.pm ))
 
 kp6_mp6_modules_OBJ = \$(patsubst src-modules/%,$Kp6Build{module_lib}/%,\$(wildcard src-modules/*.pm))
 END
