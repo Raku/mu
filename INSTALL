@@ -197,3 +197,42 @@ for helping to figure this out. -rhr
     dpkg -i libghc6-network-dev*.deb
     apt-get source --compile libghc6-time-dev
     dpkg -i libghc6-time-dev*.deb
+
+
+NOTES FOR GHC 6.6.1 AND REVISION > 19955
+----------------------------------------
+
+This note should describe a workaround to get the current pug snapshot running
+under the following environment (I believe only the ghc stuff is essential for
+this workaround):
+
+- GNU/Linux 2.6.22-14
+- libc6 2.6.1-1ubuntu10
+- gcc-Version 4.1.3 20070929 (prerelease) (Ubuntu 4.1.2-16ubuntu2)
+- perl 5.8.8
+- Cabal-1.1.6.2, base-2.1.1, filepath-1.0, (ghc-6.6.1),
+  haskell98-1.0, mtl-1.0.1, network-2.0.1, parsec-2.0, readline-1.0,
+  regex-base-0.72, regex-compat-0.71, regex-posix-0.71, rts-1.0,
+  stm-2.0, template-haskell-2.1, time-1.1.1, unix-2.1
+
+The last version that builds on this environment was revision 19955.
+
+1. Update to current version
+  ~/dev/pugs: svn up .
+
+2. Revert some files to former version
+  ~/dev/pugs: svn up -r19955 src/Pugs/Meta/Str.hs src/Pugs/Types.hs src/UTF8.hs \
+            Pugs.cabal.in util/build_pugs.pl third_party/
+
+3. Build it ...
+  ~/dev/pugs: perl Makefile.PL && make soon
+
+4. ...twice
+  ~/dev/pugs: make soon
+
+5. Skip building Test.pm.yml
+  ~/dev/pugs: cp ext/Test/lib/Test.pm blib6/lib/
+
+Last two steps seems to be necessary to avoid messages like this
+  ./pugs -CParse-YAML ext/Test/lib/Test.pm > blib6/lib/Test.pm.yml
+  pugs: user error (Not implemented: asYAML "Sub")
