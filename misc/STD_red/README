@@ -17,8 +17,8 @@ Regex reminders
   regex: /^ <a>+ <b>+ $/
 which transliterate as
   token:  plusTOK{a} and plusTOK{b}
-  rule:   wsp and plusTOK{a} and wsp and plusTOK{b} and wsp  #abstractly
-  rule:           plusTOK{a} and wsp and plusTOK{b}          #in practice
+  rule:   wsp and plusTOK{a} and wsp and plusTOK{b} and wsp  #handwritten rules
+  rule:           plusTOK{a} and wsp and plusTOK{b}          #in token rules #XXX hmm
   regex:  plusRX(lambda{ a }){ plusRX{ b }}
     # but note, <a> can't be a regex - we won't backtrack into it.
 

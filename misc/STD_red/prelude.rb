@@ -22,6 +22,7 @@ class Grammar
     @scanner = StringScanner.new(orig)
     @str = orig
     @eat_cache = {}
+    @ws_from = @ws_to = 0
   end
   def pos; @scanner.pos; end
   def fail_at(n); @scanner.pos = n; false; end
@@ -208,8 +209,12 @@ class Grammar
         v = nil
       end
       case k
-      when 'gtgt_nofat'
-        print "# caveat: #{category} endsym gtgt_nofat unimplemented\n"
+      when 'nofat' # / >> <nofat> /
+        print "# caveat: #{category} endsym nofat unimplemented\n"
+      when 'nofat_space' # / \s+ <nofat> /
+        print "# caveat: #{category} endsym nofat_space unimplemented\n"
+      when 'unspacey' # / <.unsp>? /
+        print "# caveat: #{category} endsym unspacey unimplemented\n"
       when 'endsym'
         print "# caveat: #{category} endsym unimplemented\n"
       else
@@ -278,7 +283,13 @@ class Grammar
     return true if not common_rest_code
     rest_code = common_rest_code.gsub(/<sym>/,sym)
     rest_method_name = "__#{category}_#{rand(10000000)}"
-    eval "def #{rest_method_name}(start); #{rest_code}; end"
+    code = "def #{rest_method_name}(start); #{rest_code}; end"
+    begin
+      eval code
+    rescue Exception
+      STDERR.print code,"\n"
+      raise
+    end
     rest = rest_method_name.to_sym
   end
   def self._def_token(category,name,leading_re,precedence,rest=true)
