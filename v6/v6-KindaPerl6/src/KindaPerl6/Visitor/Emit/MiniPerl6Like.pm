@@ -363,6 +363,7 @@ class Apply {
 
         if $code eq 'say'        { return 'Main::say('   ~ (@.arguments.>>emit_mp6like).join(', ') ~ ')' };
         if $code eq 'print'      { return 'Main::print(' ~ (@.arguments.>>emit_mp6like).join(', ') ~ ')' };
+        if $code eq 'push'      { return 'Main::push(' ~ (@.arguments.>>emit_mp6like).join(', ') ~ ')' };
         if $code eq 'warn'       { return 'warn('        ~ (@.arguments.>>emit_mp6like).join(', ') ~ ')' };
 
         if $code eq 'array'      { return '@{' ~ (@.arguments.>>emit_mp6like).join(' ')    ~ '}' };

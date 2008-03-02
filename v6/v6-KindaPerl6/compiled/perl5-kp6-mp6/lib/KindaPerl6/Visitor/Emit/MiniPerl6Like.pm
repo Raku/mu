@@ -460,6 +460,12 @@ sub emit_mp6like {
         else { }
     };
     do {
+        if ( ( $code eq 'push' ) ) {
+            return ( ( 'Main::push(' . ( Main::join( [ map { $_->emit_mp6like() } @{ $self->{arguments} } ], ', ' ) . ')' ) ) );
+        }
+        else { }
+    };
+    do {
         if ( ( $code eq 'warn' ) ) {
             return ( ( 'warn(' . ( Main::join( [ map { $_->emit_mp6like() } @{ $self->{arguments} } ], ', ' ) . ')' ) ) );
         }

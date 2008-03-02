@@ -141,6 +141,9 @@ package Main;
             join($_[1], @{$_[0]} );
         }
     }
+    sub push {
+        push @{$_[0]},@_[1..$#_];
+    }
 
 package Array;
     sub map {
