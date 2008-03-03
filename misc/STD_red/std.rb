@@ -8,7 +8,12 @@
 #     #R XXX this is assumed a typo, yes?
 #   Added eos? check to eat_terminator.
 #   module_name:depreciated should be before module_name:normal.
+#   is \h* not allowed after the => in fatarrow?
 #   "$wsequiv ~~ s/^ (\t+) /{ ' ' x ($0 * 8) }/; # per spec", ^^ instead of ^ ?
+#
+# STD_red issues
+#  Need to get rid of the xXXX "I don't know what to do here" abstraction.
+#  Some Match ruls are "foo__bar", where bar was a #= comment.  This is wrongish.
 #
 
 require 'prelude'
@@ -18,34 +23,34 @@ class Perl < Grammar
 
     def _TOP; _UNIT( $env_vars[:unitstopper] || "_EOS" ); end
 
-    def_precedence :hyper           ,{ :transparent=>1                           }
-    def_precedence :term            ,{ :prec=>"z="                               }
-    def_precedence :methodcall      ,{ :prec=>"y="                               }
-    def_precedence :autoincrement   ,{ :prec=>"x="                               }
+    def_precedence :hyper           ,{ :transparent=>1                         }
+    def_precedence :term            ,{ :prec=>"z="                             }
+    def_precedence :methodcall      ,{ :prec=>"y="                             }
+    def_precedence :autoincrement   ,{ :prec=>"x="                             }
     def_precedence :exponentiation  ,{ :prec=>"w=", :assoc=>:right, :assign=>1 }
-    def_precedence :symbolic_unary  ,{ :prec=>"v="                               }
+    def_precedence :symbolic_unary  ,{ :prec=>"v="                             }
     def_precedence :multiplicative  ,{ :prec=>"u=", :assoc=>:left,  :assign=>1 }
     def_precedence :additive        ,{ :prec=>"t=", :assoc=>:left,  :assign=>1 }
     def_precedence :replication     ,{ :prec=>"s=", :assoc=>:left,  :assign=>1 }
     def_precedence :concatenation   ,{ :prec=>"r=", :assoc=>:left,  :assign=>1 }
     def_precedence :junctive_and    ,{ :prec=>"q=", :assoc=>:list,  :assign=>1 }
     def_precedence :junctive_or     ,{ :prec=>"p=", :assoc=>:list,  :assign=>1 }
-    def_precedence :named_unary     ,{ :prec=>"o=",                              }
-    def_precedence :nonchaining     ,{ :prec=>"n=", :assoc=>:non                }
+    def_precedence :named_unary     ,{ :prec=>"o=",                            }
+    def_precedence :nonchaining     ,{ :prec=>"n=", :assoc=>:non               }
     def_precedence :chaining        ,{ :prec=>"m=", :assoc=>:chain, :bool=>1   }
     def_precedence :tight_and       ,{ :prec=>"l=", :assoc=>:left,  :assign=>1 }
     def_precedence :tight_or        ,{ :prec=>"k=", :assoc=>:left,  :assign=>1 }
-    def_precedence :conditional     ,{ :prec=>"j=", :assoc=>:right,             }
-    def_precedence :item_assignment ,{ :prec=>"i=", :assoc=>:right              }
-    def_precedence :loose_unary     ,{ :prec=>"h=",                              }
-    def_precedence :comma           ,{ :prec=>"g=", :assoc=>:list,              }
+    def_precedence :conditional     ,{ :prec=>"j=", :assoc=>:right,            }
+    def_precedence :item_assignment ,{ :prec=>"i=", :assoc=>:right             }
+    def_precedence :loose_unary     ,{ :prec=>"h=",                            }
+    def_precedence :comma           ,{ :prec=>"g=", :assoc=>:list,             }
     def_precedence :list_infix      ,{ :prec=>"f=", :assoc=>:list,  :assign=>1 }
     def_precedence :list_assignment ,{ :prec=>"i=", :sub=>"e=", :assoc=>:right }
-    def_precedence :list_prefix     ,{ :prec=>"e=",                              }
+    def_precedence :list_prefix     ,{ :prec=>"e=",                            }
     def_precedence :loose_and       ,{ :prec=>"d=", :assoc=>:left,  :assign=>1 }
     def_precedence :loose_or        ,{ :prec=>"c=", :assoc=>:left,  :assign=>1 }
-    def_precedence :LOOSEST         ,{ :prec=>"a=!",                             }
-    def_precedence :terminator      ,{ :prec=>"a=", :assoc=>:list               }
+    def_precedence :LOOSEST         ,{ :prec=>"a=!",                           }
+    def_precedence :terminator      ,{ :prec=>"a=", :assoc=>:list              }
     SLOOSEST = HLOOSEST[:prec]
 
     #R module PrecOp
@@ -260,6 +265,7 @@ class Perl < Grammar
 
     def _hkv(h,k,v)
         h[k] = v if v and (v.instance_of?(Array) ? (not v.empty?) : true)
+        h
     end
 
     def statement
@@ -383,40 +389,40 @@ class Perl < Grammar
 
     ###################################################
 
-    #R YYY downward sync reached here
+    def pre
+        precircum_ = prepost_ = nil
+        b = pos
+        let_pos{
+            ((prefix_= prefix) or 
+             (precircum_= prefix_circumfix_meta_operator)
+             ) and
+            (prepost_= starTOK{ prefix_postfix_meta_operator }) and
+            ws and
+            (prec = (prefix_||precircum_)[:prec];
+             h={:pres=>prec};
+             _hkv(h,:prefix,prefix_);
+             _hkv(h,:precircum,precircum_);
+             _hkv(h,:prepost,prepost_);
+             _match_from(b,h,:pre))
+        }
+    end
 
     def expect_term
         b = pos
-        # queue up the prefixes to interleave with postfixes
-        pre = starTOK lambda{
-            m = _match_from(pos)
-            if prefix_ = prefix
-                m[:prec] = prefix_[:prec]
-            elsif precircum = prefix_circumfix_meta_operator
-                m[:prec] = precircum[:prec]
-            else
-                return false
-            end
-            # XXX assuming no precedence change
-            starTOK{prefix_postfix_meta_operator}
-            wsp
-            m
+        v = let_pos{
+            pre_=adv=nil
+            (noun_= noun or
+             (pre_= plusTOK{ pre } and noun_= noun)) and
+            # also queue up any postfixes, since adverbs could change things
+            post_= starTOK{ post } and
+            wsp and
+            (adv_= adverbs;true) and
+            # now push ops over the noun according to precedence.
+            #R { make $¢.nounphrase(:noun($<noun>), :pre(@<pre>), :post(@<post>)) }
+            nounphrase(noun_,(pre_||[]),post_)
         }
-
-        noun_ = noun or return fail_at(b)
-
-        # also queue up any postfixes, since adverbs could change things
-        post= starTOK{expect_postfix}
-        wsp
-        quesTOK{adverbs}
-
-        # now push ops over the noun according to precedence.
-        #R    { make $¢.nounphrase(:noun($<noun>), :pre(@<pre>), :post(@<post>)) }
-        nounphrase(noun_,pre,post)
-        #R# return noun_ if postfix.empty? #R shorten tree
-        #R# _match_from(b,{:noun=>noun_,:postfix=>postfix},:expect_term)
     end
-    
+
     def nounphrase(nounS,preA,postA,*rest)
         nounphrase = nounS
         preS = preA.pop
@@ -441,54 +447,98 @@ class Perl < Grammar
     end
 
     def adverbs
-        plusTOK{ _cp = colonpair and (colonpair_ ||= []; colonpair_.push(_cp);true) and wsp } and
-            ( prop = $env_vars[:prevop] or
-              panic('No previous operator visible to adverbial pair ('+colonpair_+')');
-              prop.adverb(colonpair_); true )
+        b = pos
+        colonpair_=nil
+        (plusTOK{ _cp = colonpair and (colonpair_ ||= []; colonpair_.push(_cp);true) and wsp } and
+         ( prop = $env_vars[:prevop] or
+           panic('No previous operator visible to adverbial pair ('+colonpair_.inspect+')');
+           prop.adverb(colonpair_); true ) and
+         (h={:colonpair=>colonpair_};_match_from(b,h,:adverbs)))
     end
 
     def noun
         (fatarrow || package_declarator || scope_declarator || plurality_declarator ||
-         routine_declarator || regex_declarator || type_declarator || circumfix || subcall ||
-         variable || value || capterm || sigterm || term || statement_prefix || colonpair)
+         routine_declarator || regex_declarator || type_declarator || circumfix ||
+         dotty || subcall || variable || value || capterm || sigterm || term ||
+         statement_prefix || colonpair)
     end
     
     def fatarrow
-        let_pos{ (key = ident and
-                  scan(/[ \t]*/) and
-                  scan(/\=>/) and
-                  val = _EXPR(nil,Hitem_assignment)) }
+        let_pos{
+            b = pos
+            (key = ident and
+             scan(/[ \t]*/) and
+             scan(/\=>/) and
+             val = _EXPR(nil,Hitem_assignment)) and
+            _match_from(b,{:key=>key,:val=>val},:fatarrow)
+        }
     end
 
     def colonpair
-        scan(/:/) and (let_pos{ scan(/!/) and ident } or
-                       (ident and (unsp; postcircumfix;true)) or
-                       postcircumfix or
-                       let_pos{ sigil and (twigil;true) and desigilname })
+        b = pos; id1=id2=pc1=pc2=si=tw=dns=nil
+        (scan(/:/) and b1 = pos and
+         (let_pos{ scan(/!/) and id1= ident } or
+          ( id2= ident and (unsp; pc1= postcircumfix;true)) or
+          pc2= postcircumfix or
+          let_pos{ si= sigil and (tw= twigil;true) and dsn= desigilname }) and
+         (false_ = id1 ? _match_from(b1,{:ident=>id1},:colonpair__false) : nil;
+          value_ = id2 ? _match_from(b1,{:ident=>id2,:postcircumfix=>pc1},:colonpair__value) : nil;
+          structural_ = pc2;
+          varname_ = si ? _match_from(b1,{:sigil=>si,:twigil=>tw,:desigilname=>dsn},:colonpair__varname) : nil;
+          h={};
+          _hkv(h,:false,false_)
+          _hkv(h,:value,value_)
+          _hkv(h,:structural,structural_)
+          _hkv(h,:varname,varname_)
+          _match_from(b,h,:colonpair)))
     end
 
     def quotepair
-        scan(/:/) and (let_pos{ scan(/!/) and ident } or
-                       (ident and (unsp; before(/\(/) and postcircumfix;true)) or
-                       scan(/\d+[a-z]+/))
+        b = pos; id1=id2=pc1=n=nil
+        (scan(/:/) and b1 = pos and
+         (let_pos{ scan(/!/) and id1= ident } or
+          (id2= ident and (unsp; before(/\(/) and pc1= postcircumfix;true)) or
+          #R NONSPEC spec doesn't have n and suffix named, so this is speculative.
+          n= scan(/\d+/) and suf= scan(/[a-z]+/)) and
+         (false_ = id1 ? _match_from(b1,{:ident=>id1},:quotepair__false) : nil;
+          value_ = id2 ? _match_from(b1,{:ident=>id2,:postcircumfix=>pc1},:quotepair__value) : nil;
+          nth_ = suf ? _match_from(b1,{:n=>n,:suffix=>suf},:quotepair__nth) : nil;
+          h={};
+          _hkv(h,:false,false_)
+          _hkv(h,:value,value_)
+          _hkv(h,:nth,nth_)
+          _match_from(b,h,:quotepair)))
     end
 
     def expect_tight_infix(loosest)
         let_pos {
-            (not (before(/\{/) or _lambda)) and expect_infix and ($env_vars[:thisop][:prec] > loosest or parsefail)
+            ((not before{ scan(/\{/) or _lambda }) and # presumably a statement control block
+             ei= expect_infix and
+             ($env_vars[:thisop][:prec] > loosest or parsefail) and
+             ei)
         }
     end
 
     def expect_infix
-        ((i = infix) && starTOK{infix_postfix_meta_operator} && i) || #R XXX
-            infix_prefix_meta_operator || infix_circumfix_meta_operator
+        b = pos; i=ipost=ipre=icirc=nil
+        (((i= infix and starTOK{ ipost= infix_postfix_meta_operator }) or
+          (ipre= infix_prefix_meta_operator) or
+          (icirc= infix_circumfix_meta_operator)) and
+         (h={};
+          _hkv(h,:infix,i)
+          _hkv(h,:infix_postfix_meta_operator,ipost)
+          _hkv(h,:infix_prefix_meta_operator,ipre)
+          _hkv(h,:infix_circumfix_meta_operator,icirc)
+          _match_from(b,h,:expect_infix)))
     end
+
+    #R YYY sync scan has reached here.
 
     def_tokens_rest :dotty,false,%w{ .+ .* .? .= .^ .: },%q{ methodop }
     def_tokens_rest :dotty,false,%w{ . },%q{ dottyop }
     def dottyop; methodop or postop; end
 
-    def expect_postfix
+    def post
         # last whitespace didn't end here (or was zero width)
         (pos != ws_to or ws_to == ws_from) and
             (scan(/\\(?=\.)/)) or
