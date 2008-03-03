@@ -343,6 +343,21 @@ sub emit_mp6like {
     ( $self->{parameters}->emit_mp6like() . ( ' = ' . $self->{arguments}->emit_mp6like() ) );
 }
 
+package Assign;
+sub new { shift; bless {@_}, "Assign" }
+
+sub emit_mp6like {
+    my $self   = shift;
+    my $List__ = \@_;
+    do { [] };
+    do {
+        if ( Main::isa( $self->{parameters}, 'Call' ) ) { return ( ( '(' . ( $self->{parameters}->invocant()->emit_mp6like() . ( ')->' . ( $self->{parameters}->method() . ( '(' . ( $self->{arguments}->emit_mp6like() . ')' ) ) ) ) ) ) ) }
+        else                                            { }
+    };
+    my $bind = Bind->new( 'parameters' => $self->{parameters}, 'arguments' => $self->{arguments}, );
+    $bind->emit_mp6like();
+}
+
 package Proto;
 sub new { shift; bless {@_}, "Proto" }
 
@@ -466,6 +481,12 @@ sub emit_mp6like {
         else { }
     };
     do {
+        if ( ( $code eq 'keys' ) ) {
+            return ( ( 'Main::keys(' . ( Main::join( [ map { $_->emit_mp6like() } @{ $self->{arguments} } ], ', ' ) . ')' ) ) );
+        }
+        else { }
+    };
+    do {
         if ( ( $code eq 'warn' ) ) {
             return ( ( 'warn(' . ( Main::join( [ map { $_->emit_mp6like() } @{ $self->{arguments} } ], ', ' ) . ')' ) ) );
         }
@@ -509,7 +530,7 @@ sub emit_mp6like {
     };
     do {
         if ( ( $code eq 'prefix:<%>' ) ) {
-            return ( ( '%{' . ( Main::join( [ map { $_->emit_mp6like() } @{ $self->{arguments} } ], ' ' ) . '}' ) ) );
+            return ( Main::join( [ map { $_->emit_mp6like() } @{ $self->{arguments} } ], ' ' ) );
         }
         else { }
     };
@@ -533,6 +554,12 @@ sub emit_mp6like {
     };
     do {
         if ( ( $code eq 'infix:<>>' ) ) {
+            return ( ( '(' . ( Main::join( [ map { $_->emit_mp6like() } @{ $self->{arguments} } ], ' > ' ) . ')' ) ) );
+        }
+        else { }
+    };
+    do {
+        if ( ( $code eq 'infix:<<>' ) ) {
             return ( ( '(' . ( Main::join( [ map { $_->emit_mp6like() } @{ $self->{arguments} } ], ' > ' ) . ')' ) ) );
         }
         else { }
@@ -676,7 +703,7 @@ sub emit_mp6like {
     my $self   = shift;
     my $List__ = \@_;
     do { [] };
-    ( 'do { ' . ( Main::join( [ map { $_->emit_mp6like() } @{ $self->{block} } ], '; ' ) . ' }' ) );
+    ( 'do { ' . ( $self->{block}->emit_mp6like() . ' }' ) );
 }
 
 package Use;

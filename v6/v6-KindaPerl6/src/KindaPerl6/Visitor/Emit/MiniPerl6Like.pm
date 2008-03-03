@@ -268,6 +268,18 @@ class Bind {
     }
 }
 
+class Assign {
+    method emit_mp6like {
+       #XXX 
+       if ($.parameters.isa('Call')) { 
+            return '('~($.parameters.invocant).emit_mp6like~')->'~$.parameters.method~'('~$.arguments.emit_mp6like~')';
+       }
+       my $bind := Bind.new('parameters' => $.parameters,'arguments' => $.arguments);
+       $bind.emit_mp6like;
+       #die "KindaPerl6::Visitor::Emit::MiniPerl6Like does not support assignment yet";
+    }
+}
+
 class Proto {
     method emit_mp6like {
         ~$.name        
@@ -364,6 +376,7 @@ class Apply {
         if $code eq 'say'        { return 'Main::say('   ~ (@.arguments.>>emit_mp6like).join(', ') ~ ')' };
         if $code eq 'print'      { return 'Main::print(' ~ (@.arguments.>>emit_mp6like).join(', ') ~ ')' };
         if $code eq 'push'      { return 'Main::push(' ~ (@.arguments.>>emit_mp6like).join(', ') ~ ')' };
+        if $code eq 'keys'      { return 'Main::keys(' ~ (@.arguments.>>emit_mp6like).join(', ') ~ ')' };
         if $code eq 'warn'       { return 'warn('        ~ (@.arguments.>>emit_mp6like).join(', ') ~ ')' };
 
         if $code eq 'array'      { return '@{' ~ (@.arguments.>>emit_mp6like).join(' ')    ~ '}' };
@@ -375,12 +388,13 @@ class Apply {
         #XXX
         if $code eq 'prefix:<$>' { return '${' ~ (@.arguments.>>emit_mp6like).join(' ')    ~ '}' };
         if $code eq 'prefix:<@>' { return (@.arguments.>>emit_mp6like).join(' ') };
-        if $code eq 'prefix:<%>' { return '%{' ~ (@.arguments.>>emit_mp6like).join(' ')    ~ '}' };
+        if $code eq 'prefix:<%>' { return (@.arguments.>>emit_mp6like).join(' ') };
 
         if $code eq 'infix:<~>'  { return '('  ~ (@.arguments.>>emit_mp6like).join(' . ')  ~ ')' };
         if $code eq 'infix:<+>'  { return '('  ~ (@.arguments.>>emit_mp6like).join(' + ')  ~ ')' };
         if $code eq 'infix:<->'  { return '('  ~ (@.arguments.>>emit_mp6like).join(' - ')  ~ ')' };
         if $code eq 'infix:<>>'  { return '('  ~ (@.arguments.>>emit_mp6like).join(' > ')  ~ ')' };
+        if $code eq 'infix:<<>'  { return '('  ~ (@.arguments.>>emit_mp6like).join(' > ')  ~ ')' };
         if $code eq 'infix:<x>'  { return '('  ~ (@.arguments.>>emit_mp6like).join(' x ')  ~ ')' };
         
         if $code eq 'infix:<&&>' { return '('  ~ (@.arguments.>>emit_mp6like).join(' && ') ~ ')' };
@@ -474,7 +488,7 @@ class Sub {
 class Do {
     method emit_mp6like {
         'do { ' ~ 
-          (@.block.>>emit_mp6like).join('; ') ~ 
+          $.block.emit_mp6like ~ 
         ' }'
     }
 }

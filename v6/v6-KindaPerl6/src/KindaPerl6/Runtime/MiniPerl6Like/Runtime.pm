@@ -144,6 +144,9 @@ package Main;
     sub push {
         push @{$_[0]},@_[1..$#_];
     }
+    sub keys {
+        [keys %{$_[0]}];
+    }
 
 package Array;
     sub map {
