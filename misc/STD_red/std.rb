@@ -1,3 +1,4 @@
+#!/usr/bin/ruby
 # A ruby transliteration of src/perl6/STD.pm
 # See README.
 #
