@@ -6,6 +6,7 @@
 #   The "after the }" part of block and regex_block are different.
 #     #R XXX this is assumed a typo, yes?
 #   Added eos? check to eat_terminator.
+#   module_name:depreciated should be before module_name:normal.
 #   "$wsequiv ~~ s/^ (\t+) /{ ' ' x ($0 * 8) }/; # per spec", ^^ instead of ^ ?
 #
 
@@ -218,18 +219,18 @@ class Perl < Grammar
 
     def block
         b=pos
-        let_pos{ scan(/{/) and sl= statementlist and _block_rest and
+        let_pos{ scan(/\{/) and sl= statementlist and _block_rest and
                  _match_from(b,{:statementlist=>sl},:block) }
     end
 
     #R QUESTION regexp_block lacks block's \h*.  Intentional?
     def regex_block
-        let_pos{ scan(/{/) and r= regex('}') and _block_rest and
+        let_pos{ scan(/\{/) and r= regex('}') and _block_rest and
                  _match_from(b,{:regex=>r},:regex_block) }
     end
 
     def _block_rest
-        ( scan(/}/) or panic("Missing right brace") ) and
+        ( scan(/\}/) or panic("Missing right brace") ) and
           #R QUESTION <?before < ,: >> typo?
           ( let_pos{ scan(/[ \t]*/) and unsp? and before(/[,:]/) } or
             let_pos{
@@ -268,14 +269,16 @@ class Perl < Grammar
         b = pos
         label_= starTOK{ label }
         ((control_= statement_control) or
-         let_pos{ x= expect_term and expr_= _EXPR(x) and
-           b1 = pos and
+         let_pos{
+           b1 = nil;
+           x= expect_term and expr_= _EXPR(x) and
+           (b1 = pos) and
            ((before{ stdstopper }) or
             (let_pos{ mod_loop_= statement_mod_loop and loopx= _EXPR }) or 
             (let_pos{ mod_cond_= statement_mod_cond and condx= _EXPR and
                (before{ stdstopper } or
-                mod_condloop_= statement_mod_loop and loopx= _EXPR )}) )
-             modexpr_= _match_from(b1,{},:statement__modexpr)
+                mod_condloop_= statement_mod_loop and loopx= _EXPR )}) ) and
+             (modexpr_= b1 != pos ? _match_from(b1,{},:statement__modexpr) : nil; true)
          } or
          before(/;/)) and
         eat_terminator or return false
@@ -307,28 +310,29 @@ class Perl < Grammar
     def_rules_rest :statement_control,%w{ use no },%q{
       e=nil
       wsp;
-      mn = module_name and wsp and (e=_EXPR; wsp) and eat_terminator and
-      (h={:module_name=>mn};_hkv(h,:EXPR,e);_match_from(start,h,:'statement_control:<sym>'))
+      mn = module_name and wsp and (e=_EXPR and wsp;true) and eat_terminator and
+      (h={:module_name=>mn};_hkv(h,:EXPR,e);_match_from(start,h,:<sym>))
     }
     def_rules_rest :statement_control,%w{ if }, %q{
+      wsp;
       e=_EXPR and wsp and pb=pblock and wsp and
       ei=starRULE{ b1=pos; scan(/elsif/) and wsp and e1=_EXPR and wsp and pb1=pblock and
                    _match_from(b1,{:elsif_expr=>e1,:elsif_block=>pb1},:elsif) } and
       el=quesRULE{ b1=pos; scan(/else/) and wsp and pb1=pblock and
                    _match_from(b1,{:pblock=>pb1},:if__else) } and
       (h={:if_expr=>e,:if_block=>pb,:elsif=>ei};_hkv(h,:else,el);
-       _match_from(start,h,:'statement_control:if'))
+       _match_from(start,h,:if))
     }
 
     def_rules_rest :statement_control,%w{ unless while until  for given when },%q{
       e=_EXPR and wsp and pb=pblock and
-      _match_from(start,{:expr=>e,:block=>pb},:'statement_control:<sym>')
+      _match_from(start,{:expr=>e,:block=>pb},:<sym>)
     }
     def_rules_rest :statement_control,%w{ repeat },%q{
       ((wu= scan(/while|until/) and wsp and e=_EXPR and wsp and bk=block and wsp and
-        _match_from(start,{'0'=>wu,:wu_expr=>e,:wu_block=>bk},:'statement_control:repeat')) or
+        _match_from(start,{'0'=>wu,:wu_expr=>e,:wu_block=>bk},:repeat)) or
        (bk=block and wsp and wu=scan(/while|until/) and wsp and e=_EXPR and wsp and
-        _match_from(start,{'0'=>wu,:expr_wu=>e,:block_wu=>bk},:'statement_control:repeat')))
+        _match_from(start,{'0'=>wu,:expr_wu=>e,:block_wu=>bk},:repeat)))
     }
     def_rules_rest :statement_control,%w{ loop },%q{
       ((scan(/\(/) and wsp and
@@ -340,7 +344,7 @@ class Perl < Grammar
        );true) and
        bk= block and 
        (h={:loop_block=>bk};_hkv(h,:loop_eee,eee);
-        _match_from(start,h,:'statement_control:loop')))
+        _match_from(start,h,:loop)))
     }
 
     def_rules_rest :statement_control,%w{
@@ -348,27 +352,28 @@ class Perl < Grammar
       PRE POST CATCH CONTROL },
       %q{
         bk=block and wsp and
-        _match_from(start,{:block=>bk},:'statement_control:<sym>')
+        _match_from(start,{:block=>bk},:<sym>)
       }
 
     def modifier_expr; wsp and e=_EXPR and wsp and e; end
     def_rules_rest :statement_mod_cond,%w{ if unless when },%q{
       me=modifier_expr and
-      _match_from(start,{:mod_<sym>=>me},:'statement_mod_cond:<sym>')
+      _match_from(start,{:mod_<sym>=>me},:<sym>)
     }
     def_rules_rest :statement_mod_loop,%w{ while until for given },%q{
       me=modifier_expr and
-      _match_from(start,{:mod_<sym>=>me},:'statement_mod_loop:<sym>')
+      _match_from(start,{:mod_<sym>=>me},:<sym>)
     }
     
+    #R reordered.  depreciated needs to come first.
+    def_token_full :module_name,false,'depreciated',/(?=v6-alpha)/,%q{
+      scan(/v6-alpha/) and
+       _match_from(start,{},:depreciated)
+    }
     def_token_full :module_name,false,'normal',/(?=\w)/,%q{
       (n=name and na= starTOK{ colonpair }) and
       (h={:name=>n};_hkv(h,:colonpair,na)
-       _match_from(start,h,:'module_name:normal'))
-    }
-    def_token_full :module_name,false,'depreciated',/(?=v6-alpha)/,%q{
-      scan(/v6-alpha/) and
-       _match_from(start,{},:'module_name:depreciated')
+       _match_from(start,h,:normal))
     }
 
     def whatever; scan(/\*/); end
@@ -1205,7 +1210,7 @@ class Perl < Grammar
 
     # We get here only for escapes in escape set, even though more are defined.
     def q_escape (lang)
-        lang[:escrule].(self)
+        lang[:escrule].call(self)
     end
 
 
@@ -1449,7 +1454,7 @@ class Perl < Grammar
     def stdstopper
         (@scanner.eos? ||
          terminator || statement_mod_cond || statement_mod_loop ||
-         ((before(/{/) or before{ _lambda }) and after(/\s/)) ||
+         ((before(/\{/) or before{ _lambda }) and after(/\s/)) ||
 #R         cent.pos == env[:endstmt] ||
 #R         cent.pos == env[:endargs]
 #R         #    | <$+unitstopper> #R?
@@ -1541,7 +1546,7 @@ false #R
 
             wsp #R added
 
-            my terminatorA = [hereS_workaround.before{stopS.()}]
+            my terminatorA = [hereS_workaround.before{stopS.call()}]
             my tS = terminatorA[0];
             break if tS and terminatorA[0].bool;
             $env_vars[:thisopH] = {}
@@ -1564,7 +1569,7 @@ false #R
             
             # Does new infix (or terminator) force any reductions?
             while opstackA[-1][:prec] > thisprecS 
-                reduce.();
+                reduce.call();
             end
             
             # Not much point in reducing the sentinels...
@@ -1574,17 +1579,17 @@ false #R
             if opstackA[-1][:prec] == thisprecS 
                 case $env_vars[:thisopH][:assoc].to_s
                 when 'non' ;   hereS_workaround.panic("\"#{infixS}\" is not associative")
-                when 'left' ;  reduce.()   # reduce immediately
+                when 'left' ;  reduce.call()   # reduce immediately
                 when 'right';  # just shift
                 when 'chain';  # just shift
                 when 'list'                # if op differs reduce else shift
-                    reduce.() if $env_vars[:thisopH][:top][:sym] != opstackA[-1][:top][:sym];
+                    reduce.call() if $env_vars[:thisopH][:top][:sym] != opstackA[-1][:top][:sym];
                 else
                     hereS_workaround.panic("Unknown associativity \"#{$env_vars[:thisopH][:assoc]}\" for \"#{infixS}\"")
                 end
             end
             push opstackA, $env_vars[:thisopH]  #R item($env_vars[:thisopH]); # ignore puzzling item()
-            my terminatorA = [hereS_workaround.before{stopS.()}];
+            my terminatorA = [hereS_workaround.before{stopS.call()}];
             if not terminatorA.empty? and terminatorA[0].bool 
                 hereS_workaround.panic("#{infixS.perl()} is missing right term");
             end
@@ -1595,7 +1600,7 @@ false #R
             push termstackA, hereS;
             say "after push: ", termstackA.length;
         end
-        reduce.() while termstackA.length > 1;
+        reduce.call() while termstackA.length > 1;
         termstackA.length == 1 or hereS_workaround.panic("Internal operator parser error, termstack == #{termstackA.length}");
         $env_vars.scope_leave
         return termstackA[0];

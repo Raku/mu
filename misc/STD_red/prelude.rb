@@ -5,7 +5,7 @@ require 'match'
 
 # Perl grammar helpers
 
-def say(*args); print *args,"\n"; end
+def say(*args); print *args;print "\n"; end
 
 class Object
   def bool; true; end
@@ -30,12 +30,12 @@ class Grammar
   def eat(str); @scanner.scan((@eat_cache[str] ||= Regexp.new(Regexp.quote(str)))); end
   def let_pos(&blk)
     b = @scanner.pos
-    v = blk.()
+    v = blk.call()
     @scanner.pos = b if not v
     v
   end
   def rul(&blk)
-    let_pos{ wsp and blk.() and wsp }
+    let_pos{ wsp and blk.call() and wsp }
   end
     
 
@@ -63,7 +63,7 @@ class Grammar
       @scanner.check(re)
     else
       b = @scanner.pos
-      v = blk.()
+      v = blk.call()
       @scanner.pos = b
       v ? true : false
     end
@@ -71,36 +71,36 @@ class Grammar
   def after(re)
     # no look-behind in 1.8 :(
     s = @str.slice(0,pos)
-    Regexp.new("#{re}\z").match(s) ? true : false
+    Regexp.new("#{re}\\z").match(s) ? true : false
   end
 
   def seqTOK(f=nil,&blk)
     fun = f || blk
     b = pos
-    v = fun.() ? v : fail_at(b)
+    v = fun.call() ? v : fail_at(b)
   end
 
   def quesTOK(f=nil,&blk)
     fun = f || blk
-    v = fun.()
+    v = fun.call()
     v ? [v] : []
   end
   def starTOK(f=nil,&blk)
     fun = f || blk
     a = []
-    while v = fun.(); a.push(v); end; a
+    while v = fun.call(); a.push(v); end; a
   end
   def plusTOK(f=nil,&blk)
     fun = f || blk
-    v = fun.() or return false
+    v = fun.call() or return false
     a = [v]
-    while v = fun.(); a.push(v); end; a
+    while v = fun.call(); a.push(v); end; a
   end
 
   def quesRULE(f=nil,&blk)
     fun = f || blk
     wsp
-    v = fun.(); wsp
+    v = fun.call(); wsp
     v ? [v] : []
   end
   def starRULE(f=nil,&blk)
@@ -108,7 +108,7 @@ class Grammar
     a = []
     p = pos
     wsp
-    while v = fun.()
+    while v = fun.call()
       a.push(v); wsp
       p1 = pos; break if not p < p1; p = p1
     end
@@ -117,11 +117,11 @@ class Grammar
   def plusRULE(f=nil,&blk)
     fun = f || blk
     wsp
-    v = fun.() or return false
+    v = fun.call() or return false
     a = [v]
     p = pos
     wsp
-    while v = fun.()
+    while v = fun.call()
       a.push(v); wsp
       p1 = pos; break if not p < p1; p = p1
     end
@@ -130,24 +130,24 @@ class Grammar
 
   def quesRX(fun,&more)
     before_fun = pos
-    v = fun.()
+    v = fun.call()
     if not v
       if not more
         [[]]
       else
-        result = more.() or return false
+        result = more.call() or return false
         result.unshift([])
       end
     else
       if not more
         [[v]]
       else
-        result = more.()
+        result = more.call()
         if result
           result.unshift([v])
         else
           @scanner.pos = before_fun
-          result = more.() or return false
+          result = more.call() or return false
           result.unshift([])
         end
       end
@@ -158,13 +158,13 @@ class Grammar
     if not more
       [[]]
     else
-      result = more.() or return false
+      result = more.call() or return false
       result.unshift([])
     end
   end
   def plusRX(fun,&more)
     before_fun = pos
-    v = fun.() or return false
+    v = fun.call() or return false
     if result = starRX(fun,more)
       result[0].unshift(v)
       result

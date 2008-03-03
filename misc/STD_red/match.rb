@@ -5,8 +5,8 @@ module MatchDescribe
   def match_describe(seen=nil)
     seen ||= {}
     return ("LOOP***"+match_describe_name) if seen.member?(self.object_id); seen[self.object_id] = true
-    indent            = ->(s){ s ? s.gsub(/(?m)^(?!\Z)/,'  ') : '*nil*' }
-    indent_except_top = ->(s){ s ? s.gsub(/(?m)^(?!\Z)/,'  ').sub(/^  /,'') : '*nil*' }
+    indent            = lambda{|s| s ? s.gsub(/(?m)^(?!\Z)/,'  ') : '*nil*' }
+    indent_except_top = lambda{|s| s ? s.gsub(/(?m)^(?!\Z)/,'  ').sub(/^  /,'') : '*nil*' }
     n = match_describe_name
     b = as_b ? 'true' : 'false'
     s = "'"+indent_except_top.call(as_s).gsub(/([\\'])/){|w|"\\#{w}"}+"'"
@@ -47,6 +47,7 @@ class Match
     self.class.new(@on_str,@from,@to,@bool,@hash.skim_state_copy,@str,@rule)
   end
   def str(to=nil)
+    return "ERROR:from is nil" if not @from;
     @str || @on_str.slice(@from,(@to||to)-@from)
   end
   def close!(to)
