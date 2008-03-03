@@ -3,9 +3,8 @@ A ruby transliteration of src/perl6/STD.pm
 The release of ruby 1.9.0 (dated late December '07) is recommended.
 It may, or may not, also work with ruby 1.8.
 
-USAGE
-  ./std.rb
-
+EXAMPLE
+  ./STD_red_run -e 42
 
 
 

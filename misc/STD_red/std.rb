@@ -532,11 +532,11 @@ class Perl < Grammar
           _match_from(b,h,:expect_infix)))
     end
 
-    #R YYY sync scan has reached here.
-
-    def_tokens_rest :dotty,false,%w{ .+ .* .? .= .^ .: },%q{ methodop }
+    def_tokens_rest :dotty,false,%w{ .+ .* .? .= .^ .: },%q{ op= methodop and _match_from(start,{:sym=>'<sym>',:methodop=>op},:'<sym>') }
     def_tokens_rest :dotty,false,%w{ . },%q{ dottyop }
     def dottyop; methodop or postop; end
+
+    #R YYY sync scan has reached here.
 
     def post
         # last whitespace didn't end here (or was zero width)
@@ -547,7 +547,7 @@ class Perl < Grammar
             (dotty or postop_ = postop) and (xXXX[:prec] = postop_[:prec]) #R XXX ?
     end
 
-    #R XXX TODO I currently don't understand the [LIST] part.  And dont support it.
+    #R XXX TODO I currently don't understand the [LIST] issue.  And dont support it.
 
     # Note: backtracks, or we'd never get to parse [LIST] on seeing [+ and such.
     # (Also backtracks if on \op when no \op infix exists.)
@@ -609,18 +609,27 @@ class Perl < Grammar
     def_tokens_rest :postcircumfix,:methodcall,%w{ « },%q{ shellwords('»') and scan(/»/) }
     
     def postop
-        ((op = postfix and (xXXX[:prec] = op[:prec])) or
-         (op = postcircumfix and (xXXX[:prec] = op[:prec])))
+        #R We pass though, and so don't have to set $<prec>.
+        (( postfix ) or
+         ( postcircumfix ))
     end
 
     def methodop
-        ((ident or
-          (before(/\$|\@/) and variable) or
-          (before(/[\'\"]/) and q = quote and (q =~ /\W/ or panic("Useless use of quotes")))) and
+        b = pos; id=v=q=sl=al=nil
+        ((id= ident or
+          (before(/\$|\@/) and v= variable) or
+          (before(/[\'\"]/) and q= quote and (q =~ /\W/ or panic("Useless use of quotes")))) and
          unsp? and
-         (let_pos{ scan(/\./); unsp; scan(/\(/) and semilist and scan(/\)/) } or
-          let_pos{ scan(/\:/) and before(/\s/) and (not $env_vars[:inqoute]) and arglist } or
-          null))
+         (let_pos{ scan(/\./); unsp; scan(/\(/) and sl= semilist and scan(/\)/) } or
+          let_pos{ scan(/\:/) and before(/\s/) and (not $env_vars[:inqoute]) and al= arglist } or
+          null) and
+         (h={};
+          _hkv(h,:ident,id)
+          _hkv(h,:variable,v)
+          _hkv(h,:quote,q)
+          _hkv(h,:semilist,sl)
+          _hkv(h,:arglist,al)
+          _match_from(b,h,:methodop)))
     end
 
     def arglist
@@ -676,13 +685,20 @@ class Perl < Grammar
     #R added a .ws between module_name and block, and before module_name. XXX
     def package_def
         let_pos{
+            b = pos
             (wsp and
-             (mn = quesRULE{module_name} and wsp and starRULE{trait} and wsp and
+             (mn = quesRULE{ module_name } and wsp and
+              traits_= starRULE{ trait } and wsp and
               (let_pos{ $env_vars[:begin_compunit] and scan(/;/) and wsp and
                 (mn.bool or panic("Compilation unit cannot be anonymous")) and
                 ($env_vars[:begin_compunit] = false
                  true)} or
-               (block and wsp))))
+               (bk= block and wsp)))) and
+            (h={};
+             _hkv(h,:module_name,mn)
+             _hkv(h,:traits,traits_)
+             _hkv(h,:block,bk)
+             _match_from(b,h,:package_def))
         }
     end
 
@@ -1824,15 +1840,6 @@ class Perl
         false
     end
 end
-
-
-#p Perl.new(('3')).expect_infix
-#p Perl.new((')')).terminator
-#p Perl.new(('2')).expect_term
-#p Perl.new(('(2)')).circumfix
-#p Perl.new(('2+3*4'))._EXPR
-#Repl.new.expr
-Repl.new.parser_rule
 
 ## vim: expandtab sw=4
 ## Local Variables:

@@ -79,5 +79,24 @@ class Match
   def key?(k); @hash.key? k; end
 
   def perl; inspect; end #R XXX hack
+  def prepare_for_yaml_dump
+    if instance_variables.include?('@on_str')
+      @str = str
+      remove_instance_variable(:@on_str)
+    end
+    scrub = proc{|x|
+      if x.respond_to?(:prepare_for_yaml_dump)
+        x.prepare_for_yaml_dump
+      elsif x.is_a?(Array)
+        x.each{|o2| scrub.call(o2)}
+      elsif x.is_a?(Hash)
+        x.values.each{|o2| scrub.call(o2)}
+      end
+    }
+    instance_variables.each{|v|
+      o = instance_variable_get(v)
+      scrub.call(o)
+    }
+  end
 end
 

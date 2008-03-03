@@ -1,0 +1,59 @@
+#!/usr/bin/ruby
+require "yaml"
+
+require 'std'
+
+def print_usage_and_exit(msg=nil,code=2)
+  msg += "\n\n" if msg
+  msg ||= ""
+  STDERR.print <<END
+#{msg}#{$0} [--yaml] [ --start=RULE ] [ FILENAME | -e CODE ]
+
+END
+  exit(code)
+end
+
+def main
+  start = '_UNIT'
+  yaml = false
+  code = nil
+  if ARGV.empty?
+    print "\nRun #{$0} --help  to get help.\n";
+    Repl.new.parser_rule
+    exit(0)
+  end
+  if ARGV.size == 1 and ARGV[0] == '--help'
+    print_usage_and_exit(nil,0)
+  end
+  if ARGV[0] == '--yaml'
+    ARGV.shift
+    yaml = true
+  end
+  if m = ARGV[0].match(/--start=(\w+)/)
+    ARGV.shift
+    start = m[1]
+  end
+  if ARGV[0] == '-e'
+    ARGV.shift
+    code = ARGV.shift
+  elsif not ARGV.empty?
+    filename = ARGV.shift
+    print_usage_and_exit("File #{filename} doesn't exist.") if not File.exists?(filename)
+    code = File.open(filename,'r'){|f|f.read}
+  else
+    print_usage_and_exit
+  end
+
+  pn = Perl.new(code)
+  if not pn.method(start.to_sym)
+    print_usage_and_exit("Unknown start rule: #{start}")
+  end
+  tree = pn.send(start.to_sym)
+  if yaml
+    tree.prepare_for_yaml_dump if tree
+    print YAML::dump(tree),"\n"
+  else
+    p tree
+  end
+end
+main
