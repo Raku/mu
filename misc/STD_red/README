@@ -35,7 +35,7 @@ Re backtracking,
   hand fudge passing a continuation to that subrule.  Very hopefully, the
   case won't arise.
   We're not making a regexp engine, nor a real Grammar.
-  We're simply trying to get the ability to parse static p6, but the
+  We're simply trying to get the ability to parse static p6, by the
   easiest possible development path.
 
 
