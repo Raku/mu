@@ -285,6 +285,8 @@ sub build {
 
     build_lib($version, $ghc, @args);
 
+    # Cabal wants to copy LICENSE/GPL-3 to .../LICENSE/GPL-3
+    mkdir "third-party/installed/share/doc/Pugs-$version/LICENSE";
     $run_setup->('install');
 
     if ($Config{ranlib} ne ':') {
@@ -461,7 +463,7 @@ sub build_exe {
         stm network   mtl         filepath  base     HsSyck
         containers    bytestring  random    process  directory
         time          array       pretty    parsec   template-haskell
-        pugs-hsregex
+        pugs-hsregex  Pugs
     });
 
     if ($^O =~ /(?:MSWin32|mingw|msys|cygwin)/) {
