@@ -251,7 +251,7 @@ recloseCode vcode = return vcode
 
 recloseRef :: VRef -> STM VRef
 recloseRef (MkRef (ICode cv))
-    | Just vcode <- fromTypeable cv = do
+    | Just (vcode :: VCode) <- fromTypeable cv = do
         vcode'   <- recloseCode vcode
         return . MkRef . ICode $ vcode'
 recloseRef ref = return ref

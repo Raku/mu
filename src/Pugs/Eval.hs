@@ -184,7 +184,7 @@ trapVal val action = case val of
 evalRef :: VRef -> Eval Val
 evalRef ref = do
     if refType ref == (mkType "Thunk") then forceRef ref else do
-    val <- catchT $ \esc -> do
+    val <- catchT $ \(esc :: Val -> Eval ()) -> do
         MkEnv{ envContext = cxt, envLValue = lv } <- ask
         let typ = typeOfCxt cxt
             isCollectionRef = isaType "List" (refType ref)
@@ -280,7 +280,7 @@ reduceVar var@MkVar{ v_sigil = sig, v_twigil = twi, v_name = name, v_package = p
             Just ref -> evalRef ref
             Nothing
                 | SType <- sig      -> return . VType . cast $ if isQualifiedVar var
-                    then cast $ Buf.join (__"::") [cast pkg, cast name]
+                    then cast $ Buf.intercalate (__"::") [cast pkg, cast name]
                     else name
                 | isGlobalVar var || pkg `notElem` [emptyPkg, callerPkg, outerPkg, contextPkg] -> do
                     -- '$Qualified::Var' is not found.  Vivify at lvalue context.
@@ -1483,11 +1483,11 @@ doApply appKind origSub@MkCode{ subCont = cont, subBody = fun, subType = typ } i
                 (True, False)   -> do
                     --- not scalarRef! -- use the new "transparent IType" thing!
                     case showType (typeOfSigilVar var) of
-                        "Hash"  -> ($ v) . fix $ \redo x -> case x of
+                        "Hash"  -> ($ v) . fix $ \(redo :: Val -> Eval Val) x -> case x of
                             VRef (MkRef (IHash h)) -> return (VRef $ hashRef h) 
                             VRef ref@(MkRef IScalar{}) -> redo =<< readRef ref
                             _ -> fmap (VRef . hashRef) (fromVal v :: Eval VHash)
-                        "Array" -> ($ v) . fix $ \redo x -> case x of
+                        "Array" -> ($ v) . fix $ \(redo :: Val -> Eval Val) x -> case x of
                             VRef (MkRef (IArray a)) -> return (VRef $ arrayRef a) 
                             VRef ref@(MkRef IScalar{}) -> redo =<< readRef ref
                             _ -> fmap (VRef . arrayRef) (fromVal v :: Eval VArray)

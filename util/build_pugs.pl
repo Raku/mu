@@ -457,7 +457,13 @@ sub build_exe {
     #push @o, 'src/UnicodeC.o' if grep /WITH_UNICODEC/, @_;
     #system $ghc, '--make', @_, @o, '-o' => 'pugs', 'src/Main.hs';
 
-    $push_pkgs->(qw(stm network mtl template-haskell filepath base HsSyck pugs-hsregex));
+    $push_pkgs->(qw{
+        stm network   mtl         filepath  base     HsSyck
+        containers    bytestring  random    process  directory
+        time          array       pretty    parsec   template-haskell
+        pugs-hsregex
+    });
+
     if ($^O =~ /(?:MSWin32|mingw|msys|cygwin)/) {
         $push_pkgs->('Win32');
     }
@@ -487,8 +493,6 @@ sub build_exe {
     # Force relinking of Main.hs to avoid stale dependencies in .hi
     unlink 'src/Main.o';
     unlink 'src/Main.hi';
-
-    $push_pkgs->('Pugs'); #"-$version";
 
     @_ = ('--make', @pkgs, qw(-optl-Lthird-party/installed -o ), "$out.new", qw( src/Main.hs ), @libs);
     #@_ = (@pkgs, qw(-idist/build -Ldist/build -idist/build/src -Ldist/build/src -o pugs src/Main.hs), @libs);

@@ -19,10 +19,13 @@ flag small_base
 
 Library
    if flag(small_base)
-        build-depends: base >= 3, containers, pretty, process, directory, random, array
+        build-depends: base >= 3, containers, pretty, process,
+                       directory, random, array, filepath, stm,
+                       bytestring >= 0.9.0.1, HsSyck, pugs-hsregex,
+                       time, mtl, parsec, network __DEPENDS__
    else
         build-depends: base < 3
-   build-depends: pugs-hsregex, HsSyck, filepath, mtl, stm, parsec, network, haskell98, template-haskell, time, unix, readline, bytestring >= 0.9.0.1 __DEPENDS__
+        build-depends: pugs-hsregex, HsSyck, filepath, mtl, stm, parsec, network, haskell98, template-haskell, time, unix, readline, bytestring >= 0.9.0.1, containers __DEPENDS__
 
    exposed-modules: Pugs Pugs.AST Pugs.AST.Internals Pugs.AST.Internals.Instances
                  Pugs.AST.Pad Pugs.AST.Pos Pugs.AST.Prag Pugs.AST.SIO

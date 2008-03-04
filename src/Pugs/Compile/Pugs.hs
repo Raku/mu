@@ -20,7 +20,7 @@ class (Show x) => Compile x where
         return $ Str.concat [bl, joinMany xsC, br]
 
 joinMany :: [Str] -> Str
-joinMany xs = Str.join cm (filter (not . Str.null) xs)
+joinMany xs = Str.intercalate cm (filter (not . Str.null) xs)
 
 instance (Compile x) => Compile [x] where
     compile = compileList

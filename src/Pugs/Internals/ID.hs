@@ -88,6 +88,9 @@ instance ((:>:) ID) String where
 instance ((:>:) String) ID where
     cast = cast . idBuf
 
+instance ((:<:) String) ID where
+    castBack = cast
+
 instance ((:<:) ID) ByteString where
     castBack = idBuf
 

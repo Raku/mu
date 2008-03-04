@@ -26,11 +26,14 @@ opWords :: String -> Set OpName
 opWords xs = Set.fromList (map (MkOpName . cast) (words xs))
 
 newtype OpName = MkOpName ID
-    deriving (Show, Eq, Typeable, (:>:) String, (:>:) ByteString, (:<:) ByteString, (:>:) ID)
+    deriving (Show, Eq, Typeable, (:>:) String, (:>:) ByteString, (:<:) ByteString, (:>:) ID, (:<:) String, (:<:) ID)
 
 instance Ord OpName where
     compare (MkOpName MkID{ idKey = a, idBuf = x }) (MkOpName MkID{ idKey = b, idBuf = y })
         = compare (Buf.length y) (Buf.length x) `mappend` compare b a
+
+instance ((:<:) OpName) ByteString where
+    castBack (MkOpName id) = castBack id
 
 -- Not yet transcribed into a full optable parser with dynamic precedence
 
@@ -649,7 +652,7 @@ refillCache state f = do
             var <- (choice . map parseOneTerm . Map.toAscList $ r_term tights) <?> "term"
             notFollowedBy (char '(' <|> (char ':' >> char ':'))
             possiblyApplyMacro $ App (Var var) Nothing []
-        parseOneTerm (name, categ) = do
+        parseOneTerm (name :: OpName, categ) = do
             symbol (cast name)
             return MkVar
                 { v_name    = cast name

@@ -195,7 +195,7 @@ mkPadMutator var entry ref (MkPad map)
                 }
             merge _ old = case old of
                 PEConstant{ pe_proto = MkRef (ICode oldCV) }
-                    | Just mc <- fromTypeable oldCV -> protoEntry
+                    | Just (mc :: VMultiCode) <- fromTypeable oldCV -> protoEntry
                         { pe_proto = MkRef . ICode $ protoCode
                             { mc_assoc      = code_assoc c `mappend` code_assoc mc
                             , mc_variants   = Set.insert var (mc_variants mc)
@@ -448,7 +448,7 @@ __ITEM__ = cast "ITEM"
 
 readCodesFromRef :: VRef -> Eval [VCode]
 readCodesFromRef (MkRef (ICode c))
-    | Just mc <- fromTypeable c = do
+    | Just (mc :: VMultiCode) <- fromTypeable c = do
         let names@(pivot:_) = Set.elems (mc_variants mc)
         rvs <- fmap concat . forM names $ \var -> do
             ref  <- fromVal =<< readVar var
@@ -459,7 +459,7 @@ readCodesFromRef (MkRef (ICode c))
             if not (defined cvGlobal) then return rvs else do
                 rvsGlobal <- readCodesFromRef =<< fromVal cvGlobal
                 return (rvsGlobal ++ rvs)
-    | Just cv <- fromTypeable c = return [cv]
+    | Just (cv :: VCode) <- fromTypeable c = return [cv]
 readCodesFromRef ref = do
     code <- fromVal =<< readRef ref
     readCodesFromRef (MkRef (ICode (code :: VCode)))

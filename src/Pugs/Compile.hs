@@ -73,8 +73,8 @@ instance Compile Pad [PIL_Decl] where
         return $ concat entries'
         where
         entries = sortBy padSort [ (cast var, readPadEntry ref) | (var, ref) <- padToList pad ]
-        canCompile (name@('&':_), sym) = do
-            ref <- sym
+        canCompile (name@('&':_) :: String, sym) = do
+            (ref :: VRef) <- sym
             case ref of
                 MkRef ICode{} -> do
                     codes <- readCodesFromRef ref

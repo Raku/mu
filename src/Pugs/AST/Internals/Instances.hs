@@ -114,7 +114,7 @@ instance Typeable a => YAML (IVar a) where
     asYAML x = asYAML (MkRef x)
 instance YAML VRef where
     asYAML (MkRef (ICode cv))
-        | Just mc <- fromTypeable cv = do
+        | Just (mc :: VMultiCode) <- fromTypeable cv = do
             mcC <- asYAML (mc :: VMultiCode)
             return $ mkTagNode (tagHs "VMultiCode") $ ESeq [mcC]
         | otherwise = do

@@ -81,4 +81,7 @@ instance ((:>:) String) ByteString where
 instance ((:<:) String) ByteString where
     castBack = UTF8.pack
 
+instance ((:<:) ByteString) String where
+    castBack = UTF8.unpack
+
 #endif

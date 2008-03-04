@@ -79,8 +79,8 @@ mergePadEntry :: PadEntry -> PadEntry -> PadEntry
 mergePadEntry
     PEConstant{ pe_proto = MkRef (ICode newCV), pe_flags = flags }
     PEConstant{ pe_proto = MkRef (ICode oldCV) }
-    | Just newMC <- fromTypeable newCV
-    , Just oldMC <- fromTypeable oldCV
+    | Just (newMC :: VMultiCode) <- fromTypeable newCV
+    , Just (oldMC :: VMultiCode) <- fromTypeable oldCV
     = PEConstant
         { pe_type  = mc_type newMC -- XXX - Select a narrower type?
         , pe_proto = MkRef . ICode $! MkMultiCode
