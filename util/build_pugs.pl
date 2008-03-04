@@ -286,6 +286,7 @@ sub build {
     build_lib($version, $ghc, @args);
 
     # Cabal wants to copy LICENSE/GPL-3 to .../LICENSE/GPL-3
+    mkdir "third-party/installed/share/doc/Pugs-$version";
     mkdir "third-party/installed/share/doc/Pugs-$version/LICENSE";
     $run_setup->('install');
 
