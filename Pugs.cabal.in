@@ -22,7 +22,7 @@ Library
         build-depends: base >= 3, containers, pretty, process, directory, random, array
    else
         build-depends: base < 3
-   build-depends: pugs-hsregex, HsSyck, filepath, mtl, stm, parsec, network, haskell98, template-haskell, time, unix, readline, bytestring>=0.9.0.1-any__DEPENDS__
+   build-depends: pugs-hsregex, HsSyck, filepath, mtl, stm, parsec, network, haskell98, template-haskell, time, unix, readline, bytestring >= 0.9.0.1 __DEPENDS__
 
    exposed-modules: Pugs Pugs.AST Pugs.AST.Internals Pugs.AST.Internals.Instances
                  Pugs.AST.Pad Pugs.AST.Pos Pugs.AST.Prag Pugs.AST.SIO

@@ -281,7 +281,7 @@ sub build {
     print "*** Finished building dependencies.\n\n";
 
     $run_setup = sub { system($setup, @_) };
-    $run_setup->('configure', @configure_args, grep { !/^--.*=$/ } @{$opts->{SETUP}});
+    $run_setup->('configure', '--user', @configure_args, grep { !/^--.*=$/ } @{$opts->{SETUP}});
 
     build_lib($version, $ghc, @args);
 

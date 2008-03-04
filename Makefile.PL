@@ -347,7 +347,7 @@ sub set_postamble {
     my @prereqs = ();
     my @derived_srcfiles = qw< src/Pugs/Embed/Parrot.hs src/Pugs/pugs_config.h src/Pugs/pugs_version.h src/Pugs/Config.hs src/Pugs/Prelude.hs src/Pugs/CodeGen/PIR/Prelude.hs >;
 
-    my $embed_flags = "";
+    my $embed_flags = "-I" . cwd();
     my $hsc2hs_flags = "";
     my $ccdlflags = "";
 

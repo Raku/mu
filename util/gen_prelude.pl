@@ -66,7 +66,7 @@ sub inline {
 
     strip_comments($program);
     $program =~ s{(["\\])}{\\$1}g;
-    $program =~ s{\r?\n}{\\n\\\n\\}g;
+    $program =~ s{\r?\n}{\\n" ++\n "}g;
 
     print OUT <<'.';
 module Pugs.Prelude where
