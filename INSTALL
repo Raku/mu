@@ -202,8 +202,9 @@ for helping to figure this out. -rhr
 NOTES FOR GHC 6.6.1 AND REVISION > 19955
 ----------------------------------------
 
-This note should describe a workaround to get the current pug snapshot running
-under the following environment (I believe only the ghc stuff is essential for
+This is only a way to get a running pugs with ghc 6.6.1 during the
+migration phase to ghc 6.8.x. It *NOT* solves any issues. It is tested
+with the  following environment (I believe only the ghc part is essential for
 this workaround):
 
 - GNU/Linux 2.6.22-14
@@ -215,24 +216,26 @@ this workaround):
   regex-base-0.72, regex-compat-0.71, regex-posix-0.71, rts-1.0,
   stm-2.0, template-haskell-2.1, time-1.1.1, unix-2.1
 
-The last version that builds on this environment was revision 19955.
+The last revision that builds directly from repository on this environment
+was r19955. 
 
 1. Update to current version
-  ~/dev/pugs: svn up .
+  svn update .
 
 2. Revert some files to former version
-  ~/dev/pugs: svn up -r19955 src/Pugs/Meta/Str.hs src/Pugs/Types.hs src/UTF8.hs \
-            Pugs.cabal.in util/build_pugs.pl third_party/
+  svn update -r19955 src/Pugs/Meta/Str.hs src/Pugs/Types.hs src/UTF8.hs \
+            Pugs.cabal.in util/build_pugs.pl third_party/ \
+            src/Pugs/Compile/Pugs.hs src/Pugs/Eval.hs
 
-3. Build it ...
-  ~/dev/pugs: perl Makefile.PL && make soon
+3. Build it ... 
+  perl Makefile.PL && make
 
-4. ...twice
-  ~/dev/pugs: make soon
+4. ..eventually twice, if it failed
+  make
 
 5. Skip building Test.pm.yml
-  ~/dev/pugs: cp ext/Test/lib/Test.pm blib6/lib/
+  cp ext/Test/lib/Test.pm blib6/lib/
 
-Last two steps seems to be necessary to avoid messages like this
+Last two steps seems sometimes to be necessary to avoid messages like this
   ./pugs -CParse-YAML ext/Test/lib/Test.pm > blib6/lib/Test.pm.yml
   pugs: user error (Not implemented: asYAML "Sub")
