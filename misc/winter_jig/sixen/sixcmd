@@ -71,7 +71,13 @@ sub main {
 	require_PARROT_ROOT;
 	# XXX Entirely speculative.
 	chdir($ENV{PARROT_ROOT}.'/languages/perl6') or die $!;
+	die "It looks like you forgot to build the perl6 executable in rakudo?"
+	    if(!-e "./perl6");
 	exec("./perl6",@args);
+    }
+    else {
+	print STDERR "\nUnknown implementation: $impl\n\n";
+	print_usage_and_exit;
     }
 }
 
