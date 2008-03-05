@@ -135,7 +135,7 @@ sub profile {
     my ($tag,$closure) = @_;
     return scalar $closure->(@_) unless $opt{profile};
 
-    warn "$tag...\n";
+    #warn "$tag...\n";
     my $start = Time::HiRes::time();
     my $val = $closure->();
     my $end = Time::HiRes::time();
