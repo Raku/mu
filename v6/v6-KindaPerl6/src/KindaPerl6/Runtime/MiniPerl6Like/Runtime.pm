@@ -8,7 +8,7 @@ package MiniPerl6::Grammar;
     sub space { 
         my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2]; 
         my $MATCH; 
-        $MATCH = KindaPerl6::Runtime::MiniPerl6Like::Match->new( 
+        $MATCH = Match->new( 
             'str' => $str,'from' => $pos,'to' => $pos, ); 
         $MATCH->bool(
             substr($str, $MATCH->to()) =~ m/^([[:space:]])/
@@ -19,7 +19,7 @@ package MiniPerl6::Grammar;
     }
     sub digit { 
         my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2]; 
-        my $MATCH; $MATCH = KindaPerl6::Runtime::MiniPerl6Like::Match->new( 
+        my $MATCH; $MATCH = Match->new( 
             'str' => $str,'from' => $pos,'to' => $pos, ); 
         $MATCH->bool(
             substr($str, $MATCH->to()) =~ m/^([[:digit:]])/
@@ -34,7 +34,7 @@ BEGIN {
         # MP6-in-P5   
         *word = sub { 
             my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2]; 
-            my $MATCH; $MATCH = KindaPerl6::Runtime::MiniPerl6Like::Match->new( 
+            my $MATCH; $MATCH = Match->new( 
                 'str' => $str,'from' => $pos,'to' => $pos, ); 
             $MATCH->bool(
                 substr($str, $MATCH->to()) =~ m/^([[:word:]])/
@@ -45,7 +45,7 @@ BEGIN {
         };
         *backslash = sub { 
             my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2]; 
-            my $MATCH; $MATCH = KindaPerl6::Runtime::MiniPerl6Like::Match->new( 
+            my $MATCH; $MATCH = Match->new( 
                 'str' => $str,'from' => $pos,'to' => $pos, ); 
             $MATCH->bool(
                 substr($str, $MATCH->to(), 1) eq '\\'
@@ -64,7 +64,7 @@ BEGIN {
 
     sub newline { 
         my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2]; 
-        my $MATCH; $MATCH = KindaPerl6::Runtime::MiniPerl6Like::Match->new( 
+        my $MATCH; $MATCH = Match->new( 
             'str' => $str,'from' => $pos,'to' => $pos, ); 
         return $MATCH unless ord( substr($str, $MATCH->to()) ) == 10
             || ord( substr($str, $MATCH->to()) ) == 13;
@@ -77,7 +77,7 @@ BEGIN {
     }
     sub not_newline { 
         my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2]; 
-        my $MATCH; $MATCH = KindaPerl6::Runtime::MiniPerl6Like::Match->new( 
+        my $MATCH; $MATCH = Match->new( 
             'str' => $str,'from' => $pos,'to' => $pos, 'bool' => 0 ); 
         return $MATCH if ord( substr($str, $MATCH->to()) ) == 10
             || ord( substr($str, $MATCH->to()) ) == 13;

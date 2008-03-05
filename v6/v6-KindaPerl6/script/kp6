@@ -127,7 +127,21 @@ See L<http://www.perl.com/perl/misc/Artistic.html>
 # Get command line options
 #
 
+
 my %opt = ( perltidy => 1, output => '' );
+
+my %prof_info;
+sub profile {
+    my ($tag,$closure) = @_;
+    return scalar $closure->(@_) unless $opt{profile};
+
+    warn "$tag...\n";
+    my $start = Time::HiRes::time();
+    my $val = $closure->();
+    my $end = Time::HiRes::time();
+    $prof_info{$tag} += ($end-$start);
+    return $val;
+}
 
 Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through require_order)], )->getoptions(
 
@@ -161,7 +175,11 @@ Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through r
     # Send output to this file, usually parsed perl5 code
     'output|o=s' => \$opt{output},
 
+    # profiling support
+    'profile' => \$opt{profile},
+
 ) or help();
+require Time::HiRes if $opt{profile};
 
 if ( $opt{B} eq 'kp6-kp6' ) {
 
@@ -226,7 +244,7 @@ sub install_dir {
 }
 
 my $lib;
-{
+profile "loading modules" => sub {
     if ( -d ( my $dir = runtime_dir() ) ) {
         unshift @INC, $dir;
     }
@@ -262,7 +280,7 @@ my $lib;
     if ( $opt{runtime} eq 'kp6' ) {
         $ENV{KP6_TARGET_RUNTIME} = 'KindaPerl6::Runtime::Perl5::KP6Runtime';
     }
-}
+};
 
 #
 # Construct the visitor sequence from the command line options
@@ -328,12 +346,14 @@ my @visitors;
     push @visitor_sequence, 'Emit::AstPerl'
         unless $visitor_sequence[-1] =~ /^Emit/;
 
-    for (@visitor_sequence) {
-        my $module_name = 'KindaPerl6::Visitor::' . $_;
-        eval "require $module_name";
-        die "Can't load $_ plugin: $@" if $@;
-        push @visitors, $module_name->new( visitor_args => \%visitor_args );
-    }
+    profile "loading visitors" => sub {
+        for (@visitor_sequence) {
+            my $module_name = 'KindaPerl6::Visitor::' . $_;
+            eval "require $module_name";
+            die "Can't load $_ plugin: $@" if $@;
+            push @visitors, $module_name->new( visitor_args => \%visitor_args );
+        }
+    };
 }
 
 #
@@ -351,7 +371,7 @@ $COMPILER::source_md5 = Digest->new("MD5")->add($source)->hexdigest;
 my $pos = 0;
 my $out;
 while ( $pos < length($source) ) {
-    my $p = KindaPerl6::Grammar->comp_unit( $source, $pos );
+    my $p = profile parsing => sub {KindaPerl6::Grammar->comp_unit( $source, $pos )} ;
 
     my $ast = $$p;
 
@@ -360,7 +380,9 @@ while ( $pos < length($source) ) {
         # Compilation failed, show the user where
         die report_error( \$source, $pos );
     }
-    $ast = $ast->emit($_) for @visitors;
+    for (@visitors) {
+        $ast = profile ref $_ => sub {$ast->emit($_)};
+    }
     $out .= $ast;
     $pos = $p->to;
 }
@@ -370,7 +392,9 @@ for (@COMPILER::CHECK) {
     my ( $ast, $pad ) = @$_;
     unshift @COMPILER::PAD, $pad;
     my $ast = COMPILER::begin_block($ast);
-    $ast = $ast->emit($_) for @visitors;
+    for (@visitors) {
+        $ast = profile ref $_ => sub {$ast->emit($_)};
+    }
     $out .= $ast;
     shift @COMPILER::PAD;
 }
@@ -520,6 +544,9 @@ for (@COMPILER::CHECK) {
 #
 # End of main program
 #
+while (my ($key,$value) = each %prof_info) {
+    warn "$key took $value\n";
+}
 
 exit(0);
 
