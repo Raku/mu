@@ -2,7 +2,7 @@
 #include <pthread.h>
 #include <smop.h>
 #include <smop_lowlevel.h>
-#include <smop_oo.h>
+#include <smop_s1p.h>
 #include <unistd.h>
 
 
@@ -24,9 +24,9 @@ int main(int argc, char** argv) {
                                       SMOP__NATIVE__capture_create(SMOP__INTPTR__InterpreterInstance,
                                                                    SMOP__INTPTR__InterpreterInstance,NULL,NULL));
 
-  SMOP__Object* method = SMOP__OO__LOWL__Method_create(0,SMOP__ID__new,
-                                                       SMOP__NATIVE__bool_false,
-                                                       test_code);
+  SMOP__Object* method = SMOP__S1P__Method_create(0,SMOP__ID__new,
+                                                  SMOP__NATIVE__bool_false,
+                                                  test_code);
   printf("ok 1 - method created.\n");
 
   SMOP_DISPATCH(intrp,

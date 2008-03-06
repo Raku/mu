@@ -15,24 +15,5 @@ extern SMOP__Object* SMOP__p6opaque__RI;
  */
 extern SMOP__Object* SMOP__MetaClass__Default;
 
-extern SMOP__Object* SMOP__OO__LOWL__Method;
-SMOP__Object* SMOP__OO__LOWL__Method_create(int multi,
-                                            SMOP__Object* name,
-                                            SMOP__Object* signature,
-                                            SMOP__Object* (*code) (SMOP__Object* interpreter,
-                                                                   SMOP__Object* method,
-                                                                   SMOP__Object* capture));
-
-extern SMOP__Object* SMOP__OO__LOWL__SubMethod;
-SMOP__Object* SMOP__OO__LOWL__SubMethod_create(int multi,
-                                               SMOP__Object* name,
-                                               SMOP__Object* signature,
-                                               SMOP__Object* (*code) (SMOP__Object* interpreter,
-                                                                      SMOP__Object* method,
-                                                                      SMOP__Object* capture));
-
-extern SMOP__Object* SMOP__OO__LOWL__Signature;
-extern SMOP__Object* SMOP__OO__LOWL__Attribute;
-extern SMOP__Object* SMOP__OO__LOWL__Package;
 
 #endif
