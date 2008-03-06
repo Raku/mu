@@ -1,0 +1,309 @@
+============================================================
+Using this file
+----------------------------------------
+# Please rename the file when you update it.
+# So it's eventual obsolescence will be easily visible.
+
+*Please feel free* to add additional backends, etc, and otherwise bang
+on this file.  It is *not* intended as a personal-for-me work space.
+If it ends up being that, this project will quickly be killed.
+
+And please do add comments/questions/etc.  The Wikipedia convention of 
+ - This is a comment. mncharity 2008-Feb-24
+is a nice one.
+
+Style suggestions: Say *why* things are tasks.  What does completion
+look like.  Perhaps phrase in milestone dialect.  Include detail.
+They should *not* be "remind yourself" notes - those can go elsewhere.
+Enough detail that someone can, cold, () understand what it means, ()
+judge whether they have the skills to do it, () estimate the effort
+required, () have confidence if they start, the effort won't be
+completely missing the point and wasted.
+
+
+============================================================
+Vision
+----------------------------------------
+
+misc/winter_jig was started 2008-02-24, and envisioned as lasting one
+month, resulting in the creation of a Perl 6 implementation sufficient
+for people to start writing p6 code.
+
+Specifically, that the langauge coverage, speed of compilation, speed
+of execution, correctness and debuggability, would make it possible to
+start developing large oo p6 subsystems.  And that doing so would have
+greater appeal than working directly in backend languages (eg, p5, ruby).
+
+So the immediate objective is to get a sufficiently working parser, a
+simple emitter, and a simple and fast backend(s) which just implement
+the backend language's semantics, rather than stretching to be true to
+p6.  p5 and/or ruby are likely backends, the first because of local
+culture, the second for it's power and ability to easily support more
+p6 semantics.
+
+So the the pieces are
+ parser -> ast -> emitter -> backend code + minimal backend runtime.
+
+Success is being able to start writing, and reasonably expect not to
+get bogged down working around bugs, as has long been the case with
+pugs.
+
+  module BigThing {
+    class JustOnePartOfMany {
+      is APart;
+      ...
+    }
+    ...
+  }
+
+Some things which folks might work on once this capability exists are:
+
+* Continue writing the Prelude.  It's been stalled for years on "pugs
+can't handle it".
+
+* Write a p6 regex engine.  With an ast, and an emitter which assumes
+an underlying but non-reentrant p5re engine.  Many/most languages have
+the later, so this provides for p6 bootstrap in many places.  And for
+having a single reference source for correctness.  And a platform to
+start working on rx compilation, and on wizzy regex engines.
+
+* Write more and more of a p6 implementation in p6.  At some point,
+you will notice a bootstrap has occured.
+
+
+============================================================
+Ast's
+----------------------------------------
+KP6 AST:
+
+Kp6 can dump it's ast (script/kp6 -Cast-yaml).  The result is usable,
+though schema analysis and validation is unfinshed.  There is a
+framework for emitters written in p5 (see emit_from_kp6_pl_generate),
+and a barely started example of use.
+
+The kp6 ast path needs a customer.  In their absence, development
+focus has shifted elsewhere.  Work on a new kp6 backend has started,
+and there's been no other interest, suggesting something is missing.
+
+DEVELOPMENT PATH
+
+Posible directions to go are:
+
+ * Get validation working.  This could serve as a prototype for other
+ast's, so disregarding the existing work is fine.
+
+ * Flesh out the "bare p5" backend.  The design might be yanked from
+pmurias's new MiniPerl6Like kp6 backend.  This could provide a "it
+really works" demo.  Perhaps this would attract some interest.
+
+VALIDATION
+
+The schema validator turned out to be non-trivial, and is unfinished.
+Current thinking is a different approach is needed.  Either convert to
+XML, and use its validation tools, or convert to prolog-like terms,
+and write a "quite trivial in prolog" validation predicate.
+
+(HOLD) The p5-based schema validator, kp6_ast_validate, is on hold.
+There may be an easier way to approach this.
+
+Turns out there is at least one extra node, Pad.
+
+The field value spec is incompletely specifies what is going on.
+Plan woudl be to run the validator against ast-yaml files, and fill
+in field specs based on their actual values.
+
+(TODO) Figure out what Pad is, and add it to the schema, or remove
+it from the yaml.
+
+[QUESTION] Is there a schema doc somewhere?
+
+(done) An ast node-and-field spec file which properly recreates the
+original KindaPerl6/Ast.pm.  This does *not* include a field value
+schema (which was not present in the original).
+
+
+(done) A very simple transparent p5 wrapper module for ast trees.
+
+(MILESTONE) It's as easy to access the kp6 ast as it ever will be.
+Non-local and semantic work is *not* on the agenda.
+
+
+----------------------------------------
+RAKUDO AST:
+
+(BLOCKED) [particle] was working on doing a yaml dump of it, but ran
+out of tuits.  A hand-off to coke is possible.  cognominal has
+expressed interest.  ast_rakudo/Notes.txt has an irc conversation on
+the path foward.
+
+There is an existing --target=parse , so the ast which rakudo would
+expose can be eyeballed.  Nothing currently exists which can parse
+that output.
+
+[QUESTION] In dumping the ast, is it simply a format issue?  Eg,
+adding yaml dumpers to parrot objects?  Or does the tree need clean-up
+as well?
+
+There is a new script which runs rakudo with --target=parse against
+the pugs t/spec.  The results, only 35 of 128 files are successfully
+parsed, is less than I hoped.  But I have not looked at the nature of
+the failures, so they may be meaninglessly trivial, or fundamental.
+
+*** PRIORITY:
+(TODO) Look at the rakudo parse fails and get a feel for what is
+happening.  This will determine how large a role rakudo might play
+over the rest of March.
+
+(TODO) Infrastructure to keep in sync.
+
+(TODO) Create validator.  Perhaps use XML or prolog this time, rather
+than custom perl?
+
+(TODO) Simple wrapper library.
+
+
+----------------------------------------
+REDSIX AST:
+
+Redsix has a ruby copy version of the pugs grammar, and so
+hypothetically has the potential to do a good but non-spec parse, and
+provide that ast.
+
+A redsix ast has been one of the lower risk approaches to getting a
+parse, but also a less interesting one.  It would be non-STD, and
+requiring extending and debugging throwaway-code from an inactive
+project.
+
+An ast yaml dumper was started.  --yaml.  Currently, some information
+is missing, as the nodes turn out to need some massage before dumping
+occurs.  This was explored a bit in the "soon to be thrown away" ATerm
+dumping code which was also added.
+
+(TODO) Add ATerm-like massage to the yaml dumping, and flesh it out.
+
+(TODO) Determine if this is needed.  While rakudo can't *run* very
+much, if it can *parse* everything (can't - not clear yet why), or
+almost everything, redsix can, and as fast, then we can punt this.
+
+
+============================================================
+Match trees
+----------------------------------------
+
+No work has been done on a match tree yaml schema.
+
+
+MATCH TREE ABSTRACTION:
+
+(TODO) Write a Match-tree schema and validator.
+
+kqalify should be sufficiently powerful.  Look to src/perl6/Cursor5.pm.
+
+----------------------------------------
+STD5.pm SUPPORT
+
+(WAIT) for abstraction.
+
+(TODO) Add yaml dump to Cursor5.
+
+
+============================================================
+Accessible components
+----------------------------------------
+
+ACCESSIBLE INTERPRETERS
+
+There is now a script to run p6 interpreters, without having to worry
+about what directory to change into, or what executable to invoke.  It
+does *not* insulate you from command line arguments, and input styles.
+That's another, more difficult task.
+
+Includes: pugs kp6 rakudo.exe rakudo.pbc redsix
+
+(TODO) Add the v6 Perl::Compiler thing.  What is it's name?!?
+
+
+ACCESSIBLE REGEX ENGINES
+
+There is now a script to run regex implementations on a grammar and
+input file, and dump the Match tree as yaml.
+
+Currently only includes: pcr (Pugs::Compiler::Grammar).
+
+
+ACCESSIBLE REGEX ENGINE (PGE):
+
+(BLOCKED) Waiting on parrat yaml.
+
+ACCESSIBLE REGEX ENGINE (Pugs::Compiler::Rule):
+
+(TODO) Get a conformant search result Match-tree yaml dump.
+
+ACCESSIBLE REGEX ENGINE (yet_another_regexp_engine):
+
+(TODO) Determine need.  Does it have any advantages in speed or
+coverage over PGE?  Or of tested-ness?  Or value in being p5?  Then
+again, it may be trivially easy.
+  We don't actually have PGE yet, and it's not yet clear when we will.
+  It seem likely to do at least some things better than pcr.
+  So this should probably go ahead. - putter 2008-Mar-06
+
+
+============================================================
+Frontends
+----------------------------------------
+
+src/perl6/STD.pm is the closest thing we currently have for a "real",
+authoritative grammar for p6.
+
+STD5
+
+STD5 now has a wrapper which outputs a yaml Match tree.
+Development of STD.pm and STD5 may have hit some issues.
+
+(TODO) Explore what can be done to smooth STD.pm and STD5 development.
+
+(HOLD) Write match-tree to whatever-ast converter.
+The set of things parsed does not yet seem interesting
+enough to pursue yet.
+
+
+STD_red
+
+A version of STD.pm hand translated to ruby.  Intended to be a
+relatively low risk, but high manual effort, attempt to get a usably
+working p6 parser.
+
+(TODO) Continue to increase the portion of the parse tree which
+generates Match()es.
+
+(TODO) Assess the problem of some things (like assignment) not having
+a "working" implementation speced in STD.pm.
+
+
+See winter_jig/STD/README.
+
+
+REDSIX
+
+See redsix ast above.
+
+
+============================================================
+Backends
+----------------------------------------
+BARE PERL5 BACKEND:
+
+(HOLD) Awaiting interest from someone, or a mission.
+
+(done) Sketched emit_from_kp6.  *Not* runnable or run.
+
+(TODO) Get it runnable.
+
+[QUESTION] Can the kp6 test files be used, or do they have too many
+runtime dependencies?
+
+[QUESTION] What is a target milestone for this?  "I would be happy
+rewriting yet_another_regex_engine from p5 to this dialect of p6"???
+Does the non-obviousness indicate a project management thinko?
+
