@@ -1,0 +1,52 @@
+
+
+As of 2008-Mar-06, src/perl6/STD.pm is the closest thing we currently
+have for a "real", authoritative grammar for p6.  This directory has
+tools related to it.
+
+* STD_extract
+
+Intended to pull information out of STD.pm.  It took the approach of a
+piece by piece "parse", which makes it bitrot rapidly as STD changes.
+It provided moderately useful information, but focus shifted elsewhere
+before the quality of its output was very high.
+
+* STD_red (elsewhere)
+
+A version of STD.pm hand translated to ruby.  It was intended to be a
+relatively low risk, but high manual effort, attempt to get a usably
+working p6 parser.
+
+* STD_deconstructed
+
+Is the beginning of a fallback strategy.  When it looked like actually
+understandly the contents of STD.pm might prove necessary, rather than
+simply relying on its being correct, a much more analytic approach
+than STD_red was needed.
+
+It takes the information in STD.pm, and organizes it for use by parser
+implementers.  Sync'ing with STD.pm requires extracting any _ideas_
+which have changed, and changing STD_deconstructed.  So unattended,
+STD.pm and STD_deconstructed will tend to diverge.  But "cease to
+function due to bitrot" need not be a problem.
+
+Why not STD_extract?  STD_extract is too fragle in the face of STD.pm
+editing.  Given the role it would have here, keeping it updated isn't
+going to happen.  A less fragile, paragraph and rough sorting match,
+approach to scraping STD.pm, to help keep STD_deconstructed in sync,
+does seem worthwhile.
+
+Motivation for creation (2008-Mar-05): The plan was once to get a
+bootstrap parser from STD_red or rakudo or redsix.  redsix became less
+attractive because of the increased appeal of working with a "real"
+grammar, and because it turned out to require some development effort,
+which as throw away code, it was begrudged.  rakudo turned out to have
+more parsefails than expected, and the hope that if blockers turned
+up, they would get fixed, began to seem questionable.  Leaving just
+STD_red.  So when one of its design assumptions became iffy - that
+STD.pm represented "abstractly" working code, which in so far as it
+had problems, would get fixed, so STD_red could cleave closely to
+STD.pm, without attending to grammar design, and only worry about it's
+own tranlation errors - it seemed worth sketching out what a fallback
+strategy would look like.
+
