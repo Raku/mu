@@ -11,6 +11,9 @@ sub print_usage_and_exit {
     print STDERR $msg;
     print STDERR <<"END";
 $0 [--api0] [--yaml] ENGINE GRAMMAR_FILE START_GRAMMAR START_RULE INPUT_FILE
+
+ENGINEs: pcr
+
 END
     exit($exit_code);
 }
