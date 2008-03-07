@@ -45,8 +45,10 @@
 #define SMOP_INTERNAL_INIT_SEQUENCE         \
      smop_lowlevel_method_init();           \
      smop_p6opaque_init();                  \
-     smop_native_uint_init();
+     smop_native_uint_init();               \
+     smop_s1p_scalar_init();
 #define SMOP_INTERNAL_DESTROY_SEQUENCE      \
+     smop_s1p_scalar_destr();               \
      smop_native_uint_destr();              \
      smop_p6opaque_destr();                 \
      smop_lowlevel_method_destr();
@@ -75,5 +77,7 @@ void smop_lowlevel_method_init();
 void smop_lowlevel_method_destr();
 void smop_p6opaque_init();
 void smop_p6opaque_destr();
+void smop_s1p_scalar_init();
+void smop_s1p_scalar_destr();
 
 #endif

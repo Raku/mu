@@ -359,8 +359,12 @@ static SMOP__Object* frame_message(SMOP__Object* interpreter,
 
       SMOP__Object* node_invocant = ((smop_slime_frame_struct*)frame)->nodes[pc - i_invocant];
       int i;
-      for (i = 0; i < n_pos; i++) nodes_positional_arr[i] = ((smop_slime_frame_struct*)frame)->nodes[pc - i_positional[i]];
-      for (i = 0; i < n_nam; i++) nodes_named_arr[i] = ((smop_slime_frame_struct*)frame)->nodes[pc - i_named[i]];
+      for (i = 0; i < n_pos; i++) {
+        nodes_positional_arr[i] = ((smop_slime_frame_struct*)frame)->nodes[pc - i_positional[i]];
+      }
+      for (i = 0; i < n_nam; i++) {
+        nodes_named_arr[i] = ((smop_slime_frame_struct*)frame)->nodes[pc - i_named[i]];
+      }
 
       SMOP__Object* thisnode = ((smop_slime_frame_struct*)frame)->nodes[pc + t];
 
@@ -373,24 +377,49 @@ static SMOP__Object* frame_message(SMOP__Object* interpreter,
       SMOP__Object** result_named_arr = calloc(1,sizeof(SMOP__Object*) * (n_nam + 1));
       assert(result_named_arr);
 
-      SMOP__Object* result_invocant = SMOP_DISPATCH(interpreter,SMOP_RI(node_invocant),
-                                                    SMOP__ID__result,
-                                                    SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,node_invocant),NULL,NULL));
+      SMOP__Object* result_invocant =
+        SMOP_REFERENCE(interpreter,
+                      SMOP_DISPATCH(interpreter,SMOP_RI(node_invocant),
+                                    SMOP__ID__result,
+                                    SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,node_invocant),NULL,NULL)));
+    
+      for (i = 0; i < n_pos; i++) {
+        result_positional_arr[i] =
+          SMOP_REFERENCE(interpreter,
+                         SMOP_DISPATCH(interpreter,SMOP_RI(nodes_positional_arr[i]),
+                                       SMOP__ID__result,SMOP__NATIVE__capture_create(interpreter,
+                                                                                     SMOP_REFERENCE(interpreter,nodes_positional_arr[i]),
+                                                                                     NULL,NULL)));
+      }
+      for (i = 0; i < n_nam; i++) {
+        result_named_arr[i] = 
+          SMOP_REFERENCE(interpreter,
+                         SMOP_DISPATCH(interpreter,SMOP_RI(nodes_named_arr[i]),
+                                       SMOP__ID__result,SMOP__NATIVE__capture_create(interpreter,
+                                                                                     SMOP_REFERENCE(interpreter,nodes_named_arr[i]),
+                                                                                     NULL,NULL)));
+      }
       
-      for (i = 0; i < n_pos; i++) result_positional_arr[i] =
-                                    SMOP_DISPATCH(interpreter,SMOP_RI(nodes_positional_arr[i]),
-                                                  SMOP__ID__result,SMOP__NATIVE__capture_create(interpreter,
-                                                                                                SMOP_REFERENCE(interpreter,nodes_positional_arr[i]),
-                                                                                                NULL,NULL));
-      for (i = 0; i < n_nam; i++) result_named_arr[i] = 
-                                    SMOP_DISPATCH(interpreter,SMOP_RI(nodes_named_arr[i]),
-                                                  SMOP__ID__result,SMOP__NATIVE__capture_create(interpreter,
-                                                                                                SMOP_REFERENCE(interpreter,nodes_named_arr[i]),
-                                                                                                NULL,NULL));
+      SMOP_DISPATCH(interpreter,SMOP_RI(node_invocant),
+                    SMOP__ID__result,
+                    SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,node_invocant),
+                                                 (SMOP__Object*[]){SMOP__NATIVE__bool_false,NULL},NULL));
+      for (i = 0; i < n_pos; i++) {
+        SMOP_DISPATCH(interpreter,SMOP_RI(nodes_positional_arr[i]),
+                      SMOP__ID__result,SMOP__NATIVE__capture_create(interpreter,
+                                                                    SMOP_REFERENCE(interpreter,nodes_positional_arr[i]),
+                                                                    (SMOP__Object*[]){SMOP__NATIVE__bool_false,NULL},NULL));
+      }
+      for (i = 0; i < n_nam; i++) {
+        SMOP_DISPATCH(interpreter,SMOP_RI(nodes_named_arr[i]),
+                      SMOP__ID__result,SMOP__NATIVE__capture_create(interpreter,
+                                                                    SMOP_REFERENCE(interpreter,nodes_named_arr[i]),
+                                                                    (SMOP__Object*[]){SMOP__NATIVE__bool_false,NULL},NULL));
+      }
       
       SMOP__Object* res = SMOP__NATIVE__capture_create(interpreter,result_invocant, result_positional_arr, result_named_arr);
       SMOP_DISPATCH(interpreter,SMOP_RI(thisnode),SMOP__ID__capture,
-                    SMOP__NATIVE__capture_create(interpreter,thisnode,(SMOP__Object*[]){res,NULL},NULL));
+                    SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,thisnode),(SMOP__Object*[]){res,NULL},NULL));
       SMOP_RELEASE(interpreter,frame);
       ret = SMOP__NATIVE__bool_true;
     } else {

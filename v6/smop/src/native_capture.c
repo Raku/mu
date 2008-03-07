@@ -380,7 +380,7 @@ SMOP__Object*   SMOP__NATIVE__capture_delegate(SMOP__Object* interpreter,
     pos = malloc(sizeof(SMOP__Object*) * (n_positional+1));
     assert(pos);
     int i;
-    for (i = 0; i < n_named; i++) {
+    for (i = 0; i < n_positional; i++) {
       pos[i] = SMOP_REFERENCE(interpreter,positional[i]);
     }
     pos[n_positional] = NULL;

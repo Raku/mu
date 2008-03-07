@@ -132,7 +132,7 @@ static SMOP__Object* node_message(SMOP__Object* interpreter,
     ret = ((smop_slime_node_struct*)node)->result;
     smop_lowlevel_unlock(node);
     if (old) SMOP_RELEASE(interpreter, old);
-
+    if (ret) SMOP_REFERENCE(interpreter,ret);
     SMOP_RELEASE(interpreter,node);
 
   } else if (identifier == SMOP__ID__free) {

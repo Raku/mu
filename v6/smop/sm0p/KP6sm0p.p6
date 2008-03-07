@@ -119,7 +119,7 @@ grammar sm0p is KindaPerl6::Grammar {
       | '$' <name> { make $<name> ~ '' }
       | <idconst> { make $<idconst> ~ ''}
       | <name> { make $<name> ~ '' }
-      | <native_int> { make $<native_int> ~ '' }
+      | <nativeint> { make $<nativeint> ~ '' }
     };
 
     token idconst {
@@ -167,22 +167,22 @@ grammar sm0p is KindaPerl6::Grammar {
         ]
     };
 
-    token native_int {
+    token nativeint {
         <digitsP5> { make 'SMOP__NATIVE__int_create(' ~ $/ ~ ')' };
     };
 
-    token native_int_list {
-        '(' <native_int_list_body>
-        ')' {make '(SMOP__Object*[]){ '~ $<native_int_list_body> ~ ' }' }
+    token nativeint_list {
+        '(' <nativeint_list_body>
+        ')' {make '(SMOP__Object*[]){ '~ $<nativeint_list_body> ~ ' }' }
        | '' {make 'NULL'}
     };
 
-    token native_int_list_body {
-        <ws> <native_int> <ws>
+    token nativeint_list_body {
+        <ws> <nativeint> <ws>
         [
-         ',' <ws> <native_int_list_body> <ws>
-         { make $<native_int> ~ ', ' ~ $<native_int_list_body> }
-        | '' { make $<native_int> ~ ', NULL '}
+         ',' <ws> <nativeint_list_body> <ws>
+         { make $<nativeint> ~ ', ' ~ $<nativeint_list_body> }
+        | '' { make $<nativeint> ~ ', NULL '}
         ]
     };
 
