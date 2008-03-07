@@ -3597,11 +3597,12 @@ _END
 );
 ;
 source_ruby(<<'_END'
-# (setq ruby-here-doc-beg-re "<<\\(-\\)?\\(\\([a-zA-Z0-9][a-zA-Z0-9_]*\\)\\|[\"]\\([^\"]+\\)[\"]\\|[']\\([^'_][^']*\\)[']\\)")
 ###* Footer
 #; Local Variables:
+#; mode: ruby
 #; mode: outline-minor
 #; outline-regexp: "###[*]+"
+#; ruby-here-doc-beg-re: <<\(-\)?\(\([a-zA-Z0-9][a-zA-Z0-9_]*\)\|["]\([^"]+\)["]\|[']\([^'_][^']*\)[']\)
 #; ruby-indent-level: 2
 #; perl-indent-level: 2
 #; perl-continued-statement-offset: 2
@@ -3609,5 +3610,6 @@ source_ruby(<<'_END'
 #; indent-tabs-mode: nil
 #; End:
 #; vim: shiftwidth=2:
+# (setq ruby-here-doc-beg-re "<<\\(-\\)?\\(\\([a-zA-Z0-9][a-zA-Z0-9_]*\\)\\|[\"]\\([^\"]+\\)[\"]\\|[']\\([^'_][^']*\\)[']\\)")
 _END
 );
