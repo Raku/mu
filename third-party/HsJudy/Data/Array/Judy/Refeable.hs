@@ -1,5 +1,5 @@
 {-# LANGUAGE MagicHash, UndecidableInstances, IncoherentInstances, FlexibleInstances  #-}
-module Judy.Refeable (
+module Data.Array.Judy.Refeable (
     Refeable (..)
 ) where
 
@@ -7,8 +7,8 @@ import Foreign.StablePtr
 
 import Foreign.Ptr
 
-import Judy.Private
-import qualified Judy.MiniGC as GC
+import Data.Array.Judy.Private
+import qualified Data.Array.Judy.MiniGC as GC
 import GHC.Exts (unsafeCoerce#)
 
 -- FIXME: It results in an illegal instruction if I take the "Dummy a"

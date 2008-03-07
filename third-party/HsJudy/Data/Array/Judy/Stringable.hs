@@ -1,6 +1,6 @@
 {-# LANGUAGE TypeSynonymInstances #-}
 
-module Judy.Stringable (
+module Data.Array.Judy.Stringable (
     Stringable (..)
 ) where
 

@@ -1,7 +1,7 @@
 {-# LANGUAGE MagicHash, FlexibleInstances, OverlappingInstances,IncoherentInstances,
   IncoherentInstances, UndecidableInstances #-}
 
-module Judy.HashIO (
+module Data.Array.Judy.HashIO (
     HashIO (..),
     UniqueHashIO, -- (..),
     ReversibleHashIO (..)
@@ -9,7 +9,7 @@ module Judy.HashIO (
 
 import Data.HashTable (hashString)
 
-import Judy.Private
+import Data.Array.Judy.Private
 import GHC.Exts (unsafeCoerce#)
 
 class HashIO a where

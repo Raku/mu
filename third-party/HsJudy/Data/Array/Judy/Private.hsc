@@ -1,7 +1,7 @@
 {-# LANGUAGE ForeignFunctionInterface #-}
 
 -- | Low-level FFI
-module Judy.Private where
+module Data.Array.Judy.Private where
 
 import Foreign
 

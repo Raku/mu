@@ -1,11 +1,11 @@
 {-# LANGUAGE UndecidableInstances, FunctionalDependencies, FlexibleContexts #-}
 
-module Judy.CollectionsM (
+module Data.Array.Judy.CollectionsM (
     MapM (..),
     MapF (..)
 ) where
 
--- import Judy.Freeze
+-- import Data.Array.Judy.Freeze
 -- import Foreign
 import Data.IORef
 import qualified Data.Map       as DM

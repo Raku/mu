@@ -1,8 +1,8 @@
 name:                HsJudy
-version:             0.1.1
+version:             0.2
 Category:            Data
 Synopsis:            Judy bindings, and some nice APIs
-Description:         Judy[1] bindings (a C library that implements fast sparse dynamic
+Description:         Judy bindings (a C library that implements fast sparse dynamic
                      arrays) for Haskell presenting APIs conforming as much as possible to the
                      existent Haskell library interfaces, like Data.Map and Data.Array.MArray.
                      This binding for the Judy library includes all its four types: mapping from
@@ -19,18 +19,13 @@ build-type:          Simple
 
 data-files:          README
 
-flag small_base
-    description: Choose the new smaller, split-up base package.
-
 Library
-        if flag(small_base)
-            Build-Depends: base, containers
-        else
-            Build-Depends: base < 3
-        build-depends:     bytestring>=0.9.0.1
-        exposed-modules:     Judy.BitSet Judy.Freeze Judy.Hash Judy.IntMap Judy.StrMap
-                             Judy.CollectionsM Judy.HashIO Judy.Refeable Judy.Stringable
-        other-modules:       Judy.Private Judy.MiniGC
+        Build-Depends: base, containers, bytestring>=0.9.0.1
+
+        exposed-modules:     Data.Array.Judy.BitSet Data.Array.Judy.Freeze Data.Array.Judy.Hash Data.Array.Judy.IntMap Data.Array.Judy.StrMap
+                             Data.Array.Judy.CollectionsM Data.Array.Judy.HashIO Data.Array.Judy.Refeable Data.Array.Judy.Stringable
+        other-modules:       Data.Array.Judy.Private Data.Array.Judy.MiniGC
+        -- Tell Cabal to link to the C library, wheresoever it is.
         extra-libraries:     Judy
 
         extensions:          ForeignFunctionInterface, TypeSynonymInstances, MagicHash, MultiParamTypeClasses, FlexibleContexts,

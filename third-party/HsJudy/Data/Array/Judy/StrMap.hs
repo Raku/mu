@@ -2,7 +2,7 @@
 
 {-# INCLUDE "Judy.h" #-}
 
-module Judy.StrMap (
+module Data.Array.Judy.StrMap (
     StrMap (..),
 
     freeze,
@@ -21,12 +21,12 @@ import Foreign.C.String
 import Foreign
 import Data.Maybe (fromJust)
 
-import Judy.Private
-import qualified Judy.CollectionsM as CM
-import Judy.Refeable
-import Judy.Stringable
-import Judy.Freeze
-import qualified Judy.MiniGC as GC
+import Data.Array.Judy.Private
+import qualified Data.Array.Judy.CollectionsM as CM
+import Data.Array.Judy.Refeable
+import Data.Array.Judy.Stringable
+import Data.Array.Judy.Freeze
+import qualified Data.Array.Judy.MiniGC as GC
 
 import Prelude hiding (map)
 

@@ -2,7 +2,7 @@
 
 {-# INCLUDE "Judy.h" #-}
 
-module Judy.BitSet where
+module Data.Array.Judy.BitSet where
 
 import Data.Typeable
 import Foreign.ForeignPtr
@@ -11,9 +11,9 @@ import Foreign.Storable
 import Foreign.Ptr
 import System.IO.Unsafe
 
-import Judy.Private
-import Judy.Freeze
-import Judy.HashIO
+import Data.Array.Judy.Private
+import Data.Array.Judy.Freeze
+import Data.Array.Judy.HashIO
 
 
 newtype HashIO a => BitSet a = BitSet { judy :: ForeignPtr Judy1 }

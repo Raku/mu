@@ -1,7 +1,7 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# INCLUDE "Judy.h" #-}
 
-module Judy.MiniGC (
+module Data.Array.Judy.MiniGC (
     judyGC, newRef, freeRef
 ) where
 
@@ -13,7 +13,7 @@ import Foreign
 --import Foreign.Ptr
 import Foreign.StablePtr
 
-import Judy.Private
+import Data.Array.Judy.Private
 
 {-# NOINLINE judyGC #-}
 judyGC :: GCMap
