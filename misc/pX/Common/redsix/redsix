@@ -32,6 +32,7 @@ eval($ruby_init_code)
  #)
 source_ruby(<<'_END'
   require 'digest/md5'
+  begin; require 'rubygemsxx'; require 'multimethod'; rescue LoadError; end
   module Kernel; def chksum(s) Digest::MD5.hexdigest(s) end end
   $perlcode_to_eval = []
   def source_perl_compiled(sum,rubycode,perlcode)
@@ -39,7 +40,9 @@ source_ruby(<<'_END'
     eval(rubycode,$P.P6_binding,file,line)
     #File.open("deleteme_02","w"){|f|f.write perlcode.split(//).join("\n")}
     if chksum(perlcode) != sum
-      print "# Perl source #{caller_file_line.join(':')} changed.  I will eval() it later.\n"
+      if not (!ARGV.empty? and ARGV[0] == '-q')
+        print "# Perl source #{caller_file_line.join(':')} changed.  I will eval() it later.\n"
+      end
       #p sum; p perlcode.length,chksum(perlcode)
       linepl = line + rubycode.split(/\n/).size
       $perlcode_to_eval.push([perlcode,[file,linepl]])
@@ -784,12 +787,12 @@ end
 
 class SixGrammar < Grammar
   def method_missing(method, *args)
-    print "FAKING #{method}\n"
+    print "FAKING #{method}\n" if not $P.quiet
     Rule.new(method,[:apat,/(?!)/])
   end
   def method(method,*args)
     return super if self.class.method_defined?(method)
-    print "FAKING #{method}\n"
+    print "FAKING #{method}\n" if not $P.quiet
     proc{Rule.new(method,[:apat,/(?!)/])}
   end
 
@@ -872,7 +875,7 @@ class SixGrammar < Grammar
         n = n.as_s.to_sym
         # Completely kludge arity, which has become critical. :/
         #ac = {:f1=>1,:fq=>:q,:f0=>0}[n]
-        ac = {:ref=>1,:pi=>0,:shift=>1,:pop=>1,:try=>1}[n]
+        ac = {:pi=>0,:shift=>1,:pop=>1,:try=>1}[n]
         case ac
         when nil; rest.push(*acx)
         when :s;  rest.push(*acx)
@@ -1384,6 +1387,11 @@ class PastFromParse
       Past::CodeBlock.new(m,b)
     end
   }
+  def self.derive_CodeBlock_from_StandaloneBlock(x)
+    m = x.src
+    b = x.block
+    Past::CodeBlock.new(m,b)
+  end
   node :block,->(m){
     begin
       e = m.hash[:statement_list].hash[:statement].hash[:expr_statement].hash[:expr].hash[:opp]
@@ -1472,6 +1480,10 @@ class PastFromParse
     l = unpack_comma_list(im.hash[:opp])
     iter = l.size == 1 ? l[0] : Past::ArrayLiteral.new(im,l)
     body = emit(m.hash[:expr][1])
+    # Work around a misparse of "for @a {}". See :code_block :for_construct .
+    if body.is_a?(Past::StandaloneBlock)
+      body = derive_CodeBlock_from_StandaloneBlock(body)
+    end      
     Past::For.new(m,iter,body)
   }
   def self.get_firstsense(m)
@@ -1779,12 +1791,9 @@ module Past
       down_not_self(:walk_discarding_src)
     end
   end
-  def self.frob(s)
-    s.split(/\s*\n/).each{|l|
-      next if l =~ /^#/ or l =~ /^\s*$/
-      l.gsub!(/^\s*/,'');
-      cl,_fs=l.split(/\s+/);
-      fs = _fs.split(/,\s*/); fs.shift if fs[0] == '-'
+  def self.generate_ast_classes
+    $ast_definition.each{|info|
+      cl,fs=info
       as = ['src']+fs
       varcode = fs.empty? ? '' : <<-END
           attr_accessor #{fs.map{|f|":#{f}"}.join(',')}
@@ -1795,20 +1804,29 @@ module Past
       END
       code = <<-END 
         class #{cl} < PastObject #{"\n"+varcode}
-        end
-      END
-      args = fs.map{|f|"@#{f}.respond_to?(:emit_aterm) ? @#{f}.emit_aterm : \"'\#{@#{f}}'\""}.join(",")
-      code += <<-END 
-        class #{cl}
-          def emit_aterm
-            "#{cl}("+[#{args}].join(",")+")"
+          def node_name
+            '#{cl}'
+          end
+          def field_names
+            [#{fs.empty? ? 'string' : fs.map{|f|"'#{f}'"}.join(',')}]
+          end
+          def field_values
+            [#{fs.empty? ? "#{as_s}" : fs.map{|f|"@#{f}"}.join(',')}]
           end
         end
       END
       begin eval code; rescue Exception; fail "#{$!}:\n#{code}" end
     }
   end
-  frob(%q{
+  def self.read_ast_definition(s)
+    s.split(/\s*\n/).select{|l| not(l =~ /^#/ or l =~ /^\s*$/) }.map{|l|
+      l.gsub!(/^\s*/,'');
+      cl,_fs=l.split(/\s+/);
+      fs = _fs.split(/,\s*/); fs.shift if fs[0] == '-'
+      [cl,fs]
+    }
+  end
+$ast_definition = read_ast_definition(%q{
 Rx modifiers,pattern
 PPair name,value
 ArrayLiteral array
@@ -1853,10 +1871,10 @@ Postfix fun,fargs
 Postcircumfix fun,fargs
 WrappedPPair pair
 })
+  generate_ast_classes
 # Parameter
 end
 
-class Array; def emit_aterm; '['+map{|e|e.emit_aterm}.join(",")+']'; end end
 
 ###**** Past methods
 
@@ -2054,6 +2072,8 @@ end
 
 ###*** PastToRb
 
+begin; require 'rubygems'; require 'multimethod'; rescue LoadError; end
+
 module Past
   class PastObject
     def rb_type_mangle(tn)
@@ -2101,7 +2121,7 @@ module Past
     def emit_rb
       vm = "#{var.emit_rb_def}m"
       code = "attr_accessor :#{vm}"
-      va = "#{var.leafname}C"
+      va = "#{var.leafname}Cm"
       v = var.emit_rb
       code += "\ndef #{va}() ->(_S,selfS){ #{v} }end"
       gs = gensym
@@ -2433,9 +2453,16 @@ module Past
   end
   class Signature
     def emit_rb_multi_pattern
-      @params.map{|p|
-        p.type ? p.type.src.as_s : 'Object'
+      repack = []
+      params = @params.map{|p|
+        type = p.type ? p.type.as_s : 'Object'
+        n = p.variable.emit_rb_def
+        n = "*#{n}" if p.slurpy?
+        repack.push(n)
+        "#{type} #{n}"
       }.join(',')
+      params_as_args = repack.join(",")
+      [params,params_as_args]
     end
     def emit_rb_param_list
       assignment_needs_comma = @params.size == 1
@@ -2510,22 +2537,23 @@ module Past
         case k
         when 'sub'
           if @name
-            n = "#{@name.emit_rb}C"
+            n = varname("#{@name.emit_rb}C")
             "current_class.def_pkg_var(#{n.to_sym.inspect},#{lam})\n"
           else
             "#{lam}\n"
           end
+        when 'multi sub'
+          n = varname("#{@name.emit_rb}C")
+          nm = "#{@name.emit_rb}M"
+          spc,argl = @sig.emit_rb_multi_pattern
+          ("current_class.multimethod %q{\ndef #{nm}(Object _E,#{spc})\n#{lam}.(_E,#{argl})\nend\n}\n"+
+           "current_class.def_pkg_var(#{n.to_sym.inspect},->(*args){#{nm}(*args)})\n")
         when 'method'
           n = varname("#{@name.emit_rb}Cm")
           "current_class.def_pkg_var(#{n.to_sym.inspect},#{lam2})\n"
         when 'submethod'
           n = "#{@name.emit_rb}Csm"
           "current_class.def_pkg_var(#{n.to_sym.inspect},#{lam})\n"
-        when 'multi sub'
-          n = varname("#{@name.emit_rb}Cm")
-          nm = "#{@name.emit_rb}M"
-          spc = @sig.emit_rb_multi_pattern
-          "multi(#{nm.to_sym.inspect},Object,#{spc},#{lam})\ncurrent_class.def_pkg_var(#{n.to_sym.inspect},->(*args){#{nm}(*args)})\n"
         else fail("#{k} not implemented")
         end
       end
@@ -2606,13 +2634,12 @@ end
 require 'readline'
 class P6
   attr_accessor :pkgspace
-  attr_accessor :verbose
-  attr_accessor :provide_yaml_ast,:provide_aterm
+  attr_accessor :verbose,:quiet
+  attr_accessor :provide_yaml_ast
   def initialize
     @verbose=false
     @pkgspace = RPackage.make_GLOBAL
     @provide_yaml_ast = false
-    @provide_aterm = false
   end
   def P6_binding; @pkgspace.thebinding end
   def P6_binding_Main; @pkgspace.symtab['::Main'].thebinding end
@@ -2620,24 +2647,22 @@ class P6
   def note(head,val,insp=true)
     print "__________\n#{head}\n#{insp ? val.inspect : val}\n----------\n" if @verbose
   end
-  def number_lines(s)
+  def number_the_lines(s)
     cnt = 0
     s.split(/\n/).map{|l|cnt+=1; "#{cnt}\t#{l}\n"}.join("")
   end
   def file_prelude
     "\n \#(\n\$ruby_init_code = <<'_CODE'\n#{$ruby_init_code}_CODE\neval(\$ruby_init_code)\n #)\n"
   end
-  def compile_file(src,dest)
-    src = get_file(src)
+  def compile_file(file_src,dest)
+    src = get_file(file_src)
     rb = compile6(src)
-    f = File.open(dest,"w")
-    f.write(file_prelude)
-    f.write(rb)
-    f.close_write
+    code = file_prelude + rb
+    File.open(dest,"w"){|f| f.write(code) }
     rb
   end
   def get_file(fn)
-    src = `cat #{fn}`
+    src = File.open(fn,'r'){|f|f.read}
   end
   def parse(src)
     note :src,src
@@ -2666,7 +2691,8 @@ class P6
     print "Parsing #{fileline[0]} line #{fileline[1]}.\n" if fileline and @verbose
     k = Digest::MD5.hexdigest(src)
     if (!clean||clean==2) && File.exists?("redsix_cache/#{k}.rb")
-      print "Using redsix_cache/#{k}.rb\n"
+      print "Using redsix_cache/#{k}.rb\n" if not ($P.quiet or
+                                                   (!ARGV.empty? and ARGV[0] == '-q'))
       return `cat redsix_cache/#{k}.rb`
     end
     tree = parse(src)
@@ -2686,13 +2712,10 @@ class P6
       ast.walk_discarding_src
       print YAML::dump(ast)
       ""
-    elsif provide_aterm
-      print ast.emit_aterm,"\n"
-      ""
     else
       note :ast,ast
       rbc = ast.emit_rb
-      note :rbc,number_lines(rbc),false
+      note :rbc,number_the_lines(rbc),false
       if !clean
         File.open("redsix_cache/#{k}.rb","w"){|f|f.print(rbc)}
       end
@@ -2702,11 +2725,11 @@ class P6
   def eval6_file(fn)
     fnc = "#{fn}.rb"
     if FileTest.exist?(fnc) && !clean
-      print "Using precompiled #{fnc}\n"
-      rbc = `cat #{fnc}`
+      print "Using precompiled #{fnc}\n" if not @quiet
+      rbc = File.open(fnc,'r'){|f|f.read}
       eval_safe(rbc,nil,fnc,0)
     else
-      print "Loading #{fn}\n"
+      print "Loading #{fn}\n" if not @quiet
       src = get_file(fn)
       eval6(src,[fn,1])
     end
@@ -2730,37 +2753,14 @@ class P6
     eval('_S = BindBox.new(pundef); _E = BindBox.new(pundef)',binding)
     begin res = eval(rbc,binding,file,line)
     rescue NameError => boom
-      print number_lines(rbc),boom,"\n",boom.backtrace.join("\n"),"\n"
+      print number_the_lines(rbc),boom,"\n",boom.backtrace.join("\n"),"\n"
     rescue SyntaxError => boom
-      print number_lines(rbc),boom,"\n",boom.backtrace.join("\n"),"\n"
+      print number_the_lines(rbc),boom,"\n",boom.backtrace.join("\n"),"\n"
     end
     res
   end
-  def repl
-    begin
-      histfile = File::expand_path("deleteme_hist")
-      if File::exists?(histfile)
-        Readline::HISTORY.push(*(eval(IO.read(histfile))||[]))
-      end
-      while true
-        #src = gets
-        src = Readline.readline("\033[0;31m6\033[0m: ",true)
-        #src = begin readline rescue "" end
-        if src == "" || !src;print "\n"; break end
-        if src == "\n"; break end
-        res = eval6(src,['repl-input',1])
-        print "=> ",res.inspect,"\n" if not @verbose # because eval6() did it if @verbose.
-      end
-    rescue Interrupt
-      exit
-    ensure
-      h = Readline::HISTORY.to_a.reverse.uniq.slice(0,100).reverse.inspect
-      open(histfile,"w"){|io|io.puts(h)}
-    end
-  end
 end
 $P = P6.new
-def repl; $P.repl end
 
 ###*** Force include() to work with dynamic modules.
 
@@ -2827,8 +2827,6 @@ end
 
 
 ###*** Multi-method dispatch
-#  Derived from Christopher Cyll's multi-0.1. (md5 ...30826914ae  multi.rb)
-# Very not the right thing.
 
 def multi(method_name, *patterns, &body)
   body ||= patterns.pop
@@ -3089,12 +3087,32 @@ df :try,->(_E,b){
 df :use,->(_E,c){
   puse(c)
 }
+$include_path=['.']
 def puse(n)
-  fn = "#{n}.pm"
-  if fn == "Test.pm" and not FileTest.exist?("Test.pm")
-    fn = "misc/pX/Common/redsix/Test.pm"
+  if m = n.match(/^lib\s+[\"\'](.+)[\"\']$/)
+    $include_path.push(m[1])
+  else
+    fn = nil
+    if n == 'Test'
+      maybe_fn = "misc/pX/Common/redsix/Test.pm"
+      fn = maybe_fn if not(FileTest.exist?("Test.pm")) and FileTest.exist?(maybe_fn)
+    elsif n=~/^\//
+      fn = n+'.pm'
+    end
+    if not fn
+      $include_path.each{|dir|
+        tmp = dir+'/'+n+'.pm'
+        if FileTest.exists?(tmp)
+          fn = tmp
+          break 
+        end
+      }
+    end
+    if not fn
+      raise "Can't locate #{n}.pm in @INC (@INC contains: #{$include_path.join(" ")}).\n";
+    end
+    $P.eval6_file(fn)
   end
-  $P.eval6_file(fn)
 end
 
 ###*** misc
@@ -3137,13 +3155,13 @@ class Array;
 end
 ###**** as_n
 # is elsewhere
-###**** ref
-class BindBox; def refCm;proc{ @__getobj__.refCm.call }end end
-class Object; def refCm;proc{ "#{self.class}" }end end
-class String; def refCm;proc{ "Str" }end end
-class TrueClass;  def refCm;proc{ "Bool" }end end
-class FalseClass; def refCm;proc{ "Bool" }end end
-class Proc; def refCm;proc{ "Code" }end end
+###**** WHAT
+class BindBox; def _WHATCm;proc{ @__getobj__._WHATCm.call }end end
+class Object; def _WHATCm;proc{ "#{self.class}" }end end
+class String; def _WHATCm;proc{ "Str" }end end
+class TrueClass;  def _WHATCm;proc{ "Bool" }end end
+class FalseClass; def _WHATCm;proc{ "Bool" }end end
+class Proc; def _WHATCm;proc{ "Code" }end end
 ###**** true false
 class Object
   class Blah
@@ -3163,6 +3181,8 @@ class Object; include Any; end
 module Bool; end
 class TrueClass; include Bool end
 class FalseClass; include Bool end
+Bool::True = true
+Bool::False = false
 module Str; end
 class String; include Str; end
 module Num; end
@@ -3451,70 +3471,95 @@ require 'rbconfig' # for Config::CONFIG
 class Object; def self.newCm;->(_S,_self,*a){ new(*a) }end end
 
 ###** main
-#print $grammar.parse.search((" "*1000)+"4").inspect
 
-# $P.eval6q($six_rt) if not (ENV['TEST_ONLY_PARSE'] && ENV['TEST_ONLY_PARSE'] != 0)
+class Program
+  def print_usage_and_exit(msg='',exit_code=2)
+    msg = "\n"+msg+"\n" if msg != ''
+    STDERR.print(<<-_USAGE.gsub(/^    /m,'')); exit(exit_code)
+    #{msg}
+    #{$0} [ARGS]
 
-def main
-  # Deal with arguments ./pugs -Bredsix and test-redsix provide.
-  #  STDERR.print ARGV.join(", "),"\n"
-  while(not ARGV.empty? and ARGV[0] =~ /^--pugs=|^-Bredsix$|^-w$/)
-    ARGV.shift() 
+    With no ARGS, runs an interactive read-eval-print-loop.
+    
+      -q      Become very quiet.
+      -v      Turn on verbose.
+    
+      --yaml  Print ast as yaml, instead of running.
+    
+      -e EXPRESSION_TO_RUN
+    
+      FILE_TO_RUN
+    
+      -c FILE_TO_COMPILE TO_FILENAME
+    
+    _USAGE
   end
-  if not ARGV.empty? and ARGV[0] =~ /^-B$/
-    ARGV.shift()
-    ARGV.shift()
+  def remove_bogus_arguments(argv)
+    # Remove arguments introduced by ./pugs -Bredsix, and  make test-redsix.
+    while(not argv.empty? and argv[0] =~ /^--pugs=|^-Bredsix$|^-w$/)
+      argv.shift() 
+    end
+    if not argv.empty? and argv[0] =~ /^-B$/
+      argv.shift(); argv.shift()
+    end
+    exec("perl",*argv) if argv[0] == '-le' # pugs "make test" :/
+    argv
   end
-  if not ARGV.empty? and ARGV[0] =~ /^-v$/
-    ARGV.shift()
-    $P.verbose = true
-  end
-  if not ARGV.empty? and ARGV[0] =~ /^--yaml$/
-    ARGV.shift()
-    $P.provide_yaml_ast = true
-  end
-  if not ARGV.empty? and ARGV[0] =~ /^--aterm$/ # unsupported
-    ARGV.shift()
-    $P.provide_aterm = true
-  end
+  def main(argv)
+    argv = remove_bogus_arguments(argv)
+    
+    while not argv.empty?
+      arg = argv.shift
+      case arg
+      when '-v'; $P.verbose = true
+      when '-q'; $P.quiet = true
+      when '--yaml'; $P.provide_yaml_ast = true
+      when '--help'; print_usage_and_exit('',0)
+      else argv.unshift(arg); break
+      end
+    end
 
-  if ARGV.empty?
-    $P.repl
-  else
-    #STDERR.print ARGV.inspect,"\n\n"
-    exec("perl",*ARGV) if ARGV[0] == '-le' # pugs "make test" :/
-    ARGV.shift if ARGV[0] == '-w'
-    if ARGV[0] == '-c'
-      print_usage_and_exit if ARGV.size != 3
-      $P.compile_file(ARGV[1],ARGV[2])
-    elsif ARGV[0] == '-e'
-      $P.eval6(ARGV[1])
-    elsif ARGV[0] =~ /^-/
-      print_usage_and_exit
+    if argv.empty?
+      interactive_shell
     else
-      print "Parseing #{ARGV[0]}\n"
-      $P.eval6_file(ARGV[0])
+      arg = argv.shift
+      case arg
+      when '-e'
+        p6 = argv.shift or print_usage_and_exit
+        $P.eval6(p6)
+      when '-c'
+        print_usage_and_exit if argv.size != 2
+        $P.compile_file(argv[0],argv[1])
+      when /^-/
+        print_usage_and_exit("Unknown argument: #{arg}\n")
+      else
+        file = arg
+        print "Parseing #{file}\n" if not $P.quiet
+        $P.eval6_file(file)
+      end
     end
   end
-end
-def print_usage_and_exit
-  STDERR.print <<_USAGE; exit(2)
 
-#{$0} [ARGS]
-
-With no ARGS, runs an interactive read-eval-print-loop.
-
-  -v      Turn on verbose.
-
-  --yaml  Print ast as yaml, instead of running.
-
-  -e EXPRESSION_TO_RUN
-
-  FILE_TO_RUN
-
-  -c FILE_TO_COMPILE TO_FILENAME
-
-_USAGE
+  def interactive_shell
+    begin
+      histfile = File::expand_path("deleteme_hist")
+      if File::exists?(histfile)
+        Readline::HISTORY.push(*(eval(IO.read(histfile))||[]))
+      end
+      while true
+        src = Readline.readline("\033[0;31m6\033[0m: ",true)
+        if src == "" || !src;print "\n"; break end
+        if src == "\n"; break end
+        res = $P.eval6(src,['repl-input',1])
+        print "=> ",res.inspect,"\n" if not $P.verbose # because eval6() did it if @verbose.
+      end
+    rescue Interrupt
+      exit
+    ensure
+      h = Readline::HISTORY.to_a.reverse.uniq.slice(0,100).reverse.inspect
+      open(histfile,"w"){|io|io.puts(h)}
+    end
+  end
 end
 _END
 );
@@ -3538,7 +3583,7 @@ sub int($x) {
 sub shift($o){$o.shift}
 sub pop($o){$o.pop}
 sub isa($o,$t){$o.isa($t)}
-sub ref($o){$o.ref}
+sub ref($o){$o.WHAT}
 sub push($o,*@a){$o.push(*@a)}
 sub unshift($o,*@a){$o.unshift(*@a)}
 sub splice($o,*@a){$o.splice(*@a)}
@@ -3586,13 +3631,13 @@ our $*ERR = raw_rUBY('STDERR');
 our $*PID = raw_rUBY('Process.pid');
 our $*UID = raw_rUBY('Process.uid');
 our $*GID = raw_rUBY('Process.gid');
-say "Welcome! :)"
+#say "Welcome! :)"
 _END
 );
 ;
 source_perl_finish();
 source_ruby(<<'_END'
-main
+Program.new.main(ARGV)
 _END
 );
 ;

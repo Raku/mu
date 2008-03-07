@@ -9,13 +9,77 @@ it was dusted off as one of several partial implementations of parts
 of p6, which might hopefully be mixed together to get a more robust
 development process.  That's this directory.
 
+
+"INSTALL"
+
+ You need:
+
+  * ruby 1.9
+    Make sure it's not a development copy.  ruby --version should be
+    no earlier than 2007-12-25 revision 14709.
+
+  For multimethods to work, you also need gems and multimethod.
+  redsix doesn't currently use multimethods for its own code,
+  so it will run without them, but p6 code with multis will
+  have runtime failures.
+
+  * gems
+    http://rubyforge.org/frs/?group_id=126
+
+  * multimethod
+    gem install multimethod
+ 
+ (hmm, the real dependency is only on multimethods, perhaps this
+  should be refactored).
+
+ The redsix executable ruby file is selfcontained.
+ You can copy it anywhere.
+
+EXAMPLES
+
+ prove -e ./redsix ../../../../t/01-sanity
+ For  prove --version #=> Perl v5.10.0
+
+USE
+
+ You can use it from anywhere, but it can only find its custom Test.pm
+ if run from the pugs root, from here, or if Test.pm is copied to the
+ directory in which it is run.  A -I argument does not yet exist. :(
+ 
+ Running redsix will create a redsix_cache/ subdirectory in every
+ directory it is run in. :/
+
+ It will first compile and cache the p6 parts of itself, and then
+ whatever you have given it.  Subsequent runs with identical code will
+ skip compilation and use the cached copy.  rm redsix_cache/* clears
+ the cache.  There are also other options (which I don't remember).
+ The cache does not current include a signature for the redsix code
+ which generated it, so when modifying redsix, the cache needs to be
+ repeatedy flushed.  The whole area of caching would need work, if
+ this were not throwaway code, which it's not clear anyone will ever
+ actually use.
+
+
 NOTES
 
-The parser grammar was snarfed from pugs.  Which is now somewhat out
+PARSER GRAMMAR - was snarfed from pugs.  Which is now somewhat out
 of date.  It does not include a p6 regex implementation - it uses p5
 regexp plus subrules.
 
-EXAMPLES:
+BOOTSTRAP - doesn't seem to be working anymore.
+  redsix redsix
+does only a partial parse, stopping near the end.
+  Parse partial.(109714 of 110238)
 
- prove -e ./redsix ../../../../t/01-sanity
+UNICODE - I've tried converting redsix to do ruby 1.9 unicode properly.
+But parsing starts failing, and the Oniguruma 5.9.1 2008-Mar-07 notes
+  http://www.geocities.jp/kosako3/oniguruma/doc/RE.txt
+  A-6. Problems
+suggest ruby 1.9 isn't ready for this.
+
+MULTIMETHODS, DEPENDENCIES - we're now using Kurt Stephens's
+multimethod gem.  Which introduces our first external dependency (gems
+and multimethod), other than ruby 1.9 itself.  It's just seems to big
+to be worth inlining.  At some point we could create a mutant version
+which more closely matches the p6 multimethod semantics.
 
