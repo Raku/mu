@@ -1,4 +1,4 @@
-{-# OPTIONS -fallow-overlapping-instances #-}
+{-# LANGUAGE OverlappingInstances #-}
 
 import Test
 
@@ -6,6 +6,7 @@ import qualified Judy.BitSet as BS
 import Judy.HashIO
 import Judy.Freeze
 
+main :: IO ()
 main = no_plan $ do
     testIntSimple
     testIntGet
@@ -42,16 +43,16 @@ testIntGet = do
     say "IntGet"
     s <- newIntSet
     BS.get s 2 .=> False
-    
+
     BS.set s 1 True
     BS.get s 1 .=> True
-    
+
     BS.set s 2 True
     BS.get s 2 .=> True
-    
+
     BS.set s 1 False
     BS.get s 1 .=> False
-    
+
     BS.clear s
     BS.get s 1 .=> False
 
@@ -106,18 +107,18 @@ testIntInsertDelete = do
     BS.delete 1 s
     BS.toList s .-= []
 
-    BS.insert 1 s 
+    BS.insert 1 s
     BS.insert 2 s
     BS.insert 42 s
     BS.toList s .-= [1, 2, 42]
 
     BS.insert 1 s
     BS.toList s .-= [1, 2, 42]
-    
+
     BS.delete 1 s
     BS.delete 2 s
     BS.toList s .-= [42]
-    
+
     BS.delete 1 s
     BS.toList s .-= [42]
 
@@ -166,7 +167,7 @@ instance UniqueHashIO Useless where
 instance ReversibleHashIO Useless where
     unHashIO 10 = return A
     unHashIO 20 = return B
-    unHashIO 30 = return C 
+    unHashIO 30 = return C
     unHashIO 40 = return D
 
 testUselessSimple = do

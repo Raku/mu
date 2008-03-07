@@ -1,4 +1,4 @@
-
+{-# LANGUAGE DeriveDataTypeable #-}
 {-# INCLUDE "Judy.h" #-}
 
 module Judy.MiniGC (

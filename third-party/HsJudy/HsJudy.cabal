@@ -1,5 +1,5 @@
 name:                HsJudy
-version:             0.1
+version:             0.1.1
 Category:            Data
 Synopsis:            Judy bindings, and some nice APIs
 Description:         Judy[1] bindings (a C library that implements fast sparse dynamic
@@ -31,14 +31,8 @@ Library
         exposed-modules:     Judy.BitSet Judy.Freeze Judy.Hash Judy.IntMap Judy.StrMap
                              Judy.CollectionsM Judy.HashIO Judy.Refeable Judy.Stringable
         other-modules:       Judy.Private Judy.MiniGC
+        extra-libraries:     Judy
 
-        include-dirs:        . ../judy/Judy-1.0.3/src
--- FIXME: make Cabal work nicely with _hsc files; now I think it works, but doesn't clean _hsc files
-        c-sources:           Judy/Private_hsc.c
-
-
-        extensions:          ForeignFunctionInterface, TypeSynonymInstances, MagicHash,
-                             IncoherentInstances, UndecidableInstances
-        ghc-options:         -fglasgow-exts -Wall -O2 -static ../judy/Judy-1.0.3/src/Judy1/*.o
-                             ../judy/Judy-1.0.3/src/JudyL/*.o ../judy/Judy-1.0.3/src/JudySL/*.o
-                             ../judy/Judy-1.0.3/src/JudyHS/*.o ../judy/Judy-1.0.3/src/JudyCommon/*.o
+        extensions:          ForeignFunctionInterface, TypeSynonymInstances, MagicHash, MultiParamTypeClasses, FlexibleContexts,
+                             IncoherentInstances, UndecidableInstances, DeriveDataTypeable, FlexibleInstances, FunctionalDependencies
+        ghc-options:         -Wall -O2

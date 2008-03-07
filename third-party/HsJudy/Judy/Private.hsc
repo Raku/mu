@@ -1,10 +1,12 @@
+{-# LANGUAGE ForeignFunctionInterface #-}
+
 -- | Low-level FFI
 module Judy.Private where
 
 import Foreign
 
 #if __GLASGOW_HASKELL__ >= 605
-import Data.Word
+-- import Data.Word
 #else
 import GHC.Exts
 #endif

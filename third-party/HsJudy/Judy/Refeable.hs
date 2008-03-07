@@ -1,10 +1,7 @@
-{-# OPTIONS -fallow-undecidable-instances -fallow-incoherent-instances #-}
-{-# LANGUAGE MagicHash, UndecidableInstances, IncoherentInstances #-}
+{-# LANGUAGE MagicHash, UndecidableInstances, IncoherentInstances, FlexibleInstances  #-}
 module Judy.Refeable (
     Refeable (..)
 ) where
-
-
 
 import Foreign.StablePtr
 

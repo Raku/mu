@@ -1,5 +1,5 @@
-{-# LANGUAGE MagicHash #-}
-{-# OPTIONS -fallow-undecidable-instances -fallow-incoherent-instances -fallow-overlapping-instances #-}
+{-# LANGUAGE MagicHash, FlexibleInstances, OverlappingInstances,IncoherentInstances,
+  IncoherentInstances, UndecidableInstances #-}
 
 module Judy.HashIO (
     HashIO (..),
@@ -19,7 +19,6 @@ class HashIO a => UniqueHashIO a
 class UniqueHashIO a => ReversibleHashIO a where
     -- Two step conversion, first from Value -> Int then Int -> a
     unHashIO :: Value -> IO a
-
 
 instance Enum a => UniqueHashIO a where
 

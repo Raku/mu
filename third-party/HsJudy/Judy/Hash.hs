@@ -1,4 +1,4 @@
-{-# OPTIONS -fallow-undecidable-instances -fallow-incoherent-instances #-}
+{-# LANGUAGE MultiParamTypeClasses, UndecidableInstances, IncoherentInstances #-}
 
 {-# INCLUDE "Judy.h" #-}
 

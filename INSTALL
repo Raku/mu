@@ -18,7 +18,7 @@ http://www.unobe.com/packages/ has binary builds too. If you'd like to build
 Pugs by hand, http://wiki.kn.vutbr.cz/mj/?Perl%206%20and%20Parrot has some
 instructions.
 
-Debian etch's (stable as of 2007) version of GHC is too old to compile pugs,
+Debian Etch's (stable as of 2007) version of GHC is too old to compile pugs,
 see the section below on compiling the version from testing.  GHC 6.6.1 debs
 for etch are available (not apt-gettable):
 i386 http://feather.perl6.nl/~diakopter/
@@ -33,6 +33,8 @@ For dynamic loading/inlining of Haskell modules, you should install the
 hs-plugin library, available here:
 
     http://www.cse.unsw.edu.au/~dons/code/hs-plugins
+
+During the build process, the script will try to install HsJudy (a Haskell binding to the Judy array library written in C). If you don't have Judy installed, this step might fail, so you should install Judy. Most distros include that library.
 
 To install Pugs on your system, simply type this in the command line:
 
@@ -217,7 +219,7 @@ this workaround):
   stm-2.0, template-haskell-2.1, time-1.1.1, unix-2.1
 
 The last revision that builds directly from repository on this environment
-was r19955. 
+was r19955.
 
 1. Update to current version
   svn update .
@@ -227,7 +229,7 @@ was r19955.
             Pugs.cabal.in util/build_pugs.pl third_party/ \
             src/Pugs/Compile/Pugs.hs src/Pugs/Eval.hs
 
-3. Build it ... 
+3. Build it ...
   perl Makefile.PL && make
 
 4. ..eventually twice, if it failed

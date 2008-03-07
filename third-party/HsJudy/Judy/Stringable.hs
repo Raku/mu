@@ -1,4 +1,3 @@
-{-# OPTIONS -fglasgow-exts #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 
 module Judy.Stringable (
