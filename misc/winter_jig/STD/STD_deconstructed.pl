@@ -1,7 +1,6 @@
 #!/usr/bin/perl -w
-use strict; no strict 'subs';
+use strict;
 use warnings;
-sub _ ($$);
 =begin
 
 This is a deconstruction of src/perl6/STD.pm,
@@ -20,7 +19,7 @@ It is intended to
 
 =cut
 
-my @categories=eval('qw{'.remove_comments(<<'END').'}');
+sub categories { eval('qw{'.remove_comments(<<'END').'}'); }
   category
   special_variable
   version module_name
@@ -72,12 +71,14 @@ Categories - which are rules, not tokens
 
 =cut
 
-my @categories_which_are_rules_not_tokens=qw(
+sub categories_which_are_rules_not_tokens {
+qw(
   statement_prefix
   statement_control
   statement_mod_cond
   statement_mod_loop
 );
+}
 
 =begin
 
@@ -85,7 +86,8 @@ Categories with symbol constraints
 
 =cut
 
-my %category_symbol_constraints = qw{
+sub category_symbol_constraints {
+  my %h = qw{
   quote              nofat
   dotty              unspacey
   trait_verb         nofat_space
@@ -101,6 +103,8 @@ my %category_symbol_constraints = qw{
   statement_mod_cond nofat
   statement_mod_loop nofat
 };
+  \%h;
+}
 
 =begin
 
@@ -108,7 +112,7 @@ Operator precedence
 
 =cut
 
-my $precedence_table = <<'END';
+sub precedence_table { <<'END'; }
   hyper           transparent      
   term            z=               
   methodcall      y=               
@@ -140,11 +144,14 @@ my $precedence_table = <<'END';
 END
 #do_precedence_table(remove_comments($precedence_table));
 
-my %precedence_aliases=qw{
+sub precedence_aliases {
+  my %h=qw{
   prefix  symbolic_unary
   infix   additive
   postfix autoincrement
 };
+  \%h;
+}
 
 =begin
 
@@ -152,7 +159,7 @@ Very simple tokens
 
 =cut
 
-my $very_simple_tokens_without_precedence=<<'END';
+sub very_simple_tokens_without_precedence {<<'END';}
 
 prefix_postfix_meta_operator «
 prefix_postfix_meta_operator <<
@@ -173,7 +180,7 @@ regex_metachar <( )> << >> « »
 
 END
 
-my $very_simple_tokens_with_precedence=<<'END';
+sub very_simple_tokens_with_precedence {<<'END';}
 
 term    term            self * 
 infix   methodcall      . 
@@ -220,7 +227,8 @@ Typenames kludge.
 
 =cut
 
-my @typenames = qw(
+sub typenames {
+qw(
     Bit Int Str Num Complex Bool Rat
     Exception Code Block List Seq Range Set Bag Junction Pair
     Mapping Signature Capture Blob Whatever Undef Failure
@@ -229,7 +237,7 @@ my @typenames = qw(
     Scalar Array Hash KeyHash KeySet KeyBag Buf IO Routine Sub Method
     Submethod Macro Regex Match Package Module Class Role Grammar Any Object
 );
-
+}
 
 =begin
 
@@ -237,7 +245,8 @@ A copy of the unicode bracket pairs.
 
 =cut
 
-my @open2close = qw{
+sub open2close {
+qw{
     0028 0029  003C 003E  005B 005D   007B 007D  00AB 00BB  0F3A 0F3B
     0F3C 0F3D  169B 169C  2039 203A   2045 2046  207D 207E  208D 208E
     2208 220B  2209 220C  220A 220D   2215 29F5  223C 223D  2243 22CD
@@ -270,6 +279,7 @@ my @open2close = qw{
     FE43 FE44  FE47 FE48  FE59 FE5A   FE5B FE5C  FE5D FE5E  FF08 FF09
     FF1C FF1E  FF3B FF3D  FF5B FF5D   FF5F FF60  FF62 FF63
 };   
+}
 {package O2cP6;
  sub wrap{shift;'"\u'.$_[0].'"'}
  sub link{shift;$_[0].' => '.$_[1]}
@@ -284,46 +294,11 @@ my @open2close = qw{
             (($cls->no_high_bit_codes and $o !~ /^00/)
              ? ()
              : $cls->link(map{$cls->wrap($_)}($o,$c)));
-        } array_2_pairs(@open2close)));
+        } array_2_pairs(open2close())));
  }
 }
-_ O2C, O2cP6->code;
 
 # Helper subs
 sub remove_comments {my($s)=@_;$s=~s/\#.*//g;$s}
 sub array_to_pairs {my @pairs; push(@pairs,[splice(@_,0,2)]) while @_; @pairs;}
-
-#============================================================
-my(%c,$last_n);
-sub _ ($$) {
-    my($n,$s)=@_;
-    ($n,$s)=($last_n,$n) if !defined $s;
-    my($p,$f,$l)=caller; $l++;
-    $s =~ /^(\s*)/; my $remove_indent = $1;
-    $s =~ s/^$remove_indent//mg;
-    $c{$n}.="#line $l:$f\n".$s;
-}
-sub ceval {
-    my $code = $c{Main};
-    $code =~ s/^(\s*)<<(\w+)>>/
-              {my($sp,$n)=($1,$2);
-               my $s=$c{$n};
-               $s=~s{^(?!#line)}{$sp}mg;
-               $s}/megx; #/
-    print $code;
-    eval($code) or die $!;
-}
-ceval;
-
-__END__
-_ Foo,<<'^';
-print 3,"\n";
-print 4,"\n";
-print 5,"\n";
-^
-_ Main,<<'^';
-print 1,"\n";
-<<Foo>>
-<<O2C>>
-^
 
