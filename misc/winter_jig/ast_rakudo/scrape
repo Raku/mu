@@ -1,0 +1,91 @@
+#!/usr/bin/env ruby
+# Usage:
+# echo '3' > deleteme.p6
+# ../sixen/sixcmd rakudo.pbc --target=parse deleteme.p6 > deleteme.parse
+# cat deleteme.parse | ./scrape
+require 'strscan'
+class ScrapeRakudoParse
+  attr_accessor :scanner
+  def initialize
+  end
+  def scan(re)
+    @scanner.scan(re)
+  end
+  def eat(re)
+    @scanner.scan(re) or raise "failed to eat #{re} at #{@scanner.pos}"
+  end
+  def scrape(s)
+    @scanner=StringScanner.new(s)
+    scan(/"parse" => /) or raise "bug"
+    scrape_thing
+  end
+  def scrape_thing
+    if scan(/(?=PMC 'Perl6::Grammar')/)
+      scrape_node
+    elsif scan(/(?=ResizablePMCArray)/)
+      scrape_array
+    elsif scan(/(?=Hash)/)
+      scrape_hash
+    elsif scan(/(?=\")/)
+      scrape_string
+    elsif scan(/(?=\d)/)
+      scrape_int
+    elsif scan(/(?=PMC 'Sub')/)
+      scrape_rest_of_line
+    elsif scan(/(?=\\parse)/)
+      scrape_rest_of_line
+    else
+      raise "scrape failed at #{@scanner.pos}"
+    end
+  end
+  def scrape_rest_of_line
+    p 'rest',@scanner.pos
+    eat(/[^\n]+?(?=,?\n)/); :ignored
+    p 'rest-end',@scanner.pos
+  end
+  def scrape_int; eat(/\d+/) end
+  def scrape_string; eat(/\"/); eat(/([^\\\"]|\\.)*/); eat(/\"/) end
+  def scrape_hash
+    p 'hash',@scanner.pos
+    eat(/Hash {\n/)
+    indentation = eat(/ +/)
+    while scan(/\"\w+\" => /)
+      scrape_thing
+      eat(/,?\n/)
+      eat(/ */) == indentation or scan(/(?=\})/) or raise "assert: maybe a bug #{@scanner.pos}"
+    end
+    eat(/\}/)
+  end
+  def scrape_array
+    p 'array',@scanner.pos
+    eat(/ResizablePMCArray \(size:\d+\) \[\n/)
+    indentation = eat(/ +/)
+    while not scan(/(?=\])/)
+      scrape_thing
+      eat(/\n/)
+      eat(/ */) == indentation or scan(/(?=\])/) or raise "assert: maybe a bug #{@scanner.pos}"
+    end
+    eat(/\]/)
+  end
+  def scrape_node
+    p 'node',@scanner.pos
+    eat(/PMC 'Perl6::Grammar' => /)
+    scrape_string
+    eat(/ @ /)
+    eat(/\d+/)
+    if scan(/ {\n/)
+      indentation = eat(/ +/)
+      while scan(/<\w+> => /)
+        scrape_thing
+        eat(/\n/)
+        eat(/ */) == indentation or scan(/(?=\})/) or raise "assert: maybe a bug #{@scanner.pos}"
+      end
+      eat(/\}/)
+    else
+    end
+    p "^^^ #{@scanner.pos}"
+  end
+end
+
+input = STDIN.read
+print ScrapeRakudoParse.new.scrape(input)
