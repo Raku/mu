@@ -1808,10 +1808,10 @@ module Past
             '#{cl}'
           end
           def field_names
-            [#{fs.empty? ? 'string' : fs.map{|f|"'#{f}'"}.join(',')}]
+            [#{fs.empty? ? "'string'" : fs.map{|f|"'#{f}'"}.join(',')}]
           end
           def field_values
-            [#{fs.empty? ? "#{as_s}" : fs.map{|f|"@#{f}"}.join(',')}]
+            [#{fs.empty? ? "@src.as_s" : fs.map{|f|"@#{f}"}.join(',')}]
           end
         end
       END
@@ -2056,17 +2056,90 @@ module Past
   end
 end
 
-###*** PastToAterm
+###*** Past Dumping
 
-module Past
-  class Identifier
-    def emit_aterm; "Identifier('#{@src.as_s}')" end
+module Past; class PastObject; def emit_dump(style); style.pastobject(self) end end end
+class Array; def emit_dump(style); style.array(map{|e|e.emit_dump(style)}) end end
+class String; def emit_dump(style); style.string(self); end end  
+class NilClass; def emit_dump(style); style.value_nil end end  
+class FalseClass; def emit_dump(style); style.value_true end end  
+class TrueClass; def emit_dump(style); style.value_false end end  
+
+class Dumper
+  def dump(ast)
+    header+ast.emit_dump(self)+footer
   end
-  class Variable
-    def emit_aterm; "Variable('#{sigil}','#{twigil}','#{leafname}')" end
+  def header; ''; end
+  def footer; "\n"; end
+  def pastobject(o)
+    n = o.node_name
+    debug = false
+    p '----',n,field_values,'vvvv' if debug
+    fs = o.field_values.map{|f|f.emit_dump(self)}
+    ns = o.field_names
+    p '^^^^' if debug
+    node(n,fs,ns)
   end
-  class Infix
-    def emit_aterm; "Infix('#{fun.as_s}','#{fargs[0].emit_aterm}','#{fargs[1].emit_aterm}')" end
+  def string(s); s.inspect end
+end
+class DumpAterm < Dumper
+  def node(n,fs,ns); n+'('+fs.join(',')+')' end
+  def array(fs); '['+fs.join(',')+']' end
+  def value_nil; 'na' end
+  def value_false; 'false' end
+  def value_true; 'true' end
+end
+class DumpTerm < DumpAterm
+  def node(n,fs,ns)
+    n =~ /^(.)(.*)/; n = $1.downcase+$2
+    n.+'('+fs.join(',')+')' end
+end
+class DumpSexp < DumpAterm
+  def node(n,fs,ns); '('+[n,*fs].join(' ')+')' end
+end
+class DumpRubySexp < DumpAterm
+  def node(n,fs,ns); '[:'+[n,*fs].join(',')+']' end
+  def value_nil; ':na' end
+end
+class DumpYaml < Dumper
+  attr_accessor :tag_prefix
+  def initialize(class_prefix=nil,language=:perl)
+    class_prefix ||= ''
+    case language
+    when :ruby; tag = '!ruby/object:'
+    when :perl; tag = '!!perl/hash:'
+    else raise "Unk #{language}" end
+    @tag_prefix=tag+class_prefix
+  end
+  def header; '--- '; end
+  def footer; ""; end
+  def node(n,fs,ns)
+    yaml = tag_prefix+n+"\n"
+    code = ns.zip(fs).map{|k,v|
+      k+": "+indent_except_top(v)+(v=~/\n\z/ ? '' : "\n")
+    }.join('')
+    yaml+indent(code)
+  end
+  def array(fs)
+    "\n"+fs.map{|v|"- "+indent_except_top(v)+(v=~/\n\z/ ? '' : "\n")}.join('')
+  end
+  def indent(s)
+    s.gsub(/(?m)^(?!\Z)/,'  ')
+  end
+  def indent_except_top(s)
+    s.gsub(/(?m)^(?!\Z)/,'  ').sub(/^  /,'')
+  end
+end
+def get_dumper_for(lang)
+  lang = lang.downcase
+  case lang
+  when 'yaml'; DumpYaml.new
+  when 'yaml-ruby'; DumpYaml.new(nil,:ruby)
+  when 'term'; DumpTerm.new
+  when 'aterm'; DumpAterm.new
+  when 'sexp'; DumpSexp.new
+  when 'sexp-ruby'; DumpRubySexp.new
+  else nil
   end
 end
 
@@ -2635,11 +2708,11 @@ require 'readline'
 class P6
   attr_accessor :pkgspace
   attr_accessor :verbose,:quiet
-  attr_accessor :provide_yaml_ast
+  attr_accessor :dump_ast
   def initialize
     @verbose=false
     @pkgspace = RPackage.make_GLOBAL
-    @provide_yaml_ast = false
+    @dump_ast = false
   end
   def P6_binding; @pkgspace.thebinding end
   def P6_binding_Main; @pkgspace.symtab['::Main'].thebinding end
@@ -2707,10 +2780,9 @@ class P6
     end
     ast = PastFromParse::emit(tree)
     ast.walk_past_init
-    if provide_yaml_ast
-      require "yaml"
-      ast.walk_discarding_src
-      print YAML::dump(ast)
+    if dump_ast
+      print dump_ast.dump(ast)
+      exit
       ""
     else
       note :ast,ast
@@ -3343,7 +3415,7 @@ module ArrayM
     self[off,len]=v
     r
   end
-  def spliceCm;->(_E,off=nil,len=nil,*lst){splice(off,len,*lst)} end
+  def spliceCm;->(_E,off=nil,len=nil,*lst){splice(off.as_n,len.as_n,*lst)} end
 end
 List = Listy
 class Listy
@@ -3484,7 +3556,7 @@ class Program
       -q      Become very quiet.
       -v      Turn on verbose.
     
-      --yaml  Print ast as yaml, instead of running.
+      -C FORMAT  Print ast as yaml, yaml-ruby, term, aterm, sexp, sexp-ruby.
     
       -e EXPRESSION_TO_RUN
     
@@ -3513,7 +3585,11 @@ class Program
       case arg
       when '-v'; $P.verbose = true
       when '-q'; $P.quiet = true
-      when '--yaml'; $P.provide_yaml_ast = true
+      when '-C'
+        format = argv.shift
+        dumper = get_dumper_for(format)
+        print_usage_and_exit("Unknown -C format: #{format}") if not dumper
+        $P.dump_ast = dumper
       when '--help'; print_usage_and_exit('',0)
       else argv.unshift(arg); break
       end
