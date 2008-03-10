@@ -1,7 +1,7 @@
 grammar sm0p {
     token frame {
         <ws> <identifier> <ws> '=' <ws> 'q:sm0p' <ws> '{' <ws> <nodes> <ws> '}' <ws> ;
-        { return $<identifier> ~ ' = SMOP_DISPATCH(interpreter, '
+        { make $<identifier> ~ ' = SMOP_DISPATCH(interpreter, '
           ~ 'SMOP__SLIME__Frame, SMOP__ID__new, SMOP__NATIVE__capture_create('
           ~ 'interpreter, SMOP__SLIME__Frame, (SMOP__Object*[]){ '
           ~ $<nodes> ~ ' }, NULL)); ' }
