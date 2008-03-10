@@ -1,6 +1,6 @@
 grammar sm0p {
     token frame {
-        <ws> <identifier> <ws> '=' <ws> 'q:sm0p' <ws> '{' <ws> <nodes> <ws> '}' <ws> ';'
+        <ws> <identifier> <ws> '=' <ws> 'q:sm0p' <ws> '{' <ws> <nodes>? <ws> '}' <ws> ';'
         {{ make $<identifier> ~ ' = SMOP_DISPATCH(interpreter, '
           ~ 'SMOP__SLIME__Frame, SMOP__ID__new, SMOP__NATIVE__capture_create('
           ~ 'interpreter, SMOP__SLIME__Frame, (SMOP__Object*[]){ '
@@ -124,8 +124,8 @@ grammar sm0p {
     token nativeint {
         \d+ {{ make 'SMOP__NATIVE__int_create(' ~ $/ ~ ')' }}
     };
-}
-module main {
-    $_ = slurp;
-    say $_ ~~ /<sm0p::frame>/;
+
+    $_ = ' $node = q:sm0p { } ; ';
+    say frame($_);
+
 }
