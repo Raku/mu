@@ -17,11 +17,16 @@ some API differences that optimizes it for its host language.  The actual
 Muldis D language specification document will be identical for both,
 though.
 
-The Perl 6 version is intended to be the primary version over the long
-term, while the Perl 5 version is intended mainly for use in the short
-term.  Technically, the Perl 5 version is deprecated in favor of the Perl 6
-one, but the Perl 5 version will still be supported for several years in
-production environments, as the user demand requires.
+The Perl 5 version is intended to be the primary version during the present
+time, as Perl 5 itself is stable, production-ready, and commonly used now.
+Eventually the Perl 6 version is expected to supercede it, once Perl 6
+itself has implementations that are production-ready and in common use.
+
+That all being said, development of the Perl 6 version has been temporarily
+suspended, to focus resources on the Perl 5 version, and therefore the Perl
+6 version is likely out of date by the time you read this.  In the future,
+the more-advanced Perl 5 version will be translated to Perl 6 again, either
+to re-establish their parallel development, or just to provide snapshots.
 
 Read below for how to get support or keep up to date.
 

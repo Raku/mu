@@ -1,14 +1,13 @@
                                 Muldis::DB
 ---------------------------------------------------------------------------
 
-2008-02-xx   Darren Duncan <perl@DarrenDuncan.net>
+2008-03-xx   Darren Duncan <perl@DarrenDuncan.net>
 
     * Muldis DB version 0.7.0 for Perl 5 is released on CPAN as
     Muldis-DB-0.7.0.tar.gz.  Muldis DB version 0.7.0 for Perl 6 is not
-    released at this time, if ever, since it is currently released only as
-    part of the Perl6-Pugs project (in its ext/Muldis-DB/ subdirectory),
-    which sets its own less frequent release schedule.  The rest of this
-    Changes entry refers only to the Perl 5 version.
+    released at all.  The rest of this Changes entry refers only to the
+    Perl 5 version, and it should not be assumed that the Perl 6 version
+    incorporates all of said updates, though it may have some of them.
 
     * New file versions are: DB.pm and Interface.pm and Validator.pm and
     Example.pm 0.7.0 and SeeAlso.pod 0.4.3.  Added new file
@@ -24,6 +23,18 @@
     of a proposal to give a talk on Muldis D + DB at OSCON 2008 (it can
     also be given elsewhere); this is likely the most succinct description
     yet of what the projects are and why one would want to use them.
+
+    * Updated the README file to emphasize the Perl 5 version for now.
+
+2008-03-10   Darren Duncan <perl@DarrenDuncan.net>
+
+    * Muldis DB for Perl 6 has suspended development temporarily while
+    resources are focused on just Muldis DB for Perl 5 in the short term;
+    later on, when the Perl 5 version is sufficiently advanced, it will be
+    translated to Perl 6, so to restart parallel development, or at least
+    to provide a snapshot.  In the meantime, some updates to the Perl 6
+    version may still be made, but it should not be interpreted that these
+    are keeping the whole project in feature parity with the Perl 5 one.
 
 2007-12-09   Darren Duncan <perl@DarrenDuncan.net>
 
