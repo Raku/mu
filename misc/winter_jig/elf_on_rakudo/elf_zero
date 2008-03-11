@@ -62,8 +62,8 @@ class Scrape
   def scrape_string
     p = @scanner.pos
     eat(/\"/); eat(/([^\\"]|\\.)*/); eat(/\"/)
-    s = @string.slice(p,@scanner.pos-p)
-    eval s
+    s = @string.slice(p+1,@scanner.pos-p-2)
+    s
   end
   def scrape_hash
     h = {}
@@ -98,7 +98,7 @@ class Scrape
     if type =~ /Match/
       o['_rakudo_type'] = 'match'
     end
-    scrape_string
+    str = scrape_string
     eat(/ @ /)
     eat(/\d+/)
     if scan(/ {\n/)
@@ -113,6 +113,7 @@ class Scrape
       end
       eat(/\}/)
     else
+      o['text']=str
     end
     o
   end
@@ -137,6 +138,7 @@ class BuildIR
       ks = h.keys.sort
       tag = "#{name}___#{ks.join('__')}"
     end
+    h['_fields'] = h.keys.sort.join(' ')
     h['_tag'] = tag
     @saw_tags[tag] = true;
     h.each{|k,v|
@@ -153,7 +155,8 @@ class BuildIR
     lines = File.open(ast_data_file,'r'){|f| f.lines.to_a }
     lines = lines.select{|line| not line =~ /^\s*\#/ }
     lines.each{|line|
-      line =~ /^(\w+)\s+(\S*)$/ or raise "Broken line in #{ast_data_file}:\n#{line}"
+      line.sub!(/#.*$/,'')
+      line =~ /^(\w+)\s+\|\s*(\S*)\s*$/ or raise "Broken line in #{ast_data_file}:\n#{line}"
       @tag_map[$1] = $2;
     }
   end
@@ -167,21 +170,461 @@ class BuildIR
     out
   end
   def ir_from(tree)
-    BadIR::CompUnit.new
+    if tree.is_a? Array
+      return tree.map{|e| ir_from(e)}
+    elsif tree.is_a? String
+      return tree
+    end
+    tag = tree['_tag']
+    act = tag_map[tag]
+    ret = nil
+    debug = false
+    if debug
+      p "----"
+      p tree
+      p tag
+      p act
+    end
+    if not act
+      STDERR.print "# Warning: Faking tag #{tag} in #{tree}\n"
+      ret = nil
+    else
+      fields = tree['_fields'].split(/\s+/)
+      if act == 'pass'
+        STDERR.print "# Warning: passing only first field of #{tag}\n" if fields.size > 1
+        ret = ir_from(tree[fields[0]])
+      elsif act == 'pass0'
+        ret = ir_from(tree[fields[0]])
+      else
+        method = "#{act}_from__#{fields.join('__')}".to_sym
+        down = tree.values_at(*fields)
+        args = down.map{|n| ir_from(n) }
+        ret = BadIR.send(method,*args)
+      end
+    end
+    p "#{tag} -->",ret if debug
+    ret
   end
 end
 
 module BadIR
   class Base
   end
-  class CompUnit < Base
+  class Val_Base < Base
+  end
+  class Lit_Base < Base
+  end
+  class Rule_Base < Base
   end
 
+  class CompUnit < Base
+    attr_accessor :unit_type,:name,:traits,:attributes,:methods,:body
+    def initialize(unit_type,name,traits,attributes,methods,body)
+      @unit_type,@name,@traits,@attributes,@methods,@body = unit_type,name,traits,attributes,methods,body
+    end
+    def emit(emitter); emitter.emit_CompUnit(self) end
+  end
+  class Val_Int < Val_Base
+    attr_accessor :int
+    def initialize(int)
+      @int = int
+    end
+    def emit(emitter); emitter.emit_Val_Int(self) end
+  end
+  class Val_Bit < Val_Base
+    attr_accessor :bit
+    def initialize(bit)
+      @bit = bit
+    end
+    def emit(emitter); emitter.emit_Val_Bit(self) end
+  end
+  class Val_Num < Val_Base
+    attr_accessor :num
+    def initialize(num)
+      @num = num
+    end
+    def emit(emitter); emitter.emit_Val_Num(self) end
+  end
+  class Val_Buf < Val_Base
+    attr_accessor :buf
+    def initialize(buf)
+      @buf = buf
+    end
+    def emit(emitter); emitter.emit_Val_Buf(self) end
+  end
+  class Val_Char < Val_Base
+    attr_accessor :char
+    def initialize(char)
+      @char = char
+    end
+    def emit(emitter); emitter.emit_Val_Char(self) end
+  end
+  class Val_Undef < Val_Base
+    attr_accessor 
+    def initialize()
+      
+    end
+    def emit(emitter); emitter.emit_Val_Undef(self) end
+  end
+  class Val_Object < Val_Base
+    attr_accessor :clazz,:fields
+    def initialize(clazz,fields)
+      @clazz,@fields = clazz,fields
+    end
+    def emit(emitter); emitter.emit_Val_Object(self) end
+  end
+  class Lit_Seq < Lit_Base
+    attr_accessor :seq
+    def initialize(seq)
+      @seq = seq
+    end
+    def emit(emitter); emitter.emit_Lit_Seq(self) end
+  end
+  class Lit_Array < Lit_Base
+    attr_accessor :array
+    def initialize(array)
+      @array = array
+    end
+    def emit(emitter); emitter.emit_Lit_Array(self) end
+  end
+  class Lit_Hash < Lit_Base
+    attr_accessor :hash
+    def initialize(hash)
+      @hash = hash
+    end
+    def emit(emitter); emitter.emit_Lit_Hash(self) end
+  end
+  class Lit_Pair < Lit_Base
+    attr_accessor :key,:value
+    def initialize(key,value)
+      @key,@value = key,value
+    end
+    def emit(emitter); emitter.emit_Lit_Pair(self) end
+  end
+  class Lit_SigArgument < Lit_Base
+    attr_accessor :key,:value,:type,:has_default,:is_named_only,:is_optional,:is_slurpy,:is_multidimensional,:is_rw,:is_copy
+    def initialize(key,value,type,has_default,is_named_only,is_optional,is_slurpy,is_multidimensional,is_rw,is_copy)
+      @key,@value,@type,@has_default,@is_named_only,@is_optional,@is_slurpy,@is_multidimensional,@is_rw,@is_copy = key,value,type,has_default,is_named_only,is_optional,is_slurpy,is_multidimensional,is_rw,is_copy
+    end
+    def emit(emitter); emitter.emit_Lit_SigArgument(self) end
+  end
+  class Lit_NamedArgument < Lit_Base
+    attr_accessor :key,:value
+    def initialize(key,value)
+      @key,@value = key,value
+    end
+    def emit(emitter); emitter.emit_Lit_NamedArgument(self) end
+  end
+  class Lit_Code < Lit_Base
+    attr_accessor :pad,:state,:sig,:body,:catch
+    def initialize(pad,state,sig,body,catch)
+      @pad,@state,@sig,@body,@catch = pad,state,sig,body,catch
+    end
+    def emit(emitter); emitter.emit_Lit_Code(self) end
+  end
+  class Lit_Object < Lit_Base
+    attr_accessor :clazz,:fields
+    def initialize(clazz,fields)
+      @clazz,@fields = clazz,fields
+    end
+    def emit(emitter); emitter.emit_Lit_Object(self) end
+  end
+  class Var < Base
+    attr_accessor :sigil,:twigil,:name,:namespace
+    def initialize(sigil,twigil,name,namespace)
+      @sigil,@twigil,@name,@namespace = sigil,twigil,name,namespace
+    end
+    def emit(emitter); emitter.emit_Var(self) end
+  end
+  class Bind < Base
+    attr_accessor :parameters,:arguments
+    def initialize(parameters,arguments)
+      @parameters,@arguments = parameters,arguments
+    end
+    def emit(emitter); emitter.emit_Bind(self) end
+  end
+  class Assign < Base
+    attr_accessor :parameters,:arguments
+    def initialize(parameters,arguments)
+      @parameters,@arguments = parameters,arguments
+    end
+    def emit(emitter); emitter.emit_Assign(self) end
+  end
+  class Proto < Base
+    attr_accessor :name
+    def initialize(name)
+      @name = name
+    end
+    def emit(emitter); emitter.emit_Proto(self) end
+  end
+  class Call < Base
+    attr_accessor :invocant,:hyper,:method,:arguments
+    def initialize(invocant,hyper,method,arguments)
+      @invocant,@hyper,@method,@arguments = invocant,hyper,method,arguments
+    end
+    def emit(emitter); emitter.emit_Call(self) end
+  end
+  class Apply < Base
+    attr_accessor :code,:arguments
+    def initialize(code,arguments)
+      @code,@arguments = code,arguments
+    end
+    def emit(emitter); emitter.emit_Apply(self) end
+  end
+  class Return < Base
+    attr_accessor :result
+    def initialize(result)
+      @result = result
+    end
+    def emit(emitter); emitter.emit_Return(self) end
+  end
+  class If < Base
+    attr_accessor :cond,:body,:otherwise
+    def initialize(cond,body,otherwise)
+      @cond,@body,@otherwise = cond,body,otherwise
+    end
+    def emit(emitter); emitter.emit_If(self) end
+  end
+  class While < Base
+    attr_accessor :cond,:body
+    def initialize(cond,body)
+      @cond,@body = cond,body
+    end
+    def emit(emitter); emitter.emit_While(self) end
+  end
+  class Decl < Base
+    attr_accessor :decl,:type,:var
+    def initialize(decl,type,var)
+      @decl,@type,@var = decl,type,var
+    end
+    def emit(emitter); emitter.emit_Decl(self) end
+  end
+  class Sig < Base
+    attr_accessor :invocant,:positional
+    def initialize(invocant,positional)
+      @invocant,@positional = invocant,positional
+    end
+    def emit(emitter); emitter.emit_Sig(self) end
+  end
+  class Lit_Capture < Lit_Base
+    attr_accessor :invocant,:array,:hash
+    def initialize(invocant,array,hash)
+      @invocant,@array,@hash = invocant,array,hash
+    end
+    def emit(emitter); emitter.emit_Lit_Capture(self) end
+  end
+  class Lit_Subset < Lit_Base
+    attr_accessor :name,:base_class,:block
+    def initialize(name,base_class,block)
+      @name,@base_class,@block = name,base_class,block
+    end
+    def emit(emitter); emitter.emit_Lit_Subset(self) end
+  end
+  class Method < Base
+    attr_accessor :name,:block
+    def initialize(name,block)
+      @name,@block = name,block
+    end
+    def emit(emitter); emitter.emit_Method(self) end
+  end
+  class Sub < Base
+    attr_accessor :name,:block
+    def initialize(name,block)
+      @name,@block = name,block
+    end
+    def emit(emitter); emitter.emit_Sub(self) end
+  end
+  class Macro < Base
+    attr_accessor :name,:block
+    def initialize(name,block)
+      @name,@block = name,block
+    end
+    def emit(emitter); emitter.emit_Macro(self) end
+  end
+  class Coro < Base
+    attr_accessor :name,:block
+    def initialize(name,block)
+      @name,@block = name,block
+    end
+    def emit(emitter); emitter.emit_Coro(self) end
+  end
+  class P5Token < Base
+    attr_accessor :regex
+    def initialize(regex)
+      @regex = regex
+    end
+    def emit(emitter); emitter.emit_P5Token(self) end
+  end
+  class Token < Base
+    attr_accessor :name,:regex,:sym
+    def initialize(name,regex,sym)
+      @name,@regex,@sym = name,regex,sym
+    end
+    def emit(emitter); emitter.emit_Token(self) end
+  end
+  class Do < Base
+    attr_accessor :block
+    def initialize(block)
+      @block = block
+    end
+    def emit(emitter); emitter.emit_Do(self) end
+  end
+  class Begin < Base
+    attr_accessor :block
+    def initialize(block)
+      @block = block
+    end
+    def emit(emitter); emitter.emit_Begin(self) end
+  end
+  class Use < Base
+    attr_accessor :mod,:perl5
+    def initialize(mod,perl5)
+      @mod,@perl5 = mod,perl5
+    end
+    def emit(emitter); emitter.emit_Use(self) end
+  end
+  class Rule < Base
+    attr_accessor 
+    def initialize()
+      
+    end
+    def emit(emitter); emitter.emit_Rule(self) end
+  end
+  class Rule_Quantifier < Rule_Base
+    attr_accessor :term,:quant,:greedy,:ws1,:ws2,:ws3
+    def initialize(term,quant,greedy,ws1,ws2,ws3)
+      @term,@quant,@greedy,@ws1,@ws2,@ws3 = term,quant,greedy,ws1,ws2,ws3
+    end
+    def emit(emitter); emitter.emit_Rule_Quantifier(self) end
+  end
+  class Rule_Or < Rule_Base
+    attr_accessor :terms
+    def initialize(terms)
+      @terms = terms
+    end
+    def emit(emitter); emitter.emit_Rule_Or(self) end
+  end
+  class Rule_Concat < Rule_Base
+    attr_accessor :concat
+    def initialize(concat)
+      @concat = concat
+    end
+    def emit(emitter); emitter.emit_Rule_Concat(self) end
+  end
+  class Rule_Subrule < Rule_Base
+    attr_accessor :metasyntax,:ident,:capture_to_array
+    def initialize(metasyntax,ident,capture_to_array)
+      @metasyntax,@ident,@capture_to_array = metasyntax,ident,capture_to_array
+    end
+    def emit(emitter); emitter.emit_Rule_Subrule(self) end
+  end
+  class Rule_SubruleNoCapture < Rule_Base
+    attr_accessor :metasyntax
+    def initialize(metasyntax)
+      @metasyntax = metasyntax
+    end
+    def emit(emitter); emitter.emit_Rule_SubruleNoCapture(self) end
+  end
+  class Rule_Var < Rule_Base
+    attr_accessor :sigil,:twigil,:name
+    def initialize(sigil,twigil,name)
+      @sigil,@twigil,@name = sigil,twigil,name
+    end
+    def emit(emitter); emitter.emit_Rule_Var(self) end
+  end
+  class Rule_Constant < Rule_Base
+    attr_accessor :constant
+    def initialize(constant)
+      @constant = constant
+    end
+    def emit(emitter); emitter.emit_Rule_Constant(self) end
+  end
+  class Rule_Dot < Rule_Base
+    attr_accessor 
+    def initialize()
+      
+    end
+    def emit(emitter); emitter.emit_Rule_Dot(self) end
+  end
+  class Rule_SpecialChar < Rule_Base
+    attr_accessor :char
+    def initialize(char)
+      @char = char
+    end
+    def emit(emitter); emitter.emit_Rule_SpecialChar(self) end
+  end
+  class Rule_Block < Rule_Base
+    attr_accessor :closure
+    def initialize(closure)
+      @closure = closure
+    end
+    def emit(emitter); emitter.emit_Rule_Block(self) end
+  end
+  class Rule_InterpolateVar < Rule_Base
+    attr_accessor :var
+    def initialize(var)
+      @var = var
+    end
+    def emit(emitter); emitter.emit_Rule_InterpolateVar(self) end
+  end
+  class Rule_NamedCapture < Rule_Base
+    attr_accessor :rule,:ident,:capture_to_array
+    def initialize(rule,ident,capture_to_array)
+      @rule,@ident,@capture_to_array = rule,ident,capture_to_array
+    end
+    def emit(emitter); emitter.emit_Rule_NamedCapture(self) end
+  end
+  class Rule_Before < Rule_Base
+    attr_accessor :rule,:assertion_modifier,:capture_to_array
+    def initialize(rule,assertion_modifier,capture_to_array)
+      @rule,@assertion_modifier,@capture_to_array = rule,assertion_modifier,capture_to_array
+    end
+    def emit(emitter); emitter.emit_Rule_Before(self) end
+  end
+  class Rule_After < Rule_Base
+    attr_accessor :rule,:assertion_modifier,:capture_to_array
+    def initialize(rule,assertion_modifier,capture_to_array)
+      @rule,@assertion_modifier,@capture_to_array = rule,assertion_modifier,capture_to_array
+    end
+    def emit(emitter); emitter.emit_Rule_After(self) end
+  end
+  class Rule_NegateCharClass < Rule_Base
+    attr_accessor :chars
+    def initialize(chars)
+      @chars = chars
+    end
+    def emit(emitter); emitter.emit_Rule_NegateCharClass(self) end
+  end
+  class Rule_CharClass < Rule_Base
+    attr_accessor :chars
+    def initialize(chars)
+      @chars = chars
+    end
+    def emit(emitter); emitter.emit_Rule_CharClass(self) end
+  end
+  class Rule_Capture < Rule_Base
+    attr_accessor :rule,:position,:capture_to_array
+    def initialize(rule,position,capture_to_array)
+      @rule,@position,@capture_to_array = rule,position,capture_to_array
+    end
+    def emit(emitter); emitter.emit_Rule_Capture(self) end
+  end
 
+# Constructors
+def self.CompUnit_from__statement_block(b); CompUnit.new(nil,nil,nil,nil,nil,b) end
+def self.Do_from__statementlist(sl); Do.new(sl) end
+def self.Val_Int_from__text(s); Val_Int.new(s) end
 end
 class EmitSimpleP5
-  def emit(*a)
-    :unimplemented
+  def emit(ir)
+    ir.emit(self)
+  end
+  def emit_CompUnit(n); n.body.emit(self) end
+  def emit_Do(n); n.block.map{|statement| statement.emit(self)+";\n"}.join("") end
+  def emit_Val_Int(n); n.int end
+  def method_missing(m,*a,&b)
+    STDERR.print "# WARNING: Can't #{m}: FAKING IT.\n"
+    '(fake())'
   end
 end
     
@@ -205,6 +648,7 @@ end
     else
       print_usage_and_exit
     end
+    print "\n"
     build = BuildIR.new('rakudo_ast.data')
     dump = parse(nil,p6_code)
     print dump
@@ -216,7 +660,9 @@ end
     ir = build.ir_from(ast)
     p ir
     p5 = EmitSimpleP5.new.emit(ir)
-    p p5
+    print "\n----\n"
+    print p5
+    print "\n"
   end
   def parse(p6_file,p6_code)
     p6_code ||= File.open(p6_file,'r'){|f|f.read}

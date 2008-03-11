@@ -3,15 +3,19 @@
 # It may also run that freshly generated code.
 
 # Issues
-#  node scraper should perhaps note field order
+#  using Do for statementlist.  Which is perhaps not right?  Is there a statementlist node?
 #  distinction between dump's Grammar nodes and nodes which are explicity Hash is lost.
 #   what were the Hash's again?
+#  should avoid using class methods, to simplify p6.
 
 # Notes
 #  some of the code is a bit weird because it's already being tuned for later
 #    translation into p6.  though also because it's a crufty first fast draft.
 use strict;
 use warnings;
+
+require 'ir_nodes.pl';
+our @ir_nodes = IR_Zero_Def::nodes();
 
 main();
 
@@ -103,8 +107,8 @@ class Scrape
   def scrape_string
     p = @scanner.pos
     eat(/\"/); eat(/([^\\"]|\\.)*/); eat(/\"/)
-    s = @string.slice(p,@scanner.pos-p)
-    eval s
+    s = @string.slice(p+1,@scanner.pos-p-2)
+    s
   end
   def scrape_hash
     h = {}
@@ -139,7 +143,7 @@ class Scrape
     if type =~ /Match/
       o['_rakudo_type'] = 'match'
     end
-    scrape_string
+    str = scrape_string
     eat(/ @ /)
     eat(/\d+/)
     if scan(/ {\n/)
@@ -154,6 +158,7 @@ class Scrape
       end
       eat(/\}/)
     else
+      o['text']=str
     end
     o
   end
@@ -178,6 +183,7 @@ class BuildIR
       ks = h.keys.sort
       tag = "#{name}___#{ks.join('__')}"
     end
+    h['_fields'] = h.keys.sort.join(' ')
     h['_tag'] = tag
     @saw_tags[tag] = true;
     h.each{|k,v|
@@ -194,7 +200,8 @@ class BuildIR
     lines = File.open(ast_data_file,'r'){|f| f.lines.to_a }
     lines = lines.select{|line| not line =~ /^\s*\#/ }
     lines.each{|line|
-      line =~ /^(\w+)\s+(\S*)$/ or raise "Broken line in #{ast_data_file}:\n#{line}"
+      line.sub!(/#.*$/,'')
+      line =~ /^(\w+)\s+\|\s*(\S*)\s*$/ or raise "Broken line in #{ast_data_file}:\n#{line}"
       @tag_map[$1] = $2;
     }
   end
@@ -208,7 +215,40 @@ class BuildIR
     out
   end
   def ir_from(tree)
-    BadIR::CompUnit.new
+    if tree.is_a? Array
+      return tree.map{|e| ir_from(e)}
+    elsif tree.is_a? String
+      return tree
+    end
+    tag = tree['_tag']
+    act = tag_map[tag]
+    ret = nil
+    debug = false
+    if debug
+      p "----"
+      p tree
+      p tag
+      p act
+    end
+    if not act
+      STDERR.print "# Warning: Faking tag #{tag} in #{tree}\n"
+      ret = nil
+    else
+      fields = tree['_fields'].split(/\s+/)
+      if act == 'pass'
+        STDERR.print "# Warning: passing only first field of #{tag}\n" if fields.size > 1
+        ret = ir_from(tree[fields[0]])
+      elsif act == 'pass0'
+        ret = ir_from(tree[fields[0]])
+      else
+        method = "#{act}_from__#{fields.join('__')}".to_sym
+        down = tree.values_at(*fields)
+        args = down.map{|n| ir_from(n) }
+        ret = BadIR.send(method,*args)
+      end
+    end
+    p "#{tag} -->",ret if debug
+    ret
   end
 end
 
@@ -218,14 +258,47 @@ sub ir_nodes {
     my $base = <<'END';
   class Base
   end
-  class CompUnit < Base
+  class Val_Base < Base
+  end
+  class Lit_Base < Base
+  end
+  class Rule_Base < Base
   end
 END
     my $nodes = "";
+    for my $node (@ir_nodes) {
+	my $name = $node->name;
+	my $base = 'Base';
+	$base = "${1}_Base" if $name =~ /([^_]+)_/;
+	my(@symbols,@params,@attribs);
+	for my $field ($node->fields) {
+	    my $fname = $field->identifier;
+	    push(@symbols,':'.$fname);
+	    push(@attribs,'@'.$fname);
+	    push(@params,$fname);
+	}
+	my $symbols = join(",",@symbols);
+	my $params = join(",",@params);
+	my $attribs = join(",",@attribs);
+	my $init = $attribs eq '' ? "" : "$attribs = $params";
+	$nodes .= <<"END"
+  class $name < $base
+    attr_accessor $symbols
+    def initialize($params)
+      $init
+    end
+    def emit(emitter); emitter.emit_$name(self) end
+  end
+END
+    }
     <<"END";
 module BadIR
 $base
 $nodes
+# Constructors
+def self.CompUnit_from__statement_block(b); CompUnit.new(nil,nil,nil,nil,nil,b) end
+def self.Do_from__statementlist(sl); Do.new(sl) end
+def self.Val_Int_from__text(s); Val_Int.new(s) end
 end
 END
 }
@@ -233,8 +306,15 @@ END
 sub emit_p5 {
     <<'END';
 class EmitSimpleP5
-  def emit(*a)
-    :unimplemented
+  def emit(ir)
+    ir.emit(self)
+  end
+  def emit_CompUnit(n); n.body.emit(self) end
+  def emit_Do(n); n.block.map{|statement| statement.emit(self)+";\n"}.join("") end
+  def emit_Val_Int(n); n.int end
+  def method_missing(m,*a,&b)
+    STDERR.print "# WARNING: Can't #{m}: FAKING IT.\n"
+    '(fake())'
   end
 end
 END
@@ -262,6 +342,7 @@ end
     else
       print_usage_and_exit
     end
+    print "\n"
     build = BuildIR.new('rakudo_ast.data')
     dump = parse(nil,p6_code)
     print dump
@@ -273,7 +354,9 @@ end
     ir = build.ir_from(ast)
     p ir
     p5 = EmitSimpleP5.new.emit(ir)
-    p p5
+    print "\n----\n"
+    print p5
+    print "\n"
   end
   def parse(p6_file,p6_code)
     p6_code ||= File.open(p6_file,'r'){|f|f.read}

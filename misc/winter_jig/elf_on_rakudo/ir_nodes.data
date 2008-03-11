@@ -3,35 +3,35 @@
 
 node(' CompUnit    $.unit_type $.name @.traits %.attributes %.methods @.body ');
 
-node(' Val::Int    $.int ');
-node(' Val::Bit    $.bit ');
-node(' Val::Num    $.num ');
-node(' Val::Buf    $.buf ');
-node(' Val::Char   $.char ');
-node(' Val::Undef  ');
-node(' Val::Object $.class %.fields ');
+node(' Val_Int    $.int ');
+node(' Val_Bit    $.bit ');
+node(' Val_Num    $.num ');
+node(' Val_Buf    $.buf ');
+node(' Val_Char   $.char ');
+node(' Val_Undef  ');
+node(' Val_Object $.clazz %.fields ');
 
-node(' Lit::Seq    @.seq ');
-node(' Lit::Array  @.array     ');
-node(' Lit::Hash   @.hash ');
-node(' Lit::Pair   $.key $.value ');
+node(' Lit_Seq    @.seq ');
+node(' Lit_Array  @.array     ');
+node(' Lit_Hash   @.hash ');
+node(' Lit_Pair   $.key $.value ');
 
 # see also S06, Runtime::Perl6::Signature.pm, Grammar::Signature.pm
 #    has $.is_optional;  # !is_required
 #    # has $.is_longname;
-node(' Lit::SigArgument  $.key $.value $.type $.has_default $.is_named_only $.is_optional $.is_slurpy $.is_multidimensional $.is_rw $.is_copy ');
+node(' Lit_SigArgument  $.key $.value $.type $.has_default $.is_named_only $.is_optional $.is_slurpy $.is_multidimensional $.is_rw $.is_copy ');
 
-node(' Lit::NamedArgument  $.key $.value ');
+node(' Lit_NamedArgument  $.key $.value ');
 
 #     has %.pad         #  is Mapping of Type; # All my/state/parameter variables
 #     has %.state       #  is Mapping of Exp;  # State initializers, run upon first entry 
 #     has $.sig         #  is Sig              # Signature
 #     has @.body        #  is Seq of Exp;      # Code body 
-#     has $.CATCH       #  is Lit::Code;       # Exception handler
+#     has $.catch       #  is Lit_Code;       # Exception handler
 #     #has @.parameters  #  is Seq of Exp;      # Signature
-node(' Lit::Code  %.pad %.state $.sig @.body $.CATCH ');
+node(' Lit_Code  %.pad %.state $.sig @.body $.catch ');
 
-node(' Lit::Object  $.class @.fields% ');
+node(' Lit_Object  $.clazz @.fields% ');
 
 node(' Var     $.sigil $.twigil $.name $.namespace ');
 node(' Bind    $.parameters $.arguments ');
@@ -48,8 +48,8 @@ node(' While   $.cond @.body ');
 node(' Decl    $.decl $.type@ $.var@ ');
 node(' Sig     $.invocant $.positional@ ');
 
-node(' Lit::Capture  $.invocant $.array@ $.hash@ ');
-node(' Lit::Subset   $.name $.base_class $.block ');
+node(' Lit_Capture  $.invocant $.array@ $.hash@ ');
+node(' Lit_Subset   $.name $.base_class $.block ');
 
 #    #has $.sig
 node(' Method  $.name $.block ');
@@ -64,7 +64,7 @@ node(' P5Token  $.regex ');
 node(' Token  $.name $.regex $.sym ');
 
 node(' Do     @.block ');
-node(' BEGIN  @.block ');
+node(' Begin  @.block ');
 
 node(' Use    $.mod $.perl5 ');
 
@@ -73,22 +73,22 @@ node(' Use    $.mod $.perl5 ');
 
 
 node(' Rule  ');
-node(' Rule::Quantifier  $.term $.quant $.greedy $.ws1 $.ws2 $.ws3 ');
-node(' Rule::Or  @.or$ ');
-node(' Rule::Concat  @.concat$ ');
-node(' Rule::Subrule  $.metasyntax $.ident $.capture_to_array ');
-node(' Rule::SubruleNoCapture  $.metasyntax ');
-node(' Rule::Var  $.sigil $.twigil $.name ');
-node(' Rule::Constant  $.constant ');
-node(' Rule::Dot  ');
-node(' Rule::SpecialChar  $.char ');
-node(' Rule::Block  $.closure ');
-node(' Rule::InterpolateVar  $.var ');
-node(' Rule::NamedCapture  $.rule $.ident $.capture_to_array ');
-node(' Rule::Before  $.rule $.assertion_modifier $.capture_to_array ');
-node(' Rule::After  $.rule $.assertion_modifier $.capture_to_array ');
-node(' Rule::NegateCharClass $.chars ');
-node(' Rule::CharClass $.chars ');
-node(' Rule::Capture  $.rule $.position $.capture_to_array ');
+node(' Rule_Quantifier  $.term $.quant $.greedy $.ws1 $.ws2 $.ws3 ');
+node(' Rule_Or  @.terms$ ');
+node(' Rule_Concat  @.concat$ ');
+node(' Rule_Subrule  $.metasyntax $.ident $.capture_to_array ');
+node(' Rule_SubruleNoCapture  $.metasyntax ');
+node(' Rule_Var  $.sigil $.twigil $.name ');
+node(' Rule_Constant  $.constant ');
+node(' Rule_Dot  ');
+node(' Rule_SpecialChar  $.char ');
+node(' Rule_Block  $.closure ');
+node(' Rule_InterpolateVar  $.var ');
+node(' Rule_NamedCapture  $.rule $.ident $.capture_to_array ');
+node(' Rule_Before  $.rule $.assertion_modifier $.capture_to_array ');
+node(' Rule_After  $.rule $.assertion_modifier $.capture_to_array ');
+node(' Rule_NegateCharClass $.chars ');
+node(' Rule_CharClass $.chars ');
+node(' Rule_Capture  $.rule $.position $.capture_to_array ');
 
 
