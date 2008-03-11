@@ -9,3 +9,10 @@ statement_block___statementlist | Do #XXX Perhaps not the right node?
 statementlist___statement | pass # It's an array.
 top___assoc__expect__match__name__parsed__precclose__precedence__syncat | ignore
 value___number | pass
+
+EXPR___expr | pass
+expr___noun__type | pass0
+ident___text | Var
+noun___subcall | pass
+semilist___EXPR | pass
+subcall___ident__semilist | Apply

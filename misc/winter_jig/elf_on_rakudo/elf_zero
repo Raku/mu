@@ -153,7 +153,7 @@ class BuildIR
   def load_data_file
     @tag_map = {}
     lines = File.open(ast_data_file,'r'){|f| f.lines.to_a }
-    lines = lines.select{|line| not line =~ /^\s*\#/ }
+    lines = lines.select{|line| not line =~ /^\s*\#/ and not line =~ /^\s*$/ }
     lines.each{|line|
       line.sub!(/#.*$/,'')
       line =~ /^(\w+)\s+\|\s*(\S*)\s*$/ or raise "Broken line in #{ast_data_file}:\n#{line}"
@@ -611,17 +611,23 @@ module BadIR
   end
 
 # Constructors
+def self.Apply_from__ident__semilist(i,sl); Apply.new(i,sl) end
 def self.CompUnit_from__statement_block(b); CompUnit.new(nil,nil,nil,nil,nil,b) end
 def self.Do_from__statementlist(sl); Do.new(sl) end
 def self.Val_Int_from__text(s); Val_Int.new(s) end
+def self.Var_from__text(s); Var.new(nil,nil,s,nil) end
 end
 class EmitSimpleP5
   def emit(ir)
     ir.emit(self)
   end
+  def emit_Apply(n); n.code.emit(self)+'('+n.arguments.map{|e|e.emit(self)}.join(',')+')' end
   def emit_CompUnit(n); n.body.emit(self) end
   def emit_Do(n); n.block.map{|statement| statement.emit(self)+";\n"}.join("") end
   def emit_Val_Int(n); n.int end
+  def emit_Var(n)
+    (n.sigil || '')+n.name
+  end
   def method_missing(m,*a,&b)
     STDERR.print "# WARNING: Can't #{m}: FAKING IT.\n"
     '(fake())'
