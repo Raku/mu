@@ -1,0 +1,38 @@
+#!/usr/bin/perl
+use warnings;use strict;
+while(defined($_ = <>) and $_ !~ /^%%\s*\n/) {
+    print $_;
+}
+my ($method,%methods,$prefix);
+while(defined($_ = <>) and $_ !~ /^%%\s*\n/) {
+    if (/^\%method\s+(\w+)\s*\n/) {
+        $method = $1;
+    } elsif (/^\%prefix\s+(\w+)\s*\n/) {
+        $prefix = $1;
+    } elsif ($method) {
+        $methods{$method} .= $_;
+    } elsif (/^\s*$/) {
+    } else {
+        die "code outside method body at line $.: $_\n";
+    }
+}
+print <<END;
+static SMOP__Object* ${prefix}_message(SMOP__Object* interpreter,
+                                             SMOP__ResponderInterface* responder,
+                                             SMOP__Object* identifier,
+                                             SMOP__Object* capture) {
+END
+while (my ($method,$body) = each %methods) {
+    print "if (identifier == SMOP__ID__$method) {\n",$body,"} else ";
+}
+print <<'END';
+ {
+    fprintf(stderr,"Unknown identifier in lowlevel method object invocation.\n");
+    SMOP_RELEASE(interpreter,capture);
+  }
+  return SMOP__NATIVE__bool_false;
+}
+END
+while(defined($_ = <>) and $_ !~ /^%%\s*\n/ ) {
+    print $_;
+}
