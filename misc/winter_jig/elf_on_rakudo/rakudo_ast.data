@@ -1,6 +1,6 @@
 expr___expr  | pass
 expr___noun__top__type | pass0
-integer___text  | Val_Int
+integer___empty  | Val_Int
 noun___value | pass
 number___integer | pass
 parse___statement_block | CompUnit
@@ -12,7 +12,20 @@ value___number | pass
 
 EXPR___expr | pass
 expr___noun__type | pass0
-ident___text | Var
+ident___empty | Var
 noun___subcall | pass
 semilist___EXPR | pass
 subcall___ident__semilist | Apply
+
+block___statement_block | pass
+name___ident | Name
+noun___package_declarator | pass
+package_declarator___block__name__sym | PackageDeclarator
+statementlist___empty | []
+sym___empty | pass
+
+method_def___block__ident__multisig | unprocessed # Handled by routine_declarator
+multisig___signature | pass
+noun___routine_declarator | pass
+routine_declarator___method_def__sym | VirtualRoutineDeclarator
+signature___empty | :none

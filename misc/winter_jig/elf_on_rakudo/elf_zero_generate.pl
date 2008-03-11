@@ -158,7 +158,7 @@ class Scrape
       end
       eat(/\}/)
     else
-      o['text']=str
+      o['empty']=str
     end
     o
   end
@@ -240,6 +240,15 @@ class BuildIR
         ret = ir_from(tree[fields[0]])
       elsif act == 'pass0'
         ret = ir_from(tree[fields[0]])
+      elsif act == 'unimplemented'
+        raise "Unimplemented ast tag: #{tag}\n"
+      elsif act == 'unprocessed'
+        ret = {}
+        tree.each{|k,v| ret[k] = ir_from(v) }
+      elsif act =~ /^:(\w+)$/
+        ret = $1.to_sym
+      elsif act == '[]'
+        ret = []
       else
         method = "#{act}_from__#{fields.join('__')}".to_sym
         down = tree.values_at(*fields)
@@ -299,8 +308,16 @@ $nodes
 def self.Apply_from__ident__semilist(i,sl); Apply.new(i,sl) end
 def self.CompUnit_from__statement_block(b); CompUnit.new(nil,nil,nil,nil,nil,b) end
 def self.Do_from__statementlist(sl); Do.new(sl) end
-def self.Val_Int_from__text(s); Val_Int.new(s) end
-def self.Var_from__text(s); Var.new(nil,nil,s,nil) end
+def self.Name_from__ident(i); Name.new(i) end
+def self.PackageDeclarator_from__block__name__sym(b,n,k); PackageDeclarator.new(k,n,b) end
+def self.Val_Int_from__empty(s); Val_Int.new(s) end
+def self.Var_from__empty(s); Var.new(nil,nil,s,nil) end
+def self.VirtualRoutineDeclarator_from__method_def__sym(m,k)
+  if k == 'method'
+    Method.new(Name_from__ident(m['ident']),m['multisig'],m['block'])
+  else raise "Routine type is unimplemented: #{k}\n"
+  end
+end
 end
 END
 }
@@ -314,6 +331,13 @@ class EmitSimpleP5
   def emit_Apply(n); n.code.emit(self)+'('+n.arguments.map{|e|e.emit(self)}.join(',')+')' end
   def emit_CompUnit(n); n.body.emit(self) end
   def emit_Do(n); n.block.map{|statement| statement.emit(self)+";\n"}.join("") end
+  def emit_Method(n)
+    ('sub '+n.name.emit(self)+" {\n"+
+     n.block.emit(self)+
+     "}\n")
+  end
+  def emit_Name(n); n.ident.map{|v| v.emit(self)}.join('::') end
+  def emit_PackageDeclarator(n); '{package '+n.name.emit(self)+";\n"+n.block.emit(self)+"}\n" end
   def emit_Val_Int(n); n.int end
   def emit_Var(n)
     (n.sigil || '')+n.name

@@ -1,5 +1,14 @@
 # Forked from misc/winter_jig/kp6_ast/ r20103.
 # Which was created from v6/v6-KindaPerl6/src/KindaPerl6/Ast.pm r19980.
+# A great deal here is historical artifact which is being ignored.
+# This should all be tossed and replaced at some point, perhaps soon.
+
+# Here are some nodes added after the kp6 ast fork.
+
+node(' PackageDeclarator $.kind $.name $.block ');
+node(' Name $.ident ');
+
+# Below is the kp6 stuff.
 
 node(' CompUnit    $.unit_type $.name @.traits %.attributes %.methods @.body ');
 
@@ -17,8 +26,6 @@ node(' Lit_Hash   @.hash ');
 node(' Lit_Pair   $.key $.value ');
 
 # see also S06, Runtime::Perl6::Signature.pm, Grammar::Signature.pm
-#    has $.is_optional;  # !is_required
-#    # has $.is_longname;
 node(' Lit_SigArgument  $.key $.value $.type $.has_default $.is_named_only $.is_optional $.is_slurpy $.is_multidimensional $.is_rw $.is_copy ');
 
 node(' Lit_NamedArgument  $.key $.value ');
@@ -38,7 +45,6 @@ node(' Bind    $.parameters $.arguments ');
 node(' Assign  $.parameters $.arguments ');
 node(' Proto   $.name ');
 
-#    #has $.hyper
 node(' Call    $.invocant $.hyper $.method @.arguments ');
 node(' Apply   $.code @.arguments ');
 
@@ -51,11 +57,10 @@ node(' Sig     $.invocant $.positional@ ');
 node(' Lit_Capture  $.invocant $.array@ $.hash@ ');
 node(' Lit_Subset   $.name $.base_class $.block ');
 
-#    #has $.sig
-node(' Method  $.name $.block ');
-node(' Sub     $.name @.block$ ');
-node(' Macro   $.name @.block$ ');
-node(' Coro    $.name @.block$ ');
+node(' Method  $.name $.sig $.block ');
+node(' Sub     $.name $.sig @.block$ ');
+node(' Macro   $.name $.sig @.block$ ');
+node(' Coro    $.name $.sig @.block$ ');
 
 node(' P5Token  $.regex ');
 
