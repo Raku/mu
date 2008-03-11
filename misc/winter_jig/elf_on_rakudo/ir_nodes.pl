@@ -1,5 +1,5 @@
-# Access to kp6 ast definition file.
-package KP6_AST_Def;
+# Access to ir_nodes definition file.
+package IR_Zero_Def;
 use strict;
 use warnings;
 
@@ -33,12 +33,12 @@ sub def_node {
     my($node_def)=@_;
     $node_def =~ s/^\s+//; $node_def =~ s/\s+$//;
     my($name,@field_defs) = split(/\s+/,$node_def);
-    my @fields = map{KP6_AST_Def::NodeField->new($_)} @field_defs;
-    my $node = KP6_AST_Def::Node->new($name,\@fields);
+    my @fields = map{IR_Zero_Def::NodeField->new($_)} @field_defs;
+    my $node = IR_Zero_Def::Node->new($name,\@fields);
     push(@nodes,$node);
 }
 
-{ package KP6_AST_Def::NodeField;
+{ package IR_Zero_Def::NodeField;
     sub new {
         my($cls,$def)=@_;
 	# Some fields have different types in has() than in method attribs.
@@ -63,7 +63,7 @@ sub def_node {
     sub attrib_name { $_[0]{attrib_name} }
 }
 
-{ package KP6_AST_Def::Node;
+{ package IR_Zero_Def::Node;
     sub new {
 	my($cls,$name,$fields)=@_;
 	my $self = { name => $name, fields => $fields };

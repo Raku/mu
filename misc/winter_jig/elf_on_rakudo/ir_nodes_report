@@ -1,13 +1,13 @@
 #!/usr/bin/perl
-# Update kp6_ast.info directory.
+# Update the ir_nodes_report.output directory.
 use strict;
 use warnings;
 
-require 'kp6_ast_def.pl';
-our @nodes = KP6_AST_Def::nodes();
+require 'ir_nodes.pl';
+our @nodes = IR_Zero_Def::nodes();
 
-my $dir = "kp6_ast_def.info";
-die "Directory ~/$dir required" if !-d $dir;
+my $dir = "ir_nodes_report.output";
+die "You need to create a directory $dir for the output.\n" if !-d $dir;
 
 sub node_names {map{$_->name} @nodes;}
 sub field_names {map{map{$_->name} $_->fields} @nodes;}

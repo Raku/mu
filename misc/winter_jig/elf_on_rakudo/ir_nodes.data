@@ -1,5 +1,5 @@
-# Representation of KindaPerl6/Ast.pm
-# Created from v6/v6-KindaPerl6/src/KindaPerl6/Ast.pm r19980.
+# Forked from misc/winter_jig/kp6_ast/ r20103.
+# Which was created from v6/v6-KindaPerl6/src/KindaPerl6/Ast.pm r19980.
 
 node(' CompUnit    $.unit_type $.name @.traits %.attributes %.methods @.body ');
 
