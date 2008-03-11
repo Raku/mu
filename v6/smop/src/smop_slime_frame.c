@@ -420,6 +420,11 @@ static SMOP__Object* frame_message(SMOP__Object* interpreter,
 
       SMOP__Object* res = SMOP__NATIVE__capture_create(interpreter,result_invocant, result_positional_arr, result_named_arr);
 
+      free(nodes_named_arr);
+      free(nodes_positional_arr);
+      free(result_named_arr);
+      free(result_positional_arr);
+
       SMOP_RELEASE(interpreter,
                    SMOP_DISPATCH(interpreter,SMOP_RI(targetnode),SMOP__ID__capture,
                                  SMOP__NATIVE__capture_create(interpreter,

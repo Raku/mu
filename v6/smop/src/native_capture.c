@@ -407,5 +407,7 @@ SMOP__Object*   SMOP__NATIVE__capture_delegate(SMOP__Object* interpreter,
   }
 
   SMOP_RELEASE(interpreter,original_capture);
-  return SMOP__NATIVE__capture_create(interpreter,invocant,pos,nam);
+  SMOP__Object* ret = SMOP__NATIVE__capture_create(interpreter,invocant,pos,nam);
+  free(pos); free(nam);
+  return ret;
 }
