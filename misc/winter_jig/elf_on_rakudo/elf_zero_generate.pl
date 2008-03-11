@@ -1,5 +1,6 @@
-#!/usr/bin/env ruby
-# Usage: --help
+#!/usr/bin/perl -w
+# This script writes the elf_zero ruby code.
+# It may also run that freshly generated code.
 
 # Issues
 #  node scraper should perhaps note field order
@@ -9,9 +10,42 @@
 # Notes
 #  some of the code is a bit weird because it's already being tuned for later
 #    translation into p6.  though also because it's a crufty first fast draft.
+use strict;
+use warnings;
+
+main();
+
+sub main {
+    my $output_file = 'elf_zero';
+    my $code = file_code();
+    open(F,">$output_file") or die $!;
+    print F $code; close(F);
+    if(@ARGV) {
+      exec("./$output_file",@ARGV)
+    }
+    exit();
+}
+
+sub file_code {
+    (header().
+     scraper_builder().
+     ir_nodes().
+     emit_p5().
+     program()
+    );
+}
+
+sub header { <<'END'; }
+#!/usr/bin/env ruby
+# WARNING - this file is mechanically generated.  Your changes will be overwritten.
+# Usage: --help
 
 require 'strscan'
 require 'tempfile'
+
+END
+
+sub scraper_builder { <<'END'; }
 
 class Scrape
   attr_accessor :scanner,:string
@@ -178,27 +212,43 @@ class BuildIR
   end
 end
 
-module BadIR
+END
+
+sub ir_nodes {
+    my $base = <<'END';
   class Base
   end
   class CompUnit < Base
   end
+END
+    my $nodes = "";
+    <<"END";
+module BadIR
+$base
+$nodes
 end
+END
+}
 
+sub emit_p5 {
+    <<'END';
 class EmitSimpleP5
   def emit(*a)
     :unimplemented
   end
 end
+END
+}
 
-
+sub program { <<'END'; }
+    
 class Program
   def print_usage_and_exit
-    STDERR.print <<'END'; exit(2)
+    STDERR.print <<'end'; exit(2)
 Usage: OPTIONS [ P6_FILE | -e P6_CODE ]
 
 OPTIONS are as yet undefined.
-END
+end
   end
   def main(argv)
     p6_code = nil
@@ -212,7 +262,7 @@ END
     else
       print_usage_and_exit
     end
-    build = BuildIR.new('ast.data')
+    build = BuildIR.new('rakudo_ast.data')
     dump = parse(nil,p6_code)
     print dump
     tree = Scrape.new.scrape(dump)
@@ -238,3 +288,5 @@ END
 end
 
 Program.new.main(ARGV)
+END
+
