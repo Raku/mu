@@ -8,13 +8,15 @@ int main() {
   
   printf("1..10\n");
 
-  SMOP__Object* scalar1 = SMOP__S1P__Scalar_create(SMOP__NATIVE__int_create(1));
+  SMOP__Object* int1 = SMOP__NATIVE__int_create(1);
+  SMOP__Object* scalar1 = SMOP__S1P__Scalar_create(int1);
   if (!scalar1) printf("not ");
-  printf("ok 1 - scalar1 created.\n");
+  printf("ok 1 - scalar1 created (%p => %p).\n",scalar1,int1);
 
-  SMOP__Object* scalar2 = SMOP__S1P__Scalar_create(SMOP__NATIVE__int_create(2));
+  SMOP__Object* int2 = SMOP__NATIVE__int_create(2);
+  SMOP__Object* scalar2 = SMOP__S1P__Scalar_create(int2);
   if (!scalar2) printf("not ");
-  printf("ok 2 - scalar2 created.\n");
+  printf("ok 2 - scalar2 created (%p => %p).\n",scalar2,int2);
 
   SMOP__Object* interpreter = SMOP_DISPATCH(SMOP__INTPTR__InterpreterInstance, SMOP_RI(SMOP__INTPTR__InterpreterInstance),
                                             SMOP__ID__new, 
@@ -23,18 +25,17 @@ int main() {
   SMOP__Object* frame;
 
   $frame = q:sm0p {
-    ;
-    $scalar2.SMOP__ID__STORE(1);
-    $scalar1.SMOP__ID__STORE(2);
+    $scalar2;
+    $scalar1;
+    $scalar1.SMOP__ID__FETCH();
+    $scalar2.SMOP__ID__FETCH();
+    SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(4,(2),(),2));
+    SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(4,(2),(),2));
+    $scalar1.SMOP__ID__STORE();
+    $scalar2.SMOP__ID__STORE();
   };
 
 
-  //  $scalar1;
-  //  $scalar2;
-  //  $scalar1.SMOP__ID__FETCH();
-  //  $scalar2.SMOP__ID__FETCH();
-  //  SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(4,(2),(),2));
-  //  SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(4,(2),(),2));
 
   if (!frame) printf("not ");
   printf("ok 3 - frame created.\n");

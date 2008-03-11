@@ -168,7 +168,7 @@ grammar sm0p is KindaPerl6::Grammar {
     };
 
     token nativeint {
-        <digitsP5> { make 'SMOP__NATIVE__int_create(' ~ $/ ~ ')' };
+        <digitsP5> { make 'SMOP__NATIVE__int_create(' ~ $/ ~ ')' }
     };
 
     token nativeint_list {
