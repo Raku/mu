@@ -6,6 +6,8 @@
 # Here are some nodes added after the kp6 ast fork.
 
 node(' PackageDeclarator $.kind $.name $.block ');
+node(' Block     $.statements ');
+
 #node(' Name $.ident ');
 
 # Below is the kp6 stuff.

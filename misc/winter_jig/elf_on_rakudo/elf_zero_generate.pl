@@ -3,7 +3,6 @@
 # It may also run that freshly generated code.
 
 # Issues
-#  using Do for statementlist.  Which is perhaps not right?  Is there a statementlist node?
 #  distinction between dump's Grammar nodes and nodes which are explicity Hash is lost.
 #   what were the Hash's again?
 #  should avoid using class methods, to simplify p6.
@@ -101,9 +100,9 @@ class Scrape
     end
   end
   def scrape_rest_of_line
-    eat(/[^\n]+?(?=,?\n)/); :ignored
+    eat(/[^\n]+?(?=,?\n)/); :ignoredx
   end
-  def scrape_int; eval eat(/\d+/) end
+  def scrape_int; eat(/\d+/) end
   def scrape_string
     p = @scanner.pos
     eat(/\"/); eat(/([^\\"]|\\.)*/); eat(/\"/)
@@ -118,7 +117,7 @@ class Scrape
       s =~ /^\"(\w+)/ or raise "bug"
       k = $1
       v = scrape_thing
-      h[k]=v
+      h[k]=v if v != :ignoredx
       eat(/,?\n/)
       eat(/ */) == indentation or scan(/(?=\})/) or raise "assert: maybe a bug #{@scanner.pos}"
     end
@@ -152,10 +151,13 @@ class Scrape
         s =~ /^<(\w+)> => |\[(\d+)\] => / or raise "bug"
         k = $1 || $2
         v = scrape_thing
-        o[k]=v if v != :ignored
+        o[k]=v if v != :ignoredx
         eat(/\n/)
         eat(/ */) == indentation or scan(/(?=\})/) or raise "assert: maybe a bug #{@scanner.pos}"
       end
+      #KLUDGE - Include a bit of str, because otherwise the parse tree doesn't distinguish
+      # between circumfix:() and :[] . :(
+      o['op'] = str.slice(0,1)+str.slice(-1,1) if o.key? 'circumfix'
       eat(/\}/)
     else
       o['empty']=str
@@ -320,21 +322,28 @@ module BadIR
 $base
 $nodes
 # Constructors
+def self.Apply_from__0__1__top__type(z,o,top,typ); Apply.new(typ,[z,o]) end
 def self.Apply_from__ident__semilist(i,sl); Apply.new(i,sl) end
+def self.Apply_from__circumfix__op(c,op); Apply.new('circumfix:'+op,c['statementlist']) end
+def self.Block_from__statementlist(sl); Block.new(sl) end
 def self.CompUnit_from__statement_block(b); CompUnit.new(nil,nil,nil,nil,nil,b) end
 def self.Decl_from__declarator__scoped(d,s); Decl.new(d,nil,s) end
-def self.Do_from__statementlist(sl); Do.new(sl) end
 #def self.Name_from__ident(i); Name.new(i) end
 def self.PackageDeclarator_from__block__name__sym(b,n,k); PackageDeclarator.new(k,n[0],b) end
 def self.Val_Int_from__empty(s); Val_Int.new(s) end
 def self.Var_from__empty(s); Var.new(nil,nil,s,nil) end
 def self.Var_from__name__sigil__twigil(n,s,t); Var.new(s,t[0],n[0],nil) end
-def self.Var_from__name__sigil(n,s); Var.new(s,nil,n,nil) end
-def self.VirtualRoutineDeclarator_from__method_def__sym(m,k)
+def self.Var_from__name__sigil(n,s); Var.new(s,nil,n[0],nil) end
+def self.VirtualRoutineDeclarator_from__method_def__sym(r,k)
   if k == 'method'
-    Method.new(m['ident'][0],m['multisig'],m['block'])
+    Method.new(r['ident'][0],r['multisig'],r['block'])
+  elsif k == 'sub'
+    Sub.new(r['ident'][0],r['multisig'],r['block'])
   else raise "Routine type is unimplemented: #{k}\n"
   end
+end
+def self.VirtualRoutineDeclarator_from__routine_def__sym(r,k)
+  VirtualRoutineDeclarator_from__method_def__sym(r,k)
 end
 end
 END
@@ -350,16 +359,39 @@ class EmitSimpleP5
       ir.emit(self)
     end
   end
-  def emit_Apply(n); n.code.emit(self)+'('+n.arguments.map{|e|e.emit(self)}.join(',')+')' end
+  def emit_Apply(n)
+    args = n.arguments.map{|e|e.emit(self)}
+    if n.code.is_a? String
+      if n.code =~ /^infix:(.+)/
+        op = $1
+        case op
+        when '~'; args.join(' . ')
+        else; args.join(' '+op+' ')
+        end
+      elsif n.code =~ /^circumfix:(.+)/
+        op = $1
+        case op
+	when 'a when clause is needed :(';
+        else; op.slice(0,1)+args.join(',')+op.slice(-1,1)
+        end
+      else
+        n.code+'('+args.join(',')+')'
+      end
+    else
+      n.code.emit(self)+'('+args.join(',')+')'
+    end
+  end
+  def emit_Block(n); n.statements.map{|statement| statement.emit(self)+";\n"}.join("") end
   def emit_CompUnit(n); n.body.emit(self) end
   def emit_Decl(n)
     if n.decl == 'has'
       "has '#{n.var.name}' => (is => 'rw');\n"
+    elsif n.decl == 'my' || n.decl == 'our'
+      n.decl+' $'+n.var.name
     else
       raise "Unimplemented: decl: #{n.decl}\n"
     end
   end
-  def emit_Do(n); n.block.map{|statement| statement.emit(self)+";\n"}.join("") end
   def emit_Method(n)
     ('sub '+n.name+" {\n"+
      '  my $self = shift;'+"\n"+
@@ -368,6 +400,11 @@ class EmitSimpleP5
   end
   #def emit_Name(n); n.ident.map{|v| v.emit(self)}.join('::') end
   def emit_PackageDeclarator(n); '{package '+n.name+";\nuse Moose;\n"+n.block.emit(self)+"}\n" end
+  def emit_Sub(n)
+    ('sub '+n.name+" {\n"+
+     n.block.emit(self)+
+     "}\n")
+  end
   def emit_Val_Int(n); n.int end
   def emit_Var(n)
     if n.twigil == '.'
